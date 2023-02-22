@@ -33,6 +33,11 @@ type PetByType record {
 
 type Pet PetByAge|PetByType;
 
+type Movie record {
+    string title;
+    int[]|float[] year;
+};
+
 configurable decimal|string decimalVar = ?;
 configurable float|int floatVar = ?;
 configurable float|decimal|string unionVar1 = ?;
@@ -53,6 +58,83 @@ configurable int[]|[float, int] arrTupleUnionVal = ?;
 configurable int[]|[decimal, int] arrTupleUnionVal2 = [1.2d, 0];
 configurable map<int[]|decimal[]> mapUnionVal = {a: [1.1, 2], b: [2.1, 3, 4]};
 configurable float|int|[string, int] unionVal1 = ?;
+
+configurable Movie[]|table<map<anydata>> movies = ?;
+configurable Movie[]|table<map<anydata>> films = table [
+    {
+        title: "Inception",
+        year: [2010.0d, 2011.0d]
+    },
+    {
+        title: "Alice in wonderland",
+        year: [2010.0d, 2016.0d]
+    },
+    {
+        title: "Coco",
+        year: [2017.0d, 2018.0d]
+    }
+];
+configurable Movie[]|table<map<anydata>> stories = [
+    {
+        title: "Inception",
+        year: [2010.0, 2011.0]
+    },
+    {
+        title: "Alice in wonderland",
+        year: [2010.0, 2016.0]
+    },
+    {
+        title: "Coco",
+        year: [2017.0, 2018.0]
+    }
+];
+configurable table<map<anydata>>|Movie[] dramas = table [
+    {
+        title: "Inception",
+        year: [2010.0d, 2011.0d]
+    },
+    {
+        title: "Alice in wonderland",
+        year: [2010.0d, 2016.0d]
+    },
+    {
+        title: "Coco",
+        year: [2017.0d, 2018.0d]
+    }
+];
+configurable table<map<anydata>>|Movie[] scenarios = ?;
+configurable table<map<anydata>>|Movie[] events = ?;
+
+configurable map<string|int>[]|Movie[] cartoons = [
+    {
+        title: "Inception",
+        year: [2010.0, 2011.0]
+    },
+    {
+        title: "Alice in wonderland",
+        year: [2010.0, 2016.0]
+    },
+    {
+        title: "Coco",
+        year: [2017.0, 2018.0]
+    }
+];
+configurable map<string|int[]>[]|Movie[] videos = ?;
+configurable table<map<anydata>>|map<json>[] anime = table [
+    {
+        title: "Inception",
+        year: [2010.0d, 2011.0d]
+    },
+    {
+        title: "Alice in wonderland",
+        year: [2010.0d, 2016.0d]
+    },
+    {
+        title: "Coco",
+        year: [2017.0d, 2018.0d]
+    }
+];
+configurable table<map<anydata>>|map<json>[] blogs = ?;
 
 public function test_ambiguous_union_type() {
     test:assertEquals(decimalVar, <decimal>34.56);
@@ -96,4 +178,111 @@ public function test_ambiguous_union_type() {
     test:assertEquals(unionVal1 is float, true);
     test:assertEquals(unionVal1 is int, false);
     test:assertEquals(unionVal1 is [string, int], false);
+
+    var ArrayValWithInt = [
+        {
+            title: "Inception",
+            year: [2010, 2011]
+        },
+        {
+            title: "Alice in wonderland",
+            year: [2010, 2016]
+        },
+        {
+            title: "Coco",
+            year: [2017, 2018]
+        }
+    ];
+
+    var arrayValWithFloat = [
+        {
+            title: "Inception",
+            year: [2010.0, 2011.0]
+        },
+        {
+            title: "Alice in wonderland",
+            year: [2010.0, 2016.0]
+        },
+        {
+            title: "Coco",
+            year: [2017.0, 2018.0]
+        }
+    ];
+
+    var tableValWithDecimal = table [
+        {
+            title: "Inception",
+            year: [2010.0d, 2011.0d]
+        },
+        {
+            title: "Alice in wonderland",
+            year: [2010.0d, 2016.0d]
+        },
+        {
+            title: "Coco",
+            year: [2017.0d, 2018.0d]
+        }
+    ];
+
+    var tableValWithFloat = table [
+        {
+            title: "Inception",
+            year: [2010.0, 2011.0]
+        },
+        {
+            title: "Alice in wonderland",
+            year: [2010.0, 2016.0]
+        },
+        {
+            title: "Coco",
+            year: [2017.0, 2018.0]
+        }
+    ];
+
+    var tableValWithInt = table [
+        {
+            title: "Inception",
+            year: [2010, 2011]
+        },
+        {
+            title: "Alice in wonderland",
+            year: [2010, 2016]
+        },
+        {
+            title: "Coco",
+            year: [2017, 2018]
+        }
+    ];
+
+    test:assertEquals(movies, ArrayValWithInt);
+    test:assertEquals(movies is Movie[], true);
+    test:assertEquals(movies is table<map<anydata>>, false);
+    test:assertEquals(films, tableValWithDecimal);
+    test:assertEquals(films is Movie[], false);
+    test:assertEquals(films is table<map<anydata>>, true);
+    test:assertEquals(stories, arrayValWithFloat);
+    test:assertEquals(stories is Movie[], true);
+    test:assertEquals(stories is table<map<anydata>>, false);
+    test:assertEquals(dramas, tableValWithDecimal);
+    test:assertEquals(dramas is Movie[], false);
+    test:assertEquals(dramas is table<map<anydata>>, true);
+    test:assertEquals(scenarios, tableValWithFloat);
+    test:assertEquals(scenarios is Movie[], false);
+    test:assertEquals(scenarios is table<map<anydata>>, true);
+    test:assertEquals(events, tableValWithFloat);
+    test:assertEquals(events is Movie[], false);
+    test:assertEquals(events is table<map<anydata>>, true);
+
+    test:assertEquals(cartoons, arrayValWithFloat);
+    test:assertEquals(cartoons is map<string|int>[], false);
+    test:assertEquals(cartoons is Movie[], true);
+    test:assertEquals(videos, ArrayValWithInt);
+    test:assertEquals(videos is map<string|int[]>[], true);
+    test:assertEquals(videos is Movie[], true);
+    test:assertEquals(anime, tableValWithDecimal);
+    test:assertEquals(anime is table<map<anydata>>, true);
+    test:assertEquals(anime is map<json>[], false);
+    test:assertEquals(blogs, tableValWithInt);
+    test:assertEquals(blogs is table<map<anydata>>, true);
+    test:assertEquals(blogs is map<json>[], false);
 }
