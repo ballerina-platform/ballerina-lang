@@ -67,7 +67,7 @@ public class ObjectMock {
             if (objectValueType.getMethods().length == 0 &&
                     objectValueType.getFields().size() == 0 &&
                     (objectValueType instanceof BClientType &&
-                            ((BClientType)objectValueType).getResourceMethods().length == 0)) {
+                            ((BClientType) objectValueType).getResourceMethods().length == 0)) {
                 String detail = "mock object type '" + objectValueType.getName()
                         + "' should have at least one member function or field declared.";
                 throw ErrorCreator.createError(
