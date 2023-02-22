@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,28 +15,29 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.diagramutil.connector.models.connector.types;
+package org.ballerinalang.diagramutil.connector.models.connector;
 
-import com.google.gson.annotations.Expose;
-import org.ballerinalang.diagramutil.connector.models.connector.Type;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Object type model.
+ * TypeInfo model.
  */
-public class ObjectType extends Type {
-    @Expose
-    public List<Type> fields;
+public class VisitedType {
+    boolean isCompleted;
+    Type typeNode;
 
-    public ObjectType() {
-        this.typeName = "object";
-        this.fields = new ArrayList<>();
+    public Type getTypeNode() {
+        return typeNode;
     }
 
-    public ObjectType(List<Type> fields) {
-        this.typeName = "object";
-        this.fields = fields;
+    public void setTypeNode(Type typeNode) {
+        this.typeNode = typeNode;
+    }
+
+    public boolean isCompleted() {
+        return isCompleted;
+    }
+
+    public void setCompleted(boolean completed) {
+        isCompleted = completed;
     }
 }
