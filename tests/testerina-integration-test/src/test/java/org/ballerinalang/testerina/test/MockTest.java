@@ -144,6 +144,19 @@ public class MockTest extends BaseTestCase {
         Assert.assertEquals(moduleObj.get("coveragePercentage").toString(), "57.14");
     }
 
+    @Test
+    public void testFunctionMockingInMultipleModulesWithDependencies() throws BallerinaTestException {
+        String msg1 = "function_mocking_with_dependencies.a_dependency\n\t\t[pass] test1\n\n\n\t\t" +
+                "1 passing\n\t\t0 failing\n\t\t0 skipped";
+        String msg2 = "function_mocking_with_dependencies.b_dependent\n\t\t[pass] test1\n\n\n\t\t" +
+                "1 passing\n\t\t0 failing\n\t\t0 skipped";
+        String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests-with-dependencies"});
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            Assert.fail("Test failed due to function mocking failure in test framework.\nOutput:\n" + output);
+        }
+    }
+
     @Test(dataProvider = "testNegativeCases")
     public void testObjectMocking_NegativeCases(String message, String test) throws BallerinaTestException {
         String[] args = mergeCoverageArgs(new String[]{"--tests", test});
