@@ -34,12 +34,13 @@ public class Client extends BClass {
             List<Function> methods, boolean isReadOnly, boolean isIsolated) {
         super(name, description, isDeprecated, fields, methods, isReadOnly, isIsolated);
         this.remoteMethods = getRemoteMethods();
+        this.resourceMethods = getResourceMethods();
         this.otherMethods = getOtherMethods(methods);
     }
 
     @Override
     public List<Function> getOtherMethods(List<Function> methods) {
-        return this.methods.stream()
+        return super.getOtherMethods(methods).stream()
                 .filter(function -> function.functionKind == FunctionKind.OTHER)
                 .collect(Collectors.toList());
     }
