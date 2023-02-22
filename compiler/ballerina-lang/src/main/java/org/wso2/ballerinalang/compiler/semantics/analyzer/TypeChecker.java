@@ -5140,8 +5140,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType lhsType = checkExpr(elvisExpr.lhsExpr, data);
         BType actualType = symTable.semanticError;
         if (lhsType != symTable.semanticError) {
-            if (lhsType.tag == TypeTags.UNION && lhsType.isNullable()) {
-                BUnionType unionType = (BUnionType) lhsType;
+            BType referencedType = Types.getReferredType(lhsType);
+            if (referencedType.tag == TypeTags.UNION && referencedType.isNullable()) {
+                BUnionType unionType = (BUnionType) referencedType;
                 LinkedHashSet<BType> memberTypes = unionType.getMemberTypes().stream()
                         .filter(type -> type.tag != TypeTags.NIL)
                         .collect(Collectors.toCollection(LinkedHashSet::new));
