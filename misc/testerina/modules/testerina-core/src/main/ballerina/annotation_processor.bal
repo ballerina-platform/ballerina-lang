@@ -61,7 +61,7 @@ function processConfigAnnotation(string name, function f) returns boolean {
         boolean enabled = config.enable && (filterGroups.length() == 0 ? true : hasGroup(config.groups, filterGroups))
             && (filterDisableGroups.length() == 0 ? true : !hasGroup(config.groups, filterDisableGroups)) && hasTest(name);
         if enabled {
-            config.groups.forEach(group => groupStatusRegistry.incrementTotalTest(group));
+            config.groups.forEach('group => groupStatusRegistry.incrementTotalTest('group));
         }
         testRegistry.addFunction(name = name, executableFunction = f, params = params, before = config.before,
             after = config.after, groups = config.groups, diagnostics = diagnostics, dependsOn = config.dependsOn,

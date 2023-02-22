@@ -51,6 +51,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
@@ -745,6 +747,31 @@ public class QueryTypeChecker extends TypeChecker {
                 dlog.error(((BLangOrderKey) orderKeyNode).expression.pos, DiagnosticErrorCode.ORDER_BY_NOT_SUPPORTED);
             }
         }
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause, TypeChecker.AnalyzerData data) {
+        groupByClause.env = data.commonAnalyzerData.queryEnvs.peek();
+        Set<String> nonGroupingKeys = new HashSet<>(data.queryVariables);
+        for (BLangGroupingKey groupingKey : groupByClause.groupingKeyList) {
+            String variable;
+            if (groupingKey.variableRef != null) {
+                checkExpr(groupingKey.variableRef, groupByClause.env, data);
+                variable = groupingKey.variableRef.variableName.value;
+            } else {
+                semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env,
+                        data.commonAnalyzerData);
+                variable = groupingKey.variableDef.var.name.value;
+                data.queryVariables.add(variable);
+            }
+            nonGroupingKeys.remove(variable);
+        }
+        groupByClause.nonGroupingKeys = nonGroupingKeys;
+    }
+
+    @Override
+    public void visit(BLangGroupingKey node, TypeChecker.AnalyzerData data) {
+
     }
 
     @Override
