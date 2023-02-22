@@ -2681,7 +2681,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         int memberVarsSize = varNode.memberVariables.size();
         BLangVariable restVariable = varNode.restVariable;
         int tupleTypesSize = tupleTypeNode.getMembers().size();
-        if (memberVarsSize > tupleTypesSize) {
+        if ((memberVarsSize > tupleTypesSize) ||
+                (tupleTypesSize == memberVarsSize && restVariable != null && tupleTypeNode.restType == null)) {
             return false;
         }
         return restVariable != null ||
