@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSequenceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -39,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSequenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
@@ -73,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -154,8 +157,10 @@ public class QueryTypeChecker extends TypeChecker {
         }
 
         commonAnalyzerData.queryFinalClauses.push(queryExpr.getSelectClause());
+        data.queryVariables = new HashSet<>();
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         clauses.forEach(clause -> clause.accept(this, data));
+        data.queryVariables.clear();
 
         BType actualType = resolveQueryType(commonAnalyzerData.queryEnvs.peek(),
                 ((BLangSelectClause) commonAnalyzerData.queryFinalClauses.peek()).expression,
@@ -214,8 +219,10 @@ public class QueryTypeChecker extends TypeChecker {
         }
         BLangDoClause doClause = queryAction.getDoClause();
         commonAnalyzerData.queryFinalClauses.push(doClause);
+        data.queryVariables = new HashSet<>();
         List<BLangNode> clauses = queryAction.getQueryClauses();
         clauses.forEach(clause -> clause.accept(this, data));
+        data.queryVariables.clear();
         List<BType> collectionTypes = getCollectionTypes(clauses);
         BType completionType = getCompletionType(collectionTypes, Types.QueryConstructType.ACTION, data);
         // Analyze foreach node's statements.
@@ -589,6 +596,9 @@ public class QueryTypeChecker extends TypeChecker {
         types.setInputClauseTypedBindingPatternType(fromClause);
         handleInputClauseVariables(fromClause, fromEnv);
         commonAnalyzerData.breakToParallelQueryEnv = prevBreakToParallelEnv;
+        for (Name variable : fromEnv.scope.entries.keySet()) {
+            data.queryVariables.add(variable.value);
+        }
     }
 
     private void handleInputClauseVariables(BLangInputClause bLangInputClause, SymbolEnv blockEnv) {
@@ -676,6 +686,9 @@ public class QueryTypeChecker extends TypeChecker {
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
             semanticAnalyzer.analyzeNode((BLangNode) letVariable.definitionNode, letEnv, commonAnalyzerData);
         }
+        for (Name variable : letEnv.scope.entries.keySet()) {
+            data.queryVariables.add(variable.value);
+        }
     }
 
     @Override
@@ -751,7 +764,9 @@ public class QueryTypeChecker extends TypeChecker {
 
     @Override
     public void visit(BLangGroupByClause groupByClause, TypeChecker.AnalyzerData data) {
-        groupByClause.env = data.commonAnalyzerData.queryEnvs.peek();
+        SymbolEnv groupByEnv = SymbolEnv.createTypeNarrowedEnv(groupByClause, data.commonAnalyzerData.queryEnvs.pop());
+        groupByClause.env = groupByEnv;
+        data.commonAnalyzerData.queryEnvs.push(groupByEnv);
         Set<String> nonGroupingKeys = new HashSet<>(data.queryVariables);
         for (BLangGroupingKey groupingKey : groupByClause.groupingKeyList) {
             String variable;
@@ -767,6 +782,13 @@ public class QueryTypeChecker extends TypeChecker {
             nonGroupingKeys.remove(variable);
         }
         groupByClause.nonGroupingKeys = nonGroupingKeys;
+        for (String var : nonGroupingKeys) {
+            Name name = new Name(var);
+            BSymbol originalSymbol = symResolver.lookupSymbolInMainSpace(groupByEnv, name);
+            BSequenceSymbol sequenceSymbol = new BSequenceSymbol(originalSymbol.flags, name, originalSymbol.pkgID,
+                    new BSequenceType(originalSymbol.getType()), originalSymbol.owner, originalSymbol.pos);
+            groupByEnv.scope.define(name, sequenceSymbol);
+        }
     }
 
     @Override
