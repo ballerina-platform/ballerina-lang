@@ -743,6 +743,20 @@ function testReadOnlyRecordWithMappingBindingPatternInVarDecl() {
     assertEquality(<ReadOnlyRecord> {x: [1, 2], y: "s1"}, b1);
 }
 
+function recordVariableWithAnonymousType() returns [string, boolean]|error {
+    record {|
+        string name;
+        boolean married;
+    |} {name, married} = check getPersonRecord().ensureType();
+    return [name, married];
+}
+
+function testRecordVariableWithAnonymousType() {
+    [string, boolean]|error [name, married] = recordVariableWithAnonymousType();
+    assertEquality("Jack", name);
+    assertTrue(married);
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 const ASSERTION_ERROR_REASON = "AssertionError";

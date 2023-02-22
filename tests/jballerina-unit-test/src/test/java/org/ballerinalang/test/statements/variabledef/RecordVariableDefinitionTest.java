@@ -430,6 +430,11 @@ public class RecordVariableDefinitionTest {
         BRunUtil.invoke(result, "testReadOnlyRecordWithMappingBindingPatternInVarDecl");
     }
 
+    @Test
+    public void testRecordVariableWithAnonymousType() {
+        BRunUtil.invoke(result, "testRecordVariableWithAnonymousType");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
