@@ -1,0 +1,55 @@
+Compiling source
+	intg_tests/function_mocking:0.0.0
+
+Running Tests with Coverage
+
+	function_mocking
+		[pass] callOriginal_Test1
+		[pass] callOriginal_Test2
+		[pass] callOriginal_Test3
+		[pass] call_Test1
+		[pass] call_Test2
+		[pass] call_Test6
+		[pass] call_Test7
+		[pass] call_Test8
+		[pass] call_Test9
+		[pass] mockErrorResponse
+		[pass] mockReplace_Test1
+		[pass] mockReplace_Test2
+		[pass] thenReturn_Test1
+		[pass] withArguments_Test1
+
+		[fail] call_Test3:
+
+		    Mock function 'invalidMockFunction' cannot be found
+			
+
+		[fail] call_Test4:
+
+		    Return type of function mockIntAdd3 does not match functionintAdd
+			
+
+		[fail] call_Test5:
+
+		    Parameter types of function mockIntAdd4 does not match functionintAdd
+			
+
+
+		14 passing
+		3 failing
+		0 skipped
+
+	function_mocking.mock2
+		[pass] test1
+		[pass] test2
+		[pass] test3
+
+
+		3 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	function-mocking-tests/target/report/test_results.json
+
+error: there are test failures
