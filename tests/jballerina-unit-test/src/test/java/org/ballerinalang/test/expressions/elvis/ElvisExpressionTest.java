@@ -226,6 +226,16 @@ public class ElvisExpressionTest {
         BRunUtil.invoke(compileResult, "testNestedElvisWithoutParenthesis");
     }
 
+    @Test
+    public void testElvisExprWithTypeRefType() {
+        BRunUtil.invoke(compileResult, "testElvisExprWithTypeRefType");
+    }
+
+    @Test
+    public void testElvisExprWithIntersectionTypes() {
+        BRunUtil.invoke(compileResult, "testElvisExprWithIntersectionTypes");
+    }
+
     @Test(description = "Negative test cases.")
     public void testElvisOperatorNegative() {
         int index = 0;
@@ -279,6 +289,10 @@ public class ElvisExpressionTest {
                 "operator '/' not defined for '(json|error|any[])' and 'int'", 121, 13);
         BAssertUtil.validateError(negativeResult, index++,
                 "operator '/' not defined for '(json|error|any[])' and 'int'", 127, 13);
+        BAssertUtil.validateError(negativeResult, index++, "operator '?:' cannot be applied to type " +
+                "'NonOptionalType'", 133, 15);
+        BAssertUtil.validateError(negativeResult, index++, "operator '?:' cannot be applied to type " +
+                "'(int[]|string)'", 135, 15);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 }
