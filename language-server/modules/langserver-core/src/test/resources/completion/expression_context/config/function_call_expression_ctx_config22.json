@@ -506,7 +506,7 @@
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "CP",
+      "sortText": "AP",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
@@ -522,7 +522,7 @@
       "label": "myJson",
       "kind": "Variable",
       "detail": "json",
-      "sortText": "AD",
+      "sortText": "CD",
       "insertText": "myJson",
       "insertTextFormat": "Snippet"
     },
@@ -536,7 +536,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "AE",
+      "sortText": "CE",
       "filterText": "testPositionalArgs",
       "insertText": "testPositionalArgs()",
       "insertTextFormat": "Snippet"
@@ -589,7 +589,7 @@
       "label": "decimal",
       "kind": "TypeParameter",
       "detail": "Decimal",
-      "sortText": "CP",
+      "sortText": "AP",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
@@ -605,7 +605,7 @@
       "label": "xml",
       "kind": "TypeParameter",
       "detail": "Xml",
-      "sortText": "CP",
+      "sortText": "AP",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
@@ -613,7 +613,7 @@
       "label": "boolean",
       "kind": "TypeParameter",
       "detail": "Boolean",
-      "sortText": "CP",
+      "sortText": "AP",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -629,7 +629,7 @@
       "label": "int",
       "kind": "TypeParameter",
       "detail": "Int",
-      "sortText": "CP",
+      "sortText": "AP",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -637,7 +637,7 @@
       "label": "float",
       "kind": "TypeParameter",
       "detail": "Float",
-      "sortText": "CP",
+      "sortText": "AP",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -653,7 +653,7 @@
       "label": "string",
       "kind": "TypeParameter",
       "detail": "String",
-      "sortText": "CP",
+      "sortText": "AP",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
@@ -685,7 +685,7 @@
       "label": "never",
       "kind": "TypeParameter",
       "detail": "Never",
-      "sortText": "CP",
+      "sortText": "AP",
       "insertText": "never",
       "insertTextFormat": "Snippet"
     },
@@ -693,7 +693,7 @@
       "label": "json",
       "kind": "TypeParameter",
       "detail": "Json",
-      "sortText": "CP",
+      "sortText": "AP",
       "insertText": "json",
       "insertTextFormat": "Snippet"
     },
@@ -701,7 +701,7 @@
       "label": "anydata",
       "kind": "TypeParameter",
       "detail": "Anydata",
-      "sortText": "CP",
+      "sortText": "AP",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
@@ -717,7 +717,7 @@
       "label": "byte",
       "kind": "TypeParameter",
       "detail": "Byte",
-      "sortText": "CP",
+      "sortText": "AP",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
     }
