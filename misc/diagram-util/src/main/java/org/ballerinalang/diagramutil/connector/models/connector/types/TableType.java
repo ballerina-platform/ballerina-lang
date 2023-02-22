@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -20,23 +20,26 @@ package org.ballerinalang.diagramutil.connector.models.connector.types;
 import com.google.gson.annotations.Expose;
 import org.ballerinalang.diagramutil.connector.models.connector.Type;
 
-import java.util.ArrayList;
 import java.util.List;
 
+
 /**
- * Object type model.
+ * Map type model.
  */
-public class ObjectType extends Type {
+public class TableType extends Type {
     @Expose
-    public List<Type> fields;
+    public Type rowType;
 
-    public ObjectType() {
-        this.typeName = "object";
-        this.fields = new ArrayList<>();
-    }
+    @Expose
+    public List<String> keys;
 
-    public ObjectType(List<Type> fields) {
-        this.typeName = "object";
-        this.fields = fields;
+    @Expose
+    public Type constraintType;
+
+    public TableType(Type rowType, List<String> keys, Type constraintType) {
+        this.typeName = "table";
+        this.keys = keys;
+        this.rowType = rowType;
+        this.constraintType = constraintType;
     }
 }

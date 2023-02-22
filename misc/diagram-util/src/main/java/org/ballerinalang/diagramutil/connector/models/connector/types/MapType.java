@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -20,23 +20,16 @@ package org.ballerinalang.diagramutil.connector.models.connector.types;
 import com.google.gson.annotations.Expose;
 import org.ballerinalang.diagramutil.connector.models.connector.Type;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Object type model.
+ * Map type model.
  */
-public class ObjectType extends Type {
+public class MapType extends Type {
     @Expose
-    public List<Type> fields;
+    public Type paramType;
 
-    public ObjectType() {
-        this.typeName = "object";
-        this.fields = new ArrayList<>();
-    }
-
-    public ObjectType(List<Type> fields) {
-        this.typeName = "object";
-        this.fields = fields;
+    public MapType(Type paramType) {
+        this.typeName = "map";
+        this.paramType = paramType;
     }
 }
