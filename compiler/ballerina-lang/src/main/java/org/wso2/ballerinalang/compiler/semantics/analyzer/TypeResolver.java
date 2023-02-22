@@ -149,16 +149,6 @@ public class TypeResolver {
         defineClassDef(classDefinition, pkgEnv);
         symEnter.defineDistinctClassAndObjectDefinitionIndividual(classDefinition);
 
-        // Resolve the class fields
-        for (BLangSimpleVariable field : classDefinition.fields) {
-            resolveTypeDesc(pkgEnv, modTable, null, 0, field.typeNode);
-        }
-
-        // Resolve the type reference
-        for (BLangType type : classDefinition.typeRefs) {
-            resolveTypeDesc(pkgEnv, modTable, null, 0, type);
-        }
-
         // Define the class fields
         defineField(classDefinition, modTable, pkgEnv);
         resolvedClassDef.add(classDefinition);
