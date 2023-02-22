@@ -17,11 +17,6 @@
  */
 package org.ballerinalang.testerina.test.utils;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Locale;
 
 
 /**
@@ -36,7 +31,7 @@ public class CommonUtils {
     public static String replaceVaryingString(String firstString, String endString, String content) {
         int firstPos = content.indexOf(firstString) + firstString.length();
         int lastPos = content.indexOf(endString, firstPos);
-        String modfiedContent = content.substring(0,firstPos) + "*****" + content.substring(lastPos);
+        String modfiedContent = content.substring(0, firstPos) + "*****" + content.substring(lastPos);
         return modfiedContent;
     }
 }

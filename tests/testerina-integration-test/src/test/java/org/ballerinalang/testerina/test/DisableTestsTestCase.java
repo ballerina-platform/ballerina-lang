@@ -52,7 +52,7 @@ public class DisableTestsTestCase extends BaseTestCase {
     public void testDisablingTestsWithDependsOn() throws BallerinaTestException, IOException {
         String errMsg = "error: Test [testFunction3] depends on function [testDisableFunction2], " +
                 "but it is either disabled or not included.";
-        String[] args = mergeCoverageArgs(new String[]{"disable-test.bal"});
+        String[] args = mergeCoverageArgs(new String[]{"disable-with-depends-on.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("DisableTestsTestCase-testDisablingTestsWithDependsOn.txt", output);

@@ -3,7 +3,6 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -38,7 +37,7 @@ public class SourcelessTestExecutionTests extends BaseTestCase {
 
     // Scenario : Modules only have tests and no sourcefiles. Default module doesnt have tests but has a source file
     @Test()
-    public void test_DefaultModuleSourceOnly_TestExecution() throws BallerinaTestException,IOException {
+    public void test_DefaultModuleSourceOnly_TestExecution() throws BallerinaTestException, IOException {
         String msg1 = "[pass] test3";
         String msg2 = "[pass] test4";
         String[] args = mergeCoverageArgs(new String[]{"default-module-source-only-test"});

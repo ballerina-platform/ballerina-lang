@@ -25,11 +25,11 @@ import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
+
 import java.io.IOException;
 import java.util.HashMap;
 
-import static org.testng.Assert.assertTrue;
+
 
 /**
  * Negative test cases for function mocking.

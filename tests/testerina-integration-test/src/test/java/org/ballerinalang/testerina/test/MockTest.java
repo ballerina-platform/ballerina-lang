@@ -137,7 +137,7 @@ public class MockTest extends BaseTestCase {
     }
 
     @Test(dataProvider = "testNegativeCases")
-    public void testObjectMocking_NegativeCases(String message, String test, String baseOutputFile ) throws
+    public void testObjectMocking_NegativeCases(String message, String test, String baseOutputFile) throws
             BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"--tests", test});
         String output =

@@ -50,11 +50,9 @@ public class AssertionUtils {
         if (isWindows) {
             String fileContent =  Files.readString(commandOutputsDir.resolve("windows").resolve(outputFileName));
             Assert.assertEquals(fileContent, output);
-//            Files.writeString(commandOutputsDir.resolve("windows").resolve(outputFileName), output);
         } else {
             String fileContent = Files.readString(commandOutputsDir.resolve("unix").resolve(outputFileName));
             Assert.assertEquals(fileContent, output);
-//            Files.writeString(commandOutputsDir.resolve("unix").resolve(outputFileName), output);
         }
     }
 }

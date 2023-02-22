@@ -203,7 +203,7 @@ public class DataProviderTest extends BaseTestCase {
     }
 
     @Test
-    public void testDataProviderSingleFailure() throws BallerinaTestException,IOException {
+    public void testDataProviderSingleFailure() throws BallerinaTestException, IOException {
         String msg1 = "5 passing";
         String msg2 = "1 failing";
         String msg3 = "0 skipped";

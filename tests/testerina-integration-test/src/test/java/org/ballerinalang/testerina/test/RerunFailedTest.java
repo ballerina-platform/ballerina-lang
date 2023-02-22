@@ -22,7 +22,6 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.ballerinalang.testerina.test.utils.FileUtils;
-import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
