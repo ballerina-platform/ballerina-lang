@@ -1841,52 +1841,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 distinctType = getDistinctErrorType(typeDefinition, (BErrorType) referenceConstraintType,
                         typeDefSymbol);
                 typeDefinition.typeNode.setBType(distinctType);
-            } else if (referenceConstraintType.tag == TypeTags.INTERSECTION &&
-                    ((BIntersectionType) referenceConstraintType).effectiveType.getKind() == TypeKind.ERROR) {
-                boolean distinctFlagPresentInTypeDef = typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT);
-
-                BTypeIdSet typeIdSet = BTypeIdSet.emptySet();
-                int numberOfDistinctConstituentTypes = 0;
-                BLangIntersectionTypeNode intersectionTypeNode = (BLangIntersectionTypeNode) typeDefinition.typeNode;
-                for (BLangType constituentType : intersectionTypeNode.constituentTypeNodes) {
-                    BType type = constituentType.getBType();
-
-                    if (type.getKind() == TypeKind.ERROR) {
-                        if (constituentType.flagSet.contains(Flag.DISTINCT)) {
-                            numberOfDistinctConstituentTypes++;
-                            typeIdSet.addSecondarySet(((BErrorType) type).typeIdSet.getAll());
-                        } else {
-                            typeIdSet.add(((BErrorType) type).typeIdSet);
-                        }
-                    }
-                }
-
-                BErrorType effectiveType = (BErrorType) ((BIntersectionType) referenceConstraintType).effectiveType;
-
-                // if the distinct keyword is part of a distinct-type-descriptor that is the
-                // only distinct-type-descriptor occurring within a module-type-defn,
-                // then the local id is the name of the type defined by the module-type-defn.
-                if (numberOfDistinctConstituentTypes == 1
-                        || (numberOfDistinctConstituentTypes == 0 && distinctFlagPresentInTypeDef)) {
-                    BTypeIdSet typeIdSetForDefinedType = BTypeIdSet.from(
-                            env.enclPkg.packageID,
-                            typeDefinition.name.value,
-                            typeDefinition.flagSet.contains(Flag.PUBLIC),
-                            typeIdSet);
-                    effectiveType.typeIdSet.add(typeIdSetForDefinedType);
-                } else {
-                    for (BLangType constituentType : intersectionTypeNode.constituentTypeNodes) {
-                        if (constituentType.getBType().getKind() != TypeKind.ERROR) {
-                            continue;
-                        }
-                        if (constituentType.flagSet.contains(Flag.DISTINCT)) {
-                            typeIdSet.add(BTypeIdSet.from(env.enclPkg.packageID,
-                                    anonymousModelHelper.getNextAnonymousTypeId(env.enclPkg.packageID), true));
-                        }
-                    }
-                    effectiveType.typeIdSet.add(typeIdSet);
-                }
-
             } else if (referenceConstraintType.getKind() == TypeKind.OBJECT) {
                 distinctType = getDistinctObjectType(typeDefinition, (BObjectType) referenceConstraintType,
                         referenceConstraintType.tsymbol);

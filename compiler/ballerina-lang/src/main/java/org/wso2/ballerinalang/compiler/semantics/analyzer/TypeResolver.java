@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -74,7 +73,7 @@ public class TypeResolver {
     private final TypeChecker typeChecker;
 
     private List<BLangTypeDefinition> resolvingtypeDefinitions = new ArrayList<>();
-    private List<BIntersectionType> intersectionTypeList;
+    private HashMap<BIntersectionType, List<BLangType>> intersectionTypeList;
     public HashSet<BLangConstant> resolvedConstants = new HashSet<>();
     private HashSet<BLangConstant> resolvingConstants = new HashSet<>();
     private HashSet<BLangClassDefinition> resolvedClassDef = new HashSet<>();
@@ -118,17 +117,18 @@ public class TypeResolver {
 
         for (BLangNode def : moduleDefs) {
             if (def.getKind() == NodeKind.CLASS_DEFN) {
-                intersectionTypeList = new ArrayList<>();
+                intersectionTypeList = new HashMap<>();
                 extracted(pkgEnv, modTable, (BLangClassDefinition) def);
-                fillEffectiveTypeOfIntersectionTypes(intersectionTypeList, pkgEnv);
+                fillEffectiveTypeOfIntersectionTypes(((BLangClassDefinition) def).name, intersectionTypeList, pkgEnv);
             } else if (def.getKind() == NodeKind.CONSTANT) {
                 resolveConstant(pkgEnv, modTable, (BLangConstant) def);
             } else {
                 BLangTypeDefinition typeDefinition = (BLangTypeDefinition) def;
-                intersectionTypeList = new ArrayList<>();
+                intersectionTypeList = new HashMap<>();
                 resolveTypeDefinition(pkgEnv, modTable, typeDefinition, 0);
                 BType type = typeDefinition.typeNode.getBType();
-                fillEffectiveTypeOfIntersectionTypes(intersectionTypeList, pkgEnv);
+                fillEffectiveTypeOfIntersectionTypes(((BLangTypeDefinition) def).name, intersectionTypeList, pkgEnv);
+                handleDistinctDefinitionOfErrorIntersection(typeDefinition, type);
                 if (typeDefinition.hasCyclicReference) {
                     updateIsCyclicFlag(type);
                 }
@@ -267,37 +267,140 @@ public class TypeResolver {
     }
 
 
-    private void fillEffectiveTypeOfIntersectionTypes(List<BIntersectionType> typeList, SymbolEnv symEnv) {
-        for (BIntersectionType intersectionType: typeList) {
+    private void fillEffectiveTypeOfIntersectionTypes(BLangIdentifier name, HashMap<BIntersectionType, List<BLangType>> typeList, SymbolEnv symEnv) {
+        for (BIntersectionType intersectionType: typeList.keySet()) {
+            Iterator<BLangType> bLangTypeItr = typeList.get(intersectionType).iterator();
             Iterator<BType> iterator = intersectionType.getConstituentTypes().iterator();
             BType effectiveType = iterator.next();
+            BLangType bLangEffectiveType = bLangTypeItr.next();
             if (effectiveType.tag == TypeTags.READONLY && iterator.hasNext()) {
                 intersectionType.flags = intersectionType.flags | TypeTags.READONLY;
                 effectiveType = iterator.next();
+                bLangEffectiveType = bLangTypeItr.next();
             }
             while (iterator.hasNext()) {
                 BType type = iterator.next();
+                BLangType bLangType = bLangTypeItr.next();
                 if (type.tag == TypeTags.READONLY) {
                     intersectionType.flags = intersectionType.flags | TypeTags.READONLY;
                     continue;
                 }
-                effectiveType = calculateEffectiveType(effectiveType, type);
+                effectiveType = calculateEffectiveType(name, bLangEffectiveType, bLangType, effectiveType, type);
+                if (effectiveType.tag == TypeTags.SEMANTIC_ERROR) {
+                    intersectionType.effectiveType = symTable.semanticError;
+                    return;
+                }
             }
 
             intersectionType.effectiveType = effectiveType;
         }
-        for (BIntersectionType intersectionType: typeList) {
-            if ((intersectionType.flags & Flags.READONLY) == Flags.READONLY) {
+        for (BIntersectionType intersectionType: typeList.keySet()) {
+            if ((intersectionType.flags & Flags.READONLY) == Flags.READONLY &&
+                    !types.isInherentlyImmutableType(intersectionType.effectiveType)) {
                 BIntersectionType immutableIntersectionType =
                         ImmutableTypeCloner.getImmutableIntersectionType(intersectionType.tsymbol.pos, types,
-                                intersectionType.effectiveType, symEnv, symTable, anonymousModelHelper, names, new HashSet<>());
+                                intersectionType.effectiveType, symEnv, symTable, anonymousModelHelper, names,
+                                new HashSet<>());
                 intersectionType.effectiveType = immutableIntersectionType.effectiveType;
             }
         }
     }
 
-    private BType calculateEffectiveType(BType effectiveType, BType type) {
-        return effectiveType;
+    private BType calculateEffectiveType(BLangIdentifier name, BLangType bLangTypeOne, BLangType bLangTypeTwo, BType typeOne,
+                                         BType typeTwo) {
+        BType typeOneReference = Types.getReferredType(typeOne);
+        BType typeTwoReference = Types.getReferredType(typeTwo);
+
+        if (typeOneReference.tag != TypeTags.ERROR || typeTwoReference.tag != TypeTags.ERROR) {
+            dlog.error(bLangTypeOne.pos, // TODO: use the position of the intersection type node
+                    DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION);
+            return symTable.semanticError;
+        }
+
+        BType potentialIntersectionType = getPotentialIntersection(
+                Types.IntersectionContext.from(dlog, bLangTypeOne.pos, bLangTypeTwo.pos),
+                typeOne, typeTwo, pkgEnv);
+
+        if (potentialIntersectionType.tag == TypeTags.SEMANTIC_ERROR) {
+            dlog.error(bLangTypeOne.pos, DiagnosticErrorCode.INVALID_INTERSECTION_TYPE, bLangTypeOne, bLangTypeTwo);
+            return symTable.semanticError;
+        }
+
+        symEnter.lookupTypeSymbol(pkgEnv, name).type = potentialIntersectionType;
+        return potentialIntersectionType;
+    }
+
+    private BType getPotentialIntersection(Types.IntersectionContext intersectionContext,
+                                           BType lhsType, BType rhsType, SymbolEnv env) {
+        if (lhsType == symTable.readonlyType) {
+            return rhsType;
+        }
+
+        if (rhsType == symTable.readonlyType) {
+            return lhsType;
+        }
+
+        return types.getTypeIntersection(intersectionContext, lhsType, rhsType, env);
+    }
+
+    private void handleDistinctDefinitionOfErrorIntersection(BLangTypeDefinition typeDefinition,
+                                                             BType definedType) {
+        BType referenceConstraintType = Types.getReferredType(definedType);
+        BSymbol typeDefSymbol = typeDefinition.symbol;
+        if (typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT)) {
+            if (referenceConstraintType.tag == TypeTags.INTERSECTION &&
+                    ((BIntersectionType) referenceConstraintType).effectiveType.getKind() == TypeKind.ERROR) {
+                boolean distinctFlagPresentInTypeDef = typeDefinition.typeNode.flagSet.contains(Flag.DISTINCT);
+
+                BTypeIdSet typeIdSet = BTypeIdSet.emptySet();
+                int numberOfDistinctConstituentTypes = 0;
+                BLangIntersectionTypeNode intersectionTypeNode = (BLangIntersectionTypeNode) typeDefinition.typeNode;
+                for (BLangType constituentType : intersectionTypeNode.constituentTypeNodes) {
+                    BType type = constituentType.getBType();
+
+                    if (type.getKind() == TypeKind.ERROR) {
+                        if (constituentType.flagSet.contains(Flag.DISTINCT)) {
+                            numberOfDistinctConstituentTypes++;
+                            typeIdSet.addSecondarySet(((BErrorType) type).typeIdSet.getAll());
+                        } else {
+                            typeIdSet.add(((BErrorType) type).typeIdSet);
+                        }
+                    }
+                }
+
+                BErrorType effectiveType = (BErrorType) ((BIntersectionType) referenceConstraintType).effectiveType;
+
+                // if the distinct keyword is part of a distinct-type-descriptor that is the
+                // only distinct-type-descriptor occurring within a module-type-defn,
+                // then the local id is the name of the type defined by the module-type-defn.
+                if (numberOfDistinctConstituentTypes == 1
+                        || (numberOfDistinctConstituentTypes == 0 && distinctFlagPresentInTypeDef)) {
+                    BTypeIdSet typeIdSetForDefinedType = BTypeIdSet.from(
+                            pkgEnv.enclPkg.packageID,
+                            typeDefinition.name.value,
+                            typeDefinition.flagSet.contains(Flag.PUBLIC),
+                            typeIdSet);
+                    effectiveType.typeIdSet.add(typeIdSetForDefinedType);
+                } else {
+                    for (BLangType constituentType : intersectionTypeNode.constituentTypeNodes) {
+                        if (constituentType.getBType().getKind() != TypeKind.ERROR) {
+                            continue;
+                        }
+                        if (constituentType.flagSet.contains(Flag.DISTINCT)) {
+                            typeIdSet.add(BTypeIdSet.from(pkgEnv.enclPkg.packageID,
+                                    anonymousModelHelper.getNextAnonymousTypeId(pkgEnv.enclPkg.packageID), true));
+                        }
+                    }
+                    effectiveType.typeIdSet.add(typeIdSet);
+                }
+
+                //setting the newly created distinct type as the referred type of the definition
+                if (((BTypeDefinitionSymbol) typeDefSymbol).referenceType != null) {
+                    ((BTypeDefinitionSymbol) typeDefSymbol).referenceType.referredType = definedType;
+                }
+                definedType.flags |= Flags.DISTINCT;
+            }
+        }
     }
 
     private BType resolveTypeDefinition(SymbolEnv symEnv, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth) {
@@ -578,6 +681,10 @@ public class TypeResolver {
             return symTable.noType;
         }
 
+        if (constraintType == null || constraintType.tag == TypeTags.SEMANTIC_ERROR) {
+            return symTable.semanticError;
+        }
+
         ((BMapType) constrainedType).constraint = constraintType;
         symResolver.markParameterizedType(constrainedType, constraintType);
         return constrainedType;
@@ -720,7 +827,7 @@ public class TypeResolver {
 
         if (td.restParamType != null) {
             BType tupleRestType = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.restParamType);
-            if (tupleRestType == null) {
+            if (tupleRestType == null || tupleRestType.tag == TypeTags.SEMANTIC_ERROR) {
                 return symTable.semanticError;
             }
             tupleType.restType = tupleRestType;
@@ -1028,7 +1135,7 @@ public class TypeResolver {
 
         for (BLangType langType : td.memberTypeNodes) {
             BType resolvedType = resolveTypeDesc(symEnv, mod, typeDefinition, depth, langType);
-            if (resolvedType == null) {
+            if (resolvedType == null | resolvedType.tag == TypeTags.SEMANTIC_ERROR) {
                 return symTable.semanticError;
             }
             if (resolvedType == symTable.noType) {
@@ -1106,154 +1213,28 @@ public class TypeResolver {
         td.defn = defn;
         LinkedHashSet<BType> constituentTypes = new LinkedHashSet<>();
 
+        Set<BType> errorTypes = new HashSet<>();
         for (BLangType typeNode : constituentTypeNodes) {
             BType constituentType = resolveTypeDesc(symEnv, mod, typeDefinition, depth, typeNode);
             constituentTypes.add(constituentType);
+            if (Types.getReferredType(constituentType).tag == TypeTags.ERROR) {
+                errorTypes.add(constituentType);
+            }
         }
         intersectionType.setConstituentTypes(constituentTypes);
-        intersectionTypeList.add(intersectionType);
-        return intersectionType;
+        intersectionTypeList.put(intersectionType, constituentTypeNodes);
 
-//        Map<BType, BLangType> typeBLangTypeMap = new HashMap<>();
-//
-//        boolean validIntersection = true;
-//        boolean isErrorIntersection = false;
-//        boolean isAlreadyExistingType = false;
-//
-//        BLangType bLangTypeOne = constituentTypeNodes.get(0);
-//        BType typeOne = resolveTypeDesc(symEnv, mod, typeDefinition, depth, bLangTypeOne);
-//        if (typeOne == symTable.noType) {
-//            return symTable.noType;
-//        }
-//
-//        typeBLangTypeMap.put(typeOne, bLangTypeOne);
-//
-//        BLangType bLangTypeTwo = constituentTypeNodes.get(1);
-//        BType typeTwo = resolveTypeDesc(symEnv, mod, typeDefinition, depth, bLangTypeTwo);
-//        if (typeTwo == symTable.noType) {
-//            return symTable.noType;
-//        }
-//
-//        BType typeOneReference = Types.getReferredType(typeOne);
-//        BType typeTwoReference = Types.getReferredType(typeTwo);
-//
-//        typeBLangTypeMap.put(typeTwo, bLangTypeTwo);
-//
-//        boolean hasReadOnlyType = typeOneReference == symTable.readonlyType
-//                || typeTwoReference == symTable.readonlyType;
-//
-//        if (typeOneReference.tag == TypeTags.ERROR || typeTwoReference.tag == TypeTags.ERROR) {
-//            isErrorIntersection = true;
-//        }
-//
-//        if (!(hasReadOnlyType || isErrorIntersection)) {
-//            dlog.error(td.pos,
-//                    DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION, td);
-//            return symTable.semanticError;
-//        }
-//
-//        BType potentialIntersectionType = symResolver.getPotentialIntersection(
-//                Types.IntersectionContext.from(dlog, bLangTypeOne.pos, bLangTypeTwo.pos),
-//                typeOne, typeTwo, symEnv);
-//        if (typeOne == potentialIntersectionType || typeTwo == potentialIntersectionType) {
-//            isAlreadyExistingType = true;
-//        }
-//
-//        LinkedHashSet<BType> constituentBTypes = new LinkedHashSet<>();
-//        constituentBTypes.add(typeOne);
-//        constituentBTypes.add(typeTwo);
-//
-//        if (potentialIntersectionType == symTable.semanticError) {
-//            validIntersection = false;
-//        } else {
-//            for (int i = 2; i < constituentTypeNodes.size(); i++) {
-//                BLangType bLangType = constituentTypeNodes.get(i);
-//                BType type = resolveTypeDesc(symEnv, mod, typeDefinition, depth, bLangType);
-//                if (type.tag == TypeTags.ERROR) {
-//                    isErrorIntersection = true;
-//                }
-//                typeBLangTypeMap.put(type, bLangType);
-//
-//                if (!hasReadOnlyType) {
-//                    hasReadOnlyType = type == symTable.readonlyType;
-//                }
-//
-//                if (type == symTable.noType) {
-//                    return symTable.noType;
-//                }
-//
-//                BType tempIntersectionType = symResolver.getPotentialIntersection(
-//                        Types.IntersectionContext.from(dlog, bLangTypeOne.pos, bLangTypeTwo.pos),
-//                        potentialIntersectionType, type, symEnv);
-//                if (tempIntersectionType == symTable.semanticError) {
-//                    validIntersection = false;
-//                    break;
-//                }
-//
-//                if (type == tempIntersectionType) {
-//                    potentialIntersectionType = type;
-//                    isAlreadyExistingType = true;
-//                } else if (potentialIntersectionType != tempIntersectionType) {
-//                    potentialIntersectionType = tempIntersectionType;
-//                    isAlreadyExistingType = false;
-//                }
-//                constituentBTypes.add(type);
-//            }
-//        }
-//
-//        if (!validIntersection) {
-//            dlog.error(td.pos, DiagnosticErrorCode.INVALID_INTERSECTION_TYPE, td);
-//            return symTable.semanticError;
-//        }
-//
-//        if (isErrorIntersection && !isAlreadyExistingType) {
-//            BType detailType = ((BErrorType) potentialIntersectionType).detailType;
-//
-//            boolean existingErrorDetailType = false;
-//            if (detailType.tsymbol != null) {
-//                BSymbol detailTypeSymbol = symResolver.lookupSymbolInMainSpace(symEnv, detailType.tsymbol.name);
-//                if (detailTypeSymbol != symTable.notFoundSymbol) {
-//                    existingErrorDetailType = true;
-//                }
-//            }
-//
-//            return symResolver.createIntersectionErrorType((BErrorType) potentialIntersectionType, td.pos,
-//                    constituentBTypes, existingErrorDetailType, symEnv);
-//        }
-//
-//        if (types.isInherentlyImmutableType(potentialIntersectionType) ||
-//                (Symbols.isFlagOn(potentialIntersectionType.flags, Flags.READONLY) &&
-//                        // For objects, a new type has to be created.
-//                        !types.isSubTypeOfBaseType(potentialIntersectionType, TypeTags.OBJECT))) {
-//            return potentialIntersectionType;
-//        }
-//
-//        PackageID packageID = symEnv.enclPkg.packageID;
-//        if (!types.isSelectivelyImmutableType(potentialIntersectionType, false, packageID)) {
-//            if (types.isSelectivelyImmutableType(potentialIntersectionType, packageID)) {
-//                // This intersection would have been valid if not for `readonly object`s.
-//                dlog.error(td.pos, DiagnosticErrorCode.INVALID_READONLY_OBJECT_INTERSECTION_TYPE);
-//            } else {
-//                dlog.error(td.pos, DiagnosticErrorCode.INVALID_READONLY_INTERSECTION_TYPE,
-//                        potentialIntersectionType);
-//            }
-//            return symTable.semanticError;
-//        }
-//
-//        BLangType typeNode = typeBLangTypeMap.get(potentialIntersectionType);
-//        Set<Flag> flagSet;
-//        if (typeNode == null) {
-//            flagSet = new HashSet<>();
-//        } else if (typeNode.getKind() == NodeKind.OBJECT_TYPE) {
-//            flagSet = ((BLangObjectTypeNode) typeNode).flagSet;
-//        } else if (typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
-//            flagSet = typeNode.flagSet;
-//        } else {
-//            flagSet = new HashSet<>();
-//        }
-//        return ImmutableTypeCloner.getImmutableIntersectionType(td.pos, types,
-//                potentialIntersectionType,
-//                symEnv, symTable, anonymousModelHelper, names, flagSet);
+        if (errorTypes.size() > 1) {
+            long flags = 0;
+            if (typeDefinition.flagSet.contains(Flag.PUBLIC)) {
+                flags = Flags.PUBLIC;
+            }
+
+            BErrorType intersectionErrorType = types.createErrorType(null, flags, symEnv);
+            intersectionErrorType.tsymbol.name = names.fromString(typeDefinition.name.value);
+            defineErrorType(typeDefinition.pos, intersectionErrorType, symEnv);
+        }
+        return intersectionType;
     }
 
     private BType resolveTypeDesc(BLangUserDefinedType td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth) {
@@ -1785,7 +1766,7 @@ public class TypeResolver {
             return;
         }
         // We may have already defined error intersection
-        if (!isErrorIntersection || symEnter.lookupTypeSymbol(env, typeDefinition.name) == symTable.notFoundSymbol) {
+        if (symEnter.lookupTypeSymbol(env, typeDefinition.name) == symTable.notFoundSymbol) {
             symEnter.defineSymbol(typeDefinition.name.pos, typeDefSymbol, env);
         }
 //        }
@@ -1913,5 +1894,15 @@ public class TypeResolver {
             }
         }
         return null;
+    }
+
+    private void defineErrorType(Location pos, BErrorType errorType, SymbolEnv env) {
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
+        BTypeSymbol errorTSymbol = errorType.tsymbol;
+        errorTSymbol.scope = new Scope(errorTSymbol);
+
+        if (symResolver.checkForUniqueSymbol(pos, pkgEnv, errorTSymbol)) {
+            pkgEnv.scope.define(errorTSymbol.name, errorTSymbol);
+        }
     }
 }
