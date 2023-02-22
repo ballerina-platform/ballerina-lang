@@ -279,3 +279,13 @@ function testInvokingFunctionContainingIncludedRecordParamOfTypeOtherThanRecordO
     _ = obj.fn(f = {});
     _ = obj.fn2(f = {});
 }
+
+type Record5 record {};
+
+function fn5(*Record5 record5) {
+}
+
+function testInvokingFunctionWithNamedArgForIncludedRecordParam() {
+    fn5(record5 = {}, j = 2); // error
+    fn5(j = 2, record5 = {}); // error
+}
