@@ -76,6 +76,7 @@ import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.Enum;
 import org.ballerinalang.docgen.generator.model.Error;
 import org.ballerinalang.docgen.generator.model.Function;
+import org.ballerinalang.docgen.generator.model.FunctionKind;
 import org.ballerinalang.docgen.generator.model.Listener;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.Record;
@@ -501,10 +502,18 @@ public class Generator {
                                 methodNode.metadata()), false, type));
                     }
 
-                    boolean isRemote = containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD);
+//                    boolean isRemote = containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD);
+                    FunctionKind functionKind;
+                    if (containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD)) {
+                        functionKind = FunctionKind.REMOTE;
+                    } else if (containsToken(methodNode.qualifierList(), SyntaxKind.RESOURCE_KEYWORD)) {
+                        functionKind = FunctionKind.RESOURCE;
+                    } else {
+                        functionKind = FunctionKind.OTHER;
+                    }
 
                     objectFunctions.add(new Function(methodName, getDocFromMetadata(methodNode.metadata()),
-                            isRemote, false, isDeprecated(methodNode.metadata()),
+                            functionKind, false, isDeprecated(methodNode.metadata()),
                             containsToken(methodNode.qualifierList(), SyntaxKind.ISOLATED_KEYWORD), parameters,
                             returnParams));
                 }
@@ -542,7 +551,7 @@ public class Generator {
                         functionType.returnType.isDeprecated, functionType.returnType));
             }
 
-            Function function = new Function(functionType.name, functionType.description, functionType.isRemote,
+            Function function = new Function(functionType.name, functionType.description, functionType.functionKind,
                     functionType.isExtern, functionType.isDeprecated, functionType.isIsolated, parameters,
                     returnParameters);
             function.inclusionType = originType.isPublic ? originType : null;
@@ -574,10 +583,18 @@ public class Generator {
         }
 
         boolean isExtern = functionDefinitionNode.functionBody() instanceof ExternalFunctionBodyNode;
-        boolean isRemote = containsToken(functionDefinitionNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD);
+//        boolean isRemote = containsToken(functionDefinitionNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD);
+        FunctionKind functionKind;
+        if (containsToken(functionDefinitionNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD)) {
+            functionKind = FunctionKind.REMOTE;
+        } else if (containsToken(functionDefinitionNode.qualifierList(), SyntaxKind.RESOURCE_KEYWORD)) {
+            functionKind = FunctionKind.RESOURCE;
+        } else {
+            functionKind = FunctionKind.OTHER;
+        }
 
         return new Function(functionName, getDocFromMetadata(functionDefinitionNode.metadata()),
-                isRemote, isExtern, isDeprecated(functionDefinitionNode.metadata()),
+                functionKind, isExtern, isDeprecated(functionDefinitionNode.metadata()),
                 containsToken(functionDefinitionNode.qualifierList(), SyntaxKind.ISOLATED_KEYWORD), parameters,
                 returnParams, annotationAttachments);
     }

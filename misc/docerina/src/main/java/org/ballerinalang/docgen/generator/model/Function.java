@@ -26,7 +26,7 @@ public class Function extends Construct {
     @Expose
     public boolean isIsolated;
     @Expose
-    public boolean isRemote;
+    public FunctionKind functionKind;
     @Expose
     public boolean isExtern;
     @Expose
@@ -36,11 +36,11 @@ public class Function extends Construct {
     @Expose
     List<AnnotationAttachment> annotationAttachments;
 
-    public Function(String name, String description, boolean isRemote, boolean isExtern, boolean isDeprecated,
+    public Function(String name, String description, FunctionKind functionKind, boolean isExtern, boolean isDeprecated,
                     boolean isIsolated, List<DefaultableVariable> parameters, List<Variable> returnParameters,
                     List<AnnotationAttachment> annotationAttachments) {
         super(name, description, isDeprecated);
-        this.isRemote = isRemote;
+        this.functionKind = functionKind;
         this.isExtern = isExtern;
         this.parameters = parameters;
         this.returnParameters = returnParameters;
@@ -48,10 +48,10 @@ public class Function extends Construct {
         this.annotationAttachments = annotationAttachments;
     }
 
-    public Function(String name, String description, boolean isRemote, boolean isExtern, boolean isDeprecated,
+    public Function(String name, String description, FunctionKind functionKind, boolean isExtern, boolean isDeprecated,
                     boolean isIsolated, List<DefaultableVariable> parameters, List<Variable> returnParameters) {
         super(name, description, isDeprecated);
-        this.isRemote = isRemote;
+        this.functionKind = functionKind;
         this.isExtern = isExtern;
         this.parameters = parameters;
         this.returnParameters = returnParameters;
