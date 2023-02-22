@@ -1050,15 +1050,58 @@ public class TypeResolver {
             memberTypes.add(resolvedType);
         }
 
-        flattenMemberTypes(memberTypes);
+        updateReadOnlyAndNullableFlag(unionType);
         symResolver.markParameterizedType(unionType, memberTypes);
         return unionType;
     }
 
-    private void flattenMemberTypes(LinkedHashSet<BType> memberTypes) {
-        LinkedHashSet<BType> flatMemberTypes = BUnionType.toFlatTypeSet(memberTypes);
+    private void updateReadOnlyAndNullableFlag(BUnionType type) {
+        LinkedHashSet<BType> memberTypes = type.getMemberTypes();
+        LinkedHashSet<BType> flattenMemberTypes = new LinkedHashSet<>(memberTypes.size());
+        boolean isImmutable = true;
+        boolean hasNilableType = false;
+
+        for (BType memBType : BUnionType.toFlatTypeSet(memberTypes)) {
+            if (Types.getReferredType(memBType).tag != TypeTags.NEVER) {
+                flattenMemberTypes.add(memBType);
+            }
+
+            if (isImmutable && !Symbols.isFlagOn(memBType.flags, Flags.READONLY)) {
+                isImmutable = false;
+            }
+        }
+
+        if (isImmutable) {
+            type.flags |= Flags.READONLY;
+            if (type.tsymbol != null) {
+                type.tsymbol.flags |= Flags.READONLY;
+            }
+        }
+
+        for (BType memberType : flattenMemberTypes) {
+            if (memberType.isNullable() && memberType.tag != TypeTags.NIL) {
+                hasNilableType = true;
+                break;
+            }
+        }
+
+        if (hasNilableType) {
+            LinkedHashSet<BType> bTypes = new LinkedHashSet<>(flattenMemberTypes.size());
+            for (BType t : flattenMemberTypes) {
+                if (t.tag != TypeTags.NIL) {
+                    bTypes.add(t);
+                }
+            }
+            flattenMemberTypes = bTypes;
+        }
+
+        for (BType memberType : flattenMemberTypes) {
+            if (memberType.isNullable()) {
+                type.setNullable(true);
+            }
+        }
         memberTypes.clear();
-        memberTypes.addAll(flatMemberTypes);
+        memberTypes.addAll(flattenMemberTypes);
     }
 
     private BType resolveTypeDesc(BLangIntersectionTypeNode td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth,
