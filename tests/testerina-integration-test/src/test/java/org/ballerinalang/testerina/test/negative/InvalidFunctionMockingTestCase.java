@@ -28,6 +28,7 @@ import java.io.File;
 import java.util.HashMap;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Negative test cases for function mocking.
@@ -117,6 +118,14 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
     @Test
     public void testMockingFunctionWithIncompatibleTypes() throws BallerinaTestException {
         String projectPath = projectBasedTestsPath.resolve("incompatible-type-mock").toString();
+        String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, false);
+        assertTrue(output.replaceAll("\r", "")
+                .contains("Return type of function stringHello does not match function intAdd"));
+    }
+
+    @Test
+    public void testLegacyMockingFunctionWithIncompatibleTypes() throws BallerinaTestException {
+        String projectPath = projectBasedTestsPath.resolve("incompatible-type-legacy-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
         assertEquals(output.replaceAll("\r", ""),
                 "ERROR [tests" + File.separator + "test.bal:(6:1,8:2)] incompatible types: expected isolated" +
