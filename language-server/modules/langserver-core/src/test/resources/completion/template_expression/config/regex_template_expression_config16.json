@@ -6,13 +6,5 @@
   "source": "template_expression/source/regex_template_expression_source9.bal",
   "description": "",
   "items": [
-    {
-      "label": "$",
-      "kind": "Value",
-      "detail": "Value",
-      "filterText": "$",
-      "insertText": "$",
-      "insertTextFormat": "Snippet"
-    }
   ]
 }

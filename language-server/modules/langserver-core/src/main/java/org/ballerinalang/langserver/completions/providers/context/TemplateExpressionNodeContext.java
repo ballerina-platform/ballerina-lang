@@ -21,8 +21,6 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -65,15 +63,13 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (node.kind() == SyntaxKind.REGEX_TEMPLATE_EXPRESSION) {
-            completionItems.addAll(RegexpCompletionProvider.getRegexCompletions(
-                    nodeAtCursor, context, new RegexTemplateNodeFinder()));
+            completionItems.addAll(RegexpCompletionProvider.getRegexCompletions(nodeAtCursor, context));
         }
 
         Optional<InterpolationNode> interpolationNode = findInterpolationNode(nodeAtCursor, node);
         if (interpolationNode.isEmpty() || !this.isWithinInterpolation(context, node)) {
             return completionItems;
         }
-
         // If the node at cursor is an interpolation, show expression suggestions
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
@@ -220,31 +216,5 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
                 break;
         }
         return SortingUtil.genSortText(3);
-    }
-
-    /**
-     * Visitor to find the template expression node.
-     */
-    public static class RegexTemplateNodeFinder extends NodeVisitor {
-
-        private TemplateExpressionNode templateExpressionNode = null;
-
-        @Override
-        public void visit(TemplateExpressionNode templateExpressionNode) {
-            this.templateExpressionNode = templateExpressionNode;
-        }
-
-        public TemplateExpressionNode getTemplateExpressionNode() {
-            return templateExpressionNode;
-        }
-
-        @Override
-        protected void visitSyntaxNode(Node node) {
-            // Do an early exit if the result is already found.
-            if (templateExpressionNode != null) {
-                return;
-            }
-            node.parent().accept(this);
-        }
     }
 }

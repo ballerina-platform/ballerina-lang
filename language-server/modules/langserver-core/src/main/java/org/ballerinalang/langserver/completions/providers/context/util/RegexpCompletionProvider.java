@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.completions.providers.context.util;
 
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ReBracedQuantifierNode;
 import io.ballerina.compiler.syntax.tree.ReFlagExpressionNode;
@@ -27,7 +29,6 @@ import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.providers.context.TemplateExpressionNodeContext.RegexTemplateNodeFinder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SnippetBlock;
@@ -44,15 +45,16 @@ import java.util.List;
  */
 public class RegexpCompletionProvider {
 
-    private static final List<String> wordSeparatorArray = Arrays.asList("`", "~", "!", "@", "#", "$", "%", "^", "&",
+    private static final List<String> WORD_SEPARATOR_ARRAY = Arrays.asList("`", "~", "!", "@", "#", "$", "%", "^", "&",
             "*", "(", ")", "-", "=", "+", "[", "{", "]", "}", "\\", "|", ";", ":", "'", "\"", ",", ".", "<", ">", "/",
             "?");
 
-    private static final HashSet<String> reFlags = new HashSet<>(Arrays.asList("i", "m", "s", "x"));
+    private static final HashSet<String> RE_FLAGS = new HashSet<>(Arrays.asList("i", "m", "s", "x"));
 
     public static List<LSCompletionItem> getRegexCompletions(NonTerminalNode nodeAtCursor,
-                                                             BallerinaCompletionContext ctx,
-                                                             RegexTemplateNodeFinder nodeFinder) {
+                                                             BallerinaCompletionContext ctx) {
+        
+        RegexTemplateNodeFinder nodeFinder = new RegexTemplateNodeFinder();
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (nodeAtCursor.kind() == SyntaxKind.LIST) {
             nodeAtCursor.parent().accept(nodeFinder);
@@ -63,110 +65,59 @@ public class RegexpCompletionProvider {
 
         if (nodeAtCursor.kind() == SyntaxKind.RE_QUOTE_ESCAPE
                 && nodeAtCursor.toSourceCode().equals(SyntaxKind.BACK_SLASH_TOKEN.stringValue())) {
-            // Eg: re `\<cursor>`
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_DIGIT.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_NON_DIGIT.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_WHITESPACE.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_NON_WHITESPACE.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_ALPHA_NUMERIC.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_NON_ALPHA_NUMERIC.get()));
-
-            // controls escapes 
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_RETURN.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_NEWLINE.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_TAB.get()));
-
-            // syntax chars
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_ASSERTION_START.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_ASSERTION_END.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_BACKSLASH_CHAR.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_DOT_CHAR.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_QUANTIFIER_ASTERISK_CHAR.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_QUANTIFIER_PLUS_CHAR.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_QUANTIFIER_QUESTION_MARK_CHAR.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_LEFT_BRACE_CHAR.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_RIGHT_BRACE_CHAR.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_LEFT_SQUARE_BRACE_CHAR.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_RIGHT_SQUARE_BRACE_CHAR.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_LEFT_CURLY_BRACE_CHAR.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_RIGHT_CURLY_BRACE_CHAR.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_PIPE_CHAR.get()));
-
-            // unicode property chars
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_UNICODE_PROPERTY_CHAR.snippetBlock));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_NON_UNICODE_PROPERTY_CHAR.snippetBlock));
-
-        } else if (isFlagExpr(nodeAtCursor, ctx)) {
-            // Eg: re `(?<cursor>)`
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_MULTILINE_FLAG.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_DOT_ALL_FLAG.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_IGNORE_CASE_FLAG.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexpCompletionProvider.RegexSnippet.DEF_COMMENT_FLAG.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexSnippet.DEF_COLON_CHAR.get()));
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    RegexSnippet.DEF_MINUS_CHAR.get()));
+            // Eg: re `<cursor>`
+            addQuoteEscapeValueCompletions(ctx, completionItems);
             return completionItems;
-        } else if (nodeAtCursor.kind() == SyntaxKind.RE_QUOTE_ESCAPE && nodeAtCursor.toSourceCode().equals("\\p")) {
+        }
+
+        if (isFlagExpr(nodeAtCursor, ctx)) {
+            // Eg: re `(?<cursor>)`
+            addCapturingGroupCompletions(ctx, completionItems);
+            return completionItems;
+        }
+
+        if (nodeAtCursor.kind() == SyntaxKind.RE_QUOTE_ESCAPE && nodeAtCursor.toSourceCode().equals("\\p")) {
             // Eg: re `\p<cursor>`
-            completionItems.add(new SnippetCompletionItem(ctx,
-                    new SnippetBlock("{}", "p{}", "p{${1}}",
-                            ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)));
-        } else if (nodeAtCursor.kind() == SyntaxKind.RE_QUOTE_ESCAPE && nodeAtCursor.toSourceCode().equals("\\P")) {
+            completionItems.add(new SnippetCompletionItem(ctx, new SnippetBlock("{}", "p{}", "p{${1}}",
+                    ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)));
+            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, null);
+            return completionItems;
+        }
+
+        if (nodeAtCursor.kind() == SyntaxKind.RE_QUOTE_ESCAPE && nodeAtCursor.toSourceCode().equals("\\P")) {
             // Eg: re `\P<cursor>`
             completionItems.add(new SnippetCompletionItem(ctx,
                     new SnippetBlock("{}", "P{}", "P{${1}}",
                             ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)));
-        } else if (isUnicodePropertyEscapeNode(nodeAtCursor, ctx)) {
+            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, null);
+            return completionItems;
+        }
+
+        if (isUnicodePropertyEscapeNode(nodeAtCursor, ctx)) {
             // Eg: re `\P{<cursor>}`
             completionItems.add(new SnippetCompletionItem(ctx,
                     RegexpCompletionProvider.RegexSnippet.DEF_UNICODE_SCRIPT_PROPERTY_KEY.snippetBlock));
             completionItems.add(new SnippetCompletionItem(ctx,
                     RegexpCompletionProvider.RegexSnippet.DEF_UNICODE_GENERAL_CATEGORY_PROPERTY_KEY.snippetBlock));
-            addUnicodeGeneralCategoryMajorSnnipets(ctx, completionItems);
+            addUnicodeGeneralCategoryMajorSnippets(ctx, completionItems);
             return completionItems;
-        } else if (nodeAtCursor.kind() == SyntaxKind.RE_UNICODE_GENERAL_CATEGORY) {
+        }
+
+        if (nodeAtCursor.kind() == SyntaxKind.RE_UNICODE_GENERAL_CATEGORY) {
             ReUnicodeGeneralCategoryNode unicodeGeneralCategoryNode = (ReUnicodeGeneralCategoryNode) nodeAtCursor;
             if (unicodeGeneralCategoryNode.categoryStart().isPresent() &&
                     unicodeGeneralCategoryNode.reUnicodeGeneralCategoryName().isMissing()) {
                 // Eg: re `\p{gc=<cursor>}`
-                addUnicodeGeneralCategoryMajorSnnipets(ctx, completionItems);
+                addUnicodeGeneralCategoryMajorSnippets(ctx, completionItems);
             } else if (unicodeGeneralCategoryNode.reUnicodeGeneralCategoryName().textRange().endOffset()
                     == ctx.getCursorPositionInTree()) {
                 // Eg: `\p{gc=L<cursor>}`, re `\p{gc=M<cursor>}`, re `\p{L<cursor>}`, re `\p{M<cursor>}`
                 addUnicodeGeneralCategorySnippets(unicodeGeneralCategoryNode, ctx, completionItems);
             }
             return completionItems;
-        } else if (isReAtom(nodeAtCursor, ctx)) {
+        }
+
+        if (isReAtom(nodeAtCursor, ctx)) {
             // Eg: re `a<cursor>`, re `abc<cursor>`, re `[a-z]<cursor>`, re `(abc<cursor>def)`, re `(abc)<cursor>`, 
             // re `\w<cursor>`
             String snippet = resolveWordForTheGivenCursorPosition(ctx, nodeFinder);
@@ -184,25 +135,43 @@ public class RegexpCompletionProvider {
             completionItems.add(new SnippetCompletionItem(ctx,
                     new SnippetBlock("{}", snippet + "{}", snippet + "{${1}}",
                             ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)));
-        } else if (nodeAtCursor.kind() == SyntaxKind.RE_CHARACTER_CLASS
+            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, resolvedWord);
+            return completionItems;
+        }
+
+        if (nodeAtCursor.kind() == SyntaxKind.RE_CHARACTER_CLASS
                 && nodeAtCursor.textRange().startOffset() + 1 == ctx.getCursorPositionInTree()) {
             // Eg: re `[<cursor>]`
             completionItems.add(new SnippetCompletionItem(ctx, new SnippetBlock("^", "^", "^",
                     ItemResolverConstants.VALUE_TYPE, SnippetBlock.Kind.VALUE)));
             return completionItems;
-        } else if (isCommaPresentInReBracedQuantifierNode(nodeAtCursor, ctx)) {
+        }
+
+        if (isCommaPresentInReBracedQuantifierNode(nodeAtCursor, ctx)) {
             String snippet = nodeAtCursor.toSourceCode();
             completionItems.add(new SnippetCompletionItem(ctx,
                     new SnippetBlock(",", snippet + ",", snippet + ",",
                             ItemResolverConstants.VALUE_TYPE, SnippetBlock.Kind.VALUE)));
-        } else if (isReQuantifier(nodeAtCursor)) {
+            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, resolvedWord);
+            return completionItems;
+        }
+
+        if (isReQuantifier(nodeAtCursor)) {
             completionItems.add(new SnippetCompletionItem(ctx, new SnippetBlock("?", "?", "?",
                     ItemResolverConstants.VALUE_TYPE, SnippetBlock.Kind.VALUE)));
-        } else if (nodeAtCursor.kind() == SyntaxKind.RE_BRACED_QUANTIFIER
+            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, resolvedWord);
+            return completionItems;
+        }
+
+        if (nodeAtCursor.kind() == SyntaxKind.RE_BRACED_QUANTIFIER
                 && nodeAtCursor.textRange().endOffset() == ctx.getCursorPositionInTree()) {
             completionItems.add(new SnippetCompletionItem(ctx, new SnippetBlock("?", "?", "?",
                     ItemResolverConstants.VALUE_TYPE, SnippetBlock.Kind.VALUE)));
-        } else if (isCursorAfterReFlag(nodeAtCursor)) {
+            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, resolvedWord);
+            return completionItems;
+        }
+
+        if (isCursorAfterReFlag(nodeAtCursor)) {
             // Eg: re `(?i<cursor>)`, re `(?i-m<cursor>)`
             String snippet = resolveWordForTheGivenCursorPosition(ctx, nodeFinder);
             completionItems.add(new SnippetCompletionItem(ctx,
@@ -216,13 +185,17 @@ public class RegexpCompletionProvider {
             }
             addReFlags(nodeAtCursor, ctx, completionItems, snippet);
             return completionItems;
-        } else if (isCursorAfterReOnOffFlagMinusPosition(nodeAtCursor)) {
+        }
+
+        if (isCursorAfterReOnOffFlagMinusPosition(nodeAtCursor)) {
             // Eg: re `(?i-<cursor>)`, re `(?-<cursor>)`
             String snippet = resolveWordForTheGivenCursorPosition(ctx, nodeFinder);
             addReFlags(nodeAtCursor, ctx, completionItems, snippet);
             completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_COLON_CHAR.get()));
             return completionItems;
-        } else if (nodeAtCursor.kind() == SyntaxKind.REGEX_TEMPLATE_EXPRESSION) {
+        }
+
+        if (nodeAtCursor.kind() == SyntaxKind.REGEX_TEMPLATE_EXPRESSION) {
             // Eg: re `<cursor>`, re `<cursor>()`, re `<cursor>ABC`
             completionItems.add(new SnippetCompletionItem(ctx,
                     Snippet.DEF_PARANTHESIS.get()));
@@ -230,7 +203,63 @@ public class RegexpCompletionProvider {
                     Snippet.DEF_SQUARE_BRACKET.get()));
             completionItems.add(new SnippetCompletionItem(ctx,
                     RegexpCompletionProvider.RegexSnippet.DEF_ASSERTION_START.get()));
+            addAssertionEndCompletion(nodeAtCursor, ctx, nodeFinder, completionItems, resolvedWord);
+            return completionItems;
         }
+
+        return completionItems;
+    }
+
+    private static void addCapturingGroupCompletions(BallerinaCompletionContext ctx,
+                                                     List<LSCompletionItem> completionItems) {
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_MULTILINE_FLAG.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_DOT_ALL_FLAG.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_IGNORE_CASE_FLAG.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_COMMENT_FLAG.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_COLON_CHAR.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_MINUS_CHAR.get()));
+    }
+
+    private static void addQuoteEscapeValueCompletions(BallerinaCompletionContext ctx,
+                                                       List<LSCompletionItem> completionItems) {
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_DIGIT.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_NON_DIGIT.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_WHITESPACE.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_NON_WHITESPACE.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_ALPHA_NUMERIC.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_NON_ALPHA_NUMERIC.get()));
+
+        // controls escapes 
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_RETURN.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_NEWLINE.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_TAB.get()));
+
+        // syntax chars
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_ASSERTION_START.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_ASSERTION_END.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_BACKSLASH_CHAR.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_DOT_CHAR.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_QUANTIFIER_ASTERISK_CHAR.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_QUANTIFIER_PLUS_CHAR.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_QUANTIFIER_QUESTION_MARK_CHAR.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_LEFT_BRACE_CHAR.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_RIGHT_BRACE_CHAR.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_LEFT_SQUARE_BRACE_CHAR.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_RIGHT_SQUARE_BRACE_CHAR.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_LEFT_CURLY_BRACE_CHAR.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_RIGHT_CURLY_BRACE_CHAR.get()));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_PIPE_CHAR.get()));
+
+        // unicode property chars
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_UNICODE_PROPERTY_CHAR.snippetBlock));
+        completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_NON_UNICODE_PROPERTY_CHAR.snippetBlock));
+    }
+
+    private static void addAssertionEndCompletion(NonTerminalNode nodeAtCursor,
+                                                  BallerinaCompletionContext ctx,
+                                                  RegexTemplateNodeFinder nodeFinder,
+                                                  List<LSCompletionItem> completionItems,
+                                                  String resolvedWord) {
         if (nodeFinder.getTemplateExpressionNode() != null
                 && nodeFinder.getTemplateExpressionNode().textRange().endOffset() - 1
                 == ctx.getCursorPositionInTree()
@@ -244,7 +273,6 @@ public class RegexpCompletionProvider {
                     new SnippetBlock("$", resolvedWord + "$", resolvedWord + "$",
                             ItemResolverConstants.VALUE_TYPE, SnippetBlock.Kind.VALUE)));
         }
-        return completionItems;
     }
 
     private static boolean isReQuantifier(NonTerminalNode nodeAtCursor) {
@@ -255,7 +283,7 @@ public class RegexpCompletionProvider {
     private static void addReFlags(NonTerminalNode nodeAtCursor, BallerinaCompletionContext ctx,
                                    List<LSCompletionItem> completionItems, String snippet) {
         String reFlagsSource = nodeAtCursor.parent().parent().toSourceCode();
-        for (String flag : reFlags) {
+        for (String flag : RE_FLAGS) {
             if (!reFlagsSource.contains(flag)) {
                 completionItems.add(new SnippetCompletionItem(ctx,
                         new SnippetBlock(flag, snippet + flag, snippet + flag,
@@ -282,12 +310,12 @@ public class RegexpCompletionProvider {
             String subStr = templateExpressionNode.toSourceCode().substring(expressionStartIndex + 1, subStrLength);
             int len = subStr.length() - 1; // 3
             String currentChar = subStr.substring(len, len + 1); // c
-            boolean isCurrentCharAWordSeparator = wordSeparatorArray.contains(currentChar);
+            boolean isCurrentCharAWordSeparator = WORD_SEPARATOR_ARRAY.contains(currentChar);
             while (!isCurrentCharAWordSeparator && len != 0) {
                 len--;
                 currentPosition--;
                 currentChar = subStr.substring(len, len + 1);
-                isCurrentCharAWordSeparator = wordSeparatorArray.contains(currentChar);
+                isCurrentCharAWordSeparator = WORD_SEPARATOR_ARRAY.contains(currentChar);
             }
             if (isCurrentCharAWordSeparator) {
                 return subStr.substring(len + 1);
@@ -315,7 +343,7 @@ public class RegexpCompletionProvider {
                 .leastTimesMatchedDigit().size() + 1 <= ctx.getCursorPositionInTree();
     }
 
-    private static void addUnicodeGeneralCategoryMajorSnnipets(BallerinaCompletionContext ctx,
+    private static void addUnicodeGeneralCategoryMajorSnippets(BallerinaCompletionContext ctx,
                                                                List<LSCompletionItem> completionItems) {
         completionItems.add(new SnippetCompletionItem(ctx,
                 RegexpCompletionProvider.RegexSnippet.DEF_UNICODE_GENERAL_CATEGORY_LETTER.snippetBlock));
@@ -683,6 +711,32 @@ public class RegexpCompletionProvider {
          */
         public SnippetBlock get() {
             return this.snippetBlock;
+        }
+    }
+
+    /**
+     * Visitor to find the template expression node.
+     */
+     static class RegexTemplateNodeFinder extends NodeVisitor {
+
+        private TemplateExpressionNode templateExpressionNode = null;
+
+        @Override
+        public void visit(TemplateExpressionNode templateExpressionNode) {
+            this.templateExpressionNode = templateExpressionNode;
+        }
+
+        public TemplateExpressionNode getTemplateExpressionNode() {
+            return templateExpressionNode;
+        }
+
+        @Override
+        protected void visitSyntaxNode(Node node) {
+            // Do an early exit if the result is already found.
+            if (templateExpressionNode != null) {
+                return;
+            }
+            node.parent().accept(this);
         }
     }
 }
