@@ -374,6 +374,17 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
 
     foreach function dependsOnFunction in testFunction.dependsOn {
         TestFunction dependsOnTestFunction = check testRegistry.getTestFunction(dependsOnFunction);
+
+        // if the dependsOnFunction is disabled by the user, throw an error
+        // dependsOnTestFunction.config?.enable is used instead of dependsOnTestFunction.enable to ensure that
+        // the user has deliberately passed enable=false
+        boolean? dependentEnabled = dependsOnTestFunction.config?.enable;
+        if dependentEnabled != () && !dependentEnabled {
+            string errMsg = string `error: Test [${testFunction.name}] depends on function [${dependsOnTestFunction.name}], `
+            + string `but it is either disabled or not included.`;
+            return error(errMsg);
+        }
+        
         dependsOnTestFunction.dependents.push(testFunction);
 
         // Contains cyclic dependencies 

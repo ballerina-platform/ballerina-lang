@@ -190,6 +190,11 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                 {182, 10, location(182, 10, 12),
                         List.of(location(182, 10, 12),
                                 location(183, 19, 21))
+                },
+                // Regexp expression
+                {190, 19, location(190, 18, 20),
+                        List.of(location(190, 18, 20),
+                                location(191, 34, 36))
                 }
         };
     }

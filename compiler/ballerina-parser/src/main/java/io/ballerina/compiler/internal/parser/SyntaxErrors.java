@@ -577,7 +577,7 @@ public class SyntaxErrors {
             case DIGIT:
                 return DiagnosticErrorCode.ERROR_MISSING_RE_QUANTIFIER_DIGIT;
             case BITWISE_XOR_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_RE_SYNTAX_CHAR;
+                return DiagnosticErrorCode.ERROR_INVALID_RE_SYNTAX_CHAR;
             case BACK_SLASH_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_BACKSLASH;
             default:

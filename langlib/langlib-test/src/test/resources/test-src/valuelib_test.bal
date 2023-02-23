@@ -2305,6 +2305,47 @@ function testCloneWithTypeWithTuples() returns error? {
     assertFalse(x is Array);
 }
 
+type Assertion [string, string];
+
+type BoundAssertion ["let", int];
+
+type UnionTuple Assertion|BoundAssertion;
+
+type Table1 table<map<int>>;
+
+type Table2 table<map<string>>;
+
+type UnionTable Table1|Table2;
+
+function testCloneWithTypeToUnionOfTypeReference() {
+    anydata[] arrValue = ["let", 3];
+
+    BoundAssertion|error t1 = arrValue.cloneWithType(); 
+    assertFalse(t1 is error);
+    assertEquality(t1, <BoundAssertion> ["let", 3]);
+
+    Assertion|BoundAssertion|error t2 = arrValue.cloneWithType(); 
+    assertFalse(t2 is error);
+    assertTrue(t2 is BoundAssertion);
+    assertEquality(t2, <BoundAssertion> ["let", 3]);
+
+    UnionTuple|error t3 = arrValue.cloneWithType(); 
+    assertFalse(t3 is error);
+    assertTrue(t3 is BoundAssertion);
+    assertEquality(t3, <BoundAssertion> ["let", 3]);
+
+    table<map<anydata>> tab = table [{a: "a", b: "b"}];
+    Table1|Table2|error t4 = tab.cloneWithType(); 
+    assertFalse(t4 is error);
+    assertTrue(t4 is Table2);
+    assertEquality(t4, <Table2> table [{a: "a", b: "b"}]);
+
+    UnionTable|error t5 = tab.cloneWithType(); 
+    assertFalse(t5 is error);
+    assertTrue(t5 is Table2);
+    assertEquality(t5, <Table2> table [{a: "a", b: "b"}]);
+}
+
 /////////////////////////// Tests for `toJson()` ///////////////////////////
 
 type Student2 record {

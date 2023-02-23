@@ -200,6 +200,11 @@ public class TupleValueImpl extends AbstractArrayValue {
         this.typedesc = getTypedescValue(type, this);
     }
 
+    public TupleValueImpl(Type type, BListInitialValueEntry[] initialValues, TypedescValueImpl inherentType) {
+        this(type, initialValues);
+        this.typedesc = getTypedescValue(type.isReadOnly(), this, inherentType);
+    }
+
     @Override
     public BTypedesc getTypedesc() {
         return typedesc;

@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
@@ -1026,8 +1027,8 @@ public class BIRPackageSymbolEnter {
                 break;
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
-                for (BType t : tupleType.tupleTypes) {
-                    populateParameterizedType(t, paramsMap, invSymbol);
+                for (BType tupleMemberType : tupleType.getTupleTypes()) {
+                    populateParameterizedType(tupleMemberType, paramsMap, invSymbol);
                 }
                 populateParameterizedType(tupleType.restType, paramsMap, invSymbol);
                 break;
@@ -1235,7 +1236,6 @@ public class BIRPackageSymbolEnter {
 
             // Read the type flags to identify if type reference types are nullable.
             int typeFlags = inputStream.readInt();
-
             switch (tag) {
                 case TypeTags.INT:
                     return typeParamAnalyzer.getNominalType(symTable.intType, name, flags);
@@ -1306,6 +1306,8 @@ public class BIRPackageSymbolEnter {
                                                               recordSymbol.pkgID, fieldType,
                                                               recordSymbol.scope.owner, symTable.builtinPos,
                                                               COMPILED_SOURCE);
+
+                        defineAnnotAttachmentSymbols(inputStream, varSymbol);
 
                         defineMarkDownDocAttachment(varSymbol, docBytes);
 
@@ -1588,14 +1590,25 @@ public class BIRPackageSymbolEnter {
                                                                            Names.EMPTY, env.pkgSymbol.pkgID, null,
                                                                            env.pkgSymbol.owner, symTable.builtinPos,
                                                                            COMPILED_SOURCE);
-                    BTupleType bTupleType = new BTupleType(tupleTypeSymbol, null);
-                    bTupleType.flags = flags;
                     int tupleMemberCount = inputStream.readInt();
-                    List<BType> tupleMemberTypes = new ArrayList<>(tupleMemberCount);
+                    List<BTupleMember> tupleMembers = new ArrayList<>(tupleMemberCount);
+                    BSymbol tupleOwner = tupleTypeSymbol.owner;
+                    PackageID tuplePkg = tupleTypeSymbol.pkgID;
+
                     for (int i = 0; i < tupleMemberCount; i++) {
-                        tupleMemberTypes.add(readTypeFromCp());
+                        String index = getStringCPEntryValue(inputStream);
+                        long fieldFlags = inputStream.readLong();
+
+                        BType memberType = readTypeFromCp();
+                        BVarSymbol varSymbol = new BVarSymbol(fieldFlags, names.fromString(index), tuplePkg,
+                                memberType, tupleOwner, symTable.builtinPos, COMPILED_SOURCE);
+
+                        defineAnnotAttachmentSymbols(inputStream, varSymbol);
+
+                        tupleMembers.add(new BTupleMember(memberType, varSymbol));
                     }
-                    bTupleType.tupleTypes = tupleMemberTypes;
+                    BTupleType bTupleType = new BTupleType(tupleTypeSymbol, tupleMembers);
+                    bTupleType.flags = flags;
 
                     if (inputStream.readBoolean()) {
                         bTupleType.restType = readTypeFromCp();

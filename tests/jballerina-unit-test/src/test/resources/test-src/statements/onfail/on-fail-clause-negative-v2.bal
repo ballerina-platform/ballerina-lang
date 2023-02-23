@@ -78,3 +78,138 @@ function getError() returns error {
     error err = error("Custom Error");
     return err;
 }
+
+function getErrorOrInt() returns int|error {
+    return getError();
+}
+
+public function testUnInitVars1() {
+    int resultInt;
+    do {
+        resultInt = check getErrorOrInt();
+    } on fail {
+    }
+    resultInt += 1;
+}
+
+public function testUnInitVars2() {
+    int resultInt1;
+    int resultInt2;
+    int resultInt3;
+    do {
+        resultInt1 = 1;
+        resultInt2 = check getErrorOrInt();
+        resultInt3 = 1;
+    } on fail {
+    }
+    resultInt1 += 1;
+    resultInt2 += 1;
+    resultInt3 += 1;
+}
+
+public function testUnInitVars3() {
+    int resultInt1;
+    int resultInt2;
+    int resultInt3;
+    transaction {
+        check commit;
+        resultInt1 = 1;
+        resultInt2 = check getErrorOrInt();
+        resultInt3 = 1;
+    } on fail {
+    }
+    resultInt1 += 1;
+    resultInt2 += 1;
+    resultInt3 += 1;
+}
+
+public function testUnInitVars4() {
+    int resultInt1;
+    int resultInt2;
+    int resultInt3;
+    transaction {
+        do {
+           resultInt1 = 1;
+           resultInt2 = check getErrorOrInt();
+           resultInt3 = 1;
+        }
+        check commit;
+    } on fail {
+    }
+    resultInt1 += 1;
+    resultInt2 += 1;
+    resultInt3 += 1;
+}
+
+public function testUnInitVars5() {
+    int resultInt1;
+    int resultInt2;
+    int resultInt3;
+    transaction {
+        do {
+           resultInt1 = 1;
+           resultInt2 = 2;
+        }
+        check commit;
+        resultInt3 = 1;
+    } on fail {
+    }
+    resultInt1 += 1;
+    resultInt2 += 1;
+    resultInt3 += 1;
+}
+
+function testUnInitVars6() {
+    int i;
+    int j;
+    int k;
+    do {
+        i = 0;
+        j = 1;
+        check getErrorOrNil();
+        k = 1;
+    } on fail {
+        i += 1;
+        j += 1;
+        k += 1;
+    }
+}
+
+function testUnInitVars7() {
+    int i;
+    int j;
+    int k;
+    do {
+        i = 0;
+        j = 1;
+        check getErrorOrNil();
+        k = 1;
+    } on fail {
+        k = -1;
+    }
+    i += 1;
+    j += 1;
+    k += 1;
+}
+
+function getErrorOrNil() returns error? {
+    return getError();
+}
+
+function testUnInitVars8(int[] data) returns string {
+    string str1 = "";
+    string str2;
+    foreach var i in data {
+        if(i < 0) {
+            check getErrorOrNil();
+            str1 = "partial init";
+            str2 = "partial init";
+        }
+    } on fail {
+        str1 += "-> error caught. Hence value returning";
+        return str1;
+    }
+    str2 += "-> reached end";
+    return str1;
+}
+

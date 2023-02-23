@@ -32,6 +32,7 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
 
     public boolean isTypeParamResolved;
     public BTypeSymbol typeParamTSymbol;
+    public BVarSymbol annotations;
 
     public BTypeSymbol(long symTag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                        Location pos, SymbolOrigin origin) {
