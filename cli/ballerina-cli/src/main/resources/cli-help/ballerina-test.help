@@ -133,4 +133,4 @@ EXAMPLES
 
        Run the tests with the code coverage and exclude files from coverage
        calculation.
-           $ bal test --code-coverage --excludes=<./Relative src path>/<Absolute src path>
+           $ bal test --code-coverage --excludes=<source_path1>,<source_path2>

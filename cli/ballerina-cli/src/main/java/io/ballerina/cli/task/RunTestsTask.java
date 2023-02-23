@@ -66,13 +66,17 @@ import static io.ballerina.cli.utils.TestUtils.generateCoverage;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
 import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.FULLY_QULAIFIED_MODULENAME_SEPRATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.PATH_SEPARATOR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.RELATIVE_PATH_PREFIX;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.STANDALONE_SRC_PACKAGENAME;
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
 
 /**
@@ -285,14 +289,14 @@ public class RunTestsTask implements Task {
                     + "=destfile="
                     + target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR)
                     .resolve(TesterinaConstants.EXEC_FILE_NAME);
-            if (!TesterinaConstants.DOT.equals(packageName) && this.includesInCoverage == null) {
+            if (!STANDALONE_SRC_PACKAGENAME.equals(packageName) && this.includesInCoverage == null) {
                 // add user defined classes for generating the jacoco exec file
                 agentCommand += ",includes=" + orgName + ".*";
             } else {
                 agentCommand += ",includes=" + this.includesInCoverage;
             }
 
-            if (!TesterinaConstants.DOT.equals(packageName) && this.excludesInCoverage != null) {
+            if (!STANDALONE_SRC_PACKAGENAME.equals(packageName) && this.excludesInCoverage != null) {
                 List<String> exclusionSourceList = List.of((this.excludesInCoverage).split(","));
                 getclassFromSourceFilePath(exclusionSourceList, currentPackage, exclusionClassList);
                 agentCommand += ",excludes=" + String.join(":", exclusionClassList);
@@ -329,9 +333,9 @@ public class RunTestsTask implements Task {
         for (String sourceFile : sourceFileList) {
             validateSourceFilePath(sourceRoot, sourceFile);
             if (sourceFile.startsWith(sourceRoot)) {
-                sourceFile = sourceFile.replace(sourceRoot + "/", "");
-            } else if (sourceFile.startsWith("./")) {
-                sourceFile = sourceFile.replace("./", "");
+                sourceFile = sourceFile.replace(sourceRoot + PATH_SEPARATOR, "");
+            } else if (sourceFile.startsWith(RELATIVE_PATH_PREFIX)) {
+                sourceFile = sourceFile.replace(RELATIVE_PATH_PREFIX, "");
             }
             String org = currentPackage.packageOrg().toString();
             String packageName = currentPackage.packageName().toString();
@@ -343,14 +347,14 @@ public class RunTestsTask implements Task {
             }
 
 
-            if (sourceFile.split("/").length == 2) {
-                String moduleName = sourceFile.split("/")[0];
-                String balFile = sourceFile.split("/")[1].replace(".bal", "");
-                String className = getQualifiedClassName(org, packageName + DOT + moduleName,
-                        version, balFile);
+            if (sourceFile.split(PATH_SEPARATOR).length == 2) {
+                String moduleName = sourceFile.split(PATH_SEPARATOR)[0];
+                String balFile = sourceFile.split(PATH_SEPARATOR)[1].replace(BLANG_SOURCE_EXT, "");
+                String className = getQualifiedClassName(org, packageName +
+                                FULLY_QULAIFIED_MODULENAME_SEPRATOR + moduleName, version, balFile);
                 classFileList.add(className);
-            } else if (sourceFile.split("/").length == 1) {
-                String balFile = sourceFile.split("/")[0].replace(".bal", "");
+            } else if (sourceFile.split(PATH_SEPARATOR).length == 1) {
+                String balFile = sourceFile.split(PATH_SEPARATOR)[0].replace(BLANG_SOURCE_EXT, "");
                 String className = getQualifiedClassName(org, packageName, version, balFile);
                 classFileList.add(className);
             }
@@ -358,8 +362,8 @@ public class RunTestsTask implements Task {
     }
 
     private void validateSourceFilePath(String projectRootDir, String sourceFileName) {
-        if (sourceFileName.startsWith("./")) {
-            sourceFileName = sourceFileName.replace("./", projectRootDir + "/");
+        if (sourceFileName.startsWith(RELATIVE_PATH_PREFIX)) {
+            sourceFileName = sourceFileName.replace(RELATIVE_PATH_PREFIX, projectRootDir + PATH_SEPARATOR);
         }
 
         if (!sourceFileName.startsWith(projectRootDir)) {
@@ -372,9 +376,7 @@ public class RunTestsTask implements Task {
             throw createLauncherException(sourceFileName + " does not exist within the project. " +
                     "It can not be used for code coverage exclusion.");
         }
-
     }
-
 
     private String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
         List<Path> dependencies = new ArrayList<>();

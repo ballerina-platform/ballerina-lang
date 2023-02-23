@@ -39,8 +39,15 @@ public class TesterinaConstants {
     public static final String TARGET_DIR_NAME = "target";
 
     public static final String DOT = ".";
+
+    public static final String FULLY_QULAIFIED_MODULENAME_SEPRATOR = ".";
+
+    public static final String STANDALONE_SRC_PACKAGENAME = ".";
+
     public static final String HYPHEN = "-";
     public static final String PATH_SEPARATOR = "/";
+
+    public static final String RELATIVE_PATH_PREFIX = "./";
     public static final String JAR_EXTENSION = ".jar";
     public static final String CLASS_EXTENSION = ".class";
     public static final String TESTABLE = "testable";
