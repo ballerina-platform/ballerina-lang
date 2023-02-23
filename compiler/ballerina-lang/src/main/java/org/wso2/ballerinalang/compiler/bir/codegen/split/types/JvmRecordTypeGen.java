@@ -29,6 +29,8 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -100,7 +102,7 @@ public class JvmRecordTypeGen {
         mv.visitTypeInsn(CHECKCAST, RECORD_TYPE_IMPL);
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
-        addRecordFields(mv, methodName, bType.fields);
+        addRecordFields(mv, methodName, bType.fields, ((BRecordTypeSymbol) bType.tsymbol).defaultValues);
         addRecordRestField(mv, bType.restFieldType);
         jvmCreateTypeGen.addImmutableType(mv, bType, symbolTable);
     }
@@ -108,10 +110,13 @@ public class JvmRecordTypeGen {
     /**
      * Add the field type information of a record type. The record type is assumed
      * to be at the top of the stack.
-     *  @param mv     method visitor
-     * @param fields record fields to be added
+     *
+     * @param mv            method visitor
+     * @param fields        record fields to be added
+     * @param defaultValues
      */
-    private void addRecordFields(MethodVisitor mv, String methodName, Map<String, BField> fields) {
+    private void addRecordFields(MethodVisitor mv, String methodName, Map<String, BField> fields,
+                                 Map<String, BInvokableSymbol> defaultValues) {
         // Create the fields map
         mv.visitTypeInsn(NEW, LINKED_HASH_MAP);
         mv.visitInsn(DUP);
@@ -119,7 +124,7 @@ public class JvmRecordTypeGen {
         if (!fields.isEmpty()) {
             mv.visitInsn(DUP);
             mv.visitMethodInsn(INVOKESTATIC, recordTypesClass, methodName + "$addField$", SET_LINKED_HASH_MAP, false);
-            jvmCreateTypeGen.splitAddFields(recordTypesCw, recordTypesClass, methodName, fields);
+            jvmCreateTypeGen.splitAddFields(recordTypesCw, recordTypesClass, methodName, fields, defaultValues, true);
         }
         // Set the fields of the record
         mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setFields", SET_MAP, false);

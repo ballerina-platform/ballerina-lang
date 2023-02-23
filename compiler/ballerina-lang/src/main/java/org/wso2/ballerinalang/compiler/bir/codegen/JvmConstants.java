@@ -160,6 +160,8 @@ public class JvmConstants {
     public static final String TYPEDESC_TYPE_IMPL = "io/ballerina/runtime/internal/types/BTypedescType";
     public static final String PARAMETERIZED_TYPE_IMPL = "io/ballerina/runtime/internal/types/BParameterizedType";
     public static final String FIELD_IMPL = "io/ballerina/runtime/internal/types/BField";
+    public static final String RECORD_FIELD_IMPL = "io/ballerina/runtime/internal/types/BRecordField";
+    public static final String OBJECT_FIELD_IMPL = "io/ballerina/runtime/internal/types/BObjectField";
     public static final String METHOD_TYPE_IMPL = "io/ballerina/runtime/internal/types/BMethodType";
     public static final String RESOURCE_METHOD_TYPE_IMPL = "io/ballerina/runtime/internal/types/BResourceMethodType";
     public static final String REMOTE_METHOD_TYPE_IMPL = "io/ballerina/runtime/internal/types/BRemoteMethodType";

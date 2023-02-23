@@ -461,4 +461,29 @@ public class Values {
         BString annotKey = StringUtils.fromString("testorg/types.typeref:1:String");
         return TypeChecker.checkIsType(((BMap) annotation).get(annotKey), constraint.getDescribingType());
     }
+
+    public static BMap<BString, Object> getRecordValueWithDefaultFields(BString recordName) {
+        return ValueCreator.createRecordValue(recordModule, recordName.getValue());
+    }
+
+    public static BMap<BString, Object> getRecordValueWithFieldValues(BString recordName, BString strVal) {
+        Map<String, Object> valueMap = Map.of("strVal", strVal);
+        return ValueCreator.createRecordValue(recordModule, recordName.getValue(), valueMap);
+    }
+
+    public static BMap<BString, Object> getOpenRecordValueWithDefaultFields(BString recordName) {
+        Map<String, Object> valueMap = Map.of("floatVal", 2.3D, "strVal2", StringUtils.fromString("world"));
+        return ValueCreator.createRecordValue(recordModule, recordName.getValue(), valueMap);
+    }
+
+    public static BMap<BString, Object> getInlineRecordValueWithDefaultFields(BMap<?, ?> recordValue) {
+        String typeName = recordValue.getType().getName();
+        return ValueCreator.createRecordValue(recordModule, typeName);
+    }
+
+    public static BMap<BString, Object> getInlineRecordValueWithDefaultFields2(BMap<?, ?> recordValue) {
+        String typeName = recordValue.getType().getName();
+        Map<String, Object> valueMap = Map.of("c", 1.9D, "d", StringUtils.fromString("test string"), "e", true);
+        return ValueCreator.createRecordValue(recordModule, typeName, valueMap);
+    }
 }

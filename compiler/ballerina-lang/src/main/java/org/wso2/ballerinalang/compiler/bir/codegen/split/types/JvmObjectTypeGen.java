@@ -521,7 +521,7 @@ public class JvmObjectTypeGen {
         if (!fields.isEmpty()) {
             mv.visitInsn(DUP);
             mv.visitMethodInsn(INVOKESTATIC, objectTypesClass, methodName + "$addField$", SET_LINKED_HASH_MAP, false);
-            jvmCreateTypeGen.splitAddFields(objectTypesCw, objectTypesClass, methodName, fields);
+            jvmCreateTypeGen.splitAddFields(objectTypesCw, objectTypesClass, methodName, fields, null, false);
         }
 
         // Set the fields of the object

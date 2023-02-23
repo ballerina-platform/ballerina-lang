@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/jballerina.java;
+import ballerina/lang.runtime;
 import ballerina/test;
 
 public type Address record {
@@ -23,7 +24,7 @@ public type Address record {
     int postalCode;
 };
 
-public function getRecord(string recordName) returns record{} = @java:Method {
+public function getRecord(string recordName) returns record {} = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
 
@@ -46,6 +47,40 @@ public type Bar readonly & record {|
 
 type DetailsInUnion Details|map<anydata>|table<map<json>>;
 
+type DefaultableRecord record {|
+    int intVal = 3;
+    string strVal = "hello";
+    float floatVal = 2.3;
+    boolean booleanval?;
+|};
+
+type DefaultableRecordAsync record {|
+    int intVal = getAsyncInt(3);
+    string strVal = getAsyncString("hello");
+    float floatVal = getAsyncFloat(2.3);
+    boolean booleanval?;
+|};
+
+type DefaultableOpenRecord record {
+    int intVal = 3;
+    string strVal1 = "hello";
+};
+
+isolated function getAsyncInt(int x) returns int {
+    runtime:sleep(0.1);
+    return x;
+}
+
+isolated function git getAsyncString(string x) returns string {
+    runtime:sleep(0.1);
+    return x;
+}
+
+isolated function getAsyncFloat(float x) returns float {
+    runtime:sleep(0.1);
+    return x;
+}
+
 public function validateAPI() {
     anydata recordVal1 = getRecordValue();
     test:assertTrue(recordVal1 is Student);
@@ -67,27 +102,55 @@ public function validateAPI() {
     addressRec1.postalCode += 1;
     addressRec1["district"] = "Colombo";
     addressRec1["postalCode"] += 2;
-    test:assertEquals(addressRec1, {"city":"Nugegoda","country":"Sri Lanka","postalCode":10253,"district":"Colombo"});
+    test:assertEquals(addressRec1, {"city": "Nugegoda", "country": "Sri Lanka", "postalCode": 10253, "district": "Colombo"});
 
     Address|error addressRec2 = trap getRecordWithInvalidInitialValues();
     test:assertTrue(addressRec2 is error);
     if (addressRec2 is error) {
         test:assertEquals("{ballerina/lang.map}InherentTypeViolation", addressRec2.message());
         test:assertEquals("invalid value for record field 'postalCode': expected value of type 'int', found 'string'",
-        <string> checkpanic addressRec2.detail()["message"]);
+        <string>checkpanic addressRec2.detail()["message"]);
     }
 
-    Student & readonly studentRec1 =  getReadOnlyRecordWithInitialValues();
+    Student & readonly studentRec1 = getReadOnlyRecordWithInitialValues();
     test:assertTrue(studentRec1.isReadOnly());
-    test:assertEquals(studentRec1, {"name":"NameOfStudent1"});
+    test:assertEquals(studentRec1, {"name": "NameOfStudent1"});
 
-    Student & readonly|error studentRec2 =  trap getReadOnlyRecordWithInvalidInitialValues();
+    Student & readonly|error studentRec2 = trap getReadOnlyRecordWithInvalidInitialValues();
     test:assertTrue(studentRec2 is error);
     if (studentRec2 is error) {
         test:assertEquals("{ballerina/lang.map}KeyNotFound", studentRec2.message());
         test:assertEquals("invalid field access: field 'postalCode' not found in record type " +
-        "'values.records:Student'", <string> checkpanic studentRec2.detail()["message"]);
+        "'values.records:Student'", <string>checkpanic studentRec2.detail()["message"]);
     }
+
+    anydata rec = getRecordValueWithDefaultFields("DefaultableRecord");
+    test:assertTrue(rec is DefaultableRecord);
+    test:assertEquals(rec, {"intVal": 3, "strVal": "hello", "floatVal": 2.3});
+
+    rec = getRecordValueWithFieldValues("DefaultableRecord", "John");
+    test:assertTrue(rec is DefaultableRecord);
+    test:assertEquals(rec, {"intVal": 3, "strVal": "John", "floatVal": 2.3});
+
+    rec = getRecordValueWithDefaultFields("DefaultableRecordAsync");
+    test:assertTrue(rec is DefaultableRecordAsync);
+    test:assertEquals(rec, {"intVal": 3, "strVal": "hello", "floatVal": 2.3});
+
+    rec = getRecordValueWithFieldValues("DefaultableRecordAsync", "Bob");
+    test:assertTrue(rec is DefaultableRecordAsync);
+    test:assertEquals(rec, {"intVal": 3, "strVal": "Bob", "floatVal": 2.3});
+
+    rec = getOpenRecordValueWithDefaultFields("DefaultableOpenRecord");
+    test:assertTrue(rec is DefaultableOpenRecord);
+    test:assertEquals(rec, {"intVal": 3, "strVal1": "hello", "floatVal": 2.3, "strVal2": "world"});
+
+    record {|int a = 2; string b = getAsyncString("b");|} recValue = {};
+    rec = getInlineRecordValueWithDefaultFields(recValue);
+    test:assertEquals(rec, {"a": 2, "b": "b"});
+
+    record {int a = 4; string b = getAsyncString("bbb"); float c;} recValue2 = {c: 5.6};
+    rec = getInlineRecordValueWithDefaultFields2(recValue2);
+    test:assertEquals(rec, {"a": 4, "b": "bbb", "c": 1.9, "e": true, "d": "test string"});
 }
 
 function getRecordWithInitialValues() returns Address = @java:Method {
@@ -118,18 +181,39 @@ function getRecordValueFromJson(json value, typedesc<anydata> recType) returns a
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
 
-public function getRecordNegative(string recordName) returns record{} = @java:Method {
+public function getRecordNegative(string recordName) returns record {} = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
 
-public function getRecordNegative2(string recordName) returns record{} = @java:Method {
+public function getRecordNegative2(string recordName) returns record {} = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
 
-public function getReadonlyRecordNegative(string recordName) returns record{} = @java:Method {
+public function getReadonlyRecordNegative(string recordName) returns record {} = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
 
-public function getRecordWithRestFieldsNegative() returns record{} = @java:Method {
+public function getRecordWithRestFieldsNegative() returns record {} = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
+
+function getRecordValueWithDefaultFields(string recordTypeName) returns anydata = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function getRecordValueWithFieldValues(string recordTypeName, string strVal) returns anydata = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function getOpenRecordValueWithDefaultFields(string recordTypeName) returns anydata = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function getInlineRecordValueWithDefaultFields(record {} recValue) returns anydata = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function getInlineRecordValueWithDefaultFields2(record {} recValue) returns anydata = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+

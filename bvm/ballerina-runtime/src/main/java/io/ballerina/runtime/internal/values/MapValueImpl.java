@@ -186,12 +186,12 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             return this.get(key);
         }
 
-        Type expectedType = null;
+        Type expectedType;
 
         // The type should be a record or map for filling read.
         if (this.referredType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             BRecordType recordType = (BRecordType) this.referredType;
-            Map fields = recordType.getFields();
+            Map<?, ?> fields = recordType.getFields();
             if (fields.containsKey(key.toString())) {
                 expectedType = ((BField) fields.get(key.toString())).getFieldType();
             } else {

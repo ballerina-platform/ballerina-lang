@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
@@ -34,15 +35,21 @@ import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BFunctionType;
+import io.ballerina.runtime.internal.types.BRecordField;
+import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.values.FutureValue;
+import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.ValueCreator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
@@ -309,6 +316,64 @@ public class AsyncUtils {
     private static void handleRuntimeErrors(Strand parent, BError error) {
         parent.panic = error;
         parent.scheduler.unblockStrand(parent);
+    }
+
+    public static void invokeDefaultValueFunctions(ValueCreator valueCreator, MapValue<BString, Object> recordValue,
+                                                   Set<String> initializedFields) {
+        BRecordType recordType = (BRecordType) recordValue.getType();
+        Map<String, Field> fields = recordType.getFields();
+        if (fields.isEmpty()) {
+            return;
+        }
+
+        Iterator<Map.Entry<String, Field>> fieldsItr =
+                fields.entrySet().stream().filter(e -> !initializedFields.contains(e.getKey())).iterator();
+        Strand parent = Scheduler.getStrand();
+        BRecordField defaultValueField = getNextRecordFieldWithDefaultFunc(fieldsItr);
+        if (defaultValueField != null) {
+            blockStrand(parent);
+            invokeDefaultValueFunctions(valueCreator, fieldsItr, parent, recordValue, defaultValueField);
+        }
+    }
+
+    private static void invokeDefaultValueFunctions(ValueCreator valueCreator,
+                                                    Iterator<Map.Entry<String, Field>> fieldsItr, Strand parent,
+                                                    MapValue<BString, Object> recordValue,
+                                                    BRecordField defaultValueField) {
+        String defaultValueFunc = defaultValueField.getDefaultFunctionName();
+        Function<?, ?> defaultFunc = o -> valueCreator.call((Strand) (((Object[]) o)[0]), defaultValueFunc);
+        AsyncFunctionCallback callback = new AsyncFunctionCallback(parent) {
+            @Override
+            public void notifySuccess(Object result) {
+                recordValue.put(StringUtils.fromString(defaultValueField.getFieldName()), result);
+                BRecordField nextDefaultValueField = getNextRecordFieldWithDefaultFunc(fieldsItr);
+                if (nextDefaultValueField != null) {
+                    invokeDefaultValueFunctions(valueCreator, fieldsItr, parent, recordValue, nextDefaultValueField);
+                } else {
+                    setReturnValues(recordValue);
+                }
+            }
+
+            @Override
+            public void notifyFailure(BError error) {
+                handleRuntimeErrors(parent, error);
+            }
+        };
+
+        FutureValue future = parent.scheduler.createFuture(null, callback, null, null, defaultValueFunc, null);
+        parent.scheduler.schedule(new Object[1], defaultFunc, future);
+    }
+
+    private static BRecordField getNextRecordFieldWithDefaultFunc(Iterator<Map.Entry<String, Field>> fieldsItr) {
+        while (fieldsItr.hasNext()) {
+            BRecordField field = (BRecordField) fieldsItr.next().getValue();
+            String defaultFunctionName = field.getDefaultFunctionName();
+            if (defaultFunctionName == null) {
+                continue;
+            }
+            return field;
+        }
+        return null;
     }
 
     private static class Unblocker implements java.util.function.BiConsumer<Object, Throwable> {
