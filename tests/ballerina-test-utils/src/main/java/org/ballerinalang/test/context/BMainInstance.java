@@ -21,15 +21,16 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -63,9 +63,18 @@ public class BMainInstance implements BMain {
 
         @Override
         public void run() {
-            Scanner sc = new Scanner(inputStream, StandardCharsets.UTF_8);
-            while (sc.hasNextLine()) {
-                printStream.println(sc.nextLine());
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            String lineContent = null;
+            while (true) {
+                try {
+                    lineContent = bufferedReader.readLine();
+                    if (lineContent == null) {
+                        break;
+                    }
+                    printStream.println(lineContent);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
