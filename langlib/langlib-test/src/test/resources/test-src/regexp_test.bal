@@ -533,31 +533,41 @@ function testReplaceAll() {
     string str1 = "ReplaceTTTGGGThis";
     var regExpr1 = re `T.*G`;
     string replacement1 = " ";
-    string result1 = regExpr1.replaceAll(str1, replacement1);
-    assertEquality("Replace This", result1);
+    string result11 = regExpr1.replaceAll(str1, replacement1);
+    assertEquality("Replace This", result11);
+    string result12 = regExpr1.replaceAll(str1, replacement1, 2);
+    assertEquality("Replace This", result12);
 
     string str2 = "100100011";
     var regExpr2 = re `0+`;
     string replacement2 = "*";
-    string result2 = regExpr2.replaceAll(str2, replacement2);
-    assertEquality("1*1*11", result2);
+    string result21 = regExpr2.replaceAll(str2, replacement2);
+    assertEquality("1*1*11", result21);
+    string result22 = regExpr2.replaceAll(str2, replacement2, 3);
+    assertEquality("1001*11", result22);
 
     //non matching
     string str3 = "100100011";
     var regExpr3 = re `95`;
     string replacement3 = "*";
-    string result3 = regExpr3.replaceAll(str3, replacement3);
-    assertEquality(str3, result3);
+    string result31 = regExpr3.replaceAll(str3, replacement3);
+    assertEquality(str3, result31);
+    string result32 = regExpr3.replaceAll(str3, replacement3, 7);
+    assertEquality(str3, result32);
 
     string str4 = "100100011";
     var regExpr4 = re `0+`;
     string replacement4 = "";
-    string result4 = regExpr4.replaceAll(str4, replacement4);
-    assertEquality("1111", result4);
+    string result41 = regExpr4.replaceAll(str4, replacement4);
+    assertEquality("1111", result41);
+    string result42 = regExpr4.replaceAll(str4, replacement4, 3);
+    assertEquality("100111", result42);
 
     string str5 = "100000100011";
-    string result5 = regExpr4.replaceAll(str5, replacementFunctionForReplaceAll);
-    assertEquality("151311", result5);
+    string result51 = regExpr4.replaceAll(str5, replacementFunctionForReplaceAll);
+    assertEquality("151311", result51);
+    string result52 = regExpr4.replaceAll(str5, replacementFunctionForReplaceAll, 6);
+    assertEquality("1000001311", result52);
 }
 
 isolated function replacementFunctionForReplaceAll(regexp:Groups groups) returns string {

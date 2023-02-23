@@ -95,6 +95,23 @@ public class MockTest extends BaseTestCase {
         }
     }
 
+    /**
+     * Test object mock using test double when client implementation contains a resource function.
+     *
+     * @throws BallerinaTestException
+     */
+    @Test()
+    public void testObjectMockDouble() throws BallerinaTestException {
+        String msg1 = "1 passing";
+        String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests2"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1)) {
+            Assert.fail("Test failed due to object mocking failure with resource functions in test framework." +
+                    "\nOutput:\n" + output);
+        }
+    }
+
     @Test()
     public void testFunctionMockingModuleLevel() throws BallerinaTestException {
         String msg1 = "3 passing";
