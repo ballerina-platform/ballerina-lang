@@ -18,6 +18,9 @@
 
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.values.BTypedesc;
+
 /**
  * {@code {@link CharIterator }} provides iterator implementation for Ballerina string values.
  *
@@ -29,6 +32,7 @@ public class CharIterator implements IteratorValue {
     long cursor = 0;
     long length;
     String stringValue;
+    private BTypedesc typedesc;
 
     CharIterator(StringValue value) {
         this.value = value;
@@ -62,6 +66,14 @@ public class CharIterator implements IteratorValue {
     @Override
     public boolean hasNext() {
         return cursor < length;
+    }
+
+    @Override
+    public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
+        }
+        return typedesc;
     }
 
 }

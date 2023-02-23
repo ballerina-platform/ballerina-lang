@@ -18,10 +18,12 @@
 
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlNonElementItem;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
@@ -35,7 +37,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VALUE;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 
 /**
  * Functionality common to PI, COMMENT and TEXT nodes.
@@ -173,6 +174,9 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
     @Override
     public IteratorValue getIterator() {
         return new IteratorValue() {
+
+            private BTypedesc typedesc;
+            
             @Override
             public boolean hasNext() {
                 return false;
@@ -181,6 +185,14 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
             @Override
             public Object next() {
                 throw new NoSuchElementException();
+            }
+
+            @Override
+            public BTypedesc getTypedesc() {
+                if (this.typedesc == null) {
+                    this.typedesc = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
+                }
+                return typedesc;
             }
         };
     }
@@ -219,7 +231,6 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
     @Override
     public void freezeDirect() {
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
-        this.typedesc = createSingletonTypedesc(this);
     }
 
     @Override

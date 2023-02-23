@@ -29,6 +29,8 @@ import io.ballerina.runtime.internal.types.BStreamType;
 import java.util.Map;
 import java.util.UUID;
 
+import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+
 /**
  * <p>
  * The {@link StreamValue} represents a stream in Ballerina.
@@ -41,7 +43,7 @@ import java.util.UUID;
  */
 public class StreamValue implements RefValue, BStream {
 
-    private final BTypedesc typedesc;
+    private BTypedesc typedesc;
     private Type type;
     private Type constraintType;
     private Type completionType;
@@ -61,7 +63,6 @@ public class StreamValue implements RefValue, BStream {
         this.type = new BStreamType(constraintType, completionType);
         this.streamId = UUID.randomUUID().toString();
         this.iteratorObj = null;
-        this.typedesc = new TypedescValueImpl(type);
     }
 
     public StreamValue(Type type, BObject iteratorObj) {
@@ -70,7 +71,6 @@ public class StreamValue implements RefValue, BStream {
         this.type = new BStreamType(constraintType, completionType);
         this.streamId = UUID.randomUUID().toString();
         this.iteratorObj = iteratorObj;
-        this.typedesc = new TypedescValueImpl(type);
     }
 
     public String getStreamId() {
@@ -124,7 +124,10 @@ public class StreamValue implements RefValue, BStream {
 
     @Override
     public BTypedesc getTypedesc() {
-        return typedesc;
+        if (this.typedesc == null) {
+            this.typedesc = new TypedescValueImpl(type);
+        }
+        return this.typedesc;
     }
 
     public Type getConstraintType() {

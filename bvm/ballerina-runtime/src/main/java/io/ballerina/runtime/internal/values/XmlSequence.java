@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.CycleUtils;
@@ -45,7 +46,6 @@ import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_EMPTY_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 
 /**
  * <p>
@@ -67,12 +67,10 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     public XmlSequence() {
         children = new ArrayList<>();
         this.type = PredefinedTypes.TYPE_XML_NEVER;
-        setTypedescValue(type);
     }
 
     public XmlSequence(List<BXml> children) {
         this.children = children;
-        setTypedescValue(type);
     }
 
     public XmlSequence(BXml child) {
@@ -80,7 +78,6 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         if (!child.isEmpty()) {
             this.children.add(child);
         }
-        setTypedescValue(type);
     }
 
     public List<BXml> getChildrenList() {
@@ -593,7 +590,6 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         for (BXml elem : children) {
             elem.freezeDirect();
         }
-        this.typedesc = createSingletonTypedesc(this);
     }
 
     @Override
@@ -615,6 +611,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     public IteratorValue getIterator() {
         return new IteratorValue() {
             Iterator<BXml> iterator = children.iterator();
+            private BTypedesc typedesc;
 
             @Override
             public boolean hasNext() {
@@ -624,6 +621,14 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             @Override
             public Object next() {
                 return iterator.next();
+            }
+
+            @Override
+            public BTypedesc getTypedesc() {
+                if (this.typedesc == null) {
+                    this.typedesc = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
+                }
+                return typedesc;
             }
         };
     }

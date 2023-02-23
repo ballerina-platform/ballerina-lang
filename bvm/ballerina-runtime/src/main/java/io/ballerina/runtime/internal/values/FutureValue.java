@@ -40,7 +40,7 @@
   */
  public class FutureValue implements BFuture, RefValue {
 
-     private final BTypedesc typedesc;
+     private BTypedesc typedesc;
 
      public Strand strand;
 
@@ -61,7 +61,6 @@
          this.strand = strand;
          this.callback = callback;
          this.type = new BFutureType(constraint);
-         this.typedesc = new TypedescValueImpl(this.type);
      }
 
      @Override
@@ -99,6 +98,9 @@
 
      @Override
      public BTypedesc getTypedesc() {
+         if (this.typedesc == null) {
+             this.typedesc = new TypedescValueImpl(this.type);
+         }
          return typedesc;
      }
 

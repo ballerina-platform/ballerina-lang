@@ -37,8 +37,6 @@ import java.util.Map;
  */
 public interface IteratorValue extends RefValue, BIterator {
 
-    final BTypedesc TYPEDESC = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
-
     /* Default implementation */
 
     @Override
@@ -64,10 +62,5 @@ public interface IteratorValue extends RefValue, BIterator {
     @Override
     default Object frozenCopy(Map<Object, Object> refs) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    default BTypedesc getTypedesc() {
-        return TYPEDESC;
     }
 }

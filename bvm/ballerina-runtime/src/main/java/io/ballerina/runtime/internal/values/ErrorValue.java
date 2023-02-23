@@ -65,7 +65,7 @@ public class ErrorValue extends BError implements RefValue {
     private static final PrintStream outStream = System.err;
 
     private final Type type;
-    private final BTypedesc typedesc;
+    private BTypedesc typedesc;
     private final BString message;
     private final BError cause;
     private final Object details;
@@ -94,7 +94,6 @@ public class ErrorValue extends BError implements RefValue {
         this.message = message;
         this.cause = cause;
         this.details = details;
-        this.typedesc = new TypedescValueImpl(type);
     }
 
     public ErrorValue(Type type, BString message, BError cause, Object details,
@@ -107,7 +106,6 @@ public class ErrorValue extends BError implements RefValue {
         BTypeIdSet typeIdSet = new BTypeIdSet();
         typeIdSet.add(typeIdPkg, typeIdName, true);
         ((BErrorType) type).setTypeIdSet(typeIdSet);
-        this.typedesc = new TypedescValueImpl(type);
     }
 
     @Override
@@ -221,7 +219,11 @@ public class ErrorValue extends BError implements RefValue {
         return this;
     }
 
+    @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = new TypedescValueImpl(type);
+        }
         return typedesc;
     }
 

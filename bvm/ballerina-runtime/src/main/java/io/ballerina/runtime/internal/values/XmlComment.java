@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BTypedesc;
 import org.apache.axiom.om.OMNode;
 
 import java.util.Map;
@@ -38,13 +39,11 @@ public class XmlComment extends XmlNonElementItem {
     public XmlComment(String data) {
         this.data = data;
         this.type = PredefinedTypes.TYPE_COMMENT;
-        setTypedescValue(type);
     }
 
     public XmlComment(String data, boolean readonly) {
         this.data = data;
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_COMMENT : PredefinedTypes.TYPE_COMMENT;
-        setTypedescValue(type);
     }
 
     @Override
@@ -52,6 +51,7 @@ public class XmlComment extends XmlNonElementItem {
         XmlComment that = this;
         return new IteratorValue() {
             boolean read = false;
+            private BTypedesc typedesc;
             @Override
             public boolean hasNext() {
                 return !read;
@@ -65,6 +65,14 @@ public class XmlComment extends XmlNonElementItem {
                 } else {
                     throw new NoSuchElementException();
                 }
+            }
+
+            @Override
+            public BTypedesc getTypedesc() {
+                if (this.typedesc == null) {
+                    this.typedesc = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
+                }
+                return typedesc;
             }
         };
     }

@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import org.apache.axiom.om.OMNode;
 
@@ -40,7 +41,6 @@ public class XmlText extends XmlNonElementItem {
         // data is the content of xml comment or text node
         this.data = data;
         this.type = data.isEmpty() ? PredefinedTypes.TYPE_XML_NEVER : PredefinedTypes.TYPE_TEXT;
-        setTypedescValue(type);
     }
 
     @Override
@@ -96,6 +96,7 @@ public class XmlText extends XmlNonElementItem {
         XmlText that = this;
         return new IteratorValue() {
             boolean read = false;
+            private BTypedesc typedesc;
             @Override
             public boolean hasNext() {
                 return !read;
@@ -109,6 +110,14 @@ public class XmlText extends XmlNonElementItem {
                 } else {
                     throw new NoSuchElementException();
                 }
+            }
+
+            @Override
+            public BTypedesc getTypedesc() {
+                if (this.typedesc == null) {
+                    this.typedesc = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
+                }
+                return typedesc;
             }
         };
     }

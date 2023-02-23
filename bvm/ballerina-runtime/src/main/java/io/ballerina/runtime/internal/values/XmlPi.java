@@ -20,11 +20,14 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BTypedesc;
 import org.apache.axiom.om.OMNode;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+
+import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 
 /**
  * XML nodes containing processing instructions.
@@ -40,7 +43,6 @@ public class XmlPi extends XmlNonElementItem {
         this.data = data;
         this.target = target;
         this.type = PredefinedTypes.TYPE_PROCESSING_INSTRUCTION;
-        setTypedescValue(type);
     }
 
     public XmlPi(String data, String target, boolean readonly) {
@@ -48,7 +50,6 @@ public class XmlPi extends XmlNonElementItem {
         this.target = target;
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_PROCESSING_INSTRUCTION :
                 PredefinedTypes.TYPE_PROCESSING_INSTRUCTION;
-        setTypedescValue(type);
     }
 
     @Override
@@ -56,6 +57,8 @@ public class XmlPi extends XmlNonElementItem {
         XmlPi that = this;
         return new IteratorValue() {
             boolean read = false;
+            private BTypedesc typedesc;
+
             @Override
             public boolean hasNext() {
                 return !read;
@@ -69,6 +72,14 @@ public class XmlPi extends XmlNonElementItem {
                 } else {
                     throw new NoSuchElementException();
                 }
+            }
+
+            @Override
+            public BTypedesc getTypedesc() {
+                if (this.typedesc == null) {
+                    this.typedesc = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
+                }
+                return typedesc;
             }
         };
     }

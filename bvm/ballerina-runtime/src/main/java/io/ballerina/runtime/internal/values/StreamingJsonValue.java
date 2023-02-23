@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BStreamingJson;
+import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.JsonDataSource;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.JsonInternalUtils;
@@ -203,6 +204,7 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
     static class StreamingJsonIterator implements IteratorValue {
         StreamingJsonValue array;
         long cursor = 0;
+        private BTypedesc typedesc;
 
         StreamingJsonIterator(StreamingJsonValue value) {
             this.array = value;
@@ -231,6 +233,14 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
             }
 
             return array.datasource.hasNext();
+        }
+
+        @Override
+        public BTypedesc getTypedesc() {
+            if (this.typedesc == null) {
+                this.typedesc = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
+            }
+            return typedesc;
         }
     }
 }
