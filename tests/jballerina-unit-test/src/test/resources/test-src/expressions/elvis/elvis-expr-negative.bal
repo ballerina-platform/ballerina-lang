@@ -126,3 +126,11 @@ function testElvisWithJsonNegative5() {
     any[] b = [];
     int _ = (a.x?.y ?: b) / 10;
 }
+
+type NonOptionalType int[]|string;
+
+function testInvalidElvisExpr(NonOptionalType i) {
+    int[] _ = i ?: [1, 2]; // error
+    int[]|string j = "str";
+    int[] _ = j ?: [1, 2, 3]; // error
+}

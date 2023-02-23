@@ -71,6 +71,18 @@ public class Async {
         return 0;
     }
 
+    public static long getFieldValWithDefaultValSpecialChars(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithDefaultValSpecialChars", 0, false, 0, false, 0,
+                false);
+        return 0;
+    }
+
+    public static long getFieldValWithDefaultValSpecialCharsAsync(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithDefaultValSpecialCharsAsync", 0, false, 0, false, 0,
+                false);
+        return 0;
+    }
+
     public static long getA(Environment env, BObject obj) {
         invokeAsync(env, obj, "getA");
         return 0;

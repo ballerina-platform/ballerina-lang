@@ -402,6 +402,46 @@ function testNestedElvisWithoutParenthesis() {
     assertEquals(1.213123, elvisOutput18);
 }
 
+type OptionalInt int?;
+
+function getInt(OptionalInt i) returns int {
+    return i ?: 0;
+}
+
+function testElvisExprWithTypeRefType() {
+    OptionalInt a = 1;
+    int r1 = getInt(a);
+    assertEquals(1, r1);
+
+    OptionalInt b = ();
+    int r2 = getInt(b);
+    assertEquals(0, r2);
+}
+
+function getIntArray(int[]? & readonly i) returns int[] {
+    return i ?: [1, 2, 3];
+}
+
+type OptionalReadOnlyIntArray int[]? & readonly;
+
+function getIntArray2(OptionalReadOnlyIntArray i) returns int[] {
+    return i ?: [30, 21];
+}
+
+function testElvisExprWithIntersectionTypes() {
+    int[] a = getIntArray([1, 2]);
+    assertEquals([1, 2], a);
+
+    int[] b = getIntArray(());
+    assertEquals([1, 2, 3], b);
+
+    int[] c = getIntArray2([11]);
+    assertEquals([11], c);
+
+    int[] d = getIntArray2(());
+    assertEquals([30, 21], d);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquals(anydata expected, anydata actual) {
