@@ -155,7 +155,7 @@
       "properties": {
         "java11": {
           "type": "object",
-          "additionalProperties": true,
+          "additionalProperties": false,
           "properties": {
             "dependency": {
               "type": "array",
