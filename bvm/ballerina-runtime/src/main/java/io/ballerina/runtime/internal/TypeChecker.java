@@ -111,8 +111,10 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_JSON;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_JSON;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MIN_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.REGEXP_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED16_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED16_MIN_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED32_MAX_VALUE;
@@ -138,6 +140,7 @@ import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_ST
 public class TypeChecker {
 
     private static final byte MAX_TYPECAST_ERROR_COUNT = 20;
+    private static final String REG_EXP_TYPENAME = "RegExp";
 
     public static Object checkCast(Object sourceVal, Type targetType) {
 
@@ -374,18 +377,14 @@ public class TypeChecker {
         }
 
         // all the types in a finite type may evaluate to target type
-        switch (sourceTypeTag) {
-            case TypeTags.FINITE_TYPE_TAG:
-                for (Object value : ((BFiniteType) sourceType).valueSpace) {
-                    if (!isSameType(getType(value), targetType)) {
-                        return false;
-                    }
+        if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
+            for (Object value : ((BFiniteType) sourceType).valueSpace) {
+                if (!isSameType(getType(value), targetType)) {
+                    return false;
                 }
-                return true;
-            default:
-                break;
+            }
+            return true;
         }
-
         if (targetTypeTag == TypeTags.FINITE_TYPE_TAG) {
             for (Object value : ((BFiniteType) targetType).valueSpace) {
                 if (!isSameType(getType(value), sourceType)) {
@@ -394,6 +393,7 @@ public class TypeChecker {
             }
             return true;
         }
+
         return false;
     }
 
@@ -1076,9 +1076,10 @@ public class TypeChecker {
                 if (fields.stream().allMatch(field -> isSameType(field.getFieldType(), fields.get(0).getFieldType()))) {
                     return fields.get(0);
                 }
+                return null;
+            default:
+                return null;
         }
-
-        return null;
     }
 
     private static boolean checkIsJSONType(Type sourceType, List<TypePair> unresolvedTypes) {
@@ -1160,8 +1161,9 @@ public class TypeChecker {
                 return checkIsRecordType((BRecordType) sourceType, targetType, unresolvedTypes);
             case TypeTags.MAP_TAG:
                 return checkIsRecordType((BMapType) sourceType, targetType, unresolvedTypes);
+            default:
+                return false;
         }
-        return false;
     }
 
     private static boolean checkIsRecordType(BRecordType sourceRecordType, BRecordType targetType,
@@ -1316,9 +1318,9 @@ public class TypeChecker {
                 return checkIsRecordType((MapValue) sourceVal, (BRecordType) sourceType, targetType, unresolvedTypes);
             case TypeTags.MAP_TAG:
                 return checkIsRecordType((BMapType) sourceType, targetType, unresolvedTypes);
+            default:
+                return false;
         }
-
-        return false;
     }
 
     private static boolean checkIsRecordType(MapValue sourceRecordValue, BRecordType sourceRecordType,
@@ -1471,6 +1473,8 @@ public class TypeChecker {
                         sourceType.getSize() != targetType.getSize()) {
                     return false;
                 }
+                break;
+            default:
                 break;
         }
         return checkIsType(sourceType.getElementType(), targetType.getElementType(), unresolvedTypes);
@@ -1652,8 +1656,9 @@ public class TypeChecker {
                     }
                 }
                 return true;
+            default:
+                return true;
         }
-        return true;
     }
 
     private static boolean checkIsFiniteType(Type sourceType, BFiniteType targetType) {
@@ -1985,8 +1990,9 @@ public class TypeChecker {
                 return ((BXmlType) sourceType).constraint.getTag() == TypeTags.NEVER_TAG;
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return isInherentlyImmutableType(((BTypeReferenceType) sourceType).getReferredType());
+            default:
+                return false;
         }
-        return false;
     }
 
     public static boolean isSelectivelyImmutableType(Type type, Set<Type> unresolvedTypes) {
@@ -2078,8 +2084,9 @@ public class TypeChecker {
                 return isSelectivelyImmutableType(((BIntersectionType) type).getEffectiveType(), unresolvedTypes);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 return isSelectivelyImmutableType(((BTypeReferenceType) type).getReferredType(), unresolvedTypes);
+            default:
+                return false;
         }
-        return false;
     }
 
     private static boolean checkConstraints(Type sourceConstraint, Type targetConstraint,
@@ -3291,7 +3298,10 @@ public class TypeChecker {
     static boolean isRegExpType(Type targetType) {
         if (targetType.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             Type referredType = ((ReferenceType) targetType).getReferredType();
-            if (referredType.getQualifiedName().equals("ballerina/lang.regexp:0:RegExp")) {
+            Module referredTypePackage = referredType.getPackage();
+            if ((referredTypePackage != null) && BALLERINA_BUILTIN_PKG_PREFIX.equals(referredTypePackage.getOrg())
+                    && REGEXP_LANG_LIB.equals(referredTypePackage.getName())
+                    && REG_EXP_TYPENAME.equals(referredType.getName())) {
                 return true;
             }
             return isRegExpType(referredType);
