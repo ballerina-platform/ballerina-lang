@@ -238,18 +238,11 @@ public isolated function range(int rangeStart, int rangeEnd, int step) returns o
         |}?;
     };
 } {
-    int direction = getStepDirection(step);
+    if (step == 0) {
+        panic error("step cannot be 0");
+    }
+    int direction = step > 0 ? -1 : 1;
     internal:__IntRange intRange = new (rangeStart, rangeEnd + direction, step);
     return intRange;
 }
 
-isolated function getStepDirection(int step) returns int {
-    if (step == 0) {
-        panic error("step cannot be 0");
-    }
-
-    if (step > 0) {
-        return -1;
-    }
-    return 1;
-}
