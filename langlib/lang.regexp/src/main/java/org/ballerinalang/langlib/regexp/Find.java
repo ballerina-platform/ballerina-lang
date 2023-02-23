@@ -25,9 +25,11 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.values.RegExpAtomQuantifier;
+import io.ballerina.runtime.internal.values.RegExpSequence;
+import io.ballerina.runtime.internal.values.RegExpTerm;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.PatternSyntaxException;
 
@@ -144,8 +146,28 @@ public class Find {
     }
 
     private static boolean isEmptyStrOrRegexp(BRegexpValue regExp, BString str) {
+
         return str.length() == 0
                 || regExp == null
-                || Arrays.stream(regExp.getRegExpDisjunction().getRegExpSeqList()).noneMatch(Objects::nonNull);
+                || Arrays.stream(regExp.getRegExpDisjunction().getRegExpSeqList())
+                .allMatch(Find::isNullOrEmptyRegexpSeq);
+    }
+
+    private static boolean isNullOrEmptyRegexpSeq(Object obj) {
+        if (obj == null) {
+            return true;
+        }
+
+        if (obj instanceof RegExpSequence) {
+            RegExpTerm[] termsList = ((RegExpSequence) obj).getRegExpTermsList();
+            return termsList.length == 0 || Arrays.stream(termsList).allMatch(Find::isNullOrEmptyRegexpSeq);
+        }
+
+        if (obj instanceof RegExpAtomQuantifier) {
+
+            return ((RegExpAtomQuantifier) obj).getReAtom().toString().equals("");
+        }
+
+        return false;
     }
 }
