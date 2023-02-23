@@ -360,7 +360,24 @@ public class ErrorVariableReferenceTest {
                 "invalid field binding pattern; can only bind required fields", 53, 14);
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid field binding pattern; can only bind required fields", 54, 18);
-
+        BAssertUtil.validateError(resultNegative, i++, "cannot use a wildcard binding pattern to " +
+                "bind the cause: a wildcard binding pattern can be used only with a value that belong to " +
+                "type 'any'", 74, 25);
+        BAssertUtil.validateError(resultNegative, i++, "cannot use a wildcard binding pattern to " +
+                "bind the cause: a wildcard binding pattern can be used only with a value that belong to " +
+                "type 'any'", 76, 18);
+        BAssertUtil.validateError(resultNegative, i++, "cannot use a wildcard binding pattern to " +
+                "bind the cause: a wildcard binding pattern can be used only with a value that belong to " +
+                "type 'any'", 78, 33);
+        BAssertUtil.validateError(resultNegative, i++, "cannot use a wildcard binding pattern to " +
+                "bind the cause: a wildcard binding pattern can be used only with a value that belong to " +
+                "type 'any'", 80, 26);
+        BAssertUtil.validateError(resultNegative, i++, "cannot use a wildcard binding pattern to " +
+                "bind the cause: a wildcard binding pattern can be used only with a value that belong to " +
+                "type 'any'", 82, 77);
+        BAssertUtil.validateError(resultNegative, i++, "cannot use a wildcard binding pattern to " +
+                "bind the cause: a wildcard binding pattern can be used only with a value that belong to " +
+                "type 'any'", 85, 74);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 }

@@ -34,19 +34,9 @@ public class ErrorDestructureNegetiveTest {
     public void testErrorDestructuring() {
         CompileResult destructuringResult = BCompileUtil.
                 compile("test-src/error/error_destructure_binding_pattern_error_cause.bal");
-        int i = 0;
-        BAssertUtil.validateError(destructuringResult, i++,
-                "incompatible types: expected 'error?', found 'error'", 27, 21);
-        BAssertUtil.validateError(destructuringResult, i++, "a wildcard binding pattern can be " +
-                "used only with a value that belong to type 'any'", 32, 25);
-        BAssertUtil.validateError(destructuringResult, i++, "a wildcard binding pattern can be " +
-                "used only with a value that belong to type 'any'", 34, 18);
-        BAssertUtil.validateError(destructuringResult, i++, "a wildcard binding pattern can be " +
-                "used only with a value that belong to type 'any'", 36, 33);
-        BAssertUtil.validateError(destructuringResult, i++, "a wildcard binding pattern can be " +
-                "used only with a value that belong to type 'any'", 38, 26);
-
-        Assert.assertEquals(destructuringResult.getErrorCount(), i);
+        BAssertUtil.validateError(destructuringResult, 0,
+                "incompatible types: expected 'error?', found 'error'", 20, 21);
+        Assert.assertEquals(1, destructuringResult.getErrorCount());
     }
 
     @Test(description = "Negative test for error destruturing with error field binding patterns")

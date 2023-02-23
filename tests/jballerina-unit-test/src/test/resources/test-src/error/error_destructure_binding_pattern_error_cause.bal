@@ -14,26 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type SampleErrorData record {|
-    int code;
-    string reason;
-|};
-
-type SampleError error<SampleErrorData>;
-
  public function main() {
     string errorMsg;
     string errorCause;
     error(errorMsg, error(errorCause)) = error("msg", error("Error cause"));
-
-    SampleError sampleErr = error("Transaction Failure", error("Database Error"), code = 20,
-                            reason = "deadlock condition");
-
-    var error(message1, _, code = code1, reason = reason1) = sampleErr;
-
-    var error(_, _, code = code2, reason = reason2) = sampleErr;
-
-    SampleError error(message3, _, code = code3, reason = reason3) = sampleErr;
-
-    SampleError error(_, _, code = code4, reason = reason4) = sampleErr;
 }

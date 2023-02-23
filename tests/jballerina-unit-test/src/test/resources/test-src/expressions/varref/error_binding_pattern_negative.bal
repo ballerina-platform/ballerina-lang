@@ -53,3 +53,34 @@ function testNestedNonRequiredFieldBinding() {
     error(m, message = n) = t[1];
     [i, error(m, message = n)] = t;
 }
+
+type SampleErrorData record {|
+    int code;
+    string reason;
+|};
+
+type SampleError error<SampleErrorData>;
+
+type MyError record {|
+    int errorNum2;
+    string errorString2;
+    SampleError err;
+|};
+
+function testWildcardBindingPatternWithErrorCause() {
+    SampleError sampleErr = error("Transaction Failure", error("Database Error"), code = 20,
+                            reason = "deadlock condition");
+
+    var error(message1, _, code = code1, reason = reason1) = sampleErr;
+
+    var error(_, _, code = code2, reason = reason2) = sampleErr;
+
+    SampleError error(message3, _, code = code3, reason = reason3) = sampleErr;
+
+    SampleError error(_, _, code = code4, reason = reason4) = sampleErr;
+
+    [int, [string, SampleError]] [errorNum1, [errorString1, error(message5, _, code = code5, reason = reason5)]] = [1234, ["ERROR", sampleErr]];
+
+    MyError myErr = {errorNum2: 1223, errorString2: "ERROR", err: sampleErr};
+    MyError {errorNum2: _, errorString2: firstName, err: error(message6, _, code = code6, reason = reason6)} = myErr;
+}
