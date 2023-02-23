@@ -438,7 +438,8 @@ public class Generator {
         for (Node member : classDefinitionNode.members()) {
             if (member instanceof FunctionDefinitionNode && (containsToken(((FunctionDefinitionNode) member)
                     .qualifierList(), SyntaxKind.PUBLIC_KEYWORD) || containsToken(((FunctionDefinitionNode) member)
-                    .qualifierList(), SyntaxKind.REMOTE_KEYWORD))) {
+                    .qualifierList(), SyntaxKind.REMOTE_KEYWORD) || containsToken(((FunctionDefinitionNode) member)
+                    .qualifierList(), SyntaxKind.RESOURCE_KEYWORD))) {
                 classFunctions.add(getFunctionModel((FunctionDefinitionNode) member, semanticModel));
             } else if (member instanceof TypeReferenceNode) {
                 Type originType = Type.fromNode(member, semanticModel);
@@ -484,7 +485,8 @@ public class Generator {
             if (member instanceof MethodDeclarationNode) {
                 MethodDeclarationNode methodNode = (MethodDeclarationNode) member;
                 if (containsToken(methodNode.qualifierList(), SyntaxKind.PUBLIC_KEYWORD) ||
-                        containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD)) {
+                        containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD) ||
+                        containsToken(methodNode.qualifierList(), SyntaxKind.RESOURCE_KEYWORD)) {
                     String methodName = methodNode.methodName().text();
 
                     List<Variable> returnParams = new ArrayList<>();
@@ -502,7 +504,6 @@ public class Generator {
                                 methodNode.metadata()), false, type));
                     }
 
-//                    boolean isRemote = containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD);
                     FunctionKind functionKind;
                     if (containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD)) {
                         functionKind = FunctionKind.REMOTE;
@@ -583,7 +584,6 @@ public class Generator {
         }
 
         boolean isExtern = functionDefinitionNode.functionBody() instanceof ExternalFunctionBodyNode;
-//        boolean isRemote = containsToken(functionDefinitionNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD);
         FunctionKind functionKind;
         if (containsToken(functionDefinitionNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD)) {
             functionKind = FunctionKind.REMOTE;
