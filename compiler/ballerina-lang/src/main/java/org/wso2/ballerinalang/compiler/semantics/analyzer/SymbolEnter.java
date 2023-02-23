@@ -3337,9 +3337,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 defineMemberNode(errorVariable.message, env, symTable.stringType);
             }
 
-            BLangSimpleVariable errorCause = (BLangSimpleVariable) errorVariable.cause;
+            BLangVariable errorCause = errorVariable.cause;
             if (errorCause != null) {
-                if (names.fromIdNode(errorCause.name) == Names.IGNORE) {
+                if (errorCause.getKind() == NodeKind.VARIABLE && names.fromIdNode(((BLangSimpleVariable) errorCause).name) == Names.IGNORE) {
                     dlog.error(errorCause.pos, DiagnosticErrorCode.WILD_CARD_BINDING_PATTERN_ONLY_SUPPORTS_TYPE_ANY);
                     return false;
                 }
