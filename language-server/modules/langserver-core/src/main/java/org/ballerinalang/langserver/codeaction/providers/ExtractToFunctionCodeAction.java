@@ -85,6 +85,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
         return context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()
+                && positionDetails.matchedCodeActionNode().parent().kind() != SyntaxKind.MATCH_CLAUSE
                 && (!isExpressionNode(positionDetails.matchedCodeActionNode())
                 || isExpressionExtractable(positionDetails))
                 && CodeActionNodeValidator.validate(positionDetails.matchedCodeActionNode());
