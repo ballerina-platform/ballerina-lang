@@ -51,6 +51,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
@@ -71,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -152,8 +155,10 @@ public class QueryTypeChecker extends TypeChecker {
         }
 
         commonAnalyzerData.queryFinalClauses.push(queryExpr.getSelectClause());
+        data.queryVariables = new HashSet<>();
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         clauses.forEach(clause -> clause.accept(this, data));
+        data.queryVariables.clear();
 
         BType actualType = resolveQueryType(commonAnalyzerData.queryEnvs.peek(),
                 ((BLangSelectClause) commonAnalyzerData.queryFinalClauses.peek()).expression,
@@ -212,8 +217,10 @@ public class QueryTypeChecker extends TypeChecker {
         }
         BLangDoClause doClause = queryAction.getDoClause();
         commonAnalyzerData.queryFinalClauses.push(doClause);
+        data.queryVariables = new HashSet<>();
         List<BLangNode> clauses = queryAction.getQueryClauses();
         clauses.forEach(clause -> clause.accept(this, data));
+        data.queryVariables.clear();
         List<BType> collectionTypes = getCollectionTypes(clauses);
         BType completionType = getCompletionType(collectionTypes, Types.QueryConstructType.ACTION, data);
         // Analyze foreach node's statements.
@@ -587,6 +594,9 @@ public class QueryTypeChecker extends TypeChecker {
         types.setInputClauseTypedBindingPatternType(fromClause);
         handleInputClauseVariables(fromClause, fromEnv);
         commonAnalyzerData.breakToParallelQueryEnv = prevBreakToParallelEnv;
+        for (Name variable : fromEnv.scope.entries.keySet()) {
+            data.queryVariables.add(variable.value);
+        }
     }
 
     private void handleInputClauseVariables(BLangInputClause bLangInputClause, SymbolEnv blockEnv) {
@@ -674,6 +684,9 @@ public class QueryTypeChecker extends TypeChecker {
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
             semanticAnalyzer.analyzeNode((BLangNode) letVariable.definitionNode, letEnv, commonAnalyzerData);
         }
+        for (Name variable : letEnv.scope.entries.keySet()) {
+            data.queryVariables.add(variable.value);
+        }
     }
 
     @Override
@@ -745,6 +758,31 @@ public class QueryTypeChecker extends TypeChecker {
                 dlog.error(((BLangOrderKey) orderKeyNode).expression.pos, DiagnosticErrorCode.ORDER_BY_NOT_SUPPORTED);
             }
         }
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause, TypeChecker.AnalyzerData data) {
+        groupByClause.env = data.commonAnalyzerData.queryEnvs.peek();
+        Set<String> nonGroupingKeys = new HashSet<>(data.queryVariables);
+        for (BLangGroupingKey groupingKey : groupByClause.groupingKeyList) {
+            String variable;
+            if (groupingKey.variableRef != null) {
+                checkExpr(groupingKey.variableRef, groupByClause.env, data);
+                variable = groupingKey.variableRef.variableName.value;
+            } else {
+                semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env,
+                        data.commonAnalyzerData);
+                variable = groupingKey.variableDef.var.name.value;
+                data.queryVariables.add(variable);
+            }
+            nonGroupingKeys.remove(variable);
+        }
+        groupByClause.nonGroupingKeys = nonGroupingKeys;
+    }
+
+    @Override
+    public void visit(BLangGroupingKey node, TypeChecker.AnalyzerData data) {
+
     }
 
     @Override

@@ -6033,31 +6033,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     @Override
-    public void visit(BLangGroupByClause groupByClause, AnalyzerData data) {
-        groupByClause.env = data.commonAnalyzerData.queryEnvs.peek();
-        Set<String> nonGroupingKeys = new HashSet<>(data.queryVariables);
-        for (BLangGroupingKey groupingKey : groupByClause.groupingKeyList) {
-            String variable;
-            if (groupingKey.variableRef != null) {
-                checkExpr(groupingKey.variableRef, groupByClause.env, data);
-                variable = groupingKey.variableRef.variableName.value;
-            } else {
-                semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env,
-                        data.commonAnalyzerData);
-                variable = groupingKey.variableDef.var.name.value;
-                data.queryVariables.add(variable);
-            }
-            nonGroupingKeys.remove(variable);
-        }
-        groupByClause.nonGroupingKeys = nonGroupingKeys;
-    }
-
-    @Override
-    public void visit(BLangGroupingKey node, AnalyzerData data) {
-
-    }
-
-    @Override
     public void visit(BLangDo doNode, AnalyzerData data) {
         if (doNode.onFailClause != null) {
             doNode.onFailClause.accept(this, data);
