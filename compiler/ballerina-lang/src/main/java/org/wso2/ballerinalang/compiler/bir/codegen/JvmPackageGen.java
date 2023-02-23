@@ -218,11 +218,10 @@ public class JvmPackageGen {
     }
 
     public static boolean isLangModule(PackageID moduleId) {
-
         if (!BALLERINA.equals(moduleId.orgName.value)) {
             return false;
         }
-        return moduleId.name.value.indexOf("lang" + ENCODED_DOT_CHARACTER) == 0 ||
+        return moduleId.name.value.startsWith("lang" + ENCODED_DOT_CHARACTER) ||
                 moduleId.name.value.equals(ENCODED_JAVA_MODULE);
     }
 
@@ -388,9 +387,7 @@ public class JvmPackageGen {
                                        JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen, JvmConstantsGen jvmConstantsGen,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
                                        boolean serviceEPAvailable, BIRFunction mainFunc) {
-        jvmClassMapping.entrySet().forEach(entry -> {
-            String moduleClass = entry.getKey();
-            JavaClass javaClass = entry.getValue();
+        jvmClassMapping.forEach((moduleClass, javaClass) -> {
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
@@ -545,7 +542,7 @@ public class JvmPackageGen {
                                      Map<String, JavaClass> jvmClassMap) {
         // filter out functions.
         List<BIRFunction> functions = birPackage.functions;
-        if (functions.size() <= 0) {
+        if (functions.size() == 0) {
             return;
         }
 
