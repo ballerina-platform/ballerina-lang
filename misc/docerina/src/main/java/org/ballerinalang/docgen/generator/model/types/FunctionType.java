@@ -30,6 +30,10 @@ import java.util.List;
 public class FunctionType extends Type {
 
     @Expose
+    public String accessor;
+    @Expose
+    public String resourcePath;
+    @Expose
     public boolean isLambda;
     @Expose
     public boolean isIsolated;

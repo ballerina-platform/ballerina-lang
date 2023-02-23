@@ -487,7 +487,18 @@ public class Generator {
                 if (containsToken(methodNode.qualifierList(), SyntaxKind.PUBLIC_KEYWORD) ||
                         containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD) ||
                         containsToken(methodNode.qualifierList(), SyntaxKind.RESOURCE_KEYWORD)) {
-                    String methodName = methodNode.methodName().text();
+                    String methodName = "";
+                    String accessor = "";
+                    String resourcePath = "";
+                    if (methodNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+                        accessor = methodNode.methodName().text();
+                        resourcePath = methodNode.relativeResourcePath().stream().
+                                collect(StringBuilder::new, (firstString,
+                                                             secondString) -> firstString.append(secondString),
+                                        (nodeA, nodeB) -> nodeA.append(nodeB)).toString();
+                    } else {
+                        methodName = methodNode.methodName().text();
+                    }
 
                     List<Variable> returnParams = new ArrayList<>();
                     FunctionSignatureNode methodSignature = methodNode.methodSignature();
@@ -513,10 +524,10 @@ public class Generator {
                         functionKind = FunctionKind.OTHER;
                     }
 
-                    objectFunctions.add(new Function(methodName, getDocFromMetadata(methodNode.metadata()),
-                            functionKind, false, isDeprecated(methodNode.metadata()),
-                            containsToken(methodNode.qualifierList(), SyntaxKind.ISOLATED_KEYWORD), parameters,
-                            returnParams));
+                    objectFunctions.add(new Function(methodName, accessor, resourcePath,
+                            getDocFromMetadata(methodNode.metadata()), functionKind, false,
+                            isDeprecated(methodNode.metadata()), containsToken(methodNode.qualifierList(),
+                            SyntaxKind.ISOLATED_KEYWORD), parameters, returnParams));
                 }
             } else if (member instanceof TypeReferenceNode) {
                 Type originType = Type.fromNode(member, semanticModel);
@@ -552,9 +563,9 @@ public class Generator {
                         functionType.returnType.isDeprecated, functionType.returnType));
             }
 
-            Function function = new Function(functionType.name, functionType.description, functionType.functionKind,
-                    functionType.isExtern, functionType.isDeprecated, functionType.isIsolated, parameters,
-                    returnParameters);
+            Function function = new Function(functionType.name, functionType.accessor, functionType.resourcePath,
+                    functionType.description, functionType.functionKind, functionType.isExtern,
+                    functionType.isDeprecated, functionType.isIsolated, parameters, returnParameters);
             function.inclusionType = originType.isPublic ? originType : null;
             functions.add(function);
         }
@@ -563,7 +574,17 @@ public class Generator {
 
     private static Function getFunctionModel(FunctionDefinitionNode functionDefinitionNode,
                                              SemanticModel semanticModel) {
-        String functionName = functionDefinitionNode.functionName().text();
+        String functionName = "";
+        String accessor = "";
+        String resourcePath = "";
+        if (functionDefinitionNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+            accessor = functionDefinitionNode.functionName().text();
+            resourcePath = functionDefinitionNode.relativeResourcePath().stream().
+                    collect(StringBuilder::new, (firstString, secondString) -> firstString.append(secondString),
+                            (nodeA, nodeB) -> nodeA.append(nodeB)).toString();
+        } else {
+            functionName = functionDefinitionNode.functionName().text();
+        }
 
         List<DefaultableVariable> parameters = new ArrayList<>();
         List<Variable> returnParams = new ArrayList<>();
@@ -593,7 +614,7 @@ public class Generator {
             functionKind = FunctionKind.OTHER;
         }
 
-        return new Function(functionName, getDocFromMetadata(functionDefinitionNode.metadata()),
+        return new Function(functionName, accessor, resourcePath, getDocFromMetadata(functionDefinitionNode.metadata()),
                 functionKind, isExtern, isDeprecated(functionDefinitionNode.metadata()),
                 containsToken(functionDefinitionNode.qualifierList(), SyntaxKind.ISOLATED_KEYWORD), parameters,
                 returnParams, annotationAttachments);

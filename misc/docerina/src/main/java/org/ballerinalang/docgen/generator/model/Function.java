@@ -24,6 +24,10 @@ import java.util.List;
  */
 public class Function extends Construct {
     @Expose
+    public String accessor = "";
+    @Expose
+    public String resourcePath = "";
+    @Expose
     public boolean isIsolated;
     @Expose
     public FunctionKind functionKind;
@@ -48,9 +52,36 @@ public class Function extends Construct {
         this.annotationAttachments = annotationAttachments;
     }
 
+    public Function(String name, String accessor, String resourcePath, String description, FunctionKind functionKind,
+                    boolean isExtern, boolean isDeprecated, boolean isIsolated, List<DefaultableVariable> parameters,
+                    List<Variable> returnParameters, List<AnnotationAttachment> annotationAttachments) {
+        super(name, description, isDeprecated);
+        this.accessor = accessor;
+        this.resourcePath = resourcePath;
+        this.functionKind = functionKind;
+        this.isExtern = isExtern;
+        this.parameters = parameters;
+        this.returnParameters = returnParameters;
+        this.isIsolated = isIsolated;
+        this.annotationAttachments = annotationAttachments;
+    }
+
     public Function(String name, String description, FunctionKind functionKind, boolean isExtern, boolean isDeprecated,
                     boolean isIsolated, List<DefaultableVariable> parameters, List<Variable> returnParameters) {
         super(name, description, isDeprecated);
+        this.functionKind = functionKind;
+        this.isExtern = isExtern;
+        this.parameters = parameters;
+        this.returnParameters = returnParameters;
+        this.isIsolated = isIsolated;
+    }
+
+    public Function(String name, String accessor, String resourcePath, String description, FunctionKind functionKind,
+                    boolean isExtern, boolean isDeprecated, boolean isIsolated, List<DefaultableVariable> parameters,
+                    List<Variable> returnParameters) {
+        super(name, description, isDeprecated);
+        this.accessor = accessor;
+        this.resourcePath = resourcePath;
         this.functionKind = functionKind;
         this.isExtern = isExtern;
         this.parameters = parameters;
