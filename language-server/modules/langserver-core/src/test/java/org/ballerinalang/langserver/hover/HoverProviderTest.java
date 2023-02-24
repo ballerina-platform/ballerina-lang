@@ -102,7 +102,7 @@ public class HoverProviderTest {
     }
 
     private Object[][] testSubset() {
-        return new Object[][] {};
+        return new Object[][]{};
     }
 
     private List<String> skipList() {
