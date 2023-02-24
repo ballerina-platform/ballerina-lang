@@ -4240,7 +4240,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 //            constant.symbol.literalType = constant.symbol.type = resultantType;
 //        }
         // Check nested expressions.
-        //constantAnalyzer.visit(constant);
+        constantAnalyzer.visit(constant);
     }
 
     private boolean isLiteralInUnaryFromConstantNotAllowed(BLangUnaryExpr unaryExpr) {

@@ -1135,7 +1135,7 @@ public class TypeResolver {
 
         for (BLangType langType : td.memberTypeNodes) {
             BType resolvedType = resolveTypeDesc(symEnv, mod, typeDefinition, depth, langType);
-            if (resolvedType == null | resolvedType.tag == TypeTags.SEMANTIC_ERROR) {
+            if (resolvedType == null || resolvedType.tag == TypeTags.SEMANTIC_ERROR) {
                 return symTable.semanticError;
             }
             if (resolvedType == symTable.noType) {
@@ -1402,7 +1402,7 @@ public class TypeResolver {
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         for (BLangExpression literal : td.valueSpace) {
             BType type = blangTypeUpdate(literal);
-            if (type.tag == TypeTags.SEMANTIC_ERROR) {
+            if (type != null && type.tag == TypeTags.SEMANTIC_ERROR) {
                 return type;
             }
             if (type != null) {
@@ -1791,7 +1791,10 @@ public class TypeResolver {
         BType staticType = symTable.noType;
         constant.symbol = symEnter.getConstantSymbol(constant);
         BLangTypeDefinition typeDef = constant.associatedTypeDefinition;
-        if (typeDef != null) {
+        NodeKind nodeKind = constant.expr.getKind();
+        boolean isLiteral = nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL
+                || nodeKind == NodeKind.UNARY_EXPR;
+        if (typeDef != null && isLiteral) {
             resolveTypeDefinition(symEnv, modTable, typeDef, 0);
         }
         if (constant.typeNode != null) {
@@ -1817,6 +1820,9 @@ public class TypeResolver {
         BType narrowedType = inferredExpType;
         if (inferredExpType == symTable.semanticError) {
             // Constant expression contains errors.
+            constant.setBType(symTable.semanticError);
+            constantSymbol.type = symTable.semanticError;
+            symEnv.scope.define(constantSymbol.name, constantSymbol);
             return;
         } else if (staticType != symTable.noType) {
             data.diagCode = null;
@@ -1830,6 +1836,8 @@ public class TypeResolver {
             } else if (narrowedType == symTable.semanticError) {
                 narrowedType = constantTypeChecker.getNarrowedType(inferredExpType);
                 dlog.error(constant.expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, staticType, narrowedType);
+                constantSymbol.type = symTable.semanticError;
+                symEnv.scope.define(constantSymbol.name, constantSymbol);
                 return;
             }
         }
@@ -1858,7 +1866,7 @@ public class TypeResolver {
         // Get the constant value from the final type.
         constantSymbol.value = constantTypeChecker.getConstantValue(intersectionType);
 
-        if (constantSymbol.type.tag != TypeTags.TYPEREFDESC && typeDef != null) {
+        if (isLiteral && constantSymbol.type.tag != TypeTags.TYPEREFDESC && typeDef != null) {
             // Update flags.
             constantSymbol.type.tsymbol.flags |= typeDef.symbol.flags;
         }
