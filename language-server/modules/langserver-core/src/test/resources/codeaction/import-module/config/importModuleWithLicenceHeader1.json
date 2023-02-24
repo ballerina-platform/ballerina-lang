@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 14,
+    "character": 19
+  },
+  "source": "importModuleWithLicenceHeader1.bal",
+  "description": "Import module code action when the source file has a licence header and no existing imports",
+  "expected": [
+    {
+      "title": "Import module 'ballerina/lang.value'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 0
+            },
+            "end": {
+              "line": 10,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    }
+  ]
+}
