@@ -28,7 +28,7 @@ public class APIDocReference {
                               String moduleName,
                               String version,
                               String constructReference) {
-        String url = BASE_URL + String.join("\\/", orgName, moduleName, version);
+        String url = BASE_URL + String.join("/", orgName, moduleName, version);
         return url + "#" + constructReference;
     }
 }
