@@ -73,6 +73,6 @@ public class GlobalVarTest {
         Assert.assertEquals(result.getErrorCount(), 1);
         BAssertUtil.validateError(result, 0, "cannot call a function or method in the same " +
                         "module before all module-level variables are initialized: variable(s) 'x' not initialized",
-                2, 9);
+                18, 9);
     }
 }
