@@ -56,12 +56,6 @@ public class IdentifierTest extends AbstractMiscTest {
                 "identifiers/keywords_as_identifiers_assert.json");
     }
 
-    @Test
-    public void testClientKeywordAsIdentifierInQualifiedIdentifier() {
-        testFile("identifiers/client_keyword_as_identifier_in_qualified_identifier_source.bal",
-                 "identifiers/client_keyword_as_identifier_in_qualified_identifier_assert.json");
-    }
-
     // Invalid Syntax
 
     @Test
@@ -80,11 +74,5 @@ public class IdentifierTest extends AbstractMiscTest {
     public void testIncompleteQuotedIdentifier() {
         testFile("identifiers/incomplete_identifier_source.bal",
                 "identifiers/incomplete_identifier_assert.json");
-    }
-
-    @Test
-    public void testInvalidUsageOfClientKeywordAsIdentifier() {
-        testFile("identifiers/invalid_usage_of_client_keyword_as_identifier_source.bal",
-                 "identifiers/invalid_usage_of_client_keyword_as_identifier_assert.json");
     }
 }

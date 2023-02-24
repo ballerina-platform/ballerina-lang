@@ -20,6 +20,7 @@ package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
+import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
@@ -27,6 +28,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 
 import java.io.File;
@@ -35,7 +37,10 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.FileUtils.getFileNameWithoutExtension;
@@ -62,7 +67,12 @@ public class CreateExecutableTask implements Task {
     @Override
     public void execute(Project project) {
         this.out.println();
-        this.out.println("Generating executable");
+
+        if (!project.buildOptions().nativeImage()) {
+            this.out.println("Generating executable");
+        } else {
+            this.out.println("Generating executable with Native image");
+        }
 
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
         Target target;
@@ -86,7 +96,6 @@ public class CreateExecutableTask implements Task {
         } catch (IOException e) {
             throw createLauncherException(e.getMessage());
         }
-
         try {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_11);
@@ -94,7 +103,13 @@ public class CreateExecutableTask implements Task {
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
             }
-            jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
+            EmitResult emitResult;
+            if (project.buildOptions().nativeImage() && project.buildOptions().cloud().equals("")) {
+                emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.GRAAL_EXEC, executablePath);
+            } else {
+                emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
+            }
+
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().emitArtifactDuration = System.currentTimeMillis() - start;
                 BuildTime.getInstance().compile = false;
@@ -107,27 +122,41 @@ public class CreateExecutableTask implements Task {
                     out.println(conflict.getWarning(project.buildOptions().listConflictedClasses()));
                 }
             }
+
+            List<Diagnostic> diagnostics = new ArrayList<>(emitResult.diagnostics().diagnostics());
+            if (!diagnostics.isEmpty()) {
+                //  TODO: When deprecating the lifecycle compiler plugin, we can remove this check for duplicates
+                //   in JBallerinaBackend diagnostics and the diagnostics added to EmitResult.
+                diagnostics = diagnostics.stream()
+                        .filter(diagnostic -> !jBallerinaBackend.diagnosticResult().diagnostics().contains(diagnostic))
+                        .collect(Collectors.toList());
+                if (!diagnostics.isEmpty()) {
+                    diagnostics.forEach(d -> out.println("\n" + d.toString()));
+                }
+            }
+
         } catch (ProjectException e) {
             throw createLauncherException(e.getMessage());
+        }
+
+        if (!project.buildOptions().nativeImage()) {
+            Path relativePathToExecutable = currentDir.relativize(executablePath);
+
+            if (project.buildOptions().getTargetPath() != null) {
+                this.out.println("\t" + relativePathToExecutable);
+            } else {
+                if (relativePathToExecutable.toString().contains("..") ||
+                        relativePathToExecutable.toString().contains("." + File.separator)) {
+                    this.out.println("\t" + executablePath);
+                } else {
+                    this.out.println("\t" + relativePathToExecutable);
+                }
+            }
         }
 
         // notify plugin
         // todo following call has to be refactored after introducing new plugin architecture
         notifyPlugins(project, target);
-
-        Path relativePathToExecutable = currentDir.relativize(executablePath);
-
-        if (project.buildOptions().getTargetPath() != null) {
-            this.out.println("\t" + relativePathToExecutable);
-        } else {
-            if (relativePathToExecutable.toString().contains("..") ||
-                    relativePathToExecutable.toString().contains("." + File.separator)) {
-                this.out.println("\t" + executablePath.toString());
-            } else {
-                this.out.println("\t" + relativePathToExecutable.toString());
-            }
-        }
-
     }
 
     private void notifyPlugins(Project project, Target target) {

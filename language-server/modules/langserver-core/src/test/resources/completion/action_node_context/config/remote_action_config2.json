@@ -4,6 +4,7 @@
     "character": 8
   },
   "source": "action_node_context/source/remote_action_source2.bal",
+  "description": "",
   "items": [
     {
       "label": "post(string path, module1:RequestMessage message, string targetType)",
@@ -113,6 +114,25 @@
       "sortText": "CC",
       "filterText": "path3|get",
       "insertText": "/path3(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "/path4/[string pathParam](module1:TargetType targetType)",
+      "kind": "Function",
+      "detail": "targetType|json|module1:ClientError|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource function with multiple target types with java interoperability\n  \n**Params**  \n- `string` pathParam  \n- `module1:TargetType` targetType: Response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `targetType|json|module1:ClientError|error`   \n- The Response or the ClientError  \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "path4|get",
+      "insertText": "/path4/[${1:\"\"}](${2})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

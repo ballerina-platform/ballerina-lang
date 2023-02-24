@@ -30,6 +30,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -44,6 +46,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 
@@ -171,6 +174,7 @@ public class JvmDesugarPhase {
         HashMap<String, String> encodedVsInitialIds = new HashMap<>();
         encodePackageIdentifiers(module.packageID, encodedVsInitialIds);
         encodeGlobalVariableIdentifiers(module.globalVars, encodedVsInitialIds);
+        encodeImportedGlobalVariableIdentifiers(module.importedGlobalVarsDummyVarDcls, encodedVsInitialIds);
         encodeFunctionIdentifiers(module.functions, encodedVsInitialIds);
         encodeTypeDefIdentifiers(module.typeDefs, encodedVsInitialIds);
         return encodedVsInitialIds;
@@ -233,7 +237,19 @@ public class JvmDesugarPhase {
                 parameter.name = Names.fromString(encodeNonFunctionIdentifier(parameter.name.value,
                                                                               encodedVsInitialIds));
             }
+            encodeDefaultFunctionName(function.type, encodedVsInitialIds);
             encodeWorkerName(function, encodedVsInitialIds);
+        }
+    }
+
+    private static void encodeDefaultFunctionName(BInvokableType type, HashMap<String, String> encodedVsInitialIds) {
+        BInvokableTypeSymbol typeSymbol = (BInvokableTypeSymbol) type.tsymbol;
+        if (typeSymbol == null) {
+            return;
+        }
+        for (BInvokableSymbol defaultFunc : typeSymbol.defaultValues.values()) {
+            defaultFunc.name = Names.fromString(encodeFunctionIdentifier(defaultFunc.name.value,
+                    encodedVsInitialIds));
         }
     }
 
@@ -263,11 +279,19 @@ public class JvmDesugarPhase {
         }
     }
 
+    private static void encodeImportedGlobalVariableIdentifiers(Set<BIRNode.BIRGlobalVariableDcl> globalVars,
+                                                                HashMap<String, String> encodedVsInitialIds) {
+        for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
+            globalVar.name = Names.fromString(encodeNonFunctionIdentifier(globalVar.name.value, encodedVsInitialIds));
+        }
+    }
+
     // Replace encoding identifiers
     static void replaceEncodedModuleIdentifiers(BIRNode.BIRPackage module,
                                                 HashMap<String, String> encodedVsInitialIds) {
         replaceEncodedPackageIdentifiers(module.packageID, encodedVsInitialIds);
         replaceEncodedGlobalVariableIdentifiers(module.globalVars, encodedVsInitialIds);
+        replaceEncodedImportedGlobalVariableIdentifiers(module.importedGlobalVarsDummyVarDcls, encodedVsInitialIds);
         replaceEncodedFunctionIdentifiers(module.functions, encodedVsInitialIds);
         replaceEncodedTypeDefIdentifiers(module.typeDefs, encodedVsInitialIds);
     }
@@ -321,7 +345,19 @@ public class JvmDesugarPhase {
                 }
                 parameter.name = getInitialIdString(parameter.name, encodedVsInitialIds);
             }
+            replaceEncodedDefaultFunctionName(function.type, encodedVsInitialIds);
             replaceEncodedWorkerName(function, encodedVsInitialIds);
+        }
+    }
+
+    private static void replaceEncodedDefaultFunctionName(BInvokableType type,
+                                                          HashMap<String, String> encodedVsInitialIds) {
+        BInvokableTypeSymbol typeSymbol = (BInvokableTypeSymbol) type.tsymbol;
+        if (typeSymbol == null) {
+            return;
+        }
+        for (BInvokableSymbol defaultFunc : typeSymbol.defaultValues.values()) {
+            defaultFunc.name = getInitialIdString(defaultFunc.name, encodedVsInitialIds);
         }
     }
 
@@ -345,6 +381,13 @@ public class JvmDesugarPhase {
             if (globalVar == null) {
                 continue;
             }
+            globalVar.name = getInitialIdString(globalVar.name, encodedVsInitialIds);
+        }
+    }
+
+    private static void replaceEncodedImportedGlobalVariableIdentifiers(Set<BIRNode.BIRGlobalVariableDcl> globalVars,
+                                                                        HashMap<String, String> encodedVsInitialIds) {
+        for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
             globalVar.name = getInitialIdString(globalVar.name, encodedVsInitialIds);
         }
     }

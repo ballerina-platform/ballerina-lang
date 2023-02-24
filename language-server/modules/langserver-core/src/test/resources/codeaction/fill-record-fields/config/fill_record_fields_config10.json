@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 14,
+    "character": 79
+  },
+  "source": "fill_record_fields_source7.bal",
+  "expected": [
+    {
+      "title": "Fill 'Application' required fields",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 79
+            },
+            "end": {
+              "line": 14,
+              "character": 79
+            }
+          },
+          "newText": "\u0027version: 0, name: \"\", id: \"\""
+        }
+      ]
+    }
+  ],
+  "description": "Fill record fields in error constructor expression"
+}

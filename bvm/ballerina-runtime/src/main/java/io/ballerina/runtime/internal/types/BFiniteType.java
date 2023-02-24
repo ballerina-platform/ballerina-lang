@@ -40,16 +40,21 @@ public class BFiniteType extends BType implements FiniteType {
 
     public Set<Object> valueSpace;
     private int typeFlags;
+    private String originalName;
 
     public BFiniteType(String typeName) {
-        super(typeName, null, RefValue.class);
-        this.valueSpace = new LinkedHashSet<>();
+        this(typeName, new LinkedHashSet<>(), 0);
     }
 
     public BFiniteType(String typeName, Set<Object> values, int typeFlags) {
+        this(typeName, typeName, values, typeFlags);
+    }
+
+    public BFiniteType(String typeName, String originalName, Set<Object> values, int typeFlags) {
         super(typeName, null, RefValue.class);
         this.valueSpace = values;
         this.typeFlags = typeFlags;
+        this.originalName = originalName;
     }
 
     @Override
@@ -78,6 +83,11 @@ public class BFiniteType extends BType implements FiniteType {
         }
 
         return null;
+    }
+
+    @Override
+    public String getName() {
+        return this.originalName;
     }
 
     @Override

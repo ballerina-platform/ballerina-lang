@@ -35,6 +35,7 @@ import io.ballerina.projects.configurations.ConfigModuleDetails;
 import io.ballerina.projects.configurations.ConfigVariable;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -44,9 +45,11 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -65,8 +68,10 @@ public class ConfigReader {
      */
     public static Map<ConfigModuleDetails, List<ConfigVariable>> getConfigVariables(Package packageInstance) {
         Map<ConfigModuleDetails, List<ConfigVariable>> configDetails = new HashMap<>();
+        Set<BVarSymbol> validConfigs = getValidConfigs(packageInstance.getDefaultModule().moduleContext().
+                bLangPackage().symbol);
         for (Module module : packageInstance.modules()) {
-            getConfigs(module, module.moduleContext().bLangPackage(), configDetails);
+            getConfigs(module, module.moduleContext().bLangPackage(), configDetails, validConfigs);
         }
         return configDetails;
     }
@@ -80,7 +85,7 @@ public class ConfigReader {
      */
     private static void getConfigs(Module module,
                                    BLangPackage bLangPackage, Map<ConfigModuleDetails,
-            List<ConfigVariable>> configDetails) {
+            List<ConfigVariable>> configDetails, Set<BVarSymbol> validConfigs) {
         List<ConfigVariable> configVariables = new ArrayList<>();
         PackageID currentPkgId = bLangPackage.symbol.pkgID;
         for (Scope.ScopeEntry entry : bLangPackage.symbol.scope.entries.values()) {
@@ -90,13 +95,15 @@ public class ConfigReader {
                     Flags.CONFIGURABLE)) {
                 if (symbol instanceof BVarSymbol) {
                     BVarSymbol varSymbol = (BVarSymbol) symbol;
-                    // Get description
-                    String description = getDescription(varSymbol, module);
-                    if (description.startsWith("\"") && description.endsWith("\"")) {
-                        description = description.substring(1, description.length() - 1);
+                    if (validConfigs.contains(varSymbol)) {
+                        // Get description
+                        String description = getDescription(varSymbol, module);
+                        if (description.startsWith("\"") && description.endsWith("\"")) {
+                            description = description.substring(1, description.length() - 1);
+                        }
+                        configVariables.add(new ConfigVariable(varSymbol.name.value.replace("\\", ""), varSymbol.type,
+                                Symbols.isFlagOn(varSymbol.flags, Flags.REQUIRED), description));
                     }
-                    configVariables.add(new ConfigVariable(varSymbol.name.value, varSymbol.type,
-                            Symbols.isFlagOn(varSymbol.flags, Flags.REQUIRED), description));
                 }
             }
         }
@@ -104,6 +111,32 @@ public class ConfigReader {
             // Add configurable variable details for the current package
             configDetails.put(getConfigModuleDetails(module.moduleName(), currentPkgId,
                     module.project().kind()), configVariables);
+        }
+    }
+
+    private static Set<BVarSymbol> getValidConfigs(BPackageSymbol packageSymbol) {
+        Set<BVarSymbol> configVars = new HashSet<>();
+        populateConfigVars(packageSymbol, configVars);
+        if (!packageSymbol.imports.isEmpty()) {
+            for (BPackageSymbol importSymbol : packageSymbol.imports) {
+                populateConfigVars(importSymbol, configVars);
+            }
+        }
+        return configVars;
+    }
+
+    private static void populateConfigVars(BPackageSymbol pkgSymbol, Set<BVarSymbol> configVars) {
+        for (Scope.ScopeEntry entry : pkgSymbol.scope.entries.values()) {
+            BSymbol symbol = entry.symbol;
+            if (symbol != null) {
+                if (symbol.tag == SymTag.TYPE_DEF) {
+                    symbol = symbol.type.tsymbol;
+                }
+                if (symbol != null && symbol.tag == SymTag.VARIABLE
+                        && Symbols.isFlagOn(symbol.flags, Flags.CONFIGURABLE) && symbol instanceof BVarSymbol) {
+                    configVars.add((BVarSymbol) symbol);
+                }
+            }
         }
     }
 

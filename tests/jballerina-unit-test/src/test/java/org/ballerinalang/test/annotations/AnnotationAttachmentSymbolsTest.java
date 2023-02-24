@@ -25,6 +25,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.jetbrains.annotations.NotNull;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar;
@@ -58,10 +59,12 @@ import java.util.Objects;
 public class AnnotationAttachmentSymbolsTest {
 
     private CompileResult compileResult;
+    private CompileResult listAnnotFieldResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments.bal");
+        listAnnotFieldResult = BCompileUtil.compile("test-src/annotations/annots_with_list_consts.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
     }
 
@@ -277,11 +280,10 @@ public class AnnotationAttachmentSymbolsTest {
     }
 
     @Test
-    public void testAnnotsWithConstLists() {
-        CompileResult result = BCompileUtil.compile("test-src/annotations/annots_with_list_consts.bal");
+    public void testSourceAnnotsWithConstLists() {
         List<BAnnotationAttachmentSymbol> attachments = getServiceAnnotsWithoutIntrospectionAnnot(
                 ((BClassSymbol) ((BLangClassDefinition)
-                        result.getAST().getClassDefinitions().get(0)).symbol).getAnnotations());
+                        listAnnotFieldResult.getAST().getClassDefinitions().get(0)).symbol).getAnnotations());
         Assert.assertEquals(attachments.size(), 1);
 
         BAnnotationAttachmentSymbol annotationAttachmentSymbol = attachments.get(0);
@@ -330,6 +332,42 @@ public class AnnotationAttachmentSymbolsTest {
         Assert.assertEquals(f2Member1Map.get("t").value, "t3");
 
         Assert.assertEquals(f2.get(1).value, "test");
+    }
+
+    @Test
+    public void testConstAnnotWithUnaryExpr() {
+        List<? extends AnnotationAttachmentSymbol> attachments =
+                ((BTypeDefinitionSymbol) getTypeDefinition(compileResult.getAST().getTypeDefinitions(), "Qux").symbol)
+                        .getAnnotations();
+        Assert.assertEquals(attachments.size(), 1);
+        assertAttachmentSymbol(attachments.get(0), "v29", true, "increment", -1L);
+    }
+
+    @Test
+    public void testNonSourceAnnotsWithConstLists() {
+        List<? extends AnnotationAttachmentSymbol> attachments =
+                ((BTypeDefinitionSymbol) getTypeDefinition(
+                        listAnnotFieldResult.getAST().getTypeDefinitions(), "Baz").symbol).getAnnotations();
+        Assert.assertEquals(attachments.size(), 1);
+        BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "v2");
+        Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
+        Object constValue =
+                ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotationAttachmentSymbol)
+                        .attachmentValueSymbol.value.value;
+        Assert.assertTrue(constValue instanceof Map);
+
+        Map<String, BLangConstantValue> annotMapValue = (Map<String, BLangConstantValue>) constValue;
+        Assert.assertEquals(annotMapValue.size(), 1);
+
+        Assert.assertTrue(annotMapValue.containsKey("arr"));
+        Object arrValue = annotMapValue.get("arr").value;
+        Assert.assertTrue(arrValue instanceof List);
+        List<BLangConstantValue> arrList = (List<BLangConstantValue>) arrValue;
+        Assert.assertEquals(arrList.size(), 2);
+
+        Assert.assertEquals(arrList.get(0).value, 1L);
+        Assert.assertEquals(arrList.get(1).value, 2L);
     }
 
     private BLangTypeDefinition getTypeDefinition(List<? extends TypeDefinition> typeDefinitions, String name) {
@@ -406,5 +444,11 @@ public class AnnotationAttachmentSymbolsTest {
 
     private boolean isServiceIntropAnnot(BAnnotationAttachmentSymbol annot) {
         return AnnotationDesugar.SERVICE_INTROSPECTION_INFO_ANN.equals(annot.annotTag.value);
+    }
+
+    @AfterClass
+    private void cleanUp() {
+        this.compileResult = null;
+        this.listAnnotFieldResult = null;
     }
 }

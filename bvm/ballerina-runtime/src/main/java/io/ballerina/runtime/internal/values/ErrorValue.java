@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
@@ -106,7 +107,7 @@ public class ErrorValue extends BError implements RefValue {
         this.details = details;
         BTypeIdSet typeIdSet = new BTypeIdSet();
         typeIdSet.add(typeIdPkg, typeIdName, true);
-        ((BErrorType) type).setTypeIdSet(typeIdSet);
+        ((BErrorType) TypeUtils.getReferredType(type)).setTypeIdSet(typeIdSet);
         this.typedesc = new TypedescValueImpl(type);
     }
 
@@ -188,6 +189,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String getModuleNameToBalString() {
+        Type type = TypeUtils.getReferredType(this.type);
         if (((BErrorType) type).typeIdSet == null) {
             return "";
         }

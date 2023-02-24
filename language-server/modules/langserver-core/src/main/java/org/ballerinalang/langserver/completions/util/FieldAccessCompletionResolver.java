@@ -79,14 +79,15 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
-        Optional<Symbol> symbol = this.getSymbolByName(context.visibleSymbols(context.getCursorPosition()),
-                node.name().text());
-
-        if (symbol.isEmpty()) {
-            return Optional.empty();
+        Optional<TypeSymbol> typeSymbol = this.context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(node));
+        if (typeSymbol.isPresent()) {
+            return typeSymbol;
         }
 
-        return SymbolUtil.getTypeDescriptor(symbol.get());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        return this.getSymbolByName(visibleSymbols, node.name().text())
+                .flatMap(SymbolUtil::getTypeDescriptor);
     }
 
     @Override
@@ -283,6 +284,9 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                         .findFirst()
                         .get();
                 visibleEntries.addAll(new ArrayList<>(((RecordTypeSymbol) recordType).fieldDescriptors().values()));
+                break;
+            case TYPE_REFERENCE:
+                visibleEntries = getVisibleEntries(rawType, node);
                 break;
             default:
                 break;

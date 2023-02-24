@@ -2,7 +2,7 @@ name: (Nightly) Publish Timestamped Snapshot Artifacts
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '30 18 * * *'    # 00:00 in LK time (GMT+5:30)
 
 jobs:
   publish-ballerina-lang:
@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        branch: ['master', '2201.0.x', '2201.1.x', '2201.2.x']
+        branch: ['master', '2201.2.x', '2201.3.x', '2201.4.x']
     timeout-minutes: 240
     if: github.repository_owner == 'ballerina-platform'
     steps:

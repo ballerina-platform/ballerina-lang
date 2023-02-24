@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.SnippetContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
@@ -59,8 +60,8 @@ public class RecordUtil {
                                                                        RawTypeSymbolWrapper wrapper) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         fields.forEach((name, field) -> {
-            String insertText =
-                    getRecordFieldCompletionInsertText(field, 1);
+            SnippetContext snippetContext = new SnippetContext();
+            String insertText = getRecordFieldCompletionInsertText(field, snippetContext);
 
             String detail;
             if (wrapper.getRawType().getName().isPresent()) {
@@ -73,7 +74,7 @@ public class RecordUtil {
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText);
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
-            fieldItem.setLabel(name);
+            fieldItem.setLabel(CommonUtil.escapeReservedKeyword(name));
             fieldItem.setKind(CompletionItemKind.Field);
             fieldItem.setSortText(Priority.PRIORITY120.toString());
             completionItems.add(new RecordFieldCompletionItem(context, field, fieldItem, detail));
@@ -99,29 +100,22 @@ public class RecordUtil {
         Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();
         for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
             if (!entry.getValue().isOptional() && !entry.getValue().hasDefaultValue()) {
-                requiredFields.put(entry.getKey(), entry.getValue());
+                requiredFields.put(CommonUtil.escapeReservedKeyword(entry.getKey()), entry.getValue());
             }
         }
 
         String label;
-        String detail;
-        if (wrapper.getRawType().getName().isPresent()) {
-            detail = NameUtil.getModifiedTypeName(context, wrapper.getRawType());
-        } else if (wrapper.getBroaderType().getName().isPresent()) {
-            detail = NameUtil.getModifiedTypeName(context, wrapper.getBroaderType());
-        } else {
-            detail = wrapper.getRawType().signature();
-        }
+        String detail = NameUtil.getRecordTypeName(context, wrapper);
         if (!requiredFields.isEmpty()) {
             label = "Fill " + detail + " Required Fields";
-            int count = 1;
+            SnippetContext snippetContext = new SnippetContext();
             for (Map.Entry<String, RecordFieldSymbol> entry : requiredFields.entrySet()) {
                 String fieldEntry = entry.getKey()
                         + PKG_DELIMITER_KEYWORD + " "
-                        + DefaultValueGenerationUtil.getDefaultValueForType(entry.getValue().typeDescriptor(), count)
+                        + DefaultValueGenerationUtil.getDefaultValueForType(entry.getValue().typeDescriptor(),
+                                snippetContext)
                         .orElse(" ");
                 fieldEntries.add(fieldEntry);
-                count++;
             }
 
             String insertText = String.join(("," + CommonUtil.LINE_SEPARATOR), fieldEntries);
@@ -140,6 +134,50 @@ public class RecordUtil {
     }
 
     /**
+     * Get the insert text to fill the record fields.
+     *
+     * @param fields A non-empty map of fields
+     * @return Insert text to fill the record fields
+     */
+    public static String getFillAllRecordFieldInsertText(Map<String, RecordFieldSymbol> fields) {
+        List<String> fieldEntries = new ArrayList<>();
+        Map<String, RecordFieldSymbol> requiredFields = new HashMap<>();
+        for (Map.Entry<String, RecordFieldSymbol> entry : fields.entrySet()) {
+            if (!entry.getValue().isOptional() && !entry.getValue().hasDefaultValue()) {
+                requiredFields.put(CommonUtil.escapeReservedKeyword(entry.getKey()), entry.getValue());
+            }
+        }
+
+        String insertText = "";
+        if (!requiredFields.isEmpty()) {
+            for (Map.Entry<String, RecordFieldSymbol> entry : requiredFields.entrySet()) {
+                String fieldEntry = entry.getKey()
+                        + PKG_DELIMITER_KEYWORD + " "
+                        + DefaultValueGenerationUtil.getDefaultValueForType(entry.getValue().typeDescriptor())
+                        .orElse(" ");
+                fieldEntries.add(fieldEntry);
+            }
+
+            insertText = String.join(", ", fieldEntries);
+        }
+        return insertText;
+    }
+
+    /**
+     * Returns the fields of the record.
+     *
+     * @param wrapper        A wrapper containing record type wrapper and broader type wrapper
+     * @param existingFields Existing record fields
+     * @return Fields of the record
+     */
+    public static Map<String, RecordFieldSymbol> getRecordFields(RawTypeSymbolWrapper<RecordTypeSymbol> wrapper,
+                                                                 List<String> existingFields) {
+        return wrapper.getRawType().fieldDescriptors().entrySet().stream()
+                .filter(e -> !existingFields.contains(e.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    /**
      * Extract the required fields from the records.
      *
      * @param recordType record type descriptor to evaluate
@@ -154,13 +192,15 @@ public class RecordUtil {
     /**
      * Get the completion item insert text for a BField.
      *
-     * @param bField BField to evaluate
+     * @param bField         BField to evaluate
+     * @param snippetContext Snippet context
      * @return {@link String} Insert text
      */
-    public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField, int tabOffset) {
+    public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField,
+                                                            SnippetContext snippetContext) {
 
-        StringBuilder insertText = new StringBuilder(bField.getName().get() + ": ");
-        insertText.append(DefaultValueGenerationUtil.getDefaultValueForType(bField.typeDescriptor(), tabOffset)
+        StringBuilder insertText = new StringBuilder(CommonUtil.escapeReservedKeyword(bField.getName().get()) + ": ");
+        insertText.append(DefaultValueGenerationUtil.getDefaultValueForType(bField.typeDescriptor(), snippetContext)
                 .orElse(" "));
         return insertText.toString();
     }

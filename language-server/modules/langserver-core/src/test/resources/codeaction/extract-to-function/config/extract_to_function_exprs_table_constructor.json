@@ -10,6 +10,7 @@
     }
   },
   "source": "extract_to_function_exprs_table_constructor.bal",
+  "description": "Extract to function for expressions, table constructor",
   "expected": [
     {
       "title": "Extract to function",
@@ -42,8 +43,18 @@
           "newText": "extracted()"
         }
       ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_table_constructor.bal",
+          {
+            "line": 9,
+            "character": 32
+          }
+        ]
+      },
       "resolvable": false
     }
-  ],
-  "description": "Extract to function for expressions, table constructor"
+  ]
 }

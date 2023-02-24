@@ -1,0 +1,67 @@
+{
+  "position": {
+    "line": 19,
+    "character": 15
+  },
+  "description": "Test variable declaration of a raw template when expecting a int",
+  "source": "source.bal",
+  "expected": [
+    {
+      "title": "Convert to 'string' template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 12
+            },
+            "end": {
+              "line": 19,
+              "character": 17
+            }
+          },
+          "newText": "string `123`"
+        }
+      ]
+    },
+    {
+      "title": "Convert to 'xml' template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 12
+            },
+            "end": {
+              "line": 19,
+              "character": 17
+            }
+          },
+          "newText": "xml `123`"
+        }
+      ]
+    },
+    {
+      "title": "Convert to 're' template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 12
+            },
+            "end": {
+              "line": 19,
+              "character": 17
+            }
+          },
+          "newText": "re `123`"
+        }
+      ]
+    }
+  ]
+}

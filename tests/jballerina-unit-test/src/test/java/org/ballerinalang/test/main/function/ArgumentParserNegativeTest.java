@@ -70,6 +70,30 @@ public class ArgumentParserNegativeTest {
         }
     }
 
+    @Test(dataProvider = "floatValues")
+    public void testInvalidFloatArg(String arg) {
+        try {
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_float_param.bal");
+            BRunUtil.runMain(compileResult, new String[]{arg});
+        } catch (RuntimeException e) {
+            Assert.assertEquals(e.getMessage(), "error: invalid argument '" + arg +
+                    "' for parameter 'f', expected float value");
+        }
+    }
+
+    @Test(dataProvider = "decimalValues")
+    public void testInvalidDecimalArg(String arg) {
+        try {
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_decimal_param.bal");
+            BRunUtil.runMain(compileResult, arg);
+        } catch (RuntimeException e) {
+            Assert.assertEquals(e.getMessage(), "error: invalid argument '" + arg +
+                    "' for parameter 'd', expected decimal value");
+        }
+    }
+
     @Test(expectedExceptions = RuntimeException.class,
           expectedExceptionsMessageRegExp = "error: invalid argument '5.5s' for parameter 'f', expected float value")
     public void testInvalidFloatArg() {
@@ -106,14 +130,60 @@ public class ArgumentParserNegativeTest {
     }
 
     @DataProvider(name = "intValues")
-    public Object[][] intValues() {
-        return new Object[][]{
-                {"5ss"},
-                {"0c10"},
-                {"0b2101"},
-                {"0B11015"},
-                {"0xkef"},
-                {"0XFSF1"}
+    public Object[] intValues() {
+        return new Object[]{
+                "10.0",
+                "142.5",
+                "5ss",
+                "0c10",
+                "0b2101",
+                "0B11015",
+                "0x1efa2",
+                "-0x1efa2",
+                "0XFAF1",
+                "-0XFAF1",
+                "0xkef",
+                "0XFSF1",
+                "12d",
+                "-128D",
+                ""
+        };
+    }
+
+    @DataProvider(name = "floatValues")
+    public Object[] floatValues() {
+        return new Object[]{
+                "13.24f",
+                "123asd",
+                "0x1ef.a2pa5",
+                "2.0d",
+                "-2d",
+                "-4.5f",
+                "0x23dfp-2d",
+                "124.56f",
+                "-345.34F",
+                "-4.235E34f",
+                "-5.278e-45D",
+                ""
+        };
+    }
+
+    @DataProvider(name = "decimalValues")
+    public Object[] decimalValues() {
+        return new Object[]{
+                "13.24f",
+                "123asd",
+                "0x1ef.a2",
+                "0X1EF.A2P-2",
+                "-0X1EF.A2p-2",
+                "2.0d",
+                "-2d",
+                "4.5f",
+                "0x23dfp-2d",
+                "42.46D",
+                "-456.678d",
+                "-1.34e-6145f",
+                ""
         };
     }
 }

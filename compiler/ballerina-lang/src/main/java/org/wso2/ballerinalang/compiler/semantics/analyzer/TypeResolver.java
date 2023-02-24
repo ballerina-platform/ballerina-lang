@@ -811,7 +811,7 @@ public class TypeResolver {
         BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                 Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos, BUILTIN);
-        List<BType> memberTypes = new ArrayList<>();
+        List<BTupleMember> memberTypes = new ArrayList<>();
         BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes);
         tupleTypeSymbol.type = tupleType;
         BTypeDefinition defn = new BTypeDefinition(tupleType);
@@ -820,9 +820,10 @@ public class TypeResolver {
         td.defn = defn;
         td.setBType(tupleType);
 
-        for (BLangType memberTypeNode : td.memberTypeNodes) {
+        for (BLangType memberTypeNode : td.getMemberTypeNodes()) {
             BType type = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, memberTypeNode);
-            memberTypes.add(type);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
+            memberTypes.add(new BTupleMember(type, varSymbol));
         }
 
         if (td.restParamType != null) {
@@ -834,7 +835,7 @@ public class TypeResolver {
             symResolver.markParameterizedType(tupleType, tupleType.restType);
         }
 
-        symResolver.markParameterizedType(tupleType, memberTypes);
+        symResolver.markParameterizedType(tupleType, tupleType.getTupleTypes());
         return tupleType;
     }
 
@@ -1064,7 +1065,10 @@ public class TypeResolver {
     private BType resolveTypeDesc(BLangErrorType td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth,
                                   BLangTypeDefinition defn) {
         if (td.detailType == null) {
-            return symTable.errorType;
+            BType errorType = new BErrorType(null, symTable.detailType);
+            errorType.tsymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.ERROR,
+                    symTable.rootPkgSymbol.pkgID, errorType, symTable.rootPkgSymbol, symTable.builtinPos, BUILTIN);
+            return errorType;
         }
 
         SymbolResolver.AnalyzerData data = new SymbolResolver.AnalyzerData(symEnv);
