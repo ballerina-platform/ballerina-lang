@@ -110,12 +110,6 @@ public class Strand {
         //TODO: improve by using a copy on write map #26710
         if (properties != null) {
             this.globalProps = properties;
-            Object currentContext = globalProps.get(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
-            if (currentContext != null) {
-                TransactionLocalContext branchedContext =
-                        createTrxContextBranch((TransactionLocalContext) currentContext, name);
-                setCurrentTransactionContext(branchedContext);
-            }
         } else if (parent != null) {
             this.globalProps = new HashMap<>(parent.globalProps);
         } else {
@@ -130,6 +124,13 @@ public class Strand {
             this.trxContexts = parent.trxContexts;
             this.trxContexts.push(currentTrxContext);
             this.currentTrxContext = createTrxContextBranch(currentTrxContext, name);
+        } else {
+            Object currentContext = globalProps.get(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
+            if (currentContext != null) {
+                TransactionLocalContext branchedContext =
+                        createTrxContextBranch((TransactionLocalContext) currentContext, name);
+                setCurrentTransactionContext(branchedContext);
+            }
         }
     }
 
