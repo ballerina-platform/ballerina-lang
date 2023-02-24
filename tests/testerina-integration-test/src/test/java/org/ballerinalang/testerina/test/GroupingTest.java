@@ -116,7 +116,7 @@ public class GroupingTest extends BaseTestCase {
         AssertionUtils.assertOutput("GroupingTest-testListingOfTestGroups.txt", output);
     }
 
-    @Test(enabled = false) // Enable once https://github.com/ballerina-platform/ballerina-lang/issues/39629 completed
+    @Test
     public void testListGroupsWithOtherFlags() throws BallerinaTestException, IOException {
         String msg = "Warning: Other flags are skipped when list-groups flag is provided.";
         String[] args = mergeCoverageArgs(new String[]{"--groups", "g1", "--list-groups", "groups-test.bal"});
