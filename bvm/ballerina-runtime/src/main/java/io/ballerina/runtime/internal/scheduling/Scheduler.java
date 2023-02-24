@@ -510,15 +510,14 @@ public class Scheduler {
         group.unlock();
     }
 
-    public FutureValue createTransactionalFuture(Strand parent, Callback callback, Map<String, Object> properties,
-                                                 Type constraint, String name, StrandMetadata metadata) {
-        Strand newStrand = new Strand(name, metadata, this, parent, properties, parent != null ?
-                parent.currentTrxContext : null);
+    public FutureValue createFuture(Strand parent, Callback callback, Map<String, Object> properties,
+                                    Type constraint, String name, StrandMetadata metadata) {
+        Strand newStrand = new Strand(name, metadata, this, parent, properties);
         currentStrands.put(newStrand.getId(), newStrand);
         return createFuture(parent, callback, constraint, newStrand);
     }
 
-    public FutureValue createFuture(Strand parent, Callback callback, Map<String, Object> properties,
+    public FutureValue createTransactionalFuture(Strand parent, Callback callback, Map<String, Object> properties,
                                     Type constraint, String name, StrandMetadata metadata) {
         Strand newStrand = new Strand(name, metadata, this, parent, properties, parent != null ?
                 parent.currentTrxContext : null);
