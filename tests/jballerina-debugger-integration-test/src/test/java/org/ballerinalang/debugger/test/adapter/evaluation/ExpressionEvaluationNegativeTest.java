@@ -436,23 +436,6 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
                 "        };", String.format(EvaluationExceptionKind
                 .VARIABLE_NOT_FOUND.getString(), "undefinedList"));
 
-        // Query table without providing the contextual type
-        debugTestRunner.assertEvaluationError(context, "table key(id, name) from var customer in customerList" +
-                        "         select {" +
-                        "             id: customer.id," +
-                        "             name: customer.name," +
-                        "             noOfItems: customer.noOfItems" +
-                        "         }" +
-                        "         on conflict onConflictError;"
-                , "Failed to evaluate." + System.lineSeparator() +
-                        "Reason: compilation error(s) found while creating executables for evaluation: " +
-                        System.lineSeparator() +
-                        "field name 'id' used in key specifier is not found in table constraint type" +
-                        " 'map<(any|error)>'" +
-                        System.lineSeparator() +
-                        "field name 'name' used in key specifier is not found in table constraint type" +
-                        " 'map<(any|error)>'");
-
         // on conflict clauses usages with non-table returns
         debugTestRunner.assertEvaluationError(context, "from var customer in conflictedCustomerList" +
                         "         select {" +

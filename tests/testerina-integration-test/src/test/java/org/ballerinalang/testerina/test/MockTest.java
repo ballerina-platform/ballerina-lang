@@ -95,6 +95,23 @@ public class MockTest extends BaseTestCase {
         }
     }
 
+    /**
+     * Test object mock using test double when client implementation contains a resource function.
+     *
+     * @throws BallerinaTestException
+     */
+    @Test()
+    public void testObjectMockDouble() throws BallerinaTestException {
+        String msg1 = "1 passing";
+        String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests2"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1)) {
+            Assert.fail("Test failed due to object mocking failure with resource functions in test framework." +
+                    "\nOutput:\n" + output);
+        }
+    }
+
     @Test()
     public void testFunctionMockingModuleLevel() throws BallerinaTestException {
         String msg1 = "3 passing";
@@ -142,6 +159,19 @@ public class MockTest extends BaseTestCase {
         Assert.assertEquals(moduleObj.get("coveredLines").toString(), "4");
         Assert.assertEquals(moduleObj.get("missedLines").toString(), "3");
         Assert.assertEquals(moduleObj.get("coveragePercentage").toString(), "57.14");
+    }
+
+    @Test
+    public void testFunctionMockingInMultipleModulesWithDependencies() throws BallerinaTestException {
+        String msg1 = "function_mocking_with_dependencies.a_dependency\n\t\t[pass] test1\n\n\n\t\t" +
+                "1 passing\n\t\t0 failing\n\t\t0 skipped";
+        String msg2 = "function_mocking_with_dependencies.b_dependent\n\t\t[pass] test1\n\n\n\t\t" +
+                "1 passing\n\t\t0 failing\n\t\t0 skipped";
+        String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests-with-dependencies"});
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            Assert.fail("Test failed due to function mocking failure in test framework.\nOutput:\n" + output);
+        }
     }
 
     @Test(dataProvider = "testNegativeCases")
