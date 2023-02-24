@@ -789,8 +789,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE4039", "outer.join.must.be.declared.with.var"),
     UNSUPPORTED_USAGE_OF_DEFAULT_VALUES_FOR_KEY_FIELD_IN_TABLE_MEMBER(
             "BCE4040", "unsupported.usage.of.default.values.for.key.field.in.table.member"),
-    CANNOT_USE_WILD_CARD_BINDING_PATTERN_FOR_ERROR_CAUSE("BCE4041",
-            "cannot.use.wild.card.binding.pattern.for.error.cause")
+    CANNOT_USE_WILDCARD_BINDING_PATTERN_FOR_ERROR_CAUSE("BCE4041",
+            "cannot.use.wildcard.binding.pattern.for.error.cause")
     ;
 
     private String diagnosticId;

@@ -3342,7 +3342,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (errorCause.getKind() == NodeKind.VARIABLE &&
                         names.fromIdNode(((BLangSimpleVariable) errorCause).name) == Names.IGNORE) {
                     dlog.error(errorCause.pos,
-                            DiagnosticErrorCode.CANNOT_USE_WILD_CARD_BINDING_PATTERN_FOR_ERROR_CAUSE);
+                            DiagnosticErrorCode.CANNOT_USE_WILDCARD_BINDING_PATTERN_FOR_ERROR_CAUSE);
                     return false;
                 }
                 defineMemberNode(errorVariable.cause, env, symTable.errorOrNilType);

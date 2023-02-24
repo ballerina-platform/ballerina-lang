@@ -61,11 +61,18 @@ type SampleErrorData record {|
 
 type SampleError error<SampleErrorData>;
 
-type MyError record {|
+type TestRecord record {|
     int errorNum2;
     string errorString2;
     SampleError err;
 |};
+
+type errorData record {|
+    int errNum;
+    string errReason;
+|};
+
+type MyError error<errorData>;
 
 function testWildcardBindingPatternWithErrorCause() {
     SampleError sampleErr = error("Transaction Failure", error("Database Error"), code = 20,
@@ -81,6 +88,11 @@ function testWildcardBindingPatternWithErrorCause() {
 
     [int, [string, SampleError]] [errorNum1, [errorString1, error(message5, _, code = code5, reason = reason5)]] = [1234, ["ERROR", sampleErr]];
 
-    MyError myErr = {errorNum2: 1223, errorString2: "ERROR", err: sampleErr};
-    MyError {errorNum2: _, errorString2: firstName, err: error(message6, _, code = code6, reason = reason6)} = myErr;
+    TestRecord testRecord = {errorNum2: 1223, errorString2: "ERROR", err: sampleErr};
+    TestRecord {errorNum2: _, errorString2: firstName, err: error(message6, _, code = code6, reason = reason6)} = testRecord;
+
+    MyError myErr = error("Illegal Return", sampleErr, errNum = 20, errReason = "empty content");
+    var error(message7, error(message8, _, code = code8, reason = reason8), errNum = code7, errReason = reason7) = myErr;
+
+    MyError error(message9, error(message10, _, code = code10, reason = reason10), errNum = code9, errReason = reason9) = myErr;
 }
