@@ -102,7 +102,6 @@ public class MockTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests2"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        output = output.replaceAll("\r", "");
         AssertionUtils.assertOutput("MockTest-testObjectMockDouble.txt", output);
     }
 
@@ -155,7 +154,6 @@ public class MockTest extends BaseTestCase {
     public void testFunctionMockingInMultipleModulesWithDependencies() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests-with-dependencies"});
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
-        output = output.replaceAll("\r", "");
         AssertionUtils.assertOutput("MockTest-testFuncMockInMultiModulesWDepen.txt", output);
     }
 
