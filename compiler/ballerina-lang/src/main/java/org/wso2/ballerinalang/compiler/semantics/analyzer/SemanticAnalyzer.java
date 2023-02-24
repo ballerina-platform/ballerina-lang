@@ -126,6 +126,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
@@ -232,6 +243,8 @@ import static org.ballerinalang.model.tree.NodeKind.FUNCTION;
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.NUMERIC_LITERAL;
 import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_EXPR;
+import static org.ballerinalang.model.tree.NodeKind.REG_EXP_CAPTURING_GROUP;
+import static org.ballerinalang.model.tree.NodeKind.REG_EXP_CHARACTER_CLASS;
 
 /**
  * @since 0.94
@@ -1101,7 +1114,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE || (ownerSymTag & SymTag.LET) == SymTag.LET
                 || currentEnv.node.getKind() == NodeKind.LET_CLAUSE) {
             // This is a variable declared in a function, let expression, an action or a resource
-            // If the variable is parameter then the variable symbol is already defined
+            // If the variable is parameter then the variable symbol is already defined`
             if (varNode.symbol == null) {
                 analyzeVarNode(varNode, data, AttachPoint.Point.VAR);
             } else {
@@ -1261,7 +1274,64 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     public void visit(BLangRegExpTemplateLiteral node, AnalyzerData data) {
         if (node.reDisjunction.sequenceList.size() == 0) {
             dlog.error(node.reDisjunction.pos, DiagnosticErrorCode.EMPTY_REGEXP_STRING_DISALLOWED, node.reDisjunction);
+        } else {
+            analyzeNode(node.reDisjunction, data);
         }
+    }
+
+    @Override
+    public void visit(BLangReDisjunction node, AnalyzerData data) {
+        node.sequenceList.forEach(sequence -> analyzeNode(sequence, data));
+    }
+
+    @Override
+    public void visit(BLangReSequence node, AnalyzerData data) {
+        node.termList.forEach(term -> analyzeNode(term, data));
+    }
+
+    @Override
+    public void visit(BLangReAtomQuantifier node, AnalyzerData data) {
+        if (node.atom.getKind() == REG_EXP_CHARACTER_CLASS || node.atom.getKind() == REG_EXP_CAPTURING_GROUP) {
+            analyzeNode(node.atom, data);
+        }
+    }
+
+    @Override
+    public void visit(BLangReCharacterClass node, AnalyzerData data) {
+        if (node.charSet == null && node.negation == null) {
+            dlog.error(node.pos, DiagnosticErrorCode.UNSUPPORTED_EMPTY_CHARACTER_CLASS, node);
+        }
+    }
+
+    @Override
+    public void visit(BLangReAssertion node, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReAtomCharOrEscape node, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReQuantifier node, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReCharSet node, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReCharSetRange node, AnalyzerData data) {
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups node, AnalyzerData data) {
+        if (node.disjunction != null) {
+            analyzeNode(node.disjunction, data);
+        }
+    }
+
+    @Override
+    public void visit(BLangReFlagsOnOff node, AnalyzerData data) {
     }
 
     private boolean isSupportedConfigType(BType type, List<String> errors, String varName, Set<BType> unresolvedTypes
