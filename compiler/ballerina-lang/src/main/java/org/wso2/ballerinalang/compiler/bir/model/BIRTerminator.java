@@ -97,6 +97,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      */
     public static class Call extends BIRTerminator implements BIRAssignInstruction {
         public boolean isVirtual;
+        public boolean transactional;
         public List<BIROperand> args;
         public Name name;
         public PackageID calleePkg;
