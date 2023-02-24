@@ -494,8 +494,7 @@ public class Scheduler {
 
     public FutureValue createFuture(Strand parent, Callback callback, Map<String, Object> properties,
                                     Type constraint, String name, StrandMetadata metadata) {
-        Strand newStrand = new Strand(name, metadata, this, parent, properties, parent != null ?
-                parent.currentTrxContext : null);
+        Strand newStrand = new Strand(name, metadata, this, parent, properties);
         currentStrands.put(newStrand.getId(), newStrand);
         return createFuture(parent, callback, constraint, newStrand);
     }
