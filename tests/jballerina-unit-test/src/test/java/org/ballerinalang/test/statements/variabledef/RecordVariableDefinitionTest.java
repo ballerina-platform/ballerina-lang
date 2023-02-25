@@ -435,6 +435,11 @@ public class RecordVariableDefinitionTest {
         BRunUtil.invoke(result, "testRecordVariableWithAnonymousType");
     }
 
+    @Test
+    public void testNestedRecordVariableWithAnonymousType() {
+        BRunUtil.invoke(result, "testNestedRecordVariableWithAnonymousType");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

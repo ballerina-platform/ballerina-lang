@@ -743,17 +743,52 @@ function testReadOnlyRecordWithMappingBindingPatternInVarDecl() {
     assertEquality(<ReadOnlyRecord> {x: [1, 2], y: "s1"}, b1);
 }
 
-function recordVariableWithAnonymousType() returns [string, boolean]|error {
-    record {|
-        string name;
-        boolean married;
-    |} {name, married} = check getPersonRecord().ensureType();
-    return [name, married];
+function recordVariableWithAnonymousType() returns [string, boolean] {
+    do {
+        record {|
+            string name;
+            boolean married;
+        |} {name, married} = check getPersonRecord().ensureType();
+        return [name, married];
+    } on fail {
+        return ["name", false];
+    }
+}
+
+function getPersonDetails() returns PersonDetails {
+    PersonDetails details = {name: "Jack", married: true, details: {age: 30}};
+    return details;
+}
+
+type PersonDetails record {|
+    string name;
+    boolean married;
+    record {|int age;|} details;
+|};
+
+function nestedRecordVariableWithAnonymousType() returns [string, boolean, record {|int age;|}] {
+    do {
+        record {|
+            string name;
+            boolean married;
+            record {|int age;|} details;
+        |} {name, married, details} = check getPersonDetails().ensureType();
+        return [name, married, details];
+    } on fail {
+        return ["name", false, {age: 0}];
+    }
 }
 
 function testRecordVariableWithAnonymousType() {
-    [string, boolean]|error [name, married] = recordVariableWithAnonymousType();
+    [string, boolean] [name, married] = recordVariableWithAnonymousType();
     assertEquality("Jack", name);
+    assertTrue(married);
+}
+
+function testNestedRecordVariableWithAnonymousType() {
+    [string, boolean, record {|int age;|}] [name, married, details] = nestedRecordVariableWithAnonymousType();
+    assertEquality("Jack", name);
+    assertEquality(30, details.age);
     assertTrue(married);
 }
 
