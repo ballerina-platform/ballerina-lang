@@ -6857,21 +6857,21 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         int i = 0;
         BLangExpression vararg = null;
         boolean foundNamedArg = false;
-        boolean isIncRecordAllowExtraFields = incRecordParamAllowAdditionalFields != null;
+        boolean isIncRecordAllowAdditionalFields = incRecordParamAllowAdditionalFields != null;
         for (BLangExpression expr : iExpr.argExprs) {
             switch (expr.getKind()) {
                 case NAMED_ARGS_EXPR:
                     foundNamedArg = true;
                     BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) expr;
-                    boolean isNamedArgForIncRecordParam =
+                    boolean namedArgForIncRecordParam =
                                   isNamedArgForIncRecordParam(namedArg.name.value, incRecordParamAllowAdditionalFields);
                     if (i < parameterCountForNamedArgs) {
-                        if (isNamedArgForIncRecordParam) {
-                            isIncRecordAllowExtraFields = false;
+                        if (namedArgForIncRecordParam) {
+                            isIncRecordAllowAdditionalFields = false;
                         }
                         iExpr.requiredArgs.add(expr);
                     } else {
-                        if (isIncRecordAllowExtraFields && !isNamedArgForIncRecordParam) {
+                        if (isIncRecordAllowAdditionalFields && !namedArgForIncRecordParam) {
                             iExpr.requiredArgs.add(expr);
                         } else {
                             dlog.error(expr.pos, DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
