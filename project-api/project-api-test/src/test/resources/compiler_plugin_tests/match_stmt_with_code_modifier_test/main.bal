@@ -28,9 +28,25 @@ function listMatchPattern(any v) returns string {
     return "No match";
 }
 
+isolated function getURI(string nameSpace) returns string {
+    match nameSpace {
+        xml:XML_NAMESPACE_URI => {
+            return xml:XML_NAMESPACE_URI;
+        }
+        xml:XMLNS_NAMESPACE_URI => {
+            return xml:XMLNS_NAMESPACE_URI;
+        }
+        _ => {
+            return "URI not found";
+        }
+    }
+}
+
 public function main() {
     assertEquals("[1]", listMatchPattern([1]));
     assertEquals("[1, 2]", listMatchPattern([1, 2]));
+    assertEquals(xml:XML_NAMESPACE_URI, getURI(xml:XML_NAMESPACE_URI));
+    assertEquals(xml:XMLNS_NAMESPACE_URI, getURI(xml:XMLNS_NAMESPACE_URI));
 }
 
 function assertEquals(anydata expected, anydata actual) {
