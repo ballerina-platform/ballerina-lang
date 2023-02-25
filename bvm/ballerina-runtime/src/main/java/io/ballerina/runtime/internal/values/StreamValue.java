@@ -29,8 +29,6 @@ import io.ballerina.runtime.internal.types.BStreamType;
 import java.util.Map;
 import java.util.UUID;
 
-import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
-
 /**
  * <p>
  * The {@link StreamValue} represents a stream in Ballerina.

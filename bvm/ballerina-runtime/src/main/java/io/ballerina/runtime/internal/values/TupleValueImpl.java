@@ -592,6 +592,7 @@ public class TupleValueImpl extends AbstractArrayValue {
                 ((RefValue) value).freezeDirect();
             }
         }
+        this.typedesc = null;
     }
 
     /**

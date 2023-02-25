@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
-import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
-
 /**
  * XML nodes containing processing instructions.
  *

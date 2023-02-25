@@ -21,7 +21,6 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
-import io.ballerina.runtime.api.values.BTypedesc;
 
 import java.util.Map;
 

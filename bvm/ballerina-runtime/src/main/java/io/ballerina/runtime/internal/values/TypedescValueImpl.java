@@ -17,7 +17,6 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BInitialValueEntry;
@@ -31,7 +30,6 @@ import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
-import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 
 /**
  * <p>

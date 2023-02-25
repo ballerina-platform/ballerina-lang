@@ -627,6 +627,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         this.children.freezeDirect();
         this.attributes.freezeDirect();
+        this.typedesc = null;
     }
 
     private QName getQName(String localName, String namespaceUri, String prefix) {

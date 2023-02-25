@@ -18,7 +18,6 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.values.BRefValue;
-import io.ballerina.runtime.api.values.BTypedesc;
 
 /**
  * <p>

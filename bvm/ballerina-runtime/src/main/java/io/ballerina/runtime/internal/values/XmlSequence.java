@@ -590,6 +590,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         for (BXml elem : children) {
             elem.freezeDirect();
         }
+        this.typedesc = null;
     }
 
     @Override

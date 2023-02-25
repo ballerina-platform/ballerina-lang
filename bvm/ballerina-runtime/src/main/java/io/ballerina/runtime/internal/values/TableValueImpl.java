@@ -364,6 +364,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         this.type = (BTableType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         //we know that values are always RefValues
         this.values().forEach(val -> ((RefValue) val).freezeDirect());
+        this.typedesc = null;
     }
 
     public String stringValue(BLink parent) {

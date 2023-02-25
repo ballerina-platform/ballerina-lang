@@ -231,6 +231,7 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
     @Override
     public void freezeDirect() {
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
+        this.typedesc = null;
     }
 
     @Override

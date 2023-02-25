@@ -26,7 +26,6 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
@@ -37,7 +36,6 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
-import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.ValueCreator;
 

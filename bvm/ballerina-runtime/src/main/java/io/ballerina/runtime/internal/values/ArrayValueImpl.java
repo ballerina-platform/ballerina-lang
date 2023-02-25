@@ -975,6 +975,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 }
             }
         }
+        this.typedesc = null;
     }
 
     /**

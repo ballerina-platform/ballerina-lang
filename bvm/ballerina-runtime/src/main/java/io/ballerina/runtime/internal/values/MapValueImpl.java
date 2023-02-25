@@ -520,6 +520,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 ((RefValue) val).freezeDirect();
             }
         });
+        this.typedesc = null;
     }
 
     public String getJSONString() {
