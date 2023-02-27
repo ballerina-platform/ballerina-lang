@@ -98,6 +98,7 @@ public class RegExpLexer extends AbstractLexer {
             reader.advance();
             return getRegExpSyntaxToken(SyntaxKind.PIPE_TOKEN);
         }
+
         // ReSequence has zero or more ReTerm.
         this.reader.advance();
         switch (nextChar) {
@@ -130,7 +131,6 @@ public class RegExpLexer extends AbstractLexer {
                     startMode(ParserMode.RE_CHAR_CLASS);
                 }
 
-//                this.reader.advance();
                 return getRegExpSyntaxToken(SyntaxKind.OPEN_BRACKET_TOKEN);
             case LexerTerminals.CLOSE_BRACKET:
                 if (this.mode == ParserMode.RE_CHAR_CLASS) {
@@ -445,25 +445,6 @@ public class RegExpLexer extends AbstractLexer {
         // Fail-safe.
         endMode();
         return nextToken();
-    }
-
-    private STToken readTokenInReCharClass() {
-        reader.mark();
-        if (reader.isEOF()) {
-            return getRegExpSyntaxToken(SyntaxKind.EOF_TOKEN);
-        }
-
-        int nextToken = peek();
-        if (nextToken == LexerTerminals.CLOSE_BRACKET) {
-            // End of the char class.
-            endMode();
-            this.reader.advance();
-            return getRegExpSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
-        } else if (nextToken == LexerTerminals.DOLLAR) {
-            this.reader.advance();
-            return getRegExpSyntaxToken(SyntaxKind.DOLLAR_TOKEN);
-        }
-        return readTokenInReDisjunction();
     }
 
     private STToken getRegExpSyntaxToken(SyntaxKind kind) {
