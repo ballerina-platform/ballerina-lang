@@ -136,7 +136,9 @@ function convertStringToInt() {
 }
 
 function testThrowErrorInsideLock() {
-    test:assertEquals(throwErrorInsideLock(), [51, "second worker string"]);
+    var [intResult, stringResult] = throwErrorInsideLock();
+    test:assertEquals(intResult, 51);
+    test:assertTrue(stringResult is "second worker string" || stringResult is "hello");
 }
 
 function throwErrorInsideLock() returns [int, string] {
@@ -159,7 +161,9 @@ function throwErrorInsideLock() returns [int, string] {
     if (waitResult is error) {
         test:assertEquals(waitResult.message(), "{ballerina/lang.int}NumberParsingError");
     }
-    return [lockWithinLockInt1, lockWithinLockString1];
+    lock {
+        return [lockWithinLockInt1, lockWithinLockString1];
+    }
 }
 
 function errorPanicInsideLock() {

@@ -738,9 +738,20 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public ParenthesizedArgList transform(ParenthesizedArgList parenthesizedArgList) {
-        Token openParenToken = formatToken(parenthesizedArgList.openParenToken(), 0, 0);
+        int parenTrailingNL = 0;
+        if (hasNonWSMinutiae(parenthesizedArgList.openParenToken().trailingMinutiae())) {
+            parenTrailingNL++;
+        }
+        Token openParenToken = formatToken(parenthesizedArgList.openParenToken(), 0, parenTrailingNL);
+        boolean shouldIndent = parenTrailingNL > 0 || shouldIndentParenthesizedArgs(parenthesizedArgList.arguments());
+        if (shouldIndent) {
+            indent();
+        }
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(parenthesizedArgList
-                .arguments(), 0, 0, 0, 0, true);
+                .arguments(), 0, 0, 0, shouldIndent ? 1 : 0, true);
+        if (shouldIndent) {
+            unindent();
+        }
         Token closeParenToken = formatToken(parenthesizedArgList.closeParenToken(), env.trailingWS, env.trailingNL);
 
         return parenthesizedArgList.modify()
@@ -3987,18 +3998,8 @@ public class FormattingTreeModifier extends TreeModifier {
 
         for (int index = 0; index < size; index++) {
             T oldNode = nodeList.get(index);
-            if (allowInAndMultiLine) {
-                if (hasNonWSMinutiae(oldNode.trailingMinutiae())) {
-                    indent();
-                }
-            }
             T newNode = formatListItem(itemTrailingWS, itemTrailingNL, listTrailingWS, listTrailingNL, size,
                     index, oldNode);
-            if (allowInAndMultiLine) {
-                if (hasNonWSMinutiae(oldNode.trailingMinutiae())) {
-                    unindent();
-                }
-            }
             newNodes[2 * index] = newNode;
             if (oldNode != newNode) {
                 nodeModified = true;
@@ -4553,6 +4554,17 @@ public class FormattingTreeModifier extends TreeModifier {
                     || hasNonWSMinutiae(member.leadingMinutiae())
                     || hasNonWSMinutiae(member.trailingMinutiae())
                     || member.toSourceCode().contains(System.lineSeparator())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private <T extends Node> boolean shouldIndentParenthesizedArgs(SeparatedNodeList<T> nodeList) {
+        int size = nodeList.size();
+
+        for (int index = 0; index < size - 1; index++) {
+            if (hasNonWSMinutiae(nodeList.getSeparator(index).trailingMinutiae())) {
                 return true;
             }
         }

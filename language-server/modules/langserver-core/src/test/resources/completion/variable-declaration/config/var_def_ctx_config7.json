@@ -730,6 +730,24 @@
       "filterText": "xml ``",
       "insertText": "xml `${1}`",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "new(int field1, int field2)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` field1  \n- `int` field2"
+        }
+      },
+      "sortText": "AC",
+      "insertText": "new(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }
