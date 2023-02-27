@@ -289,3 +289,11 @@ function testInvokingFunctionWithNamedArgForIncludedRecordParam() {
     fn5(record5 = {}, j = 2); // error
     fn5(j = 2, record5 = {}); // error
 }
+
+type Baz record {|
+    int r;
+|};
+
+function fn6(*Baz r) {
+
+}

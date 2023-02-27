@@ -125,6 +125,7 @@ public class FunctionWithIncludedRecordParam {
                 "not found in type 'int'", 280, 21);
         BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn5()'", 289, 23);
         BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn5()'", 290, 16);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'r'", 297, 15);
         Assert.assertEquals(i, result.getErrorCount());
     }
 
