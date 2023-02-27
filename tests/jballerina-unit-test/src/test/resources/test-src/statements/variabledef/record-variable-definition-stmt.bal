@@ -744,15 +744,11 @@ function testReadOnlyRecordWithMappingBindingPatternInVarDecl() {
 }
 
 function recordVariableWithAnonymousType() returns [string, boolean] {
-    do {
-        record {|
-            string name;
-            boolean married;
-        |} {name, married} = check getPersonRecord().ensureType();
-        return [name, married];
-    } on fail {
-        return ["name", false];
-    }
+    record {|
+        string name;
+        boolean married;
+    |} {name, married} = checkpanic getPersonRecord().ensureType();
+    return [name, married];
 }
 
 function getPersonDetails() returns PersonDetails {
@@ -767,16 +763,12 @@ type PersonDetails record {|
 |};
 
 function nestedRecordVariableWithAnonymousType() returns [string, boolean, record {|int age;|}] {
-    do {
-        record {|
-            string name;
-            boolean married;
-            record {|int age;|} details;
-        |} {name, married, details} = check getPersonDetails().ensureType();
-        return [name, married, details];
-    } on fail {
-        return ["name", false, {age: 0}];
-    }
+    record {|
+        string name;
+        boolean married;
+        record {|int age;|} details;
+    |} {name, married, details: {age}} = checkpanic getPersonDetails().ensureType();
+    return [name, married, {age}];
 }
 
 function testRecordVariableWithAnonymousType() {
