@@ -290,6 +290,31 @@ function testReadOnlyListWithListBindingPatternInVarDecl() {
     assertEquality(<ReadOnlyTuple> [[1, 2], "s1"], b1);
 }
 
+function getPersonDetails() returns PersonDetails {
+    PersonDetails details = [{name: "Jack", married: true}, 10];
+    return details;
+}
+
+type PersonDetails [record {|
+    string name;
+    boolean married;
+|}, int];
+
+function tupleVariableWithAnonymousRecordType() returns [string, boolean, int] {
+    [record {|
+        string name;
+        boolean married;
+    |}, int] [{name, married}, age] = checkpanic getPersonDetails().ensureType();
+    return [name, married, age];
+}
+
+function testTupleVariableWithAnonymousRecordType() {
+    [string, boolean, int] [name, married, age] = tupleVariableWithAnonymousRecordType();
+    assertEquality("Jack", name);
+    assertEquality(true, married);
+    assertEquality(10, age);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any expected, any actual) {
