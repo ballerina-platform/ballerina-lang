@@ -57,9 +57,12 @@ public enum ParserMode {
     XML_CDATA_SECTION,
 
     // RegExp Parser
+    REGEXP,
     RE_DISJUNCTION,
     RE_FLAG_EXPRESSION,
     RE_UNICODE_PROP_ESCAPE,
     RE_UNICODE_PROPERTY_VALUE,
     RE_ESCAPE,
+    RE_CHAR_CLASS,
+    RE_QUOTE_ESCAPE
 }
