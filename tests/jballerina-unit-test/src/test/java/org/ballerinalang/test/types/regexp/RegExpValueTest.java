@@ -104,6 +104,7 @@ public class RegExpValueTest {
         validateError(negativeResult, index++, "missing colon token", 32, 1);
         validateError(negativeResult, index++, "missing expression", 32, 1);
         validateError(negativeResult, index++, "missing semicolon token", 32, 1);
+        validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 30, 37);
         assertEquals(negativeResult.getErrorCount(), index);
     }
 

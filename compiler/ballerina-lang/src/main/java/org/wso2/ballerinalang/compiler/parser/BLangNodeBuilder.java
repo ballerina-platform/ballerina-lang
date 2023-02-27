@@ -5806,6 +5806,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         charSetRange.dash = (BLangExpression) charSetRangeNode.minusToken().apply(this);
         charSetRange.rhsCharSetAtom = (BLangExpression) charSetRangeNode.reCharSetAtom().apply(this);
         charSetRange.pos = getPosition(charSetRangeNode);
+        // lhsCharSetAtom value should be less than rhsCharSetAtom value.
+        checkRangeValidity((BLangLiteral) charSetRange.lhsCharSetAtom, (BLangLiteral) charSetRange.rhsCharSetAtom);
         return charSetRange;
     }
 
