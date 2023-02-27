@@ -118,12 +118,13 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         }
 
         String prefix = name.getPrefix();
-        if (prefix == null || prefix.isEmpty()) {
-            prefix = XMLNS;
+        BString xmlnsPrefix;
+        if (prefix == null || prefix.isEmpty() || prefix.equals(XMLNS)) {
+            xmlnsPrefix = XMLNS_PREFIX;
+        } else {
+            xmlnsPrefix = StringUtils.fromString(XMLNS_NS_URI_PREFIX + prefix);
         }
-
-        attributes.populateInitialValue(StringUtils.fromString(XMLNS_NS_URI_PREFIX + prefix),
-                                        StringUtils.fromString(namespace));
+        attributes.populateInitialValue(xmlnsPrefix, StringUtils.fromString(namespace));
     }
 
     /**
@@ -196,7 +197,13 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     @Override
     public BString getAttribute(String localName, String namespace, String prefix) {
         if (prefix != null && !prefix.isEmpty()) {
-            String ns = attributes.get(StringUtils.fromString(XMLNS_NS_URI_PREFIX + prefix)).getValue();
+            BString xmlnsPrefix;
+            if (prefix.equals(XMLNS)) {
+                xmlnsPrefix = XMLNS_PREFIX;
+            } else {
+                xmlnsPrefix = StringUtils.fromString(XMLNS_NS_URI_PREFIX + prefix);
+            }
+            String ns = attributes.get(xmlnsPrefix).getValue();
             BString attrVal = attributes.get(StringUtils.fromString("{" + ns + "}" + localName));
             if (attrVal != null) {
                 return attrVal;

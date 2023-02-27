@@ -28,6 +28,8 @@ import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import javax.xml.XMLConstants;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
+import static io.ballerina.runtime.api.values.BXmlItem.XMLNS;
+import static io.ballerina.runtime.api.values.BXmlItem.XMLNS_PREFIX;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
@@ -82,14 +84,25 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
         // 'localName' will contain the namespace name where as 'value' will contain the namespace URI
         // todo: Fix this so that namespaceURI points to XMLConstants.XMLNS_ATTRIBUTE_NS_URI
         //  and remove this special case
-        if ((namespaceUri == null && prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE))
-                || localName.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+
+        if (localName.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
+            func.put(XMLNS_PREFIX, StringUtils.fromString(value));
+            return;
+        }
+
+        if (namespaceUri == null && prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             String nsNameDecl = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + localName;
             func.put(StringUtils.fromString(nsNameDecl), StringUtils.fromString(value));
             return;
         }
-
-        BString nsOfPrefix = get(StringUtils.fromString(XMLNS_NS_URI_PREFIX + prefix));
+        
+        BString xmlnsPrefix;
+        if (prefix != null && prefix.equals(XMLNS)) {
+            xmlnsPrefix = XMLNS_PREFIX;
+        } else {
+            xmlnsPrefix = StringUtils.fromString(XMLNS_NS_URI_PREFIX + prefix);
+        }
+        BString nsOfPrefix = get(xmlnsPrefix);
         if (namespaceUri != null && nsOfPrefix != null && !namespaceUri.equals(nsOfPrefix.getValue())) {
             String errorMsg = String.format(
                     "failed to add attribute '%s:%s'. prefix '%s' is already bound to namespace '%s'",
@@ -106,8 +119,7 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
 
         // If the prefix is 'xmlns' then this is a namespace addition
         if (prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
-            String xmlnsPrefix = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + prefix;
-            func.put(StringUtils.fromString(xmlnsPrefix), StringUtils.fromString(namespaceUri));
+            func.put(xmlnsPrefix, StringUtils.fromString(namespaceUri));
         }
     }
 
