@@ -24,9 +24,11 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FunctionType;
+import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
@@ -2327,69 +2329,81 @@ public class TypeChecker {
                 return XmlNodeType.PI;
             case TypeTags.XML_TEXT_TAG:
                 return XmlNodeType.TEXT;
-            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getXmlNodeType(((ReferenceType) type).getReferredType());
             default:
                 return null;
         }
     }
 
     private static boolean checkIsLikeXmlValueSingleton(XmlValue xmlSource, Type targetType) {
+        XmlNodeType targetXmlNodeType = getXmlNodeType(targetType);
+        XmlNodeType xmlSourceNodeType = xmlSource.getNodeType();
 
-        XmlNodeType nodeType = getXmlNodeType(targetType);
-
-        if (nodeType == null) {
-            return false;
-        }
-
-        if (xmlSource.getNodeType() == nodeType) {
+        if (xmlSourceNodeType == targetXmlNodeType) {
             return true;
         }
 
-        if (xmlSource.getNodeType() == XmlNodeType.SEQUENCE) {
+        if (xmlSourceNodeType == XmlNodeType.SEQUENCE) {
             XmlSequence seq = (XmlSequence) xmlSource;
-
-            return seq.size() == 1 && seq.getChildrenList().get(0).getNodeType() == nodeType ||
-                    (nodeType == XmlNodeType.TEXT && seq.isEmpty());
+            return seq.size() == 1 && seq.getChildrenList().get(0).getNodeType() == targetXmlNodeType ||
+                    (targetXmlNodeType == XmlNodeType.TEXT && seq.isEmpty());
         }
+
         return false;
     }
 
-    private static boolean checkIsLikeXMLSequenceType(XmlValue xmlSource, Type targetType) {
-        if (xmlSource.getNodeType() != XmlNodeType.SEQUENCE) {
-            return false;
-        }
-        Set<XmlNodeType> acceptedNodes = new HashSet<>();
-
-        BXmlType target = (BXmlType) targetType;
-        if (TypeUtils.getReferredType(target.constraint).getTag() == TypeTags.UNION_TAG) {
-            getXMLNodeOnUnion((BUnionType) target.constraint, acceptedNodes);
-        } else {
-            acceptedNodes.add(getXmlNodeType(((BXmlType) targetType).constraint));
-        }
-
-        XmlSequence seq = (XmlSequence) xmlSource;
-        for (BXml m : seq.getChildrenList()) {
-            if (!acceptedNodes.contains(m.getNodeType())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static void getXMLNodeOnUnion(BUnionType unionType, Set<XmlNodeType> nodeTypes) {
-        // Currently there are only 4 xml subtypes
+    private static void populateTargetXmlNodeTypes(Set<XmlNodeType> nodeTypes, Type targetType) {
+        // there are only 4 xml subtypes
         if (nodeTypes.size() == 4) {
             return;
         }
 
-        for (Type memberType : unionType.getMemberTypes()) {
-            if (memberType.getTag() == TypeTags.UNION_TAG) {
-                getXMLNodeOnUnion((BUnionType) memberType, nodeTypes);
-            } else {
-               nodeTypes.add(getXmlNodeType(memberType));
+        Type referredType = TypeUtils.getReferredType(targetType);
+        switch (referredType.getTag()) {
+            case TypeTags.UNION_TAG:
+                for (Type memberType : ((UnionType) referredType).getMemberTypes()) {
+                    populateTargetXmlNodeTypes(nodeTypes, memberType);
+                }
+                break;
+            case TypeTags.INTERSECTION_TAG:
+                populateTargetXmlNodeTypes(nodeTypes, ((IntersectionType) referredType).getEffectiveType());
+                break;
+            case TypeTags.XML_ELEMENT_TAG:
+                nodeTypes.add(XmlNodeType.ELEMENT);
+                break;
+            case TypeTags.XML_COMMENT_TAG:
+                nodeTypes.add(XmlNodeType.COMMENT);
+                break;
+            case TypeTags.XML_PI_TAG:
+                nodeTypes.add(XmlNodeType.PI);
+                break;
+            case TypeTags.XML_TEXT_TAG:
+                nodeTypes.add(XmlNodeType.TEXT);
+                break;
+            case TypeTags.XML_TAG:
+                populateTargetXmlNodeTypes(nodeTypes, ((BXmlType) referredType).constraint);
+                break;
+            default:
+                break;
+
+        }
+    }
+
+    private static boolean checkIsLikeXMLSequenceType(XmlValue xmlSource, Type targetType) {
+        Set<XmlNodeType> acceptedNodeTypes = new HashSet<>();
+        populateTargetXmlNodeTypes(acceptedNodeTypes, targetType);
+
+        XmlNodeType xmlSourceNodeType = xmlSource.getNodeType();
+        if (xmlSourceNodeType != XmlNodeType.SEQUENCE) {
+            return acceptedNodeTypes.contains(xmlSourceNodeType);
+        }
+
+        XmlSequence seq = (XmlSequence) xmlSource;
+        for (BXml m : seq.getChildrenList()) {
+            if (!acceptedNodeTypes.contains(m.getNodeType())) {
+                return false;
             }
         }
+        return true;
     }
 
     public static boolean isNumericType(Type type) {
