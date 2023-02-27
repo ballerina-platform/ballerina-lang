@@ -33,6 +33,7 @@ import picocli.CommandLine;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -868,6 +869,25 @@ public class BuildCommandTest extends BaseCommandTest {
 
         Assert.assertTrue((firstCodeGenDuration / 10) > secondCodeGenDuration,
                 "second code gen duration is greater than the expected value");
+    }
+
+    @Test(description = "Build a valid ballerina project with a custom maven repo")
+    public void testBuildBalProjectWithCustomMavenRepo() throws IOException {
+        String username = System.getenv("publishUser");
+        String password = System.getenv("publishPAT");
+
+        if (username != null && password != null) {
+            Path projectPath = this.testResources.resolve("validProjectWithCustomMavenRepo");
+            String content = Files.readString(projectPath.resolve("Ballerina.toml"), Charset.defaultCharset())
+                    .replace("{{username}}", username).replace("{{password}}", password);
+            Files.write(projectPath.resolve("Ballerina.toml"), content.getBytes(Charset.defaultCharset()));
+            BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+            new CommandLine(buildCommand).parse(projectPath.toString());
+            buildCommand.execute();
+            Assert.assertTrue(projectPath.resolve("target").resolve("platform-libs").resolve("org")
+                    .resolve("ballerinalang").resolve("ballerina-command-distribution")
+                    .resolve("0.8.14").resolve("ballerina-command-distribution-0.8.14.jar").toFile().exists());
+        }
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

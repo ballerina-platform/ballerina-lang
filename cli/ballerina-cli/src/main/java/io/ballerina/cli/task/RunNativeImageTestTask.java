@@ -106,6 +106,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTABLE;
 public class RunNativeImageTestTask implements Task {
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+    private static final String WIN_EXEC_EXT = "exe";
 
     private static class StreamGobbler extends Thread {
         private InputStream inputStream;
@@ -283,7 +284,7 @@ public class RunNativeImageTestTask implements Task {
         coverage = project.buildOptions().codeCoverage();
 
         if (coverage) {
-            this.out.println("WARNING: Code coverage generation is not supported currently by Ballerina native test");
+            this.out.println("WARNING: Code coverage generation is not supported with Ballerina native test");
         }
 
         if (report) {
@@ -498,7 +499,8 @@ public class RunNativeImageTestTask implements Task {
             cmdArgs = new ArrayList<>();
 
             // Run the generated image
-            cmdArgs.add(nativeTargetPath.resolve(packageName).toString());
+            String generatedImagePath = nativeTargetPath.resolve(packageName) + getGeneratedImageExtension();
+            cmdArgs.add(generatedImagePath);
 
             // Test Runner Class arguments
             cmdArgs.add(target.path().toString());                                  // 0
@@ -708,4 +710,10 @@ public class RunNativeImageTestTask implements Task {
         return unmodifiedFiles;
     }
 
+    private String getGeneratedImageExtension() {
+        if (OS.contains("win")) {
+            return DOT + WIN_EXEC_EXT;
+        }
+        return "";
+    }
 }

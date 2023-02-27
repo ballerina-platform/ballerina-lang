@@ -196,6 +196,7 @@ public class BTestMain {
             modifiedClassDef.put(className, classFile);
         }
         classLoader = createClassLoader(jarFilePaths, modifiedClassDef);
+        clearMockFunctionMapBeforeNextModule();
     }
 
     private static void populateClassNameVsFunctionToMockMap(TestSuite suite) {
@@ -323,6 +324,10 @@ public class BTestMain {
                                                        Map<String, byte[]> modifiedClassDef) {
         return new CustomClassLoader(getURLList(jarFilePaths).toArray(new URL[0]),
                 ClassLoader.getSystemClassLoader(), modifiedClassDef);
+    }
+
+    private static void clearMockFunctionMapBeforeNextModule() {
+        classVsMockFunctionsMap.clear();
     }
 
     public static ClassLoader getClassLoader() {

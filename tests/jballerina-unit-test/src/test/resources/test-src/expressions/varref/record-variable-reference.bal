@@ -241,3 +241,85 @@ function testRestParameterType() returns boolean {
 //    {name: fName, age, married, ...theMap} = {name: "Peter", married: true, age: {age:12, format: "Y"}};
 //    return (fName, married, age);
 //}
+
+type EmployeeDetails record {|
+    string emp\:name;
+    int id;
+|};
+
+type ProductDetails record {|
+    string x\:code = "default";
+    int quantity;
+|};
+
+function testRecordFieldBindingPatternsWithIdentifierEscapes() {
+    EmployeeDetails empDetails = {
+        emp\:name: "Joy",
+        id: 12
+    };
+    string emp\:name;
+    int id;
+    {emp\:name, id} = empDetails;
+    assertEquality("Joy", emp\:name);
+    assertEquality(12, id);
+
+    ProductDetails prodDetails = {quantity: 1234};
+    ProductDetails {x\:code, quantity} = prodDetails;
+    prodDetails = {x\:code: "featured", quantity: 12345};
+    {x\:code, quantity} = prodDetails;
+    assertEquality("featured", x\:code);
+    assertEquality(12345, quantity);
+
+    [EmployeeDetails, ProductDetails] details = [{id: 234, emp\:name: "Amy"}, {x\:code: "basic", quantity: 324}];
+    string a;
+    int b;
+    int c;
+    string d;
+    [{emp\:name: a, id: b}, {quantity: c, x\:code: d}] = details;
+    assertEquality("Amy", a);
+    assertEquality(234, b);
+    assertEquality(324, c);
+    assertEquality("basic", d);
+}
+
+type ReadOnlyRecord readonly & record {|
+    int[] x;
+    string y;
+|};
+
+function testReadOnlyRecordWithMappingBindingPatternInDestructuringAssignment() {
+    ReadOnlyRecord f1 = {x: [1, 2], y: "s1"};
+    int[] & readonly x;
+    string y;
+
+    {x, y} = f1;
+    assertEquality(<int[]> [1, 2], x);
+    assertEquality("s1", y);
+
+    readonly & record {
+        int[] a;
+        ReadOnlyRecord b;
+    } r = {a: [12, 34, 56], b: f1};
+    int[] & readonly a;
+    int[] & readonly x2;
+    string y2;
+    {a, b: {x: x2, y: y2}} = r;
+    assertEquality(<int[]> [12, 34, 56], a);
+    assertEquality(<int[]> [1, 2], x2);
+    assertEquality("s1", y2);
+
+    int[] c;
+    int[] d;
+    {a: c, b: {x: d, y: y2}} = r;
+    assertEquality(<int[]> [12, 34, 56], c);
+    assertEquality(<int[]> [1, 2], d);
+    assertEquality("s1", y2);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toBalString() + "', found '" + actual.toBalString() + "'");
+}

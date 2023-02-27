@@ -558,3 +558,33 @@ function testInvalidCheckExpressionInQueryAction2() returns error? {
 
 function returnNil() {
 }
+
+type PersonA record {|
+    string firstName;
+    string lastName;
+    int age;
+|};
+
+type Persons PersonA[];
+
+function testInvalidContextuallyExpectedTypes() {
+
+    PersonA[] personList = [];
+    int outputPersonList =
+            from var person in personList
+    let int newAge = 20
+    where person.age == 33
+    select person.firstName;
+
+    Persons outputPersons =
+                from var person in personList
+    let int newAge = 20
+    where person.age == 33
+    select person.firstName;
+
+    PersonA outputPerson =
+                from var person in personList
+    let int newAge = 20
+    where person.age == 33
+    select person.firstName;
+}

@@ -34,19 +34,6 @@
             }
           },
           "newText": "\n    if sayHello is HelloReply {\n\n    }"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 22,
-              "character": 38
-            },
-            "end": {
-              "line": 22,
-              "character": 38
-            }
-          },
-          "newText": "\n    if sayHello is E1 {\n\n    }"
         }
       ],
       "command": {
@@ -108,7 +95,7 @@
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariable9.bal",
-          398
+          401
         ]
       },
       "resolvable": false
