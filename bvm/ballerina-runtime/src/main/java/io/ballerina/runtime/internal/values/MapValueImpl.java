@@ -553,8 +553,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             this.iterator = iterator;
         }
 
-        private BTypedesc typedesc;
-
         @Override
         public Object next() {
             Map.Entry<?, ?> next = iterator.next();
@@ -574,14 +572,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         @Override
         public boolean hasNext() {
             return iterator.hasNext();
-        }
-
-        @Override
-        public BTypedesc getTypedesc() {
-            if (this.typedesc == null) {
-                this.typedesc = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
-            }
-            return typedesc;
         }
     }
 

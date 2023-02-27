@@ -17,7 +17,6 @@
 
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
@@ -497,14 +496,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         @Override
         public boolean hasNext() {
            return cursor < noOfAddedEntries && values.size() != 0;
-        }
-
-        @Override
-        public BTypedesc getTypedesc() {
-            if (this.typedesc == null) {
-                this.typedesc = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
-            }
-            return typedesc;
         }
     }
 

@@ -18,12 +18,10 @@
 
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlNonElementItem;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
@@ -175,8 +173,6 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
     public IteratorValue getIterator() {
         return new IteratorValue() {
 
-            private BTypedesc typedesc;
-            
             @Override
             public boolean hasNext() {
                 return false;
@@ -185,14 +181,6 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
             @Override
             public Object next() {
                 throw new NoSuchElementException();
-            }
-
-            @Override
-            public BTypedesc getTypedesc() {
-                if (this.typedesc == null) {
-                    this.typedesc = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
-                }
-                return typedesc;
             }
         };
     }

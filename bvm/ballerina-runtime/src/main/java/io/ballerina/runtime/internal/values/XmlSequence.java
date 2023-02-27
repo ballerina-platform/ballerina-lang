@@ -26,7 +26,6 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.CycleUtils;
@@ -612,7 +611,6 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     public IteratorValue getIterator() {
         return new IteratorValue() {
             Iterator<BXml> iterator = children.iterator();
-            private BTypedesc typedesc;
 
             @Override
             public boolean hasNext() {
@@ -622,14 +620,6 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             @Override
             public Object next() {
                 return iterator.next();
-            }
-
-            @Override
-            public BTypedesc getTypedesc() {
-                if (this.typedesc == null) {
-                    this.typedesc = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
-                }
-                return typedesc;
             }
         };
     }
