@@ -618,6 +618,16 @@ function basicWorkerTest2() returns error? {
     string _ = x;
 }
 
+function testWorkerReceiveWithVar(){
+    worker w1 {
+	    int x = 50;
+	    x -> w2;
+    }
+    worker w2 {
+    	var y = <- w1;
+    }
+}
+
 function currentThread() returns handle = @java:Method {
     'class: "java.lang.Thread"
 } external;

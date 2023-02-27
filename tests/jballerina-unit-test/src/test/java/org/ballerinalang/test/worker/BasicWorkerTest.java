@@ -91,6 +91,11 @@ public class BasicWorkerTest {
         BRunUtil.invoke(result, funcName);
     }
 
+    @Test
+    public void testWorkerReceiveWithVar() {
+        BRunUtil.invoke(result, "testWorkerReceiveWithVar", new Object[0]);
+    }
+
     @DataProvider(name = "workerSendTests")
     public Object[] testFunctions() {
         return new Object[]{
@@ -99,7 +104,7 @@ public class BasicWorkerTest {
                 "testSimpleSendActionXMLType",
                 "testSimpleSendActionReadonlyRecord",
                 "testSimpleSendActionWithMapType",
-                "testSimpleSendActionWithListType",
+                "testSimpleSendActionWithListType"
         };
     }
 
