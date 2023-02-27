@@ -1409,6 +1409,9 @@ public class Types {
         if (Symbols.isFlagOn(target.flags, Flags.ANY_FUNCTION)) {
             return true;
         }
+        if (Symbols.isFlagOn(source.flags, Flags.ANY_FUNCTION) && !Symbols.isFlagOn(target.flags, Flags.ANY_FUNCTION)) {
+            return false;
+        }
 
         // For invokable types with typeParam parameters, we have to check whether the source param types are
         // covariant with the target param types.
