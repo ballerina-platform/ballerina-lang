@@ -11250,20 +11250,29 @@ public class BallerinaParser extends AbstractParser {
         // Separate out the interpolated expressions to a queue. Then merge the string content using '${}'.
         // These '${}' are used to represent the interpolated locations. Regular expression parser will replace '${}'
         // with the actual interpolated expression, while building the regular expression tree.
+        this.tokenReader.startMode(ParserMode.REGEXP);
         ArrayDeque<STNode> expressions = new ArrayDeque<>();
         StringBuilder regExpStringBuilder = new StringBuilder();
         STToken nextToken = peek();
+        boolean visitedCharacterClassStartToken = nextToken.text().equals("[");
         while (!isEndOfBacktickContent(nextToken.kind)) {
             STNode contentItem = parseTemplateItem();
             if (contentItem.kind == SyntaxKind.TEMPLATE_STRING) {
                 regExpStringBuilder.append(((STToken) contentItem).text());
+            } else if (visitedCharacterClassStartToken) {
+                regExpStringBuilder.append(contentItem);
             } else {
                 regExpStringBuilder.append("${}");
                 expressions.add(contentItem);
             }
             nextToken = peek();
+            if (nextToken.text().equals("[")) {
+                visitedCharacterClassStartToken = true;
+            } else if (nextToken.text().equals("]")) {
+                visitedCharacterClassStartToken = false;
+            }
         }
-
+        this.tokenReader.endMode();
         CharReader charReader = CharReader.from(regExpStringBuilder.toString());
         AbstractTokenReader tokenReader = new TokenReader(new RegExpLexer(charReader));
         RegExpParser regExpParser = new RegExpParser(tokenReader, expressions);

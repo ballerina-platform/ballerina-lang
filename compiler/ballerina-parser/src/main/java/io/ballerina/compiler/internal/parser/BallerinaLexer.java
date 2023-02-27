@@ -47,6 +47,7 @@ public class BallerinaLexer extends AbstractLexer {
         STToken token;
         switch (this.mode) {
             case TEMPLATE:
+            case REGEXP:
                 token = readTemplateToken();
                 break;
             case INTERPOLATION:
@@ -1465,6 +1466,12 @@ public class BallerinaLexer extends AbstractLexer {
                 }
                 // fall through
             default:
+                if (this.mode == ParserMode.REGEXP) {
+                    if (nextChar == LexerTerminals.OPEN_BRACKET || nextChar == LexerTerminals.CLOSE_BRACKET) {
+                        reader.advance();
+                        break;
+                    }
+                }
                 while (!reader.isEOF()) {
                     reader.advance();
                     nextChar = this.reader.peek();
@@ -1477,6 +1484,12 @@ public class BallerinaLexer extends AbstractLexer {
                         case LexerTerminals.BACKTICK:
                             break;
                         default:
+                            char nextNextChar = this.reader.peek(1);
+                            if (this.mode == ParserMode.REGEXP && (nextNextChar == LexerTerminals.OPEN_BRACKET
+                                    || nextNextChar == LexerTerminals.CLOSE_BRACKET)) {
+                                reader.advance();
+                                break;
+                            }
                             continue;
                     }
                     break;
