@@ -28,5 +28,7 @@ function testRegExpNegative() {
     var _ = re `[z-a]A{4,2}[a-bf-F]{1,}(?im-ms:[c-a](?ixmx:[z-a](?ixm-xs:[r-m])))`;
     string:RegExp _ = re `Dd\csdgfdsdfs`;
     string:RegExp _ = re `[$^$\r\n\^z-a]`;
+    _ = re `[\\uD834\\uDF06-\\uD834\\uDF08z-a]`;
+    _ = re `[\p{sc=Katakana}-\p{sc=Hiragana}]`;
     _ = re `[AB\p{gc=Lu}]+` ? `;
 }
