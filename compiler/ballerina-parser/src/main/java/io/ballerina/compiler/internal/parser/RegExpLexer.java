@@ -156,60 +156,6 @@ public class RegExpLexer extends AbstractLexer {
         }
     }
 
-//    STToken getReTerm(int nextChar) {
-//        // ReSequence has zero or more ReTerm.
-//        this.reader.advance();
-//        switch (nextChar) {
-//            case LexerTerminals.BITWISE_XOR:
-//                return getRegExpSyntaxToken(SyntaxKind.BITWISE_XOR_TOKEN);
-//            case LexerTerminals.DOLLAR:
-//                if (peek() == LexerTerminals.OPEN_BRACE) {
-//                    // Start interpolation mode.
-//                    startMode(ParserMode.INTERPOLATION);
-//                    this.reader.advance();
-//                    return getRegExpSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
-//                }
-//                return getRegExpSyntaxToken(SyntaxKind.DOLLAR_TOKEN);
-//            case LexerTerminals.DOT:
-//                return getRegExpSyntaxToken(SyntaxKind.DOT_TOKEN);
-//            case LexerTerminals.ASTERISK:
-//                return getRegExpSyntaxToken(SyntaxKind.ASTERISK_TOKEN);
-//            case LexerTerminals.PLUS:
-//                return getRegExpSyntaxToken(SyntaxKind.PLUS_TOKEN);
-//            case LexerTerminals.QUESTION_MARK:
-//                return getRegExpSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
-//            case LexerTerminals.BACKSLASH:
-//                return processReEscape();
-//            // Start parsing ReSyntaxChar character class [[^] [ReCharSet]].
-//            case LexerTerminals.OPEN_BRACKET:
-//                if (this.mode != ParserMode.RE_QUOTE_ESCAPE) {
-//                    startMode(ParserMode.RE_CHAR_CLASS);
-//                }
-//
-////                this.reader.advance();
-//                return getRegExpSyntaxToken(SyntaxKind.OPEN_BRACKET_TOKEN);
-//            case LexerTerminals.CLOSE_BRACKET:
-//                //todo close mode
-//                return getRegExpSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
-//            case LexerTerminals.OPEN_BRACE:
-//                return getRegExpSyntaxToken(SyntaxKind.OPEN_BRACE_TOKEN);
-//            case LexerTerminals.CLOSE_BRACE:
-//                return getRegExpSyntaxToken(SyntaxKind.CLOSE_BRACE_TOKEN);
-//            // Start parsing capturing group ([? ReFlagsOnOff :] ReDisjunction).
-//            case LexerTerminals.OPEN_PARANTHESIS:
-//                return getRegExpSyntaxToken(SyntaxKind.OPEN_PAREN_TOKEN);
-//            case LexerTerminals.CLOSE_PARANTHESIS:
-//                return getRegExpSyntaxToken(SyntaxKind.CLOSE_PAREN_TOKEN);
-//            case LexerTerminals.COMMA:
-//                return getRegExpSyntaxToken(SyntaxKind.COMMA_TOKEN);
-//            default:
-//                if (isDigit(nextChar)) {
-//                    return getRegExpText(SyntaxKind.DIGIT);
-//                }
-//                return getRegExpText(SyntaxKind.RE_LITERAL_CHAR);
-//        }
-//    }
-
     private STToken processReEscape() {
         int nextChar = peek();
         switch (nextChar) {
