@@ -60,7 +60,7 @@ type GroupsArrayType GroupsAsSpanArrayType[];
 #
 # r.find("Hello World") is regexp:Span ⇒ true
 #
-# r.find("Hello World", 7) is regexp:Span ⇒ true
+# r.find("Hello World", 6) is regexp:Span ⇒ true
 # ```
 #
 # + re - the regular expression
@@ -153,7 +153,7 @@ public isolated function findAll(RegExp re, string str, int startIndex = 0) retu
 #
 # r.findAllGroups("rubble, trouble, bubble, hubble").length() ⇒ 3
 #
-# r.findAllGroups("rubble, trouble, bubble, hubble", 7) ⇒ 2
+# r.findAllGroups("rubble, trouble, bubble, hubble", 7).length() ⇒ 2
 # ```
 #
 # + re - the regular expression
