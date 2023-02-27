@@ -714,6 +714,10 @@ client class MyClient {
         return "book" + id.toString();
     }
 
+    resource function get [int number]() returns string {
+        return string`data${number}`;
+    }
+
     resource function bookDetails .(int no, string bookName) returns Book {
             Book b = {id: no, name: bookName};
             return b;
@@ -725,6 +729,43 @@ client class MyClient {
 
     resource function someOtherMethod books/[PATH...](string a) returns string[] {
         return [a, "book4"];
+    }
+
+    resource function post game/[string name]/path/[int players]() returns string {
+        return name + ": " + players.toString();
+    }
+}
+
+client class MyClient2 {
+    resource function get [string... a](string... b) returns string[][] {
+        return [a, b];
+    }
+
+    resource function get1 [string](int a, int b) returns int? {
+        return a;
+    }
+
+    resource function get path/[int a]/path2/[string](string b, int... c) returns [int, string, int[]] {
+        return [a, b, c];
+    }
+
+    resource function put [int](int a, int b = 5) returns int[2] {
+        return [a, b];
+    }
+}
+
+type Rec record {|
+    int a;
+    string b;
+|};
+
+client class MyClient3 {
+    resource function get [string]() returns Rec[] {
+        return [{a: 1, b: "A"}, {a: 2, b: "B"}];
+    }
+
+    resource function put path/[string](Rec r) returns int {
+        return r.a;
     }
 }
 
@@ -750,6 +791,39 @@ function testQueryActionOrExprWithClientResourceAccessAction() {
             where b == book
             select myClient->/.bookDetails(1, b);
     assertEquality([{id: 1, name: "book1"}], res3);
+
+    var res4 = from var b in myClient->/books/names
+            select myClient->/books/someLongPathSegment.someOtherMethod(b);
+    assertEquality([["book1", "book4"], ["book2", "book4"]], res4);
+
+    var res5 = from var b in [1, 2]
+            select myClient->/[b];
+    assertEquality(["data1", "data2"], res5);
+
+    var res6 = from var b in [1, 2]
+            let [string, "path", int] gameDetails2 = ["Carrom", "path", 4]
+            select myClient->/game/[...gameDetails2].post;
+    assertEquality(["Carrom: 4", "Carrom: 4"], res6);
+
+    MyClient2 myClient2 = new;
+
+    var res7 = from string[] b in myClient2->/books/books2
+            where b.length() > 1
+            select myClient2->/(b[0], "pen");
+    assertEquality([[[], ["books", "pen"]]], res7);
+
+    var res8 = from int b in myClient2->/[5].put(1, 6)
+            let int[] arr = myClient2->/[5].put(b)
+            select myClient2->/path/[arr[0]]/path2/path3("book", arr[1]);
+    assertEquality([[1, "book", [5]], [6, "book", [5]]], res8);
+
+    MyClient3 myClient3 = new;
+
+    string a = "a";
+    var res9 = from Rec r in myClient3->/a.get()
+            where r.a == 1
+            select myClient3->/path/[a].put(r);
+    assertEquality([1], res9);
 }
 
 function testQueryActionOrExprWithGroupedClientResourceAccessAction() {
@@ -792,6 +866,13 @@ function testNestedQueryActionOrExprWithClientResourceAccessAction() {
             where b == c
             select myClient->/.bookDetails(1, b);
     assertEquality([{id: 1, name: "book2"}], res2);
+
+    string b1 = "book1";
+    var res3 = from var b in myClient->/books/names
+            from string c in myClient->/books/someLongPathSegment.someOtherMethod(b1)
+            where b == c
+            select myClient->/books/someLongPathSegment.someOtherMethod(b);
+    assertEquality([["book1", "book4"]], res3);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
