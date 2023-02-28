@@ -105,3 +105,21 @@ service /next on new http:Listener(9090) {
     }
 
 }
+
+service /abc on new http:Listener(9090) {
+
+    @display {
+        label: "InternalClientService",
+        id: "InternalClient-b704fd5e-06b8-47df-89fe-6c462b5cdf4e"
+    }
+    InternalClient inEp3;
+
+    function init() returns error? {
+        self.inEp3 = check new InternalClient("http://example.com/internal/1");
+    }
+
+    resource function get repos(string orgName, int max = 5) returns string|error? {
+
+    }
+
+}
