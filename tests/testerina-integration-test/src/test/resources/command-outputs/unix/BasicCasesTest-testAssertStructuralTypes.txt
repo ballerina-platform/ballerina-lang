@@ -1,0 +1,49 @@
+Compiling source
+	intg_tests/assertions:0.0.0
+WARNING [tests/assert-test-structural-types.bal:(22:5,22:21)] undocumented field 'id'
+WARNING [tests/assert-test-structural-types.bal:(23:5,23:17)] undocumented field 'name'
+WARNING [tests/assert-test-structural-types.bal:(24:5,24:18)] undocumented field 'salary'
+
+Running Tests with Coverage
+
+	assertions
+		[pass] testAssertByteArrayEquals
+		[pass] testAssertByteArrayEqualsNegative
+		[pass] testAssertByteArrayNotEquals
+		[pass] testAssertByteArrayNotEqualsNegative
+		[pass] testAssertFloatArrayEquals
+		[pass] testAssertFloatArrayEqualsNegative
+		[pass] testAssertFloatArrayNotEquals
+		[pass] testAssertFloatArrayNotEqualsNegative
+		[pass] testAssertIntArrayEquals
+		[pass] testAssertIntArrayEqualsNegative
+		[pass] testAssertIntArrayNotEquals
+		[pass] testAssertIntArrayNotEqualsNegative
+		[pass] testAssertMapEquals
+		[pass] testAssertMapEqualsNegative
+		[pass] testAssertMapNotEquals
+		[pass] testAssertMapNotEqualsNegative
+		[pass] testAssertRecordEquals
+		[pass] testAssertRecordEqualsNegative
+		[pass] testAssertRecordNotEquals
+		[pass] testAssertRecordNotEqualsNegative
+		[pass] testAssertStringArrayEquals
+		[pass] testAssertStringArrayEqualsNegative
+		[pass] testAssertStringArrayNotEquals
+		[pass] testAssertStringArrayNotEqualsNegative
+		[pass] testAssertTableEquals
+		[pass] testAssertTableEqualsNegative
+		[pass] testAssertTableNotEquals
+		[pass] testAssertTableNotEqualsNegative
+		[pass] testAssertTupleEquals
+		[pass] testAssertTupleEqualsNegative
+		[pass] testAssertTupleNotEquals
+		[pass] testAssertTupleNotEqualsNegative
+
+
+		32 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	assertions-structural-types/target/report/test_results.json

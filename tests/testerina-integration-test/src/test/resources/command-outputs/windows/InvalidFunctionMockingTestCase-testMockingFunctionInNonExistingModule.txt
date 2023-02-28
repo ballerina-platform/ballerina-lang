@@ -1,0 +1,4 @@
+Compiling source
+	intg_tests/non_existent_module_mock:0.1.0
+ERROR [tests\test.bal:(3:1,6:2)] could not find specified module 'intg_tests/module1:0.1.0'
+error: compilation contains errors
