@@ -581,7 +581,9 @@ public class TypeParamAnalyzer {
             tupleTypes.add(actualType.restType);
         }
 
-        BType type = tupleTypes.size() == 1 ? tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes);
+        int size = tupleTypes.size();
+        BType type = size == 0 ? symTable.neverType :
+                (size == 1 ? tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes));
         findTypeParam(loc, expType.eType, type, env, resolvedTypes, result);
     }
 

@@ -88,4 +88,9 @@ function testInvalidBinaryExprInExprFuncBody() {
 
     [string] strTup = ["str"];
     _ = strTup.map(s => 1 + s);
+
+    _ = [].map(m => m + 1);
+
+    // [] emptyTup = [];
+    // _ = emptyTup.map(m => 1 + m);
 }

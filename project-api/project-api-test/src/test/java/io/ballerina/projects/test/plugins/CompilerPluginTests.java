@@ -468,6 +468,28 @@ public class CompilerPluginTests {
         Assert.assertNull(mainResult);
     }
 
+    @Test
+    public void testMatchStmtWithRepeatedCompilationWithCodeModifierPlugin() {
+        Package currentPackage = loadPackage("match_stmt_with_code_modifier_test");
+        currentPackage.getCompilation();
+        CodeModifierResult codeModifierResult = currentPackage.runCodeModifierPlugins();
+        Package newPackage = codeModifierResult.updatedPackage().orElse(null);
+        Assert.assertNotNull(newPackage, "Cannot be null, because there exist code modifiers");
+
+        PackageCompilation packageCompilation = newPackage.getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        CompileResult compileResult = new CompileResult(newPackage, jBallerinaBackend);
+
+        try {
+            BRunUtil.runInit(compileResult);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("error while invoking init method");
+        }
+
+        Object mainResult = BRunUtil.invoke(compileResult, "main");
+        Assert.assertNull(mainResult);
+    }
+
     private Package loadPackage(String path) {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve(path);
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
