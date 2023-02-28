@@ -22,7 +22,6 @@ import org.ballerinalang.docgen.generator.model.BType;
 import org.ballerinalang.docgen.generator.model.Client;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.Function;
-import org.ballerinalang.docgen.generator.model.FunctionKind;
 import org.ballerinalang.docgen.generator.model.Listener;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.ModuleDoc;
@@ -255,7 +254,7 @@ public class DocModelTest {
 
         Assert.assertEquals(caller.get().remoteMethods.size(), 1,
                 "Caller client should have one remote method");
-        Assert.assertTrue(caller.get().remoteMethods.get(0).functionKind == FunctionKind.REMOTE,
+        Assert.assertTrue(caller.get().remoteMethods.get(0).isRemote,
                 "Caller client method, `complete` should be a remote method");
         Assert.assertEquals(caller.get().remoteMethods.get(0).name, "complete",
                 "Caller client should have one remote method name complete");

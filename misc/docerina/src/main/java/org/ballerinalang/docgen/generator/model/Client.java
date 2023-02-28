@@ -41,19 +41,19 @@ public class Client extends BClass {
     @Override
     public List<Function> getOtherMethods(List<Function> methods) {
         return super.getOtherMethods(methods).stream()
-                .filter(function -> function.functionKind == FunctionKind.OTHER)
+                .filter(function -> !function.isRemote && !function.isResource)
                 .collect(Collectors.toList());
     }
 
     public List<Function> getRemoteMethods() {
         return this.methods.stream()
-                .filter(function -> function.functionKind == FunctionKind.REMOTE)
+                .filter(function -> function.isRemote)
                 .collect(Collectors.toList());
     }
 
     public List<Function> getResourceMethods() {
         return this.methods.stream()
-                .filter(function -> function.functionKind == FunctionKind.RESOURCE)
+                .filter(function -> function.isResource)
                 .collect(Collectors.toList());
     }
 }
