@@ -833,7 +833,7 @@ public class JvmCodeGenUtil {
     public static void visitMaxStackForMethod(MethodVisitor mv, String funcName, String className) {
         try {
             mv.visitMaxs(0, 0);
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
             throw new BLangCompilerException(
                     "error while generating method '" + Utils.decodeIdentifier(funcName) + "' in class '" +
                             Utils.decodeIdentifier(className) + "'", e);
