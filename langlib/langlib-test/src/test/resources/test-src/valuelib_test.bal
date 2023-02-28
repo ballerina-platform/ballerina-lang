@@ -2914,8 +2914,117 @@ function testCloneWithTypeTableToAnydata() {
     test:assertValueEqual(result is readonly, true);
 }
 
+type xml1 xml:ProcessingInstruction|xml:Text;
+
+type xml2 xml:Element & readonly;
+
+type xml3 xml:Element;
+
+type xml4 xml3;
+
+type BigXml xml<xml1|xml2|xml4>;
+
 type ReadOnlyXmlElement xml:Element & readonly;
+
 type AnydataUnion int|anydata;
+
+type JsonUnion xml|json;
+
+type JsonUnion2 BigXml|json;
+
+function testCloneWithTypeXmlToUnion() {
+    xml z = xml `<a>1</a>`;
+    xml:Element|json z0 = checkpanic z.cloneWithType();
+    any result = z0;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(z0, xml `<a>1</a>`);
+
+    xml|json z1 = checkpanic z.cloneWithType();
+    result = z1;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(z1, xml `<a>1</a>`);
+
+    JsonUnion & readonly z2 = checkpanic z.cloneWithType();
+    result = z2;
+    test:assertValueEqual(result is readonly, true);
+    test:assertValueEqual(z2, xml `<a>1</a>`);
+
+    JsonUnion z3 = checkpanic z.cloneWithType();
+    result = z3;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(z3, xml `<a>1</a>`);
+
+    JsonUnion2 z4 = checkpanic z.cloneWithType();
+    result = z4;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(z4, xml `<a>1</a>`);
+
+    JsonUnion2 & readonly z5 = checkpanic z.cloneWithType();
+    result = z5;
+    test:assertValueEqual(result is readonly, true);
+    test:assertValueEqual(z5, xml `<a>1</a>`);
+
+    xml:Comment|json|error z6 = z.cloneWithType();
+    test:assertValueEqual(z6 is error, true);
+    if (z6 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", z6.message());
+        test:assertValueEqual("'lang.xml:Element' value cannot be converted to '(lang.xml:Comment|json)'",
+        <string>checkpanic z6.detail()["message"]);
+    }
+
+    xml xmlComment = xml `<!-- xml comment -->`;
+    JsonUnion2|error z7 = xmlComment.cloneWithType();
+    test:assertValueEqual(z7 is error, true);
+    if (z7 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", z7.message());
+        test:assertValueEqual("'lang.xml:Comment' value cannot be converted to '(BigXml|json)'",
+        <string>checkpanic z7.detail()["message"]);
+    }
+
+    xml x1 = xml `<book>The Lost World</book><!-- xml comment -->`;
+    xml<xml:Comment|xml:Element> y1 = checkpanic x1.cloneWithType();
+    result = y1;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(y1, x1);
+
+    xml<xml:Comment|xml:Element> & readonly y2 = checkpanic x1.cloneWithType();
+    result = y2;
+    test:assertValueEqual(result is readonly, true);
+    test:assertValueEqual(y2, x1);
+
+    xml<xml:Comment|(xml:Element & readonly)> y3 = checkpanic x1.cloneWithType();
+    result = y3;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(y3, x1);
+
+    xml x2 = xml `<?xml version="1.0" encoding="UTF-8"?><book>The Lost World</book>`;
+    xml<xml:Comment|xml:Element>|error y4 = x2.cloneWithType();
+    test:assertValueEqual(y4 is error, true);
+    if (y4 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", y4.message());
+        test:assertValueEqual("'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'"
+        + " value cannot be converted to 'xml<(lang.xml:Comment|lang.xml:Element)>'",
+        <string>checkpanic y4.detail()["message"]);
+    }
+
+    (xml<xml:Comment|xml:Element> & readonly)|error y5 = x2.cloneWithType();
+    test:assertValueEqual(y5 is error, true);
+    if (y5 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", y5.message());
+        test:assertValueEqual("'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'"
+        + " value cannot be converted to '(xml<(lang.xml:Comment|lang.xml:Element)> & readonly)'",
+        <string>checkpanic y5.detail()["message"]);
+    }
+
+    xml<xml:Comment|(xml:Element & readonly)>|error y6 = x2.cloneWithType();
+    test:assertValueEqual(y6 is error, true);
+    if (y6 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", y6.message());
+        test:assertValueEqual("'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'"
+        + " value cannot be converted to 'xml<(lang.xml:Comment|(lang.xml:Element & readonly))>'",
+        <string>checkpanic y6.detail()["message"]);
+    }
+}
 
 function testConversionsBetweenXml() {
     // xml to xml
@@ -2988,7 +3097,7 @@ function testConversionsBetweenXml() {
     test:assertValueEqual(x6_cloned1 is readonly, true);
 
     // xml with anydata
-    xml a  = xml `<a>1</a>`;
+    xml a = xml `<a>1</a>`;
     AnydataUnion & readonly a1 = checkpanic a.cloneWithType();
     any result = a1;
     test:assertValueEqual(result is readonly, true);
