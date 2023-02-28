@@ -295,7 +295,7 @@ public class PackageUtils {
     private static Optional<Path> getPathFromURI(String fileUri) {
         try {
             if (isValidPath(fileUri)) {
-                return Optional.of(Paths.get(fileUri));
+                return Optional.of(Paths.get(fileUri).normalize());
             }
 
             URI uri = URI.create(fileUri);
@@ -304,7 +304,7 @@ public class PackageUtils {
                 scheme = URI_SCHEME_FILE;
             }
             URI converted = new URI(scheme, uri.getHost(), uri.getPath(), uri.getFragment());
-            return Optional.of(Paths.get(converted));
+            return Optional.of(Paths.get(converted).normalize());
         } catch (URISyntaxException e) {
             return Optional.empty();
         }
@@ -314,6 +314,10 @@ public class PackageUtils {
      * Checks if the given string is a valid path.
      */
     private static boolean isValidPath(String path) {
+        if (path.startsWith(URI_SCHEME_BALA + ":")) {
+            return false;
+        }
+
         try {
             Paths.get(path);
         } catch (InvalidPathException | NullPointerException ex) {
