@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.impl.LangLibrary;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -73,18 +74,25 @@ public class BallerinaIntersectionTypeSymbol extends AbstractTypeSymbol implemen
         TypesFactory typesFactory = TypesFactory.getInstance(this.context);
         BType effectiveType = ((BIntersectionType) this.getBType()).effectiveType;
         this.effectiveType = typesFactory.getTypeDescriptor(effectiveType,
-                                                            effectiveType != null ? effectiveType.tsymbol : null,
-                                                            false, false, true);
+                effectiveType != null ? effectiveType.tsymbol : null,
+                false, false, true);
         return this.effectiveType;
     }
 
     @Override
     public List<FunctionSymbol> langLibMethods() {
         if (this.langLibFunctions == null) {
-            LangLibrary langLibrary = LangLibrary.getInstance(this.context);
-            List<FunctionSymbol> functions = langLibrary.getMethods(
-                    ((AbstractTypeSymbol) this.effectiveTypeDescriptor()).getBType());
-            this.langLibFunctions = filterLangLibMethods(functions, this.getBType());
+            if (this.effectiveTypeDescriptor().typeKind() == TypeDescKind.OBJECT) {
+                this.langLibFunctions = this.effectiveTypeDescriptor().langLibMethods();
+            } else if (this.effectiveTypeDescriptor().typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) this.effectiveTypeDescriptor();
+                this.langLibFunctions = typeRef.typeDescriptor().langLibMethods();
+            } else {
+                LangLibrary langLibrary = LangLibrary.getInstance(this.context);
+                List<FunctionSymbol> functions = langLibrary.getMethods(
+                        ((AbstractTypeSymbol) this.effectiveTypeDescriptor()).getBType());
+                this.langLibFunctions = filterLangLibMethods(functions, this.getBType());
+            }
         }
 
         return this.langLibFunctions;
