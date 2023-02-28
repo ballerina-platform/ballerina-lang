@@ -431,13 +431,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
         classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
 
-        boolean runTypeResolver = true;
-        if (runTypeResolver) {
-            this.env = pkgEnv;
-            typeResolver.defineBTypes(typeAndClassDefs, pkgEnv);
-        }
-
-//        defineTypeNodes(typeAndClassDefs, pkgEnv);
+        this.env = pkgEnv;
+        typeResolver.defineBTypes(typeAndClassDefs, pkgEnv);
 
         // Enabled logging errors after type def visit.
         // TODO: Do this in a cleaner way

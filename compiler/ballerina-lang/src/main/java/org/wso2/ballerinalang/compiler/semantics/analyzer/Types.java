@@ -4104,6 +4104,16 @@ public class Types {
         return bd;
     }
 
+    BigDecimal getValidDecimalNumber(BigDecimal bd) {
+        if (bd.compareTo(DECIMAL_MAX) > 0 || bd.compareTo(DECIMAL_MIN) < 0) {
+            return null;
+        } else if (bd.abs(MathContext.DECIMAL128).compareTo(MIN_DECIMAL_MAGNITUDE) < 0 &&
+                bd.abs(MathContext.DECIMAL128).compareTo(BigDecimal.ZERO) > 0) {
+            return BigDecimal.ZERO;
+        }
+        return bd;
+    }
+
     boolean isSigned16LiteralValue(Long longObject) {
 
         return (longObject >= SIGNED16_MIN_VALUE && longObject <= SIGNED16_MAX_VALUE);

@@ -161,7 +161,12 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     @Override
     public void visit(BLangLiteral literalExpr, AnalyzerData data) {
         BType literalType = setLiteralValueAndGetType(literalExpr, data); // Get the literal type.
-        if (literalType == symTable.semanticError || literalExpr.isFiniteContext) {
+        if (literalType == symTable.semanticError) {
+            data.resultType = literalType;
+            return;
+        }
+
+        if (literalExpr.isFiniteContext) {
             return;
         }
         data.resultType = getFiniteType(literalExpr.value, data.constantSymbol, literalExpr.pos, literalType);
@@ -406,7 +411,12 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         BType lhsType = checkConstExpr(binaryExpr.lhsExpr, data.expType, data);
         BType rhsType = checkConstExpr(binaryExpr.rhsExpr, data.expType, data);
 
-        if (lhsType != symTable.semanticError && rhsType != symTable.semanticError) {
+        Location pos = binaryExpr.pos;
+
+        if (lhsType == symTable.semanticError || rhsType == symTable.semanticError) {
+            data.resultType = symTable.semanticError;
+            return;
+        } else {
             // Resolve the operator symbol and corresponding result type according to different operand types.
             BSymbol opSymbol = symTable.notFoundSymbol;
 
@@ -431,6 +441,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             }
 
             if (opSymbol == symTable.notFoundSymbol) {
+                dlog.error(pos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION);
                 data.resultType = symTable.semanticError;
                 return;
             }
@@ -439,10 +450,10 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         BType actualType = data.resultType;
         BType resultType = types.checkType(binaryExpr, actualType, symTable.noType);
         if (resultType == symTable.semanticError) {
+            dlog.error(pos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION);
             data.resultType = symTable.semanticError;
             return;
         }
-        Location pos = binaryExpr.pos;
         BConstantSymbol constantSymbol = data.constantSymbol;
         if (resultType.tag == TypeTags.UNION) {
             Iterator<BType> iterator = ((BUnionType) resultType).getMemberTypes().iterator();
@@ -450,25 +461,26 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             Object resolvedValue = calculateSingletonValue(getCorrespondingFiniteType(lhsType, expType),
                     getCorrespondingFiniteType(rhsType, expType), binaryExpr.opKind, expType, binaryExpr.pos);
             List<Object> valueList = new ArrayList<>();
-            if (resolvedValue != null) {
-                valueList.add(resolvedValue);
-            }
+            valueList.add(resolvedValue);
             while (iterator.hasNext()) {
                 expType = iterator.next();
                 Object value = calculateSingletonValue(getCorrespondingFiniteType(lhsType, expType),
                         getCorrespondingFiniteType(rhsType, expType), binaryExpr.opKind, expType, binaryExpr.pos);
-                if (value != null) {
-                    valueList.add(value);
-                }
+                valueList.add(value);
             }
             iterator = ((BUnionType) resultType).getMemberTypes().iterator();
             if (valueList.size() == 0) {
+                dlog.error(pos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION);
                 data.resultType = symTable.semanticError;
                 return;
             }
             LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(valueList.size());
             for (int i = 0; i < valueList.size(); i++) {
-                memberTypes.add(getFiniteType(valueList.get(i), constantSymbol, pos, iterator.next()));
+                Object value = valueList.get(i);
+                BType type = iterator.next();
+                if (value != null) {
+                    memberTypes.add(getFiniteType(value, constantSymbol, pos, type));
+                }
             }
 
             // Results will be union of resultant values.
@@ -479,6 +491,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 getCorrespondingFiniteType(rhsType, resultType), binaryExpr.opKind, resultType, binaryExpr.pos);
         if (resolvedValue == null) {
             data.resultType = symTable.semanticError;
+            dlog.error(pos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION);
             return;
         }
         data.resultType = getFiniteType(resolvedValue, constantSymbol, pos, resultType);
@@ -626,6 +639,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     return calculateMultiplication(lhsValue, rhsValue, type);
                 case DIV:
                     return calculateDivision(lhsValue, rhsValue, type);
+                case MOD:
+                    return calculateMod(lhsValue, rhsValue, type);
                 case BITWISE_AND:
                     return calculateBitWiseOp(lhsValue, rhsValue, (a, b) -> a & b, type, currentPos);
                 case BITWISE_OR:
@@ -703,12 +718,15 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     private Object calculateAddition(Object lhs, Object rhs, BType type) {
-        // TODO : Handle overflow in numeric values.
         Object result = null;
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
-                result = (Long) lhs + (Long) rhs;
+                try {
+                    result = Math.addExact((Long) lhs, (Long) rhs);
+                } catch (ArithmeticException ae) {
+                    return null;
+                }
                 break;
             case TypeTags.FLOAT:
                 result = String.valueOf(Double.parseDouble(String.valueOf(lhs))
@@ -718,7 +736,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.add(rhsDecimal, MathContext.DECIMAL128);
-                result = resultDecimal.toPlainString();
+                resultDecimal = types.getValidDecimalNumber(resultDecimal);
+                result = resultDecimal != null ? resultDecimal.toPlainString() : null;
                 break;
             case TypeTags.STRING:
                 result = String.valueOf(lhs) + String.valueOf(rhs);
@@ -732,7 +751,11 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
-                result = (Long) lhs - (Long) rhs;
+                try {
+                    result = Math.subtractExact((Long) lhs, (Long) rhs);
+                } catch (ArithmeticException ae) {
+                    return null;
+                }
                 break;
             case TypeTags.FLOAT:
                 result = String.valueOf(Double.parseDouble(String.valueOf(lhs))
@@ -742,19 +765,23 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.subtract(rhsDecimal, MathContext.DECIMAL128);
-                result = resultDecimal.toPlainString();
+                resultDecimal = types.getValidDecimalNumber(resultDecimal);
+                result = resultDecimal != null ? resultDecimal.toPlainString() : null;
                 break;
         }
         return result;
     }
 
     private Object calculateMultiplication(Object lhs, Object rhs, BType type) {
-        // TODO : Handle overflow in numeric values.
         Object result = null;
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
-                result = (Long) lhs * (Long) rhs;
+                try {
+                    result = Math.multiplyExact((Long) lhs, (Long) rhs);
+                } catch (ArithmeticException ae) {
+                    return null;
+                }
                 break;
             case TypeTags.FLOAT:
                 result = String.valueOf(Double.parseDouble(String.valueOf(lhs))
@@ -764,7 +791,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.multiply(rhsDecimal, MathContext.DECIMAL128);
-                result = resultDecimal.toPlainString();
+                resultDecimal = types.getValidDecimalNumber(resultDecimal);
+                result = resultDecimal != null ? resultDecimal.toPlainString() : null;
                 break;
         }
         return result;
@@ -775,6 +803,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
+                if ((Long) lhs == Long.MIN_VALUE && (Long) rhs == -1) {
+                    return null;
+                }
                 result = (Long) ((Long) lhs / (Long) rhs);
                 break;
             case TypeTags.FLOAT:
@@ -785,6 +816,28 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.divide(rhsDecimal, MathContext.DECIMAL128);
+                resultDecimal = types.getValidDecimalNumber(resultDecimal);
+                result = resultDecimal != null ? resultDecimal.toPlainString() : null;
+                break;
+        }
+        return result;
+    }
+
+    private Object calculateMod(Object lhs, Object rhs, BType type) {
+        Object result = null;
+        switch (Types.getReferredType(type).tag) {
+            case TypeTags.INT:
+            case TypeTags.BYTE: // Byte will be a compiler error.
+                result = (Long) ((Long) lhs % (Long) rhs);
+                break;
+            case TypeTags.FLOAT:
+                result = String.valueOf(Double.parseDouble(String.valueOf(lhs))
+                        % Double.parseDouble(String.valueOf(rhs)));
+                break;
+            case TypeTags.DECIMAL:
+                BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs), MathContext.DECIMAL128);
+                BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs), MathContext.DECIMAL128);
+                BigDecimal resultDecimal = lhsDecimal.remainder(rhsDecimal, MathContext.DECIMAL128);
                 result = resultDecimal.toPlainString();
                 break;
         }
@@ -923,6 +976,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     public BType getTypeOfLiteralWithDecimalDiscriminator(BLangLiteral literalExpr, Object literalValue) {
         literalExpr.value = NumericLiteralSupport.stripDiscriminator(String.valueOf(literalValue));
+        if (!types.isValidDecimalNumber(literalExpr.pos, literalExpr.value.toString())) {
+            return symTable.semanticError;
+        }
         return symTable.decimalType;
     }
 
@@ -931,16 +987,29 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         // Results will be union of float and decimal. But when the type node is not available, the result will be
         // float.
         String numericLiteral = String.valueOf(literalValue);
-        if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
+        BType expectedType = data.expType;
+        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+        if (expectedType != symTable.noType) {
+            dlog.mute();
+            boolean isValidDecimal = types.isValidDecimalNumber(literalExpr.pos, numericLiteral);
+            boolean isValidFloat = types.validateFloatLiteral(literalExpr.pos, numericLiteral);
+            dlog.unmute();
+            if (isValidDecimal) {
+                memberTypes.add(symTable.decimalType);
+            }
+            if (isValidFloat) {
+                memberTypes.add(symTable.floatType);
+            } else if (memberTypes.isEmpty()) {
+                data.resultType = symTable.semanticError;
+                return symTable.semanticError;
+            }
+        } else {
+            if (types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
+                return symTable.floatType;
+            }
             data.resultType = symTable.semanticError;
             return symTable.semanticError;
-        } else if (data.expType == symTable.noType) {
-            return symTable.floatType;
         }
-
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-        memberTypes.add(symTable.floatType);
-        memberTypes.add(symTable.decimalType);
         return BUnionType.create(null, memberTypes);
     }
 
