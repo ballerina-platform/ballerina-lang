@@ -378,10 +378,6 @@ public isolated function replaceAll(RegExp re, string str, Replacement replaceme
     if findResult.length() == 0 {
         return str;
     }
-    string prefixStr = "";
-    if (startIndex != 0) {
-        prefixStr = substring(str, 0, startIndex);
-    }
     string updatedString = "";
     int index = 0;
     foreach Groups groups in findResult {
@@ -393,7 +389,7 @@ public isolated function replaceAll(RegExp re, string str, Replacement replaceme
     if index < length(str) {
         updatedString += substring(str, index, length(str));
     }
-    return prefixStr + updatedString;
+    return updatedString;
 }
 
 isolated function substring(string str, int startIndex, int endIndex = length(str)) returns string =
