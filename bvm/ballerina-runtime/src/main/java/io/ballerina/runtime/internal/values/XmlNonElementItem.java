@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VALUE;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 
 /**
  * Functionality common to PI, COMMENT and TEXT nodes.
@@ -173,6 +172,7 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
     @Override
     public IteratorValue getIterator() {
         return new IteratorValue() {
+
             @Override
             public boolean hasNext() {
                 return false;
@@ -219,7 +219,7 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
     @Override
     public void freezeDirect() {
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
-        this.typedesc = createSingletonTypedesc(this);
+        this.typedesc = null;
     }
 
     @Override

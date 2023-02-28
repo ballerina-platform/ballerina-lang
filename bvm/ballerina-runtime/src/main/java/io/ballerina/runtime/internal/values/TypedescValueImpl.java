@@ -51,6 +51,7 @@ public class TypedescValueImpl implements  TypedescValue {
     final Type type;
     final Type describingType; // Type of the value describe by this typedesc.
     public MapValue[] closures;
+    private BTypedesc typedesc;
 
     @Deprecated
     public TypedescValueImpl(Type describingType) {
@@ -125,7 +126,10 @@ public class TypedescValueImpl implements  TypedescValue {
 
     @Override
     public BTypedesc getTypedesc() {
-        return new TypedescValueImpl(this.type);
+        if (this.typedesc == null) {
+            this.typedesc = new TypedescValueImpl(this.type);
+        }
+        return typedesc;
     }
 
     /**

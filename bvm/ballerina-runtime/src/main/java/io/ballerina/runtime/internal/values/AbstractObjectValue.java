@@ -64,7 +64,6 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     public AbstractObjectValue(BObjectType type) {
         this.type = type;
-        this.typedesc = new TypedescValueImpl(type);
     }
 
     @Override
@@ -181,6 +180,9 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = new TypedescValueImpl(type);
+        }
         return typedesc;
     }
 

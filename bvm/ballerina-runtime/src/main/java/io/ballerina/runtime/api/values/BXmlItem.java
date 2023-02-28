@@ -16,6 +16,9 @@
 
 package io.ballerina.runtime.api.values;
 
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.internal.values.XmlItem;
+
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
@@ -29,6 +32,8 @@ public interface BXmlItem extends BXml {
     String XMLNS_NS_URI_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
 
     String XMLNS = "xmlns";
+
+    BString XMLNS_PREFIX = StringUtils.fromString(XmlItem.XMLNS_NS_URI_PREFIX + XMLNS);
 
     QName getQName();
 
