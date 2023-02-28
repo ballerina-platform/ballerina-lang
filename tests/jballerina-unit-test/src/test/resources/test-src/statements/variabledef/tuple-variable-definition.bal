@@ -300,16 +300,11 @@ type PersonDetails [record {|
     boolean married;
 |}, int];
 
-function tupleVariableWithAnonymousRecordType() returns [string, boolean, int] {
+function testTupleVariableWithAnonymousRecordType() {
     [record {|
         string name;
         boolean married;
     |}, int] [{name, married}, age] = checkpanic getPersonDetails().ensureType();
-    return [name, married, age];
-}
-
-function testTupleVariableWithAnonymousRecordType() {
-    [string, boolean, int] [name, married, age] = tupleVariableWithAnonymousRecordType();
     assertEquality("Jack", name);
     assertEquality(true, married);
     assertEquality(10, age);
