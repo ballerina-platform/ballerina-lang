@@ -625,6 +625,8 @@ function testWorkerReceiveWithVar(){
     }
     worker w2 {
     	var y = <- w1;
+    	int c = y + 5;
+    	assertValueEquality(c, 55);
     }
 }
 

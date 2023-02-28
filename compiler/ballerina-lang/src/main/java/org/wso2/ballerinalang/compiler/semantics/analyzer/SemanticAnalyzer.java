@@ -355,6 +355,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
             BLangFunction function = lambdaFunction.function;
             lambdaFunction.setBType(function.symbol.type);
+            addSendersToFunction(lambdaFunction);
             data.env = lambdaFunction.capturedClosureEnv;
             analyzeNode(lambdaFunction.function, data);
         }
@@ -363,6 +364,19 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         pkgNode.completedPhases.add(CompilerPhase.TYPE_CHECK);
     }
 
+    private void addSendersToFunction(BLangLambdaFunction function) {
+        BLangFunction func = function.function;
+        if (func.flagSet.contains(Flag.WORKER) && func.hasBody()) {
+            for (BLangStatement stmt : ((BLangBlockFunctionBody) func.body).stmts) {
+                if (stmt.getKind() == NodeKind.WORKER_SEND) {
+                    ((BLangFunction) function.capturedClosureEnv.enclInvokable).sendWorkers.put(
+                            new BLangFunction.Pair(((BLangWorkerSend) stmt).workerIdentifier.value,
+                                    func.defaultWorkerName.value)
+                            , (BLangWorkerSend) stmt);
+                }
+            }
+        }
+    }
     private void validateEnumMemberMetadata(List<BLangConstant> constants) {
         Map<String, List<BLangConstant>> duplicateEnumMembersWithMetadata = new HashMap<>();
 

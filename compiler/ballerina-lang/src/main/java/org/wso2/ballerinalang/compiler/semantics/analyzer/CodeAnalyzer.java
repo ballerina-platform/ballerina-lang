@@ -258,7 +258,6 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
-import static org.ballerinalang.model.tree.NodeKind.VARIABLE;
 import static org.ballerinalang.util.BLangCompilerConstants.RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC;
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
@@ -3773,16 +3772,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     private void validateWorkerActionParameters(BLangWorkerSend send, BLangWorkerReceive receive) {
         types.checkType(receive, send.getBType(), receive.getBType());
         addImplicitCast(send.getBType(), receive);
-        BLangNode parent = receive.parent;
-        NodeKind kind = parent.getKind();
+        NodeKind kind = receive.parent.getKind();
         if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR ||
                 kind == NodeKind.FAIL) {
-            typeChecker.checkExpr((BLangExpression) parent, receive.env);
-        }
-        if (kind == VARIABLE && parent.getBType() == symTable.noType) {
-            BType type = receive.getBType();
-            parent.setBType(type);
-            ((BLangVariable) parent).symbol.type = type;
+            typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
         }
         receive.sendExpression = send.expr;
     }

@@ -23,12 +23,16 @@ import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -58,6 +62,8 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     public BInvokableSymbol originalFuncSymbol;
 
     public LinkedHashSet<String> sendsToThis = new LinkedHashSet<>();
+
+    public Map<Pair, BLangWorkerSend> sendWorkers = new HashMap<>();
 
     // This only set when we encounter worker inside a fork statement.
     public String anonForkName;
@@ -94,5 +100,26 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
     @Override
     public String toString() {
         return "BLangFunction: " + super.toString();
+    }
+
+    public static class Pair {
+        public final String key1;
+        public final String key2;
+
+        public Pair(String key1, String key2) {
+            this.key1 = key1;
+            this.key2 = key2;
+        }
+        public boolean equals (final Object O) {
+            if (!(O instanceof Pair)) return false;
+            if (!Objects.equals(((Pair) O).key1, key1)) return false;
+            if (!Objects.equals(((Pair) O).key2, key2)) return false;
+            return true;
+        }
+
+        public int hashCode() {
+            return Objects.hash(key1, key2);
+        }
+
     }
 }
