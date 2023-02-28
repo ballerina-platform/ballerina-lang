@@ -43,7 +43,7 @@ import static org.ballerinalang.langlib.regexp.RegexUtil.GROUPS_AS_SPAN_ARRAY_TY
 public class Find {
 
     public static BArray find(BRegexpValue regExp, BString str, long startIndex) {
-        if (isEmptyStrOrRegexp(regExp, str)) {
+        if (isEmptyRegexp(regExp)) {
             return null;
         }
 
@@ -56,7 +56,7 @@ public class Find {
     }
 
     public static BArray findGroups(BRegexpValue regExp, BString str, long startIndex) {
-        if (isEmptyStrOrRegexp(regExp, str)) {
+        if (isEmptyRegexp(regExp)) {
             return null;
         }
 
@@ -80,7 +80,7 @@ public class Find {
     }
 
     public static BArray findAll(BRegexpValue regExp, BString str, long startIndex) {
-        if (isEmptyStrOrRegexp(regExp, str)) {
+        if (isEmptyRegexp(regExp)) {
             return null;
         }
 
@@ -98,7 +98,7 @@ public class Find {
     }
 
     public static BArray findAllGroups(BRegexpValue regExp, BString str, long startIndex) {
-        if (isEmptyStrOrRegexp(regExp, str)) {
+        if (isEmptyRegexp(regExp)) {
             return null;
         }
 
@@ -139,35 +139,17 @@ public class Find {
         }
 
         int strLength = str.length();
-        if (strLength <= startIndex) {
+        if (strLength != 0 && strLength <= startIndex) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
                     RuntimeErrors.INVALID_REGEXP_FIND_INDEX, startIndex, strLength);
         }
     }
 
-    private static boolean isEmptyStrOrRegexp(BRegexpValue regExp, BString str) {
+    private static boolean isEmptyRegexp(BRegexpValue regExp) {
 
-        return str.length() == 0
-                || regExp == null
-                || Arrays.stream(regExp.getRegExpDisjunction().getRegExpSeqList())
-                .allMatch(Find::isNullOrEmptyRegexpSeq);
-    }
-
-    private static boolean isNullOrEmptyRegexpSeq(Object obj) {
-        if (obj == null) {
-            return true;
-        }
-
-        if (obj instanceof RegExpSequence) {
-            RegExpTerm[] termsList = ((RegExpSequence) obj).getRegExpTermsList();
-            return termsList.length == 0 || Arrays.stream(termsList).allMatch(Find::isNullOrEmptyRegexpSeq);
-        }
-
-        if (obj instanceof RegExpAtomQuantifier) {
-
-            return ((RegExpAtomQuantifier) obj).getReAtom().toString().equals("");
-        }
-
-        return false;
+        String regexpStrValue = regExp.stringValue(null);
+        return regexpStrValue.equals("") || regexpStrValue.equals("()") || regexpStrValue.equals("(?:)")
+                || regexpStrValue.equals("(?!)") || regexpStrValue.equals("(?<=)") || regexpStrValue.equals("(?<!)")
+                || regexpStrValue.equals("(?=)") || regexpStrValue.equals("[]");
     }
 }
