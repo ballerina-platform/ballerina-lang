@@ -46,8 +46,8 @@ public class Function extends Construct {
                     boolean isIsolated, List<DefaultableVariable> parameters, List<Variable> returnParameters,
                     List<AnnotationAttachment> annotationAttachments) {
         super(name, description, isDeprecated);
-        this.isRemote = isRemote(functionKind);
-        this.isResource = isResource(functionKind);
+        this.isRemote = checkRemote(functionKind);
+        this.isResource = checkResource(functionKind);
         this.isExtern = isExtern;
         this.parameters = parameters;
         this.returnParameters = returnParameters;
@@ -61,8 +61,8 @@ public class Function extends Construct {
         super(name, description, isDeprecated);
         this.accessor = accessor;
         this.resourcePath = resourcePath;
-        this.isRemote = isRemote(functionKind);
-        this.isResource = isResource(functionKind);
+        this.isRemote = checkRemote(functionKind);
+        this.isResource = checkResource(functionKind);
         this.isExtern = isExtern;
         this.parameters = parameters;
         this.returnParameters = returnParameters;
@@ -73,8 +73,8 @@ public class Function extends Construct {
     public Function(String name, String description, FunctionKind functionKind, boolean isExtern, boolean isDeprecated,
                     boolean isIsolated, List<DefaultableVariable> parameters, List<Variable> returnParameters) {
         super(name, description, isDeprecated);
-        this.isRemote = isRemote(functionKind);
-        this.isResource = isResource(functionKind);
+        this.isRemote = checkRemote(functionKind);
+        this.isResource = checkResource(functionKind);
         this.isExtern = isExtern;
         this.parameters = parameters;
         this.returnParameters = returnParameters;
@@ -87,19 +87,19 @@ public class Function extends Construct {
         super(name, description, isDeprecated);
         this.accessor = accessor;
         this.resourcePath = resourcePath;
-        this.isRemote = isRemote(functionKind);
-        this.isResource = isResource(functionKind);
+        this.isRemote = checkRemote(functionKind);
+        this.isResource = checkResource(functionKind);
         this.isExtern = isExtern;
         this.parameters = parameters;
         this.returnParameters = returnParameters;
         this.isIsolated = isIsolated;
     }
 
-    private boolean isRemote(FunctionKind functionKind) {
+    private boolean checkRemote(FunctionKind functionKind) {
         return functionKind == FunctionKind.REMOTE;
     }
 
-    private boolean isResource(FunctionKind functionKind) {
+    private boolean checkResource(FunctionKind functionKind) {
         return functionKind == FunctionKind.RESOURCE;
     }
 
