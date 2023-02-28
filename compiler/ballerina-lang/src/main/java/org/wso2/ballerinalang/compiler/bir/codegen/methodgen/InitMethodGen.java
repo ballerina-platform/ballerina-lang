@@ -126,9 +126,7 @@ public class InitMethodGen {
         }
 
         MethodVisitor mv = visitFunction(cw, MethodGenUtils.calculateLambdaStopFuncName(pkg.packageID));
-
         invokeStopFunction(initClass, mv);
-
         for (PackageID id : depMods) {
             String jvmClass = JvmCodeGenUtil.getPackageName(id) + MODULE_INIT_CLASS_NAME;
             generateLambdaForDepModStopFunc(cw, id, jvmClass);
@@ -148,12 +146,9 @@ public class InitMethodGen {
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
 
         if (mainFunc != null) {
-
             BType returnType = mainFunc.type.retType;
             List<BType> paramTypes = mainFunc.type.paramTypes;
-
             // load and cast param values
-
             int paramIndex = 1;
             for (BType pType : paramTypes) {
                 mv.visitVarInsn(ALOAD, 0);
@@ -166,7 +161,6 @@ public class InitMethodGen {
         } else {
             methodDesc = JvmSignatures.MODULE_START;
         }
-
         mv.visitMethodInsn(INVOKESTATIC, initClass, JvmConstants.MODULE_EXECUTE_METHOD, methodDesc, false);
         jvmCastGen.addBoxInsn(mv, errorOrNilType);
         MethodGenUtils.visitReturn(mv);
@@ -249,7 +243,6 @@ public class InitMethodGen {
         pkg.functions.add(execFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_EXECUTE_METHOD,
                 JvmPackageGen.getFunctionWrapper(execFunc, pkg.packageID, typeOwnerClass));
-
     }
 
     private BIRNode.BIRFunction generateExecuteFunction(BIRNode.BIRPackage pkg, boolean serviceEPAvailable,
@@ -286,7 +279,6 @@ public class InitMethodGen {
             addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, MAIN_METHOD, retVarRef, boolRef, mainArgs,
                     mainFunc.annotAttachments);
         }
-
         BIRNode.BIRBasicBlock lastBB =
                 addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_START_METHOD, retVarRef, boolRef);
 
@@ -323,7 +315,6 @@ public class InitMethodGen {
                                 new BIRNonTerminator.TypeTest(null, symbolTable.nilType, boolRef, argOperand);
                         lastBB.instructions.add(typeTest);
                 }
-
                 BIRNode.BIRBasicBlock trueBB = addAndGetNextBasicBlock(modExecFunc);
                 BIRNode.BIRBasicBlock falseBB = addAndGetNextBasicBlock(modExecFunc);
                 lastBB.terminator = new BIRTerminator.Branch(null, boolRef, trueBB, falseBB);
@@ -419,18 +410,14 @@ public class InitMethodGen {
                                                                   BIROperand boolRef, String typeOwnerClass) {
         BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
-
         lastBB.terminator = getExitMethodCall(nextBB, typeOwnerClass);
-
         BIRNonTerminator.TypeTest typeTest = new BIRNonTerminator.TypeTest(null, symbolTable.errorType, boolRef,
                 retVar);
         nextBB.instructions.add(typeTest);
-
         BIRNode.BIRBasicBlock trueBB = addAndGetNextBasicBlock(func);
         BIRNode.BIRBasicBlock retBB = addAndGetNextBasicBlock(func);
         retBB.terminator = new BIRTerminator.Return(null);
         trueBB.terminator = new BIRTerminator.GOTO(null, retBB);
-
         BIRNode.BIRBasicBlock falseBB = addAndGetNextBasicBlock(func);
         nextBB.terminator = new BIRTerminator.Branch(null, boolRef, trueBB, falseBB);
         return falseBB;
