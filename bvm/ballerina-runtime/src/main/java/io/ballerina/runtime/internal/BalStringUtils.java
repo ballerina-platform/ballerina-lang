@@ -217,15 +217,15 @@ public class BalStringUtils {
      * @return xml value
      */
     public static Object parseXmlExpressionStringValue(String exprValue) {
-        if (exprValue.matches("<[\\!--](.*?)[\\-\\-\\!]>")) {
+        if (exprValue.matches("^<!--[\\s\\S]*?-->$")) {
             String comment = exprValue.substring(exprValue.indexOf("<!--") + 4, exprValue.lastIndexOf("-->"));
             return XmlFactory.createXMLComment(StringUtils.fromString(comment));
-        } else if (exprValue.matches("<\\?(.*?)\\?>")) {
+        } else if (exprValue.matches("^<\\?[\\w-]+ ([\\s\\S]*?)\\?>$")) {
             String pi = exprValue.substring(exprValue.indexOf("<?") + 2, exprValue.lastIndexOf("?>"));
             String[] piArgs = pi.split(" ", 2);
             return XmlFactory.createXMLProcessingInstruction(StringUtils.fromString(piArgs[0]),
                                                              StringUtils.fromString(piArgs[1]));
-        } else if (!exprValue.startsWith("<?") && !exprValue.startsWith("<!--") && !exprValue.startsWith("<")) {
+        } else if (!exprValue.startsWith("<")) {
             return XmlFactory.createXMLText(StringUtils.fromString(exprValue));
         } else {
             return TypeConverter.stringToXml(exprValue);
