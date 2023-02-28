@@ -86,6 +86,7 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, SelectClauseNode node) {
-        return !node.selectKeyword().isMissing();
+        return !node.selectKeyword().isMissing() && 
+                context.getCursorPositionInTree() >= node.selectKeyword().textRange().startOffset();
     }
 }
