@@ -39,7 +39,7 @@ public class ErrorVariableReferenceTest {
 
     private CompileResult result;
     private static final String INVALID_WILDCARD_BP_BINDING_ERROR_CAUSE_ERROR =  "cannot use a wildcard binding " +
-            "pattern to bind the cause: a wildcard binding pattern can be used only with a value that belong to " +
+            "pattern to bind the cause: a wildcard binding pattern can be used only with a value that belongs to " +
             "type 'any'";
 
     @BeforeClass

@@ -3345,7 +3345,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                             DiagnosticErrorCode.CANNOT_USE_WILDCARD_BINDING_PATTERN_FOR_ERROR_CAUSE);
                     return false;
                 }
-                defineMemberNode(errorVariable.cause, env, symTable.errorOrNilType);
+                defineMemberNode(errorCause, env, symTable.errorOrNilType);
             }
         }
 
