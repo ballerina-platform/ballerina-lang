@@ -46,8 +46,6 @@ public class RerunFailedTest extends BaseTestCase {
 
     @Test
     public void testFullTest() throws BallerinaTestException, IOException {
-        String msg1 = "2 passing";
-        String msg2 = "2 failing";
         String[] args = mergeCoverageArgs(new String[]{"rerun-failed-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -56,8 +54,6 @@ public class RerunFailedTest extends BaseTestCase {
 
     @Test (dependsOnMethods = "testFullTest")
     public void testRerunFailedTest() throws BallerinaTestException, IOException {
-        String msg1 = "0 passing";
-        String msg2 = "2 failing";
         String[] args = mergeCoverageArgs(new String[]{"--rerun-failed", "rerun-failed-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
