@@ -1072,6 +1072,11 @@ function testEmptyRegexpFind() {
     assertTrue(resA4 is null);
     regexp:Span? resA5 = regexp:find(re = re `${""}`, str = "HelloWorld");
     assertTrue(resA5 is null);
+    var regexStrA = "";
+    regexp:Span? resA6 = regexp:find(re = re `${regexStrA}`, str = "HelloWorld");
+    assertTrue(resA6 is null);
+    regexp:Span? resA7 = regexp:find(re = re `${regexStrA}`, str = "");
+    assertTrue(resA7 is null);
     // find all
     regexp:Span[] resB1 = regexp:findAll(re ``, "There once was a king who liked to sing");
     assertEquality(0, resB1.length());
