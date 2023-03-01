@@ -2327,10 +2327,8 @@ public class TypeChecker {
                 return XmlNodeType.COMMENT;
             case TypeTags.XML_PI_TAG:
                 return XmlNodeType.PI;
-            case TypeTags.XML_TEXT_TAG:
-                return XmlNodeType.TEXT;
             default:
-                return null;
+                return XmlNodeType.TEXT;
         }
     }
 
