@@ -123,9 +123,13 @@ public class FunctionWithIncludedRecordParam {
         BAssertUtil.validateError(result, i++, "expected a record type as an included parameter", 271, 19);
         BAssertUtil.validateError(result, i++, "a type compatible with mapping constructor expressions " +
                 "not found in type 'int'", 280, 21);
-        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn5()'", 289, 23);
-        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn5()'", 290, 16);
-        BAssertUtil.validateError(result, i++, "redeclared symbol 'r'", 297, 15);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn5()'", 296, 23);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn5()'", 297, 16);
+        BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'j'", 298, 23);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn6()'", 299, 37);
+        BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'j'", 300, 9);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn6()'", 300, 30);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'r'", 307, 15);
         Assert.assertEquals(i, result.getErrorCount());
     }
 
