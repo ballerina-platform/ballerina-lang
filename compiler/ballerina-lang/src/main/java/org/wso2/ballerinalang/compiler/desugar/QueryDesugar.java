@@ -1746,7 +1746,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     }
                 }
                 identifiers.put(identifier, symbol);
-            } else if (identifiers.containsKey(identifier) && withinLambdaFunc) {
+            } else if (identifiers.containsKey(identifier) && (withinLambdaFunc || withinQuery)) {
                 symbol = identifiers.get(identifier);
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
@@ -2226,6 +2226,9 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLetClause letClause) {
+        for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
+            this.acceptNode((BLangNode) letVariable.definitionNode.getVariable());
+        }
     }
 
     @Override

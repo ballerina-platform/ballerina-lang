@@ -61,6 +61,7 @@ function testClosuresInQueryInLet() {
 
     ScoreEvent[] events2 = [
         {email: "jake@abc.com", problemId: "14", score: 90.0},
+        {email: "anne@abc.com", problemId: "30", score: 95.0},
         {email: "peter@abc.com", problemId: "23", score: 50.0}
     ];
 
@@ -73,7 +74,7 @@ function testClosuresInQueryInLet() {
                 score: score
             };
 
-    Rec[][] exp = [[], [{email: "anne@abc.com", score: 95.0}], []];
+    Rec[][] exp = [[{"email":"jake@abc.com","score":80.0},{"email":"jake@abc.com","score":80.0},{"email":"jake@abc.com","score":80.0}],[{"email":"anne@abc.com","score":95.0},{"email":"anne@abc.com","score":95.0},{"email":"anne@abc.com","score":95.0}],[{"email":"peter@abc.com","score":72.0},{"email":"peter@abc.com","score":72.0},{"email":"peter@abc.com","score":72.0}]];
     assertEquality(exp, res);
 }
 
@@ -91,7 +92,7 @@ function testClosuresInNestedQueryInSelect() {
                 score: score
             };
 
-    Rec[][] exp = [[], [{email: "anne@abc.com", score: 95.0}], []];
+    Rec[][] exp = [[{"email":"jake@abc.com","score":80.0},{"email":"jake@abc.com","score":80.0}],[{"email":"anne@abc.com","score":95.0},{"email":"anne@abc.com","score":95.0}],[{"email":"peter@abc.com","score":72.0},{"email":"peter@abc.com","score":72.0}]];
     assertEquality(exp, res);
 }
 
