@@ -24,6 +24,8 @@ import com.google.gson.JsonObject;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
+import org.ballerinalang.testerina.test.utils.CommonUtils;
 import org.ballerinalang.testerina.test.utils.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -59,63 +61,67 @@ public class MockTest extends BaseTestCase {
     }
 
     @Test()
-    public void testFunctionMocking() throws BallerinaTestException {
+    public void testFunctionMocking() throws BallerinaTestException, IOException {
         String msg1 = "14 passing";
         String msg2 = "3 failing";
         String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2)) {
-            Assert.fail("Test failed due to function mocking failure in test framework..\nOutput:\n" + output);
-        }
+        AssertionUtils.assertOutput("MockTest-testFunctionMocking.txt", output);
     }
 
     @Test
-    public void testFunctionMockingLegacy() throws BallerinaTestException {
+    public void testFunctionMockingLegacy() throws BallerinaTestException, IOException {
         String msg1 = "1 passing";
         String msg2 = "0 failing";
         String[] args = mergeCoverageArgs(new String[]{"legacy-function-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2)) {
-            Assert.fail("Test failed due to function mocking failure in test framework..\nOutput:\n" + output);
-        }
+        AssertionUtils.assertOutput("MockTest-testFunctionMockingLegacy.txt", output);
     }
 
     @Test()
-    public void testObjectMocking() throws BallerinaTestException {
+    public void testObjectMocking() throws BallerinaTestException, IOException {
         String msg1 = "9 passing";
         String msg2 = "7 failing";
 
         String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2)) {
-            Assert.fail("Test failed due to object mocking failure in test framework.\nOutput:\n" + output);
-        }
+        AssertionUtils.assertOutput("MockTest-testObjectMocking.txt", output);
+    }
+
+    /**
+     * Test object mock using test double when client implementation contains a resource function.
+     *
+     * @throws BallerinaTestException
+     */
+    @Test()
+    public void testObjectMockDouble() throws BallerinaTestException, IOException {
+        String msg1 = "1 passing";
+        String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests2"});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        AssertionUtils.assertOutput("MockTest-testObjectMockDouble.txt", output);
     }
 
     @Test()
-    public void testFunctionMockingModuleLevel() throws BallerinaTestException {
+    public void testFunctionMockingModuleLevel() throws BallerinaTestException, IOException {
         String msg1 = "3 passing";
 
         String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1)) {
-            Assert.fail("Test failed due to function mocking failure in test framework..\nOutput:\n" + output);
-        }
+        AssertionUtils.assertOutput("MockTest-testFunctionMockingModuleLevel.txt", output);
     }
 
     @Test()
-    public void testCoverageWithMocking() throws BallerinaTestException {
+    public void testCoverageWithMocking() throws BallerinaTestException, IOException {
         String msg1 = "2 passing";
         String[] args = mergeCoverageArgs(new String[]{"mocking-coverage-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1)) {
-            Assert.fail("Test failed due to object mocking failure in test framework.\nOutput:\n" + output);
-        }
+        AssertionUtils.assertOutput("MockTest-testCoverageWithMocking.txt", output);
         Path resultsJsonPath = projectBasedTestsPath.resolve("mocking-coverage-tests").resolve("target")
                 .resolve("report").resolve("test_results.json");
         JsonObject resultObj;
@@ -144,35 +150,49 @@ public class MockTest extends BaseTestCase {
         Assert.assertEquals(moduleObj.get("coveragePercentage").toString(), "57.14");
     }
 
+    @Test
+    public void testFunctionMockingInMultipleModulesWithDependencies() throws BallerinaTestException, IOException {
+        String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests-with-dependencies"});
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
+        AssertionUtils.assertOutput("MockTest-testFuncMockInMultiModulesWDepen.txt", output);
+    }
+
     @Test(dataProvider = "testNegativeCases")
-    public void testObjectMocking_NegativeCases(String message, String test) throws BallerinaTestException {
+    public void testObjectMocking_NegativeCases(String message, String test, String baseOutputFile) throws
+            BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"--tests", test});
         String output =
                 balClient.runMainAndReadStdOut("test", args, new HashMap<>(),
                         projectBasedTestsPath.resolve("object-mocking-tests").toString(), false);
-        if (!output.contains(message)) {
-            throw new BallerinaTestException(
-                    "Test failed due to default module single test failure.\nOutput:\n" + output);
-        }
+        String firstString = "Generating Test Report\n\t";
+        String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput(baseOutputFile, output);
     }
 
     @DataProvider(name = "testNegativeCases")
     public static Object[][] negativeCases() {
         return new Object[][] {
                 {"incorrect type of argument provided at position '1' to mock the function 'get()'",
-                        "object_mocking:testDefaultIncompatibleArgs"},
+                        "object_mocking:testDefaultIncompatibleArgs", "MockTest-testObjectMocking_NegativeCases1.txt"},
                 {"return value provided does not match the type of 'url'",
-                        "object_mocking:testDefaultInvalidMemberReturnValue"},
+                        "object_mocking:testDefaultInvalidMemberReturnValue",
+                        "MockTest-testObjectMocking_NegativeCases2.txt"},
                 {"invalid field name 'invalidField' provided",
-                        "object_mocking:testDefaultMockInvalidFieldName"},
+                        "object_mocking:testDefaultMockInvalidFieldName",
+                        "MockTest-testObjectMocking_NegativeCases3.txt"},
                 {"return value provided does not match the return type of function 'get()'",
-                        "object_mocking:testDefaultMockInvalidReturnValue"},
+                        "object_mocking:testDefaultMockInvalidReturnValue",
+                        "MockTest-testObjectMocking_NegativeCases4.txt"},
                 {"return value provided does not match the return type of function 'get()'",
-                        "object_mocking:testDefaultMockWrongAction"},
+                        "object_mocking:testDefaultMockWrongAction",
+                        "MockTest-testObjectMocking_NegativeCases5.txt"},
                 {"too many argument provided to mock the function 'get()'",
-                        "object_mocking:testDefaultTooManyArgs"},
+                        "object_mocking:testDefaultTooManyArgs",
+                        "MockTest-testObjectMocking_NegativeCases6.txt"},
                 {"return value provided does not match the return type of function 'get_stream()'",
-                        "object_mocking:testMockInvalidStream"}
+                        "object_mocking:testMockInvalidStream",
+                        "MockTest-testObjectMocking_NegativeCases7.txt"}
         };
     }
 

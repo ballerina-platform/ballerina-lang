@@ -20,10 +20,10 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -41,58 +41,55 @@ public class SelectedFunctionTest extends BaseTestCase {
     }
 
     @Test
-    public void testSingleFunctionExecution() throws BallerinaTestException {
+    public void testSingleFunctionExecution() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunc", "single-test-execution.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "single function execution failure");
+        AssertionUtils.assertOutput("SelectedFunctionTest-testSingleFunctionExecution.txt", output);
     }
 
     @Test
-    public void testDependentFunctionExecution() throws BallerinaTestException {
+    public void testDependentFunctionExecution() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunc2", "single-test-execution.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "dependant function execution failure");
+        AssertionUtils.assertOutput("SelectedFunctionTest-testDependentFunctionExecution.txt", output);
     }
 
     @Test
-    public void testMultipleFunctionExecution() throws BallerinaTestException {
+    public void testMultipleFunctionExecution() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunc,testFunc2", "single-test-execution.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "multiple function execution failure");
+        AssertionUtils.assertOutput("SelectedFunctionTest-testMultipleFunctionExecution.txt", output);
     }
 
     @Test
-    public void testNonExistingFunctionExecution() throws BallerinaTestException {
+    public void testNonExistingFunctionExecution() throws BallerinaTestException, IOException {
         String msg = "No tests found";
         String[] args = mergeCoverageArgs(new String[]{"--tests", "nonExistingFunc", "single-test-execution.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg)) {
-            Assert.fail("Test failed due to non existing function execution failure.");
-        }
+        AssertionUtils.assertOutput("SelectedFunctionTest-testNonExistingFunctionExecution.txt", output);
     }
 
     @Test
-    public void testDisabledFunctionExecution() throws BallerinaTestException {
+    public void testDisabledFunctionExecution() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testDisabledFunc", "single-test-execution.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "disabled function execution failure");
+        AssertionUtils.assertOutput("SelectedFunctionTest-testDisabledFunctionExecution.txt", output);
     }
 
     @Test
-    public void testDependentDisabledFunctionExecution() throws BallerinaTestException {
+    public void testDependentDisabledFunctionExecution() throws BallerinaTestException, IOException {
         String errMsg = "error: Test [testDependentDisabledFunc] depends on function [testDisabledFunc], " +
                 "but it is either disabled or not included.";
         String[] args = mergeCoverageArgs(
                 new String[]{"--tests", "testDependentDisabledFunc", "single-test-execution.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, true);
-        if (!output.contains(errMsg)) {
-            AssertionUtils.assertForTestFailures(output, "dependant disabled function execution failure");
-        }
+                new HashMap<>(), projectPath, false);
+        AssertionUtils.assertOutput("SelectedFunctionTest-testDependentDisabledFunctionExecution.txt",
+                output);
     }
 }

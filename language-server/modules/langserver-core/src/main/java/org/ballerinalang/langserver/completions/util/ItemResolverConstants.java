@@ -88,6 +88,8 @@ public class ItemResolverConstants {
     public static final String RESOURCE = "resource";
     public static final String RESOURCE_FUNC_DEF = "resource function";
     public static final String REG_EXP = "re ``";
+    public static final String STRING_TEMP = "string ``";
+    public static final String XML_TEMP = "xml ``";
     
     public static final String FROM_CLAUSE = "from clause";
     public static final String LET_CLAUSE = "let clause";
