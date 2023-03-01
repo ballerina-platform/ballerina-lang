@@ -313,6 +313,9 @@ function testXmlFromBalString() {
                       </movie>`;
 
     string xmlString = xmlVal.toBalString();
+    string expectedXmlString = "xml`<movie>\n                        <title>Some</title>"
+    + "\n                        <writer>Writer</writer>\n                      </movie>`";
+    assert(xmlString, expectedXmlString);
     anydata xmlValBack = checkpanic xmlString.fromBalString();
     assert(xmlValBack, xmlVal);
 }
