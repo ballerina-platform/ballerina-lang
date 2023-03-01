@@ -166,10 +166,10 @@ public class BindgenCommand implements BLauncherCmd {
         }
 
         if (optionalTypesParamFlag) {
-            bindingsGenerator.setOptionalTypesParamFlag();
+            bindingsGenerator.setOptionalParamTypesFlag();
         }
         if (optionalTypesReturnFlag) {
-            bindingsGenerator.setOptionalTypesReturnFlag();
+            bindingsGenerator.setOptionalReturnTypesFlag();
         }
 
         Project project = null;

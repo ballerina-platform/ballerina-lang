@@ -105,12 +105,30 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.PARAM_TYPES;
  */
 class BindgenNodeFactory {
 
+    private static final Token OPEN_PAREN_TOKEN = NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
+    private static final Token CLOSED_PAREN_TOKEN = NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+    private static final Token SEMICOLON_TOKEN = NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
+    private static final Token COLON_TOKEN = NodeFactory.createToken(SyntaxKind.COLON_TOKEN);
+    private static final MinutiaeList EMPTY_WHITE_SPACE = NodeFactory.createEmptyMinutiaeList();
+
+    private static final MinutiaeList SINGLE_SPACE_WHITE_SPACE = NodeFactory.createMinutiaeList(
+            NodeFactory.createWhitespaceMinutiae(" ")
+    );
+
+    private static final ExpressionNode NIL_TOKEN_EXPRESSION = NodeFactory.createNilLiteralNode(
+            NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN),
+            NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN));
+
+    private static final ExpressionNode ARRAY_TOKEN_EXPRESSION = NodeFactory.createNilLiteralNode(
+            NodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN),
+            NodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN));
+
     /**
      * Create an import declaration name node while providing the organization name, optional prefix, and module names.
      *
      * @param orgNameValue - the organization name
-     * @param prefixValue - an optional prefix value
-     * @param moduleNames - list of module names with separators
+     * @param prefixValue  - an optional prefix value
+     * @param moduleNames  - list of module names with separators
      * @return the import declaration node created
      */
     static ImportDeclarationNode createImportDeclarationNode(String orgNameValue, String prefixValue,
@@ -169,7 +187,7 @@ class BindgenNodeFactory {
     /**
      * Create a function definition node for a specific java method.
      *
-     * @param bFunction - Java method for which the Ballerina function definition node is to be created.
+     * @param bFunction  - Java method for which the Ballerina function definition node is to be created.
      * @param isExternal - Specifies if the external function needs to be created instead of the mapping function.
      * @return the function definition node created
      */
@@ -345,7 +363,6 @@ class BindgenNodeFactory {
         return NodeFactory.createFunctionSignatureNode(openParenToken, parameters, closeParenToken,
                 returnTypeDescriptor);
     }
-
 
     private static ReturnTypeDescriptorNode getFunctionSignatureReturnType(BFunction bFunction)
             throws BindgenException {
@@ -550,7 +567,7 @@ class BindgenNodeFactory {
             //   if java:isNull(externalObj) {
             //       return null;
             //   }
-            createReturnIfHandleIsNullStatement("externalObj"),
+            createReturnIfHandleIsNullStatement(jField.getEnv(), "externalObj"),
             //   return <string[]> check jarrays:fromHandle(externalObj, "string");
             createReturnStatementNode(
                 createTypeCastExpressionNode("string[]",
@@ -588,8 +605,8 @@ class BindgenNodeFactory {
         List<StatementNode> statementNodes = new LinkedList<>();
         FunctionCallExpressionNode innerFunctionCall = createFunctionCallExpressionNode(
                 jField.getExternalFunctionName(), getParameterArgumentList(jField));
-        statementNodes.add(createReturnStatementNode(createFunctionCallExpressionNode("java:toString",
-                Collections.singletonList(innerFunctionCall.toSourceCode()))));
+        statementNodes.add(createReturnToStringStatement(jField.getEnv(),
+                Collections.singletonList(innerFunctionCall.toSourceCode())));
 
         return statementNodes;
     }
@@ -675,10 +692,9 @@ class BindgenNodeFactory {
         FunctionCallExpressionNode innerFunctionCall = createFunctionCallExpressionNode(
                 jMethod.getExternalFunctionName(), getParameterArgumentList(jMethod));
         PositionalArgumentNode positionalArgNode = createPositionalArgumentNode(innerFunctionCall.toSourceCode());
-        FunctionCallExpressionNode outerFunctionCall = createFunctionCallExpressionNode("java:toString",
-                Collections.singletonList(positionalArgNode.toSourceCode()));
 
-        return createReturnStatementNode(outerFunctionCall);
+        return createReturnToStringStatement(jMethod.getEnv(),
+                Collections.singletonList(positionalArgNode.toSourceCode()));
     }
 
     private static ExpressionStatementNode getNoReturnNoExceptionStatement(JMethod jMethod) {
@@ -737,7 +753,7 @@ class BindgenNodeFactory {
                 //   if java:isNull(externalObj) {
                 //       return null;
                 //   }
-                createReturnIfHandleIsNullStatement("externalObj"),
+                createReturnIfHandleIsNullStatement(jMethod.getEnv(), "externalObj"),
                 //  if (externalObj is error) {
                 //      InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj,
                 //           message = externalObj.message());
@@ -848,19 +864,6 @@ class BindgenNodeFactory {
         return statementNodes;
     }
 
-
-    private static final Token OPEN_PAREN_TOKEN = NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
-    private static final Token CLOSED_PAREN_TOKEN = NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
-    private static final Token SEMICOLON_TOKEN = NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
-    private static final Token COLON_TOKEN = NodeFactory.createToken(SyntaxKind.COLON_TOKEN);
-    private static final MinutiaeList EMPTY_WHITE_SPACE = NodeFactory.createEmptyMinutiaeList();
-    private static final MinutiaeList SINGLE_SPACE_WHITE_SPACE = NodeFactory.createMinutiaeList(
-        NodeFactory.createWhitespaceMinutiae(" ")
-    );
-    private static final ExpressionNode NULL_TOKEN_EXPRESSION = NodeFactory.createSimpleNameReferenceNode(
-        NodeFactory.createToken(SyntaxKind.NULL_KEYWORD)
-    );
-
     private static NameReferenceNode createNameReferenceNode(String namespace, String name) {
         if (name == null || "".equals(name.trim())) {
             throw new IllegalArgumentException("name must not be null, blank, or empty");
@@ -889,13 +892,14 @@ class BindgenNodeFactory {
      * Creates a {@link StatementNode} for the following ballerina block.
      * <code>
      *     if java:isNull(<handleName>) {
-     *         return null;
+     *         return ();
      *     }
      * </code>
+     *
      * @param handleName the variable name of the handle
      * @return the ballerina block as statement node
      */
-    private static StatementNode createReturnIfHandleIsNullStatement(final String handleName) {
+    private static StatementNode createReturnIfHandleIsNullStatement(BindgenEnv env, String handleName) {
 
         // builds the code fragment 'java:isNull(<handleName>)'
         final FunctionCallExpressionNode checkIsNullExpression = NodeFactory.createFunctionCallExpressionNode(
@@ -909,56 +913,86 @@ class BindgenNodeFactory {
             CLOSED_PAREN_TOKEN
         );
 
-        // builds the code fragment 'return null;'
-        final ReturnStatementNode returnStatement = NodeFactory.createReturnStatementNode(
-            NodeFactory.createToken(
-                SyntaxKind.RETURN_KEYWORD,
-                EMPTY_WHITE_SPACE,       // no leading whitespace
-                SINGLE_SPACE_WHITE_SPACE // one blank as trailing whitespace
-            ),
-            NULL_TOKEN_EXPRESSION,
-            SEMICOLON_TOKEN
-        );
+        // if optional returns are allowed, then return nil, else return an empty array.
+        final ReturnStatementNode returnStatement;
+        if (env.isOptionalTypes() || env.isOptionalReturnTypes()) {
+            // builds the code fragment 'return ();'
+            returnStatement = NodeFactory.createReturnStatementNode(
+                    NodeFactory.createToken(
+                            SyntaxKind.RETURN_KEYWORD,
+                            EMPTY_WHITE_SPACE,       // no leading whitespace
+                            SINGLE_SPACE_WHITE_SPACE // one blank as trailing whitespace
+                    ),
+                    NIL_TOKEN_EXPRESSION,
+                    SEMICOLON_TOKEN
+            );
+        } else {
+            // builds the code fragment 'return [];'
+            returnStatement = NodeFactory.createReturnStatementNode(
+                    NodeFactory.createToken(
+                            SyntaxKind.RETURN_KEYWORD,
+                            EMPTY_WHITE_SPACE,       // no leading whitespace
+                            SINGLE_SPACE_WHITE_SPACE // one blank as trailing whitespace
+                    ),
+                    ARRAY_TOKEN_EXPRESSION,
+                    SEMICOLON_TOKEN
+            );
+        }
+
 
         // builds the code fragment
         //   if java:isNull(<handleName>) {
-        //       return null;
+        //       return <() / []>;
         //   }
         return NodeFactory.createIfElseStatementNode(
-            NodeFactory.createToken(
-                SyntaxKind.IF_KEYWORD,
-                EMPTY_WHITE_SPACE,       // no leading whitespace
-                SINGLE_SPACE_WHITE_SPACE // one blank as trailing whitespace
-            ),
-            // the expression
-            checkIsNullExpression,
-            // the if block
-            createBlockStatementNode(
-                NodeFactory.createNodeList(returnStatement)
-            ),
-            null // no else block
+                NodeFactory.createToken(
+                        SyntaxKind.IF_KEYWORD,
+                        EMPTY_WHITE_SPACE,       // no leading whitespace
+                        SINGLE_SPACE_WHITE_SPACE // one blank as trailing whitespace
+                ),
+                // the expression
+                checkIsNullExpression,
+                // the if block
+                createBlockStatementNode(
+                        NodeFactory.createNodeList(returnStatement)
+                ),
+                null // no else block
         );
     }
 
     @SuppressWarnings("SpellCheckingInspection")
     private static List<StatementNode> getStringArrayReturnStatements(JMethod jMethod) {
         return List.of(
-            //   handle externalObj = <call external method>;
-            getExternalFunctionCallStatement(HANDLE, jMethod),
-            //   if java:isNull(externalObj) {
-            //       return null;
-            //   }
-            createReturnIfHandleIsNullStatement("externalObj"),
-            //   return <string[]> check jarrays:fromHandle(externalObj, "string");
-            createReturnStatementNode(createTypeCastExpressionNode("string[]",
-                createCheckExpressionNode(
-                    createFunctionCallExpressionNode(
-                        "jarrays:fromHandle",
-                        new LinkedList<>(Arrays.asList("externalObj", "\"string\""))
-                    )
-                )
-            ))
+                //   handle externalObj = <call external method>;
+                getExternalFunctionCallStatement(HANDLE, jMethod),
+                //   if java:isNull(externalObj) {
+                //       return null;
+                //   }
+                createReturnIfHandleIsNullStatement(jMethod.getEnv(), "externalObj"),
+                //   return <string[]> check jarrays:fromHandle(externalObj, "string");
+                createReturnStatementNode(createTypeCastExpressionNode("string[]",
+                        createCheckExpressionNode(
+                                createFunctionCallExpressionNode(
+                                        "jarrays:fromHandle",
+                                        new LinkedList<>(Arrays.asList("externalObj", "\"string\""))
+                                )
+                        )
+                ))
         );
+    }
+
+    private static ReturnStatementNode createReturnToStringStatement(BindgenEnv env, List<String> argNodes) {
+        FunctionCallExpressionNode funcCallExprNode = createFunctionCallExpressionNode("java:toString", argNodes);
+
+        if (env.isOptionalTypes() || env.isOptionalReturnTypes()) {
+            // return java:toString(<args>);
+            return createReturnStatementNode(funcCallExprNode);
+        } else {
+            // return java:toString(<args>) ?: "";
+            BinaryExpressionNode conditionalExprNode = createElvisExpressionNode(funcCallExprNode,
+                    createBasicLiteralNode(""));
+            return createReturnStatementNode(conditionalExprNode);
+        }
     }
 
     private static List<StatementNode> getPrimitiveArrayReturnStatements(JMethod jMethod) {
@@ -1025,10 +1059,18 @@ class BindgenNodeFactory {
         }
         for (JParameter jParameter : bFunction.getParameters()) {
             if (jParameter.getIsString()) {
-                argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
+                if (jParameter.isOptional()) {
+                    argValues.add(String.format("%s is () ? java:createNull() : java:fromString(%s)",
+                            jParameter.getFieldName(), jParameter.getFieldName()));
+                } else {
+                    argValues.add(String.format("java:fromString(%s)", jParameter.getFieldName()));
+                }
+            } else if (jParameter.isArray() && jParameter.isOptional()) {
+                argValues.add(String.format("check jarrays:toHandle(%s ?: [], \"%s\")",
+                        jParameter.getFieldName(), jParameter.getComponentType()));
             } else if (jParameter.isArray()) {
-                argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
-                        jParameter.getComponentType() + "\")");
+                argValues.add(String.format("check jarrays:toHandle(%s, \"%s\")",
+                        jParameter.getFieldName(), jParameter.getComponentType()));
             } else if (jParameter.getIsObj()) {
                 argValues.add(jParameter.getFieldName() + ".jObj");
             } else {
@@ -1282,6 +1324,14 @@ class BindgenNodeFactory {
     }
 
     /**
+     * Creates a elvis expression node (e.g: lhsExpression ?: rhsExpression)
+     */
+    private static BinaryExpressionNode createElvisExpressionNode(Node lhs, Node rhs) {
+        Token elvisToken = AbstractNodeFactory.createToken(SyntaxKind.ELVIS_TOKEN);
+        return NodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, lhs, elvisToken, rhs);
+    }
+
+    /**
      * Creates a function call expression node using the function name and the argument list provided.
      */
     private static FunctionCallExpressionNode createFunctionCallExpressionNode(String functionNameValue,
@@ -1472,8 +1522,8 @@ class BindgenNodeFactory {
     }
 
     /**
-    * Retrieve an empty minutiae list.
-    */
+     * Retrieve an empty minutiae list.
+     */
     private static MinutiaeList emptyML() {
         return AbstractNodeFactory.createEmptyMinutiaeList();
     }

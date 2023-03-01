@@ -35,9 +35,9 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.EXCEPTION_CLASS_P
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getBalReturnType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.getJavaType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticMethod;
 
 /**
@@ -152,9 +152,9 @@ public class JMethod extends BFunction {
         hasReturn = true;
         BindgenUtils.addImportedPackage(returnTypeClass, importedPackages);
 
-        returnTypeJava = getJavaType(returnTypeClass);
-        setExternalReturnType(getBallerinaHandleType(returnTypeClass));
-        returnType = getBallerinaParamType(returnTypeClass, env.getAliases());
+        returnTypeJava = getBalReturnType(env, returnTypeClass);
+        setExternalReturnType(getBallerinaHandleType(env, returnTypeClass));
+        returnType = getBallerinaParamType(returnTypeClass, env);
         returnType = getExceptionName(returnTypeClass, returnType);
         if (returnTypeClass.isArray()) {
             javaArraysModule = true;
@@ -240,10 +240,6 @@ public class JMethod extends BFunction {
         return hasException;
     }
 
-    public boolean getIsStringReturn() {
-        return isStringReturn;
-    }
-
     public String getReturnType() {
         return returnType;
     }
@@ -300,9 +296,6 @@ public class JMethod extends BFunction {
         StringBuilder returnString = new StringBuilder();
         if (getHasReturn()) {
             returnString.append(this.returnType);
-            if (getIsStringReturn() || isStringArrayReturn()) {
-                returnString.append("?");
-            }
             if (getHasException()) {
                 if (isHandleException()) {
                     returnString.append("|").append(getExceptionName());

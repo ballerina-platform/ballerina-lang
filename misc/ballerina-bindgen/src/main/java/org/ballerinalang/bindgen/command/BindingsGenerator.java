@@ -310,11 +310,11 @@ public class BindingsGenerator {
         this.env.setOptionalTypesFlag(true);
     }
 
-    public void setOptionalTypesParamFlag() {
-        this.env.setOptionalTypesParamFlag(true);
+    public void setOptionalParamTypesFlag() {
+        this.env.setOptionalParamTypesFlag(true);
     }
 
-    public void setOptionalTypesReturnFlag() {
-        this.env.setOptionalTypesReturnFlag(true);
+    public void setOptionalReturnTypesFlag() {
+        this.env.setOptionalReturnTypesFlag(true);
     }
 }

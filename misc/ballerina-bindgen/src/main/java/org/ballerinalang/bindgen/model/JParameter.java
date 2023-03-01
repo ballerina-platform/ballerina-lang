@@ -23,6 +23,8 @@ import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_NILLABLE_STRING;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_NILLABLE_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
@@ -51,6 +53,7 @@ public class JParameter {
     private Boolean isObj = false;
     private Boolean isString = false;
     private Boolean isObjArray = false;
+    private Boolean isOptional = false;
     private boolean modulesFlag;
     private Boolean isStringArray = false;
     private Boolean isPrimitiveArray = false;
@@ -60,7 +63,7 @@ public class JParameter {
         this.parameterClass = parameterClass;
         this.parentClass = parentClass;
         type = parameterClass.getName();
-        shortTypeName = getBallerinaParamType(parameterClass, env.getAliases());
+        shortTypeName = getBallerinaParamType(parameterClass, env);
         modulesFlag = env.getModulesFlag();
 
         // Append the exception class prefix in front of bindings generated for Java exceptions.
@@ -78,11 +81,20 @@ public class JParameter {
         }
         if (parameterClass.equals(String.class)) {
             isString = true;
-            shortTypeName = BALLERINA_STRING;
+            if (env.isOptionalTypes() || env.isOptionalParamTypes()) {
+                isOptional = true;
+                shortTypeName = BALLERINA_NILLABLE_STRING;
+            } else {
+                shortTypeName = BALLERINA_STRING;
+            }
         } else if (parameterClass.equals(String[].class)) {
             isStringArray = true;
-            shortTypeName = BALLERINA_STRING_ARRAY;
-            componentType = String.class.getName();
+            if (env.isOptionalTypes() || env.isOptionalParamTypes()) {
+                isOptional = true;
+                shortTypeName = BALLERINA_NILLABLE_STRING_ARRAY;
+            } else {
+                shortTypeName = BALLERINA_STRING_ARRAY;
+            }
         } else {
             if (!parameterClass.isPrimitive()) {
                 if (parameterClass.isArray()) {
@@ -98,7 +110,7 @@ public class JParameter {
                 }
             }
         }
-        externalType = getBallerinaHandleType(parameterClass);
+        externalType = getBallerinaHandleType(env, parameterClass);
         fieldName = "arg";
     }
 
@@ -155,6 +167,10 @@ public class JParameter {
 
     public Boolean getIsString() {
         return isString;
+    }
+
+    public Boolean isOptional() {
+        return isOptional;
     }
 
     Boolean getIsPrimitiveArray() {

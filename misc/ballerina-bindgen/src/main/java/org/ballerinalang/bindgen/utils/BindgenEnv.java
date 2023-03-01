@@ -46,9 +46,9 @@ public class BindgenEnv {
     // Stores if the optional types flag is enabled for the binding generation
     private boolean optionalTypesFlag = false;
     // Stores if the optional types flag is enabled for the parameter binding generation
-    private boolean optionalTypesParamFlag = false;
+    private boolean optionalParamTypesFlag = false;
     // Stores if the optional types flag is enabled for the return binding generation
-    private boolean optionalTypesReturnFlag = false;
+    private boolean optionalReturnTypesFlag = false;
     // Output path of the bindings generated
     private String outputPath;
     // Ballerina project's current package name
@@ -235,15 +235,27 @@ public class BindgenEnv {
         this.failedMethodGens.add(errorMsg);
     }
 
+    public boolean isOptionalTypes() {
+        return optionalTypesFlag;
+    }
+
     public void setOptionalTypesFlag(boolean value) {
         this.optionalTypesFlag = value;
     }
 
-    public void setOptionalTypesParamFlag(boolean value) {
-        this.optionalTypesParamFlag = value;
+    public boolean isOptionalParamTypes() {
+        return optionalParamTypesFlag;
     }
 
-    public void setOptionalTypesReturnFlag(boolean value) {
-        this.optionalTypesReturnFlag = value;
+    public void setOptionalParamTypesFlag(boolean value) {
+        this.optionalParamTypesFlag = value;
+    }
+
+    public boolean isOptionalReturnTypes() {
+        return optionalReturnTypesFlag;
+    }
+
+    public void setOptionalReturnTypesFlag(boolean value) {
+        this.optionalReturnTypesFlag = value;
     }
 }

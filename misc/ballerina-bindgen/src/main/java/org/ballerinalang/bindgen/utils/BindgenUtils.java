@@ -44,6 +44,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_NILLABLE_STRING;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_NILLABLE_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BOOLEAN;
@@ -180,62 +182,70 @@ public class BindgenUtils {
         return Modifier.isFinal(modifiers);
     }
 
-    public static String getBallerinaParamType(Class javaType, Map<String, String> aliases) {
+    public static String getBallerinaParamType(Class<?> javaType, BindgenEnv bindgenEnv) {
         if (javaType.isArray() && javaType.getComponentType().isPrimitive()) {
             return getPrimitiveArrayBalType(javaType.getComponentType().getSimpleName());
         } else {
-            String returnType = getBalType(getAlias(javaType, aliases));
+            String returnType = getBalType(bindgenEnv, getAlias(javaType, bindgenEnv.getAliases()));
             if (returnType.equals(HANDLE)) {
-                return getAlias(javaType, aliases);
+                return getAlias(javaType, bindgenEnv.getAliases());
             }
             return returnType;
         }
     }
 
-    public static String getBallerinaHandleType(Class javaType) {
+    public static String getBallerinaHandleType(BindgenEnv env, Class<?> javaType) {
         String type = javaType.getSimpleName();
-        String returnType = getBalType(type);
+        String returnType = getBalType(env, type);
         if (type.equals(JAVA_STRING) || type.equals(JAVA_STRING_ARRAY)) {
             returnType = HANDLE;
         }
         return returnType;
     }
 
-    public static String getJavaType(Class javaType) {
+    public static String getBalReturnType(BindgenEnv env, Class<?> javaType) {
         if (javaType.isArray()) {
             javaType = javaType.getComponentType();
         }
         if (javaType.isPrimitive()) {
             return javaType.getSimpleName();
         } else if (javaType.getSimpleName().equals(JAVA_STRING)) {
-            return BALLERINA_STRING;
+            if (env.isOptionalTypes() || env.isOptionalReturnTypes()) {
+                return BALLERINA_NILLABLE_STRING;
+            } else {
+                return JAVA_STRING;
+            }
         } else {
             return HANDLE;
         }
     }
 
-    private static String getBalType(String type) {
+    private static String getBalType(BindgenEnv env, String type) {
         switch (type) {
             case INT:
+            case SHORT:
+            case CHAR:
+            case LONG:
                 return INT;
             case FLOAT:
+            case DOUBLE:
                 return FLOAT;
             case BOOLEAN:
                 return BOOLEAN;
             case BYTE:
                 return BYTE;
-            case SHORT:
-                return INT;
-            case CHAR:
-                return INT;
-            case DOUBLE:
-                return FLOAT;
-            case LONG:
-                return INT;
             case JAVA_STRING:
-                return BALLERINA_STRING;
+                if (env.isOptionalTypes() || env.isOptionalReturnTypes()) {
+                    return BALLERINA_NILLABLE_STRING;
+                } else {
+                    return BALLERINA_STRING;
+                }
             case JAVA_STRING_ARRAY:
-                return BALLERINA_STRING_ARRAY;
+                if (env.isOptionalTypes() || env.isOptionalReturnTypes()) {
+                    return BALLERINA_NILLABLE_STRING_ARRAY;
+                } else {
+                    return BALLERINA_STRING_ARRAY;
+                }
             default:
                 return HANDLE;
         }
@@ -244,21 +254,17 @@ public class BindgenUtils {
     private static String getPrimitiveArrayBalType(String type) {
         switch (type) {
             case INT:
+            case SHORT:
+            case CHAR:
+            case LONG:
                 return INT_ARRAY;
             case FLOAT:
+            case DOUBLE:
                 return FLOAT_ARRAY;
             case BOOLEAN:
                 return BOOLEAN_ARRAY;
             case BYTE:
                 return BYTE_ARRAY;
-            case SHORT:
-                return INT_ARRAY;
-            case CHAR:
-                return INT_ARRAY;
-            case DOUBLE:
-                return FLOAT_ARRAY;
-            case LONG:
-                return INT_ARRAY;
             default:
                 return HANDLE;
         }
@@ -269,15 +275,13 @@ public class BindgenUtils {
             case "[C":
             case "[S":
             case "[J":
+            case "[I":
                 return INT_ARRAY;
             case "[D":
+            case "[F":
                 return FLOAT_ARRAY;
             case "[B":
                 return BYTE_ARRAY;
-            case "[I":
-                return INT_ARRAY;
-            case "[F":
-                return FLOAT_ARRAY;
             case "[Z":
                 return BOOLEAN_ARRAY;
             default:
@@ -296,7 +300,7 @@ public class BindgenUtils {
                 if (file.isDirectory()) {
                     File[] paths = file.listFiles();
                     if (paths != null) {
-                        for (File filePath: paths) {
+                        for (File filePath : paths) {
                             if (isJarFile(filePath)) {
                                 urls.add(filePath.toURI().toURL());
                                 classPaths.add(filePath.getName());
