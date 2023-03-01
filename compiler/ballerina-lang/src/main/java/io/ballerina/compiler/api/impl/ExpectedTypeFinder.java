@@ -456,10 +456,10 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         Token openParen = parenthesizedArgList.openParenToken();
         Token closeParen = parenthesizedArgList.closeParenToken();
         if (!isParenMissing(openParen, closeParen) &&
-            isWithinParenthesis(linePosition, openParen.lineRange(), closeParen.lineRange()) &&
-            bLangNode instanceof BLangTypeInit &&
-            ((BLangTypeInit) bLangNode).initInvocation instanceof BLangInvocation &&
-            (((BLangInvocation) ((BLangTypeInit) bLangNode).initInvocation).symbol instanceof BInvokableSymbol)) {
+            isWithinParenthesis(linePosition, openParen.lineRange(), closeParen.lineRange())
+            && bLangNode instanceof BLangTypeInit
+            && ((BLangTypeInit) bLangNode).initInvocation instanceof BLangInvocation
+            && (((BLangInvocation) ((BLangTypeInit) bLangNode).initInvocation).symbol instanceof BInvokableSymbol)) {
             List<BVarSymbol> params = ((BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
                     initInvocation).symbol)).params;
             if (params.size() == 0) {
