@@ -828,6 +828,9 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         BType bType = null;
         switch (node.getKind()) {
             case RECORD_LITERAL_KEY_VALUE:
+                BLangRecordLiteral.BLangRecordKeyValueField field = (BLangRecordLiteral.BLangRecordKeyValueField) node;
+                bType = field.getValue().expectedType;
+                break;
             case USER_DEFINED_TYPE:
                 bType = node.getBType();
                 break;

@@ -1419,6 +1419,97 @@ function getMapLength(map<string> strMap) returns int {
     return strMap.length();
 }
 
+type Row record {|
+    readonly string:RegExp rec;
+|};
+
+function testQueryExprConstructingTableWithRegExp() {
+    string:RegExp[] arr1 = [re `A`, re `B`, re `C`];
+    table<Row> key(rec) res = table key(rec) from var reg in arr1
+        where reg != re `B`
+        select {
+            rec: reg
+        };
+    table<Row> key(rec) tbl = table [
+        {rec: re `A`},
+        {rec: re `C`}
+    ];
+    assertEqual(tbl, res);
+
+    table<Row> key(rec)|error res2 = table key(rec) from var reg in [re `A`, re `B`, re `A`]
+        where reg != re `B`
+        select {
+            rec: reg
+        }
+        on conflict error("Duplicate Key");
+    assertEqual(true, res2 is error);
+    if (res2 is error) {
+        assertEqual("Duplicate Key", (<error>res2).message());
+    }
+}
+
+function testQueryExprConstructingMapWithRegExp() {
+    string:RegExp[] arr1 = [re `A`, re `B`, re `C`];
+    map<string:RegExp> res = map from var reg in arr1
+        let string:RegExp v = re `1`
+        where reg != re `B`
+        select [reg.toString() + v.toString(), reg];
+    assertEqual({A1: re `A`, C1: re `C`}, res);
+
+    map<string:RegExp>|error res2 = map from var reg in [re `A`, re `B`, re `C`, re `A`]
+        let string:RegExp v = re `1`
+        where reg != re `B`
+        select [reg.toString() + v.toString(), reg]
+        on conflict error("Duplicate Key");
+
+    assertEqual(true, res2 is error);
+    if (res2 is error) {
+        assertEqual("Duplicate Key", (<error>res2).message());
+    }
+}
+
+function testQueryExprConstructingStreamWithRegExpWithInterpolations() {
+    string:RegExp[] arr1 = [re `A`, re `B2`, re `C`];
+    int v = 1;
+    stream<string:RegExp> arr2 = stream from var reg in arr1
+        where reg != re `B${v + 1}`
+        select reg;
+    var t = arr2.iterator();
+    assertEqual({value: re `A`}, t.next());
+    assertEqual({value: re `C`}, t.next());
+    assertEqual((), t.next());
+}
+
+function testNestedQueryExprConstructingTableWithRegExp() {
+    string:RegExp[] arr1 = [re `A`, re `B2`, re `C`];
+    int v = 1;
+    table<Row> res = table key() from var re in (from string:RegExp reg in arr1
+            where reg != re `B${v + 1}`
+            select reg)
+        let string:RegExp a = re `A`
+        where re != re `A`
+        select {
+            rec: re `${re.toString() + a.toString()}`
+        };
+    table<Row> key() tbl = table [{rec: re `CA`}];
+    assertEqual(tbl, res);
+}
+
+function testJoinedQueryExprConstructingMapWithRegExp() {
+    string:RegExp[] arr1 = [re `A`, re `B`, re `C`, re `D`];
+    string:RegExp[] arr2 = [re `A`, re `B`];
+    int v = 1;
+    map<string> arr3 = map from var re1 in arr1
+        join string:RegExp re2 in arr2
+        on re1 equals re2
+        let string:RegExp a = re `AB*[](A|B|[ab-fgh]+(?im-x:[cdeg-k]??${v})|)|^|PQ?`
+        select [re1.toString() + "1", re1.toString() + a.toString()];
+    assertEqual({
+        A1: "AAB*[](A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?",
+        B1: "BAB*[](A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?"
+    }, arr3);
+}
+
 function assertEqual(anydata|error actual, anydata|error expected) {
     anydata expectedValue = (expected is error)? (<error> expected).message() : expected;
     anydata actualValue = (actual is error)? (<error> actual).message() : actual;

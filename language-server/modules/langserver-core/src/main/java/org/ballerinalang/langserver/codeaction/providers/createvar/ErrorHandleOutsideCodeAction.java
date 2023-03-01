@@ -103,7 +103,7 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
                 positionDetails.matchedNode(), context));
         edits.addAll(importsAcceptor.getNewImportTextEdits());
 
-        int renamePosition = modifiedTextEdits.renamePositions.get(0) - UNION_ERROR_CHAR_OFFSET;
+        int renamePosition = modifiedTextEdits.renamePositions.get(0);
         CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.CREATE_VAR_ADD_CHECK_TITLE,
                 edits, uri, CodeActionKind.QuickFix);
         addRenamePopup(context, edits, modifiedTextEdits.edits.get(0), codeAction, renamePosition,
@@ -133,9 +133,13 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         String typeWithError = createVarTextEdits.types.get(0);
         String typeWithoutError = getTypeWithoutError(unionTypeDesc, context, importsAcceptor);
 
+        int lengthtDiff = typeWithError.length() - typeWithoutError.length();
+
         Position varRenamePosition = createVarTextEdits.varRenamePosition.get(0);
-        varRenamePosition.setCharacter(
-                varRenamePosition.getCharacter() - (typeWithError.length() - typeWithoutError.length()));
+        varRenamePosition.setCharacter(varRenamePosition.getCharacter() - lengthtDiff);
+
+        Integer renamePos = createVarTextEdits.renamePositions.get(0);
+        createVarTextEdits.renamePositions.add(0, renamePos - lengthtDiff);
 
         TextEdit textEdit = createVarTextEdits.edits.get(0);
         textEdit.setNewText(typeWithoutError + textEdit.getNewText().substring(typeWithError.length()));
