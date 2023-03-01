@@ -679,6 +679,33 @@ function testUsingAnIntersectionTypeInQueryExpr() {
     assertEquality(true, [{email: "anne@abc.com", score: 95.0}] == j);
 }
 
+function testQueryExprWithLangLibCallsWithArrowFunctions() {
+    Person p1 = {firstName: "Alex", lastName: "George", age: 30};
+    Person p2 = {firstName: "Anne", lastName: "Frank", age: 40};
+    Person p3 = {firstName: "John", lastName: "David", age: 50};
+    Person[] personList = [p1, p2, p3];
+
+    int[] ageList = [50, 60];
+    int[] filteredAges = from int age in ageList
+        where personList.some(person => person.age == age)
+        select age;
+    assertEquality(true, filteredAges == [50]);
+
+    string[] filteredNames = from int age in [50]
+        select personList.filter(person => person.age == age).pop().firstName;
+    assertEquality(true, filteredNames == ["John"]);
+
+    string[] filteredNames2 = from var {firstName, lastName, age} in personList
+        where ageList.some(a => a == age)
+        select ["John", "Frank"].filter(names => names == firstName).pop();
+    assertEquality(true, filteredNames2 == ["John"]);
+
+    Person[][] filteredPersons = from int age in [50]
+        let string name = personList.filter(person => person.age == age).pop().firstName
+        select personList.filter(person => person.firstName == name);
+    assertEquality(true, filteredPersons == [[{"firstName":"John", "lastName":"David", "age":50}]]);
+}
+
 function testQueryExprWithRegExp() {
     string:RegExp[] arr1 = [re `A`, re `B`, re `C`];
     string:RegExp[] arr2 = from var reg in arr1
