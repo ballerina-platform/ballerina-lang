@@ -116,6 +116,33 @@ function testClosuresInNestedQueryInSelect2() {
     assertEquality(exp, res);
 }
 
+type ScoreRec record {|
+    string pId;
+    float score;
+|};
+
+function testClosuresInNestedQueryInSelect3() {
+    ScoreEvent[] events = [
+        {email: "jake@abc.com", problemId: "12"},
+        {email: "anne@abc.com", problemId: "20"},
+        {email: "peter@abc.com", problemId: "3"}
+    ];
+
+    ScoreRec[] events2 = [
+        {pId: "12", score: 80.0},
+        {pId: "20", score: 95.0},
+        {pId: "3", score: 72.0}
+    ];
+
+    var res = from var {email, problemId} in events
+        select from var {pId, score} in events2
+            where pId == problemId
+            select {email, score};
+
+    Rec[][] exp = [[{"email":"jake@abc.com","score":80.0}],[{"email":"anne@abc.com","score":95.0}],[{"email":"peter@abc.com","score":72.0}]];
+    assertEquality(exp, res);
+}
+
 function testClosureInQueryActionInDo() {
     int[] arr = [];
     from var j in 1 ... 5
