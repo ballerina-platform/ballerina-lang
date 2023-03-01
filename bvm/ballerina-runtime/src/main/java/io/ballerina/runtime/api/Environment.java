@@ -146,5 +146,4 @@ public class Environment {
     public Object getStrandLocal(String key) {
         return strand.getProperty(key);
     }
-
 }

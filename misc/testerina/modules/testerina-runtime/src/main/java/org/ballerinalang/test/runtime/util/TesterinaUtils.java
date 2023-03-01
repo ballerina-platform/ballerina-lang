@@ -117,20 +117,19 @@ public class TesterinaUtils {
     private static void startSuite(Class<?> initClazz, String[] args) {
         // Call test module main
         String funcName = cleanupFunctionName("main");
-        Object response;
         try {
             final Method method = initClazz.getDeclaredMethod(funcName, String[].class);
-            response = method.invoke(null, (Object) args);
-            if (response instanceof Throwable) {
-                throw new BallerinaTestException("dependant module execution for test suite failed due to " +
-                        formatErrorMessage((Throwable) response), (Throwable) response);
-            }
-        } catch (NoSuchMethodException | IllegalAccessException e) {
+            method.invoke(null, (Object) args);
+        } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException e) {
             throw new BallerinaTestException("Failed to invoke the function '" + funcName + " due to " +
                     e.getMessage(), e);
         } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof BError) {
+                return;
+            }
             throw new BallerinaTestException("dependant module execution for test suite failed due to " +
-                    formatErrorMessage(e.getTargetException()), e.getTargetException());
+                    formatErrorMessage(e.getTargetException()), targetException);
         }
     }
 
