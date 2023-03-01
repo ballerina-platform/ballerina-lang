@@ -230,8 +230,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     private SymbolEnv env;
     private SymbolEnv queryEnv;
     private boolean containsCheckExpr;
-    private boolean withinLambdaFunc = false;
     private boolean withinQuery = false;
+    private boolean withinLambdaOrArrowFunc = false;
     private HashSet<BType> checkedErrorList;
 
     private QueryDesugar(CompilerContext context) {
@@ -1520,10 +1520,10 @@ public class QueryDesugar extends BLangNodeVisitor {
             identifiers = prevIdentifiers;
             currentQueryLambdaBody = prevQueryLambdaBody;
         } else {
-            boolean prevWithinLambdaFunc = withinLambdaFunc;
-            withinLambdaFunc = true;
+            boolean prevWithinLambdaFunc = withinLambdaOrArrowFunc;
+            withinLambdaOrArrowFunc = true;
             function.getBody().accept(this);
-            withinLambdaFunc = prevWithinLambdaFunc;
+            withinLambdaOrArrowFunc = prevWithinLambdaFunc;
         }
     }
 
@@ -1707,7 +1707,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     symbol = originalSymbol;
                 }
             }
-            if ((withinLambdaFunc || queryEnv == null || !queryEnv.scope.entries.containsKey(symbol.name))
+            if ((withinLambdaOrArrowFunc || queryEnv == null || !queryEnv.scope.entries.containsKey(symbol.name))
                     && !identifiers.containsKey(identifier)) {
                 Location pos = currentQueryLambdaBody.pos;
                 BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
@@ -1717,8 +1717,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
                 if (symbol instanceof BVarSymbol) {
                     ((BVarSymbol) symbol).originalSymbol = null;
-                    if (withinLambdaFunc || withinQuery) {
-                        if ((withinLambdaFunc && symbol.closure) || (!withinLambdaFunc && withinQuery)) {
+                    if (withinLambdaOrArrowFunc || withinQuery) {
+                        if ((withinLambdaOrArrowFunc && symbol.closure) || (!withinLambdaOrArrowFunc && withinQuery)) {
                             // When there's a closure in a lambda inside a query lambda the symbol.closure is
                             // true for all its usages. Therefore mark symbol.closure = false for the existing
                             // symbol and create a new symbol with the same properties.
@@ -1746,7 +1746,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     }
                 }
                 identifiers.put(identifier, symbol);
-            } else if (identifiers.containsKey(identifier) && (withinLambdaFunc || withinQuery)) {
+            } else if (identifiers.containsKey(identifier) && (withinLambdaOrArrowFunc || withinQuery)) {
                 symbol = identifiers.get(identifier);
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
@@ -1973,7 +1973,10 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
         bLangArrowFunction.params.forEach(this::acceptNode);
+        boolean prevWithinLambdaFunc = this.withinLambdaOrArrowFunc;
+        this.withinLambdaOrArrowFunc = true;
         this.acceptNode(bLangArrowFunction.body);
+        this.withinLambdaOrArrowFunc = prevWithinLambdaFunc;
     }
 
     @Override
