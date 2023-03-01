@@ -1072,11 +1072,14 @@ function testEmptyRegexpFind() {
     assertTrue(resA4 is null);
     regexp:Span? resA5 = regexp:find(re = re `${""}`, str = "HelloWorld");
     assertTrue(resA5 is null);
-    var regexStrA = "";
+    string regexStrA = "";
     regexp:Span? resA6 = regexp:find(re = re `${regexStrA}`, str = "HelloWorld");
     assertTrue(resA6 is null);
     regexp:Span? resA7 = regexp:find(re = re `${regexStrA}`, str = "");
     assertTrue(resA7 is null);
+    regexp:Span? resA8 = regexp:find(re = re `(.*)`, str = "");
+    assertTrue(resA8 is regexp:Span);
+
     // find all
     regexp:Span[] resB1 = regexp:findAll(re ``, "There once was a king who liked to sing");
     assertEquality(0, resB1.length());
@@ -1088,6 +1091,7 @@ function testEmptyRegexpFind() {
     assertEquality(0, resB4.length());
     regexp:Span[] resB5 = regexp:findAll(re `${""}`, "There once was a king who liked to sing");
     assertEquality(0, resB5.length());
+
    //  // find groups
     regexp:Groups? resC1 = regexp:findGroups(re ``, "Butter was bought by Betty but the butter was bitter");
     assertTrue(resC1 is null);
@@ -1097,6 +1101,7 @@ function testEmptyRegexpFind() {
     assertTrue(resC3 is null);
     regexp:Groups? resC4 = regexp:findGroups(re `${""}`, "");
     assertTrue(resC4 is null);
+
    //  // find all groups
     regexp:Groups[] resD1 = regexp:findAllGroups(re ``, "rubble, trouble, bubble, hubble");
     assertEquality(0, resD1.length());
