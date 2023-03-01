@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 /**
  * This contains methods to test query expressions and query actions with closures.
  *
- * @since 2201.3.1
+ * @since 2201.5.0
  */
 public class QueryWithClosuresTest {
     private CompileResult result;
