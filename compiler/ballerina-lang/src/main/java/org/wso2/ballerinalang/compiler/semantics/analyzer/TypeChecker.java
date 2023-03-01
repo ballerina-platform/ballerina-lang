@@ -4197,6 +4197,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         if (actualType == symTable.semanticError) {
             //TODO dlog error?
             data.resultType = symTable.semanticError;
+            // Following line checks the object compatibility if there is a semantic error.
+            checkObjectCompatibility(actualType, cIExpr, data);
             return;
         }
 
@@ -4344,6 +4346,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             case TypeTags.INTERSECTION:
                 return checkObjectType(((BIntersectionType) actualType).effectiveType, cIExpr, data);
             default:
+                // check attachExpr before returning a semantic error.
+                for (BLangExpression attachExpr : cIExpr.argsExpr) {
+                    checkExpr(attachExpr, symTable.nilType, data);
+                }
+
                 dlog.error(cIExpr.pos, DiagnosticErrorCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, actualType);
                 return symTable.semanticError;
         }
