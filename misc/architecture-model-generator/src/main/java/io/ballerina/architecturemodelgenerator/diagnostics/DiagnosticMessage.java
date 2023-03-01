@@ -88,7 +88,7 @@ public class DiagnosticMessage {
     }
 
     public static DiagnosticMessage failedToGenerateInteraction(String message) {
-        return new DiagnosticMessage("008", String.format("Unexpected error occurred while generating the interaction " +
-                "Message : %s", message), DiagnosticSeverity.ERROR);
+        return new DiagnosticMessage("008", String.format("Unexpected error occurred while generating the " +
+                "interaction Message : %s", message), DiagnosticSeverity.ERROR);
     }
 }

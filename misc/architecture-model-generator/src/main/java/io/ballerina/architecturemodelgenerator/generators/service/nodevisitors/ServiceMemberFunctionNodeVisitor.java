@@ -208,7 +208,8 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
             PathParameterSymbol parameterSymbol = ((PathParameterSymbol) symbol.get());
             paramTypes = getReferencedType(parameterSymbol.typeDescriptor());
         } // todo : implement else
-        return new ResourceParameter(paramTypes, name, ParameterIn.PATH.getValue(), true, elementLocation, Collections.emptyList());
+        return new ResourceParameter(paramTypes, name, ParameterIn.PATH.getValue(), true,
+                elementLocation, Collections.emptyList());
     }
 
     private void getParameters(FunctionSignatureNode functionSignatureNode, boolean isResource,
