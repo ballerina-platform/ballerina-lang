@@ -1,0 +1,56 @@
+NAME
+       bal persist - Manage data persistence
+
+SYNOPSIS
+       bal persist <command> [<-h> | <--help>]
+
+DESCRIPTION
+       Manage the data persistence in a Ballerina package.
+
+       Initializing the package for persistence is the first step toward achieving
+       data persistence in a Ballerina package. This step creates the required
+       directories and configuration files. For example:
+
+           $ bal persist init
+
+       Define the application's data model as the next step. Use the generated
+       configuration file in the "persist" directory to define the data model
+       with the domain-specific entities. Use the standard Ballerina record type
+       definitions to represent entities and their relationships. For example:
+
+           type Department record {|
+               readonly string deptNo;
+               string deptName;
+               Employee[] employees;
+           |};
+
+           type Employee record {|
+               readonly string empNo;
+               string firstName;
+               string lastName;
+               Department department;
+           |};
+
+       Then, generate the client API based on the data model. Use the generated
+       API to query and manipulate the persistent data in the application.
+       For example:
+
+       $ bal persist generate
+
+       Then, create the database if it does not exist and populate it based on the
+       data model definition. For example:
+
+       $ bal persist push
+
+OPTIONS
+       -h, --help
+           Print the usage details of all commands.
+
+BALLERINA COMMANDS
+       The below is a list of available subcommands:
+
+       init            Initialize the package for persistence
+       generate        Generate the client API based on the data model defined in the "persist" directory
+       push            Create the database if it does not exist and execute the generated SQL script against it
+
+Use 'bal persist <command> --help' for more information on a specific command.
