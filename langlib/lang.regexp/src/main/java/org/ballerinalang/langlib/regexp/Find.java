@@ -25,11 +25,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
-import io.ballerina.runtime.internal.values.RegExpAtomQuantifier;
-import io.ballerina.runtime.internal.values.RegExpSequence;
-import io.ballerina.runtime.internal.values.RegExpTerm;
 
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.PatternSyntaxException;
 
