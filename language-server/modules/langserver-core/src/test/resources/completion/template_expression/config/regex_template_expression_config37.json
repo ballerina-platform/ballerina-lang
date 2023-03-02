@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 1,
-    "character": 43
+    "line": 2,
+    "character": 28
   },
-  "source": "template_expression/source/regex_template_expression_source8.bal",
+  "source": "template_expression/source/regex_template_expression_source11.bal",
   "description": "",
   "items": [
     {
@@ -36,14 +36,6 @@
       "detail": "Value",
       "filterText": "?",
       "insertText": "?",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "$",
-      "kind": "Value",
-      "detail": "Value",
-      "filterText": "$",
-      "insertText": "$",
       "insertTextFormat": "Snippet"
     }
   ]

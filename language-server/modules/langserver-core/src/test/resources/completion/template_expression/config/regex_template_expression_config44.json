@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 1,
-    "character": 46
+    "line": 23,
+    "character": 30
   },
-  "source": "template_expression/source/regex_template_expression_source6.bal",
+  "source": "template_expression/source/regex_template_expression_source11.bal",
   "description": "",
   "items": [
     {
@@ -15,19 +15,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "s",
-      "kind": "Value",
-      "detail": "Value",
-      "filterText": "s",
-      "insertText": "s",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "i",
       "kind": "Value",
       "detail": "Value",
       "filterText": "i",
       "insertText": "i",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "s",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "s",
+      "insertText": "s",
       "insertTextFormat": "Snippet"
     },
     {
@@ -44,14 +44,6 @@
       "detail": "Value",
       "filterText": ":",
       "insertText": ":",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "-",
-      "kind": "Value",
-      "detail": "Value",
-      "filterText": "-",
-      "insertText": "-",
       "insertTextFormat": "Snippet"
     }
   ]

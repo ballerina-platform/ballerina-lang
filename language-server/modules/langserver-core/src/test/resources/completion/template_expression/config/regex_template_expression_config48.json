@@ -1,19 +1,11 @@
 {
   "position": {
-    "line": 1,
-    "character": 43
+    "line": 13,
+    "character": 18
   },
-  "source": "template_expression/source/regex_template_expression_source8.bal",
+  "source": "template_expression/source/regex_template_expression_source12.bal",
   "description": "",
   "items": [
-    {
-      "label": "{}",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "filterText": "{}",
-      "insertText": "{${1}}",
-      "insertTextFormat": "Snippet"
-    },
     {
       "label": "*",
       "kind": "Value",
@@ -39,11 +31,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "$",
-      "kind": "Value",
-      "detail": "Value",
-      "filterText": "$",
-      "insertText": "$",
+      "label": "{}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "{}",
+      "insertText": "{${1}}",
       "insertTextFormat": "Snippet"
     }
   ]
