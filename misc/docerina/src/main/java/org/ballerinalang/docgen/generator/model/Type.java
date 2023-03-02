@@ -275,9 +275,9 @@ public class Type {
             type = functionType;
         } else if (node instanceof MapTypeDescriptorNode) {
             MapTypeDescriptorNode mapTypeDesc = (MapTypeDescriptorNode) node;
-                type.name = "map";
-                type.category = "map";
-                type.constraint = fromNode(mapTypeDesc.mapTypeParamsNode().typeNode(), semanticModel);
+            type.name = "map";
+            type.category = "map";
+            type.constraint = fromNode(mapTypeDesc.mapTypeParamsNode().typeNode(), semanticModel);
         } else if (node instanceof ParameterizedTypeDescriptorNode) {
             ParameterizedTypeDescriptorNode parameterizedTypeNode = (ParameterizedTypeDescriptorNode) node;
             SyntaxKind typeKind = node.kind();
@@ -401,7 +401,16 @@ public class Type {
                         methodSymbol.documentation().get().description().get() : null;
                 functionType.category = "included_function";
                 functionType.isIsolated = methodSymbol.qualifiers().contains(Qualifier.ISOLATED);
-                functionType.isRemote = methodSymbol.qualifiers().contains(Qualifier.REMOTE);
+                FunctionKind functionKind;
+                if (methodSymbol.qualifiers().contains(Qualifier.REMOTE)) {
+                    functionKind = FunctionKind.REMOTE;
+                } else if (methodSymbol.qualifiers().contains(Qualifier.RESOURCE)) {
+                    functionKind = FunctionKind.RESOURCE;
+                } else {
+                    functionKind = FunctionKind.OTHER;
+                }
+                functionType.functionKind = functionKind;
+
                 functionType.isExtern = methodSymbol.external();
                 methodSymbol.typeDescriptor().params().ifPresent(parameterSymbols -> {
                     parameterSymbols.forEach(parameterSymbol -> {
@@ -413,19 +422,19 @@ public class Type {
                                 .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
                         functionType.paramTypes.add(paramType);
                     });
-                if (methodSymbol.typeDescriptor().restParam().isPresent()) {
-                    ParameterSymbol restParam = methodSymbol.typeDescriptor().restParam().get();
-                    Type restType = fromSemanticSymbol(restParam, methodSymbol.documentation(), parentTypeRefSymbol,
-                            isTypeInclusion);
-                    restType.isDeprecated = restParam.annotations().stream()
-                            .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
-                    functionType.paramTypes.add(restType);
-                }
-                if (methodSymbol.typeDescriptor().returnTypeDescriptor().isPresent()) {
-                    Type returnType = fromSemanticSymbol(methodSymbol.typeDescriptor().returnTypeDescriptor().get(),
-                            methodSymbol.documentation(), parentTypeRefSymbol, isTypeInclusion);
-                    functionType.returnType = returnType;
-                }
+                    if (methodSymbol.typeDescriptor().restParam().isPresent()) {
+                        ParameterSymbol restParam = methodSymbol.typeDescriptor().restParam().get();
+                        Type restType = fromSemanticSymbol(restParam, methodSymbol.documentation(), parentTypeRefSymbol,
+                                isTypeInclusion);
+                        restType.isDeprecated = restParam.annotations().stream()
+                                .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
+                        functionType.paramTypes.add(restType);
+                    }
+                    if (methodSymbol.typeDescriptor().returnTypeDescriptor().isPresent()) {
+                        Type returnType = fromSemanticSymbol(methodSymbol.typeDescriptor().returnTypeDescriptor().get(),
+                                methodSymbol.documentation(), parentTypeRefSymbol, isTypeInclusion);
+                        functionType.returnType = returnType;
+                    }
                 });
                 functionTypes.add(functionType);
             });
