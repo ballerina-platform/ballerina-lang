@@ -21,12 +21,8 @@ package org.ballerinalang.langlib.regexp;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.regex.Matcher;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * Native implementation of lang.regexp:matches(string).
@@ -74,11 +70,6 @@ public class Matches {
     }
 
     private static Matcher getMatcher(BRegexpValue regExp, BString str) {
-        try {
-            return RegexUtil.getMatcher(regExp, str);
-        } catch (PatternSyntaxException e) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
-                    RuntimeErrors.REGEXP_INVALID_PATTERN);
-        }
+        return RegexUtil.getMatcher(regExp, str);
     }
 }

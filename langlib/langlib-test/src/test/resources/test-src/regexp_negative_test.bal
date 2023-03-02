@@ -91,3 +91,13 @@ public function testInvalidRegexpPatternSyntax3() returns error? {
     string:RegExp x = re `(?xsmi:[]\P{sc=Braille})`;
     _ = check (trap x.findAll(":*A*a").toBalString());
 }
+
+public function testInvalidRegexpPatternSyntax4() returns error? {
+    string:RegExp x = re `([(a{1})-(z)])`;
+    _ = check (trap x.matchAt(":A{1,2}})"));
+}
+
+public function testInvalidRegexpPatternSyntax5() returns error? {
+    string:RegExp x = re `(?xsmi:[]\P{sc=Braille})`;
+    _ = check (trap x.matchGroupsAt(":*A*a"));
+}
