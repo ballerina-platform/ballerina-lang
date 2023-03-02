@@ -40,11 +40,6 @@ public class FromString {
 
     public static Object fromString(BString string) {
         try {
-            if (string.length() == 0) {
-                throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
-                        RuntimeErrors.EMPTY_STRING);
-            }
-
             return TypeConverter.stringToRegExp(string.getValue());
         } catch (BError bError) {
             return ErrorCreator.createError(ERROR_REASON, bError.getErrorMessage());

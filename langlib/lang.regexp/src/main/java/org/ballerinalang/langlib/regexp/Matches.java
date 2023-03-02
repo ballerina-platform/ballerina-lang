@@ -35,8 +35,7 @@ import java.util.regex.PatternSyntaxException;
  */
 public class Matches {
     public static BArray matchAt(BRegexpValue regExp, BString str, int startIndex) {
-        int length = str.length();
-        if (length == 0 || regExp == null) {
+        if (regExp.stringValue(null).equals("")) {
             return null;
         }
 
@@ -49,8 +48,7 @@ public class Matches {
     }
 
     public static BArray matchGroupsAt(BRegexpValue regExp, BString str, int startIndex) {
-        int length = str.length();
-        if (length == 0 || regExp == null) {
+        if (regExp.stringValue(null).equals("")) {
             return null;
         }
 
@@ -67,7 +65,7 @@ public class Matches {
     }
 
     public static boolean isFullMatch(BRegexpValue regExp, BString str) {
-        if (str.length() == 0 || regExp == null) {
+        if (regExp.stringValue(null).equals("")) {
             return false;
         }
 

@@ -1113,6 +1113,20 @@ function testEmptyRegexpFind() {
     assertEquality(0, resD4.length());
 }
 
+function testEmptyRegexpMatch() {
+    // matchAt
+    regexp:Span? resA1 = regexp:matchAt(re = re ``, str = "HelloWorld");
+    assertTrue(resA1 is null);
+    regexp:Span? resA2 = regexp:matchAt(re = re ``, str = "HelloWorld", startIndex = 4);
+    assertTrue(resA2 is null);
+    string regexStrA = "";
+    regexp:Span? resA3 = regexp:matchAt(re = re `${regexStrA}`, str = "HelloWorld");
+    assertTrue(resA3 is null);
+    regexp:Span? resA4 = regexp:matchAt(re = re `${regexStrA}`, str = "HelloWorld", startIndex = 4);
+    assertTrue(resA4 is null);
+
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

@@ -71,6 +71,7 @@ public class LangLibRegexpTest {
                 "testLangLibFuncWithNamedArgExpr",
                 "testSplit",
                 "testEmptyRegexpFind",
+                "testEmptyRegexpMatch",
         };
     }
 

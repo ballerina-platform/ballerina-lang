@@ -143,7 +143,6 @@ public class Find {
 
     private static boolean isEmptyRegexp(BRegexpValue regExp) {
 
-        String regexpStrValue = regExp.stringValue(null);
-        return regexpStrValue.equals("");
+        return regExp.stringValue(null).equals("");
     }
 }
