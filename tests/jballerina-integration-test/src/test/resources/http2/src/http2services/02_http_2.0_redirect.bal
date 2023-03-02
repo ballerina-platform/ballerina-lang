@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+import ballerinai/io;
 import ballerina/http;
 
 listener http:Listener serviceEndpoint1 = new(9092, { httpVersion: "2.0" });

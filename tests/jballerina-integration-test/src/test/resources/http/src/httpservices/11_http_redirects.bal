@@ -16,7 +16,7 @@
 
 import ballerina/config;
 import ballerina/http;
-import ballerina/io;
+import ballerinai/io;
 import ballerina/mime;
 
 listener http:Listener serviceEndpoint2 = new(9102);

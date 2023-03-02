@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
+import ballerinai/io;
 
 service on new http:Listener(21019) {
     resource function onOpen(http:WebSocketCaller wsEp) {

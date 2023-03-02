@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
+import ballerinai/io;
 
 public function main() {
     http:Client clientEP = new("http://localhost:9253");

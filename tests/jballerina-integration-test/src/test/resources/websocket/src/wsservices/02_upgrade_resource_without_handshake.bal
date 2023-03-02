@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
+import ballerinai/io;
 
 
 service upgradeService = @http:WebSocketServiceConfig {} service {

@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
+import ballerinai/io;
 import ballerina/log;
 import ballerina/transactions;
 import ballerina/runtime;

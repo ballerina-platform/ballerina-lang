@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
+import ballerinai/io;
 
 public function main() {
     http:CsvPersistentCookieHandler myPersistentStore = new("./cookies-test-data/client-4.csv");

@@ -1,5 +1,5 @@
 
-import ballerina/io;
+import ballerinai/io;
 
 public function main (string... args) {
 

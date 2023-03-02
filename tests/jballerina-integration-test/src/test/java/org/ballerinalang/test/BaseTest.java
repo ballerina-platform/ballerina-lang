@@ -17,10 +17,14 @@
  */
 package org.ballerinalang.test;
 
+import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BalServer;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
+
+import java.nio.file.Paths;
 
 /**
  * Parent test class for all integration test cases under test-integration module. This will provide basic
@@ -30,14 +34,33 @@ import org.testng.annotations.BeforeSuite;
 public class BaseTest {
 
     public static BalServer balServer;
+    private BMainInstance bMainInstance;
+
+    private static final String testFileLocation = Paths.get("../misc/io-internal/src/main/ballerina").toAbsolutePath()
+            .toAbsolutePath().toString();
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException {
         balServer = new BalServer();
+        bMainInstance = new BMainInstance(balServer);
+        compilePackageAndPushToLocal(testFileLocation, "ballerinai-io" +
+                "-java11-0.0.0");
     }
 
     @AfterSuite(alwaysRun = true)
     public void destroy() throws BallerinaTestException {
         balServer.cleanup();
+    }
+
+    private void compilePackageAndPushToLocal(String packagePath, String balaFileName) throws BallerinaTestException {
+        LogLeecher buildLeecher = new LogLeecher("target/bala/" + balaFileName + ".bala");
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/" + balaFileName + ".bala to " +
+                "'local' repository.");
+        bMainInstance.runMain("pack", new String[]{}, null, null, new LogLeecher[]{buildLeecher},
+                packagePath);
+        buildLeecher.waitForText(5000);
+        bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
+                packagePath);
+        pushLeecher.waitForText(5000);
     }
 }

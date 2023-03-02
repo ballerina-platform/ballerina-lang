@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
+import ballerinai/io;
 
 service pushTextFailure on new http:Listener(21008) {
     resource function onOpen(http:WebSocketCaller caller) {

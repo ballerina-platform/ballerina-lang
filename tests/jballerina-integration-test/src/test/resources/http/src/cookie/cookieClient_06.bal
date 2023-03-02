@@ -16,7 +16,7 @@
 
 import ballerina/file;
 import ballerina/http;
-import ballerina/io;
+import ballerinai/io;
 
 public function main() {
     http:CsvPersistentCookieHandler myPersistentStore = new("./cookie-test-data/client-6.csv");

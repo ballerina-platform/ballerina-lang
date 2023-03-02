@@ -1,5 +1,5 @@
 import ballerina/h2;
-import ballerina/io;
+import ballerinai/io;
 import ballerina/runtime;
 
 channel<string> strChn = new;

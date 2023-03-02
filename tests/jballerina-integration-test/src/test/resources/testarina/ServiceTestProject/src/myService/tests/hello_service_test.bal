@@ -1,5 +1,5 @@
 import ballerina/test;
-import ballerina/io;
+import ballerinai/io;
 import ballerina/http;
 
 # Before Suite Function

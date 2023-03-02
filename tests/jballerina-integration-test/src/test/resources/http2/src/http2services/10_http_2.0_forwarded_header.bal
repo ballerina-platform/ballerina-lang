@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
+import ballerinai/io;
 
 service initiatingService on new http:Listener(9105) {
     resource function initiatingResource(http:Caller caller, http:Request request) {

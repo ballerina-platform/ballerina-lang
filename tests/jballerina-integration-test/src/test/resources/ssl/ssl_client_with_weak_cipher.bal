@@ -16,7 +16,7 @@
 
 import ballerina/config;
 import ballerina/http;
-import ballerina/io;
+import ballerinai/io;
 
 public function main(string... args) {
     http:Client clientEP = new(args[0], {

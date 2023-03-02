@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
+import ballerinai/io;
 import ballerinax/java.jdbc;
 import ballerina/system;
 import ballerina/transactions;

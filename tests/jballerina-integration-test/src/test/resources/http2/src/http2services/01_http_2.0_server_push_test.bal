@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerinai/io;
 import ballerina/http;
 import ballerina/stringutils;
 

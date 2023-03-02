@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/config;
-import ballerina/io;
+import ballerinai/io;
 import ballerina/http;
 
 http:ListenerConfiguration strongCipherConfig = {

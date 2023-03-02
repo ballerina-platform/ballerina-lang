@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
+import ballerinai/io;
 import ballerina/socket;
 
 listener http:Listener echoEP = new(58291);

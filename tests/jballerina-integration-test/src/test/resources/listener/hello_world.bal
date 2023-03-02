@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+import ballerinai/io;
 
 public function main() {
     io:println("Hello, World!");

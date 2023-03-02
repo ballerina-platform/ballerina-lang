@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
+import ballerinai/io;
 
 http:ClientConfiguration clientEPConfig  = {
     http1Settings: {
