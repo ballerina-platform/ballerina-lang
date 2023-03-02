@@ -463,7 +463,7 @@ public class Values {
     }
 
     public static BString getParameterName(BFunctionPointer fpValue) {
-        Parameter parameter = ((BFunctionType)fpValue.getType()).getParameters()[0];
+        Parameter parameter = ((BFunctionType) fpValue.getType()).getParameters()[0];
         return StringUtils.fromString(parameter.name);
     }
 }
