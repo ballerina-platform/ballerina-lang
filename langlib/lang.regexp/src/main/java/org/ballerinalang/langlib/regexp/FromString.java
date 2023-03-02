@@ -20,9 +20,6 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeConverter;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.REGEXP_LANG_LIB;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.REG_EXP_PARSING_ERROR_IDENTIFIER;
