@@ -3985,6 +3985,9 @@ public class Types {
                 if (NumericLiteralSupport.isDecimalDiscriminated(originalValue)) {
                     return false;
                 }
+                if (!validateFloatLiteral(baseLiteral.pos, baseValueStr)) {
+                    return false;
+                }
                 double baseDoubleVal = Double.parseDouble(baseValueStr);
                 double candidateDoubleVal;
                 if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
