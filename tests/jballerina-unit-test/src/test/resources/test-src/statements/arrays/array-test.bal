@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/test;
-import ballerina/io;
+import ballerinai/io;
 
 function testVarArgsArray() {
     validateVarArgs("val0", "val1", "val2");
