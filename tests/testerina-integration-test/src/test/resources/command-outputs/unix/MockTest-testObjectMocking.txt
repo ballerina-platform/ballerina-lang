@@ -1,0 +1,62 @@
+Compiling source
+	intg_tests/object_mocking:0.0.0
+WARNING [modules/TestHttpClient/main.bal:(54:45,54:82)] this function should explicitly return a value
+WARNING [main.bal:(47:5,47:47)] unused variable 'closeErr'
+
+Running Tests with Coverage
+
+	object_mocking
+		[pass] testDependentlyTypedFunctions_testDouble
+		[pass] testDependentlyTypedFunctions_thenReturn
+		[pass] testMockMemberVariable
+		[pass] testMockStreamSuccess
+		[pass] testProvideAReturnSequence
+		[pass] testProvideAReturnValue
+		[pass] testProvideAReturnValueBasedOnInput
+		[pass] testProvideErrorReturnValue
+		[pass] testUserDefinedMockObject
+
+		[fail] testDefaultIncompatibleArgs:
+
+		    incorrect type of argument provided at position '1' to mock the function 'get()'
+			
+
+		[fail] testDefaultInvalidMemberReturnValue:
+
+		    return value provided does not match the type of 'url'
+			
+
+		[fail] testDefaultMockInvalidFieldName:
+
+		    invalid field name 'invalidField' provided
+			
+
+		[fail] testDefaultMockInvalidReturnValue:
+
+		    return value provided does not match the return type of function 'get()'
+			
+
+		[fail] testDefaultMockWrongAction:
+
+		    return value provided does not match the return type of function 'get()'
+			
+
+		[fail] testDefaultTooManyArgs:
+
+		    too many argument provided to mock the function 'get()'
+			
+
+		[fail] testMockInvalidStream:
+
+		    return value provided does not match the return type of function 'get_stream()'
+			
+
+
+		9 passing
+		7 failing
+		0 skipped
+
+Generating Test Report
+	object-mocking-tests/target/report/test_results.json
+
+error: there are test failures
