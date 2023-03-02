@@ -2229,9 +2229,6 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLetClause letClause) {
-        for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
-            this.acceptNode((BLangNode) letVariable.definitionNode.getVariable());
-        }
     }
 
     @Override
