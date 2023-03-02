@@ -3337,9 +3337,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                 defineMemberNode(errorVariable.message, env, symTable.stringType);
             }
 
-            BLangVariable cause = errorVariable.cause;
-            if (cause != null) {
-                defineMemberNode(errorVariable.cause, env, symTable.errorOrNilType);
+            BLangVariable errorCause = errorVariable.cause;
+            if (errorCause != null) {
+                if (errorCause.getKind() == NodeKind.VARIABLE &&
+                        names.fromIdNode(((BLangSimpleVariable) errorCause).name) == Names.IGNORE) {
+                    dlog.error(errorCause.pos,
+                            DiagnosticErrorCode.CANNOT_USE_WILDCARD_BINDING_PATTERN_FOR_ERROR_CAUSE);
+                    return false;
+                }
+                defineMemberNode(errorCause, env, symTable.errorOrNilType);
             }
         }
 
