@@ -3412,21 +3412,10 @@ public class TypeChecker {
         int sourceTag = sourceType.getTag();
         int targetTag = targetType.getTag();
         if (sourceTag == TypeTags.FINITE_TYPE_TAG && targetTag == TypeTags.FINITE_TYPE_TAG) {
-            Set<Object> firstTypeValueSpace = ((BFiniteType) sourceType).valueSpace;
-            Set<Object> secondTypeValueSpace = ((BFiniteType) targetType).valueSpace;
-            Type firstTypeValueSpaceFirstObjectType = getType(firstTypeValueSpace.iterator().next());
-            Type secondTypeValueSpaceFirstObjectType = getType(secondTypeValueSpace.iterator().next());
-            for (Object value : firstTypeValueSpace) {
-                if (!isSameType(secondTypeValueSpaceFirstObjectType, getType(value))) {
-                    return false;
-                }
-            }
-            for (Object value : secondTypeValueSpace) {
-                if (!isSameType(firstTypeValueSpaceFirstObjectType, getType(value))) {
-                    return false;
-                }
-            }
-            return true;
+            Iterator<Object> iterator = ((BFiniteType) sourceType).valueSpace.iterator();
+            Type firstObjectType = getType(iterator.next());
+            return areSameTypeObjects(iterator, firstObjectType)
+                    && areSameTypeObjects(((BFiniteType) targetType).valueSpace.iterator(), firstObjectType);
         }
         if (sourceTag == TypeTags.FINITE_TYPE_TAG) {
             return checkAllValueSpaceItemsAreGivenType(((BFiniteType) sourceType).valueSpace, targetType);
@@ -3441,6 +3430,15 @@ public class TypeChecker {
             return true;
         }
         return isIntegerSubTypeTag(sourceTag) && isIntegerSubTypeTag(targetTag);
+    }
+
+    private static boolean areSameTypeObjects(Iterator<Object> iterator, Type targetType) {
+        while (iterator.hasNext()) {
+            if (!isSameType(targetType, getType(iterator.next()))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean checkAllValueSpaceItemsAreGivenType(Set<Object> valueSpace, Type givenType) {
