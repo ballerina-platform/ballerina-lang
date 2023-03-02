@@ -30,6 +30,7 @@ import java.util.regex.Matcher;
 import java.util.regex.PatternSyntaxException;
 
 import static org.ballerinalang.langlib.regexp.RegexUtil.GROUPS_AS_SPAN_ARRAY_TYPE;
+import static org.ballerinalang.langlib.regexp.RegexUtil.isEmptyRegexp;
 
 /**
  * Native implementation of lang.regexp:find(string).
@@ -139,9 +140,5 @@ public class Find {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
                     RuntimeErrors.INVALID_REGEXP_FIND_INDEX, startIndex, strLength);
         }
-    }
-
-    private static boolean isEmptyRegexp(BRegexpValue regExp) {
-        return regExp.stringValue(null).equals("");
     }
 }

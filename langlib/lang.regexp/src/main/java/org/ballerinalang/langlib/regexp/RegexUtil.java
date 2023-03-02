@@ -102,4 +102,8 @@ public class RegexUtil {
     public static long length(BString value) {
         return value.length();
     }
+
+    public static boolean isEmptyRegexp(BRegexpValue regExp) {
+        return regExp.stringValue(null).equals("");
+    }
 }
