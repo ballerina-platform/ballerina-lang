@@ -460,9 +460,9 @@ public class SymbolTable {
 
     public void updateBuiltinSubtypeOwners() {
         updateIntSubtypeOwners();
+        updateRegExpTypeOwners();
         updateStringSubtypeOwners();
         updateXMLSubtypeOwners();
-        updateRegExpTypeOwners();
     }
 
     public void updateIntSubtypeOwners() {

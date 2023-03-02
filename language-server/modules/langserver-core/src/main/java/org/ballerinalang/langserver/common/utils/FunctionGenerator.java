@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  * Function generator utilities.
  */
 public class FunctionGenerator {
-    
+
     public static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN =
             Pattern.compile("([\\w]+)\\/([\\w.]+):([^:]+):([\\w]+)[\\|]?");
 

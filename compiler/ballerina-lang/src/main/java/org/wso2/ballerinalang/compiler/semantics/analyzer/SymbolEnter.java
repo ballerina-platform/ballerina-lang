@@ -413,7 +413,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (!PackageID.ANNOTATIONS.equals(pkgNode.packageID)) {
             initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
         }
-        
         // Define type definitions.
         this.typePrecedence = 0;
 
@@ -1143,38 +1142,32 @@ public class SymbolEnter extends BLangNodeVisitor {
         SymbolEnv prevEnv = this.env;
         this.env = env;
         for (Map.Entry<Name, BPackageSymbol> predeclaredModuleEntry : predeclaredModules.entrySet()) {
-            defineRequiredModuleEntry(compUnits, predeclaredModuleEntry);
-        }
-        this.env = prevEnv;
-    }
-
-    private void defineRequiredModuleEntry(List<BLangCompilationUnit> compUnits,
-                                           Map.Entry<Name, BPackageSymbol> predeclaredModuleEntry) {
-        Name alias = predeclaredModuleEntry.getKey();
-        BPackageSymbol packageSymbol = predeclaredModuleEntry.getValue();
-        int index = 0;
-        ScopeEntry entry = this.env.scope.lookup(alias);
-        if (entry == NOT_FOUND_ENTRY && !compUnits.isEmpty()) {
-            this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(packageSymbol,
-                    new Name(compUnits.get(index++).name)));
-            entry = this.env.scope.lookup(alias);
-        }
-        for (int i = index; i < compUnits.size(); i++) {
-            boolean isUndefinedModule = true;
-            String compUnitName = compUnits.get(i).name;
-            if (((BPackageSymbol) entry.symbol).compUnit.value.equals(compUnitName)) {
-                isUndefinedModule = false;
+            Name alias = predeclaredModuleEntry.getKey();
+            BPackageSymbol packageSymbol = predeclaredModuleEntry.getValue();
+            int index = 0;
+            ScopeEntry entry = this.env.scope.lookup(alias);
+            if (entry == NOT_FOUND_ENTRY && !compUnits.isEmpty()) {
+                this.env.scope.define(alias, dupPackageSymbolAndSetCompUnit(packageSymbol,
+                        new Name(compUnits.get(index++).name)));
+                entry = this.env.scope.lookup(alias);
             }
-            while (entry.next != NOT_FOUND_ENTRY) {
-                if (((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnitName)) {
+            for (int i = index; i < compUnits.size(); i++) {
+                boolean isUndefinedModule = true;
+                String compUnitName = compUnits.get(i).name;
+                if (((BPackageSymbol) entry.symbol).compUnit.value.equals(compUnitName)) {
                     isUndefinedModule = false;
-                    break;
                 }
-                entry = entry.next;
-            }
-            if (isUndefinedModule) {
-                entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(packageSymbol,
-                        new Name(compUnitName)), NOT_FOUND_ENTRY);
+                while (entry.next != NOT_FOUND_ENTRY) {
+                    if (((BPackageSymbol) entry.next.symbol).compUnit.value.equals(compUnitName)) {
+                        isUndefinedModule = false;
+                        break;
+                    }
+                    entry = entry.next;
+                }
+                if (isUndefinedModule) {
+                    entry.next = new ScopeEntry(dupPackageSymbolAndSetCompUnit(packageSymbol,
+                            new Name(compUnitName)), NOT_FOUND_ENTRY);
+                }
             }
         }
     }
