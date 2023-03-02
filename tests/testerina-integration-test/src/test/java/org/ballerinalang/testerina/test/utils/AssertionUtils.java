@@ -19,12 +19,23 @@ package org.ballerinalang.testerina.test.utils;
 
 import org.testng.Assert;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Locale;
+
 /**
  * Util class for test assertions.
  *
  * @since 2.0.0
  */
 public class AssertionUtils {
+    private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
+            .contains("win");
+
+    private static final Path commandOutputsDir = Paths
+            .get("src", "test", "resources", "command-outputs");
 
     public static void assertForTestFailures(String programOutput, String errMessage) {
         if (programOutput.contains("error: there are test failures")) {
@@ -32,6 +43,16 @@ public class AssertionUtils {
         } else if (programOutput.contains("error: compilation contains errors")) {
             Assert.fail("Test failed due to a compilation error with following output\n" +
                     programOutput);
+        }
+    }
+
+    public static void assertOutput(String outputFileName, String output) throws IOException {
+        if (isWindows) {
+            String fileContent =  Files.readString(commandOutputsDir.resolve("windows").resolve(outputFileName));
+            Assert.assertEquals(fileContent, output);
+        } else {
+            String fileContent = Files.readString(commandOutputsDir.resolve("unix").resolve(outputFileName));
+            Assert.assertEquals(fileContent, output);
         }
     }
 }

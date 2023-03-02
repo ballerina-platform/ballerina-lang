@@ -1,0 +1,4 @@
+[package]
+org = "intg_tests"
+name = "function_mocking_with_dependencies"
+version = "0.0.0"

@@ -1,0 +1,31 @@
+Compiling source
+	intg_tests/assertions:0.0.0
+WARNING [tests/assertions-diff-error-messages.bal:(22:5,22:29)] undocumented field 'name'
+WARNING [tests/assertions-diff-error-messages.bal:(23:5,23:24)] undocumented field 'age'
+WARNING [tests/assertions-diff-error-messages.bal:(24:5,24:32)] undocumented field 'parent'
+
+Running Tests with Coverage
+
+	assertions
+		[pass] testAssertDecimalValues
+		[pass] testAssertIntValues
+		[pass] testAssertJsonArray
+		[pass] testAssertJsonInJson
+		[pass] testAssertJsonValues
+		[pass] testAssertJsonWithCount
+		[pass] testAssertJsonWithKeyDiff
+		[pass] testAssertLongJsonValues
+		[pass] testAssertLongStringValues
+		[pass] testAssertMultipleLinesString
+		[pass] testAssertObjects
+		[pass] testAssertRecords
+		[pass] testAssertStringValues
+		[pass] testAssertTuples
+
+
+		14 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	assertions-diff-error/target/report/test_results.json
