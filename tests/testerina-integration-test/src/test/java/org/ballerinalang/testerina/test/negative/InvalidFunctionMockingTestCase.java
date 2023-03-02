@@ -21,14 +21,12 @@ package org.ballerinalang.testerina.test.negative;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.BaseTestCase;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
-
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 /**
  * Negative test cases for function mocking.
@@ -42,116 +40,100 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
     }
 
     @Test
-    public void testMockingNonExistingFunction() throws BallerinaTestException {
+    public void testMockingNonExistingFunction() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("non-existent-function-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests" + File.separator + "test.bal:(3:1,3:38)] could not find function 'intAdd' " +
-                        "in module 'intg_tests/non_existent_function_mock:0.1.0'\n" +
-                        "error: compilation contains errors");
+        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testMockingNonExistingFunction.txt",
+                output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
     @Test
-    public void testLegacyMockingNonExistingFunction() throws BallerinaTestException {
+    public void testLegacyMockingNonExistingFunction() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("non-existent-function-legacy-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests" + File.separator + "test.bal:(3:1,5:2)] could not find function " +
-                        "'createJdbcClient' in module 'intg_tests/non_existent_function_mock:0.1.0'\n" +
-                        "error: compilation contains errors");
+        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testLegacyMockingNonExistingFunction.txt",
+                output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
     @Test
-    public void testMockingWithoutAnnotationRecord() throws BallerinaTestException {
+    public void testMockingWithoutAnnotationRecord() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("record-less-annotation-function-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests" + File.separator + "test.bal:(3:1,3:11)] missing required 'functionName' " +
-                        "field\nerror: compilation contains errors");
+        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testMockingWithoutAnnotationRecord.txt",
+                output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
     @Test
-    public void testLegacyMockingWithoutAnnotationRecord() throws BallerinaTestException {
+    public void testLegacyMockingWithoutAnnotationRecord() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("record-less-annotation-function-legacy-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests" + File.separator + "test.bal:(3:1,3:11)] missing required 'functionName' " +
-                        "field\nerror: compilation contains errors");
+        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testLegacyMockingWithoutAnnotationRecord.txt",
+                output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
     @Test
-    public void testMockingWithEmptyAnnotationRecord() throws BallerinaTestException {
+    public void testMockingWithEmptyAnnotationRecord() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("empty-annotation-record-function-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests" + File.separator + "test.bal:(3:1,3:14)] function name cannot be empty\n" +
-                        "error: compilation contains errors");
+        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testMockingWithEmptyAnnotationRecord.txt",
+                output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
     @Test
-    public void testLegacyMockingWithEmptyAnnotationRecord() throws BallerinaTestException {
+    public void testLegacyMockingWithEmptyAnnotationRecord() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("empty-annotation-record-function-legacy-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests" + File.separator + "test.bal:(3:1,3:14)] function name cannot be empty\n" +
-                        "error: compilation contains errors");
+        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testLegacyMockingWithEmptyAnnotationRecord.txt",
+                output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
     @Test
-    public void testMockingFunctionInNonExistingModule() throws BallerinaTestException {
+    public void testMockingFunctionInNonExistingModule() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("non-existent-module-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests" + File.separator + "test.bal:(3:1,6:2)] could not find specified module " +
-                        "'intg_tests/module1:0.1.0'\nerror: compilation contains errors");
+        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testMockingFunctionInNonExistingModule.txt",
+                output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
     @Test
-    public void testLegacyMockingFunctionInNonExistingModule() throws BallerinaTestException {
+    public void testLegacyMockingFunctionInNonExistingModule() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("non-existent-module-legacy-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests" + File.separator + "test.bal:(3:1,6:2)] could not find specified module " +
-                        "'intg_tests/module1:0.1.0'\nerror: compilation contains errors");
+        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testLegacyMockingFunctionInNonExistingModule.txt",
+                output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
     @Test
-    public void testMockingFunctionWithIncompatibleTypes() throws BallerinaTestException {
+    public void testMockingFunctionWithIncompatibleTypes() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("incompatible-type-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, false);
-        assertTrue(output.replaceAll("\r", "")
-                .contains("Return type of function stringHello does not match function intAdd"));
+        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testMockingFunctionWithIncompatibleTypes.txt",
+                output.replaceAll("(?m)^[ \t]*\r?\n", "\n").replaceAll("\r\n|\r|\n", "\n"));
     }
 
     @Test
-    public void testLegacyMockingFunctionWithIncompatibleTypes() throws BallerinaTestException {
+    public void testLegacyMockingFunctionWithIncompatibleTypes() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("incompatible-type-legacy-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, true);
-        assertEquals(output.replaceAll("\r", ""),
-                "ERROR [tests" + File.separator + "test.bal:(6:1,8:2)] incompatible types: expected isolated" +
-                        " function () returns (string) but found isolated function () returns (int)\n" +
-                        "error: compilation contains errors");
+        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testLegacyMockingFunctionWithIncompatibleTypes.txt",
+                output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
     @Test
-    public void testMockingFunctionInSingleFileProject() throws BallerinaTestException {
+    public void testMockingFunctionInSingleFileProject() throws BallerinaTestException, IOException {
         String projectPath = singleFileTestsPath.resolve("mocking").toString();
         String[] args = mergeCoverageArgs(new String[]{"function-mock.bal"});
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
-        assertEquals(output.replaceAll("\r", ""),
-                "ERROR [function-mock.bal:(12:1,12:38)] function mocking is not supported with " +
-                        "standalone Ballerina files\n" +
-                        "error: compilation contains errors");
+        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testMockingFunctionInSingleFileProject.txt",
+                output.replaceAll("\r\n|\r|\n", "\n"));
     }
 
     @Test
-    public void testLegacyMockingFunctionInSingleFileProject() throws BallerinaTestException {
+    public void testLegacyMockingFunctionInSingleFileProject() throws BallerinaTestException, IOException {
         String projectPath = singleFileTestsPath.resolve("mocking").toString();
         String[] args = mergeCoverageArgs(new String[]{"function-legacy-mock.bal"});
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, true);
-        assertEquals(output.replaceAll("\r", ""),
-                "ERROR [function-legacy-mock.bal:(8:1,8:38)] function mocking is not supported with " +
-                        "standalone Ballerina files\n" +
-                        "error: compilation contains errors");
+        AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testLegacyMockingFunctionInSingleFileProject.txt",
+                output.replaceAll("\r\n|\r|\n", "\n"));
     }
 }
