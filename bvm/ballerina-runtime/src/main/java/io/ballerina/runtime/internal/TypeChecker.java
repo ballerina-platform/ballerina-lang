@@ -335,62 +335,7 @@ public class TypeChecker {
      * @return true if the two types are same; false otherwise
      */
     public static boolean isSameType(Type sourceType, Type targetType) {
-
-        int sourceTypeTag = sourceType.getTag();
-        int targetTypeTag = targetType.getTag();
-
-        if (sourceType == targetType) {
-            return true;
-        }
-        if (sourceTypeTag == targetTypeTag) {
-            if (sourceType.equals(targetType)) {
-                return true;
-            }
-            switch (sourceTypeTag) {
-                case TypeTags.ARRAY_TAG:
-                    return checkArrayEquivalent(sourceType, targetType);
-                case TypeTags.FINITE_TYPE_TAG:
-                    // value space should be same
-                    Set<Object> sourceValueSpace = ((BFiniteType) sourceType).valueSpace;
-                    Set<Object> targetValueSpace = ((BFiniteType) targetType).valueSpace;
-                    if (sourceValueSpace.size() != targetValueSpace.size()) {
-                        return false;
-                    }
-
-                    for (Object sourceVal : sourceValueSpace) {
-                        if (!containsType(targetValueSpace, getType(sourceVal))) {
-                            return false;
-                        }
-                    }
-                    return true;
-                default:
-                    break;
-
-            }
-        }
-
-        // all the types in a finite type may evaluate to target type
-        switch (sourceTypeTag) {
-            case TypeTags.FINITE_TYPE_TAG:
-                for (Object value : ((BFiniteType) sourceType).valueSpace) {
-                    if (!isSameType(getType(value), targetType)) {
-                        return false;
-                    }
-                }
-                return true;
-            default:
-                break;
-        }
-
-        if (targetTypeTag == TypeTags.FINITE_TYPE_TAG) {
-            for (Object value : ((BFiniteType) targetType).valueSpace) {
-                if (!isSameType(getType(value), sourceType)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
+        return sourceType == targetType || sourceType.equals(targetType);
     }
 
     public static Type getType(Object value) {
@@ -2101,17 +2046,6 @@ public class TypeChecker {
         return !((RefValue) value).isFrozen();
     }
 
-    private static boolean checkArrayEquivalent(Type actualType, Type expType) {
-        if (expType.getTag() == TypeTags.ARRAY_TAG && actualType.getTag() == TypeTags.ARRAY_TAG) {
-            // Both types are array types
-            BArrayType lhrArrayType = (BArrayType) expType;
-            BArrayType rhsArrayType = (BArrayType) actualType;
-            return checkIsArrayType(rhsArrayType, lhrArrayType, new ArrayList<>());
-        }
-        // Now one or both types are not array types and they have to be equal
-        return expType == actualType;
-    }
-
     private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type) {
         Set<String> visitedTypeSet = new HashSet<>();
         return checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(type, visitedTypeSet);
@@ -3474,8 +3408,32 @@ public class TypeChecker {
         if (isSameType(sourceType, targetType)) {
             return true;
         }
+
         int sourceTag = sourceType.getTag();
         int targetTag = targetType.getTag();
+        if (sourceTag == TypeTags.FINITE_TYPE_TAG && targetTag == TypeTags.FINITE_TYPE_TAG) {
+            Set<Object> firstTypeValueSpace = ((BFiniteType) sourceType).valueSpace;
+            Set<Object> secondTypeValueSpace = ((BFiniteType) targetType).valueSpace;
+            Type firstTypeValueSpaceFirstObjectType = getType(firstTypeValueSpace.iterator().next());
+            Type secondTypeValueSpaceFirstObjectType = getType(secondTypeValueSpace.iterator().next());
+            for (Object value : firstTypeValueSpace) {
+                if (!isSameType(secondTypeValueSpaceFirstObjectType, getType(value))) {
+                    return false;
+                }
+            }
+            for (Object value : secondTypeValueSpace) {
+                if (!isSameType(firstTypeValueSpaceFirstObjectType, getType(value))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        if (sourceTag == TypeTags.FINITE_TYPE_TAG) {
+            return checkAllValueSpaceItemsAreGivenType(((BFiniteType) sourceType).valueSpace, targetType);
+        }
+        if (targetTag == TypeTags.FINITE_TYPE_TAG) {
+            return checkAllValueSpaceItemsAreGivenType(((BFiniteType) targetType).valueSpace, sourceType);
+        }
         if (TypeTags.isStringTypeTag(sourceTag) && TypeTags.isStringTypeTag(targetTag)) {
             return true;
         }
@@ -3483,6 +3441,15 @@ public class TypeChecker {
             return true;
         }
         return isIntegerSubTypeTag(sourceTag) && isIntegerSubTypeTag(targetTag);
+    }
+
+    private static boolean checkAllValueSpaceItemsAreGivenType(Set<Object> valueSpace, Type givenType) {
+        for (Object value : valueSpace) {
+            if (!isSameType(givenType, getType(value))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean isIntegerSubTypeTag(int typeTag) {
@@ -3592,15 +3559,6 @@ public class TypeChecker {
             }
         }
         return false;
-    }
-
-    private static boolean containsType(Set<Object> valueSpace, Type type) {
-        for (Object value : valueSpace) {
-            if (!isSameType(type, getType(value))) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public static Object handleAnydataValues(Object sourceVal, Type targetType) {
