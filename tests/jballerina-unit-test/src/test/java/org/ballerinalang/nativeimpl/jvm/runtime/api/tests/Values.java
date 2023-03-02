@@ -461,4 +461,9 @@ public class Values {
         BString annotKey = StringUtils.fromString("testorg/types.typeref:1:String");
         return TypeChecker.checkIsType(((BMap) annotation).get(annotKey), constraint.getDescribingType());
     }
+
+    public static BString getParameterName(BFunctionPointer fpValue) {
+        Parameter parameter = ((BFunctionType)fpValue.getType()).getParameters()[0];
+        return StringUtils.fromString(parameter.name);
+    }
 }

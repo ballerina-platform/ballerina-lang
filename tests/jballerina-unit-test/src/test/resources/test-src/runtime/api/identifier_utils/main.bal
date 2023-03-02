@@ -21,6 +21,11 @@ public function main() {
     testIdentifierDecoding();
     testEscapeSpecialCharacters();
     testUnescapeSpecialCharacters();
+    testFunctionParameters();
+}
+
+function testFunctionParameters() {
+    test:assertEquals(getParameterName(function (string account\-id){}), "account-id");
 }
 
 function testIdentifierDecoding() {
@@ -59,5 +64,9 @@ function escapeSpecialCharacters(string s) returns string = @java:Method {
 } external;
 
 function unescapeSpecialCharacters(string s) returns string = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+function getParameterName(function f) returns string = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
