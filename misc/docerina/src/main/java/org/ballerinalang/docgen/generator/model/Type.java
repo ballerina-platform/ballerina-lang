@@ -401,7 +401,16 @@ public class Type {
                         methodSymbol.documentation().get().description().get() : null;
                 functionType.category = "included_function";
                 functionType.isIsolated = methodSymbol.qualifiers().contains(Qualifier.ISOLATED);
-                functionType.isRemote = methodSymbol.qualifiers().contains(Qualifier.REMOTE);
+                FunctionKind functionKind;
+                if (methodSymbol.qualifiers().contains(Qualifier.REMOTE)) {
+                    functionKind = FunctionKind.REMOTE;
+                } else if (methodSymbol.qualifiers().contains(Qualifier.RESOURCE)) {
+                    functionKind = FunctionKind.RESOURCE;
+                } else {
+                    functionKind = FunctionKind.OTHER;
+                }
+                functionType.functionKind = functionKind;
+
                 functionType.isExtern = methodSymbol.external();
                 methodSymbol.typeDescriptor().params().ifPresent(parameterSymbols -> {
                     parameterSymbols.forEach(parameterSymbol -> {
