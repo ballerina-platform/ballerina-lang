@@ -105,7 +105,7 @@ public class RunCommand implements BLauncherCmd {
     private static final String runCmd =
             "bal run [--debug <port>] <executable-jar> \n" +
             "    bal run [--offline]\n" +
-            "                  [<ballerina-file | package-path>] [-- (-Ckey=value)...]\n ";
+            "                  [<ballerina-file | package-path>] [-- program-args...]\n ";
 
     public RunCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
