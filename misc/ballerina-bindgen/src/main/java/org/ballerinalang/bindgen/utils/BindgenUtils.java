@@ -187,8 +187,34 @@ public class BindgenUtils {
             return getPrimitiveArrayBalType(javaType.getComponentType().getSimpleName());
         } else {
             String returnType = getBalType(bindgenEnv, getAlias(javaType, bindgenEnv.getAliases()));
+            if (!returnType.equals(HANDLE)) {
+                return returnType;
+            }
+
+            String objectType = getAlias(javaType, bindgenEnv.getAliases());
+            if (javaType.isArray() && (bindgenEnv.isOptionalTypes() || bindgenEnv.isOptionalParamTypes())) {
+                // if optional parameter types generation is enabled: Foo[] -> Foo?[]?
+                return objectType.replace("[]", "?[]") + "?";
+            } else if (bindgenEnv.isOptionalTypes() || bindgenEnv.isOptionalParamTypes()) {
+                // if optional parameter types generation is enabled: Foo -> Foo?
+                return objectType + "?";
+            } else {
+                return objectType;
+            }
+        }
+    }
+
+    public static String getBallerinaReturnType(Class<?> javaType, BindgenEnv bindgenEnv) {
+        if (javaType.isArray() && javaType.getComponentType().isPrimitive()) {
+            return getPrimitiveArrayBalType(javaType.getComponentType().getSimpleName());
+        } else {
+            String returnType = getBalType(bindgenEnv, getAlias(javaType, bindgenEnv.getAliases()));
             if (returnType.equals(HANDLE)) {
-                return getAlias(javaType, bindgenEnv.getAliases());
+                String objectType = getAlias(javaType, bindgenEnv.getAliases());
+                if (bindgenEnv.isOptionalTypes() || bindgenEnv.isOptionalReturnTypes()) {
+                    return objectType + "?";
+                }
+                return objectType;
             }
             return returnType;
         }

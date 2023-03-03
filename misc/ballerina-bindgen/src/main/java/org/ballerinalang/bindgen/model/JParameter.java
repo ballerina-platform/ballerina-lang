@@ -79,18 +79,21 @@ public class JParameter {
         if (!parameterClass.isPrimitive()) {
             isObj = true;
         }
+
+        if (env.isOptionalTypes() || env.isOptionalParamTypes()) {
+            isOptional = true;
+        }
+
         if (parameterClass.equals(String.class)) {
             isString = true;
-            if (env.isOptionalTypes() || env.isOptionalParamTypes()) {
-                isOptional = true;
+            if (isOptional) {
                 shortTypeName = BALLERINA_NILLABLE_STRING;
             } else {
                 shortTypeName = BALLERINA_STRING;
             }
         } else if (parameterClass.equals(String[].class)) {
             isStringArray = true;
-            if (env.isOptionalTypes() || env.isOptionalParamTypes()) {
-                isOptional = true;
+            if (isOptional) {
                 shortTypeName = BALLERINA_NILLABLE_STRING_ARRAY;
             } else {
                 shortTypeName = BALLERINA_STRING_ARRAY;
@@ -126,6 +129,9 @@ public class JParameter {
     private void setArrayAttributes(Class parameterClass) {
         Class component = parameterClass.getComponentType();
         componentType = component.getTypeName();
+        if (isOptional) {
+            componentType = componentType + "?";
+        }
         if (!parameterClass.getComponentType().isPrimitive()) {
             isObjArray = true;
             isObj = false;
