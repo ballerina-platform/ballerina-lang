@@ -70,6 +70,8 @@ function test() {
     'xml:Element xm2 = xml `<Greeting>Hola</Greeting>`;
 
     int[] & readonly iarr = [1, 2];
+    
+    object { string target; } & readonly readonlyObjIntersec = object { string target = "t1" };
 
     T1 t1 = 2;
 

@@ -285,6 +285,9 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                         .get();
                 visibleEntries.addAll(new ArrayList<>(((RecordTypeSymbol) recordType).fieldDescriptors().values()));
                 break;
+            case TYPE_REFERENCE:
+                visibleEntries = getVisibleEntries(rawType, node);
+                break;
             default:
                 break;
         }

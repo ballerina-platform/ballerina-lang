@@ -20,8 +20,8 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.ballerinalang.testerina.test.utils.FileUtils;
-import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -45,27 +45,24 @@ public class RerunFailedTest extends BaseTestCase {
     }
 
     @Test
-    public void testFullTest() throws BallerinaTestException {
+    public void testFullTest() throws BallerinaTestException, IOException {
         String msg1 = "2 passing";
         String msg2 = "2 failing";
         String[] args = mergeCoverageArgs(new String[]{"rerun-failed-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2)) {
-            Assert.fail("Test failed due to running test suite with failed tests failure.");
-        }
+        AssertionUtils.assertOutput("RerunFailedTest-testFullTest.txt", output);
     }
 
     @Test (dependsOnMethods = "testFullTest")
-    public void testRerunFailedTest() throws BallerinaTestException {
+    public void testRerunFailedTest() throws BallerinaTestException, IOException {
         String msg1 = "0 passing";
         String msg2 = "2 failing";
         String[] args = mergeCoverageArgs(new String[]{"--rerun-failed", "rerun-failed-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2)) {
-            Assert.fail("Test failed due to rerun failed tests failure.");
-        }
+        AssertionUtils.assertOutput("RerunFailedTest-testRerunFailedTest.txt", output);
+
     }
 
     @AfterMethod

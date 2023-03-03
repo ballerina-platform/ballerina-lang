@@ -1,0 +1,20 @@
+Code coverage is not yet supported with single bal files. Ignoring the flag and continuing the test run...
+warning: ignoring --includes flag since code coverage is not enabled
+Compiling source
+	invalid-data-provider-test3.bal
+
+Running Tests
+
+	invalid-data-provider-test3.bal
+
+		[fail] testInvalidTupleDataProvider:
+
+		    [fail data provider for the function testInvalidTupleDataProvider]
+			arguments of incompatible types: argument list '(string,int)' cannot be passed to function expecting parameter list '(string,string)'
+			
+
+
+		0 passing
+		1 failing
+		0 skipped
+error: there are test failures
