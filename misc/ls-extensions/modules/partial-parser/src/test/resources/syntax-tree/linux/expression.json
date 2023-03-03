@@ -69,13 +69,7 @@
           "endColumn": 13
         },
         "leadingMinutiae": [],
-        "trailingMinutiae": [
-          {
-            "kind": "WHITESPACE_MINUTIAE",
-            "minutiae": " ",
-            "isInvalid": false
-          }
-        ]
+        "trailingMinutiae": []
       },
       "rhsExpr": {
         "kind": "SimpleNameReference",
@@ -86,9 +80,9 @@
           "isMissing": false,
           "position": {
             "startLine": 0,
-            "startColumn": 14,
+            "startColumn": 13,
             "endLine": 0,
-            "endColumn": 25
+            "endColumn": 24
           },
           "leadingMinutiae": [],
           "trailingMinutiae": []
@@ -99,13 +93,13 @@
         "trailingMinutiae": [],
         "position": {
           "startLine": 0,
-          "startColumn": 14,
+          "startColumn": 13,
           "endLine": 0,
-          "endColumn": 25
+          "endColumn": 24
         },
         "typeData": {}
       },
-      "source": "population - infantCount",
+      "source": "population -infantCount",
       "syntaxDiagnostics": [],
       "leadingMinutiae": [],
       "trailingMinutiae": [],
@@ -113,7 +107,7 @@
         "startLine": 0,
         "startColumn": 1,
         "endLine": 0,
-        "endColumn": 25
+        "endColumn": 24
       },
       "typeData": {}
     },
@@ -124,9 +118,9 @@
       "isMissing": false,
       "position": {
         "startLine": 0,
-        "startColumn": 25,
+        "startColumn": 24,
         "endLine": 0,
-        "endColumn": 26
+        "endColumn": 25
       },
       "leadingMinutiae": [],
       "trailingMinutiae": [
@@ -137,7 +131,7 @@
         }
       ]
     },
-    "source": "(population - infantCount) ",
+    "source": "(population -infantCount) ",
     "syntaxDiagnostics": [],
     "leadingMinutiae": [],
     "trailingMinutiae": [
@@ -151,7 +145,7 @@
       "startLine": 0,
       "startColumn": 0,
       "endLine": 0,
-      "endColumn": 26
+      "endColumn": 25
     },
     "typeData": {}
   },
@@ -162,9 +156,9 @@
     "isMissing": false,
     "position": {
       "startLine": 0,
-      "startColumn": 27,
+      "startColumn": 26,
       "endLine": 0,
-      "endColumn": 28
+      "endColumn": 27
     },
     "leadingMinutiae": [],
     "trailingMinutiae": [
@@ -184,9 +178,9 @@
       "isMissing": false,
       "position": {
         "startLine": 0,
-        "startColumn": 29,
+        "startColumn": 28,
         "endLine": 0,
-        "endColumn": 31
+        "endColumn": 30
       },
       "leadingMinutiae": [],
       "trailingMinutiae": [
@@ -194,10 +188,15 @@
           "kind": "INVALID_NODE_MINUTIAE",
           "minutiae": ";",
           "isInvalid": true
+        },
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "minutiae": "\n",
+          "isInvalid": false
         }
       ]
     },
-    "source": "20;",
+    "source": "20;\n",
     "syntaxDiagnostics": [
       {
         "message": "invalid token '{0}'",
@@ -213,17 +212,22 @@
         "kind": "INVALID_NODE_MINUTIAE",
         "minutiae": ";",
         "isInvalid": true
+      },
+      {
+        "kind": "END_OF_LINE_MINUTIAE",
+        "minutiae": "\n",
+        "isInvalid": false
       }
     ],
     "position": {
       "startLine": 0,
-      "startColumn": 29,
+      "startColumn": 28,
       "endLine": 0,
-      "endColumn": 31
+      "endColumn": 30
     },
     "typeData": {}
   },
-  "source": "(population - infantCount) * 20;",
+  "source": "(population -infantCount) * 20;\n",
   "kind": "BinaryExpression",
   "syntaxDiagnostics": [
     {
@@ -240,13 +244,18 @@
       "kind": "INVALID_NODE_MINUTIAE",
       "minutiae": ";",
       "isInvalid": true
+    },
+    {
+      "kind": "END_OF_LINE_MINUTIAE",
+      "minutiae": "\n",
+      "isInvalid": false
     }
   ],
   "position": {
     "startLine": 0,
     "startColumn": 0,
     "endLine": 0,
-    "endColumn": 31
+    "endColumn": 30
   },
   "typeData": {}
 }
