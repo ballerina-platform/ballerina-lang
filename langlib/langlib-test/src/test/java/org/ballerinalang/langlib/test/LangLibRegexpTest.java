@@ -72,6 +72,7 @@ public class LangLibRegexpTest {
                 "testSplit",
                 "testEmptyRegexpFind",
                 "testRegexpFromString",
+                "testEmptyRegexpMatch",
         };
     }
 
@@ -141,6 +142,8 @@ public class LangLibRegexpTest {
                 {"testInvalidRegexpPatternSyntax1"},
                 {"testInvalidRegexpPatternSyntax2"},
                 {"testInvalidRegexpPatternSyntax3"},
+                {"testInvalidRegexpPatternSyntax4"},
+                {"testInvalidRegexpPatternSyntax5"},
         };
     }
 }

@@ -21,12 +21,10 @@ package org.ballerinalang.langlib.regexp;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.regex.Matcher;
-import java.util.regex.PatternSyntaxException;
+
+import static org.ballerinalang.langlib.regexp.RegexUtil.isEmptyRegexp;
 
 /**
  * Native implementation of lang.regexp:matches(string).
@@ -35,8 +33,7 @@ import java.util.regex.PatternSyntaxException;
  */
 public class Matches {
     public static BArray matchAt(BRegexpValue regExp, BString str, int startIndex) {
-        int length = str.length();
-        if (length == 0 || regExp == null) {
+        if (isEmptyRegexp(regExp)) {
             return null;
         }
 
@@ -49,8 +46,7 @@ public class Matches {
     }
 
     public static BArray matchGroupsAt(BRegexpValue regExp, BString str, int startIndex) {
-        int length = str.length();
-        if (length == 0 || regExp == null) {
+        if (isEmptyRegexp(regExp)) {
             return null;
         }
 
@@ -67,7 +63,7 @@ public class Matches {
     }
 
     public static boolean isFullMatch(BRegexpValue regExp, BString str) {
-        if (str.length() == 0 || regExp == null) {
+        if (isEmptyRegexp(regExp)) {
             return false;
         }
 
@@ -76,11 +72,6 @@ public class Matches {
     }
 
     private static Matcher getMatcher(BRegexpValue regExp, BString str) {
-        try {
-            return RegexUtil.getMatcher(regExp, str);
-        } catch (PatternSyntaxException e) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
-                    RuntimeErrors.REGEXP_INVALID_PATTERN);
-        }
+        return RegexUtil.getMatcher(regExp, str);
     }
 }

@@ -1062,33 +1062,69 @@ function testLangLibFuncWithNamedArgExpr() {
 
 function testEmptyRegexpFind() {
     // find
-    regexp:Span? res1 = regexp:find(re = re ``, str = "HelloWorld");
-    assertTrue(res1 is null);
-    regexp:Span? res2 = regexp:find(re = re `World`, str = "");
-    assertTrue(res2 is null);
-    regexp:Span? res3 = regexp:find(re = re ``, str = "");
-    assertTrue(res3 is null);
+    regexp:Span? resA1 = regexp:find(re = re ``, str = "HelloWorld");
+    assertTrue(resA1 is null);
+    regexp:Span? resA2 = regexp:find(re = re `World`, str = "");
+    assertTrue(resA2 is null);
+    regexp:Span? resA3 = regexp:find(re = re ``, str = "");
+    assertTrue(resA3 is null);
+    regexp:Span? resA4 = regexp:find(re = re `${""}`, str = "");
+    assertTrue(resA4 is null);
+    regexp:Span? resA5 = regexp:find(re = re `${""}`, str = "HelloWorld");
+    assertTrue(resA5 is null);
+    string regexStrA = "";
+    regexp:Span? resA6 = regexp:find(re = re `${regexStrA}`, str = "HelloWorld");
+    assertTrue(resA6 is null);
+    regexp:Span? resA7 = regexp:find(re = re `${regexStrA}`, str = "");
+    assertTrue(resA7 is null);
+    regexp:Span? resA8 = regexp:find(re = re `(.*)`, str = "");
+    assertTrue(resA8 is regexp:Span);
+
     // find all
-    regexp:Span[] res4 = regexp:findAll(re ``, "There once was a king who liked to sing");
-    assertEquality(0, res4.length());
-    regexp:Span[] res5 = regexp:findAll(re `(\w+ing)`, "");
-    assertEquality(0, res5.length());
-    regexp:Span[] res6 = regexp:findAll(re ``, "");
-    assertEquality(0, res6.length());
-    // find groups
-    regexp:Groups? res7 = regexp:findGroups(re ``, "Butter was bought by Betty but the butter was bitter");
-    assertTrue(res7 is null);
-    regexp:Groups? res8 = regexp:findGroups(re `(\w+tt\w+)`, "");
-    assertTrue(res8 is null);
-    regexp:Groups? res9 = regexp:findGroups(re ``, "");
-    assertTrue(res9 is null);
-    // find all groups
-    regexp:Groups[] res10 = regexp:findAllGroups(re ``, "rubble, trouble, bubble, hubble");
-    assertEquality(0, res10.length());
-    regexp:Groups[] res11 = regexp:findAllGroups(re `(\w+ble)`, "");
-    assertEquality(0, res11.length());
-    regexp:Groups[] res12 = regexp:findAllGroups(re ``, "");
-    assertEquality(0, res12.length());
+    regexp:Span[] resB1 = regexp:findAll(re ``, "There once was a king who liked to sing");
+    assertEquality(0, resB1.length());
+    regexp:Span[] resB2 = regexp:findAll(re `(\w+ing)`, "");
+    assertEquality(0, resB2.length());
+    regexp:Span[] resB3 = regexp:findAll(re ``, "");
+    assertEquality(0, resB3.length());
+    regexp:Span[] resB4 = regexp:findAll(re `${""}`, "");
+    assertEquality(0, resB4.length());
+    regexp:Span[] resB5 = regexp:findAll(re `${""}`, "There once was a king who liked to sing");
+    assertEquality(0, resB5.length());
+
+   //  // find groups
+    regexp:Groups? resC1 = regexp:findGroups(re ``, "Butter was bought by Betty but the butter was bitter");
+    assertTrue(resC1 is null);
+    regexp:Groups? resC2 = regexp:findGroups(re `(\w+tt\w+)`, "");
+    assertTrue(resC2 is null);
+    regexp:Groups? resC3 = regexp:findGroups(re ``, "");
+    assertTrue(resC3 is null);
+    regexp:Groups? resC4 = regexp:findGroups(re `${""}`, "");
+    assertTrue(resC4 is null);
+
+   //  // find all groups
+    regexp:Groups[] resD1 = regexp:findAllGroups(re ``, "rubble, trouble, bubble, hubble");
+    assertEquality(0, resD1.length());
+    regexp:Groups[] resD2 = regexp:findAllGroups(re `(\w+ble)`, "");
+    assertEquality(0, resD2.length());
+    regexp:Groups[] resD3 = regexp:findAllGroups(re ``, "");
+    assertEquality(0, resD3.length());
+    regexp:Groups[] resD4 = regexp:findAllGroups(re `${""}`, "");
+    assertEquality(0, resD4.length());
+}
+
+function testEmptyRegexpMatch() {
+    // matchAt
+    regexp:Span? resA1 = regexp:matchAt(re = re ``, str = "HelloWorld");
+    assertTrue(resA1 is null);
+    regexp:Span? resA2 = regexp:matchAt(re = re ``, str = "HelloWorld", startIndex = 4);
+    assertTrue(resA2 is null);
+    string regexStrA = "";
+    regexp:Span? resA3 = regexp:matchAt(re = re `${regexStrA}`, str = "HelloWorld");
+    assertTrue(resA3 is null);
+    regexp:Span? resA4 = regexp:matchAt(re = re `${regexStrA}`, str = "HelloWorld", startIndex = 4);
+    assertTrue(resA4 is null);
+
 }
 
 public function testRegexpFromString() returns error? {
