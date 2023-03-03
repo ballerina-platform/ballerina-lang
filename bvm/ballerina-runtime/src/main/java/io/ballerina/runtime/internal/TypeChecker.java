@@ -3408,21 +3408,8 @@ public class TypeChecker {
         if (isSameType(sourceType, targetType)) {
             return true;
         }
-
         int sourceTag = sourceType.getTag();
         int targetTag = targetType.getTag();
-        if (sourceTag == TypeTags.FINITE_TYPE_TAG && targetTag == TypeTags.FINITE_TYPE_TAG) {
-            Iterator<Object> iterator = ((BFiniteType) sourceType).valueSpace.iterator();
-            Type firstObjectType = getType(iterator.next());
-            return areSameTypeObjects(iterator, firstObjectType)
-                    && areSameTypeObjects(((BFiniteType) targetType).valueSpace.iterator(), firstObjectType);
-        }
-        if (sourceTag == TypeTags.FINITE_TYPE_TAG) {
-            return checkAllValueSpaceItemsAreGivenType(((BFiniteType) sourceType).valueSpace, targetType);
-        }
-        if (targetTag == TypeTags.FINITE_TYPE_TAG) {
-            return checkAllValueSpaceItemsAreGivenType(((BFiniteType) targetType).valueSpace, sourceType);
-        }
         if (TypeTags.isStringTypeTag(sourceTag) && TypeTags.isStringTypeTag(targetTag)) {
             return true;
         }
@@ -3430,24 +3417,6 @@ public class TypeChecker {
             return true;
         }
         return isIntegerSubTypeTag(sourceTag) && isIntegerSubTypeTag(targetTag);
-    }
-
-    private static boolean areSameTypeObjects(Iterator<Object> iterator, Type targetType) {
-        while (iterator.hasNext()) {
-            if (!isSameType(targetType, getType(iterator.next()))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static boolean checkAllValueSpaceItemsAreGivenType(Set<Object> valueSpace, Type givenType) {
-        for (Object value : valueSpace) {
-            if (!isSameType(givenType, getType(value))) {
-                return false;
-            }
-        }
-        return true;
     }
 
     private static boolean isIntegerSubTypeTag(int typeTag) {
