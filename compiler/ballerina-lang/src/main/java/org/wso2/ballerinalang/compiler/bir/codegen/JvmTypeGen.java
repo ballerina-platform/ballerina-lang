@@ -978,7 +978,7 @@ public class JvmTypeGen {
             } else {
                 mv.visitInsn(ICONST_0);
             }
-            BInvokableSymbol bInvokableSymbol = invokableSymbol.defaultValues.get(paramSymbol.name.value);
+            BInvokableSymbol bInvokableSymbol = invokableSymbol.defaultValues.get(paramSymbol.originalName.value);
             if (bInvokableSymbol == null) {
                 mv.visitInsn(ACONST_NULL);
             } else {
