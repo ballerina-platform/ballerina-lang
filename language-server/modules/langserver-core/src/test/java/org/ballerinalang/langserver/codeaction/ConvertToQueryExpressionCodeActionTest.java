@@ -44,9 +44,24 @@ public class ConvertToQueryExpressionCodeActionTest extends AbstractCodeActionTe
                 {"convert_to_query_expr_lhs_non_record1.json"},
                 {"convert_to_query_expr_lhs_record_field1.json"},
                 {"convert_to_query_expr_lhs_record_field2.json"},
+                {"convert_to_query_expr_lhs_record_field3.json"},
                 {"convert_to_query_expr_lhs_class_field1.json"},
                 {"convert_to_query_expr_lhs_class_field2.json"},
                 {"convert_to_query_expr_lhs_record_field_incompatible_types1.json"}
+                
+        };
+    }
+
+    @Override
+    @Test(dataProvider = "negativeDataProvider")
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
+    }
+
+    @DataProvider
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"convert_to_query_expression_negative1.json"}
         };
     }
 

@@ -163,11 +163,11 @@ public abstract class AbstractArrayValue implements ArrayValue {
     }
 
     protected void initializeIteratorNextReturnType() {
-        Type type;
-        if (getType().getTag() == TypeTags.ARRAY_TAG) {
-            type = TypeUtils.getReferredType(getElementType());
+        Type type = TypeUtils.getReferredType(getType());
+        if (type.getTag() == TypeTags.ARRAY_TAG) {
+            type = getElementType();
         } else {
-            BTupleType tupleType = (BTupleType) getType();
+            BTupleType tupleType = (BTupleType) type;
             LinkedHashSet<Type> types = new LinkedHashSet<>(tupleType.getTupleTypes());
             if (tupleType.getRestType() != null) {
                 types.add(tupleType.getRestType());

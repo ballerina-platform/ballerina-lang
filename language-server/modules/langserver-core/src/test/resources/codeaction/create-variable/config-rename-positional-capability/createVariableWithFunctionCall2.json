@@ -1,0 +1,102 @@
+{
+  "position": {
+    "line": 11,
+    "character": 7
+  },
+  "source": "createVariableWithFunctionCall2.bal",
+  "expected": [
+    {
+      "title": "Create variable with 'record {|int a;|}'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 4
+            }
+          },
+          "newText": "record {|int a;|} rec = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariableWithFunctionCall2.bal",
+          {
+            "line": 11,
+            "character": 22
+          }
+        ]
+      },
+      "resolvable": false
+    },
+    {
+      "title": "Create variable with 'json'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 4
+            }
+          },
+          "newText": "json rec = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariableWithFunctionCall2.bal",
+          {
+            "line": 11,
+            "character": 9
+          }
+        ]
+      },
+      "resolvable": false
+    },
+    {
+      "title": "Create variable with 'map<int>'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 4
+            }
+          },
+          "newText": "map<int> rec = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariableWithFunctionCall2.bal",
+          {
+            "line": 11,
+            "character": 13
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

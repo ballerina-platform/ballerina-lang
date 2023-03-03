@@ -190,11 +190,6 @@ public enum ParserRuleContext {
     ATTACH_POINT_IDENT("attach-point-ident"),
     SINGLE_KEYWORD_ATTACH_POINT_IDENT("single-keyword-attach-point-ident"),
     IDENT_AFTER_OBJECT_IDENT("ident-after-object-ident"),
-    CLIENT_DECLARATION("client-decl"),
-    CLIENT_DECL_PREFIX("client-decl-prefix"),
-    CLIENT_DECL_OR_CLIENT_OBJECT_VAR_DECL("client-decl-or-client-object-var-decl"),
-    OBJECT_KEYWORD_AFTER_CLIENT_KEYWORD("object-keyword-after-client-keyword"),
-    STRING_LITERAL_TOKEN_AFTER_CLIENT_KEYWORD("object-keyword-after-client-keyword"),
     XML_NAMESPACE_DECLARATION("xml-namespace-decl"),
     XML_NAMESPACE_PREFIX_DECL("namespace-prefix-decl"),
     DEFAULT_WORKER_INIT("default-worker-init"),
@@ -735,6 +730,8 @@ public enum ParserRuleContext {
     ASSIGNMENT_STMT_RHS("assignment-stmt-rhs"),
     ANNOTATION_DECL_START("annotation-declaration-start"),
     OPTIONAL_TOP_LEVEL_SEMICOLON("optional-top-level-semicolon"),
+    TUPLE_MEMBERS("tuple-members"),
+    TUPLE_MEMBER("tuple-member"),
     ;
 
     private String value;

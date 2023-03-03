@@ -89,14 +89,14 @@ public class CreateTypeCodeAction implements DiagnosticBasedCodeActionProvider {
         // This is to be aligned with the open-by-default principle where we become conservative 
         // on what we send (return)
         StringBuilder sb = new StringBuilder();
-        sb.append("type ").append(name.get().getValue())
+        sb.append("type ").append(name.get())
                 .append(" record {").append(isReturnType ? "|" : "")
                 .append(CommonUtil.LINE_SEPARATOR);
         sb.append(paddingStr).append(CommonUtil.LINE_SEPARATOR);
         sb.append(isReturnType ? "|" : "").append("};").append(CommonUtil.LINE_SEPARATOR);
         sb.append(CommonUtil.LINE_SEPARATOR);
 
-        String title = String.format("Create record '%s'", name.get().getValue());
+        String title = String.format("Create record '%s'", name.get());
         CodeAction codeAction = CodeActionUtil.createCodeAction(title, List.of(new TextEdit(range, sb.toString())),
                 context.fileUri(), CodeActionKind.QuickFix);
         return List.of(codeAction);

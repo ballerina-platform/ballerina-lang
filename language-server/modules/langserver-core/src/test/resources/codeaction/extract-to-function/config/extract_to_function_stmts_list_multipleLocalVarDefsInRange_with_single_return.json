@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() returns int {\n    int a \u003d 10;\n    a \u003d a + 1;\n    int b \u003d 20;\n    a \u003d a + b;\n    return a;\n}"
+          "newText": "\n\nfunction extracted() returns int {\n    int a = 10;\n    a = a + 1;\n    int b = 20;\n    a = a + b;\n    return a;\n}"
         },
         {
           "range": {
@@ -39,9 +39,21 @@
               "character": 14
             }
           },
-          "newText": "int a \u003d extracted();"
+          "newText": "int a = extracted();"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_stmts_list_multipleLocalVarDefsInRange_with_single_return.bal",
+          {
+            "line": 1,
+            "character": 4
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

@@ -57,7 +57,6 @@ public enum NodeKind {
     TABLE_KEY_TYPE_CONSTRAINT,
     RETRY_SPEC,
     CLASS_DEFN,
-    CLIENT_DECL,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,
@@ -259,6 +258,11 @@ public enum NodeKind {
     TABLE_TYPE,
 
     /* Internal */
-    NODE_ENTRY
+    NODE_ENTRY,
 
+    /* Other */
+    RESOURCE_PATH_IDENTIFIER_SEGMENT,
+    RESOURCE_PATH_PARAM_SEGMENT,
+    RESOURCE_PATH_REST_PARAM_SEGMENT,
+    RESOURCE_ROOT_PATH_SEGMENT
 }

@@ -286,12 +286,13 @@ public class TypeConverter {
             return "string";
         } else {
             switch (type.tag) {
-                case BYTE:
                 case FLOAT:
                 case DECIMAL:
                     return "number";
                 case BOOLEAN:
                     return "boolean";
+                case BYTE:
+                    return "integer";
                 default:
                     return "";
             }

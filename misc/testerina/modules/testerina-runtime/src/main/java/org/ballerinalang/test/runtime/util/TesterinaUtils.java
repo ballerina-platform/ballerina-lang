@@ -46,6 +46,7 @@ import java.util.regex.Pattern;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
 import static io.ballerina.runtime.internal.launch.LaunchUtils.startTrapSignalHandler;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
@@ -131,10 +132,14 @@ public class TesterinaUtils {
         } catch (Throwable e) {
             throw new BallerinaTestException("failed to load configuration class :" + configClassName);
         }
+        String suiteExecuteFilePath = suite.getExecuteFilePath();
+        if (suite.getOrgName().equals(ANON_ORG) && suite.getTestPackageID().equals(DOT)) {
+            suiteExecuteFilePath = suiteExecuteFilePath.replace(DOT, FILE_NAME_PERIOD_SEPARATOR);
+        }
         String testExecuteClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
                 suite.getTestPackageID(),
                 suite.getVersion(),
-                suite.getExecuteFilePath());
+                suiteExecuteFilePath);
         Class<?> testExecuteClazz;
         try {
             testExecuteClazz = classLoader.loadClass(testExecuteClassName);
@@ -199,8 +204,12 @@ public class TesterinaUtils {
     private static void stopSuite(Scheduler scheduler, Class<?> initClazz) {
         TesterinaFunction stop = new TesterinaFunction(initClazz, STOP_FUNCTION_NAME, scheduler);
         stop.setName("$moduleStop");
-        stop.directInvoke(new Class<?>[]{RuntimeRegistry.class},
+        Object response = stop.directInvoke(new Class<?>[]{RuntimeRegistry.class},
                 new Object[]{scheduler.getRuntimeRegistry()});
+        if (response instanceof Throwable) {
+            throw new BallerinaTestException("dependant module stop for test suite failed due to " +
+                    formatErrorMessage((Throwable) response), (Throwable) response);
+        }
     }
 
     private static String formatErrorMessage(Throwable e) {

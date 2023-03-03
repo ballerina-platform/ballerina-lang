@@ -175,19 +175,18 @@ function testMultipleJoinClausesWithInnerQueries3() returns boolean {
 
     DeptPerson[] deptPersonList = [];
 
-    error? x =
-        from var emp in (stream from var e in empList select e)
-        join Person psn in (table key() from var p in personList select p)
-            on emp.personId equals psn.id
-        join Department dept in (from var d in deptList
-                let string deptName = "Engineering"
-                where d.name == deptName
-                select d)
-            on emp.deptId equals dept.id
-        do {
-            DeptPerson dp = {fname : psn.fname, lname : psn.lname, dept : dept.name};
-            deptPersonList[deptPersonList.length()] = dp;
-        };
+    from var emp in (stream from var e in empList select e)
+    join Person psn in (table key() from var p in personList select p)
+        on emp.personId equals psn.id
+    join Department dept in (from var d in deptList
+            let string deptName = "Engineering"
+            where d.name == deptName
+            select d)
+        on emp.deptId equals dept.id
+    do {
+        DeptPerson dp = {fname : psn.fname, lname : psn.lname, dept : dept.name};
+        deptPersonList[deptPersonList.length()] = dp;
+    };
 
     boolean testPassed = true;
     DeptPerson dp;
@@ -341,16 +340,16 @@ function testQueryExpWithinSelectClause2() {
 
 function testQueryExpWithinQueryAction() returns error? {
     int[][] data = [[2, 3, 4]];
-    check from int[] arr in data
-        do {
-            function () returns int[] func = function() returns int[] {
-                int[] evenNumbers = from int i in arr
-                    where i % 2 == 0
-                    select i;
-                return evenNumbers;
-            };
-            int[] expected = [2, 4];
-            assertEquality(expected, func());
+    from int[] arr in data
+    do {
+        function () returns int[] func = function() returns int[] {
+            int[] evenNumbers = from int i in arr
+                where i % 2 == 0
+                select i;
+            return evenNumbers;
+        };
+        int[] expected = [2, 4];
+        assertEquality(expected, func());
     };
 }
 
@@ -684,6 +683,32 @@ function testQueryAsFuncArgument() {
 
 function fooFunc(string[] s) returns string[] {
     return s;
+}
+
+function testInnerQueryExprWithLangLibCallsWithArrowFunctions() {
+    int[] idList = [4, 5];
+
+    int[] v1 = from var i in (from int id in idList
+            where personList.some(person => person.id == id)
+            select id)
+        where [40, 50].some(k => k == i * 10)
+        select i + 10;
+    assertEquality(true, v1 == [14]);
+
+    boolean[] v2 = from Person[] personList in (from int id in [4]
+            let string name = personList.filter(person => person.id == id).pop().fname
+            select personList.filter(person => person.fname == name))
+        select personList.some(person => person.lname == "Crowley");
+    assertEquality(true, v2 == [true]);
+
+    boolean[] v3 = from var i in (from int id in idList
+            where personList.some(person => person.id == id)
+            select id)
+        from Person[] personList in (from int k in [40]
+            let string name = personList.filter(person => person.id == k/10).pop().fname
+            select personList.filter(person => person.fname == name))
+        select personList.some(person => person.lname == "Crowley");
+    assertEquality(true, v3 == [true]);
 }
 
 function assertEquality(any|error expected, any|error actual) {

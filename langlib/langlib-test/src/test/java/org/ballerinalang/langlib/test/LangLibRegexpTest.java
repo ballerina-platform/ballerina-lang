@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.test;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -33,16 +34,18 @@ import org.testng.annotations.Test;
  */
 public class LangLibRegexpTest {
 
-    private CompileResult compileResult;
+    private CompileResult compileResult, negativeTests;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/regexp_test.bal");
+        negativeTests = BCompileUtil.compile("test-src/regexp_negative_test.bal");
     }
 
     @AfterClass
     public void tearDown() {
         compileResult = null;
+        negativeTests = null;
     }
 
     @Test(dataProvider = "testRegexLangLibFunctionList")
@@ -65,7 +68,61 @@ public class LangLibRegexpTest {
                 "testFindAllGroups",
                 "testFromString",
                 "testFromStringNegative",
-                "testLangLibFuncWithNamedArgExpr"
+                "testLangLibFuncWithNamedArgExpr",
+                "testSplit"
+        };
+    }
+
+    @Test(dataProvider = "negativeRegexpFindIndexProvider")
+    public void testNegativeRegexp(String functionName) {
+        Object returns = BRunUtil.invoke(negativeTests, functionName);
+        Assert.assertEquals(returns.toString(),
+                "error(\"IndexOutOfRange\",message=\"start index cannot be less than 0\")");
+    }
+
+    @DataProvider(name = "negativeRegexpFindIndexProvider")
+    private Object[][] negativeRegexpFindIndexes() {
+        return new Object[][] {
+                {"testNegativeIndexFind"},
+                {"testNegativeIndexFindAll"},
+                {"testNegativeIndexFindGroups"},
+                {"testNegativeIndexFindAllGroups"},
+        };
+    }
+
+    @Test(dataProvider = "invalidRegexpFindIndexProvider")
+    public void testInvalidRegexp(String functionName, int startIndex, int length) {
+        Object returns = BRunUtil.invoke(negativeTests, functionName);
+        Assert.assertEquals(returns.toString(),
+                "error(\"IndexOutOfRange\",message=\"start index '" + startIndex + "' cannot be greater than input " +
+                        "string length '" + length + "'\")");
+    }
+
+    @DataProvider(name = "invalidRegexpFindIndexProvider")
+    private Object[][] invalidRegexpFindIndexes() {
+        return new Object[][] {
+                {"testInvalidIndexFind", 12, 5},
+                {"testInvalidIndexFindAll", 112, 63},
+                {"testInvalidIndexFindGroups", 97, 52},
+                {"testInvalidIndexFindAllGroups", 123, 31},
+        };
+    }
+
+    @Test(dataProvider = "longRegexpFindIndexProvider")
+    public void testLongIndexRegexp(String functionName, long startIndex) {
+        Object returns = BRunUtil.invoke(negativeTests, functionName);
+        Assert.assertEquals(returns.toString(),
+                String.format("error(\"{ballerina/lang.regexp}RegularExpressionOperationError\",message=\"index " +
+                        "number too large: %,d\")", startIndex));
+    }
+
+    @DataProvider(name = "longRegexpFindIndexProvider")
+    private Object[][] longRegexpFindIndexes() {
+        return new Object[][] {
+                {"testLongIndexFind", 68719476704L},
+                {"testLongIndexFindAll", 137438953408L},
+                {"testLongIndexFindGroups", 274877906816L},
+                {"testLongIndexFindAllGroups", 549755813632L},
         };
     }
 }

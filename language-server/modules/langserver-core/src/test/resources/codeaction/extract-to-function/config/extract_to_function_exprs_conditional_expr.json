@@ -1,0 +1,60 @@
+{
+  "range": {
+    "start": {
+      "line": 6,
+      "character": 32
+    },
+    "end": {
+      "line": 6,
+      "character": 47
+    }
+  },
+  "source": "extract_to_function_exprs_conditional_expr.bal",
+  "description": "Extract to function for expressions, conditional expression",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 1
+            },
+            "end": {
+              "line": 7,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted(json var1) returns string {\n    return var1.toString();\n}\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 32
+            },
+            "end": {
+              "line": 6,
+              "character": 47
+            }
+          },
+          "newText": "extracted(var1)"
+        }
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_conditional_expr.bal",
+          {
+            "line": 6,
+            "character": 32
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

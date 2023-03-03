@@ -64,9 +64,7 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
 public class JvmModuleConstantsGen {
 
     private final HashMap<PackageID, String> moduleVarMap;
-
     private final String moduleConstantClass;
-
     private final AtomicInteger constantIndex = new AtomicInteger();
 
     public JvmModuleConstantsGen(BIRNode.BIRPackage module) {

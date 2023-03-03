@@ -55,10 +55,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
+import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionData;
 import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -84,6 +86,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
@@ -258,8 +261,8 @@ public class CodeActionUtil {
                             .map(RecordFieldSymbol::typeDescriptor);
             boolean isConstrainedMap = firstFieldType
                     .map(fieldType -> recordTypeSymbol.fieldDescriptors().values().stream()
-                    .map(RecordFieldSymbol::typeDescriptor).allMatch(type ->
-                            type.subtypeOf(fieldType) || fieldType.subtypeOf(type))).orElse(false);
+                            .map(RecordFieldSymbol::typeDescriptor).allMatch(type ->
+                                    type.subtypeOf(fieldType) || fieldType.subtypeOf(type))).orElse(false);
             if (isConstrainedMap) {
                 String type = FunctionGenerator.generateTypeSignature(importsAcceptor, firstFieldType.get(), context);
                 typesMap.put(typeBuilder.MAP_TYPE
@@ -295,15 +298,18 @@ public class CodeActionUtil {
                         switch (newArrType.memberTypeDescriptor().typeKind()) {
                             case FUNCTION:
                             case UNION:
-                                signature = "(" + newArrType.memberTypeDescriptor().signature() + ")[]";
+                                String typeName = FunctionGenerator.processModuleIDsInText(importsAcceptor,
+                                        newArrType.memberTypeDescriptor().signature(), context);
+                                signature = "(" + typeName + ")[]";
                                 break;
                             default:
-                                signature = newArrType.signature();
+                                signature = FunctionGenerator.processModuleIDsInText(importsAcceptor,
+                                        newArrType.signature(), context);
                         }
                         typesMap.put(newArrType, signature);
                     });
         } else {
-            typesMap.put(typeDescriptor, 
+            typesMap.put(typeDescriptor,
                     FunctionGenerator.generateTypeSignature(importsAcceptor, typeDescriptor, context));
         }
         return typesMap;
@@ -377,44 +383,45 @@ public class CodeActionUtil {
         String spaces = StringUtils.repeat(' ', range.getStart().getCharacter());
         String padding = LINE_SEPARATOR + LINE_SEPARATOR + spaces;
 
-        boolean hasError = CodeActionUtil.hasErrorMemberType(unionType);
+        List<TypeSymbol> errorMembers = unionType.memberTypeDescriptors().stream()
+                .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR)
+                .collect(Collectors.toList());
 
         List<TypeSymbol> members = new ArrayList<>(unionType.memberTypeDescriptors());
-        long errorTypesCount = unionType.memberTypeDescriptors().stream()
-                .map(CommonUtil::getRawType)
-                .filter(t -> t.typeKind() == TypeDescKind.ERROR)
-                .count();
+
         if (members.size() == 1) {
             // Skip type guard
             return edits;
         }
-        boolean transitiveBinaryUnion = unionType.memberTypeDescriptors().size() - errorTypesCount == 1;
+        boolean transitiveBinaryUnion = unionType.memberTypeDescriptors().size() - errorMembers.size() == 1;
         if (transitiveBinaryUnion) {
-            members.removeIf(s -> s.typeKind() == TypeDescKind.ERROR);
+            members.removeIf(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR);
         }
-        // Check is binary union type with error type
-        if ((unionType.memberTypeDescriptors().size() == 2 || transitiveBinaryUnion) && hasError) {
+        
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
+        // Check if a union type with error and one non-error type
+        if ((unionType.memberTypeDescriptors().size() == 2 || transitiveBinaryUnion) && !errorMembers.isEmpty()) {
             members.forEach(bType -> {
                 if (bType.typeKind() == TypeDescKind.NIL) {
                     // if (foo() is error) {...}
-                    String newText = generateIfElseText(varName, spaces, padding, Collections.singletonList("error"));
+                    String type = errorMembers.get(0).signature();
+                    type = FunctionGenerator.processModuleIDsInText(importsAcceptor, type, context);
+                    String newText = generateIfElseText(varName, spaces, padding, List.of(type));
                     edits.add(new TextEdit(newTextRange, newText));
                 } else {
                     // if (foo() is int) {...} else {...}
                     String type = CodeActionUtil.getPossibleType(bType, edits, context).orElseThrow();
-                    String newText = generateIfElseText(varName, spaces, padding, Collections.singletonList(type));
+                    String newText = generateIfElseText(varName, spaces, padding, List.of(type));
                     edits.add(new TextEdit(newTextRange, newText));
                 }
             });
         } else {
-            boolean addErrorTypeAtEnd;
+            boolean addErrorTypeAtEnd = false;
             List<TypeSymbol> tMembers = new ArrayList<>((unionType).memberTypeDescriptors());
-            if (errorTypesCount > 1) {
+            if (errorMembers.size() > 1) {
                 // merge all error types into generic `error` type
-                tMembers.removeIf(s -> s.typeKind() == TypeDescKind.ERROR);
+                tMembers.removeIf(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.ERROR);
                 addErrorTypeAtEnd = true;
-            } else {
-                addErrorTypeAtEnd = false;
             }
             List<String> memberTypes = new ArrayList<>();
             for (TypeSymbol tMember : tMembers) {
@@ -425,6 +432,8 @@ public class CodeActionUtil {
             }
             edits.add(new TextEdit(newTextRange, generateIfElseText(varName, spaces, padding, memberTypes)));
         }
+        
+        edits.addAll(importsAcceptor.getNewImportTextEdits());
         return edits;
     }
 
@@ -506,9 +515,17 @@ public class CodeActionUtil {
             }
         }
 
+        // If we are in a method call expression and the expression part already doesn't have a brace, we have to add
+        // braces to prevent the "check" being added to the entire method call expression.
+        if (matchedNode.kind() != SyntaxKind.BRACED_EXPRESSION && 
+                matchedNode.parent().kind() == SyntaxKind.METHOD_CALL) {
+            Position endPos = PositionUtil.toPosition(matchedNode.lineRange().endLine());
+            edits.add(new TextEdit(new Range(pos, pos), "("));
+            edits.add(new TextEdit(new Range(endPos, endPos), ")"));
+        }
+
         // Add `check` expression text edit
-        Position insertPos = new Position(pos.getLine(), pos.getCharacter());
-        edits.add(new TextEdit(new Range(insertPos, insertPos), "check "));
+        edits.add(new TextEdit(new Range(pos, pos), "check "));
 
         // Add parent function return change text edits
         if (!returnText.isEmpty()) {
@@ -881,5 +898,22 @@ public class CodeActionUtil {
             }
         }
         return false;
+    }
+
+    /**
+     * Add the positional rename command for the code action if the capability is supported.
+     *
+     * @param context        Code action context
+     * @param codeAction     Code action
+     * @param command Title of the command                  
+     * @param renamePosition Position of renaming symbol
+     */
+    public static void addRenamePopup(CodeActionContext context, CodeAction codeAction, String command, 
+                                      Position renamePosition) {
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
+            codeAction.setCommand(new Command(command, CommandConstants.POSITIONAL_RENAME_COMMAND,
+                    List.of(context.fileUri(), renamePosition)));
+        }
     }
 }

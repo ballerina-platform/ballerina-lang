@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 8,
+    "character": 16
+  },
+  "source": "field_access_expression_context/source/field_access_ctx_source56.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "startIndex",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "CA",
+      "insertText": "startIndex",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "endIndex",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "CA",
+      "insertText": "endIndex",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "substring()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.regexp:0.0.0_  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "substring",
+      "insertText": "substring()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

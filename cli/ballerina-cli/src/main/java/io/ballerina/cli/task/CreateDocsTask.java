@@ -60,7 +60,7 @@ public class CreateDocsTask implements Task {
             BallerinaDocGenerator.generateAPIDocs(project, outputPath.toString(), false);
             this.out.println("Saved to: " + sourceRootPath.relativize(outputPath).toString());
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw createLauncherException("Unable to generate API Documentation.", e.getCause());
         }
 

@@ -23,6 +23,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -86,9 +87,9 @@ public class InnerQueryTest {
         validateError(negativeResult, i++, "undefined symbol 'deptName'", 71, 29);
         validateError(negativeResult, i++, "undefined symbol 'psn'", 88, 16);
         validateError(negativeResult, i++, "undefined symbol 'emp'", 88, 30);
-        validateError(negativeResult, i++, "redeclared symbol 'item'", 105, 28);
-        validateError(negativeResult, i++, "redeclared symbol 'item'", 117, 27);
-        validateError(negativeResult, i, "redeclared symbol 'item'", 130, 26);
+        validateError(negativeResult, i++, "redeclared symbol 'item'", 105, 18);
+        validateError(negativeResult, i++, "redeclared symbol 'item'", 117, 23);
+        validateError(negativeResult, i, "redeclared symbol 'item'", 130, 22);
     }
 
     @Test(description = "Test type test in where clause")
@@ -120,6 +121,18 @@ public class InnerQueryTest {
     @Test
     public void testQueryAsFuncArgument() {
         BRunUtil.invoke(result, "testQueryAsFuncArgument");
+    }
+
+    @Test(dataProvider = "dataToTestInnerQueryExpr")
+    public void testInnerQueryExpr(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestInnerQueryExpr() {
+        return new Object[]{
+                "testInnerQueryExprWithLangLibCallsWithArrowFunctions"
+        };
     }
 
     @AfterClass

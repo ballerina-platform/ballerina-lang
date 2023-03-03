@@ -18,6 +18,7 @@
 package org.ballerinalang.testerina.core;
 
 import io.ballerina.projects.JarResolver;
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
@@ -55,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
 
 /**
@@ -79,7 +81,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
     private Map<BPackageSymbol, SymbolEnv> packageEnvironmentMap;
     private SymbolResolver symbolResolver;
     private Types typeChecker;
-    private TesterinaRegistry registry = TesterinaRegistry.getInstance();
+    private final TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
     /**
      * this property is used as a work-around to initialize test suites only once for a package as Compiler
@@ -109,6 +111,13 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
         annotations = annotations.stream().distinct().collect(Collectors.toList());
         // Iterate through all the annotations
         for (AnnotationAttachmentNode attachmentNode : annotations) {
+            // Check if the package belongs to a single file project
+            if (packageName.equals(DOT)) {
+                diagnosticLog.logDiagnostic(
+                        DiagnosticSeverity.ERROR, (ModuleDescriptor) null, attachmentNode.getPosition(),
+                        "function mocking is not supported with standalone Ballerina files");
+                return;
+            }
             String annotationName = attachmentNode.getAnnotationName().getValue();
             if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
                 String type = ((BLangUserDefinedType) ((BLangSimpleVariable) simpleVariableNode).typeNode).
@@ -118,28 +127,36 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     String mockFnObjectName = simpleVariableNode.getName().getValue();
                     String[] annotationValues = new String[2]; // [0] - moduleName, [1] - functionName
                     annotationValues[0] = packageName; // Set default value of the annotation as the current package
-                    if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-                        // Get list of attributes in the Mock annotation
-                        List<RecordLiteralNode.RecordField> fields =
-                                ((BLangRecordLiteral) attachmentNode.getExpression()).getFields();
-                        setAnnotationValues(fields, annotationValues, attachmentNode, parent);
-                        PackageID functionToMockID = getPackageID(annotationValues[0]);
-                        validateFunctionName(annotationValues[1], functionToMockID, attachmentNode);
-                        BLangTestablePackage bLangTestablePackage =
-                                (BLangTestablePackage) ((BLangSimpleVariable) simpleVariableNode).parent;
-                        // Value added to the map '<packageId> # <functionToMock> --> <MockFnObjectName>`
-                        bLangTestablePackage.addMockFunction(
-                                functionToMockID + MOCK_FN_DELIMITER + annotationValues[1],
-                                mockFnObjectName);
+                    if (null == attachmentNode.getExpression()
+                            || attachmentNode.getExpression().getKind() != NodeKind.RECORD_LITERAL_EXPR) {
+                        diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
+                                "missing required 'functionName' field");
+                        continue;
+                    }
+                    // Get list of attributes in the Mock annotation
+                    List<RecordLiteralNode.RecordField> fields =
+                            ((BLangRecordLiteral) attachmentNode.getExpression()).getFields();
+                    setAnnotationValues(fields, annotationValues, attachmentNode, parent);
+                    PackageID functionToMockID = getPackageID(annotationValues[0]);
+                    boolean validFunctionName = isValidFunctionName(
+                            annotationValues[1], annotationValues[0], functionToMockID, attachmentNode);
+                    if (!validFunctionName) {
+                        return;
+                    }
+                    BLangTestablePackage bLangTestablePackage =
+                            (BLangTestablePackage) ((BLangSimpleVariable) simpleVariableNode).parent;
+                    // Value added to the map '<packageId> # <functionToMock> --> <MockFnObjectName>`
+                    bLangTestablePackage.addMockFunction(
+                            functionToMockID + MOCK_FN_DELIMITER + annotationValues[1],
+                            mockFnObjectName);
 
-                        if (functionToMockID != null) {
-                            // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
-                            String className = getQualifiedClassName(bLangTestablePackage,
-                                    functionToMockID.toString(), annotationValues[1]);
-                            registry.addMockFunctionsSourceMap(bLangTestablePackage.packageID.getName().toString()
-                                    + MODULE_DELIMITER + className + MOCK_FN_DELIMITER + annotationValues[1],
-                                    mockFnObjectName);
-                        }
+                    if (functionToMockID != null) {
+                        // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
+                        String className = getQualifiedClassName(bLangTestablePackage,
+                                functionToMockID.toString(), annotationValues[1]);
+                        registry.addMockFunctionsSourceMap(bLangTestablePackage.packageID.getName().toString()
+                                + MODULE_DELIMITER + className + MOCK_FN_DELIMITER + annotationValues[1],
+                                mockFnObjectName);
                     }
                 } else {
                     // Throw an error saying its not a MockFunction object
@@ -207,7 +224,8 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     PackageID functionToMockID = getPackageID(vals[0]);
                     if (functionToMockID == null) {
                         diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                                "could not find module specified ");
+                                "could not find specified module '" + vals[0] + "'");
+                        break;
                     }
 
                     BType functionToMockType = getFunctionType(packageEnvironmentMap, functionToMockID, vals[1]);
@@ -217,12 +235,14 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     if (functionToMockType != null && mockFunctionType != null) {
                         if (!typeChecker.isAssignable(mockFunctionType, functionToMockType)) {
                             diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, ((BLangFunction) functionNode).pos,
-                                    "incompatible types: expected " + functionToMockType.toString()
-                                            + " but found " + mockFunctionType.toString());
+                                    "incompatible types: expected " + functionToMockType
+                                            + " but found " + mockFunctionType);
+                            break;
                         }
                     } else {
                         diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                                "could not find functions in module");
+                                "could not find function '" + vals[1] + "' in module '" + vals[0] + "'");
+                        break;
                     }
 
                     //Creating a bLangTestablePackage to add a mock function
@@ -231,14 +251,15 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     bLangTestablePackage.addMockFunction(functionToMockID + MOCK_LEGACY_DELIMITER + vals[1],
                             functionName);
 
-                    if (functionToMockID != null) {
-                        // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
-                        String className = getQualifiedClassName(bLangTestablePackage,
-                                functionToMockID.toString(), vals[1]);
-                        vals[1] = vals[1].replaceAll("\\\\", "");
-                        registry.addMockFunctionsSourceMap(bLangTestablePackage.packageID.getName().toString()
-                                        + MODULE_DELIMITER + className + MOCK_LEGACY_DELIMITER + vals[1], functionName);
-                    }
+                    // Adding `<className> # <functionToMock> --> <MockFnObjectName>` to registry
+                    String className = getQualifiedClassName(bLangTestablePackage,
+                            functionToMockID.toString(), vals[1]);
+                    vals[1] = vals[1].replaceAll("\\\\", "");
+                    registry.addMockFunctionsSourceMap(bLangTestablePackage.packageID.getName().toString()
+                                    + MODULE_DELIMITER + className + MOCK_LEGACY_DELIMITER + vals[1], functionName);
+                } else {
+                    diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
+                            "missing required 'functionName' field");
                 }
             }
         }
@@ -317,16 +338,17 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
      *
      * @param functionName   Name of the function to mock
      * @param attachmentNode MockFunction object attachment node
+     * @return true if the provided function name valid
      */
-    private void validateFunctionName(String functionName, PackageID functionToMockID,
+    private boolean isValidFunctionName(String functionName, String moduleName, PackageID functionToMockID,
                                       AnnotationAttachmentNode attachmentNode) {
         if (functionToMockID == null) {
             diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                    "could not find module specified ");
+                    "could not find specified module '" + moduleName + "'");
         } else {
             if (functionName == null) {
                 diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                        "Function name cannot be empty");
+                        "function name cannot be empty");
             } else {
                 // Iterate through package map entries
                 for (Map.Entry<BPackageSymbol, SymbolEnv> entry : this.packageEnvironmentMap.entrySet()) {
@@ -334,16 +356,16 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                         // Check if the current package has the function name
                         if (entry.getValue().scope.entries.containsKey(new Name(functionName))) {
                             // Exit validate function if the function exists in the entry
-                            return;
+                            return true;
                         }
                     }
                 }
                 // If it reaches this part, then the function has'nt been found in both packages
                 diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                        "Function \'" + functionName + "\' cannot be found in the package \'"
-                                + functionToMockID.toString());
+                        "could not find function '" + functionName + "' in module '" + moduleName + "'");
             }
         }
+        return false;
     }
 
     /**

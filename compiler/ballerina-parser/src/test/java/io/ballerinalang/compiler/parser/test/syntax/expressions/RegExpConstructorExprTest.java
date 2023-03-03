@@ -286,4 +286,12 @@ public class RegExpConstructorExprTest extends AbstractExpressionsTest {
         testFile("regexp-constructor-expr/regexp_constructor_source_43.bal",
                 "regexp-constructor-expr/regexp_constructor_assert_43.json");
     }
+
+    @Test
+    public void testInvalidRegExpWithBacktick() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_44.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_44.json");
+        testFile("regexp-constructor-expr/regexp_constructor_source_45.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_45.json");
+    }
 }

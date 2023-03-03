@@ -80,32 +80,12 @@ function testFindGroups() {
     regexp:Groups? res2 = regExpr2.findGroups(str2);
     assertTrue(res2 is regexp:Groups);
     regexp:Groups resultGroups2 = <regexp:Groups>res2;
-    assertEquality(5, resultGroups2.length());
+    assertEquality(1, resultGroups2.length());
 
     regexp:Span resultSpan2_1 = <regexp:Span>resultGroups2[0];
     assertEquality(0, resultSpan2_1.startIndex);
     assertEquality(3, resultSpan2_1.endIndex);
     assertEquality("GFG", resultSpan2_1.substring());
-
-    regexp:Span resultSpan2_2 = <regexp:Span>resultGroups2[1];
-    assertEquality(4, resultSpan2_2.startIndex);
-    assertEquality(7, resultSpan2_2.endIndex);
-    assertEquality("GFG", resultSpan2_2.substring());
-
-    regexp:Span resultSpan2_3 = <regexp:Span>resultGroups2[2];
-    assertEquality(8, resultSpan2_3.startIndex);
-    assertEquality(11, resultSpan2_3.endIndex);
-    assertEquality("GFG", resultSpan2_3.substring());
-
-    regexp:Span resultSpan2_4 = <regexp:Span>resultGroups2[3];
-    assertEquality(12, resultSpan2_4.startIndex);
-    assertEquality(15, resultSpan2_4.endIndex);
-    assertEquality("GFG", resultSpan2_4.substring());
-
-    regexp:Span resultSpan2_5 = <regexp:Span>resultGroups2[4];
-    assertEquality(16, resultSpan2_5.startIndex);
-    assertEquality(19, resultSpan2_5.endIndex);
-    assertEquality("GFG", resultSpan2_5.substring());
 
     regexp:Groups? res3 = regExpr2.findGroups(str2, 15);
     assertTrue(res3 is regexp:Groups);
@@ -128,158 +108,73 @@ function testFindGroups() {
     assertEquality("GFGFGF", resultSpan3_1.substring());
 
     regexp:Span resultSpan3_2 = <regexp:Span>resultGroups4[1];
-    assertEquality(6, resultSpan3_2.startIndex);
-    assertEquality(12, resultSpan3_2.endIndex);
-    assertEquality("GFGFGF", resultSpan3_2.substring());
+    assertEquality(0, resultSpan3_2.startIndex);
+    assertEquality(3, resultSpan3_2.endIndex);
+    assertEquality("GFG", resultSpan3_2.substring());
 
     regexp:Span resultSpan3_3 = <regexp:Span>resultGroups4[2];
-    assertEquality(12, resultSpan3_3.startIndex);
-    assertEquality(18, resultSpan3_3.endIndex);
-    assertEquality("GFGFGF", resultSpan3_3.substring());
+    assertEquality(3, resultSpan3_3.startIndex);
+    assertEquality(6, resultSpan3_3.endIndex);
+    assertEquality("FGF", resultSpan3_3.substring());
 
     string str3 = "Betty Botter bought some butter but she said the butter’s bitter.";
     var regExpr4 = re `[bB].tt[a-z]*`;
     regexp:Groups? res5  = regExpr4.findGroups(str3);
     assertTrue(res5 is regexp:Groups);
     regexp:Groups resultGroups5 = <regexp:Groups>res5;
-    assertEquality(5, resultGroups5.length());
+    assertEquality(1, resultGroups5.length());
 
     regexp:Span resultSpan5_1 = <regexp:Span>resultGroups5[0];
     assertEquality(0, resultSpan5_1.startIndex);
     assertEquality(5, resultSpan5_1.endIndex);
     assertEquality("Betty", resultSpan5_1.substring());
 
-    regexp:Span resultSpan5_2 = <regexp:Span>resultGroups5[1];
-    assertEquality(6, resultSpan5_2.startIndex);
-    assertEquality(12, resultSpan5_2.endIndex);
-    assertEquality("Botter", resultSpan5_2.substring());
-
     string str4 = "ABC&&DEF";
     var regExpr5 = re `[C&&D]`;
     regexp:Groups? res6 = regExpr5.findGroups(str4);
     assertTrue(res6 is regexp:Groups);
     regexp:Groups resultGroups6 = <regexp:Groups>res6;
-    assertEquality(4, resultGroups6.length());
+    assertEquality(1, resultGroups6.length());
 
     regexp:Span resultSpan6_1 = <regexp:Span>resultGroups6[0];
     assertEquality(2, resultSpan6_1.startIndex);
     assertEquality(3, resultSpan6_1.endIndex);
     assertEquality("C", resultSpan6_1.substring());
 
-    regexp:Span resultSpan6_2 = <regexp:Span>resultGroups6[1];
-    assertEquality(3, resultSpan6_2.startIndex);
-    assertEquality(4, resultSpan6_2.endIndex);
-    assertEquality("&", resultSpan6_2.substring());
-
-    regexp:Span resultSpan6_3 = <regexp:Span>resultGroups6[2];
-    assertEquality(4, resultSpan6_3.startIndex);
-    assertEquality(5, resultSpan6_3.endIndex);
-    assertEquality("&", resultSpan6_3.substring());
-
-    regexp:Span resultSpan6_4 = <regexp:Span>resultGroups6[3];
-    assertEquality(5, resultSpan6_4.startIndex);
-    assertEquality(6, resultSpan6_4.endIndex);
-    assertEquality("D", resultSpan6_4.substring());
-
     string str5 = "A B\nC\tD\rE";
     var regExpr6 = re `.`;
     regexp:Groups? res7 = regExpr6.findGroups(str5);
     assertTrue(res7 is regexp:Groups);
     regexp:Groups resultGroups7 = <regexp:Groups>res7;
-    assertEquality(7, resultGroups7.length());
+    assertEquality(1, resultGroups7.length());
 
     regexp:Span resultSpan7_1 = <regexp:Span>resultGroups7[0];
     assertEquality(0, resultSpan7_1.startIndex);
     assertEquality(1, resultSpan7_1.endIndex);
     assertEquality("A", resultSpan7_1.substring());
 
-    regexp:Span resultSpan7_2 = <regexp:Span>resultGroups7[1];
-    assertEquality(1, resultSpan7_2.startIndex);
-    assertEquality(2, resultSpan7_2.endIndex);
-    assertEquality(" ", resultSpan7_2.substring());
-
-    regexp:Span resultSpan7_3 = <regexp:Span>resultGroups7[2];
-    assertEquality(2, resultSpan7_3.startIndex);
-    assertEquality(3, resultSpan7_3.endIndex);
-    assertEquality("B", resultSpan7_3.substring());
-
-    regexp:Span resultSpan7_4 = <regexp:Span>resultGroups7[3];
-    assertEquality(4, resultSpan7_4.startIndex);
-    assertEquality(5, resultSpan7_4.endIndex);
-    assertEquality("C", resultSpan7_4.substring());
-
-    regexp:Span resultSpan7_5 = <regexp:Span>resultGroups7[4];
-    assertEquality(5, resultSpan7_5.startIndex);
-    assertEquality(6, resultSpan7_5.endIndex);
-    assertEquality("\t", resultSpan7_5.substring());
-
-    regexp:Span resultSpan7_6 = <regexp:Span>resultGroups7[5];
-    assertEquality(6, resultSpan7_6.startIndex);
-    assertEquality(7, resultSpan7_6.endIndex);
-    assertEquality("D", resultSpan7_6.substring());
-
-    regexp:Span resultSpan7_7 = <regexp:Span>resultGroups7[6];
-    assertEquality(8, resultSpan7_7.startIndex);
-    assertEquality(9, resultSpan7_7.endIndex);
-    assertEquality("E", resultSpan7_7.substring());
-
     string str6 = "A B\nC\tD\rE";
     var regExpr7 = re `\s`;
     regexp:Groups? res8 = regExpr7.findGroups(str6);
     assertTrue(res8 is regexp:Groups);
     regexp:Groups resultGroups8 = <regexp:Groups>res8;
-    assertEquality(4, resultGroups8.length());
+    assertEquality(1, resultGroups8.length());
 
     regexp:Span resultSpan8_1 = <regexp:Span>resultGroups8[0];
     assertEquality(1, resultSpan8_1.startIndex);
     assertEquality(2, resultSpan8_1.endIndex);
     assertEquality(" ", resultSpan8_1.substring());
 
-    regexp:Span resultSpan8_2 = <regexp:Span>resultGroups8[1];
-    assertEquality(3, resultSpan8_2.startIndex);
-    assertEquality(4, resultSpan8_2.endIndex);
-    assertEquality("\n", resultSpan8_2.substring());
-
-    regexp:Span resultSpan8_3 = <regexp:Span>resultGroups8[2];
-    assertEquality(5, resultSpan8_3.startIndex);
-    assertEquality(6, resultSpan8_3.endIndex);
-    assertEquality("\t", resultSpan8_3.substring());
-
-    regexp:Span resultSpan8_4 = <regexp:Span>resultGroups8[3];
-    assertEquality(7, resultSpan8_4.startIndex);
-    assertEquality(8, resultSpan8_4.endIndex);
-    assertEquality("\r", resultSpan8_4.substring());
-
     var regExpr8 = re `\S`;
     regexp:Groups? res9 = regExpr8.findGroups(str6);
     assertTrue(res9 is regexp:Groups);
     regexp:Groups resultGroups9 = <regexp:Groups>res9;
-    assertEquality(5, resultGroups9.length());
+    assertEquality(1, resultGroups9.length());
 
     regexp:Span resultSpan9_1 = <regexp:Span>resultGroups9[0];
     assertEquality(0, resultSpan9_1.startIndex);
     assertEquality(1, resultSpan9_1.endIndex);
     assertEquality("A", resultSpan9_1.substring());
-
-    regexp:Span resultSpan9_2 = <regexp:Span>resultGroups9[1];
-    assertEquality(2, resultSpan9_2.startIndex);
-    assertEquality(3, resultSpan9_2.endIndex);
-    assertEquality("B", resultSpan9_2.substring());
-
-    regexp:Span resultSpan9_3 = <regexp:Span>resultGroups9[2];
-    assertEquality(4, resultSpan9_3.startIndex);
-    assertEquality(5, resultSpan9_3.endIndex);
-    assertEquality("C", resultSpan9_3.substring());
-
-    regexp:Span resultSpan9_4 = <regexp:Span>resultGroups9[3];
-    assertEquality(6, resultSpan9_4.startIndex);
-    assertEquality(7, resultSpan9_4.endIndex);
-    assertEquality("D", resultSpan9_4.substring());
-
-    regexp:Span resultSpan9_5 = <regexp:Span>resultGroups9[4];
-    assertEquality(8, resultSpan9_5.startIndex);
-    assertEquality(9, resultSpan9_5.endIndex);
-    assertEquality("E", resultSpan9_5.substring());
 }
 
 function testFindAll() {
@@ -360,6 +255,112 @@ function testFindAllGroups() {
     assertEquality(15, resultSpan1_3_2.startIndex);
     assertEquality(18, resultSpan1_3_2.endIndex);
     assertEquality("FGF", resultSpan1_3_2.substring());
+
+    string str2 = "abab";
+    string:RegExp regExpr2 = re `((a)(b))`;
+
+    regexp:Groups[] groupsArr2 = regExpr2.findAllGroups(str2);
+    assertEquality(2, groupsArr2.length());
+
+    regexp:Groups groups2_1 = groupsArr2[0];
+    regexp:Span? resultSpanOrNil2_1_1 = groups2_1[0];
+    assertTrue(resultSpanOrNil2_1_1 is regexp:Span);
+    regexp:Span resultSpan2_1_1 = <regexp:Span> resultSpanOrNil2_1_1;
+    assertEquality(0, resultSpan2_1_1.startIndex);
+    assertEquality(2, resultSpan2_1_1.endIndex);
+    assertEquality("ab", resultSpan2_1_1.substring());
+
+    regexp:Span? resultSpanOrNil2_1_2 = groups2_1[1];
+    assertTrue(resultSpanOrNil2_1_2 is regexp:Span);
+    regexp:Span resultSpan2_1_2 = <regexp:Span> resultSpanOrNil2_1_2;
+    assertEquality(0, resultSpan2_1_2.startIndex);
+    assertEquality(1, resultSpan2_1_2.endIndex);
+    assertEquality("a", resultSpan2_1_2.substring());
+
+    regexp:Span? resultSpanOrNil2_1_3 = groups2_1[2];
+    assertTrue(resultSpanOrNil2_1_3 is regexp:Span);
+    regexp:Span resultSpan2_1_3 = <regexp:Span> resultSpanOrNil2_1_3;
+    assertEquality(1, resultSpan2_1_3.startIndex);
+    assertEquality(2, resultSpan2_1_3.endIndex);
+    assertEquality("b", resultSpan2_1_3.substring());
+
+    regexp:Groups groups2_2 = groupsArr2[1];
+    regexp:Span? resultSpanOrNil2_2_1 = groups2_2[0];
+    assertTrue(resultSpanOrNil2_2_1 is regexp:Span);
+    regexp:Span resultSpan2_2_1 = <regexp:Span> resultSpanOrNil2_2_1;
+    assertEquality(2, resultSpan2_2_1.startIndex);
+    assertEquality(4, resultSpan2_2_1.endIndex);
+    assertEquality("ab", resultSpan2_2_1.substring());
+
+    regexp:Span? resultSpanOrNil2_2_2 = groups2_2[1];
+    assertTrue(resultSpanOrNil2_2_2 is regexp:Span);
+    regexp:Span resultSpan2_2_2 = <regexp:Span> resultSpanOrNil2_2_2;
+    assertEquality(2, resultSpan2_2_2.startIndex);
+    assertEquality(3, resultSpan2_2_2.endIndex);
+    assertEquality("a", resultSpan2_2_2.substring());
+
+    regexp:Span? resultSpanOrNil2_2_3 = groups2_2[2];
+    assertTrue(resultSpanOrNil2_2_3 is regexp:Span);
+    regexp:Span resultSpan2_2_3 = <regexp:Span> resultSpanOrNil2_2_3;
+    assertEquality(3, resultSpan2_2_3.startIndex);
+    assertEquality(4, resultSpan2_2_3.endIndex);
+    assertEquality("b", resultSpan2_2_3.substring());
+
+    string:RegExp regExpr3 = re `(a|b)`;
+    regexp:Groups[] groupsArr3 = regExpr3.findAllGroups(str2);
+    assertEquality(4, groupsArr3.length());
+
+    regexp:Groups groups3_1 = groupsArr3[0];
+    regexp:Span? resultSpanOrNil3_1_1 = groups3_1[0];
+    assertTrue(resultSpanOrNil3_1_1 is regexp:Span);
+    regexp:Span resultSpan3_1_1 = <regexp:Span> resultSpanOrNil3_1_1;
+    assertEquality(0, resultSpan3_1_1.startIndex);
+    assertEquality(1, resultSpan3_1_1.endIndex);
+    assertEquality("a", resultSpan3_1_1.substring());
+
+    regexp:Groups groups3_2 = groupsArr3[1];
+    regexp:Span? resultSpanOrNil3_2_1 = groups3_2[0];
+    assertTrue(resultSpanOrNil3_2_1 is regexp:Span);
+    regexp:Span resultSpan3_2_1 = <regexp:Span> resultSpanOrNil3_2_1;
+    assertEquality(1, resultSpan3_2_1.startIndex);
+    assertEquality(2, resultSpan3_2_1.endIndex);
+    assertEquality("b", resultSpan3_2_1.substring());
+
+    regexp:Groups groups3_3 = groupsArr3[2];
+    regexp:Span? resultSpanOrNil3_3_1 = groups3_3[0];
+    assertTrue(resultSpanOrNil3_3_1 is regexp:Span);
+    regexp:Span resultSpan3_3_1 = <regexp:Span> resultSpanOrNil3_3_1;
+    assertEquality(2, resultSpan3_3_1.startIndex);
+    assertEquality(3, resultSpan3_3_1.endIndex);
+    assertEquality("a", resultSpan3_3_1.substring());
+
+    regexp:Groups groups3_4 = groupsArr3[3];
+    regexp:Span? resultSpanOrNil3_4_1 = groups3_4[0];
+    assertTrue(resultSpanOrNil3_4_1 is regexp:Span);
+    regexp:Span resultSpan3_4_1 = <regexp:Span> resultSpanOrNil3_4_1;
+    assertEquality(3, resultSpan3_4_1.startIndex);
+    assertEquality(4, resultSpan3_4_1.endIndex);
+    assertEquality("b", resultSpan3_4_1.substring());
+
+    string:RegExp regExpr4 = re `a|b`;
+    regexp:Groups[] groupsArr4 = regExpr4.findAllGroups(str2);
+    assertEquality(4, groupsArr4.length());
+
+    regexp:Groups groups4_1 = groupsArr4[0];
+    regexp:Span? resultSpanOrNil4_1_1 = groups4_1[0];
+    assertTrue(resultSpanOrNil4_1_1 is regexp:Span);
+    regexp:Span resultSpan4_1_1 = <regexp:Span> resultSpanOrNil4_1_1;
+    assertEquality(0, resultSpan4_1_1.startIndex);
+    assertEquality(1, resultSpan4_1_1.endIndex);
+    assertEquality("a", resultSpan4_1_1.substring());
+
+    string:RegExp regExpr5 = re `(c|d)`;
+    regexp:Groups[] groupsArr5 = regExpr5.findAllGroups(str2);
+    assertEquality(0, groupsArr5.length());
+
+    string:RegExp regExpr6 = re `((c)(d))`;
+    regexp:Groups[] groupsArr6 = regExpr6.findAllGroups(str2);
+    assertEquality(0, groupsArr6.length());
 }
 
 function testMatchAt() {
@@ -532,35 +533,45 @@ function testReplaceAll() {
     string str1 = "ReplaceTTTGGGThis";
     var regExpr1 = re `T.*G`;
     string replacement1 = " ";
-    string result1 = regExpr1.replaceAll(str1, replacement1);
-    assertEquality("Replace This", result1);
+    string result11 = regExpr1.replaceAll(str1, replacement1);
+    assertEquality("Replace This", result11);
+    string result12 = regExpr1.replaceAll(str1, replacement1, 2);
+    assertEquality("Replace This", result12);
 
     string str2 = "100100011";
     var regExpr2 = re `0+`;
     string replacement2 = "*";
-    string result2 = regExpr2.replaceAll(str2, replacement2);
-    assertEquality("1*1*11", result2);
+    string result21 = regExpr2.replaceAll(str2, replacement2);
+    assertEquality("1*1*11", result21);
+    string result22 = regExpr2.replaceAll(str2, replacement2, 3);
+    assertEquality("1001*11", result22);
 
     //non matching
     string str3 = "100100011";
     var regExpr3 = re `95`;
     string replacement3 = "*";
-    string result3 = regExpr3.replaceAll(str3, replacement3);
-    assertEquality(str3, result3);
+    string result31 = regExpr3.replaceAll(str3, replacement3);
+    assertEquality(str3, result31);
+    string result32 = regExpr3.replaceAll(str3, replacement3, 7);
+    assertEquality(str3, result32);
 
     string str4 = "100100011";
     var regExpr4 = re `0+`;
     string replacement4 = "";
-    string result4 = regExpr4.replaceAll(str4, replacement4);
-    assertEquality("1111", result4);
+    string result41 = regExpr4.replaceAll(str4, replacement4);
+    assertEquality("1111", result41);
+    string result42 = regExpr4.replaceAll(str4, replacement4, 3);
+    assertEquality("100111", result42);
 
     string str5 = "100000100011";
-    string result5 = regExpr4.replaceAll(str5, replacementFunctionForReplaceAll);
-    assertEquality("121211", result5);
+    string result51 = regExpr4.replaceAll(str5, replacementFunctionForReplaceAll);
+    assertEquality("151311", result51);
+    string result52 = regExpr4.replaceAll(str5, replacementFunctionForReplaceAll, 6);
+    assertEquality("1000001311", result52);
 }
 
 isolated function replacementFunctionForReplaceAll(regexp:Groups groups) returns string {
-    return groups.length().toString();
+    return groups[0].substring().length().toString();
 }
 
 function testFromString() {
@@ -927,6 +938,62 @@ function testFromStringNegative() {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
         assertEquality("Failed to parse regular expression: Missing ']' character", <string> checkpanic x1.detail()["message"]);
     }
+}
+
+function testSplit() {
+    string str1 = "abc cde efg";
+    string[] arrExpected1 = ["abc", "cde", "efg"];
+    var regExpr1 = re ` `;
+    string[] resArr1 = regExpr1.split(str1);
+    assertEquality(3, resArr1.length());
+    assertEquality(arrExpected1, resArr1);
+
+    string str2 = "abc,cde,efg";
+    var regExpr2 = re `,`;
+    string[] resArr2 = regExpr2.split(str2);
+    assertEquality(3, resArr2.length());
+    assertEquality(arrExpected1, resArr2);
+
+    string str3 = "amal,,kamal,,nimal,,sunimal,";
+    string[] arrExpected2 = ["amal", "kamal", "nimal", "sunimal,"];
+    string[] resArr3 = re `,,`.split(str3);
+    assertEquality(4, resArr3.length());
+    assertEquality(arrExpected2, resArr3);
+
+    string[] arrExpected4 = [str3];
+    string[] resArr4 = re ` `.split(str3);
+    assertEquality(1, resArr4.length());
+    assertEquality(arrExpected4, resArr4);
+
+    string str5 = "ballerina@geeks@wso2";
+    string[] arrExpected5 = ["ballerina", "geeks", "wso2"];
+    string[] resArr5 = re `@`.split(str5);
+    assertEquality(3, resArr5.length());
+    assertEquality(arrExpected5, resArr5);
+
+    string str6 = "ballerina.geeks.wso2";
+    string[] arrExpected6 = [str6];
+    string[] resArr6 = re `.`.split(str6);
+    assertEquality(1, resArr6.length());
+    assertEquality(arrExpected6, resArr6);
+
+    string str7 = "zzzzayyyybxxxxawwww";
+    string[] arrExpected7 = ["zzzz", "yyyy", "xxxx", "wwww"];
+    string[] resArr7 = re `[a-c]`.split(str7);
+    assertEquality(4, resArr7.length());
+    assertEquality(arrExpected7, resArr7);
+
+    string str8 = "apple|9|1.88;2.78|0#10";
+    string[] resArr8 = re `[|;#]`.split(str8);
+    string[] arrExpected8 = ["apple", "9", "1.88", "2.78", "0", "10"];
+    assertEquality(6, resArr8.length());
+    assertEquality(arrExpected8, resArr8);
+
+    string str9 = "1 2   3 4  5";
+    string[] resArr9 = re `\s+`.split(str9);
+    string[] arrExpected9 = ["1", "2", "3", "4", "5"];
+    assertEquality(5, resArr9.length());
+    assertEquality(arrExpected9, resArr9);
 }
 
 function testLangLibFuncWithNamedArgExpr() {

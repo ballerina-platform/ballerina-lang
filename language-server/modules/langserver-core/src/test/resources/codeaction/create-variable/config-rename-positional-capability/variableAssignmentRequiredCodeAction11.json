@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 4,
+    "character": 4
+  },
+  "source": "createVariable3.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 4
+            },
+            "end": {
+              "line": 4,
+              "character": 4
+            }
+          },
+          "newText": "xml:Element element = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariable3.bal",
+          {
+            "line": 4,
+            "character": 16
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}
