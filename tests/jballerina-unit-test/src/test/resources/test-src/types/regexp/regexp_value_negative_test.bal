@@ -31,5 +31,7 @@ function testRegExpNegative() {
     _ = re `[\\uD834\\uDF06-\\uD834\\uDF08z-a]`;
     _ = re `[\p{sc=Katakana}-\p{sc=Hiragana}]`;
     _ = re `([^a-b${b-a}])`;
+    string:RegExp _ = re `[]`;
+    string:RegExp _ = re `(([abc])|([]))`;
     _ = re `[AB\p{gc=Lu}]+` ? `;
 }
