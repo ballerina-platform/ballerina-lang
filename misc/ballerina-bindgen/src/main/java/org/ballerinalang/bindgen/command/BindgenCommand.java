@@ -164,7 +164,6 @@ public class BindgenCommand implements BLauncherCmd {
         if (optionalTypesFlag) {
             bindingsGenerator.setOptionalTypesFlag();
         }
-
         if (optionalTypesParamFlag) {
             bindingsGenerator.setOptionalParamTypesFlag();
         }

@@ -98,6 +98,7 @@ public class JParameter {
             } else {
                 shortTypeName = BALLERINA_STRING_ARRAY;
             }
+            componentType = String.class.getName();
         } else {
             if (!parameterClass.isPrimitive()) {
                 if (parameterClass.isArray()) {

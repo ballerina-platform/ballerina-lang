@@ -204,7 +204,16 @@ public class BindgenUtils {
         }
     }
 
-    public static String getBallerinaReturnType(Class<?> javaType, BindgenEnv bindgenEnv) {
+    public static String getBallerinaHandleType(BindgenEnv env, Class<?> javaType) {
+        String type = javaType.getSimpleName();
+        String returnType = getBalType(env, type);
+        if (type.equals(JAVA_STRING) || type.equals(JAVA_STRING_ARRAY)) {
+            returnType = HANDLE;
+        }
+        return returnType;
+    }
+
+    public static String getBallerinaReturnType(BindgenEnv bindgenEnv, Class<?> javaType) {
         if (javaType.isArray() && javaType.getComponentType().isPrimitive()) {
             return getPrimitiveArrayBalType(javaType.getComponentType().getSimpleName());
         } else {
@@ -218,15 +227,6 @@ public class BindgenUtils {
             }
             return returnType;
         }
-    }
-
-    public static String getBallerinaHandleType(BindgenEnv env, Class<?> javaType) {
-        String type = javaType.getSimpleName();
-        String returnType = getBalType(env, type);
-        if (type.equals(JAVA_STRING) || type.equals(JAVA_STRING_ARRAY)) {
-            returnType = HANDLE;
-        }
-        return returnType;
     }
 
     public static String getBalReturnType(BindgenEnv env, Class<?> javaType) {

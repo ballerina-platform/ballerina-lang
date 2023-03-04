@@ -1075,13 +1075,11 @@ class BindgenNodeFactory {
             argValues.add("self.jObj");
         }
         for (JParameter jParameter : bFunction.getParameters()) {
-            if (jParameter.getIsString()) {
-                if (jParameter.isOptional()) {
-                    argValues.add(String.format("%s is () ? java:createNull() : java:fromString(%s)",
-                            jParameter.getFieldName(), jParameter.getFieldName()));
-                } else {
-                    argValues.add(String.format("java:fromString(%s)", jParameter.getFieldName()));
-                }
+            if (jParameter.getIsString() && jParameter.isOptional()) {
+                argValues.add(String.format("%s is () ? java:createNull() : java:fromString(%s)",
+                        jParameter.getFieldName(), jParameter.getFieldName()));
+            } else if (jParameter.getIsString()) {
+                argValues.add(String.format("java:fromString(%s)", jParameter.getFieldName()));
             } else if (jParameter.isArray() && jParameter.isOptional()) {
                 argValues.add(String.format("check jarrays:toHandle(%s ?: [], \"%s\")",
                         jParameter.getFieldName(), jParameter.getComponentType()));
