@@ -23,8 +23,19 @@ import org.ballerinalang.formatter.core.FormatterException;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 
-public class BindgenUnitTest extends BindgenUnitTestBase {
+public class BindgenOptionalReturnTypesTest extends BindgenUnitTestBase {
+
+    public BindgenOptionalReturnTypesTest() {
+        this.withOptionalReturnTypes = true;
+        this.resourceDirectory = Paths.get("src")
+                .resolve("test")
+                .resolve("resources")
+                .resolve("unit-test-resources")
+                .resolve("withOptionalReturnTypes")
+                .toAbsolutePath();
+    }
 
     @Override
     @Test
@@ -54,18 +65,6 @@ public class BindgenUnitTest extends BindgenUnitTestBase {
     @Test
     public void innerClassMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         super.innerClassMapping();
-    }
-
-    @Override
-    @Test
-    public void moduleLevelMapping1() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
-        super.moduleLevelMapping1();
-    }
-
-    @Override
-    @Test
-    public void moduleLevelMapping2() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
-        super.moduleLevelMapping2();
     }
 
     @Override

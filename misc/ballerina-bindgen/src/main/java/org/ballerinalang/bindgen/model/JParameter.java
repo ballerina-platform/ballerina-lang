@@ -130,9 +130,6 @@ public class JParameter {
     private void setArrayAttributes(Class parameterClass) {
         Class component = parameterClass.getComponentType();
         componentType = component.getTypeName();
-        if (isOptional) {
-            componentType = componentType + "?";
-        }
         if (!parameterClass.getComponentType().isPrimitive()) {
             isObjArray = true;
             isObj = false;

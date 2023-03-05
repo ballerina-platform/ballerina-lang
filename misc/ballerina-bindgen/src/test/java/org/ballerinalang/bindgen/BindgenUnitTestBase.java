@@ -1,7 +1,7 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -39,10 +39,14 @@ import java.nio.file.Paths;
  */
 public class BindgenUnitTestBase {
 
+    protected boolean withOptionalParamTypes = false;
+    protected boolean withOptionalReturnTypes = false;
     protected Path resourceDirectory = Paths.get("src").resolve("test").resolve("resources")
             .resolve("unit-test-resources").toAbsolutePath();
 
-    // @Test(description = "Test the constructor bindings generated")
+    /**
+     * Test the constructor bindings generated.
+     */
     public void constructorMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         Path constructorFilePath = Paths.get(resourceDirectory.toString(), "constructors.bal");
         String constructors = Files.readString(resourceDirectory.resolve(constructorFilePath));
@@ -52,7 +56,9 @@ public class BindgenUnitTestBase {
         Assert.assertFalse(cSyntaxTree.hasDiagnostics());
     }
 
-    // @Test(description = "Test the method bindings generated, includes scenarios for static and instance fields.")
+    /**
+     * Test the method bindings generated, includes scenarios for static and instance fields.
+     */
     public void methodMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         Path methodFilePath = Paths.get(resourceDirectory.toString(), "methods.bal");
         String methods = Files.readString(resourceDirectory.resolve(methodFilePath));
@@ -62,7 +68,9 @@ public class BindgenUnitTestBase {
         Assert.assertFalse(mSyntaxTree.hasDiagnostics());
     }
 
-    // @Test(description = "Test the field bindings generated, includes scenarios for static and instance fields.")
+    /**
+     * Test the field bindings generated, includes scenarios for static and instance fields.
+     */
     public void fieldMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         Path fieldFilePath = Paths.get(resourceDirectory.toString(), "fields.bal");
         String fields = Files.readString(resourceDirectory.resolve(fieldFilePath));
@@ -72,7 +80,9 @@ public class BindgenUnitTestBase {
         Assert.assertFalse(fSyntaxTree.hasDiagnostics());
     }
 
-    // @Test(description = "Test the error bindings generated for a throwable.")
+    /**
+     * Test the error bindings generated for a throwable.
+     */
     public void errorMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         Path errorFilePath = Paths.get(resourceDirectory.toString(), "error.bal");
         String error = Files.readString(resourceDirectory.resolve(errorFilePath));
@@ -82,7 +92,9 @@ public class BindgenUnitTestBase {
         Assert.assertFalse(eSyntaxTree.hasDiagnostics());
     }
 
-    // @Test(description = "Test the bindings generated for Java inner classes.")
+    /**
+     * Test the bindings generated for Java inner classes.
+     */
     public void innerClassMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         Path innerClassFilePath = Paths.get(resourceDirectory.toString(), "innerClass.bal");
         String innerClass = Files.readString(resourceDirectory.resolve(innerClassFilePath));
@@ -92,7 +104,9 @@ public class BindgenUnitTestBase {
         Assert.assertFalse(iSyntaxTree.hasDiagnostics());
     }
 
-    // @Test(description = "Test the bindings generated for a module level mapping.")
+    /**
+     * Test the bindings generated for a module level mapping.
+     */
     public void moduleLevelMapping1() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         BindgenEnv moduleBindgenEnv = new BindgenEnv();
         moduleBindgenEnv.setDirectJavaClass(true);
@@ -109,7 +123,9 @@ public class BindgenUnitTestBase {
         Assert.assertFalse(moduleSyntaxTree.hasDiagnostics());
     }
 
-    // @Test(description = "Test the bindings generated for a module level mapping.")
+    /**
+     * Test the bindings generated for a module level mapping.
+     */
     public void moduleLevelMapping2() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         BindgenEnv moduleBindgenEnv = new BindgenEnv();
         moduleBindgenEnv.setDirectJavaClass(true);
@@ -126,10 +142,12 @@ public class BindgenUnitTestBase {
         Assert.assertFalse(moduleSyntaxTree.hasDiagnostics());
     }
 
-    // @Test(description = "Test the bindings generated for an indirect (dependent) class mapping.")
+    /**
+     * Test the bindings generated for an indirect (dependent) class mapping.
+     */
     public void dependentClassMapping() throws FormatterException, ClassNotFoundException,
             BindgenException, IOException {
-        BindgenEnv bindgenEnv = new BindgenEnv();
+        BindgenEnv bindgenEnv = getBindgenEnv();
         bindgenEnv.setDirectJavaClass(false);
         BindgenFileGenerator bindingsGenerator = new BindgenFileGenerator(bindgenEnv);
 
@@ -141,7 +159,9 @@ public class BindgenUnitTestBase {
         Assert.assertFalse(syntaxTree.hasDiagnostics());
     }
 
-    // @Test(description = "Test the bindings generated for a direct throwable class mapping.")
+    /**
+     * Test the bindings generated for a direct throwable class mapping.
+     */
     public void directThrowableMapping() throws FormatterException, ClassNotFoundException,
             BindgenException, IOException {
         BindgenEnv throwableBindgenEnv = getBindgenEnv();
@@ -155,10 +175,12 @@ public class BindgenUnitTestBase {
         Assert.assertFalse(throwableSyntaxTree.hasDiagnostics());
     }
 
-    // @Test(description = "Test the bindings generated for an dependent inner class mapping.")
+    /**
+     * Test the bindings generated for an dependent inner class mapping.
+     */
     public void dependentInnerClassMapping() throws FormatterException, ClassNotFoundException,
             BindgenException, IOException {
-        BindgenEnv bindgenEnv = new BindgenEnv();
+        BindgenEnv bindgenEnv = getBindgenEnv();
         bindgenEnv.setDirectJavaClass(false);
         BindgenFileGenerator bindingsGenerator = new BindgenFileGenerator(bindgenEnv);
 
@@ -170,9 +192,11 @@ public class BindgenUnitTestBase {
         Assert.assertFalse(syntaxTree.hasDiagnostics());
     }
 
-    // @Test(description = "Test the bindings generated for a Java interface.")
+    /**
+     * Test the bindings generated for a Java interface.
+     */
     public void interfaceMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
-        BindgenEnv interfaceBindgenEnv = new BindgenEnv();
+        BindgenEnv interfaceBindgenEnv = getBindgenEnv();
         interfaceBindgenEnv.setDirectJavaClass(true);
         interfaceBindgenEnv.setModulesFlag(true);
         interfaceBindgenEnv.setPackageName("test");
@@ -187,13 +211,21 @@ public class BindgenUnitTestBase {
         Assert.assertFalse(interfaceSyntaxTree.hasDiagnostics());
     }
 
-    private BindgenEnv getBindgenEnv() {
+    protected BindgenEnv getBindgenEnv() {
         BindgenEnv bindgenEnv = new BindgenEnv();
         bindgenEnv.setDirectJavaClass(true);
+        if (withOptionalParamTypes && withOptionalReturnTypes) {
+            bindgenEnv.setOptionalTypesFlag(true);
+        } else if (withOptionalParamTypes) {
+            bindgenEnv.setOptionalParamTypesFlag(true);
+        } else if (withOptionalReturnTypes) {
+            bindgenEnv.setOptionalReturnTypesFlag(true);
+        }
+
         return bindgenEnv;
     }
 
-    private BindgenFileGenerator getBindingsGenerator() {
+    protected BindgenFileGenerator getBindingsGenerator() {
         return new BindgenFileGenerator(getBindgenEnv());
     }
 }
