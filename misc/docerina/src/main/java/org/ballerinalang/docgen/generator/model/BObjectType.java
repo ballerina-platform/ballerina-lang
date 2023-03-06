@@ -31,10 +31,13 @@ public class BObjectType extends Construct {
     public List<Function> methods;
     @Expose
     public boolean isDistinct = false;
+    @Expose
+    public boolean isService;
 
-    public BObjectType(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
-                       List<Function> methods) {
+    public BObjectType(String name, String description, boolean isDeprecated, boolean isService,
+                       List<DefaultableVariable> fields, List<Function> methods) {
         super(name, description, isDeprecated);
+        this.isService = isService;
         this.fields = fields;
         this.methods = methods;
     }

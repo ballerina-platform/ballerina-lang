@@ -477,6 +477,7 @@ public class Generator {
 
         String description = getDocFromMetadata(optionalMetadataNode);
         boolean isDeprecated = isDeprecated(optionalMetadataNode);
+        boolean isService = containsToken(typeDescriptorNode.objectTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD);
 
         List<DefaultableVariable> fields = getDefaultableVariableList(typeDescriptorNode.members(),
                 optionalMetadataNode, semanticModel);
@@ -547,7 +548,7 @@ public class Generator {
 
         functions.addAll(objectFunctions);
 
-        return new BObjectType(objectName, description, isDeprecated, fields, functions);
+        return new BObjectType(objectName, description, isDeprecated, isService, fields, functions);
     }
 
     private static List<Function> mapFunctionTypesToFunctions(List<FunctionType> functionTypes, Type originType) {
