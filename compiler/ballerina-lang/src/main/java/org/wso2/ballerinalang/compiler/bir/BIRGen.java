@@ -669,7 +669,7 @@ public class BIRGen extends BLangNodeVisitor {
                         pathSegmentPosList.add(pathSegmentSym.pos);
                         pathSegmentTypeList.add(pathSegmentSym.type);
                     }
-                    
+
                     birFunc.resourcePathSegmentPosList = pathSegmentPosList;
                     birFunc.resourcePath = pathSegmentNameList;
                     birFunc.accessor = resourceFunction.accessor;

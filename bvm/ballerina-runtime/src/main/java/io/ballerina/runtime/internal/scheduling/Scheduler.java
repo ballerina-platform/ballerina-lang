@@ -209,8 +209,8 @@ public class Scheduler {
     }
 
     public FutureValue scheduleTransactional(Object[] params, Function function, Strand parent, Callback callback,
-                                Map<String, Object> properties, Type returnType, String strandName,
-                                StrandMetadata metadata) {
+                                             Map<String, Object> properties, Type returnType, String strandName,
+                                             StrandMetadata metadata) {
         FutureValue future = createTransactionalFuture(parent, callback, properties, returnType, strandName, metadata);
         return schedule(params, function, future);
     }
@@ -512,7 +512,8 @@ public class Scheduler {
 
     public FutureValue createFuture(Strand parent, Callback callback, Map<String, Object> properties,
                                     Type constraint, String name, StrandMetadata metadata) {
-        Strand newStrand = new Strand(name, metadata, this, parent, properties);
+        Strand newStrand = new Strand(name, metadata, this, parent, properties, parent != null ?
+                parent.currentTrxContext : null);
         currentStrands.put(newStrand.getId(), newStrand);
         return createFuture(parent, callback, constraint, newStrand);
     }
