@@ -236,6 +236,11 @@ public class ElvisExpressionTest {
         BRunUtil.invoke(compileResult, "testElvisExprWithIntersectionTypes");
     }
 
+    @Test
+    public void testElvisExprWithBuiltInNilableUnion() {
+        BRunUtil.invoke(compileResult, "testElvisExprWithBuiltInNilableUnion");
+    }
+
     @Test(description = "Negative test cases.")
     public void testElvisOperatorNegative() {
         int index = 0;
@@ -293,6 +298,14 @@ public class ElvisExpressionTest {
                 "'NonOptionalType'", 133, 15);
         BAssertUtil.validateError(negativeResult, index++, "operator '?:' cannot be applied to type " +
                 "'(int[]|string)'", 135, 15);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'json', found 'xml:Text'",
+                                  142, 20);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'anydata', found " +
+                "'stream<int>'", 143, 23);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'anydata', found " +
+                "'stream<int>'", 146, 23);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'any', found 'error'", 149,
+                                  20);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 }

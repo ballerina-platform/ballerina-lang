@@ -442,6 +442,33 @@ function testElvisExprWithIntersectionTypes() {
     assertEquals([30, 21], d);
 }
 
+function testElvisExprWithBuiltInNilableUnion() {
+    json j1 = 1;
+    json j2 = j1 ?: "nil";
+    assertEquals(1, j2);
+    json j3 = ();
+    json j4 = j3 ?: "nil";
+    assertEquals("nil", j4);
+    anydata a1 = j3 ?: xml `text`;
+    assertEquals(xml `text`, a1);
+
+    anydata k1 = 12;
+    anydata k2 = k1 ?: 123;
+    assertEquals(12, k2);
+    anydata k3 = ();
+    anydata k4 = k3 ?: 123;
+    assertEquals(123, k4);
+    any k5 = k3 ?: "nil value 2";
+    assertEquals("nil value 2", <anydata> k5);
+
+    any l1 = 3;
+    any l2 = l1 ?: "empty";
+    assertEquals(3, <anydata> l2);
+    any l3 = ();
+    any l4 = l3 ?: "empty";
+    assertEquals("empty", <anydata> l4);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquals(anydata expected, anydata actual) {

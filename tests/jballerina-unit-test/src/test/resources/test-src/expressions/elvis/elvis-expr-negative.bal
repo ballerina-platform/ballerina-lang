@@ -134,3 +134,17 @@ function testInvalidElvisExpr(NonOptionalType i) {
     int[]|string j = "str";
     int[] _ = j ?: [1, 2, 3]; // error
 }
+
+function testElvisExprWithBuiltInNilableUnionNegative() {
+    stream<int> str = new;
+
+    json j1 = 1;
+    json _ = j1 ?: xml `text`;
+    anydata _ = j1 ?: str;
+
+    anydata k1 = 12;
+    anydata _ = k1 ?: str;
+
+    any l1 = 3;
+    any l2 = l1 ?: error("Oops!");
+}
