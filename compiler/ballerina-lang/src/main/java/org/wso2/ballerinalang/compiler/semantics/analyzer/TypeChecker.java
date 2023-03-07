@@ -5109,16 +5109,22 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType actualType = symTable.semanticError;
         if (lhsType != symTable.semanticError) {
             BType referencedType = Types.getReferredType(lhsType);
-            if (referencedType.tag == TypeTags.UNION && referencedType.isNullable()) {
-                BUnionType unionType = (BUnionType) referencedType;
-                LinkedHashSet<BType> memberTypes = unionType.getMemberTypes().stream()
-                        .filter(type -> type.tag != TypeTags.NIL)
-                        .collect(Collectors.toCollection(LinkedHashSet::new));
+            if (referencedType.isNullable()) {
+                if (referencedType.tag == TypeTags.UNION) {
+                    BUnionType unionType = (BUnionType) referencedType;
+                    LinkedHashSet<BType> memberTypes = unionType.getMemberTypes().stream()
+                            .filter(type -> type.tag != TypeTags.NIL)
+                            .collect(Collectors.toCollection(LinkedHashSet::new));
 
-                if (memberTypes.size() == 1) {
-                    actualType = memberTypes.toArray(new BType[0])[0];
+                    if (memberTypes.size() == 1) {
+                        actualType = memberTypes.toArray(new BType[0])[0];
+                    } else {
+                        actualType = BUnionType.create(null, memberTypes);
+                    }
                 } else {
-                    actualType = BUnionType.create(null, memberTypes);
+                    // This is a builtin union type (any, anydata, json), we use the type as is
+                    // since we don't have a way to represent the union - nil at the moment.
+                    actualType = referencedType;
                 }
             } else {
                 dlog.error(elvisExpr.pos, DiagnosticErrorCode.OPERATOR_NOT_SUPPORTED, OperatorKind.ELVIS,
