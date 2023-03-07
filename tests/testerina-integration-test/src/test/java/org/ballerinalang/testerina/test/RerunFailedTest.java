@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Test class containting tests related to Rerun failed test functionality.
@@ -49,7 +50,7 @@ public class RerunFailedTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"rerun-failed-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("RerunFailedTest-testFullTest.txt", output);
+        AssertionUtils.assertOutput("RerunFailedTest-testFullTest.txt", output.replaceAll("\r", ""));
     }
 
     @Test (dependsOnMethods = "testFullTest")
@@ -57,8 +58,37 @@ public class RerunFailedTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--rerun-failed", "rerun-failed-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        AssertionUtils.assertOutput("RerunFailedTest-testRerunFailedTest.txt", output);
+        AssertionUtils.assertOutput("RerunFailedTest-testRerunFailedTest.txt", output.replaceAll("\r", ""));
+    }
 
+    @Test (dependsOnMethods = "testRerunFailedTest")
+    public void testRerunFailedTestWithoutAnInitialRun() throws BallerinaTestException, IOException {
+        // delete the target directory along with rerun_test.json file
+        String packageDirName = "rerun-failed-tests";
+        runBalClean(packageDirName);
+
+        String[] args = new String[]{"--rerun-failed", packageDirName};
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
+        AssertionUtils.assertOutput("RerunFailedTest-testRerunFailedTestWithoutAnInitialRun.txt",
+                output.replaceAll("\r", ""));
+    }
+
+    @Test
+    public void testRerunFailedTestWithInvalidRunTestJson() throws BallerinaTestException, IOException {
+        String[] args = new String[]{"--rerun-failed", "rerun-failed-tests-with-invalid-json"};
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        AssertionUtils.assertOutput("RerunFailedTest-testRerunFailedTestWithInvalidRunTestJson.txt",
+                output.replaceAll("\r", ""));
+    }
+
+    @Test
+    public void testRerunFailedTestWithMissingModuleNameInRunTestJson() throws BallerinaTestException, IOException {
+        String[] args = new String[]{"--rerun-failed", "rerun-failed-tests-with-missing-module-name"};
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        AssertionUtils.assertOutput("RerunFailedTest-testRerunFailedTestWithMissingModuleNameInRunTestJson.txt",
+                output.replaceAll("\r", ""));
     }
 
     @AfterMethod
@@ -68,5 +98,12 @@ public class RerunFailedTest extends BaseTestCase {
         } catch (IOException e) {
             // ignore exception
         }
+    }
+
+    private void runBalClean(String packageDirName) throws BallerinaTestException {
+        String[] args = new String[]{"--target-dir", packageDirName + "/target"};
+        Map<String, String> envProperties = new HashMap<>();
+        envProperties.put("user.dir", projectPath);
+        balClient.runMain("clean", args, envProperties, null, null, projectPath);
     }
 }
