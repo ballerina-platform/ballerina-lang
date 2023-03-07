@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NodeParser;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
@@ -43,12 +44,17 @@ import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import org.eclipse.lsp4j.services.LanguageServer;
 
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
 import static io.ballerina.parsers.Constants.SPACE_COUNT_FOR_ST_TAB;
 
+enum Kind {
+    BLOCK_LEVEL_STATEMENT,
+    EXPRESSION
+}
 
 /**
  * The extended service for the PartialParser endpoint.
@@ -77,7 +83,7 @@ public class PartialParserService implements ExtendedLanguageServerService {
 
             String statement = STModificationUtil.getModifiedStatement(request.getCodeSnippet(),
                     request.getStModification());
-            String formattedSourceCode = getFunctionBodiedFormattedSource(statement);
+            String formattedSourceCode = getFormattedSourceForBlockStatement(statement);
             String sourceToBeParsed = getLinesWithoutLeadingTab(formattedSourceCode);
 
             StatementNode statementNode = NodeParser.parseStatement(sourceToBeParsed);
@@ -92,9 +98,9 @@ public class PartialParserService implements ExtendedLanguageServerService {
     @JsonRequest
     public CompletableFuture<STResponse> getSTForExpression(PartialSTRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            String statement = STModificationUtil.getModifiedStatement(request.getCodeSnippet(),
+            String expression = STModificationUtil.getModifiedStatement(request.getCodeSnippet(),
                     request.getStModification());
-            String formattedSourceCode = getFormattedSource(statement);
+            String formattedSourceCode = getFormattedSourceForExpression(expression);
 
             ExpressionNode expressionNode = NodeParser.parseExpression(formattedSourceCode);
             JsonElement syntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(expressionNode);
@@ -174,9 +180,9 @@ public class PartialParserService implements ExtendedLanguageServerService {
         return formattedSourceCode;
     }
 
-    private String getFunctionBodiedFormattedSource(String statement) {
+    private String getFormattedSourceForBlockStatement(String statement) {
 
-        SyntaxTree syntaxTree = getSTForSourceWithinMain(statement);
+        SyntaxTree syntaxTree = getSTForSource(statement, Kind.BLOCK_LEVEL_STATEMENT);
         String formattedSourceCode = statement;
 
         try {
@@ -187,6 +193,26 @@ public class PartialParserService implements ExtendedLanguageServerService {
             formattedSourceCode = functionBodyBlockNode.statements().get(0).toSourceCode();
         } catch (FormatterException | NullPointerException e) {
             String msg = "[Warn] Failed to apply formatting before parsing statement";
+            this.serverContext.get(ExtendedLanguageClient.class).logMessage(new MessageParams(MessageType.Error, msg));
+        }
+
+        return formattedSourceCode;
+    }
+
+    private String getFormattedSourceForExpression(String expression) {
+
+        SyntaxTree syntaxTree = getSTForSource(expression, Kind.EXPRESSION);
+        String formattedSourceCode = expression;
+
+        try {
+            SyntaxTree formattedTree = Formatter.format(syntaxTree);
+            ModulePartNode modulePartNode = formattedTree.rootNode();
+            ModuleVariableDeclarationNode moduleVariableDeclarationNode =
+                    (ModuleVariableDeclarationNode) modulePartNode.members().get(0);
+            ExpressionNode expressionNode = moduleVariableDeclarationNode.initializer().orElse(null);
+            formattedSourceCode = Objects.requireNonNull(expressionNode).toSourceCode();
+        } catch (FormatterException | NullPointerException e) {
+            String msg = "[Warn] Failed to apply formatting before parsing expression";
             this.serverContext.get(ExtendedLanguageClient.class).logMessage(new MessageParams(MessageType.Error, msg));
         }
 
@@ -205,9 +231,14 @@ public class PartialParserService implements ExtendedLanguageServerService {
         return sj.toString();
     }
 
-    private SyntaxTree getSTForSourceWithinMain(String statement) {
-        String source = String.format("public function main() { %s };", statement);
-        TextDocument textDocument = TextDocuments.from(source);
+    private SyntaxTree getSTForSource(String source, Kind kind) {
+        String wrappedSource = source;
+        if (kind == Kind.BLOCK_LEVEL_STATEMENT) {
+            wrappedSource = String.format("public function main() { %s };", source);
+        } else if (kind == Kind.EXPRESSION) {
+            wrappedSource = String.format("var expr = %s;", source);
+        }
+        TextDocument textDocument = TextDocuments.from(wrappedSource);
         return SyntaxTree.from(textDocument);
     }
 }
