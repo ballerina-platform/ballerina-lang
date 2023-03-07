@@ -24,3 +24,36 @@ function testModulePublicAndPrivateTypes() {
         test:assertEquals(timeZone.getInt({year:1, month: 2, day: 3}), 6);
     }
 }
+
+type DistinctError distinct error;
+
+function testAnonymousDistinctErrorTypes() {
+    error err = error("");
+    boolean ans = err is test_module:InvalidDocumentError;
+    test:assertFalse(ans);
+    test_module:InvalidDocumentError|error err2 = trap <test_module:InvalidDocumentError>err;
+    test:assertTrue(err2 is error);
+    test:assertFalse(err2 is test_module:InvalidDocumentError);
+
+    test_module:InvalidDocumentError err3 = error("err3", errors = []);
+    test_module:PayloadBindingError err4 = error("err4", errors = ());
+    test_module:RequestError err5 = error test_module:RequestError("err5");
+    test_module:ClientError err6 = error("err6");
+    error<record {| test_module:ErrorDetail[]? errors; |}> err7 = error("err7", errors = []);
+    test:assertTrue(err3 is error);
+    test:assertTrue(err4 is error);
+    test:assertFalse(err3 is test_module:PayloadBindingError);
+    test:assertFalse(err4 is test_module:InvalidDocumentError);
+    test:assertFalse(err4 is DistinctError);
+    test:assertTrue(err3 is test_module:RequestError);
+    test:assertTrue(err3 is test_module:ClientError);
+    test:assertFalse(err4 is test_module:RequestError);
+    test:assertTrue(err3 is error<record {| test_module:ErrorDetail[]? errors; |}>);
+    test:assertFalse(err5 is test_module:PayloadBindingError);
+    test:assertFalse(err6 is test_module:PayloadBindingError);
+    test:assertFalse(err7 is test_module:InvalidDocumentError);
+    test:assertTrue(err3 is (test_module:RequestError & error<record {| test_module:ErrorDetail[]? errors; |}>));
+
+    DistinctError err8 = error DistinctError("err8");
+    test:assertFalse(err8 is test_module:InvalidDocumentError);
+}

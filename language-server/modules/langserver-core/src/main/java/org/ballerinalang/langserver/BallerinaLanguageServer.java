@@ -63,7 +63,9 @@ import org.eclipse.lsp4j.TextDocumentRegistrationOptions;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.WatchKind;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4j.services.NotebookDocumentService;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
@@ -89,6 +91,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private ExtendedLanguageClient client = null;
     private final TextDocumentService textService;
     private final WorkspaceService workspaceService;
+    private final NotebookDocumentService notebookService;
     private int shutdown = 1;
 
     private static final String LS_ENABLE_SEMANTIC_HIGHLIGHTING = "enableSemanticHighlighting";
@@ -101,6 +104,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         super(serverContext);
         this.textService = new BallerinaTextDocumentService(this, workspaceManagerProxy, this.serverContext);
         this.workspaceService = new BallerinaWorkspaceService(this, workspaceManagerProxy, this.serverContext);
+        this.notebookService = new BallerinaNotebookDocumentService(this.serverContext);
     }
 
     public ExtendedLanguageClient getClient() {
@@ -356,6 +360,11 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         return this.textService;
     }
 
+    @Override
+    public NotebookDocumentService getNotebookDocumentService() {
+        return this.notebookService;
+    }
+
     public WorkspaceService getWorkspaceService() {
         return this.workspaceService;
     }
@@ -401,16 +410,18 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private void startListeningFileChanges() {
         ExtendedLanguageClient languageClient = serverContext.get(ExtendedLanguageClient.class);
         List<FileSystemWatcher> watchers = new ArrayList<>();
-        watchers.add(new FileSystemWatcher("/**/*.bal", WatchKind.Create + WatchKind.Delete + WatchKind.Change));
-        watchers.add(new FileSystemWatcher("/**/modules/*", WatchKind.Create + WatchKind.Delete));
-        watchers.add(new FileSystemWatcher("/**/modules", WatchKind.Delete));
-        watchers.add(new FileSystemWatcher("/**/generated/*", WatchKind.Create + WatchKind.Delete));
-        watchers.add(new FileSystemWatcher("/**/generated", WatchKind.Delete));
-        watchers.add(new FileSystemWatcher("/**/" + ProjectConstants.BALLERINA_TOML,
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/*.bal"),
+                WatchKind.Create + WatchKind.Delete + WatchKind.Change));
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/modules/*"), WatchKind.Create + WatchKind.Delete));
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/modules"), WatchKind.Delete));
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/generated/*"),
                 WatchKind.Create + WatchKind.Delete));
-        watchers.add(new FileSystemWatcher("/**/" + ProjectConstants.CLOUD_TOML,
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/generated"), WatchKind.Delete));
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/" + ProjectConstants.BALLERINA_TOML),
                 WatchKind.Create + WatchKind.Delete));
-        watchers.add(new FileSystemWatcher("/**/" + ProjectConstants.DEPENDENCIES_TOML,
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/" + ProjectConstants.CLOUD_TOML),
+                WatchKind.Create + WatchKind.Delete));
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/" + ProjectConstants.DEPENDENCIES_TOML),
                 WatchKind.Create + WatchKind.Delete));
         DidChangeWatchedFilesRegistrationOptions opts = new DidChangeWatchedFilesRegistrationOptions(watchers);
         Registration registration = new Registration(UUID.randomUUID().toString(),

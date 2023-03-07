@@ -138,6 +138,8 @@ jobs:
           
       - name: Build with Gradle
         env:
+          packageUser: ${{ github.actor }}
+          packagePAT: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         if: "${{ env.SONAR_TOKEN != '' }}"

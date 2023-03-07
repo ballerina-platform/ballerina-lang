@@ -74,6 +74,17 @@ public class FunctionCallExpressionTest {
                 {98, 16, TypeDescKind.INT},
                 {100, 34, TypeDescKind.UNION},
                 {101, 24, TypeDescKind.INT},
+                {110, 25, TypeDescKind.TYPEDESC},
+                {111, 27, TypeDescKind.TYPEDESC},
+                {114, 20, TypeDescKind.STRING},
+                {115, 21, TypeDescKind.INT},
+                {116, 22, TypeDescKind.INT},
+                {120, 8, TypeDescKind.INT},
+                {121, 12, TypeDescKind.INT},
+                {122, 19, TypeDescKind.STRING},
+                {123, 20, TypeDescKind.INT},
+                {124, 22, TypeDescKind.INT},
+                {136, 32, TypeDescKind.STRING},
         };
     }
 }

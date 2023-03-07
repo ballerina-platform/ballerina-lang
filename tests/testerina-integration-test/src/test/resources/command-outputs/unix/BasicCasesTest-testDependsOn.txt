@@ -1,0 +1,26 @@
+Compiling source
+	intg_tests/depends_on:0.0.0
+
+Running Tests with Coverage
+
+	depends_on
+		[pass] test1
+		[pass] test2
+		[pass] test3
+		[pass] test4
+		[pass] testWithBefore1
+		[pass] testWithBefore2
+		[pass] testWithBefore3
+		[pass] testWithBefore4
+		[pass] testAddingValues#0
+		[pass] testAddingValues#1
+		[pass] testAddingValues#2
+		[pass] testAddingValuesDependant
+
+
+		12 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	depends-on/target/report/test_results.json
