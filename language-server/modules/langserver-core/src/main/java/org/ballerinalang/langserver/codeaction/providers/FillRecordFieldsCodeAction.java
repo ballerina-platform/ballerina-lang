@@ -27,7 +27,6 @@ import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.CodeActionContextTypeResolver;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -90,8 +89,12 @@ public class FillRecordFieldsCodeAction implements RangeBasedCodeActionProvider 
         if (expressionNode.isEmpty()) {
             return Collections.emptyList();
         }
-        CodeActionContextTypeResolver contextTypeResolver = new CodeActionContextTypeResolver(context);
-        Optional<TypeSymbol> typeSymbol = expressionNode.get().apply(contextTypeResolver);
+
+        Optional<TypeSymbol> typeSymbol = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+             typeSymbol = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), expressionNode.get().lineRange().startLine());
+        }
         if (typeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
