@@ -18,6 +18,7 @@
 package io.ballerina.runtime.api;
 
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.internal.scheduling.State;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
@@ -34,6 +35,8 @@ public class Environment {
     private final Strand strand;
     private Future future;
     private Module currentModule;
+    private String funcName;
+    private Parameter[] funcPathParams;
 
     public Environment(Strand strand) {
         this.strand = strand;
@@ -43,6 +46,20 @@ public class Environment {
         this.strand = strand;
         this.currentModule = currentModule;
         future = new Future(this.strand);
+    }
+
+    public Environment(Strand strand, Module currentModule, String funcName, Parameter[] funcPathParams) {
+        this(strand, currentModule);
+        this.funcName = funcName;
+        this.funcPathParams = funcPathParams;
+    }
+
+    public String getFunctionName() {
+        return funcName;
+    }
+
+    public Parameter[] getFunctionPathParameters() {
+        return funcPathParams;
     }
 
     /**

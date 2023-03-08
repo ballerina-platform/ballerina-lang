@@ -21,6 +21,7 @@ import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -43,7 +44,9 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -76,6 +79,7 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.H_INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IFGT;
 import static org.objectweb.asm.Opcodes.IFNONNULL;
@@ -106,6 +110,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_M
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_LOCK_NAME;
@@ -165,8 +170,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_F
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_WAIT_ANY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_WAIT_MULTIPLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_WORKER_ERROR;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_BAL_ENV;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_BAL_ENV_WITH_FUNC_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_DECIMAL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_TO_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.IS_CONCURRENT;
@@ -375,7 +381,7 @@ public class JvmTerminatorGen {
                 this.genFlushIns((BIRTerminator.Flush) terminator, localVarOffset, invocationVarIndex);
                 return;
             case PLATFORM:
-                this.genPlatformIns((JTerminator) terminator, attachedType, localVarOffset);
+                this.genPlatformIns((JTerminator) terminator, attachedType, localVarOffset, func);
                 return;
         }
         throw new BLangCompilerException("JVM generation is not supported for terminator instruction " +
@@ -482,13 +488,14 @@ public class JvmTerminatorGen {
         this.storeReturnFromCallIns(callIns.lhsOp != null ? callIns.lhsOp.variableDcl : null);
     }
 
-    private void genPlatformIns(JTerminator terminator, BType attachedType, int localVarOffset) {
+    private void genPlatformIns(JTerminator terminator, BType attachedType, int localVarOffset,
+                                BIRNode.BIRFunction func) {
         switch (terminator.jTermKind) {
             case J_METHOD_CALL:
                 this.genJCallTerm((JavaMethodCall) terminator, attachedType, localVarOffset);
                 return;
             case JI_METHOD_CALL:
-                this.genJICallTerm((JIMethodCall) terminator, localVarOffset);
+                this.genJICallTerm((JIMethodCall) terminator, localVarOffset, func);
                 return;
             case JI_CONSTRUCTOR_CALL:
                 this.genJIConstructorTerm((JIConstructorCall) terminator, localVarOffset);
@@ -544,7 +551,7 @@ public class JvmTerminatorGen {
         this.mv.visitLabel(notBlockedOnExternLabel);
     }
 
-    private void genJICallTerm(JIMethodCall callIns, int localVarOffset) {
+    private void genJICallTerm(JIMethodCall callIns, int localVarOffset, BIRNode.BIRFunction func) {
         // Load function parameters of the target Java method to the stack..
         Label blockedOnExternLabel = new Label();
         Label notBlockedOnExternLabel = new Label();
@@ -604,8 +611,11 @@ public class JvmTerminatorGen {
             this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
             // load the current Module
             mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
+            // load function name
+            mv.visitLdcInsn(func.name.getValue());
+            loadFuncPathParams(mv, (BInvokableTypeSymbol) func.type.tsymbol);
             mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD,
-                               INIT_BAL_ENV, false);
+                               INIT_BAL_ENV_WITH_FUNC_NAME, false);
         }
 
         int argsCount = callIns.varArgExist ? callIns.args.size() - 1 : callIns.args.size();
@@ -647,6 +657,46 @@ public class JvmTerminatorGen {
         }
 
         this.mv.visitLabel(notBlockedOnExternLabel);
+    }
+
+    private void loadFuncPathParams(MethodVisitor mv, BInvokableTypeSymbol invokableSymbol) {
+
+        List<BVarSymbol> params = new ArrayList<>();
+        if (invokableSymbol != null) {
+            for (BVarSymbol param : invokableSymbol.params) {
+                SymbolKind paramKind = param.getKind();
+                if (paramKind != SymbolKind.PATH_PARAMETER && paramKind != SymbolKind.PATH_REST_PARAMETER) {
+                    break;
+                }
+                params.add(param);
+            }
+        }
+        mv.visitLdcInsn((long) params.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, FUNCTION_PARAMETER);
+        for (int i = 0; i < params.size(); i++) {
+            BVarSymbol paramSymbol = params.get(i);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+            mv.visitTypeInsn(NEW, FUNCTION_PARAMETER);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(paramSymbol.name.value);
+            if (paramSymbol.isDefaultable) {
+                mv.visitInsn(ICONST_1);
+            } else {
+                mv.visitInsn(ICONST_0);
+            }
+            BInvokableSymbol bInvokableSymbol = invokableSymbol.defaultValues.get(paramSymbol.name.value);
+            if (bInvokableSymbol == null) {
+                mv.visitInsn(ACONST_NULL);
+            } else {
+                mv.visitLdcInsn(bInvokableSymbol.name.value);
+            }
+            this.jvmTypeGen.loadType(mv, paramSymbol.type);
+            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, INIT_FUNCTION_PARAM, false);
+            mv.visitInsn(AASTORE);
+        }
     }
 
     private void genJIConstructorTerm(JIConstructorCall callIns, int localVarOffset) {
