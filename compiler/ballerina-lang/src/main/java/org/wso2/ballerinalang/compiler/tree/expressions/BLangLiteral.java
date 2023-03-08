@@ -36,6 +36,7 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
 
     // Semantic Data
     public boolean isFiniteContext;
+    public boolean isPartOfBinaryExpr;
 
     public BLangLiteral() {
     }

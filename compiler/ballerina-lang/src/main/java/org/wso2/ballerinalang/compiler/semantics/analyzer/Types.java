@@ -7214,4 +7214,25 @@ public class Types {
         }
         return true;
     }
+
+    public boolean isContainSubtypeOfInt(BType type) {
+        switch (type.tag) {
+            case TypeTags.BYTE:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
+                return true;
+            case TypeTags.UNION:
+                for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                    if (isContainSubtypeOfInt(memberType)) {
+                        return true;
+                    }
+                }
+                return false;
+        }
+        return false;
+    }
 }

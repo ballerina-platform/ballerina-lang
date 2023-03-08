@@ -67,10 +67,8 @@ public class TypeResolver {
     private final TypeParamAnalyzer typeParamAnalyzer;
     private final ConstantTypeChecker constantTypeChecker;
     private final ConstantTypeChecker.ResolveConstantExpressionType resolveConstantExpressionType;
-    private final ConstantTypeChecker.GetConstantValidType getConstantValidType;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
-    private final TypeChecker typeChecker;
 
     private List<BLangTypeDefinition> resolvingtypeDefinitions = new ArrayList<>();
     private HashMap<BIntersectionType, List<BLangType>> intersectionTypeList;
@@ -95,8 +93,6 @@ public class TypeResolver {
         this.constResolver = ConstantValueResolver.getInstance(context);
         this.constantTypeChecker = ConstantTypeChecker.getInstance(context);
         this.resolveConstantExpressionType = ConstantTypeChecker.ResolveConstantExpressionType.getInstance(context);
-        this.getConstantValidType = ConstantTypeChecker.GetConstantValidType.getInstance(context);
-        this.typeChecker = TypeChecker.getInstance(context);
     }
 
     public static TypeResolver getInstance(CompilerContext context) {
@@ -1821,37 +1817,16 @@ public class TypeResolver {
         // Type check and resolve the constant expression.
         BType inferredExpType = constantTypeChecker.checkConstExpr(constant.expr, staticType, data);
 
-        BType narrowedType = inferredExpType;
         if (inferredExpType == symTable.semanticError) {
             // Constant expression contains errors.
             constant.setBType(symTable.semanticError);
             constantSymbol.type = symTable.semanticError;
             symEnv.scope.define(constantSymbol.name, constantSymbol);
             return;
-        } else if (staticType != symTable.noType) {
-            data.diagCode = null;
-            // Validate the inferred expr type against static type.
-            // Narrow the inferred type according to the static type.
-            narrowedType = getConstantValidType.getValidType(staticType, inferredExpType, data);
-
-            if (data.diagCode == DiagnosticErrorCode.AMBIGUOUS_TYPES) {
-                dlog.error(constant.expr.pos, DiagnosticErrorCode.AMBIGUOUS_TYPES, staticType);
-                return;
-            } else if (narrowedType == symTable.semanticError) {
-                narrowedType = constantTypeChecker.getNarrowedType(inferredExpType);
-                dlog.error(constant.expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, staticType, narrowedType);
-                constantSymbol.type = symTable.semanticError;
-                symEnv.scope.define(constantSymbol.name, constantSymbol);
-                return;
-            }
         }
 
-//        if (narrowedType.tag == TypeTags.RECORD) {
-//            createTypeDefinition((BRecordType) narrowedType, constant.pos, symEnv);
-//        }
-
         // Get immutable type for the narrowed type.
-        BType intersectionType = ImmutableTypeCloner.getImmutableType(constant.pos, types, narrowedType, symEnv,
+        BType intersectionType = ImmutableTypeCloner.getImmutableType(constant.pos, types, inferredExpType, symEnv,
                 symEnv.scope.owner.pkgID, symEnv.scope.owner, symTable, anonymousModelHelper, names,
                 new HashSet<>());
 
@@ -1890,7 +1865,7 @@ public class TypeResolver {
         }
         // Add the symbol to the enclosing scope.
         BLangTypeDefinition typeDefinition = findTypeDefinition(symEnv.enclPkg.typeDefinitions,
-                narrowedType.tsymbol.name.value);
+                inferredExpType.tsymbol.name.value);
         if (typeDefinition != null && constant.associatedTypeDefinition == null) {
             constant.associatedTypeDefinition = typeDefinition;
         }

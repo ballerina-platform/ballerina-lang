@@ -2685,7 +2685,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return hasAllRequiredFields;
     }
 
-    private HashSet<String> getFieldNames(List<RecordLiteralNode.RecordField> specifiedFields, AnalyzerData data) {
+    public HashSet<String> getFieldNames(List<RecordLiteralNode.RecordField> specifiedFields, AnalyzerData data) {
         HashSet<String> fieldNames = new HashSet<>();
 
         for (RecordLiteralNode.RecordField specifiedField : specifiedFields) {
@@ -2903,6 +2903,19 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     actualType = symbolType;
                 } else {
                     actualType = constSymbol.literalType;
+
+                    // Handle the assignment of int to subtypes of int (byte, int:Signed16, ...).
+                    if (types.isContainSubtypeOfInt(expectedType)) {
+                        if (expectedType.tag != TypeTags.UNION) {
+                            actualType = types.isAssignable(symbolType, expectedType) ? expectedType : actualType;
+                        } else {
+                            BType posibleType = types.getAllTypes(expectedType, true).stream()
+                                    .filter(targetMemType ->
+                                            types.isAssignable(symbolType, targetMemType)).findFirst().get();
+                            actualType = posibleType != null ? posibleType : actualType;
+                        }
+                        constSymbol.literalType = actualType;
+                    }
                 }
 
                 // If the constant is on the LHS, modifications are not allowed.
