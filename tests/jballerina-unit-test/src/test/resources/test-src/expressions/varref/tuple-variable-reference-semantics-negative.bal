@@ -198,3 +198,14 @@ function testReadOnlyTupleWithListBindingPatternInDestructuringAssignmentNegativ
     int[] arr = [];
     d = arr;  // error
 }
+
+function testInvalidTupleVarRefWithMismatchingTypes() {
+    [int, int] a = [10, 20];
+    var [a1, a2, ...a3] = a;
+
+    [[int, string], int[]] b = [[10, "a"], [20, 30, 40, 50]];
+    var [b1, b2, ...b3] = b;
+
+    [[int, string], int[]] c = [[10, "a"], [20, 30, 40, 50]];
+    var [[c1, c2, ...c3], c4] = c;
+}
