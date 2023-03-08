@@ -108,7 +108,7 @@ class PositionUtil {
                 && (posLine == enclEndLine && posOffset <= enclEndOffset || posLine < enclEndLine);
     }
 
-    static boolean isWithinParenthesis(LinePosition linePosition, LineRange openParenLineRange,
+    static boolean isPositionWithinParenthesis(LinePosition linePosition, LineRange openParenLineRange,
                                                                   LineRange closedParenLineRange) {
 
         int posLine = linePosition.line();
