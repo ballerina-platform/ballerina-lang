@@ -213,8 +213,7 @@ public class XmlTreeBuilder {
             String uri = xmlStreamReader.getNamespaceURI(i);
             String prefix = xmlStreamReader.getNamespacePrefix(i);
             if (prefix == null || prefix.isEmpty()) {
-                attributesMap.put(StringUtils.fromString(XmlItem.XMLNS_NS_URI_PREFIX + "xmlns"),
-                                  StringUtils.fromString(uri));
+                attributesMap.put(XmlItem.XMLNS_PREFIX, StringUtils.fromString(uri));
             } else {
                 attributesMap.put(StringUtils.fromString(XmlItem.XMLNS_NS_URI_PREFIX + prefix),
                                   StringUtils.fromString(uri));

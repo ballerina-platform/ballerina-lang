@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -55,7 +54,6 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VA
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 import static io.ballerina.runtime.api.types.XmlNodeType.ELEMENT;
 import static io.ballerina.runtime.api.types.XmlNodeType.TEXT;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 
 /**
  * {@code XMLItem} represents a single XML element in Ballerina.
@@ -83,7 +81,6 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         probableParents = new ArrayList<>();
         this.type = PredefinedTypes.TYPE_ELEMENT;
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_ELEMENT : PredefinedTypes.TYPE_ELEMENT;
-        setTypedescValue(type);
     }
 
     public XmlItem(QName name, XmlSequence children) {
@@ -98,7 +95,6 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     public XmlItem(QName name) {
         this(name, new XmlSequence(new ArrayList<>()));
         this.type = PredefinedTypes.TYPE_ELEMENT;
-        setTypedescValue(type);
     }
 
     public XmlItem(QName name, boolean readonly) {
@@ -113,7 +109,6 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         probableParents = new ArrayList<>();
 
         this.type = readonly ? PredefinedTypes.TYPE_READONLY_ELEMENT : PredefinedTypes.TYPE_ELEMENT;
-        setTypedescValue(type);
     }
     private void addDefaultNamespaceAttribute(QName name, AttributeMapValueImpl attributes) {
         String namespace = name.getNamespaceURI();
@@ -122,12 +117,13 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         }
 
         String prefix = name.getPrefix();
-        if (prefix == null || prefix.isEmpty()) {
-            prefix = XMLNS;
+        BString xmlnsPrefix;
+        if (prefix == null || prefix.isEmpty() || prefix.equals(XMLNS)) {
+            xmlnsPrefix = XMLNS_PREFIX;
+        } else {
+            xmlnsPrefix = StringUtils.fromString(XMLNS_NS_URI_PREFIX + prefix);
         }
-
-        attributes.populateInitialValue(StringUtils.fromString(XMLNS_NS_URI_PREFIX + prefix),
-                                        StringUtils.fromString(namespace));
+        attributes.populateInitialValue(xmlnsPrefix, StringUtils.fromString(namespace));
     }
 
     /**
@@ -200,7 +196,13 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     @Override
     public BString getAttribute(String localName, String namespace, String prefix) {
         if (prefix != null && !prefix.isEmpty()) {
-            String ns = attributes.get(StringUtils.fromString(XMLNS_NS_URI_PREFIX + prefix)).getValue();
+            BString xmlnsPrefix;
+            if (prefix.equals(XMLNS)) {
+                xmlnsPrefix = XMLNS_PREFIX;
+            } else {
+                xmlnsPrefix = StringUtils.fromString(XMLNS_NS_URI_PREFIX + prefix);
+            }
+            String ns = attributes.get(xmlnsPrefix).getValue();
             BString attrVal = attributes.get(StringUtils.fromString("{" + ns + "}" + localName));
             if (attrVal != null) {
                 return attrVal;
@@ -630,7 +632,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         this.children.freezeDirect();
         this.attributes.freezeDirect();
-        this.typedesc = createSingletonTypedesc(this);
+        this.typedesc = null;
     }
 
     private QName getQName(String localName, String namespaceUri, String prefix) {
