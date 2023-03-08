@@ -131,7 +131,8 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static io.ballerina.compiler.api.impl.PositionUtil.*;
+import static io.ballerina.compiler.api.impl.PositionUtil.isPosWithinRange;
+import static io.ballerina.compiler.api.impl.PositionUtil.isPositionWithinParenthesis;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static org.ballerinalang.model.tree.NodeKind.ERROR_CONSTRUCTOR_EXPRESSION;
 
