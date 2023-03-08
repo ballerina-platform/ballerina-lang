@@ -479,6 +479,31 @@ isolated function testFinalReadOnlyServiceAccessInIsolatedFunction() {
     assertEquality(<int[]> [1, 2, 3], rs.x);
 }
 
+type RawTemplateType object:RawTemplate;
+
+type Template1 object {
+    *object:RawTemplate;
+    public (readonly & string[]) strings;
+    public int[] insertions;
+};
+
+final object:RawTemplate & readonly tmp1 = `Count: ${10}, ${20}`;
+
+final Template1 & readonly tmp2 = `Count: ${10}, ${20}`;
+
+final RawTemplateType & readonly tmp3 = `Count: ${10}, ${20}`;
+
+isolated function testFinalReadOnlyRawTemplateAccessInIsolatedFunction() {
+    assertEquality(<string[]>["Count: ", ", ", ""], tmp1.strings);
+    assertEquality(<int[]>[10, 20], tmp1.insertions);
+
+    assertEquality(<string[]>["Count: ", ", ", ""], tmp2.strings);
+    assertEquality(<int[]>[10, 20], tmp2.insertions);
+
+    assertEquality(<string[]>["Count: ", ", ", ""], tmp3.strings);
+    assertEquality(<int[]>[10, 20], tmp3.insertions);
+}
+
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
