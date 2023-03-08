@@ -393,7 +393,7 @@ function testFieldAccessOnJsonTypedRecordFields() returns error? {
     assertEquals(val, "4");
 }
 
-function testFieldAccessOnOptionalJsonTypedRecordFields() returns error? {
+function testOptionalFieldAccessOnOptionalJsonTypedRecordFields() returns error? {
     FooRec3 rec1 = {j: "1"};
     json val = check rec1?.j;
     assertEquals(val, "1");
@@ -472,7 +472,7 @@ function testFieldAccessOnJsonTypedRecordFieldsResultingInErrorWithCheckExpr() {
     validateJSONOperationErrorMsg(getJsonField4());
 }
 
-function testFieldAccessOnOptionalJsonTypedRecordFieldsResultingInError() {
+function testOptionalFieldAccessOnOptionalJsonTypedRecordFieldsResultingInError() {
     var getJsonField1 = function() returns json|error {
         FooRec3 rec1 = {};
         json val = check rec1?.j.k.l.m.n;

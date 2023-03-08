@@ -296,8 +296,8 @@ public class FieldAccessTest {
                 { "testFieldAccessOnJsonTypedRecordFields" },
                 { "testFieldAccessOnJsonTypedRecordFieldsResultingInError" },
                 { "testFieldAccessOnJsonTypedRecordFieldsResultingInErrorWithCheckExpr" },
-                { "testFieldAccessOnOptionalJsonTypedRecordFields" },
-                { "testFieldAccessOnOptionalJsonTypedRecordFieldsResultingInError" }
+                { "testOptionalFieldAccessOnOptionalJsonTypedRecordFields" },
+                { "testOptionalFieldAccessOnOptionalJsonTypedRecordFieldsResultingInError" }
         };
     }
 }
