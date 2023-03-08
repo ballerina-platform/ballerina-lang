@@ -70,6 +70,7 @@ public class MockDesugar {
 
     private static final CompilerContext.Key<MockDesugar> MOCK_DESUGAR_KEY = new CompilerContext.Key<>();
     private static final String MOCK_FN_DELIMITER = "#";
+    private static final String MOCK_LEGACY_DELIMITER = "~";
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private BLangPackage bLangPackage;
@@ -117,7 +118,8 @@ public class MockDesugar {
         Set<String> mockFunctionSet = mockFunctionMap.keySet();
 
         for (String function : mockFunctionSet) {
-            if (!function.contains("~")) {
+
+            if (!function.split(pkgNode.packageID.toString())[1].startsWith(MOCK_LEGACY_DELIMITER)) {
                 pkgNode.getTestablePkg().functions.add(generateMockFunction(function));
             }
         }
