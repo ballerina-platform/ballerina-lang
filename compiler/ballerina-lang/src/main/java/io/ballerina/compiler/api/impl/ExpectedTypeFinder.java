@@ -639,9 +639,9 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         BArrayType bArrayType = (BArrayType) ((BallerinaArrayTypeSymbol) extractedType.get()).getBType();
-        Token openParen = node.openBracket();
-        Token closeParen = node.closeBracket();
-        if (isWithinParenthesis(openParen, closeParen) &&
+        Token openBracket = node.openBracket();
+        Token closeBracket = node.closeBracket();
+        if (isWithinParenthesis(openBracket, closeBracket) &&
                 (bArrayType.eType != null && bArrayType.eType.getKind() != TypeKind.OTHER)) {
             return Optional.of(typesFactory.getTypeDescriptor(bArrayType.eType));
         }
@@ -745,9 +745,9 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
         }
 
-        Token openParen = node.openBracket();
-        Token closeParen = node.closeBracket();
-        if (isWithinParenthesis(openParen, closeParen)) {
+        Token openBracket = node.openBracket();
+        Token closeBracket = node.closeBracket();
+        if (isWithinParenthesis(openBracket, closeBracket)) {
             if (!((bLangTableConstructorExpr.expectedType) instanceof BTypeReferenceType)) {
                 BType constraint = ((BTableType) bLangTableConstructorExpr.expectedType).constraint;
                 return getTypeFromBType(constraint);
