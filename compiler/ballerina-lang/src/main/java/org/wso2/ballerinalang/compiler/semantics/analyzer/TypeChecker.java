@@ -2905,7 +2905,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     actualType = constSymbol.literalType;
 
                     // Handle the assignment of int to subtypes of int (byte, int:Signed16, ...).
-                    if (types.isContainSubtypeOfInt(expectedType)) {
+                    if (actualType.tag == TypeTags.INT && types.isContainSubtypeOfInt(expectedType)) {
                         if (expectedType.tag != TypeTags.UNION) {
                             actualType = types.isAssignable(symbolType, expectedType) ? expectedType : actualType;
                         } else {
@@ -2914,7 +2914,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                             types.isAssignable(symbolType, targetMemType)).findFirst().get();
                             actualType = posibleType != null ? posibleType : actualType;
                         }
-                        constSymbol.literalType = actualType;
                     }
                 }
 
