@@ -27,7 +27,6 @@ import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.regex.Matcher;
-import java.util.regex.PatternSyntaxException;
 
 import static org.ballerinalang.langlib.regexp.RegexUtil.GROUPS_AS_SPAN_ARRAY_TYPE;
 import static org.ballerinalang.langlib.regexp.RegexUtil.isEmptyRegexp;
@@ -45,7 +44,7 @@ public class Find {
         }
 
         checkIndexWithinRange(str, startIndex);
-        Matcher matcher = getMatcher(regExp, str);
+        Matcher matcher = RegexUtil.getMatcher(regExp, str);
         if (matcher.find((int) startIndex)) {
             return RegexUtil.getGroupZeroAsSpan(matcher);
         }
@@ -58,7 +57,7 @@ public class Find {
         }
 
         checkIndexWithinRange(str, startIndex);
-        Matcher matcher = getMatcher(regExp, str);
+        Matcher matcher = RegexUtil.getMatcher(regExp, str);
         BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
         matcher.region((int) startIndex, str.length());
         if (matcher.find()) {
@@ -82,7 +81,7 @@ public class Find {
         }
 
         checkIndexWithinRange(str, startIndex);
-        Matcher matcher = getMatcher(regExp, str);
+        Matcher matcher = RegexUtil.getMatcher(regExp, str);
         BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
         matcher.region((int) startIndex, str.length());
         while (matcher.find()) {
@@ -100,7 +99,7 @@ public class Find {
         }
 
         checkIndexWithinRange(str, startIndex);
-        Matcher matcher = getMatcher(regExp, str);
+        Matcher matcher = RegexUtil.getMatcher(regExp, str);
         matcher.region((int) startIndex, str.length());
         BArray groupArray = ValueCreator.createArrayValue(RegexUtil.GROUPS_ARRAY_TYPE);
         while (matcher.find()) {
@@ -113,15 +112,6 @@ public class Find {
             return null;
         }
         return groupArray;
-    }
-
-    private static Matcher getMatcher(BRegexpValue regExp, BString str) {
-        try {
-            return RegexUtil.getMatcher(regExp, str);
-        } catch (PatternSyntaxException e) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
-                    RuntimeErrors.REGEXP_INVALID_PATTERN);
-        }
     }
 
     private static void checkIndexWithinRange(BString str, long startIndex) {
