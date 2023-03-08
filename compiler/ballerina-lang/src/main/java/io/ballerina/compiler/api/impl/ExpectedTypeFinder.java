@@ -131,8 +131,8 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static io.ballerina.compiler.api.impl.PositionUtil.isPosWithinRange;
 import static io.ballerina.compiler.api.impl.PositionUtil.isPosWithinOpenCloseLineRanges;
+import static io.ballerina.compiler.api.impl.PositionUtil.isPosWithinRange;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static org.ballerinalang.model.tree.NodeKind.ERROR_CONSTRUCTOR_EXPRESSION;
 
@@ -205,7 +205,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(SpecificFieldNode node) {
-        Optional<TypeSymbol> elementType = Optional.empty();
+        Optional<TypeSymbol> elementType;
         BLangNode bLangNode = nodeFinder.lookup(this.bLangCompilationUnit, node.lineRange());
 
         if (bLangNode == null) {
