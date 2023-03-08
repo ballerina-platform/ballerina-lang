@@ -1272,7 +1272,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             BLangArrowFunction bLangArrowFunction = (BLangArrowFunction) enclEnv.node;
 
             for (BLangSimpleVariable param : bLangArrowFunction.params) {
-                if (param.symbol == symbol) {
+                if (param.symbol == getOriginalSymbol(symbol)) {
                     return;
                 }
             }
