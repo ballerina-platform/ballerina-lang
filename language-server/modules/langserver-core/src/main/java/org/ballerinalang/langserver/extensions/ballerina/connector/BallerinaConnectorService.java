@@ -60,7 +60,6 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -138,18 +137,12 @@ public class BallerinaConnectorService implements ExtendedLanguageServerService 
      * @param detailed detailed connector out put or not
      * @param query    search query to filter connector list
      * @return connector list
-     * @throws IOException
      */
     private List<Connector> fetchLocalConnectors(Path filePath, boolean detailed, String query) {
         Optional<Project> project = workspaceManager.project(filePath);
         List<Connector> connectors = new ArrayList<>();
-        try {
-            if (project.isPresent()) {
-                connectors.addAll(ConnectorGenerator.getProjectConnectors(project.get(), detailed, query));
-            }
-        } catch (IOException e) {
-            String msg = "Local connector fetching operation failed!";
-            this.clientLogger.logError(this.connectorExtContext, msg, e, null, (Position) null);
+        if (project.isPresent()) {
+            connectors.addAll(ConnectorGenerator.getProjectConnectors(project.get(), detailed, query));
         }
 
         return connectors;
