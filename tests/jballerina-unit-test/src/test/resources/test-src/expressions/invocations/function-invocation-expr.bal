@@ -354,6 +354,46 @@ function testTypeRefTypedRestArg() {
 function testFn(int a, string... b) returns int =>
     b.reduce(function (int tot, string str) returns int => tot + str.length(), a);
 
+function testFuncWithNilReturnTypeWithoutVariableAssignment() {
+    stream<string> testStream = new;
+    testStream.close(); // No error
+    f1(); // No error
+    f2(); // No error
+    f4(); // No error
+    f5(); // No error
+    f6(); // No error
+}
+
+function testFuncWithNeverReturnTypeWithoutVariableAssignment1() {
+    f3();
+}
+
+function testFuncWithNeverReturnTypeWithoutVariableAssignment2() {
+    f7();
+}
+
+function f6() {}
+
+function f7() returns never {
+    panic error("Invalid");
+}
+
+function f1() returns ()|() => ();
+
+function f2() returns never? => ();
+
+function f3() returns never|never {
+    panic error("Invalid");
+}
+
+function f4() returns null {
+    return null;
+}
+
+function f5() returns () {
+    return ();
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

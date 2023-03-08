@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.expressions.invocations;
 
+import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -144,6 +145,23 @@ public class FuncInvocationExprTest {
                 {"testArrayVarArg"},
                 {"testTypeRefTypedRestArg"}
         };
+    }
+
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: Invalid.*")
+    public void testFuncWithNeverReturnTypeWithoutVariableAssignment1() {
+        BRunUtil.invoke(funcInvocationExpResult, "testFuncWithNeverReturnTypeWithoutVariableAssignment1");
+    }
+
+    @Test(expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: Invalid.*")
+    public void testFuncWithNeverReturnTypeWithoutVariableAssignment2() {
+        BRunUtil.invoke(funcInvocationExpResult, "testFuncWithNeverReturnTypeWithoutVariableAssignment2");
+    }
+
+    @Test(description = "Test function invocation without variable assignment")
+    public void testFuncWithNilReturnTypeWithoutVariableAssignment() {
+        BRunUtil.invoke(funcInvocationExpResult, "testFuncWithNilReturnTypeWithoutVariableAssignment");
     }
 
     @Test

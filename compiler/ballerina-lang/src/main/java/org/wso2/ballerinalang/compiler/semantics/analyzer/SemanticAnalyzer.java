@@ -56,22 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.*;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -2713,6 +2698,42 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
     }
 
+    private boolean isFiniteWithNilMember(BType bType) {
+        if (!(bType.getKind() == TypeKind.FINITE)) {
+            return false;
+        }
+        BFiniteType finiteType = (BFiniteType) bType;
+        Set<BLangExpression> finiteMembers = finiteType.getValueSpace();
+        for (BLangExpression finiteMemberType : finiteMembers) {
+            if (finiteMemberType.getBType() != null && finiteMemberType.getBType().tag != TypeTags.NIL) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isUnionWithSingleNilTypeMember(BType bType) {
+        if (!(bType.getKind() == TypeKind.UNION)) {
+            return false;
+        }
+        BUnionType unionType = (BUnionType) bType;
+        LinkedHashSet<BType> members = unionType.getMemberTypes();
+        LinkedHashSet<BType> originalMembers = unionType.getOriginalMemberTypes();
+        if (members.size() >= 1) {
+            for (BType memberType : members) {
+                if (memberType.getKind() != TypeKind.NIL) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        // To bypass `function f3() returns never|never` kind of scenarios, referencing error: #39797
+        if (members.size() == 0 && originalMembers.size() == 1) {
+            return originalMembers.iterator().next().getKind() == TypeKind.NEVER;
+        }
+        return false;
+    }
+
     @Override
     public void visit(BLangExpressionStmt exprStmtNode, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
@@ -2723,7 +2744,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         BType bType = typeChecker.checkExpr(expr, stmtEnv, data.prevEnvs, data.commonAnalyzerData);
         if (bType != symTable.nilType && bType != symTable.semanticError &&
                 expr.getKind() != NodeKind.FAIL &&
-                !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(bType)) {
+                !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(bType) &&
+                !isUnionWithSingleNilTypeMember(bType) && !isFiniteWithNilMember(bType)) {
             dlog.error(exprStmtNode.pos, DiagnosticErrorCode.ASSIGNMENT_REQUIRED, bType);
         } else if (expr.getKind() == NodeKind.INVOCATION &&
                 types.isNeverTypeOrStructureTypeWithARequiredNeverMember(expr.getBType())) {
