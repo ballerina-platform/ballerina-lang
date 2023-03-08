@@ -34,7 +34,7 @@ public class DeprecateCommandTest extends BaseCommandTest {
     @Test(description = "Test deprecate without package version")
     public void testDeprecationWithoutVersion() throws IOException {
         DeprecateCommand deprecationCommand = new DeprecateCommand(printStream, printStream, false);
-        new CommandLine(deprecationCommand).parseArgs("mynewdil/deppack", "-message", "for testing");
+        new CommandLine(deprecationCommand).parseArgs("mynewdil/deppack", "--message", "for testing");
         deprecationCommand.execute();
 
         String buildLog = readOutput(true);
@@ -46,7 +46,7 @@ public class DeprecateCommandTest extends BaseCommandTest {
     @Test(description = "Test deprecate with invalid org name")
     public void testDeprecationWithInvalidOrg() throws IOException {
         DeprecateCommand deprecationCommand = new DeprecateCommand(printStream, printStream, false);
-        new CommandLine(deprecationCommand).parseArgs("my-newdil/deppack:0.1.0", "-message", "for testing");
+        new CommandLine(deprecationCommand).parseArgs("my-newdil/deppack:0.1.0", "--message", "for testing");
         deprecationCommand.execute();
 
         String buildLog = readOutput(true);
@@ -59,7 +59,7 @@ public class DeprecateCommandTest extends BaseCommandTest {
     @Test(description = "Test deprecate with invalid package name")
     public void testDeprecationWithInvalidPackageName() throws IOException {
         DeprecateCommand deprecationCommand = new DeprecateCommand(printStream, printStream, false);
-        new CommandLine(deprecationCommand).parseArgs("mynewdil/dep-pack:0.1.0", "-message", "for testing");
+        new CommandLine(deprecationCommand).parseArgs("mynewdil/dep-pack:0.1.0");
         deprecationCommand.execute();
 
         String buildLog = readOutput(true);
@@ -73,7 +73,7 @@ public class DeprecateCommandTest extends BaseCommandTest {
     @Test(description = "Test deprecate with invalid version")
     public void testDeprecationWithInvalidVersion() throws IOException {
         DeprecateCommand deprecationCommand = new DeprecateCommand(printStream, printStream, false);
-        new CommandLine(deprecationCommand).parseArgs("mynewdil/deppack:xxx", "-message", "for testing");
+        new CommandLine(deprecationCommand).parseArgs("mynewdil/deppack:xxx");
         deprecationCommand.execute();
 
         String buildLog = readOutput(true);
@@ -85,12 +85,12 @@ public class DeprecateCommandTest extends BaseCommandTest {
     @Test(description = "Test deprecate with unused flags")
     public void testDeprecationWithUnusedFlags() throws IOException {
         DeprecateCommand deprecationCommand = new DeprecateCommand(printStream, printStream, false);
-        new CommandLine(deprecationCommand).parseArgs("mynewdil/deppack:0.1.0", "--undo", "-message", "for testing");
+        new CommandLine(deprecationCommand).parseArgs("mynewdil/deppack:0.1.0", "--undo", "--message", "for testing");
         deprecationCommand.execute();
 
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
-        Assert.assertTrue(actual.contains("warning: ignoring --message (-m) flag since this is an undo request"));
+        Assert.assertTrue(actual.contains("warning: ignoring '--message' flag since this is an undo request"));
     }
 
     @Test(description = "Test deprecate with too many args")

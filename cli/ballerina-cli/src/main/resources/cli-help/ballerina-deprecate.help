@@ -6,7 +6,7 @@ SYNOPSIS
 
 
 DESCRIPTION
-       The deprecate commands marks the specified package as deprecated in Ballerina central.
+       The deprecate command marks the specified package as deprecated in Ballerina central.
 
        A deprecated package will not be used as a dependency of a package unless the deprecated package is already recorded in
        the `Dependencies.toml` and the `--sticky` option is used to build the package. Also, a deprecated package will be used as
@@ -20,7 +20,7 @@ DESCRIPTION
 OPTIONS
        --message=<msg>
            Use the given <msg> as the deprecation message
-       -- undo
+       --undo
            Undeprecate a deprecated package
 
 EXAMPLES
