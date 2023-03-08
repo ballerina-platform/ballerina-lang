@@ -240,8 +240,8 @@ public class ArrayTest {
     }
 
     @Test
-    public void testPrintByteArrayInTable() {
-        BRunUtil.invoke(compileResult, "testPrintByteArrayInTable");
+    public void testPrintableByteArrayInTable() {
+        BRunUtil.invoke(compileResult, "testPrintableByteArrayInTable");
     }
 
     @AfterClass
