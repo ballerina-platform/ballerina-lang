@@ -607,7 +607,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public BTypedesc getTypedesc() {
         if (this.typedesc == null) {
-            this.typedesc = getTypedescValue(type, this);;
+            this.typedesc = getTypedescValue(type, this);
         }
         return typedesc;
     }

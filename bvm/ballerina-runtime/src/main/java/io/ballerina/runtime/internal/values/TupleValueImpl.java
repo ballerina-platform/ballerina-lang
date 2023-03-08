@@ -70,6 +70,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     private int minSize;
     private boolean hasRestElement; // cached value for ease of access
     private BTypedesc typedesc;
+    private TypedescValueImpl inherentType;
     // ------------------------ Constructors -------------------------------------------------------------------
 
     @Override
@@ -197,12 +198,17 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     public TupleValueImpl(Type type, BListInitialValueEntry[] initialValues, TypedescValueImpl inherentType) {
         this(type, initialValues);
+        this.inherentType = inherentType;
     }
 
     @Override
     public BTypedesc getTypedesc() {
         if (this.typedesc == null) {
-            this.typedesc = getTypedescValue(tupleType, this);
+            if (inherentType != null) {
+                this.typedesc = getTypedescValue(type.isReadOnly(), this, inherentType);
+            } else {
+                this.typedesc = getTypedescValue(tupleType, this);
+            }
         }
         return typedesc;
     }
