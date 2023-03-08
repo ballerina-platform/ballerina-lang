@@ -2484,7 +2484,7 @@ public class SymbolEnter extends BLangNodeVisitor {
           Here, the type of 'a'and type of 'b' will be both anydata.
          */
             BType bType = varNode.getBType();
-            BType referredType = Types.getReferredType(bType);
+            BType referredType = Types.getEffectiveType(Types.getReferredType(bType));
             switch (referredType.tag) {
                 case TypeTags.UNION:
                     Set<BType> unionType = types.expandAndGetMemberTypesRecursive(referredType);
@@ -2681,7 +2681,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         int memberVarsSize = varNode.memberVariables.size();
         BLangVariable restVariable = varNode.restVariable;
         int tupleTypesSize = tupleTypeNode.getMembers().size();
-        if (memberVarsSize > tupleTypesSize) {
+        if ((memberVarsSize > tupleTypesSize) ||
+                (tupleTypesSize == memberVarsSize && restVariable != null && tupleTypeNode.restType == null)) {
             return false;
         }
         return restVariable != null ||
@@ -2730,7 +2731,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     boolean validateRecordVariable(BLangRecordVariable recordVar, SymbolEnv env) {
-        BType recordType = Types.getReferredType(recordVar.getBType());
+        BType recordType = Types.getEffectiveType(Types.getReferredType(recordVar.getBType()));
         BRecordType recordVarType;
         /*
           This switch block will resolve the record type of the record variable.
@@ -3337,9 +3338,15 @@ public class SymbolEnter extends BLangNodeVisitor {
                 defineMemberNode(errorVariable.message, env, symTable.stringType);
             }
 
-            BLangVariable cause = errorVariable.cause;
-            if (cause != null) {
-                defineMemberNode(errorVariable.cause, env, symTable.errorOrNilType);
+            BLangVariable errorCause = errorVariable.cause;
+            if (errorCause != null) {
+                if (errorCause.getKind() == NodeKind.VARIABLE &&
+                        names.fromIdNode(((BLangSimpleVariable) errorCause).name) == Names.IGNORE) {
+                    dlog.error(errorCause.pos,
+                            DiagnosticErrorCode.CANNOT_USE_WILDCARD_BINDING_PATTERN_FOR_ERROR_CAUSE);
+                    return false;
+                }
+                defineMemberNode(errorCause, env, symTable.errorOrNilType);
             }
         }
 

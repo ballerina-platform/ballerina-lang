@@ -1189,7 +1189,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     data.commonAnalyzerData);
             validateListenerCompatibility(varNode, rhsType);
         } else {
-            typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType, data.prevEnvs, data.commonAnalyzerData);
+            // let int _ = check getDistinctErrorOrInt()
+            typeChecker.queryTypeChecker.checkExpr(rhsExpr, varInitEnv, lhsType, data.prevEnvs,
+                    data.commonAnalyzerData);
         }
 
         checkSelfReferencesInVarNode(varNode, rhsExpr, data);
@@ -2359,7 +2361,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
      */
     private void checkRecordVarRefEquivalency(Location pos, BLangRecordVarRef lhsVarRef, BType rhsType,
                                               Location rhsPos, AnalyzerData data) {
-        rhsType = Types.getReferredType(rhsType);
+        rhsType = Types.getEffectiveType(Types.getReferredType(rhsType));
         if (rhsType.tag == TypeTags.MAP) {
             for (BLangRecordVarRefKeyValue field: lhsVarRef.recordRefFields) {
                 dlog.error(field.variableName.pos,
@@ -2493,7 +2495,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     private void checkTupleVarRefEquivalency(Location pos, BLangTupleVarRef target, BType source,
                                              Location rhsPos, AnalyzerData data) {
-        source = Types.getReferredType(source);
+        source = Types.getEffectiveType(Types.getReferredType(source));
         if (source.tag == TypeTags.ARRAY) {
             checkArrayVarRefEquivalency(pos, target, source, rhsPos, data);
             return;
@@ -4537,10 +4539,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                     data.commonAnalyzerData);
 
             if (Symbols.isFlagOn(annotationSymbol.flags, Flags.CONSTANT)) {
-                if (annotationSymbol.points.stream().anyMatch(attachPoint -> !attachPoint.source)) {
-                    constantAnalyzer.analyzeExpr(annAttachmentNode.expr);
-                    return;
-                }
                 checkAnnotConstantExpression(annAttachmentNode.expr);
             }
         }

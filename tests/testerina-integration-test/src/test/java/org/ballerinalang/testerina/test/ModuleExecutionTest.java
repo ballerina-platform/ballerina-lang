@@ -21,8 +21,8 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
+import org.ballerinalang.testerina.test.utils.CommonUtils;
 import org.ballerinalang.testerina.test.utils.FileUtils;
-import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -46,39 +46,45 @@ public class ModuleExecutionTest extends BaseTestCase {
     }
 
     @Test()
-    public void test_DefaultModule_AllTests() throws BallerinaTestException {
+    public void test_DefaultModule_AllTests() throws BallerinaTestException, IOException {
         String output = balClient.runMainAndReadStdOut("test",
                 new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:*"},
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "default module test failure");
+        String firstString = "Generating Test Report\n\t";
+        String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_DefaultModule_AllTests.txt", output);
     }
 
     @Test()
-    public void test_DefaultModule_SingleTest() throws BallerinaTestException {
+    public void test_DefaultModule_SingleTest() throws BallerinaTestException, IOException {
         String msg1 = "1 passing";
         String msg2 = "[pass] main_test1";
         String[] args = new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:main_test1"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2)) {
-            throw new BallerinaTestException("Test failed due to default module single test failure.");
-        }
+        String firstString = "Generating Test Report\n\t";
+        String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_DefaultModule_SingleTest.txt", output);
     }
 
     @Test()
-    public void test_DefaultModule_StartWildCardTest() throws BallerinaTestException {
+    public void test_DefaultModule_StartWildCardTest() throws BallerinaTestException, IOException {
         String msg1 = "1 passing";
         String msg2 = "[pass] commonTest";
         String[] args = new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:*Test"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2)) {
-            throw new BallerinaTestException("Test failed due to default module wild card test failure.");
-        }
+        String firstString = "Generating Test Report\n\t";
+        String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_DefaultModule_StartWildCardTest.txt",
+                output);
     }
 
     @Test()
-    public void test_DefaultModule_MiddleWildCardTest() throws BallerinaTestException {
+    public void test_DefaultModule_MiddleWildCardTest() throws BallerinaTestException, IOException {
         String msg1 = "3 passing";
         String msg2 = "[pass] main_test1";
         String msg3 = "[pass] main_test2";
@@ -86,13 +92,15 @@ public class ModuleExecutionTest extends BaseTestCase {
         String[] args = new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:*test*"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3) || !output.contains(msg4)) {
-            throw new BallerinaTestException("Test failed due to default module wild card test failure.");
-        }
+        String firstString = "Generating Test Report\n\t";
+        String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_DefaultModule_MiddleWildCardTest.txt",
+                output);
     }
 
     @Test()
-    public void test_DefaultModule_EndWildCardTest() throws BallerinaTestException {
+    public void test_DefaultModule_EndWildCardTest() throws BallerinaTestException, IOException {
         String msg1 = "3 passing";
         String msg2 = "[pass] main_test1";
         String msg3 = "[pass] main_test2";
@@ -100,69 +108,81 @@ public class ModuleExecutionTest extends BaseTestCase {
         String[] args = new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution:main_*"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3) || !output.contains(msg4)) {
-            throw new BallerinaTestException("Test failed due to default module wild card test failure.");
-        }
+        String firstString = "Generating Test Report\n\t";
+        String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_DefaultModule_EndWildCardTest.txt",
+                output);
     }
 
     @Test()
-    public void test_Module1_AllTests() throws BallerinaTestException {
+    public void test_Module1_AllTests() throws BallerinaTestException, IOException {
         String output = balClient.runMainAndReadStdOut("test",
                 new String[]{"--code-coverage", "--includes=*", "--tests", "moduleExecution.Module1:*"},
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "module wise test failure");
+        String firstString = "Generating Test Report\n\t";
+        String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_Module1_AllTests.txt",
+                output);
     }
 
     @Test()
-    public void test_Module1_SingleTest() throws BallerinaTestException {
+    public void test_Module1_SingleTest() throws BallerinaTestException, IOException {
         String msg1 = "1 passing";
         String msg2 = "[pass] module1_test1";
         String[] args = new String[]{"--code-coverage", "--includes=*", "--tests",
                 "moduleExecution.Module1:module1_test1"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2)) {
-            throw new BallerinaTestException("Test failed due to module wise single test failure.");
-        }
+        String firstString = "Generating Test Report\n\t";
+        String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_Module1_SingleTest.txt",
+                output);
     }
 
     @Test()
-    public void test_Module1_WildCardTest() throws BallerinaTestException {
+    public void test_Module1_WildCardTest() throws BallerinaTestException, IOException {
         String msg1 = "2 passing";
         String msg2 = "[pass] module1_test1";
         String msg3 = "[pass] module1_test2";
         String[] args = mergeCoverageArgs(new String[]{"--tests", "moduleExecution.Module1:module1_*"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
-            throw new BallerinaTestException("Test failed due to module wise wild card test failure.");
-        }
+        String firstString = "Generating Test Report\n\t";
+        String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_Module1_WildCardTest.txt",
+                output);
     }
 
     @Test()
-    public void test_WildCardTest() throws BallerinaTestException {
+    public void test_WildCardTest() throws BallerinaTestException, IOException {
         String msg1 = "1 passing";
         String msg2 = "[pass] commonTest_Module1";
         String msg3 = "[pass] commonTest";
         String[] args = mergeCoverageArgs(new String[]{"--tests", "common*"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
-            throw new BallerinaTestException("Test failed due to wild card test failure.");
-        }
+        String firstString = "Generating Test Report\n\t";
+        String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_WildCardTest.txt", output);
     }
 
     @Test()
-    public void test_Module1_WithGroups() throws BallerinaTestException {
+    public void test_Module1_WithGroups() throws BallerinaTestException, IOException {
         String msg1 = "1 passing";
         String msg2 = "[pass] module1_test2";
 
         String[] args = mergeCoverageArgs(new String[]{"--tests", "moduleExecution.Module1:*", "--groups", "g1"});
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
-
-        if (!output.contains(msg1) || !output.contains(msg2)) {
-            Assert.fail("Test failed due to module with groups failure.");
-        }
+        String firstString = "Generating Test Report\n\t";
+        String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput("ModuleExecutionTest-test_Module1_WithGroups.txt",
+                output);
     }
 
     @AfterMethod

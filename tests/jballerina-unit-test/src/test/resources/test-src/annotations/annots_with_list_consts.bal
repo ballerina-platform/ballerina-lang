@@ -42,3 +42,13 @@ service object {} ser = @v1 {
 
     }
 };
+
+const annotation record {| int[] arr; |} v2 on type;
+
+@v2 {
+    arr: [1, 2]
+}
+type Baz record {|
+    int a;
+    int b;
+|};

@@ -129,6 +129,10 @@ public enum Snippet {
     DEF_DETACH_FUNCTION(SnippetGenerator.getDetachFunctionSnippet()),
 
     DEF_REG_EXP(SnippetGenerator.getRegularExpressionSnippet()),
+
+    DEF_STRING(SnippetGenerator.getStringSnippet()),
+
+    DEF_XML(SnippetGenerator.getXmlSnippet()),
     
     DEF_PARANTHESIS(SnippetGenerator.getParanthesisSnippet()),
     

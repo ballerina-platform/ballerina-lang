@@ -454,6 +454,34 @@ function testRestVarRefType9() {
     assertEqual("Sheldon", i4[3]);
 }
 
+type ReadOnlyTuple readonly & [int[], string];
+
+function testReadOnlyTupleWithListBindingPatternInDestructuringAssignment() {
+    ReadOnlyTuple t1 = [[1, 2], "s1"];
+    int[] & readonly a;
+    string b;
+    [a, b] = t1;
+    assertEqual(<int[]> [1, 2], a);
+    assertEqual("s1", b);
+
+    readonly & [int[], ReadOnlyTuple] t2 = [[12, 34, 56], t1];
+    readonly & int[] c;
+    readonly & int[] d;
+    string e;
+    [c, [d, e]] = t2;
+    assertEqual(<int[]> [12, 34, 56], c);
+    assertEqual(<int[]> [1, 2], d);
+    assertEqual("s1", e);
+
+    int[] f;
+    int[] g;
+    string h;
+    [f, [g, h]] = t2;
+    assertEqual(<int[]> [12, 34, 56], f);
+    assertEqual(<int[]> [1, 2], g);
+    assertEqual("s1", h);
+}
+
 function assertEqual(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
