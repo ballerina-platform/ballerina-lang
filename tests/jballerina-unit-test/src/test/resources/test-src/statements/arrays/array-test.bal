@@ -256,7 +256,7 @@ function testArrayTupleType() {
     test:assertEquals("typedesc [string[2],int,float[3][4]][][]", t.toString());
 }
 
-function testPrintableByteArrayInTable() {
+function testTableWithByteArrayArgForUnionParam() {
     testPrintable(table [{ id:1, byteArray: base16 `abcd`}]);
     testPrintable(table [{ id:1, byteArray: base64 `Cake`}]);
 }
