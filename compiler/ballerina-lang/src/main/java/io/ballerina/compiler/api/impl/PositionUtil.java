@@ -108,15 +108,15 @@ class PositionUtil {
                 && (posLine == enclEndLine && posOffset <= enclEndOffset || posLine < enclEndLine);
     }
 
-    static boolean isPositionWithinParenthesis(LinePosition linePosition, LineRange openParenLineRange,
-                                                                  LineRange closedParenLineRange) {
+    static boolean isPosWithinOpenCloseLineRanges(LinePosition linePosition, LineRange openParenLineRange,
+                                                  LineRange closeParenLineRange) {
 
         int posLine = linePosition.line();
         int posOffset = linePosition.offset();
         int openLine = openParenLineRange.startLine().line();
         int openOffset = openParenLineRange.startLine().offset();
-        int closeLine = closedParenLineRange.startLine().line();
-        int closeOffset = closedParenLineRange.endLine().offset();
+        int closeLine = closeParenLineRange.startLine().line();
+        int closeOffset = closeParenLineRange.endLine().offset();
 
         return ((posLine == openLine && posOffset >= openOffset || posLine > openLine)
                 && (closeLine == posLine && posOffset <= closeOffset || posLine < closeLine));
