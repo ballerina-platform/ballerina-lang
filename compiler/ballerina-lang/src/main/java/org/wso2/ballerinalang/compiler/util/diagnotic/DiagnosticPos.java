@@ -86,24 +86,24 @@ public class DiagnosticPos implements Location {
         }
         DiagnosticPos diagnosticPos = (DiagnosticPos) obj;
         return packageID.equals(diagnosticPos.getPackageID()) &&
-                lineRange().filePath().equals(diagnosticPos.lineRange().filePath()) &&
+                lineRange().fileName().equals(diagnosticPos.lineRange().fileName()) &&
                 (getStartLine() == diagnosticPos.getStartLine() && getEndLine() == diagnosticPos.getEndLine() &&
                 getStartColumn() == diagnosticPos.getStartColumn() && getEndColumn() == diagnosticPos.getEndColumn());
     }
 
     @Override
     public int hashCode() {
-        return  packageID.hashCode() + lineRange().filePath().hashCode() +
+        return  packageID.hashCode() + lineRange().fileName().hashCode() +
                 getStartLine() + getEndLine() + getStartColumn() + getEndColumn();
     }
     
     public int compareTo(DiagnosticPos diagnosticPosition) {
 
         // Compare the source first.
-        String thisDiagnosticString = packageID.name.value + packageID.version.value + lineRange().filePath();
+        String thisDiagnosticString = packageID.name.value + packageID.version.value + lineRange().fileName();
         String otherDiagnosticString = diagnosticPosition.getPackageID().name.value +
                 diagnosticPosition.getPackageID().version.value +
-                diagnosticPosition.lineRange().filePath();
+                diagnosticPosition.lineRange().fileName();
         int value = thisDiagnosticString.compareTo(otherDiagnosticString);
 
         if (value != 0) {
