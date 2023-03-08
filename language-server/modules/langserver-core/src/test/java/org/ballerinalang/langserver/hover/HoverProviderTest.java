@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -101,13 +102,11 @@ public class HoverProviderTest {
     }
 
     private Object[][] testSubset() {
-        return new Object[][] {
-                {"hover_for_api_docs_negative.json"}
-        };
+        return new Object[][]{};
     }
 
     private List<String> skipList() {
-        return List.of("hover_for_api_docs_enum.json");
+        return Collections.emptyList();
     }
 
     private Position getPosition(JsonObject config) {
