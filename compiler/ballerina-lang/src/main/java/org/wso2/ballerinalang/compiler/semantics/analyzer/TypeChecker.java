@@ -7109,9 +7109,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             restType = data.resultType;
         } else if (vararg != null) {
             iExpr.restArgs.add(vararg);
-            checkTypeParamExpr(vararg, listTypeRestArg, iExpr.langLibInvocation, data);
             if (mappingTypeRestArg != null) {
-                checkTypeParamExpr(vararg, mappingTypeRestArg, iExpr.langLibInvocation, data);
+                LinkedHashSet<BType> restTypes = new LinkedHashSet<>();
+                restTypes.add(listTypeRestArg);
+                restTypes.add(mappingTypeRestArg);
+                BType actualType = BUnionType.create(null, restTypes);
+                checkTypeParamExpr(vararg, actualType, iExpr.langLibInvocation, data);
+            } else {
+                checkTypeParamExpr(vararg, listTypeRestArg, iExpr.langLibInvocation, data);
             }
             restType = data.resultType;
         } else if (!iExpr.restArgs.isEmpty()) {

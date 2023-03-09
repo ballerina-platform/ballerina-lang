@@ -447,6 +447,14 @@ public class TypeParamAnalyzer {
                 if (actualType.tag == TypeTags.UNION) {
                     findTypeParamInUnion(loc, (BUnionType) expType, (BUnionType) actualType, env, resolvedTypes,
                             result);
+                    break;
+                }
+                BUnionType unionType = (BUnionType) expType;
+                for (BType memberType : unionType.getMemberTypes()) {
+                    if (memberType.tag == actualType.tag) {
+                        findTypeParam(loc, memberType, actualType, env, resolvedTypes, result);
+                        break;
+                    }
                 }
                 break;
             case TypeTags.ERROR:
