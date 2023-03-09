@@ -6060,7 +6060,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
         }
 
-        if (checkedExpr.getKind() == NodeKind.CHECK_EXPR && types.isUnionOfSimpleBasicTypes(data.expType)) {
+        if (checkedExpr.getKind() == NodeKind.CHECK_EXPR && types.isSubTypeOfSimpleBasicTypeOrString(data.expType)) {
             rewriteWithEnsureTypeFunc(checkedExpr, checkExprCandidateType, data);
         }
 
