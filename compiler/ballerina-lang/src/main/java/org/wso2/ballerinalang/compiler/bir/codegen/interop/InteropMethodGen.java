@@ -299,7 +299,6 @@ public class InteropMethodGen {
         }
 
         JType varArgType = null;
-        JType resourcePathArgType = null;
         int jMethodParamIndex = 0;
         if (jMethod.getReceiverType() != null) {
             jMethodParamIndex++;
@@ -308,10 +307,6 @@ public class InteropMethodGen {
 
         if (jMethod.isBalEnvAcceptingMethod()) {
             jMethodParamIndex++;
-        }
-
-        if (jMethod.hasBundledPathParams) {
-            resourcePathArgType = JInterop.getJType(jMethodParamTypes[jMethodParamIndex]);
         }
 
         int paramCount = birFuncParams.size();
@@ -323,17 +318,6 @@ public class InteropMethodGen {
             JType jPType = JInterop.getJType(jMethodParamTypes[jMethodParamIndex]);
 
             if (jMethod.hasBundledPathParams && pathParamTypes.contains(bPType)) {
-                String varName = "$_param_jobject_var" + birFuncParamIndex + "_$";
-                BIRVariableDcl paramVarDcl = new BIRVariableDcl(jPType, new Name(varName), null, VarKind.LOCAL);
-                birFunc.localVars.add(paramVarDcl);
-                BIROperand paramVarRef = new BIROperand(paramVarDcl);
-                JCast jToBCast = new JCast(birFunc.pos);
-                jToBCast.lhsOp = paramVarRef;
-                jToBCast.rhsOp = argRef;
-                jToBCast.targetType = jPType;
-                argRef = paramVarRef;
-                beginBB.instructions.add(jToBCast);
-
                 resourcePathArgs.add(argRef);
                 birFuncParamIndex++;
                 continue;
@@ -416,7 +400,6 @@ public class InteropMethodGen {
             jCall.resourcePathArgs = resourcePathArgs;
             jCall.varArgExist = birFunc.restParam != null;
             jCall.varArgType = varArgType;
-            jCall.targetResourcePathArgsType = resourcePathArgType;
             jCall.lhsOp = jRetVarRef;
             jCall.jClassName = jMethod.getClassName().replace(".", "/");
             jCall.name = jMethod.getName();
@@ -429,7 +412,6 @@ public class InteropMethodGen {
             jCall.resourcePathArgs = resourcePathArgs;
             jCall.varArgExist = birFunc.restParam != null;
             jCall.varArgType = varArgType;
-            jCall.targetResourcePathArgsType = resourcePathArgType;
             jCall.lhsOp = jRetVarRef;
             jCall.jClassName = jMethod.getClassName().replace(".", "/");
             jCall.name = jMethod.getName();
