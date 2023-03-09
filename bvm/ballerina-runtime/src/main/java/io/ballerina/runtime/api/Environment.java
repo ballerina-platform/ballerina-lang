@@ -57,7 +57,7 @@ public class Environment {
     /**
      * Returns the Ballerina function name for the corresponding external interop method.
      *
-     * @return  function name
+     * @return function name
      */
     public String getFunctionName() {
         return funcName;
@@ -66,7 +66,7 @@ public class Environment {
     /**
      * Returns an array consisting of the path parameters of the resource function defined as external.
      *
-     * @return  array of {@link Parameter}
+     * @return array of {@link Parameter}
      */
     public Parameter[] getPathParameters() {
         return pathParams;

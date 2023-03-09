@@ -613,7 +613,7 @@ public class JvmTerminatorGen {
             mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
             // load function name
             mv.visitLdcInsn(func.name.getValue());
-            loadFuncPathParams(mv, (BInvokableTypeSymbol) func.type.tsymbol);
+            this.jvmTypeGen.loadFunctionPathParameters(mv, (BInvokableTypeSymbol) func.type.tsymbol);
             mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD,
                                INIT_BAL_ENV_WITH_FUNC_NAME, false);
         }
@@ -657,46 +657,6 @@ public class JvmTerminatorGen {
         }
 
         this.mv.visitLabel(notBlockedOnExternLabel);
-    }
-
-    private void loadFuncPathParams(MethodVisitor mv, BInvokableTypeSymbol invokableSymbol) {
-        List<BVarSymbol> params = new ArrayList<>();
-        if (invokableSymbol != null) {
-            for (BVarSymbol param : invokableSymbol.params) {
-                SymbolKind paramKind = param.getKind();
-                if (paramKind != SymbolKind.PATH_PARAMETER && paramKind != SymbolKind.PATH_REST_PARAMETER) {
-                    break;
-                }
-                params.add(param);
-            }
-        }
-
-        mv.visitLdcInsn((long) params.size());
-        mv.visitInsn(L2I);
-        mv.visitTypeInsn(ANEWARRAY, FUNCTION_PARAMETER);
-        for (int i = 0; i < params.size(); i++) {
-            BVarSymbol paramSymbol = params.get(i);
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn((long) i);
-            mv.visitInsn(L2I);
-            mv.visitTypeInsn(NEW, FUNCTION_PARAMETER);
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn(paramSymbol.name.value);
-            if (paramSymbol.isDefaultable) {
-                mv.visitInsn(ICONST_1);
-            } else {
-                mv.visitInsn(ICONST_0);
-            }
-            BInvokableSymbol bInvokableSymbol = invokableSymbol.defaultValues.get(paramSymbol.name.value);
-            if (bInvokableSymbol == null) {
-                mv.visitInsn(ACONST_NULL);
-            } else {
-                mv.visitLdcInsn(bInvokableSymbol.name.value);
-            }
-            this.jvmTypeGen.loadType(mv, paramSymbol.type);
-            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, INIT_FUNCTION_PARAM, false);
-            mv.visitInsn(AASTORE);
-        }
     }
 
     private void genJIConstructorTerm(JIConstructorCall callIns, int localVarOffset) {
