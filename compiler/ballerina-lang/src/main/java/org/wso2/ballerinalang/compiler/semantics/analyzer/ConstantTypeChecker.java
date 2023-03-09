@@ -2144,34 +2144,33 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         @Override
         public void visit(BArrayType arrayType) {
-//            BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-//                    Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
-//                    data.env.scope.owner, null, SOURCE);
-//            if (arrayType.state == BArrayState.OPEN) {
-//                BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, new ArrayList<>());
-//                tupleTypeSymbol.type = resultTupleType;
-//                data.resultType = resultTupleType;
-//                return;
-//            } else if (arrayType.state == BArrayState.INFERRED) {
-//                data.resultType = symTable.semanticError;
-//                return;
-//            }
-//            BType fillMemberType = getFillMembers(arrayType.eType, data);
-//            if (fillMemberType == symTable.semanticError) {
-//                data.resultType = symTable.semanticError;
-//                return;
-//            }
-//            List<BType> tupleTypes = new ArrayList<>(arrayType.size);
-//            for (int i = 0; i < arrayType.size; i++) {
-//                tupleTypes.add(fillMemberType);
-//            }
-//            List<BTupleMember> members = new ArrayList<>();
-//            tupleTypes.forEach(m ->
-//                    members.add(new BTupleMember(m, Symbols.createVarSymbolForTupleMember(m))));
-//            BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, members);
-//            tupleTypeSymbol.type = resultTupleType;
-//            data.resultType = resultTupleType;
-            data.resultType = data.inferredType;
+            BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                    Names.EMPTY, data.env.enclPkg.symbol.pkgID, null,
+                    data.env.scope.owner, null, SOURCE);
+            if (arrayType.state == BArrayState.OPEN) {
+                BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, new ArrayList<>());
+                tupleTypeSymbol.type = resultTupleType;
+                data.resultType = resultTupleType;
+                return;
+            } else if (arrayType.state == BArrayState.INFERRED) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
+            BType fillMemberType = getFillMembers(arrayType.eType, data);
+            if (fillMemberType == symTable.semanticError) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
+            List<BType> tupleTypes = new ArrayList<>(arrayType.size);
+            for (int i = 0; i < arrayType.size; i++) {
+                tupleTypes.add(fillMemberType);
+            }
+            List<BTupleMember> members = new ArrayList<>();
+            tupleTypes.forEach(m ->
+                    members.add(new BTupleMember(m, Symbols.createVarSymbolForTupleMember(m))));
+            BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, members);
+            tupleTypeSymbol.type = resultTupleType;
+            data.resultType = resultTupleType;
         }
 
         @Override
