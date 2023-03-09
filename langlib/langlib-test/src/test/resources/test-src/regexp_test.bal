@@ -1063,20 +1063,20 @@ function testLangLibFuncWithNamedArgExpr() {
 function testEmptyRegexpFind() {
     // find
     regexp:Span? resA1 = regexp:find(re = re ``, str = "HelloWorld");
-    assertTrue(resA1 is null);
+    assertTrue(resA1 is ());
     regexp:Span? resA2 = regexp:find(re = re `World`, str = "");
-    assertTrue(resA2 is null);
+    assertTrue(resA2 is ());
     regexp:Span? resA3 = regexp:find(re = re ``, str = "");
-    assertTrue(resA3 is null);
+    assertTrue(resA3 is ());
     regexp:Span? resA4 = regexp:find(re = re `${""}`, str = "");
-    assertTrue(resA4 is null);
+    assertTrue(resA4 is ());
     regexp:Span? resA5 = regexp:find(re = re `${""}`, str = "HelloWorld");
-    assertTrue(resA5 is null);
+    assertTrue(resA5 is ());
     string regexStrA = "";
     regexp:Span? resA6 = regexp:find(re = re `${regexStrA}`, str = "HelloWorld");
-    assertTrue(resA6 is null);
+    assertTrue(resA6 is ());
     regexp:Span? resA7 = regexp:find(re = re `${regexStrA}`, str = "");
-    assertTrue(resA7 is null);
+    assertTrue(resA7 is ());
     regexp:Span? resA8 = regexp:find(re = re `(.*)`, str = "");
     assertTrue(resA8 is regexp:Span);
 
@@ -1092,17 +1092,17 @@ function testEmptyRegexpFind() {
     regexp:Span[] resB5 = regexp:findAll(re `${""}`, "There once was a king who liked to sing");
     assertEquality(0, resB5.length());
 
-   //  // find groups
+   // find groups
     regexp:Groups? resC1 = regexp:findGroups(re ``, "Butter was bought by Betty but the butter was bitter");
-    assertTrue(resC1 is null);
+    assertTrue(resC1 is ());
     regexp:Groups? resC2 = regexp:findGroups(re `(\w+tt\w+)`, "");
-    assertTrue(resC2 is null);
+    assertTrue(resC2 is ());
     regexp:Groups? resC3 = regexp:findGroups(re ``, "");
-    assertTrue(resC3 is null);
+    assertTrue(resC3 is ());
     regexp:Groups? resC4 = regexp:findGroups(re `${""}`, "");
-    assertTrue(resC4 is null);
+    assertTrue(resC4 is ());
 
-   //  // find all groups
+   // find all groups
     regexp:Groups[] resD1 = regexp:findAllGroups(re ``, "rubble, trouble, bubble, hubble");
     assertEquality(0, resD1.length());
     regexp:Groups[] resD2 = regexp:findAllGroups(re `(\w+ble)`, "");
@@ -1116,14 +1116,14 @@ function testEmptyRegexpFind() {
 function testEmptyRegexpMatch() {
     // matchAt
     regexp:Span? resA1 = regexp:matchAt(re = re ``, str = "HelloWorld");
-    assertTrue(resA1 is null);
+    assertTrue(resA1 is ());
     regexp:Span? resA2 = regexp:matchAt(re = re ``, str = "HelloWorld", startIndex = 4);
-    assertTrue(resA2 is null);
+    assertTrue(resA2 is ());
     string regexStrA = "";
     regexp:Span? resA3 = regexp:matchAt(re = re `${regexStrA}`, str = "HelloWorld");
-    assertTrue(resA3 is null);
+    assertTrue(resA3 is ());
     regexp:Span? resA4 = regexp:matchAt(re = re `${regexStrA}`, str = "HelloWorld", startIndex = 4);
-    assertTrue(resA4 is null);
+    assertTrue(resA4 is ());
 
 }
 
