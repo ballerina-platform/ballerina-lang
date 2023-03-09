@@ -1114,7 +1114,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE || (ownerSymTag & SymTag.LET) == SymTag.LET
                 || currentEnv.node.getKind() == NodeKind.LET_CLAUSE) {
             // This is a variable declared in a function, let expression, an action or a resource
-            // If the variable is parameter then the variable symbol is already defined`
+            // If the variable is parameter then the variable symbol is already defined
             if (varNode.symbol == null) {
                 analyzeVarNode(varNode, data, AttachPoint.Point.VAR);
             } else {

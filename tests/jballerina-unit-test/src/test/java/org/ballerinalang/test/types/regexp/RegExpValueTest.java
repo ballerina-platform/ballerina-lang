@@ -101,8 +101,8 @@ public class RegExpValueTest {
         validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 31, 43);
         validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 32, 14);
         validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 33, 21);
-        validateError(negativeResult, index++, "unsupported empty character class", 34, 27);
-        validateError(negativeResult, index++, "unsupported empty character class", 35, 37);
+        validateError(negativeResult, index++, "empty character class disallowed", 34, 27);
+        validateError(negativeResult, index++, "empty character class disallowed", 35, 37);
         validateError(negativeResult, index++, "incompatible types: expected 'boolean', found " +
                 "'regexp:RegExp'", 36, 9);
         validateError(negativeResult, index++, "missing backtick token", 38, 1);
