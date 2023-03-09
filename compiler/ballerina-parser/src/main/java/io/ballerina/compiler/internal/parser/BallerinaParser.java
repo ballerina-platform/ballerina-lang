@@ -709,10 +709,6 @@ public class BallerinaParser extends AbstractParser {
                 alias = parseImportPrefixDecl();
                 break;
             case DOT_TOKEN:
-                orgName = STNodeFactory.createEmptyNode();
-                moduleName = parseModuleName(identifier);
-                alias = parseImportPrefixDecl();
-                break;
             case AS_KEYWORD:
                 orgName = STNodeFactory.createEmptyNode();
                 moduleName = parseModuleName(identifier);
