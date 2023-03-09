@@ -147,19 +147,12 @@ public class FuncInvocationExprTest {
         };
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: Invalid.*")
-    public void testFuncWithNeverReturnTypeWithoutVariableAssignment1() {
-        BRunUtil.invoke(funcInvocationExpResult, "testFuncWithNeverReturnTypeWithoutVariableAssignment1");
+    @Test
+    public void testFuncWithNeverReturnTypeWithoutVariableAssignment() {
+        BRunUtil.invoke(funcInvocationExpResult, "testFuncWithNeverReturnTypeWithoutVariableAssignment");
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: Invalid.*")
-    public void testFuncWithNeverReturnTypeWithoutVariableAssignment2() {
-        BRunUtil.invoke(funcInvocationExpResult, "testFuncWithNeverReturnTypeWithoutVariableAssignment2");
-    }
-
-    @Test(description = "Test function invocation without variable assignment")
+    @Test
     public void testFuncWithNilReturnTypeWithoutVariableAssignment() {
         BRunUtil.invoke(funcInvocationExpResult, "testFuncWithNilReturnTypeWithoutVariableAssignment");
     }
@@ -213,6 +206,10 @@ public class FuncInvocationExprTest {
                 "incompatible types: expected 'int[]', found '(int|string)[3]'", 73, 29);
         validateError(funcInvocationNegative, i++,
                 "incompatible types: expected 'int[]', found 'anydata[]'", 74, 29);
+
+        validateError(funcInvocationNegative, i++, "variable assignment is required", 100, 5);
+        validateError(funcInvocationNegative, i++, "variable assignment is required", 101, 5);
+        validateError(funcInvocationNegative, i++, "variable assignment is required", 102, 5);
         Assert.assertEquals(i, funcInvocationNegative.getErrorCount());
     }
 

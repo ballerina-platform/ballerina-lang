@@ -95,3 +95,13 @@ function intRestParam(int... i) returns int {
 }
 
 function intParam(int i) returns int => i;
+
+function testFuncWithNilReturnTypeWithoutVariableAssignment() {
+    f1();
+    f2();
+    f3();
+}
+
+function f1() returns ()|int|() => ();
+function f2() returns 1|null => null;
+function f3() returns null|1|null => null;

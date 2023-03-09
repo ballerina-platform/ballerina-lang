@@ -2714,40 +2714,44 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
     }
 
-    private boolean isFiniteWithNilMember(BType bType) {
-        if (!(bType.getKind() == TypeKind.FINITE)) {
+    private boolean checkIfFiniteTypeHasNullMembers(BType bType) {
+        if (bType.tag != TypeTags.FINITE) {
             return false;
         }
-        BFiniteType finiteType = (BFiniteType) bType;
-        Set<BLangExpression> finiteMembers = finiteType.getValueSpace();
+        Set<BLangExpression> finiteMembers = ((BFiniteType) bType).getValueSpace();
         for (BLangExpression finiteMemberType : finiteMembers) {
-            if (finiteMemberType.getBType() != null && finiteMemberType.getBType().tag != TypeTags.NIL) {
+            if (finiteMemberType.getBType().tag != TypeTags.NIL) {
                 return false;
             }
         }
         return true;
     }
 
-    private boolean isUnionWithSingleNilTypeMember(BType bType) {
-        if (!(bType.getKind() == TypeKind.UNION)) {
+    private boolean checkIfUnionTypeHasNullMembers(BType bType) {
+        if (bType.tag != TypeTags.UNION) {
             return false;
         }
         BUnionType unionType = (BUnionType) bType;
         LinkedHashSet<BType> members = unionType.getMemberTypes();
-        LinkedHashSet<BType> originalMembers = unionType.getOriginalMemberTypes();
         if (members.size() >= 1) {
             for (BType memberType : members) {
-                if (memberType.getKind() != TypeKind.NIL) {
+                if (memberType.tag != TypeTags.NIL) {
                     return false;
                 }
             }
             return true;
         }
-        // To bypass `function f3() returns never|never` kind of scenarios, referencing error: #39797
+        LinkedHashSet<BType> originalMembers = unionType.getOriginalMemberTypes();
+        // Special cased to handle return types like never|never` as they are not correctly handled at the moment.
+        // https://github.com/ballerina-platform/ballerina-lang/issues/39797
         if (members.size() == 0 && originalMembers.size() == 1) {
-            return originalMembers.iterator().next().getKind() == TypeKind.NEVER;
+            return originalMembers.iterator().next().tag == TypeTags.NEVER;
         }
         return false;
+    }
+
+    private boolean isSubTypeOfNil(BType bType) {
+        return !checkIfUnionTypeHasNullMembers(bType) && !checkIfFiniteTypeHasNullMembers(bType);
     }
 
     @Override
@@ -2760,8 +2764,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         BType bType = typeChecker.checkExpr(expr, stmtEnv, data.prevEnvs, data.commonAnalyzerData);
         if (bType != symTable.nilType && bType != symTable.semanticError &&
                 expr.getKind() != NodeKind.FAIL &&
-                !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(bType) &&
-                !isUnionWithSingleNilTypeMember(bType) && !isFiniteWithNilMember(bType)) {
+                !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(bType) && isSubTypeOfNil(bType)) {
             dlog.error(exprStmtNode.pos, DiagnosticErrorCode.ASSIGNMENT_REQUIRED, bType);
         } else if (expr.getKind() == NodeKind.INVOCATION &&
                 types.isNeverTypeOrStructureTypeWithARequiredNeverMember(expr.getBType())) {

@@ -356,26 +356,29 @@ function testFn(int a, string... b) returns int =>
 
 function testFuncWithNilReturnTypeWithoutVariableAssignment() {
     stream<string> testStream = new;
-    testStream.close(); // No error
-    f1(); // No error
-    f2(); // No error
-    f4(); // No error
-    f5(); // No error
-    f6(); // No error
+    testStream.close();
+    f1();
+    f2();
+    f4();
+    f5();
+    f6();
+    f8();
 }
 
-function testFuncWithNeverReturnTypeWithoutVariableAssignment1() {
+function testFuncWithNeverReturnTypeWithoutVariableAssignment() {
+    error err = <error>trap intermediateFunction1();
+    assertValueEquality("Invalid", err.message());
+
+    err = <error>trap intermediateFunction2();
+    assertValueEquality("Invalid", err.message());
+}
+
+function intermediateFunction1() returns error? {
     f3();
 }
 
-function testFuncWithNeverReturnTypeWithoutVariableAssignment2() {
+function intermediateFunction2() returns error? {
     f7();
-}
-
-function f6() {}
-
-function f7() returns never {
-    panic error("Invalid");
 }
 
 function f1() returns ()|() => ();
@@ -393,6 +396,14 @@ function f4() returns null {
 function f5() returns () {
     return ();
 }
+
+function f6() {}
+
+function f7() returns never {
+    panic error("Invalid");
+}
+
+function f8() returns null|null => null;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
