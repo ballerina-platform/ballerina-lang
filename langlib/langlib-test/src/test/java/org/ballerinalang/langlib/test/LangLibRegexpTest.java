@@ -140,17 +140,16 @@ public class LangLibRegexpTest {
         Assert.assertEquals(returns.toString(), "error(\"{ballerina}RegularExpressionParsingError\",message=\"invalid" +
                 " regexp pattern: " + message + "\")");
     }
-
+    
     @DataProvider(name = "invalidRegexpPatternSyntaxProvider")
     private Object[][] getInvalidRegexpPatternSyntax() {
         return new Object[][] {
                 {"testInvalidRegexpPatternSyntax1", "Unclosed character class near index 24" + NEW_LINE_CHAR +
                         "(?i-s:[[A\\\\sB\\WC\\Dd\\\\]\\])" + NEW_LINE_CHAR + "                        ^"},
-                {"testInvalidRegexpPatternSyntax2", "Unclosed character class near index 23" + NEW_LINE_CHAR +
-                        "(?xsmi:[]\\P{sc=Braille})" + NEW_LINE_CHAR +
-                        "                       ^"},
-                {"testInvalidRegexpPatternSyntax3", "Unclosed character class near index 23" + NEW_LINE_CHAR +
-                        "(?xsmi:[]\\P{sc=Braille})" + NEW_LINE_CHAR + "                       ^"},
+                {"testInvalidRegexpPatternSyntax2", "Unclosed character class near index 27" + NEW_LINE_CHAR +
+                        "(?xsmi:[[ABC]\\P{sc=Braille})" + NEW_LINE_CHAR + "                           ^"},
+                {"testInvalidRegexpPatternSyntax3", "Unclosed character class near index 27" + NEW_LINE_CHAR +
+                        "(?xsmi:[[ABC]\\P{sc=Braille})" + NEW_LINE_CHAR + "                           ^"},
         };
     }
 
@@ -203,6 +202,21 @@ public class LangLibRegexpTest {
                 {"testNegativeInvalidFlags2"},
                 {"testNegativeInvalidFlags3"},
                 {"testNegativeInvalidFlags4"},
+        };
+    }
+    
+    @Test(dataProvider = "negativeRegexpEmptyCharClassInterpolationProvider")
+    public void negativeTestRegexpEmptyCharClassInsertion(String functionName) {
+        Object returns = BRunUtil.invoke(negativeTests, functionName);
+        Assert.assertEquals(returns.toString(),String.format("error(\"{ballerina}RegularExpressionParsingError\"," +
+                "message=\"Invalid insertion in regular expression: Empty character class disallowed\")"));
+    }
+
+    @DataProvider(name = "negativeRegexpEmptyCharClassInterpolationProvider")
+    private Object[][] negativeRegexpEmptyCharClassInsertion() {
+        return new Object[][] {
+                {"testNegativeEmptyCharClass1"},
+                {"testNegativeEmptyCharClass2"}
         };
     }
 }

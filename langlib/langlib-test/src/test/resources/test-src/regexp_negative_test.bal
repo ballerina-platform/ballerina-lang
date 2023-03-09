@@ -84,13 +84,27 @@ public function testInvalidRegexpPatternSyntax1() returns error? {
 }
 
 public function testInvalidRegexpPatternSyntax2() returns error? {
-    string:RegExp x = re `(?xsmi:[]\P{sc=Braille})`;
+    string:RegExp x = re `(?xsmi:[[ABC]\P{sc=Braille})`;
     _ = check (trap x.findAll(":*A*a").toBalString());
 }
 
 public function testInvalidRegexpPatternSyntax3() returns error? {
-    string:RegExp x = re `(?xsmi:[]\P{sc=Braille})`;
+    string:RegExp x = re `(?xsmi:[[ABC]\P{sc=Braille})`;
     _ = check (trap x.matchGroupsAt(":*A*a"));
+}
+
+public function testNegativeEmptyCharClass1() returns error? {
+    string pattern = "[]";
+    var r = check (trap re `${pattern}`);
+}
+
+public function testNegativeEmptyCharClass2() returns error? {
+    var r = check (trap re `(abc${"[]"})`);
+}
+
+public function testNegativeEmptyCharClass3() returns error? {
+    string:RegExp r = check regexp:fromString("(([abc])|([]))");
+    _ = check (trap r.findAll("Hello"));
 }
 
 public function testNegativeDuplicateFlags1() returns error? {
