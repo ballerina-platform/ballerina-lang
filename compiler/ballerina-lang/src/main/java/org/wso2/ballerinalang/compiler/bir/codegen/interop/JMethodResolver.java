@@ -35,6 +35,8 @@ import io.ballerina.runtime.api.values.BXml;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -54,6 +56,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.CLASS_NOT_FOUND;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.NO_CLASS_DEF_FOUND;
@@ -154,7 +157,8 @@ class JMethodResolver {
     private List<JMethod> resolveByParamCount(List<JMethod> jMethods, JMethodRequest jMethodRequest) {
         List<JMethod> list = new ArrayList<>();
         for (JMethod jMethod : jMethods) {
-            if (hasEqualParamCounts(jMethodRequest, jMethod)) {
+            if (hasEqualParamCounts(jMethodRequest, jMethod)
+                    || (hasEquivalentParamCounts(jMethodRequest, jMethod) && jMethod.getParamTypes().length > 0)) {
                 list.add(jMethod);
             }
         }
@@ -181,6 +185,55 @@ class JMethodResolver {
             return jMethod.isBalEnvAcceptingMethod();
         }
         return false;
+    }
+
+    private boolean hasEquivalentParamCounts(JMethodRequest jMethodRequest, JMethod jMethod) {
+        int reducedParamCount = getBundledParamCount(jMethodRequest, jMethod);
+        int count = jMethod.getParamTypes().length;
+        Class<?>[] paramTypes = jMethod.getParamTypes();
+        try {
+            if (count == reducedParamCount && this.classLoader.loadClass(BArray.class.getCanonicalName())
+                    .isAssignableFrom(paramTypes[0])) {
+                bundlePathParams(jMethodRequest);
+                jMethod.hasBundledPathParams = true;
+                return true;
+            } else if (count == reducedParamCount + 1 && this.classLoader.loadClass(BArray.class.getCanonicalName())
+                    .isAssignableFrom(paramTypes[1])) {
+                // This is for object interop functions when self is passed as a parameter
+                if (jMethod.isBalEnvAcceptingMethod()) {
+                    return true;
+                }
+                jMethod.setReceiverType(jMethodRequest.receiverType);
+                bundlePathParams(jMethodRequest);
+                jMethod.hasBundledPathParams = true;
+                return jMethodRequest.receiverType != null;
+            } else if (count == reducedParamCount + 2 && this.classLoader.loadClass(BArray.class.getCanonicalName())
+                    .isAssignableFrom(paramTypes[2])) {
+                // This is for object interop functions when both BalEnv and self is passed as parameters.
+                if (jMethodRequest.receiverType != null) {
+                    jMethod.setReceiverType(jMethodRequest.receiverType);
+                }
+                bundlePathParams(jMethodRequest);
+                jMethod.hasBundledPathParams = true;
+                return jMethod.isBalEnvAcceptingMethod();
+            }
+        } catch (ClassNotFoundException e) {
+            throw new JInteropException(CLASS_NOT_FOUND, e.getMessage(), e);
+        }
+        return false;
+    }
+
+    private void bundlePathParams(JMethodRequest jMethodRequest) {
+        if (jMethodRequest.pathParamSymbols.isEmpty()) {
+            return;
+        }
+        List<BType> paramTypes = new ArrayList<>(Arrays.asList(jMethodRequest.bParamTypes));
+        int initialPathParamIndex = paramTypes.indexOf(jMethodRequest.pathParamSymbols.get(0).type);
+        paramTypes.removeAll(jMethodRequest.pathParamSymbols.stream().map(BVarSymbol::getType)
+                .collect(Collectors.toList()));
+        BArrayType pathParamArrayType = new BArrayType(symbolTable.anydataType);
+        paramTypes.add(initialPathParamIndex, pathParamArrayType);
+        jMethodRequest.bParamTypes = paramTypes.toArray(new BType[0]);
     }
 
     private JMethod resolve(JMethodRequest jMethodRequest, List<JMethod> jMethods) {
@@ -877,6 +930,10 @@ class JMethodResolver {
             bFuncParamCount = isStaticMethod ? bFuncParamCount : bFuncParamCount - 1;
         }
         return bFuncParamCount;
+    }
+
+    private int getBundledParamCount(JMethodRequest jMethodRequest, JMethod jMethod) {
+        return getBFuncParamCount(jMethodRequest, jMethod) - jMethodRequest.pathParamCount + 1;
     }
 
     private String getParamTypesAsString(ParamTypeConstraint[] constraints) {

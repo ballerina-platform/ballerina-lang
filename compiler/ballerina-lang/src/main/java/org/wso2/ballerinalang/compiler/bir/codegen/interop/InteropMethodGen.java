@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -43,6 +44,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -267,8 +270,25 @@ public class InteropMethodGen {
         BIRBasicBlock retBB = new BIRBasicBlock(getNextDesugarBBId(bbPrefix, initMethodGen));
 
         List<BIROperand> args = new ArrayList<>();
+        List<BIROperand> resourcePathArgs = new ArrayList<>();
 
         List<BIRNode.BIRFunctionParameter> birFuncParams = birFunc.parameters;
+        List<BType> birFuncParamTypes = new ArrayList<>();
+        for (BIRNode.BIRFunctionParameter birFuncParam : birFuncParams) {
+            birFuncParamTypes.add(birFuncParam.type);
+        }
+        List<BVarSymbol> birFuncParamSymbols = ((BInvokableTypeSymbol) birFunc.type.tsymbol).params;
+        List<BVarSymbol> pathParamSymbols = new ArrayList<>();
+        List<BType> pathParamTypes = new ArrayList<>();
+
+        for (BVarSymbol birFuncParamSymbol : birFuncParamSymbols) {
+            if (birFuncParamSymbol.kind == SymbolKind.PATH_PARAMETER ||
+                    birFuncParamSymbol.kind == SymbolKind.PATH_REST_PARAMETER) {
+                pathParamSymbols.add(birFuncParamSymbol);
+                pathParamTypes.add(birFuncParamSymbol.type);
+            }
+        }
+
         int birFuncParamIndex = 0;
         // Load receiver which is the 0th parameter in the birFunc
         if (jMethod.kind == JMethodKind.METHOD && !jMethod.isStatic()) {
@@ -279,6 +299,7 @@ public class InteropMethodGen {
         }
 
         JType varArgType = null;
+        JType resourcePathArgType = null;
         int jMethodParamIndex = 0;
         if (jMethod.getReceiverType() != null) {
             jMethodParamIndex++;
@@ -289,13 +310,35 @@ public class InteropMethodGen {
             jMethodParamIndex++;
         }
 
+        if (jMethod.hasBundledPathParams) {
+            resourcePathArgType = JInterop.getJType(jMethodParamTypes[jMethodParamIndex]);
+        }
+
         int paramCount = birFuncParams.size();
         while (birFuncParamIndex < paramCount) {
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
-            boolean isVarArg = (birFuncParamIndex == (paramCount - 1)) && birFunc.restParam != null;
             BType bPType = birFuncParam.type;
-            JType jPType = JInterop.getJType(jMethodParamTypes[jMethodParamIndex]);
             BIROperand argRef = new BIROperand(birFuncParam);
+            boolean isVarArg = (birFuncParamIndex == (paramCount - 1)) && birFunc.restParam != null;
+            JType jPType = JInterop.getJType(jMethodParamTypes[jMethodParamIndex]);
+
+            if (jMethod.hasBundledPathParams && pathParamTypes.contains(bPType)) {
+                String varName = "$_param_jobject_var" + birFuncParamIndex + "_$";
+                BIRVariableDcl paramVarDcl = new BIRVariableDcl(jPType, new Name(varName), null, VarKind.LOCAL);
+                birFunc.localVars.add(paramVarDcl);
+                BIROperand paramVarRef = new BIROperand(paramVarDcl);
+                JCast jToBCast = new JCast(birFunc.pos);
+                jToBCast.lhsOp = paramVarRef;
+                jToBCast.rhsOp = argRef;
+                jToBCast.targetType = jPType;
+                argRef = paramVarRef;
+                beginBB.instructions.add(jToBCast);
+
+                resourcePathArgs.add(argRef);
+                birFuncParamIndex++;
+                continue;
+            }
+
             // we generate cast operations for unmatching B to J types
             if (!isVarArg && !isMatchingBAndJType(bPType, jPType)) {
                 String varName = "$_param_jobject_var" + birFuncParamIndex + "_$";
@@ -311,7 +354,7 @@ public class InteropMethodGen {
             }
             // for var args, we have two options
             // 1 - desugar java array creation here,
-            // 2 - keep the var arg type in the intstruction and do the array creation in instruction gen
+            // 2 - keep the var arg type in the instruction and do the array creation in instruction gen
             // we are going with the option two for the time being, hence keeping var arg type in the instructions
             // (drawback with option 2 is, function frame may not have proper variables)
             if (isVarArg) {
@@ -370,8 +413,10 @@ public class InteropMethodGen {
         if (jMethod.kind == JMethodKind.CONSTRUCTOR) {
             JIConstructorCall jCall = new JIConstructorCall(birFunc.pos);
             jCall.args = args;
+            jCall.resourcePathArgs = resourcePathArgs;
             jCall.varArgExist = birFunc.restParam != null;
             jCall.varArgType = varArgType;
+            jCall.targetResourcePathArgsType = resourcePathArgType;
             jCall.lhsOp = jRetVarRef;
             jCall.jClassName = jMethod.getClassName().replace(".", "/");
             jCall.name = jMethod.getName();
@@ -381,8 +426,10 @@ public class InteropMethodGen {
         } else {
             JIMethodCall jCall = new JIMethodCall(birFunc.pos);
             jCall.args = args;
+            jCall.resourcePathArgs = resourcePathArgs;
             jCall.varArgExist = birFunc.restParam != null;
             jCall.varArgType = varArgType;
+            jCall.targetResourcePathArgsType = resourcePathArgType;
             jCall.lhsOp = jRetVarRef;
             jCall.jClassName = jMethod.getClassName().replace(".", "/");
             jCall.name = jMethod.getName();
