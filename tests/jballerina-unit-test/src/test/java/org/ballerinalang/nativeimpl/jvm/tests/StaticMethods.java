@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
@@ -741,5 +742,9 @@ public class StaticMethods {
         integers.forEach(i -> {
             throw ErrorCreator.createError(StringUtils.fromString("error!!!"));
         });
+    }
+
+    public static int getResource(BArray paths) {
+        return paths.size();
     }
 }
