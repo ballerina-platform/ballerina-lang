@@ -36,7 +36,7 @@ public class Environment {
     private Future future;
     private Module currentModule;
     private String funcName;
-    private Parameter[] pathParams;
+    private Parameter[] funcPathParams;
 
     public Environment(Strand strand) {
         this.strand = strand;
@@ -48,10 +48,10 @@ public class Environment {
         future = new Future(this.strand);
     }
 
-    public Environment(Strand strand, Module currentModule, String funcName, Parameter[] pathParams) {
+    public Environment(Strand strand, Module currentModule, String funcName, Parameter[] funcPathParams) {
         this(strand, currentModule);
         this.funcName = funcName;
-        this.pathParams = pathParams;
+        this.funcPathParams = funcPathParams;
     }
 
     /**
@@ -68,8 +68,8 @@ public class Environment {
      *
      * @return array of {@link Parameter}
      */
-    public Parameter[] getPathParameters() {
-        return pathParams;
+    public Parameter[] getFunctionPathParameters() {
+        return funcPathParams;
     }
 
     /**

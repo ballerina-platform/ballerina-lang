@@ -38,7 +38,7 @@ public class Environment {
         long returnVal = 1;
         Future balFuture = env.markAsync();
         String functionName = env.getFunctionName();
-        Parameter[] pathParameters = env.getPathParameters();
+        Parameter[] pathParameters = env.getFunctionPathParameters();
         Parameter[] expectedPathParams = {
                 new Parameter("p1", false, null, PredefinedTypes.TYPE_INT),
                 new Parameter("p2", false, null, PredefinedTypes.TYPE_STRING),
@@ -74,7 +74,7 @@ public class Environment {
         long returnVal = 2;
         Future balFuture = env.markAsync();
         String functionName = env.getFunctionName();
-        Parameter[] pathParameters = env.getPathParameters();
+        Parameter[] pathParameters = env.getFunctionPathParameters();
         Parameter[] expectedPathParams = {
                 new Parameter("p1", false, null, PredefinedTypes.TYPE_INT),
                 new Parameter("p2", false, null, PredefinedTypes.TYPE_DECIMAL),
