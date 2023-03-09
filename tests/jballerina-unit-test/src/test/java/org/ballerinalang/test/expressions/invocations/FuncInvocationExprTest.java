@@ -206,7 +206,6 @@ public class FuncInvocationExprTest {
                 "incompatible types: expected 'int[]', found '(int|string)[3]'", 73, 29);
         validateError(funcInvocationNegative, i++,
                 "incompatible types: expected 'int[]', found 'anydata[]'", 74, 29);
-
         validateError(funcInvocationNegative, i++, "variable assignment is required", 100, 5);
         validateError(funcInvocationNegative, i++, "variable assignment is required", 101, 5);
         validateError(funcInvocationNegative, i++, "variable assignment is required", 102, 5);
