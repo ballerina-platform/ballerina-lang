@@ -95,6 +95,8 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
@@ -123,6 +125,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PREDEFINED_TYPES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
@@ -554,8 +557,7 @@ public class JvmTerminatorGen {
         genHandlingBlockedOnExternal(localVarOffset, blockedOnExternLabel);
         if (callIns.lhsOp != null) {
             this.mv.visitVarInsn(ALOAD, localVarOffset);
-            this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "returnValue",
-                                   "Ljava/lang/Object;");
+            this.mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "returnValue", "Ljava/lang/Object;");
             // store return
             BIROperand lhsOpVarDcl = callIns.lhsOp;
             addJUnboxInsn(this.mv, ((JType) lhsOpVarDcl.variableDcl.type));
@@ -572,8 +574,7 @@ public class JvmTerminatorGen {
             // check whether function params already include the self
             BIRNode.BIRVariableDcl selfArg = callIns.args.get(0).variableDcl;
             this.loadVar(selfArg);
-            this.mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, RETURN_OBJECT,
-                    false);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, RETURN_OBJECT, false);
             this.mv.visitTypeInsn(CHECKCAST, callIns.jClassName);
 
             Label ifNonNullLabel = this.labelGen.getLabel("receiver_null_check");
@@ -606,8 +607,38 @@ public class JvmTerminatorGen {
             this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
             // load the current Module
             mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
-            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD,
-                               INIT_BAL_ENV, false);
+            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD, INIT_BAL_ENV, false);
+        }
+
+        if (callIns.resourcePathArgs != null && callIns.targetResourcePathArgsType != null) {
+
+            int pathVarArrayIndex = this.indexMap.addIfNotExists("$pathVarArray", symbolTable.anyType);
+            int bundledArrayIndex = this.indexMap.addIfNotExists("$bundledPathArgs", symbolTable.anyType);
+
+            mv.visitInsn(ICONST_0);
+            mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+            mv.visitVarInsn(ASTORE, pathVarArrayIndex);
+
+            for (int i = 0; i < callIns.resourcePathArgs.size(); i++) {
+                BIROperand arg = callIns.resourcePathArgs.get(i);
+                mv.visitVarInsn(ALOAD, pathVarArrayIndex);
+                mv.visitLdcInsn((long) i);
+                mv.visitInsn(L2I);
+                this.loadVar(arg.variableDcl);
+                mv.visitInsn(AASTORE);
+            }
+
+            mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
+            mv.visitInsn(DUP);
+            mv.visitVarInsn(ALOAD, pathVarArrayIndex);
+            mv.visitTypeInsn(NEW, ARRAY_TYPE_IMPL);
+            mv.visitInsn(DUP);
+            mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_ANYDATA", "Lio/ballerina/runtime/api/types/AnydataType;");
+            mv.visitMethodInsn(INVOKESPECIAL, "io/ballerina/runtime/internal/types/BArrayType", JVM_INIT_METHOD, "(Lio/ballerina/runtime/api/types/Type;)V", false);
+            mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD, "([Ljava/lang/Object;Lio/ballerina/runtime/api/types/ArrayType;)V", false);
+            mv.visitVarInsn(ASTORE, bundledArrayIndex);
+
+            mv.visitVarInsn(ALOAD, bundledArrayIndex);
         }
 
         int argsCount = callIns.varArgExist ? callIns.args.size() - 1 : callIns.args.size();

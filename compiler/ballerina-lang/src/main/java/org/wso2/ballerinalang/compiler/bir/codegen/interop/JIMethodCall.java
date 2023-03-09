@@ -31,11 +31,13 @@ import java.util.List;
 public class JIMethodCall extends JTerminator {
 
     public List<BIROperand> args;
+    public List<BIROperand> resourcePathArgs;
     public boolean varArgExist;
     public JType varArgType;
     public String jClassName;
     public String jMethodVMSig;
     public String name;
+    public JType targetResourcePathArgsType;
     public int invocationType;
 
     public JIMethodCall(Location pos) {

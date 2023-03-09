@@ -17,6 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -39,8 +42,10 @@ class JMethodRequest {
     ParamTypeConstraint[] paramTypeConstraints = {};
     // Parameter count of the Ballerina function
     int bFuncParamCount;
+    int pathParamCount;
 
     BType[] bParamTypes = null;
+    List<BVarSymbol> pathParamSymbols = new ArrayList<>();
     BType bReturnType = null;
     boolean returnsBErrorType = false;
     boolean restParamExist = false;
@@ -65,6 +70,15 @@ class JMethodRequest {
 
         BInvokableType bFuncType = methodValidationRequest.bFuncType;
         List<BType> paramTypes = new ArrayList<>(bFuncType.paramTypes);
+        BInvokableTypeSymbol typeSymbol = (BInvokableTypeSymbol) bFuncType.tsymbol;
+        List<BVarSymbol> params = typeSymbol.params;
+        List<BVarSymbol> pathParams = new ArrayList<>();
+
+        for (BVarSymbol param : params) {
+            if (param.kind == SymbolKind.PATH_PARAMETER || param.kind == SymbolKind.PATH_REST_PARAMETER) {
+                pathParams.add(param);
+            }
+        }
 
         BType restType = bFuncType.restType;
         if (restType != null) {
@@ -72,7 +86,9 @@ class JMethodRequest {
         }
 
         jMethodReq.bFuncParamCount = paramTypes.size();
+        jMethodReq.pathParamCount = pathParams.size();
         jMethodReq.bParamTypes = paramTypes.toArray(new BType[0]);
+        jMethodReq.pathParamSymbols = pathParams;
 
         BType returnType = unifier.build(bFuncType.retType);
         jMethodReq.bReturnType = returnType;
