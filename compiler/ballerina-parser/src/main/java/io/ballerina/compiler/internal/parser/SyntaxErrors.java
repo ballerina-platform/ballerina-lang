@@ -381,8 +381,6 @@ public class SyntaxErrors {
             case FIRST_OBJECT_TYPE_QUALIFIER:
             case SECOND_OBJECT_TYPE_QUALIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_OBJECT_KEYWORD;
-            case VERSION_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_VERSION_KEYWORD;
             case AS_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_AS_KEYWORD;
             case ON_KEYWORD:

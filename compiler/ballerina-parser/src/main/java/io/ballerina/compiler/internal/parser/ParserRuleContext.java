@@ -424,7 +424,6 @@ public enum ParserRuleContext {
     BREAK_KEYWORD("break"),
     PANIC_KEYWORD("panic"),
     IMPORT_KEYWORD("import"),
-    VERSION_KEYWORD("version"),
     AS_KEYWORD("as"),
     RETURN_KEYWORD("return"),
     SERVICE_KEYWORD("service"),

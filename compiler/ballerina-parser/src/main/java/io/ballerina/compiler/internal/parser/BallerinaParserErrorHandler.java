@@ -260,15 +260,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] IMPORT_PREFIX_DECL =
             { ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
 
-    private static final ParserRuleContext[] IMPORT_VERSION =
-            { ParserRuleContext.VERSION_KEYWORD, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
-
     private static final ParserRuleContext[] IMPORT_DECL_ORG_OR_MODULE_NAME_RHS =
             { ParserRuleContext.SLASH, ParserRuleContext.AFTER_IMPORT_MODULE_NAME };
 
     private static final ParserRuleContext[] AFTER_IMPORT_MODULE_NAME = {
-            ParserRuleContext.AS_KEYWORD, ParserRuleContext.DOT, ParserRuleContext.VERSION_KEYWORD,
-            ParserRuleContext.SEMICOLON };
+            ParserRuleContext.AS_KEYWORD, ParserRuleContext.DOT, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] MAJOR_MINOR_VERSION_END =
             { ParserRuleContext.DOT, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
@@ -1309,7 +1305,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case AS_KEYWORD:
             case LOCK_KEYWORD:
             case IMPORT_KEYWORD:
-            case VERSION_KEYWORD:
             case CONTINUE_KEYWORD:
             case BREAK_KEYWORD:
             case RETURN_KEYWORD:
@@ -2206,9 +2201,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case IMPORT_PREFIX_DECL:
                 alternativeRules = IMPORT_PREFIX_DECL;
-                break;
-            case IMPORT_VERSION_DECL:
-                alternativeRules = IMPORT_VERSION;
                 break;
             case IMPORT_DECL_ORG_OR_MODULE_NAME_RHS:
                 alternativeRules = IMPORT_DECL_ORG_OR_MODULE_NAME_RHS;
@@ -3274,7 +3266,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case NAMESPACE_PREFIX:
                 return ParserRuleContext.SEMICOLON;
             case VERSION_NUMBER:
-            case VERSION_KEYWORD:
                 return ParserRuleContext.MAJOR_VERSION;
             case SLASH:
                 parentCtx = getParentContext();
@@ -5987,8 +5978,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.LOCK_KEYWORD;
             case ANNOTATION_KEYWORD:
                 return SyntaxKind.ANNOTATION_KEYWORD;
-            case VERSION_KEYWORD:
-                return SyntaxKind.VERSION_KEYWORD;
             case SINGLE_KEYWORD_ATTACH_POINT_IDENT:
                 return SyntaxKind.TYPE_KEYWORD;
             case IDENT_AFTER_OBJECT_IDENT:
