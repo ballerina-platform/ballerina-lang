@@ -1,0 +1,136 @@
+{
+  "position": {
+    "line": 8,
+    "character": 21
+  },
+  "source": "extractToLocalVariableExprsWithQuickPick.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "command": {
+        "title": "Extract To Local Variable",
+        "command": "ballerina.action.extract",
+        "arguments": [
+          "Extract To Local Variable",
+          "extractToLocalVariableExprsWithQuickPick.bal",
+          {
+            "10": [
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 0
+                  }
+                },
+                "newText": "int var1 = 10;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 20
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 22
+                  }
+                },
+                "newText": "var1"
+              }
+            ],
+            "10 / 2": [
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 0
+                  }
+                },
+                "newText": "int var1 = 10 / 2;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 20
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 26
+                  }
+                },
+                "newText": "var1"
+              }
+            ],
+            "10 / 2 + 20": [
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 0
+                  }
+                },
+                "newText": "int var1 = 10 / 2 + 20;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 20
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 31
+                  }
+                },
+                "newText": "var1"
+              }
+            ],
+            "10 / 2 + 20 + 30": [
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 0
+                  }
+                },
+                "newText": "int var1 = 10 / 2 + 20 + 30;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 20
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 36
+                  }
+                },
+                "newText": "var1"
+              }
+            ]
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

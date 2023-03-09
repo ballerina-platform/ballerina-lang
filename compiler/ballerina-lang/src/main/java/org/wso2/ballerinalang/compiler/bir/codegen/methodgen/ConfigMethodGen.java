@@ -201,7 +201,7 @@ public class ConfigMethodGen {
 
     private String getOneBasedLocationString(BIRNode.BIRPackage module, Location location) {
         LineRange lineRange = location.lineRange();
-        String oneBasedLineTrace = lineRange.filePath() + ":" + (lineRange.startLine().line() + 1);
+        String oneBasedLineTrace = lineRange.fileName() + ":" + (lineRange.startLine().line() + 1);
         if (module.packageID.equals(JvmConstants.DEFAULT)) {
             return oneBasedLineTrace;
         }
