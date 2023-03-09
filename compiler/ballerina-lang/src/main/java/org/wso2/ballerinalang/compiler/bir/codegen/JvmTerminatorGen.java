@@ -147,6 +147,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_DA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addJUnboxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANNOTATION_GET_STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANYDATA_ARRAY_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JBOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BAL_ENV_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOBJECT_CALL;
@@ -175,6 +176,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_DEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_TO_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INT_VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.IS_CONCURRENT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOAD_ANYDATA_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LOCK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAP_PUT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PANIC_IF_IN_LOCK;
@@ -185,6 +187,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SCHEDULE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SEND_DATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SYNC_SEND_DATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TRY_TAKE_DATA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VALUE_OF_DECIMAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.WAIT_RESULT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.genVarArg;
@@ -610,22 +613,25 @@ public class JvmTerminatorGen {
             mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD, INIT_BAL_ENV, false);
         }
 
-        if (callIns.resourcePathArgs != null && callIns.targetResourcePathArgsType != null) {
-
+        if (callIns.resourcePathArgs != null && !callIns.resourcePathArgs.isEmpty()) {
+            List<BIROperand> pathArgs = callIns.resourcePathArgs;
             int pathVarArrayIndex = this.indexMap.addIfNotExists("$pathVarArray", symbolTable.anyType);
             int bundledArrayIndex = this.indexMap.addIfNotExists("$bundledPathArgs", symbolTable.anyType);
 
-            mv.visitInsn(ICONST_0);
-            mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+            mv.visitLdcInsn((long) pathArgs.size());
+            mv.visitInsn(L2I);
+            mv.visitTypeInsn(ANEWARRAY, OBJECT);
             mv.visitVarInsn(ASTORE, pathVarArrayIndex);
 
-            for (int i = 0; i < callIns.resourcePathArgs.size(); i++) {
-                BIROperand arg = callIns.resourcePathArgs.get(i);
+            int i = 0;
+            for (BIROperand arg : pathArgs) {
                 mv.visitVarInsn(ALOAD, pathVarArrayIndex);
                 mv.visitLdcInsn((long) i);
                 mv.visitInsn(L2I);
                 this.loadVar(arg.variableDcl);
+                jvmCastGen.generateCheckCastToAnyData(mv, arg.variableDcl.type);
                 mv.visitInsn(AASTORE);
+                i++;
             }
 
             mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
@@ -633,9 +639,9 @@ public class JvmTerminatorGen {
             mv.visitVarInsn(ALOAD, pathVarArrayIndex);
             mv.visitTypeInsn(NEW, ARRAY_TYPE_IMPL);
             mv.visitInsn(DUP);
-            mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_ANYDATA", "Lio/ballerina/runtime/api/types/AnydataType;");
-            mv.visitMethodInsn(INVOKESPECIAL, "io/ballerina/runtime/internal/types/BArrayType", JVM_INIT_METHOD, "(Lio/ballerina/runtime/api/types/Type;)V", false);
-            mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD, "([Ljava/lang/Object;Lio/ballerina/runtime/api/types/ArrayType;)V", false);
+            mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_ANYDATA", LOAD_ANYDATA_TYPE);
+            mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE_IMPL, JVM_INIT_METHOD, TYPE_PARAMETER, false);
+            mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD, ANYDATA_ARRAY_INIT, false);
             mv.visitVarInsn(ASTORE, bundledArrayIndex);
 
             mv.visitVarInsn(ALOAD, bundledArrayIndex);

@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANYDATA_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANY_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
@@ -333,6 +334,7 @@ public class JvmSignatures {
     public static final String LINKED_HASH_SET_OP = "(L" + LINKED_HASH_SET + ";)V";
     public static final String LOAD_ANY_TYPE = "L" + ANY_TYPE + ";";
     public static final String LOAD_ANYDATA_TYPE = "L" + ANYDATA_TYPE + ";";
+    public static final String ANYDATA_ARRAY_INIT = "([L" + OBJECT + ";L" + ARRAY_TYPE + ";)V";
     public static final String LOAD_BOOLEAN_TYPE = "L" + BOOLEAN_TYPE + ";";
     public static final String LOAD_BYTE_TYPE = "L" + BYTE_TYPE + ";";
     public static final String LOAD_DECIMAL_TYPE = "L" + DECIMAL_TYPE + ";";
