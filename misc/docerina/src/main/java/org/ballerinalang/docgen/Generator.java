@@ -418,7 +418,7 @@ public class Generator {
         List<Type> memberTypes = new ArrayList<>();
         Type.addUnionMemberTypes(unionTypeDescriptor, semanticModel, memberTypes);
         BType bType = new BType(unionName, getDocFromMetadata(optionalMetadataNode),
-                isDeprecated(optionalMetadataNode), memberTypes);
+                                isDeprecated(optionalMetadataNode), memberTypes);
         bType.isAnonymousUnionType = true;
         return bType;
     }
@@ -452,9 +452,9 @@ public class Generator {
 
         // Get functions that are not overridden
         List<Function> functions = includedFunctions.stream().filter(includedFunction ->
-                        classFunctions
-                                .stream()
-                                .noneMatch(objFunction -> objFunction.name.equals(includedFunction.name)))
+                classFunctions
+                        .stream()
+                        .noneMatch(objFunction -> objFunction.name.equals(includedFunction.name)))
                 .collect(Collectors.toList());
 
         functions.addAll(classFunctions);
@@ -505,7 +505,7 @@ public class Generator {
 
                     // Iterate through the parameters
                     List<DefaultableVariable> parameters = new ArrayList<>(getDefaultableVariableList(methodSignature
-                            .parameters(), methodNode.metadata(), semanticModel));
+                                    .parameters(), methodNode.metadata(), semanticModel));
 
                     // return params
                     if (methodSignature.returnTypeDesc().isPresent()) {
@@ -540,9 +540,9 @@ public class Generator {
 
         // Get functions that are not overridden
         List<Function> functions = includedFunctions.stream().filter(includedFunction ->
-                        objectFunctions
-                                .stream()
-                                .noneMatch(objFunction -> objFunction.name.equals(includedFunction.name)))
+                objectFunctions
+                        .stream()
+                        .noneMatch(objFunction -> objFunction.name.equals(includedFunction.name)))
                 .collect(Collectors.toList());
 
         functions.addAll(objectFunctions);
@@ -634,7 +634,7 @@ public class Generator {
             fields.add(restVariable);
         }
         return new Record(recordName, getDocFromMetadata(optionalMetadataNode),
-                isDeprecated(optionalMetadataNode), isClosed, fields);
+                          isDeprecated(optionalMetadataNode), isClosed, fields);
     }
 
     public static List<DefaultableVariable> getDefaultableVariableList(NodeList nodeList,
@@ -746,7 +746,7 @@ public class Generator {
     }
 
     private static List<AnnotationAttachment> extractAnnotationAttachmentsFromMetadataNode(SemanticModel semanticModel,
-                                                                                           Optional<MetadataNode> metadata) {
+                                                 Optional<MetadataNode> metadata) {
         List<AnnotationAttachment> annotationAttachments = new ArrayList<>();
         metadata.ifPresent(metadataNode -> metadataNode.annotations().forEach(annotationNode -> {
             Symbol symbol = semanticModel.symbol(annotationNode).orElse(null);

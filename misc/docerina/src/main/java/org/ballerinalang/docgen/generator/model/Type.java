@@ -422,19 +422,19 @@ public class Type {
                                 .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
                         functionType.paramTypes.add(paramType);
                     });
-                    if (methodSymbol.typeDescriptor().restParam().isPresent()) {
-                        ParameterSymbol restParam = methodSymbol.typeDescriptor().restParam().get();
-                        Type restType = fromSemanticSymbol(restParam, methodSymbol.documentation(), parentTypeRefSymbol,
-                                isTypeInclusion);
-                        restType.isDeprecated = restParam.annotations().stream()
-                                .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
-                        functionType.paramTypes.add(restType);
-                    }
-                    if (methodSymbol.typeDescriptor().returnTypeDescriptor().isPresent()) {
-                        Type returnType = fromSemanticSymbol(methodSymbol.typeDescriptor().returnTypeDescriptor().get(),
-                                methodSymbol.documentation(), parentTypeRefSymbol, isTypeInclusion);
-                        functionType.returnType = returnType;
-                    }
+                if (methodSymbol.typeDescriptor().restParam().isPresent()) {
+                    ParameterSymbol restParam = methodSymbol.typeDescriptor().restParam().get();
+                    Type restType = fromSemanticSymbol(restParam, methodSymbol.documentation(), parentTypeRefSymbol,
+                            isTypeInclusion);
+                    restType.isDeprecated = restParam.annotations().stream()
+                            .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
+                    functionType.paramTypes.add(restType);
+                }
+                if (methodSymbol.typeDescriptor().returnTypeDescriptor().isPresent()) {
+                    Type returnType = fromSemanticSymbol(methodSymbol.typeDescriptor().returnTypeDescriptor().get(),
+                            methodSymbol.documentation(), parentTypeRefSymbol, isTypeInclusion);
+                    functionType.returnType = returnType;
+                }
                 });
                 functionTypes.add(functionType);
             });
