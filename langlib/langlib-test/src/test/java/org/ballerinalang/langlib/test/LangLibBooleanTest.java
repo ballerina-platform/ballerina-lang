@@ -86,4 +86,14 @@ public class LangLibBooleanTest {
                                                            PredefinedTypes.TYPE_BOOLEAN);
         return ErrorCreator.createError(reason, msg);
     }
+
+    @Test
+    public void testSome() {
+        BRunUtil.invoke(compileResult, "testSome");
+    }
+
+    @Test
+    public void testEvery() {
+        BRunUtil.invoke(compileResult, "testEvery");
+    }
 }

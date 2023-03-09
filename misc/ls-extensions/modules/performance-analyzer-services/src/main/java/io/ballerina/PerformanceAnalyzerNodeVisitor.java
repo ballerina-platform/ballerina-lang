@@ -469,7 +469,7 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
                 if (withinWorker) {
                     isWorkersHaveConnectorCalls = true;
                 }
-                String pos = actionPos.filePath() + "/" + actionPos;
+                String pos = actionPos.fileName() + "/" + actionPos;
                 ActionInvocationNode actionNode;
                 if (addReturnNode) {
                     actionNode = new ReturningActionInvocationNode(getUUID(lineRange),

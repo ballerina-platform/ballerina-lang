@@ -73,3 +73,24 @@ function testArrowExprWithUninitializedClosureVars() {
     int m;
     function (int) returns (int) addFunc1 = a => a + i + m ;
 }
+
+function testInvalidBinaryExprInExprFuncBody() {
+    _ = ["foo","bar","baz"].map(s => s + 1);
+
+    int[] intArr = [1, 2];
+    _ = intArr.map(i => "s" + i);
+
+    string[] strArr = [];
+    _ = strArr.map(s => 1 + s);
+
+    [int, int] intTup = [1, 2];
+    _ = intTup.map(i => "s" + i);
+
+    [string] strTup = ["str"];
+    _ = strTup.map(s => 1 + s);
+
+    _ = [].map(m => m + 1);
+
+    // [] emptyTup = [];
+    // _ = emptyTup.map(m => 1 + m);
+}
