@@ -111,6 +111,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TRANSACTION_CONTEXT_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
@@ -304,7 +305,8 @@ public class JvmSignatures {
     public static final String INIT_OPTION = "(L" + TYPE + ";I)V";
     public static final String INIT_PARAMETERIZED_TYPE_IMPL = "(L" + TYPE + ";I)V";
     public static final String INIT_STRAND =
-            "(L" + STRING_VALUE + ";L" + STRAND_METADATA + ";L" + SCHEDULER + ";L" + STRAND_CLASS + ";L" + MAP + ";)V";
+            "(L" + STRING_VALUE + ";L" + STRAND_METADATA + ";L" + SCHEDULER + ";L" + STRAND_CLASS + ";L" + MAP + ";L"
+                    + TRANSACTION_CONTEXT_CLASS + ";)V";
     public static final String INIT_STRAND_METADATA =
             "(L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" + STRING_VALUE + ";L" +
                     STRING_VALUE + ";)V";
@@ -411,7 +413,7 @@ public class JvmSignatures {
     public static final String RETURN_XML_VALUE = ")L" + XML_VALUE + ";";
     public static final String SCHEDULE_LOCAL = "([L" + OBJECT + ";L" + B_FUNCTION_POINTER + ";L" +
             STRAND_CLASS + ";" + "L" + TYPE + ";L" + STRING_VALUE + ";L" + STRAND_METADATA + ";)L" + FUTURE_VALUE + ";";
-    public static final String SCHEDULE_TRANSACTIONAL_FUNCTION =
+    public static final String SCHEDULE_FUNCTION =
             "([L" + OBJECT + ";L" + B_FUNCTION_POINTER + ";L" + STRAND_CLASS + ";L" + TYPE + ";L" +
                     STRING_VALUE + ";" + "L" + STRAND_METADATA + ";)L" + FUTURE_VALUE + ";";
     public static final String SEND_DATA = "(L" + OBJECT + ";L" + STRAND_CLASS + ";)V";

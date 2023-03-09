@@ -404,7 +404,6 @@ public class JvmPackageGen {
                         generatePackageVariable(globalVar, cw);
                     }
                 }
-
                 MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, jvmCastGen,
                                                                 asyncDataCollector);
                 mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable);
@@ -552,7 +551,7 @@ public class JvmPackageGen {
         // function.
         BIRFunction initFunc = functions.get(0);
         String functionName = Utils.encodeFunctionIdentifier(initFunc.name.value);
-        JavaClass klass = new JavaClass(initFunc.pos.lineRange().filePath());
+        JavaClass klass = new JavaClass(initFunc.pos.lineRange().fileName());
         klass.functions.add(0, initFunc);
         PackageID packageID = birPackage.packageID;
         jvmClassMap.put(initClass, klass);
@@ -586,7 +585,7 @@ public class JvmPackageGen {
             if (birFunc.pos == null) {
                 balFileName = MODULE_INIT_CLASS_NAME;
             } else {
-                balFileName = birFunc.pos.lineRange().filePath();
+                balFileName = birFunc.pos.lineRange().fileName();
             }
 
             String cleanedBalFileName = balFileName;
