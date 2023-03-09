@@ -77,6 +77,7 @@ public class MockDesugar {
     private BLangFunction originalFunction;
     private BInvokableSymbol importFunction;
     private String mockFnObjectName;
+    private String testPackageSymbol = "ballerina/test";
 
     public static final String MOCK_FUNCTION = "$MOCK_";
 
@@ -116,10 +117,17 @@ public class MockDesugar {
 
         // Get the set of functions to generate
         Set<String> mockFunctionSet = mockFunctionMap.keySet();
+        ArrayList<String> importsList = new ArrayList<>();
+        for (BLangImportPackage importPkg : pkgNode.getTestablePkg().getImports()) {
+            if (!importPkg.symbol.toString().contains(testPackageSymbol)) {
+                importsList.add(importPkg.symbol.toString());
+            }
+        }
 
         for (String function : mockFunctionSet) {
-
-            if (!function.split(pkgNode.packageID.toString())[1].startsWith(MOCK_LEGACY_DELIMITER)) {
+            if (function.contains(pkgNode.packageID.toString()) ? !function.split(pkgNode.packageID.toString())[1].
+                    startsWith(MOCK_LEGACY_DELIMITER) :
+                    !startsWithMockLegacyDelimiterForImportedMockFunctions(function, importsList)) {
                 pkgNode.getTestablePkg().functions.add(generateMockFunction(function));
             }
         }
@@ -567,5 +575,16 @@ public class MockDesugar {
         }
 
         return type;
+    }
+
+    private Boolean startsWithMockLegacyDelimiterForImportedMockFunctions(String mockFnName,
+                                                                          ArrayList<String> importsList) {
+        for (String importName : importsList) {
+            if (mockFnName.contains(importName) ? mockFnName.split(importName)[1].
+                    startsWith(MOCK_LEGACY_DELIMITER) : false) {
+                return true;
+            }
+        }
+        return false;
     }
 }
