@@ -36,7 +36,7 @@ public class Environment {
     private Future future;
     private Module currentModule;
     private String funcName;
-    private Parameter[] funcPathParams;
+    private Parameter[] pathParams;
 
     public Environment(Strand strand) {
         this.strand = strand;
@@ -48,18 +48,28 @@ public class Environment {
         future = new Future(this.strand);
     }
 
-    public Environment(Strand strand, Module currentModule, String funcName, Parameter[] funcPathParams) {
+    public Environment(Strand strand, Module currentModule, String funcName, Parameter[] pathParams) {
         this(strand, currentModule);
         this.funcName = funcName;
-        this.funcPathParams = funcPathParams;
+        this.pathParams = pathParams;
     }
 
+    /**
+     * Returns the Ballerina function name for the corresponding external interop method.
+     *
+     * @return  function name
+     */
     public String getFunctionName() {
         return funcName;
     }
 
-    public Parameter[] getFunctionPathParameters() {
-        return funcPathParams;
+    /**
+     * Returns an array consisting of the path parameters of the resource function defined as external.
+     *
+     * @return  array of {@link Parameter}
+     */
+    public Parameter[] getPathParameters() {
+        return pathParams;
     }
 
     /**

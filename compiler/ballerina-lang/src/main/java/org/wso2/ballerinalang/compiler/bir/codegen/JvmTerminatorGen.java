@@ -660,7 +660,6 @@ public class JvmTerminatorGen {
     }
 
     private void loadFuncPathParams(MethodVisitor mv, BInvokableTypeSymbol invokableSymbol) {
-
         List<BVarSymbol> params = new ArrayList<>();
         if (invokableSymbol != null) {
             for (BVarSymbol param : invokableSymbol.params) {
@@ -671,6 +670,7 @@ public class JvmTerminatorGen {
                 params.add(param);
             }
         }
+
         mv.visitLdcInsn((long) params.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, FUNCTION_PARAMETER);
