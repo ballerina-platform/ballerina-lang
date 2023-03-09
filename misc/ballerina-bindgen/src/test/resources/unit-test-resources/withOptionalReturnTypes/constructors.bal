@@ -21,8 +21,8 @@ distinct class ConstructorsTestResource {
     # The function to retrieve the string representation of the Ballerina class mapping the `org.ballerinalang.bindgen.ConstructorsTestResource` Java class.
     #
     # + return - The `string` form of the Java object instance.
-    function toString() returns string {
-        return java:toString(self.jObj) ?: "null";
+    function toString() returns string? {
+        return java:toString(self.jObj);
     }
     # The function that maps to the `equals` method of `org.ballerinalang.bindgen.ConstructorsTestResource`.
     #
@@ -34,11 +34,11 @@ distinct class ConstructorsTestResource {
 
     # The function that maps to the `getClass` method of `org.ballerinalang.bindgen.ConstructorsTestResource`.
     #
-    # + return - The `Class` value returning from the Java mapping.
-    function getClass() returns Class {
+    # + return - The `Class?` value returning from the Java mapping.
+    function getClass() returns Class? {
         handle externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_getClass(self.jObj);
         Class newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `hashCode` method of `org.ballerinalang.bindgen.ConstructorsTestResource`.

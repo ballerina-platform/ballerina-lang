@@ -31,7 +31,8 @@ distinct class Subset {
     # The function to retrieve the string representation of the Ballerina class mapping the `java.lang.Character$Subset` Java class.
     #
     # + return - The `string` form of the Java object instance.
-    function toString() returns string {
-        return java:toString(self.jObj) ?: "null";
+    function toString() returns string? {
+        return java:toString(self.jObj);
     }
+
 }

@@ -21,8 +21,8 @@ distinct class MethodsTestResource {
     # The function to retrieve the string representation of the Ballerina class mapping the `org.ballerinalang.bindgen.MethodsTestResource` Java class.
     #
     # + return - The `string` form of the Java object instance.
-    function toString() returns string {
-        return java:toString(self.jObj) ?: "null";
+    function toString() returns string? {
+        return java:toString(self.jObj);
     }
     # The function that maps to the `abstractObjectParam` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
@@ -36,11 +36,11 @@ distinct class MethodsTestResource {
     # The function that maps to the `enumParam` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + arg0 - The `Level` value required to map with the Java method parameter.
-    # + return - The `Level` value returning from the Java mapping.
-    function enumParam(Level arg0) returns Level {
+    # + return - The `Level?` value returning from the Java mapping.
+    function enumParam(Level arg0) returns Level? {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_enumParam(self.jObj, arg0.jObj);
         Level newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `equals` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -65,20 +65,20 @@ distinct class MethodsTestResource {
     # + arg0 - The `Set` value required to map with the Java method parameter.
     # + arg1 - The `int` value required to map with the Java method parameter.
     # + arg2 - The `string[]` value required to map with the Java method parameter.
-    # + return - The `Set` value returning from the Java mapping.
-    function genericObjectParam(Set arg0, int arg1, string[] arg2) returns Set|error {
+    # + return - The `Set?` value returning from the Java mapping.
+    function genericObjectParam(Set arg0, int arg1, string[] arg2) returns Set?|error {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_genericObjectParam(self.jObj, arg0.jObj, arg1, check jarrays:toHandle(arg2, "java.lang.String"));
         Set newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `getClass` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + return - The `Class` value returning from the Java mapping.
-    function getClass() returns Class {
+    # + return - The `Class?` value returning from the Java mapping.
+    function getClass() returns Class? {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_getClass(self.jObj);
         Class newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `hashCode` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -110,11 +110,11 @@ distinct class MethodsTestResource {
 
     # The function that maps to the `returnAbstractObject` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + return - The `AbstractSet` value returning from the Java mapping.
-    function returnAbstractObject() returns AbstractSet {
+    # + return - The `AbstractSet?` value returning from the Java mapping.
+    function returnAbstractObject() returns AbstractSet? {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnAbstractObject(self.jObj);
         AbstractSet newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `returnBoolean` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -246,20 +246,20 @@ distinct class MethodsTestResource {
 
     # The function that maps to the `returnEnum` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + return - The `Level` value returning from the Java mapping.
-    function returnEnum() returns Level {
+    # + return - The `Level?` value returning from the Java mapping.
+    function returnEnum() returns Level? {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnEnum(self.jObj);
         Level newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `returnError` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + return - The `JIOException` value returning from the Java mapping.
-    function returnError() returns JIOException {
+    # + return - The `JIOException?` value returning from the Java mapping.
+    function returnError() returns JIOException? {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnError(self.jObj);
         JIOException newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `returnFloat` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -291,11 +291,11 @@ distinct class MethodsTestResource {
 
     # The function that maps to the `returnGenericObject` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + return - The `Set` value returning from the Java mapping.
-    function returnGenericObject() returns Set {
+    # + return - The `Set?` value returning from the Java mapping.
+    function returnGenericObject() returns Set? {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnGenericObject(self.jObj);
         Set newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `returnInt` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -345,11 +345,11 @@ distinct class MethodsTestResource {
 
     # The function that maps to the `returnInterface` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + return - The `Map` value returning from the Java mapping.
-    function returnInterface() returns Map {
+    # + return - The `Map?` value returning from the Java mapping.
+    function returnInterface() returns Map? {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnInterface(self.jObj);
         Map newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `returnLongArray` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -364,24 +364,26 @@ distinct class MethodsTestResource {
 
     # The function that maps to the `returnObject` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + return - The `File` value returning from the Java mapping.
-    function returnObject() returns File {
+    # + return - The `File?` value returning from the Java mapping.
+    function returnObject() returns File? {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnObject(self.jObj);
         File newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `returnObjectError1` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + return - The `File[]` value returning from the Java mapping.
-    function returnObjectError1() returns File[]|error {
+    # + return - The `File?[]?` value returning from the Java mapping.
+    function returnObjectError1() returns File?[]?|error {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnObjectError1(self.jObj);
-        File[] newObj = [];
+        File?[]? newObj = [];
         handle[] anyObj = <handle[]>check jarrays:fromHandle(externalObj, "handle");
         int count = anyObj.length();
         foreach int i in 0 ... count - 1 {
-            File element = new (anyObj[i]);
-            newObj[i] = element;
+            File? element = new (anyObj[i]);
+            if (newObj is File?[]) {
+                newObj[i] = element;
+            }
         }
         return newObj;
     }
@@ -389,42 +391,44 @@ distinct class MethodsTestResource {
     # The function that maps to the `returnObjectError2` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + arg0 - The `int[]` value required to map with the Java method parameter.
-    # + return - The `File` value returning from the Java mapping.
-    function returnObjectError2(int[] arg0) returns File|error {
+    # + return - The `File?` value returning from the Java mapping.
+    function returnObjectError2(int[] arg0) returns File?|error {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnObjectError2(self.jObj, check jarrays:toHandle(arg0, "int"));
         File newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `returnObjectThrowable` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + return - The `File` or the `FileNotFoundException` value returning from the Java mapping.
-    function returnObjectThrowable() returns File|FileNotFoundException {
+    # + return - The `File?` or the `FileNotFoundException` value returning from the Java mapping.
+    function returnObjectThrowable() returns File?|FileNotFoundException {
         handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnObjectThrowable(self.jObj);
         if (externalObj is error) {
             FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message = externalObj.message());
             return e;
         } else {
-            File newObj = new (externalObj);
+            File? newObj = new (externalObj);
             return newObj;
         }
     }
 
     # The function that maps to the `returnObjectThrowableError` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + return - The `File[]` or the `FileNotFoundException` value returning from the Java mapping.
-    function returnObjectThrowableError() returns File[]|FileNotFoundException|error {
+    # + return - The `File?[]?` or the `FileNotFoundException` value returning from the Java mapping.
+    function returnObjectThrowableError() returns File?[]?|FileNotFoundException|error {
         handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnObjectThrowableError(self.jObj);
         if (externalObj is error) {
             FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message = externalObj.message());
             return e;
         } else {
-            File[] newObj = [];
+            File?[]? newObj = [];
             handle[] anyObj = <handle[]>check jarrays:fromHandle(externalObj, "handle");
             int count = anyObj.length();
             foreach int i in 0 ... count - 1 {
-                File element = new (anyObj[i]);
-                newObj[i] = element;
+                File? element = new (anyObj[i]);
+                if (newObj is File?[]) {
+                    newObj[i] = element;
+                }
             }
         }
         return newObj;
@@ -433,14 +437,14 @@ distinct class MethodsTestResource {
     # The function that maps to the `returnObjectThrowableError` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + arg0 - The `int[]` value required to map with the Java method parameter.
-    # + return - The `File` or the `FileNotFoundException` value returning from the Java mapping.
-    function returnObjectThrowableError2(int[] arg0) returns File|FileNotFoundException|error {
+    # + return - The `File?` or the `FileNotFoundException` value returning from the Java mapping.
+    function returnObjectThrowableError2(int[] arg0) returns File?|FileNotFoundException|error {
         handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnObjectThrowableError2(self.jObj, check jarrays:toHandle(arg0, "int"));
         if (externalObj is error) {
             FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message = externalObj.message());
             return e;
         } else {
-            File newObj = new (externalObj);
+            File? newObj = new (externalObj);
             return newObj;
         }
     }
@@ -480,18 +484,18 @@ distinct class MethodsTestResource {
     # The function that maps to the `returnString` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + arg0 - The `string` value required to map with the Java method parameter.
-    # + return - The `string` value returning from the Java mapping.
-    function returnString(string arg0) returns string {
-        return java:toString(org_ballerinalang_bindgen_MethodsTestResource_returnString(self.jObj, java:fromString(arg0))) ?: "";
+    # + return - The `string?` value returning from the Java mapping.
+    function returnString(string arg0) returns string? {
+        return java:toString(org_ballerinalang_bindgen_MethodsTestResource_returnString(self.jObj, java:fromString(arg0)));
     }
 
     # The function that maps to the `returnStringArray` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + return - The `string[]` value returning from the Java mapping.
-    function returnStringArray() returns string[]|error {
+    # + return - The `string?[]?` value returning from the Java mapping.
+    function returnStringArray() returns string?[]?|error {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStringArray(self.jObj);
         if java:isNull(externalObj) {
-            return [];
+            return ();
         }
         return <string[]>check jarrays:fromHandle(externalObj, "string");
     }
@@ -501,11 +505,11 @@ distinct class MethodsTestResource {
     # + arg0 - The `string[]` value required to map with the Java method parameter.
     # + arg1 - The `StringBuffer` value required to map with the Java method parameter.
     # + arg2 - The `int` value required to map with the Java method parameter.
-    # + return - The `string[]` value returning from the Java mapping.
-    function returnStringArray1(string[] arg0, StringBuffer arg1, int arg2) returns string[]|error {
+    # + return - The `string?[]?` value returning from the Java mapping.
+    function returnStringArray1(string[] arg0, StringBuffer arg1, int arg2) returns string?[]?|error {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStringArray1(self.jObj, check jarrays:toHandle(arg0, "java.lang.String"), arg1.jObj, arg2);
         if java:isNull(externalObj) {
-            return [];
+            return ();
         }
         return <string[]>check jarrays:fromHandle(externalObj, "string");
     }
@@ -515,11 +519,11 @@ distinct class MethodsTestResource {
     # + arg0 - The `string[]` value required to map with the Java method parameter.
     # + arg1 - The `StringBuffer` value required to map with the Java method parameter.
     # + arg2 - The `int` value required to map with the Java method parameter.
-    # + return - The `string[]` or the `InterruptedException` value returning from the Java mapping.
-    function returnStringArray2(string[] arg0, StringBuffer arg1, int arg2) returns string[]|InterruptedException|error {
+    # + return - The `string?[]?` or the `InterruptedException` value returning from the Java mapping.
+    function returnStringArray2(string[] arg0, StringBuffer arg1, int arg2) returns string?[]?|InterruptedException|error {
         handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStringArray2(self.jObj, check jarrays:toHandle(arg0, "java.lang.String"), arg1.jObj, arg2);
         if java:isNull(externalObj) {
-            return [];
+            return ();
         }
         if (externalObj is error) {
             InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.message());
@@ -602,21 +606,21 @@ function MethodsTestResource_abstractObjectStaticParam(AbstractSet arg0, int arg
 #
 # + arg0 - The `Level` value required to map with the Java method parameter.
 # + arg1 - The `Object[]` value required to map with the Java method parameter.
-# + return - The `Level` value returning from the Java mapping.
-function MethodsTestResource_enumStaticParam(Level arg0, Object[] arg1) returns Level|error {
+# + return - The `Level?` value returning from the Java mapping.
+function MethodsTestResource_enumStaticParam(Level arg0, Object[] arg1) returns Level?|error {
     handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_enumStaticParam(arg0.jObj, check jarrays:toHandle(arg1, "java.lang.Object"));
     Level newObj = new (externalObj);
-    return newObj;
+    return java:isNull(newObj.jObj) ? () : newObj;
 }
 
 # The function that maps to the `genericObjectStaticParam` method of `org.ballerinalang.bindgen.MethodsTestResource`.
 #
 # + arg0 - The `Set` value required to map with the Java method parameter.
-# + return - The `Set` value returning from the Java mapping.
-function MethodsTestResource_genericObjectStaticParam(Set arg0) returns Set {
+# + return - The `Set?` value returning from the Java mapping.
+function MethodsTestResource_genericObjectStaticParam(Set arg0) returns Set? {
     handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_genericObjectStaticParam(arg0.jObj);
     Set newObj = new (externalObj);
-    return newObj;
+    return java:isNull(newObj.jObj) ? () : newObj;
 }
 
 # The function that maps to the `interfaceStaticParam` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -635,73 +639,75 @@ function MethodsTestResource_join() {
 
 # The function that maps to the `returnStaticAbstractObject` method of `org.ballerinalang.bindgen.MethodsTestResource`.
 #
-# + return - The `AbstractSet` value returning from the Java mapping.
-function MethodsTestResource_returnStaticAbstractObject() returns AbstractSet {
+# + return - The `AbstractSet?` value returning from the Java mapping.
+function MethodsTestResource_returnStaticAbstractObject() returns AbstractSet? {
     handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStaticAbstractObject();
     AbstractSet newObj = new (externalObj);
-    return newObj;
+    return java:isNull(newObj.jObj) ? () : newObj;
 }
 
 # The function that maps to the `returnStaticEnum` method of `org.ballerinalang.bindgen.MethodsTestResource`.
 #
-# + return - The `Level` value returning from the Java mapping.
-function MethodsTestResource_returnStaticEnum() returns Level {
+# + return - The `Level?` value returning from the Java mapping.
+function MethodsTestResource_returnStaticEnum() returns Level? {
     handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStaticEnum();
     Level newObj = new (externalObj);
-    return newObj;
+    return java:isNull(newObj.jObj) ? () : newObj;
 }
 
 # The function that maps to the `returnStaticError` method of `org.ballerinalang.bindgen.MethodsTestResource`.
 #
-# + return - The `JIOException` value returning from the Java mapping.
-function MethodsTestResource_returnStaticError() returns JIOException {
+# + return - The `JIOException?` value returning from the Java mapping.
+function MethodsTestResource_returnStaticError() returns JIOException? {
     handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStaticError();
     JIOException newObj = new (externalObj);
-    return newObj;
+    return java:isNull(newObj.jObj) ? () : newObj;
 }
 
 # The function that maps to the `returnStaticGenericObject` method of `org.ballerinalang.bindgen.MethodsTestResource`.
 #
-# + return - The `Set` value returning from the Java mapping.
-function MethodsTestResource_returnStaticGenericObject() returns Set {
+# + return - The `Set?` value returning from the Java mapping.
+function MethodsTestResource_returnStaticGenericObject() returns Set? {
     handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStaticGenericObject();
     Set newObj = new (externalObj);
-    return newObj;
+    return java:isNull(newObj.jObj) ? () : newObj;
 }
 
 # The function that maps to the `returnStaticInterface` method of `org.ballerinalang.bindgen.MethodsTestResource`.
 #
-# + return - The `Map` value returning from the Java mapping.
-function MethodsTestResource_returnStaticInterface() returns Map {
+# + return - The `Map?` value returning from the Java mapping.
+function MethodsTestResource_returnStaticInterface() returns Map? {
     handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStaticInterface();
     Map newObj = new (externalObj);
-    return newObj;
+    return java:isNull(newObj.jObj) ? () : newObj;
 }
 
 # The function that maps to the `returnStaticObject` method of `org.ballerinalang.bindgen.MethodsTestResource`.
 #
-# + return - The `File` value returning from the Java mapping.
-function MethodsTestResource_returnStaticObject() returns File {
+# + return - The `File?` value returning from the Java mapping.
+function MethodsTestResource_returnStaticObject() returns File? {
     handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStaticObject();
     File newObj = new (externalObj);
-    return newObj;
+    return java:isNull(newObj.jObj) ? () : newObj;
 }
 
 # The function that maps to the `returnStaticObjectThrowableError1` method of `org.ballerinalang.bindgen.MethodsTestResource`.
 #
-# + return - The `File[]` or the `FileNotFoundException` value returning from the Java mapping.
-function MethodsTestResource_returnStaticObjectThrowableError1() returns File[]|FileNotFoundException|error {
+# + return - The `File?[]?` or the `FileNotFoundException` value returning from the Java mapping.
+function MethodsTestResource_returnStaticObjectThrowableError1() returns File?[]?|FileNotFoundException|error {
     handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStaticObjectThrowableError1();
     if (externalObj is error) {
         FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message = externalObj.message());
         return e;
     } else {
-        File[] newObj = [];
+        File?[]? newObj = [];
         handle[] anyObj = <handle[]>check jarrays:fromHandle(externalObj, "handle");
         int count = anyObj.length();
         foreach int i in 0 ... count - 1 {
-            File element = new (anyObj[i]);
-            newObj[i] = element;
+            File? element = new (anyObj[i]);
+            if (newObj is File?[]) {
+                newObj[i] = element;
+            }
         }
     }
     return newObj;

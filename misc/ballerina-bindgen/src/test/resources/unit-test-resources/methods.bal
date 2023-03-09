@@ -22,7 +22,7 @@ distinct class MethodsTestResource {
     #
     # + return - The `string` form of the Java object instance.
     function toString() returns string {
-        return java:toString(self.jObj) ?: "null";
+        return java:toString(self.jObj) ?: "";
     }
     # The function that maps to the `abstractObjectParam` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #

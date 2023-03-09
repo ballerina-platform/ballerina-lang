@@ -20,16 +20,16 @@ public distinct class InterfaceTestResource {
     # The function to retrieve the string representation of the Ballerina class mapping the `org.ballerinalang.bindgen.InterfaceTestResource` Java interface.
     #
     # + return - The `string` form of the Java object instance.
-    public function toString() returns string {
-        return java:toString(self.jObj) ?: "null";
+    public function toString() returns string? {
+        return java:toString(self.jObj);
     }
     # The function that maps to the `returnStringArray` method of `org.ballerinalang.bindgen.InterfaceTestResource`.
     #
-    # + return - The `string[]` value returning from the Java mapping.
-    public function returnStringArray() returns string[]|error {
+    # + return - The `string?[]?` value returning from the Java mapping.
+    public function returnStringArray() returns string?[]?|error {
         handle externalObj = org_ballerinalang_bindgen_InterfaceTestResource_returnStringArray(self.jObj);
         if java:isNull(externalObj) {
-            return [];
+            return ();
         }
         return <string[]>check jarrays:fromHandle(externalObj, "string");
     }

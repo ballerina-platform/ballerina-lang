@@ -21,8 +21,8 @@ distinct class FieldsTestResource {
     # The function to retrieve the string representation of the Ballerina class mapping the `org.ballerinalang.bindgen.FieldsTestResource` Java class.
     #
     # + return - The `string` form of the Java object instance.
-    function toString() returns string {
-        return java:toString(self.jObj) ?: "null";
+    function toString() returns string? {
+        return java:toString(self.jObj);
     }
     # The function that maps to the `equals` method of `org.ballerinalang.bindgen.FieldsTestResource`.
     #
@@ -34,11 +34,11 @@ distinct class FieldsTestResource {
 
     # The function that maps to the `getClass` method of `org.ballerinalang.bindgen.FieldsTestResource`.
     #
-    # + return - The `Class` value returning from the Java mapping.
-    function getClass() returns Class {
+    # + return - The `Class?` value returning from the Java mapping.
+    function getClass() returns Class? {
         handle externalObj = org_ballerinalang_bindgen_FieldsTestResource_getClass(self.jObj);
         Class newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `hashCode` method of `org.ballerinalang.bindgen.FieldsTestResource`.
@@ -60,11 +60,11 @@ distinct class FieldsTestResource {
 
     # The function that maps to the `returnStringArray` method of `org.ballerinalang.bindgen.FieldsTestResource`.
     #
-    # + return - The `string[]` value returning from the Java mapping.
-    function returnStringArray() returns string[]|error {
+    # + return - The `string?[]?` value returning from the Java mapping.
+    function returnStringArray() returns string?[]?|error {
         handle externalObj = org_ballerinalang_bindgen_FieldsTestResource_returnStringArray(self.jObj);
         if java:isNull(externalObj) {
-            return [];
+            return ();
         }
         return <string[]>check jarrays:fromHandle(externalObj, "string");
     }
@@ -227,9 +227,9 @@ distinct class FieldsTestResource {
 
     # The function that retrieves the value of the public field `getInstanceString`.
     #
-    # + return - The `string` value of the field.
+    # + return - The `string?` value of the field.
     function getGetInstanceString() returns string {
-        return java:toString(org_ballerinalang_bindgen_FieldsTestResource_getGetInstanceString(self.jObj)) ?: "";
+        return java:toString(org_ballerinalang_bindgen_FieldsTestResource_getGetInstanceString(self.jObj));
     }
 
     # The function to set the value of the public field `getInstanceString`.
@@ -361,11 +361,11 @@ distinct class FieldsTestResource {
 
     # The function that retrieves the value of the public field `getInstanceStringArray`.
     #
-    # + return - The `string[]` value of the field.
+    # + return - The `string?[]?` value of the field.
     function getGetInstanceStringArray() returns string[]|error {
         handle externalObj = org_ballerinalang_bindgen_FieldsTestResource_getGetInstanceStringArray(self.jObj);
         if java:isNull(externalObj) {
-            return [];
+            return ();
         }
         return <string[]>check jarrays:fromHandle(externalObj, "string");
     }
@@ -387,7 +387,9 @@ distinct class FieldsTestResource {
         int count = anyObj.length();
         foreach int i in 0 ... count - 1 {
             StringBuilder[] element = new (anyObj[i]);
-            newObj[i] = element;
+            if (newObj is StringBuilder[]) {
+                newObj[i] = element;
+            }
         }
         return newObj;
     }
@@ -409,7 +411,9 @@ distinct class FieldsTestResource {
         int count = anyObj.length();
         foreach int i in 0 ... count - 1 {
             Integer[] element = new (anyObj[i]);
-            newObj[i] = element;
+            if (newObj is Integer[]) {
+                newObj[i] = element;
+            }
         }
         return newObj;
     }
@@ -431,7 +435,9 @@ distinct class FieldsTestResource {
         int count = anyObj.length();
         foreach int i in 0 ... count - 1 {
             Object[] element = new (anyObj[i]);
-            newObj[i] = element;
+            if (newObj is Object[]) {
+                newObj[i] = element;
+            }
         }
         return newObj;
     }
@@ -549,7 +555,9 @@ distinct class FieldsTestResource {
         int count = anyObj.length();
         foreach int i in 0 ... count - 1 {
             StringBuilder[] element = new (anyObj[i]);
-            newObj[i] = element;
+            if (newObj is StringBuilder[]) {
+                newObj[i] = element;
+            }
         }
         return newObj;
     }
@@ -571,7 +579,9 @@ distinct class FieldsTestResource {
         int count = anyObj.length();
         foreach int i in 0 ... count - 1 {
             Integer[] element = new (anyObj[i]);
-            newObj[i] = element;
+            if (newObj is Integer[]) {
+                newObj[i] = element;
+            }
         }
         return newObj;
     }
@@ -593,7 +603,9 @@ distinct class FieldsTestResource {
         int count = anyObj.length();
         foreach int i in 0 ... count - 1 {
             Object[] element = new (anyObj[i]);
-            newObj[i] = element;
+            if (newObj is Object[]) {
+                newObj[i] = element;
+            }
         }
         return newObj;
     }
@@ -730,9 +742,9 @@ function FieldsTestResource_setGetStaticBoolean(boolean arg) {
 
 # The function that retrieves the value of the public field `getStaticString`.
 #
-# + return - The `string` value of the field.
+# + return - The `string?` value of the field.
 function FieldsTestResource_getGetStaticString() returns string {
-    return java:toString(org_ballerinalang_bindgen_FieldsTestResource_getGetStaticString()) ?: "";
+    return java:toString(org_ballerinalang_bindgen_FieldsTestResource_getGetStaticString());
 }
 
 # The function to set the value of the public field `getStaticString`.
@@ -800,9 +812,9 @@ function FieldsTestResource_getGET_STATIC_FINAL_BOOLEAN() returns boolean {
 
 # The function that retrieves the value of the public field `GET_STATIC_FINAL_STRING`.
 #
-# + return - The `string` value of the field.
+# + return - The `string?` value of the field.
 function FieldsTestResource_getGET_STATIC_FINAL_STRING() returns string {
-    return java:toString(org_ballerinalang_bindgen_FieldsTestResource_getGET_STATIC_FINAL_STRING()) ?: "";
+    return java:toString(org_ballerinalang_bindgen_FieldsTestResource_getGET_STATIC_FINAL_STRING());
 }
 
 # The function that retrieves the value of the public field `getStaticByteArray`.
@@ -927,11 +939,11 @@ function FieldsTestResource_setGetStaticBooleanArray(boolean[] arg) {
 
 # The function that retrieves the value of the public field `getStaticStringArray`.
 #
-# + return - The `string[]` value of the field.
+# + return - The `string?[]?` value of the field.
 function FieldsTestResource_getGetStaticStringArray() returns string[]|error {
     handle externalObj = org_ballerinalang_bindgen_FieldsTestResource_getGetStaticStringArray();
     if java:isNull(externalObj) {
-        return [];
+        return ();
     }
     return <string[]>check jarrays:fromHandle(externalObj, "string");
 }
