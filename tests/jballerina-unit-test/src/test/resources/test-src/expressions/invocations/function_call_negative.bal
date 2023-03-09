@@ -95,3 +95,15 @@ function intRestParam(int... i) returns int {
 }
 
 function intParam(int i) returns int => i;
+
+function invalidRestParam() {
+    int x = 1;
+    func1(i = x); // rest argument cannot be a named argument
+    func1(i = 2); // rest argument cannot be a named argument
+    func2(x, i = x); // rest argument cannot be a named argument
+    func2(t = x, i = x); // rest argument cannot be a named argument
+}
+
+function func1(int... i) {}
+
+function func2(int t, int... i) {}

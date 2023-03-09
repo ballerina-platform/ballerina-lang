@@ -6863,8 +6863,11 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     foundNamedArg = true;
                     if (i < parameterCountForNamedArgs || incRecordParamAllowAdditionalFields != null) {
                         iExpr.requiredArgs.add(expr);
-                    } else {
+                    } else if (invokableSymbol.restParam != null &&
+                            invokableSymbol.restParam.name.value.equals(((BLangNamedArgsExpression) expr).name.value)) {
                         // can not provide a rest parameters as named args
+                        dlog.error(expr.pos, DiagnosticErrorCode.REST_ARG_CANNOT_BE_NAMED_ARG, iExpr.name.value);
+                    } else {
                         dlog.error(expr.pos, DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
                     }
                     i++;

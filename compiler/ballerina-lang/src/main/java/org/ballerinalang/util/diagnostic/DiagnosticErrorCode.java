@@ -795,6 +795,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE4042", "worker.send.action.not.allowed.in.lock.statement"),
     WORKER_RECEIVE_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT(
             "BCE4043", "worker.receive.action.not.allowed.in.lock.statement"),
+    REST_ARG_CANNOT_BE_NAMED_ARG("BCE4044", "rest.arg.cannot.be.named.arg"),
     ;
 
     private String diagnosticId;

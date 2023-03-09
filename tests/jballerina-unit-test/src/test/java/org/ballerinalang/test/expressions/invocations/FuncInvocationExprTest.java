@@ -195,6 +195,14 @@ public class FuncInvocationExprTest {
                 "incompatible types: expected 'int[]', found '(int|string)[3]'", 73, 29);
         validateError(funcInvocationNegative, i++,
                 "incompatible types: expected 'int[]', found 'anydata[]'", 74, 29);
+        validateError(funcInvocationNegative, i++,
+                "rest argument cannot be a named argument", 101, 11);
+        validateError(funcInvocationNegative, i++,
+                "rest argument cannot be a named argument", 102, 11);
+        validateError(funcInvocationNegative, i++,
+                "rest argument cannot be a named argument", 103, 14);
+        validateError(funcInvocationNegative, i++,
+                "rest argument cannot be a named argument", 104, 18);
         Assert.assertEquals(i, funcInvocationNegative.getErrorCount());
     }
 
