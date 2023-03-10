@@ -37,7 +37,6 @@ public class JIMethodCall extends JTerminator {
     public String jClassName;
     public String jMethodVMSig;
     public String name;
-    public JType targetResourcePathArgsType;
     public int invocationType;
 
     public JIMethodCall(Location pos) {

@@ -273,18 +273,12 @@ public class InteropMethodGen {
         List<BIROperand> resourcePathArgs = new ArrayList<>();
 
         List<BIRNode.BIRFunctionParameter> birFuncParams = birFunc.parameters;
-        List<BType> birFuncParamTypes = new ArrayList<>();
-        for (BIRNode.BIRFunctionParameter birFuncParam : birFuncParams) {
-            birFuncParamTypes.add(birFuncParam.type);
-        }
         List<BVarSymbol> birFuncParamSymbols = ((BInvokableTypeSymbol) birFunc.type.tsymbol).params;
-        List<BVarSymbol> pathParamSymbols = new ArrayList<>();
         List<BType> pathParamTypes = new ArrayList<>();
 
         for (BVarSymbol birFuncParamSymbol : birFuncParamSymbols) {
             if (birFuncParamSymbol.kind == SymbolKind.PATH_PARAMETER ||
                     birFuncParamSymbol.kind == SymbolKind.PATH_REST_PARAMETER) {
-                pathParamSymbols.add(birFuncParamSymbol);
                 pathParamTypes.add(birFuncParamSymbol.type);
             }
         }
@@ -315,14 +309,17 @@ public class InteropMethodGen {
             BType bPType = birFuncParam.type;
             BIROperand argRef = new BIROperand(birFuncParam);
             boolean isVarArg = (birFuncParamIndex == (paramCount - 1)) && birFunc.restParam != null;
-            JType jPType = JInterop.getJType(jMethodParamTypes[jMethodParamIndex]);
 
             if (jMethod.hasBundledPathParams && pathParamTypes.contains(bPType)) {
+                if (resourcePathArgs.isEmpty()) {
+                    jMethodParamIndex++;
+                }
                 resourcePathArgs.add(argRef);
                 birFuncParamIndex++;
                 continue;
             }
 
+            JType jPType = JInterop.getJType(jMethodParamTypes[jMethodParamIndex]);
             // we generate cast operations for unmatching B to J types
             if (!isVarArg && !isMatchingBAndJType(bPType, jPType)) {
                 String varName = "$_param_jobject_var" + birFuncParamIndex + "_$";
