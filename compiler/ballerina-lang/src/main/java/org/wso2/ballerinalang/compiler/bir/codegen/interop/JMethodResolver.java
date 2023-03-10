@@ -32,7 +32,6 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -195,7 +194,7 @@ class JMethodResolver {
             if (count == reducedParamCount && this.classLoader.loadClass(BArray.class.getCanonicalName())
                     .isAssignableFrom(paramTypes[0])) {
                 return true;
-            } else if (count == reducedParamCount + 1 && this.classLoader.loadClass(BArray.class.getCanonicalName())
+            } else if ((count == reducedParamCount + 1) && this.classLoader.loadClass(BArray.class.getCanonicalName())
                     .isAssignableFrom(paramTypes[1])) {
                 // This is for object interop functions when self is passed as a parameter
                 if (jMethod.isBalEnvAcceptingMethod()) {
@@ -203,7 +202,7 @@ class JMethodResolver {
                 }
                 jMethod.setReceiverType(jMethodRequest.receiverType);
                 return jMethodRequest.receiverType != null;
-            } else if (count == reducedParamCount + 2 && this.classLoader.loadClass(BArray.class.getCanonicalName())
+            } else if ((count == reducedParamCount + 2) && this.classLoader.loadClass(BArray.class.getCanonicalName())
                     .isAssignableFrom(paramTypes[2])) {
                 // This is for object interop functions when both BalEnv and self is passed as parameters.
                 if (jMethodRequest.receiverType != null) {
