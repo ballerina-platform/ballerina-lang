@@ -334,14 +334,12 @@ function executeTestFunction(TestFunction testFunction, string suffix, TestType 
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
         : trap function:call(testFunction.executableFunction, ...params);
 
-    string|error suffixForReport = escapeSpecialCharacters(suffix);
-    string suffixForReportString = ((testType == DATA_DRIVEN_MAP_OF_TUPLE) && (suffixForReport is string)) ? suffixForReport : suffix;
     if output is TestError {
         exitCode = 1;
-        reportData.onFailed(name = testFunction.name, suffix = suffixForReportString, message = getErrorMessage(output), testType = testType);
+        reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output), testType = testType);
         return true;
     } else if output is any {
-        reportData.onPassed(name = testFunction.name, suffix = suffixForReportString, testType = testType);
+        reportData.onPassed(name = testFunction.name, suffix = suffix, testType = testType);
         return false;
     } else {
         exitCode = 1;

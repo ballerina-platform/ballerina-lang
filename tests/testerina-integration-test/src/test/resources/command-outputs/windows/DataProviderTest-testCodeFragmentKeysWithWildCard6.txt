@@ -6,7 +6,7 @@ WARNING [tests\new-data-provider-tests.bal:(153:9,153:21)] unused variable 'a'
 Running Tests with Coverage
 
 	dataproviders
-		[pass] testFunction3#map<any> v = { %22x%22: 1 };
+		[pass] testFunction3#map<any> v = { "x": 1 };
 
 
 		1 passing

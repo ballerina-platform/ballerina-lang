@@ -6,7 +6,7 @@ WARNING [tests/new-data-provider-tests.bal:(153:9,153:21)] unused variable 'a'
 Running Tests with Coverage
 
 	dataproviders
-		[pass] testFunction3#%22%5Cu{D7FF}%22%22%09%22
+		[pass] testFunction3#"\u{D7FF}""	"
 
 
 		1 passing
