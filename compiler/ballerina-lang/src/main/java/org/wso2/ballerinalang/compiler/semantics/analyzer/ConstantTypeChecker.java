@@ -1333,9 +1333,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             symbol = symResolver.getUnaryOpsForTypeSets(unaryExpr.operator, exprType);
         }
         if (symbol == symTable.notFoundSymbol) {
-            dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,
-                    unaryExpr.operator, exprType);
-            data.resultType = symTable.semanticError;
+//            dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,
+//                    unaryExpr.operator, exprType);
+//            data.resultType = symTable.semanticError;
         } else {
             unaryExpr.opSymbol = (BOperatorSymbol) symbol;
             data.resultType = symbol.type.getReturnType();
@@ -1347,9 +1347,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 symbol = symResolver.getUnaryOpsForTypeSets(unaryExpr.operator, exprType);
             }
             if (symbol == symTable.notFoundSymbol) {
-                dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,
-                        unaryExpr.operator, exprType);
-                data.resultType = symTable.semanticError;
+//                dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,
+//                        unaryExpr.operator, exprType);
+//                data.resultType = symTable.semanticError;
             } else {
                 unaryExpr.opSymbol = (BOperatorSymbol) symbol;
                 data.resultType = symbol.type.getReturnType();
@@ -1801,7 +1801,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     private BType getTypeOfDecimalFloatingPointLiteral(BLangLiteral literalExpr, Object literalValue, BType expType) {
         String numericLiteral = String.valueOf(literalValue);
         BType literalType = getTypeOfDecimalFloatingPointLiteralUsingExpType(literalExpr, literalValue, expType);
-        if (literalType.tag != TypeTags.SEMANTIC_ERROR) {
+        if (literalType != symTable.semanticError) {
             return literalType;
         }
         return types.validateFloatLiteral(literalExpr.pos, numericLiteral)
