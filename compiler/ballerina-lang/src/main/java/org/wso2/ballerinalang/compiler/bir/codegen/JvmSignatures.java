@@ -332,9 +332,10 @@ public class JvmSignatures {
     public static final String LAMBDA_MAIN = "([L" + OBJECT + ";)L" + OBJECT + ";";
     public static final String LAMBDA_STOP_DYNAMIC = "([L" + OBJECT + ";)L" + OBJECT + ";";
     public static final String LINKED_HASH_SET_OP = "(L" + LINKED_HASH_SET + ";)V";
+    public static final String LOAD_JOBJECT_TYPE = "L" + OBJECT + ";";
     public static final String LOAD_ANY_TYPE = "L" + ANY_TYPE + ";";
     public static final String LOAD_ANYDATA_TYPE = "L" + ANYDATA_TYPE + ";";
-    public static final String ANYDATA_ARRAY_INIT = "([L" + OBJECT + ";L" + ARRAY_TYPE + ";)V";
+    public static final String INIT_ANYDATA_ARRAY = "([L" + OBJECT + ";L" + ARRAY_TYPE + ";)V";
     public static final String LOAD_BOOLEAN_TYPE = "L" + BOOLEAN_TYPE + ";";
     public static final String LOAD_BYTE_TYPE = "L" + BYTE_TYPE + ";";
     public static final String LOAD_DECIMAL_TYPE = "L" + DECIMAL_TYPE + ";";
