@@ -45,6 +45,7 @@ class JMethodRequest {
     int pathParamCount;
 
     BType[] bParamTypes = null;
+    List<BVarSymbol> paramSymbols = new ArrayList<>();
     List<BVarSymbol> pathParamSymbols = new ArrayList<>();
     BType bReturnType = null;
     boolean returnsBErrorType = false;
@@ -69,20 +70,22 @@ class JMethodRequest {
                 JInterop.buildParamTypeConstraints(methodValidationRequest.paramTypeConstraints, classLoader);
 
         BInvokableType bFuncType = methodValidationRequest.bFuncType;
-        List<BType> paramTypes = new ArrayList<>(bFuncType.paramTypes);
         BInvokableTypeSymbol typeSymbol = (BInvokableTypeSymbol) bFuncType.tsymbol;
-        List<BVarSymbol> params = typeSymbol.params;
+        jMethodReq.paramSymbols.addAll(typeSymbol.params);
         List<BVarSymbol> pathParams = new ArrayList<>();
+        List<BType> paramTypes = new ArrayList<>();
 
-        for (BVarSymbol param : params) {
+        for (BVarSymbol param : typeSymbol.params) {
+            paramTypes.add(param.type);
             if (param.kind == SymbolKind.PATH_PARAMETER || param.kind == SymbolKind.PATH_REST_PARAMETER) {
                 pathParams.add(param);
             }
         }
 
-        BType restType = bFuncType.restType;
-        if (restType != null) {
-            paramTypes.add(restType);
+        BVarSymbol restParam = typeSymbol.restParam;
+        if (restParam != null) {
+            jMethodReq.paramSymbols.add(restParam);
+            paramTypes.add(restParam.type);
         }
 
         jMethodReq.bFuncParamCount = paramTypes.size();
