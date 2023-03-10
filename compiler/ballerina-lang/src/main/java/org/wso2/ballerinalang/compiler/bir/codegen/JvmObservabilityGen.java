@@ -1062,7 +1062,7 @@ class JvmObservabilityGen {
                                                   Location pos) {
         BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType,
                 generatePackageId(pkg.packageID));
-        BIROperand fileNameOperand = getTempLocalVariable(FILE_NAME_STRING, pos, pos.lineRange().filePath(),
+        BIROperand fileNameOperand = getTempLocalVariable(FILE_NAME_STRING, pos, pos.lineRange().fileName(),
                 symbolTable.stringType, observeStartBB);
         addLocalVarIfAbsent(func, fileNameOperand.variableDcl);
         BIROperand startLineOperand = getTempLocalVariable(START_LINE_STRING, pos,
