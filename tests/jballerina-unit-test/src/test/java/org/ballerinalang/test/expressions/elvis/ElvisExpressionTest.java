@@ -280,20 +280,24 @@ public class ElvisExpressionTest {
                 83, 15);
         BAssertUtil.validateError(negativeResult, index++,
                 "incompatible types: expected 'int', found '(int|string|string:Char|string[])'", 90, 15);
+        BAssertUtil.validateError(negativeResult, index++, "operator '/' not defined for " +
+                                          "'(boolean|int|float|decimal|string|json[]|map<json>|error)' and 'int'",
+                                  97, 13);
+        BAssertUtil.validateError(negativeResult, index++, "operator '/' not defined for " +
+                "'(boolean|int|float|decimal|string|json[]|map<json>|error)' and 'int'", 108, 13);
         BAssertUtil.validateError(negativeResult, index++,
-                "operator '/' not defined for '(json|error)' and 'int'", 97, 13);
+                "operator '+' not defined for '(boolean|int|float|decimal|string|json[]|map<json>|error)' and 'string'",
+                                  109, 16);
+        BAssertUtil.validateError(negativeResult, index++, "operator '&&' not defined for " +
+                "'(boolean|int|float|decimal|string|json[]|map<json>|error)' and 'boolean'", 110, 17);
+        BAssertUtil.validateError(negativeResult, index++, "operator '/' not defined for " +
+                "'(boolean|int|float|decimal|string|json[]|map<json>|error)' and 'int'", 115, 13);
         BAssertUtil.validateError(negativeResult, index++,
-                "operator '/' not defined for '(json|error)' and 'int'", 108, 13);
+                "operator '/' not defined for '(boolean|int|float|decimal|string|json[]|map<json>|error|any[])' and " +
+                        "'int'", 121, 13);
         BAssertUtil.validateError(negativeResult, index++,
-                "operator '+' not defined for '(json|error)' and 'string'", 109, 16);
-        BAssertUtil.validateError(negativeResult, index++,
-                "operator '&&' not defined for '(json|error)' and 'boolean'", 110, 17);
-        BAssertUtil.validateError(negativeResult, index++,
-                "operator '/' not defined for '(json|error)' and 'int'", 115, 13);
-        BAssertUtil.validateError(negativeResult, index++,
-                "operator '/' not defined for '(json|error|any[])' and 'int'", 121, 13);
-        BAssertUtil.validateError(negativeResult, index++,
-                "operator '/' not defined for '(json|error|any[])' and 'int'", 127, 13);
+                "operator '/' not defined for '(boolean|int|float|decimal|string|json[]|map<json>|error|any[])' and " +
+                        "'int'", 127, 13);
         BAssertUtil.validateError(negativeResult, index++, "operator '?:' cannot be applied to type " +
                 "'NonOptionalType'", 133, 15);
         BAssertUtil.validateError(negativeResult, index++, "operator '?:' cannot be applied to type " +
