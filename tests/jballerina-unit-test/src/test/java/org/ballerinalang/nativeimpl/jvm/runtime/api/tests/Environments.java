@@ -18,6 +18,7 @@
 
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
+import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
@@ -27,14 +28,14 @@ import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BString;
 
 /**
- * This class contains a set of utility methods required for testing {@link io.ballerina.runtime.api.Environment} API.
+ * This class contains a set of utility methods required for testing {@link Environment} API.
  *
  * @since 2201.5.0
  */
-public class Environment {
+public class Environments {
 
-    public static void resourceGetFunc(io.ballerina.runtime.api.Environment env, long p1, BString p2, boolean pn,
-                                       BArray path, long t1, BString t2, boolean tn) {
+    public static void callClientGetGreeting(Environment env, long p1, BString p2, boolean pn, BArray path, long t1,
+                                             BString t2, boolean tn) {
         long returnVal = 1;
         Future balFuture = env.markAsync();
         String functionName = env.getFunctionName();
@@ -69,8 +70,8 @@ public class Environment {
         balFuture.complete(returnVal);
     }
 
-    public static void resourcePostFunc(io.ballerina.runtime.api.Environment env, long p1, BDecimal p2, float pn,
-                                        long t1, BString t2, boolean tn) {
+    public static void callClientPostGreeting(Environment env, long p1, BDecimal p2, float pn, long t1, BString t2,
+                                              boolean tn) {
         long returnVal = 2;
         Future balFuture = env.markAsync();
         String functionName = env.getFunctionName();

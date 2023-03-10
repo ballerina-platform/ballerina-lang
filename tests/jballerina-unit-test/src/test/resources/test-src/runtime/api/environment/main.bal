@@ -20,14 +20,14 @@ import ballerina/jballerina.java;
 public client isolated class Client {
     resource function get greeting/[int p1]/[string p2]/[boolean pn]/[string... path](int t1, string t2,
             boolean tn = true) returns int = @java:Method {
-        name: "resourceGetFunc",
-        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Environment"
+        name: "callClientGetGreeting",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Environments"
     } external;
 
     resource function post greeting/[int p1]/[decimal p2]/[float pn](int t1, string t2,
             boolean tn = true) returns int = @java:Method {
-        name: "resourcePostFunc",
-        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Environment"
+        name: "callClientPostGreeting",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Environments"
     } external;
 }
 
