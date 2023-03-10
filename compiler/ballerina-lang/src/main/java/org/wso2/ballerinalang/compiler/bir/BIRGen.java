@@ -875,7 +875,8 @@ public class BIRGen extends BLangNodeVisitor {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG,
                 paramSymbol.name.value, defaultValExpr != null,
-                paramSymbol.kind == SymbolKind.PATH_PARAMETER);
+                paramSymbol.kind == SymbolKind.PATH_PARAMETER ||
+                        paramSymbol.kind == SymbolKind.PATH_REST_PARAMETER);
 
         birFunc.localVars.add(birVarDcl);
 

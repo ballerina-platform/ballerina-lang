@@ -613,43 +613,13 @@ public class JvmTerminatorGen {
             mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD, INIT_BAL_ENV, false);
         }
 
-        if (callIns.receiverArgs != null && !callIns.receiverArgs.isEmpty()) {
-            for (BIROperand arg : callIns.receiverArgs) {
-                this.loadVar(arg.variableDcl);
-            }
+        if (callIns.receiver != null) {
+            this.loadVar(callIns.receiver.variableDcl);
         }
 
-        if (callIns.resourcePathArgs != null && !callIns.resourcePathArgs.isEmpty()) {
-            List<BIROperand> pathArgs = callIns.resourcePathArgs;
-            int pathVarArrayIndex = this.indexMap.addIfNotExists("$pathVarArray", symbolTable.anyType);
-            int bundledArrayIndex = this.indexMap.addIfNotExists("$bundledPathArgs", symbolTable.anyType);
-
-            mv.visitLdcInsn((long) pathArgs.size());
-            mv.visitInsn(L2I);
-            mv.visitTypeInsn(ANEWARRAY, OBJECT);
-            mv.visitVarInsn(ASTORE, pathVarArrayIndex);
-
-            int i = 0;
-            for (BIROperand arg : pathArgs) {
-                mv.visitVarInsn(ALOAD, pathVarArrayIndex);
-                mv.visitLdcInsn((long) i);
-                mv.visitInsn(L2I);
-                this.loadVar(arg.variableDcl);
-                jvmCastGen.generateCheckCastToAnyData(mv, arg.variableDcl.type);
-                mv.visitInsn(AASTORE);
-                i++;
-            }
-
-            mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
-            mv.visitInsn(DUP);
-            mv.visitVarInsn(ALOAD, pathVarArrayIndex);
-            mv.visitTypeInsn(NEW, ARRAY_TYPE_IMPL);
-            mv.visitInsn(DUP);
-            mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_ANYDATA", LOAD_ANYDATA_TYPE);
-            mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE_IMPL, JVM_INIT_METHOD, TYPE_PARAMETER, false);
-            mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD, ANYDATA_ARRAY_INIT, false);
-            mv.visitVarInsn(ASTORE, bundledArrayIndex);
-            mv.visitVarInsn(ALOAD, bundledArrayIndex);
+        List<BIROperand> resourcePathArgs = callIns.resourcePathArgs;
+        if (resourcePathArgs != null && !resourcePathArgs.isEmpty()) {
+            genResourcePathArgs(resourcePathArgs);
         }
 
         int argsCount = callIns.varArgExist ? callIns.args.size() - 1 : callIns.args.size();
@@ -1312,6 +1282,38 @@ public class JvmTerminatorGen {
     private void storeToVar(BIRNode.BIRVariableDcl varDcl) {
 
         jvmInstructionGen.generateVarStore(this.mv, varDcl, this.getJVMIndexOfVarRef(varDcl));
+    }
+
+    private void genResourcePathArgs(List<BIROperand> pathArgs) {
+        int pathVarArrayIndex = this.indexMap.addIfNotExists("$pathVarArray", symbolTable.anyType);
+        int bundledArrayIndex = this.indexMap.addIfNotExists("$bundledPathArgs", symbolTable.anyType);
+
+        mv.visitLdcInsn((long) pathArgs.size());
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, OBJECT);
+        mv.visitVarInsn(ASTORE, pathVarArrayIndex);
+
+        int i = 0;
+        for (BIROperand arg : pathArgs) {
+            mv.visitVarInsn(ALOAD, pathVarArrayIndex);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+            this.loadVar(arg.variableDcl);
+            jvmCastGen.generateCheckCastToAnyData(mv, arg.variableDcl.type);
+            mv.visitInsn(AASTORE);
+            i++;
+        }
+
+        mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ALOAD, pathVarArrayIndex);
+        mv.visitTypeInsn(NEW, ARRAY_TYPE_IMPL);
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(GETSTATIC, PREDEFINED_TYPES, "TYPE_ANYDATA", LOAD_ANYDATA_TYPE);
+        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE_IMPL, JVM_INIT_METHOD, TYPE_PARAMETER, false);
+        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD, ANYDATA_ARRAY_INIT, false);
+        mv.visitVarInsn(ASTORE, bundledArrayIndex);
+        mv.visitVarInsn(ALOAD, bundledArrayIndex);
     }
 
     public void genReturnTerm(int returnVarRefIndex, BIRNode.BIRFunction func, int invocationVarIndex) {

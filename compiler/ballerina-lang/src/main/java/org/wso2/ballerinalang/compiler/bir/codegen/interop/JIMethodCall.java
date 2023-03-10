@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class JIMethodCall extends JTerminator {
 
-    public List<BIROperand> receiverArgs;
+    public BIROperand receiver;
     public List<BIROperand> args;
     public List<BIROperand> resourcePathArgs;
     public boolean varArgExist;
