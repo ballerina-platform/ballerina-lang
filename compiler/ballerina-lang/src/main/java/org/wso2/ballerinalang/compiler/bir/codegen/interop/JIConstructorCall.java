@@ -30,6 +30,7 @@ import java.util.List;
  */
 public class JIConstructorCall extends JTerminator {
 
+    public List<BIROperand> receiverArgs;
     public List<BIROperand> args;
     public List<BIROperand> resourcePathArgs;
     public String jClassName;

@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -44,8 +43,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -268,27 +265,17 @@ public class InteropMethodGen {
 
         BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, bbPrefix, initMethodGen);
         BIRBasicBlock retBB = new BIRBasicBlock(getNextDesugarBBId(bbPrefix, initMethodGen));
-
+        List<BIROperand> receiverArgs = new ArrayList<>();
         List<BIROperand> args = new ArrayList<>();
         List<BIROperand> resourcePathArgs = new ArrayList<>();
-
         List<BIRNode.BIRFunctionParameter> birFuncParams = birFunc.parameters;
-        List<BVarSymbol> birFuncParamSymbols = ((BInvokableTypeSymbol) birFunc.type.tsymbol).params;
-        List<BType> pathParamTypes = new ArrayList<>();
-
-        for (BVarSymbol birFuncParamSymbol : birFuncParamSymbols) {
-            if (birFuncParamSymbol.kind == SymbolKind.PATH_PARAMETER ||
-                    birFuncParamSymbol.kind == SymbolKind.PATH_REST_PARAMETER) {
-                pathParamTypes.add(birFuncParamSymbol.type);
-            }
-        }
 
         int birFuncParamIndex = 0;
         // Load receiver which is the 0th parameter in the birFunc
         if (jMethod.kind == JMethodKind.METHOD && !jMethod.isStatic()) {
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
             BIROperand argRef = new BIROperand(birFuncParam);
-            args.add(argRef);
+            receiverArgs.add(argRef);
             birFuncParamIndex = 1;
         }
 
@@ -296,7 +283,7 @@ public class InteropMethodGen {
         int jMethodParamIndex = 0;
         if (jMethod.getReceiverType() != null) {
             jMethodParamIndex++;
-            args.add(new BIROperand(birFunc.receiver));
+            receiverArgs.add(new BIROperand(birFunc.receiver));
         }
 
         if (jMethod.isBalEnvAcceptingMethod()) {
@@ -309,8 +296,7 @@ public class InteropMethodGen {
             BType bPType = birFuncParam.type;
             BIROperand argRef = new BIROperand(birFuncParam);
             boolean isVarArg = (birFuncParamIndex == (paramCount - 1)) && birFunc.restParam != null;
-
-            if (jMethod.hasBundledPathParams && pathParamTypes.contains(bPType)) {
+            if (jMethod.hasBundledPathParams && birFuncParam.isPathParameter) {
                 if (resourcePathArgs.isEmpty()) {
                     jMethodParamIndex++;
                 }
@@ -394,6 +380,7 @@ public class InteropMethodGen {
         if (jMethod.kind == JMethodKind.CONSTRUCTOR) {
             JIConstructorCall jCall = new JIConstructorCall(birFunc.pos);
             jCall.args = args;
+            jCall.receiverArgs = receiverArgs;
             jCall.resourcePathArgs = resourcePathArgs;
             jCall.varArgExist = birFunc.restParam != null;
             jCall.varArgType = varArgType;
@@ -406,6 +393,7 @@ public class InteropMethodGen {
         } else {
             JIMethodCall jCall = new JIMethodCall(birFunc.pos);
             jCall.args = args;
+            jCall.receiverArgs = receiverArgs;
             jCall.resourcePathArgs = resourcePathArgs;
             jCall.varArgExist = birFunc.restParam != null;
             jCall.varArgType = varArgType;

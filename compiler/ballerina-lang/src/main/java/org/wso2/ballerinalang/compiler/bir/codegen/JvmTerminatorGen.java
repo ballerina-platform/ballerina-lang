@@ -613,6 +613,12 @@ public class JvmTerminatorGen {
             mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD, INIT_BAL_ENV, false);
         }
 
+        if (callIns.receiverArgs != null && !callIns.receiverArgs.isEmpty()) {
+            for (BIROperand arg : callIns.receiverArgs) {
+                this.loadVar(arg.variableDcl);
+            }
+        }
+
         if (callIns.resourcePathArgs != null && !callIns.resourcePathArgs.isEmpty()) {
             List<BIROperand> pathArgs = callIns.resourcePathArgs;
             int pathVarArrayIndex = this.indexMap.addIfNotExists("$pathVarArray", symbolTable.anyType);
@@ -643,7 +649,6 @@ public class JvmTerminatorGen {
             mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE_IMPL, JVM_INIT_METHOD, TYPE_PARAMETER, false);
             mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, JVM_INIT_METHOD, ANYDATA_ARRAY_INIT, false);
             mv.visitVarInsn(ASTORE, bundledArrayIndex);
-
             mv.visitVarInsn(ALOAD, bundledArrayIndex);
         }
 
