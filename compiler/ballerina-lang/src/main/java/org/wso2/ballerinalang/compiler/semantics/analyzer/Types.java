@@ -5966,6 +5966,7 @@ public class Types {
                 // TODO : Fix this, Issue : #21542
 //            case TypeTags.CHAR_STRING:
             case TypeTags.NIL:
+            case TypeTags.UNION:
                 return true;
             case TypeTags.MAP:
                 return isAllowedConstantType(((BMapType) type).constraint);

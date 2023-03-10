@@ -166,7 +166,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     @Override
     public void visit(BLangLiteral literalExpr, AnalyzerData data) {
-        BType literalType = typeChecker.setLiteralValueAndGetType(literalExpr, data.expType, data);
+        BType literalType = setLiteralValueAndGetType(literalExpr, data.expType, data);
         if (literalType == symTable.semanticError) {
             data.resultType = literalType;
             return;
@@ -177,8 +177,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         BType finiteType = getFiniteType(literalExpr.value, data.constantSymbol, literalExpr.pos, literalType);
-        if (!literalExpr.isPartOfBinaryExpr &&
-                types.checkType(literalExpr, finiteType, data.expType) == symTable.semanticError) {
+        if (data.compoundExprs.isEmpty() &&
+                types.typeIncompatible(literalExpr.pos, finiteType, data.expType)) {
             data.resultType = symTable.semanticError;
             return;
         }
@@ -233,7 +233,12 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             }
         }
 
-        data.resultType = types.checkType(varRefExpr, actualType, data.expType);
+        if (data.compoundExprs.isEmpty() &&
+                types.typeIncompatible(varRefExpr.pos, actualType, data.expType)) {
+            data.resultType = symTable.semanticError;
+            return;
+        }
+        data.resultType = actualType;
     }
 
     public void visit(BLangListConstructorExpr listConstructor, AnalyzerData data) {
@@ -306,15 +311,14 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     @Override
     public void visit(BLangBinaryExpr binaryExpr, AnalyzerData data) {
         BType expType = data.expType;
-        if (binaryExpr.lhsExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
-            ((BLangLiteral) binaryExpr.lhsExpr).isPartOfBinaryExpr = true;
-        }
-        if (binaryExpr.rhsExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
-            ((BLangLiteral) binaryExpr.rhsExpr).isPartOfBinaryExpr = true;
-        }
 
+        data.compoundExprs.push(binaryExpr.lhsExpr);
         BType lhsType = checkConstExpr(binaryExpr.lhsExpr, expType, data);
+        data.compoundExprs.pop();
+
+        data.compoundExprs.push(binaryExpr.rhsExpr);
         BType rhsType = checkConstExpr(binaryExpr.rhsExpr, expType, data);
+        data.compoundExprs.pop();
 
         Location pos = binaryExpr.pos;
 
@@ -354,24 +358,15 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         BType resultType = data.resultType;
         BConstantSymbol constantSymbol = data.constantSymbol;
 
-        BFiniteType lhsFiniteType = getCorrespondingFiniteType(lhsType, resultType);
-        BFiniteType rhsFiniteType = getCorrespondingFiniteType(rhsType, resultType);
-        if (lhsFiniteType == null && binaryExpr.opKind == OperatorKind.MUL) {
-            lhsFiniteType = getCorrespondingFiniteType(lhsType, symTable.intType);
-        } else if (rhsFiniteType == null &&
-                (binaryExpr.opKind == OperatorKind.DIV || binaryExpr.opKind == OperatorKind.MOD)) {
-            rhsFiniteType = getCorrespondingFiniteType(rhsType, symTable.intType);
-        }
-
-        Object resolvedValue = calculateSingletonValue(lhsFiniteType,
-                rhsFiniteType, binaryExpr.opKind, resultType, binaryExpr.pos);
+        Object resolvedValue = calculateSingletonValue((BFiniteType) lhsType, (BFiniteType) rhsType, binaryExpr.opKind,
+                resultType, binaryExpr.pos);
         if (resolvedValue == null) {
             data.resultType = symTable.semanticError;
             dlog.error(pos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION);
             return;
         }
         BType finiteType = getFiniteType(resolvedValue, constantSymbol, pos, resultType);
-        if (types.typeIncompatible(pos, finiteType, expType)) {
+        if (data.compoundExprs.isEmpty() && types.typeIncompatible(pos, finiteType, expType)) {
             data.resultType = symTable.semanticError;
             return;
         }
@@ -384,7 +379,16 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     public void visit(BLangUnaryExpr unaryExpr, AnalyzerData data) {
         BType resultType;
+
+        data.compoundExprs.push(unaryExpr.expr);
         BType actualType = checkConstExpr(unaryExpr.expr, data.expType, data);
+        data.compoundExprs.pop();
+
+        if (actualType == symTable.semanticError) {
+            data.resultType = symTable.semanticError;
+            return;
+        }
+
         BSymbol opSymbol = getUnaryOpSymbol(unaryExpr, actualType, data);
         resultType = getBroadType(data.resultType);
 
@@ -394,13 +398,19 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         BConstantSymbol constantSymbol = data.constantSymbol;
-        Object resolvedValue = evaluateUnaryOperator(getCorrespondingFiniteType(actualType, resultType), resultType,
+        Object resolvedValue = evaluateUnaryOperator((BFiniteType) actualType, resultType,
                 unaryExpr.operator);
         if (resolvedValue == null) {
             data.resultType = symTable.semanticError;
             return;
         }
-        data.resultType = getFiniteType(resolvedValue, constantSymbol, unaryExpr.pos, resultType);
+
+        BType finiteType = getFiniteType(resolvedValue, constantSymbol, unaryExpr.pos, resultType);
+        if (data.compoundExprs.isEmpty() && types.typeIncompatible(unaryExpr.pos, finiteType, data.expType)) {
+            data.resultType = symTable.semanticError;
+            return;
+        }
+        data.resultType = finiteType;
     }
 
     private BType defineInferredRecordType(BLangRecordLiteral recordLiteral, BType expType, AnalyzerData data) {
@@ -1323,8 +1333,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             symbol = symResolver.getUnaryOpsForTypeSets(unaryExpr.operator, exprType);
         }
         if (symbol == symTable.notFoundSymbol) {
-//            dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,
-//                    unaryExpr.operator, exprType);
+            dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,
+                    unaryExpr.operator, exprType);
+            data.resultType = symTable.semanticError;
         } else {
             unaryExpr.opSymbol = (BOperatorSymbol) symbol;
             data.resultType = symbol.type.getReturnType();
@@ -1336,8 +1347,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 symbol = symResolver.getUnaryOpsForTypeSets(unaryExpr.operator, exprType);
             }
             if (symbol == symTable.notFoundSymbol) {
-//                dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,
-//                        unaryExpr.operator, exprType);
+                dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,
+                        unaryExpr.operator, exprType);
+                data.resultType = symTable.semanticError;
             } else {
                 unaryExpr.opSymbol = (BOperatorSymbol) symbol;
                 data.resultType = symbol.type.getReturnType();
@@ -1627,55 +1639,21 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return result;
     }
 
-    private BType getTypeOfLiteralWithFloatDiscriminator(BLangLiteral literalExpr, Object literalValue,
-                                                        AnalyzerData data) {
-        String numericLiteral = NumericLiteralSupport.stripDiscriminator(String.valueOf(literalValue));
-        if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
-            data.resultType = symTable.semanticError;
-            return symTable.semanticError;
-        }
-        literalExpr.value = Double.parseDouble(numericLiteral);
-        return symTable.floatType;
-    }
-
-    public BType getIntegerLiteralType(BLangLiteral literalExpr, Object literalValue, AnalyzerData data) {
-        // Results will be union of int, float and decimal. But when the type node is not available, the result will be
-        // int.
-        if (!(literalValue instanceof Long)) {
-            dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue,
-                    literalExpr.getBType());
-            data.resultType = symTable.semanticError;
-            return symTable.semanticError;
-        } else if (data.expType == symTable.noType) {
-            // Special case the missing type node scenarios.
-            return symTable.intType;
-        }
-
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-        memberTypes.add(symTable.intType);
-        memberTypes.add(symTable.floatType);
-
-        if (!NumericLiteralSupport.hasHexIndicator(literalExpr.originalValue)) {
-            memberTypes.add(symTable.decimalType);
-        }
-        return BUnionType.create(null, memberTypes);
-    }
-
-    public BType setLiteralValueAndGetType(BLangLiteral literalExpr, AnalyzerData data) {
-        literalExpr.isFiniteContext = false;
+    private BType setLiteralValueAndGetType(BLangLiteral literalExpr, BType expType, AnalyzerData data) {
         Object literalValue = literalExpr.value;
+        BType expectedType = Types.getReferredType(expType);
 
         if (literalExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
             NodeKind kind = ((BLangNumericLiteral) literalExpr).kind;
             if (kind == NodeKind.INTEGER_LITERAL) {
-                return getIntegerLiteralType(literalExpr, literalValue, data);
+                return getIntegerLiteralType(literalExpr, literalValue, expectedType);
             } else if (kind == NodeKind.DECIMAL_FLOATING_POINT_LITERAL) {
                 if (NumericLiteralSupport.isFloatDiscriminated(literalExpr.originalValue)) {
-                    return getTypeOfLiteralWithFloatDiscriminator(literalExpr, literalValue, data);
+                    return getTypeOfLiteralWithFloatDiscriminator(literalExpr, literalValue);
                 } else if (NumericLiteralSupport.isDecimalDiscriminated(literalExpr.originalValue)) {
                     return getTypeOfLiteralWithDecimalDiscriminator(literalExpr, literalValue);
                 } else {
-                    return getTypeOfDecimalFloatingPointLiteral(literalExpr, literalValue, data);
+                    return getTypeOfDecimalFloatingPointLiteral(literalExpr, literalValue, expectedType);
                 }
             } else {
                 return getTypeOfHexFloatingPointLiteral(literalExpr, literalValue, data);
@@ -1693,12 +1671,117 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         // Byte arrays are not yet supported in constants.
-//        if (literalExpr.getBType().tag == TypeTags.BYTE_ARRAY) {
-//            // check whether this is a byte array
-//            literalType = new BArrayType(symTable.byteType);
-//        }
+        if (literalExpr.getBType().tag == TypeTags.BYTE_ARRAY) {
+            // check whether this is a byte array
+            literalType = new BArrayType(symTable.byteType);
+        }
 
         return literalType;
+    }
+
+    private BType getTypeOfLiteralWithFloatDiscriminator(BLangLiteral literalExpr, Object literalValue) {
+        String numericLiteral = NumericLiteralSupport.stripDiscriminator(String.valueOf(literalValue));
+        if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
+            return symTable.semanticError;
+        }
+        literalExpr.value = Double.parseDouble(numericLiteral);
+        return symTable.floatType;
+    }
+
+    public BType getIntegerLiteralType(BLangLiteral literalExpr, Object literalValue, BType expType) {
+        BType literalType = getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, expType);
+        if (literalType != symTable.semanticError) {
+            return literalType;
+        }
+
+        if (!(literalValue instanceof Long)) {
+            dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue,
+                    literalExpr.getBType());
+            return symTable.semanticError;
+        }
+        return symTable.intType;
+    }
+
+    private BType getIntegerLiteralTypeUsingExpType(BLangLiteral literalExpr, Object literalValue, BType expType) {
+        BType expectedType = Types.getReferredType(expType);
+        int expectedTypeTag = expectedType.tag;
+        switch (expectedTypeTag) {
+            case TypeTags.BYTE:
+            case TypeTags.INT:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+            case TypeTags.JSON:
+                if (!(literalValue instanceof Long)) {
+                    dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue, expType);
+                    return symTable.semanticError;
+                }
+                return symTable.intType;
+            case TypeTags.FLOAT:
+                // The literalValue will be a string if it was not within the bounds of what is supported by Java Long
+                // or Double when it was parsed in BLangNodeBuilder
+                if (literalValue instanceof String) {
+                    dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue,
+                            expectedType);
+                    return symTable.semanticError;
+                }
+                if (literalValue instanceof Double) {
+                    literalExpr.value = (Double) literalValue;
+                } else {
+                    literalExpr.value = ((Long) literalValue).doubleValue();
+                }
+                return symTable.floatType;
+            case TypeTags.DECIMAL:
+                literalExpr.value = String.valueOf(literalValue);
+                return symTable.decimalType;
+            case TypeTags.FINITE:
+                Set<BLangExpression> valueSpace = ((BFiniteType) expectedType).getValueSpace();
+                if (valueSpace.size() > 1) {
+                    LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
+                    valueSpace.forEach(memExpr -> memTypes.add(memExpr.getBType()));
+                    BUnionType unionType = new BUnionType(null, memTypes, false, false);
+                    return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, unionType);
+                }
+                BType expBroadType = ((BFiniteType) expectedType).getValueSpace().iterator().next().getBType();
+                return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, expBroadType);
+            case TypeTags.UNION:
+                BUnionType expectedUnionType = (BUnionType) expectedType;
+                List<BType> memberTypes = types.getAllReferredTypes(expectedUnionType);
+                List<BType> validTypes = new ArrayList<>();
+                dlog.mute();
+                for (BType memType : memberTypes) {
+                    BType validType = getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, memType);
+                    if (validType.tag != TypeTags.SEMANTIC_ERROR) {
+                        validTypes.add(validType);
+                    }
+                }
+                dlog.unmute();
+
+                validTypes.sort(Comparator.comparingInt(t -> t.tag));
+                for (BType validType : validTypes) {
+                    if (validType.tag == TypeTags.INT) {
+                        literalExpr.value = literalValue;
+                        return symTable.intType;
+                    } else if (validType.tag == TypeTags.FLOAT) {
+                        if (literalValue instanceof Double) {
+                            literalExpr.value = literalValue;
+                        } else {
+                            literalExpr.value = ((Long) literalValue).doubleValue();
+                        }
+                        return symTable.floatType;
+                    } else if (validType.tag == TypeTags.DECIMAL) {
+                        literalExpr.value = String.valueOf(literalValue);
+                        return symTable.decimalType;
+                    }
+                }
+                break;
+        }
+        return symTable.semanticError;
     }
 
     public void setLiteralValueForFiniteType(BLangLiteral literalExpr, BType type, AnalyzerData data) {
@@ -1715,35 +1798,62 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return symTable.decimalType;
     }
 
-    private BType getTypeOfDecimalFloatingPointLiteral(BLangLiteral literalExpr, Object literalValue,
-                                                      AnalyzerData data) {
-        // Results will be union of float and decimal. But when the type node is not available, the result will be
-        // float.
+    private BType getTypeOfDecimalFloatingPointLiteral(BLangLiteral literalExpr, Object literalValue, BType expType) {
         String numericLiteral = String.valueOf(literalValue);
-        BType expectedType = data.expType;
-        LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
-        if (expectedType != symTable.noType) {
-            dlog.mute();
-            boolean isValidDecimal = types.isValidDecimalNumber(literalExpr.pos, numericLiteral);
-            boolean isValidFloat = types.validateFloatLiteral(literalExpr.pos, numericLiteral);
-            dlog.unmute();
-            if (isValidDecimal) {
-                memberTypes.add(symTable.decimalType);
-            }
-            if (isValidFloat) {
-                memberTypes.add(symTable.floatType);
-            } else if (memberTypes.isEmpty()) {
-                data.resultType = symTable.semanticError;
-                return symTable.semanticError;
-            }
-        } else {
-            if (types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
-                return symTable.floatType;
-            }
-            data.resultType = symTable.semanticError;
-            return symTable.semanticError;
+        BType literalType = getTypeOfDecimalFloatingPointLiteralUsingExpType(literalExpr, literalValue, expType);
+        if (literalType.tag != TypeTags.SEMANTIC_ERROR) {
+            return literalType;
         }
-        return BUnionType.create(null, memberTypes);
+        return types.validateFloatLiteral(literalExpr.pos, numericLiteral)
+                ? symTable.floatType : symTable.semanticError;
+    }
+
+    private BType getTypeOfDecimalFloatingPointLiteralUsingExpType(BLangLiteral literalExpr, Object literalValue,
+                                                                   BType expType) {
+        BType expectedType = Types.getReferredType(expType);
+        String numericLiteral = String.valueOf(literalValue);
+        switch (expectedType.tag) {
+            case TypeTags.FLOAT:
+            case TypeTags.ANYDATA:
+            case TypeTags.ANY:
+            case TypeTags.JSON:
+                if (!types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
+                    return symTable.semanticError;
+                }
+                return symTable.floatType;
+            case TypeTags.DECIMAL:
+                if (types.isValidDecimalNumber(literalExpr.pos, literalExpr.value.toString())) {
+                    return symTable.decimalType;
+                }
+                return symTable.semanticError;
+            case TypeTags.FINITE:
+                BType expBroadType = ((BFiniteType) expectedType).getValueSpace().iterator().next().getBType();
+                return getTypeOfDecimalFloatingPointLiteralUsingExpType(literalExpr, literalValue, expBroadType);
+            case TypeTags.UNION:
+                BUnionType expectedUnionType = (BUnionType) expectedType;
+                List<BType> memberTypes = types.getAllReferredTypes(expectedUnionType);
+                List<BType> validTypes = new ArrayList<>();
+                dlog.mute();
+                for (BType memType : memberTypes) {
+                    BType validType = getTypeOfDecimalFloatingPointLiteralUsingExpType(literalExpr, literalValue,
+                            memType);
+                    if (validType.tag != TypeTags.SEMANTIC_ERROR) {
+                        validTypes.add(validType);
+                    }
+                }
+                dlog.unmute();
+
+                validTypes.sort(Comparator.comparingInt(t -> t.tag));
+                for (BType validType : validTypes) {
+                    if (validType.tag == TypeTags.FLOAT) {
+                        return symTable.floatType;
+                    } else if (validType.tag == TypeTags.DECIMAL) {
+                        return symTable.decimalType;
+                    }
+                }
+                break;
+        }
+        return symTable.semanticError;
     }
 
     public BType getTypeOfHexFloatingPointLiteral(BLangLiteral literalExpr, Object literalValue,
@@ -2706,5 +2816,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         BType resultType;
         Map<String, BLangNode> modTable;
         BConstantSymbol constantSymbol;
+        private Stack<BLangExpression> compoundExprs = new Stack<>();
     }
 }
