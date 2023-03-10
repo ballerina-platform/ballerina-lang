@@ -707,6 +707,10 @@ public class CodeActionUtil {
                 objectFieldNode.fieldName().lineRange().endLine().offset();
     }
 
+    public static boolean isRangeSelection(Range range) {
+        return !range.getStart().equals(range.getEnd());
+    }
+
     public static List<TextEdit> getGetterSetterCodeEdits(ObjectFieldNode objectFieldNode,
                                                           Optional<FunctionDefinitionNode> initNode,
                                                           String fieldName,

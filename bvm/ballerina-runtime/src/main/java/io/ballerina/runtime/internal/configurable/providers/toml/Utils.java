@@ -230,12 +230,12 @@ public class Utils {
             return CONFIG_FILE_NAME;
         }
         LineRange oneBasedLineRange = getOneBasedLineRange(node.location().lineRange());
-        return oneBasedLineRange.filePath() + ":" + oneBasedLineRange;
+        return oneBasedLineRange.fileName() + ":" + oneBasedLineRange;
     }
 
     static LineRange getOneBasedLineRange(LineRange lineRange) {
         return LineRange.from(
-                lineRange.filePath(),
+                lineRange.fileName(),
                 LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
                 LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
     }
