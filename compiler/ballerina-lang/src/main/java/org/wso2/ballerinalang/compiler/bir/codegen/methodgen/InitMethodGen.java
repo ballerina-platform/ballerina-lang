@@ -91,6 +91,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GRACEFUL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_STOP_DYNAMIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -125,8 +126,9 @@ public class InitMethodGen {
             return;
         }
 
-        MethodVisitor mv = visitFunction(cw, MethodGenUtils.calculateLambdaStopFuncName(pkg.packageID));
-        invokeStopFunction(initClass, mv);
+        String funcName = MethodGenUtils.calculateLambdaStopFuncName(pkg.packageID);
+        MethodVisitor mv = visitFunction(cw, funcName);
+        invokeStopFunction(initClass, mv, funcName);
         for (PackageID id : depMods) {
             String jvmClass = JvmCodeGenUtil.getPackageName(id) + MODULE_INIT_CLASS_NAME;
             generateLambdaForDepModStopFunc(cw, id, jvmClass);
@@ -135,7 +137,8 @@ public class InitMethodGen {
 
     public void generateLambdaForModuleExecuteFunction(ClassWriter cw, String initClass, JvmCastGen jvmCastGen,
                                                        BIRNode.BIRFunction mainFunc) {
-        MethodVisitor mv = visitFunction(cw, "$lambda$" + JvmConstants.MODULE_EXECUTE_METHOD + "$");
+        String lambdaFuncName = "$lambda$" + MODULE_EXECUTE_METHOD + "$";
+        MethodVisitor mv = visitFunction(cw, lambdaFuncName);
         mv.visitCode();
         String methodDesc;
 
@@ -163,13 +166,13 @@ public class InitMethodGen {
         }
         mv.visitMethodInsn(INVOKESTATIC, initClass, JvmConstants.MODULE_EXECUTE_METHOD, methodDesc, false);
         jvmCastGen.addBoxInsn(mv, errorOrNilType);
-        MethodGenUtils.visitReturn(mv);
+        MethodGenUtils.visitReturn(mv, lambdaFuncName, initClass);
     }
 
     private void generateLambdaForDepModStopFunc(ClassWriter cw, PackageID pkgID, String initClass) {
         String lambdaName = MethodGenUtils.calculateLambdaStopFuncName(pkgID);
         MethodVisitor mv = visitFunction(cw, lambdaName);
-        invokeStopFunction(initClass, mv);
+        invokeStopFunction(initClass, mv, lambdaName);
     }
 
     private MethodVisitor visitFunction(ClassWriter cw, String funcName) {
@@ -178,7 +181,7 @@ public class InitMethodGen {
         return mv;
     }
 
-    private void invokeStopFunction(String initClass, MethodVisitor mv) {
+    private void invokeStopFunction(String initClass, MethodVisitor mv, String methodName) {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_0);
@@ -187,7 +190,7 @@ public class InitMethodGen {
         String stopFuncName = MethodGenUtils.encodeModuleSpecialFuncName(MethodGenUtils.STOP_FUNCTION_SUFFIX);
         mv.visitMethodInsn(INVOKESTATIC, initClass, stopFuncName, JvmSignatures.MODULE_START,
                            false);
-        MethodGenUtils.visitReturn(mv);
+        MethodGenUtils.visitReturn(mv, methodName, initClass);
     }
 
     public void generateModuleInitializer(ClassWriter cw, BIRNode.BIRPackage module, String typeOwnerClass,
@@ -198,10 +201,10 @@ public class InitMethodGen {
                                           RETURN_OBJECT, null, null);
         mv.visitCode();
 
-        mv.visitMethodInsn(INVOKESTATIC, moduleTypeClass, CREATE_TYPES_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, moduleTypeClass, CREATE_TYPES_METHOD, VOID_METHOD_DESC, false);
         mv.visitTypeInsn(NEW, typeOwnerClass);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitVarInsn(ASTORE, 1);
         mv.visitLdcInsn(Utils.decodeIdentifier(module.packageID.orgName.getValue()));
         mv.visitLdcInsn(Utils.decodeIdentifier(module.packageID.name.getValue()));
@@ -216,7 +219,7 @@ public class InitMethodGen {
 
         // Add a nil-return
         mv.visitInsn(ACONST_NULL);
-        MethodGenUtils.visitReturn(mv);
+        MethodGenUtils.visitReturn(mv, CURRENT_MODULE_INIT, typeOwnerClass);
     }
 
     public void enrichPkgWithInitializers(Map<String, BIRFunctionWrapper> birFunctionMap,

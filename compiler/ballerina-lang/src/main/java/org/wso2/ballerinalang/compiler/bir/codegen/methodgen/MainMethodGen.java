@@ -100,6 +100,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUNTIME_REGISTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_STRING_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
  * Generates Jvm byte code for the main method.
@@ -113,6 +114,7 @@ public class MainMethodGen {
     public static final String MAIN_FUTURE_VAR = "mainFutureVar";
     public static final String SCHEDULER_VAR = "schedulerVar";
     public static final String CONFIG_VAR = "configVar";
+    public static final String LAMBDA_MAIN_METHOD = "$lambda$main$";
     private final SymbolTable symbolTable;
     private final BIRVarToJVMIndexMap indexMap;
     private final JvmTypeGen jvmTypeGen;
@@ -168,7 +170,7 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_ALL_THROWABLE_METHOD,
                            HANDLE_THROWABLE, false);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "main", initClass);
         mv.visitEnd();
     }
 
@@ -188,7 +190,7 @@ public class MainMethodGen {
 
     private void startScheduler(int schedulerVarIndex, MethodVisitor mv) {
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, VOID_METHOD_DESC, false);
     }
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
@@ -374,7 +376,7 @@ public class MainMethodGen {
                          GET_STRAND);
         mv.visitTypeInsn(NEW, STACK);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, STACK, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, STACK, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, STACK_FRAMES);
 
         startScheduler(indexMap.get(SCHEDULER_VAR), mv);
