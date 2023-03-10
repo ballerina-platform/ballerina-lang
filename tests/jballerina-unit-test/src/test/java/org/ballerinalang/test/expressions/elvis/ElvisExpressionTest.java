@@ -241,6 +241,26 @@ public class ElvisExpressionTest {
         BRunUtil.invoke(compileResult, "testElvisExprWithBuiltInNilableUnion");
     }
 
+    @Test
+    public void testElvisExprWithJson() {
+        BRunUtil.invoke(compileResult, "testElvisExprWithJson");
+    }
+
+    @Test
+    public void testElvisExprWithAnydata() {
+        BRunUtil.invoke(compileResult, "testElvisExprWithAnydata");
+    }
+
+    @Test
+    public void testElvisExprWithFiniteType() {
+        BRunUtil.invoke(compileResult, "testElvisExprWithFiniteType");
+    }
+
+    @Test
+    public void testElvisExprWithUnionWithFiniteTypeContainingNull() {
+        BRunUtil.invoke(compileResult, "testElvisExprWithUnionWithFiniteTypeContainingNull");
+    }
+
     @Test(description = "Negative test cases.")
     public void testElvisOperatorNegative() {
         int index = 0;
@@ -310,6 +330,31 @@ public class ElvisExpressionTest {
                 "'stream<int>'", 146, 23);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'any', found 'error'", 149,
                                   20);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected '" +
+                "(boolean|int|float|decimal|string|json[])', found '" +
+                "(boolean|int|float|decimal|string|json[]|map<json>)'", 151, 49);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected '" +
+                "(boolean|int|float|decimal|string|xml|anydata[])', found '" +
+                "(boolean|int|float|decimal|string|xml|anydata[]|map<anydata>|table<map<anydata>>)'", 152, 56);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected '" +
+                "(boolean|int|float|decimal|string|xml|anydata[])', found 'stream<int>'", 152, 62);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'int', found '1|\"foo\"'",
+                                  157, 13);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found '1|\"foo\"'",
+                                  158, 16);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected '\"foo\"', found " +
+                "'1|\"foo\"'", 159, 15);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected '\"foo\"', found 'int'",
+                                  159, 20);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected '1', found 'int'", 161, 16);
+        BAssertUtil.validateError(negativeResult, index++, "using '?:' with an expression of a type that is a subtype" +
+                " of nil is not yet supported", 165, 13);
+        BAssertUtil.validateError(negativeResult, index++, "using '?:' with an expression of a type that is a subtype" +
+                " of nil is not yet supported", 166, 13);
+        BAssertUtil.validateError(negativeResult, index++, "using '?:' with an expression of a type that is a subtype" +
+                " of nil is not yet supported", 167, 13);
+        BAssertUtil.validateError(negativeResult, index++, "using '?:' with an expression of a type that is a subtype" +
+                " of nil is not yet supported", 168, 13);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 }

@@ -1,3 +1,5 @@
+import ballerina/lang.regexp;
+
 function testElvisValueTypePositive() returns (int) {
     int|() x = 120;
     int b;
@@ -469,7 +471,77 @@ function testElvisExprWithBuiltInNilableUnion() {
     assertEquals("empty", <anydata> l4);
 }
 
+type JsonWithoutNil boolean|int|float|decimal|string|json[]|map<json>;
+
+function testElvisExprWithJson() {
+    json i = 1;
+    JsonWithoutNil j = i ?: 10;
+    assertEquals(1, j);
+
+    i = ();
+    j = i ?: 10;
+    assertEquals(10, j);
+
+    json|xml k = 12;
+    JsonWithoutNil|xml l = k ?: xml `test`;
+    assertEquals(12, l);
+
+    k = ();
+    l = k ?: xml `test`;
+    assertEquals(xml `test`, l);
+}
+
+type AnydataWithoutNil boolean|int|float|decimal|string|xml|regexp:RegExp|anydata[]|map<anydata>|table<map<anydata>>;
+
+function testElvisExprWithAnydata() {
+    anydata i = "hello";
+    AnydataWithoutNil j = i ?: 10;
+    assertEquals("hello", j);
+
+    i = ();
+    j = i ?: 10;
+    assertEquals(10, j);
+
+    error e = error("Oops");
+    error|anydata k = 234;
+    error|AnydataWithoutNil l = k ?: e;
+    assertEquals(234, checkpanic l);
+
+    k = ();
+    l = k ?: e;
+    assertTrue(l is error);
+    assertTrue(l === e);
+}
+
+function testElvisExprWithFiniteType() {
+    1|null a = 1;
+    int b = a ?: 2;
+    assertEquals(1, b);
+
+    a = ();
+    b = a ?: 2;
+    assertEquals(2, b);
+}
+
+function testElvisExprWithUnionWithFiniteTypeContainingNull() {
+    1|null|string a = 1;
+    string|1 b = a ?: "hello";
+    assertEquals(1, b);
+
+    1|null|string c = ();
+    string|1 d = c ?: "hello";
+    assertEquals("hello", d);
+
+    1|null|string e = ();
+    int|string f = e ?: 23;
+    assertEquals(23, f);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(anydata actual) {
+    assertEquals(true, actual);
+}
 
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {

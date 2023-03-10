@@ -147,4 +147,23 @@ function testElvisExprWithBuiltInNilableUnionNegative() {
 
     any l1 = 3;
     any l2 = l1 ?: error("Oops!");
+
+    boolean|int|float|decimal|string|json[] _ = j1 ?: true;
+    boolean|int|float|decimal|string|xml|anydata[] _ = k1 ?: str;
+}
+
+function testElvisExprWithFiniteTypeWithNullNegative() {
+    1|null|"foo" a = 1;
+    int _ = a ?: 3;
+    string _ = a ?: "";
+    "foo" _ = a ?: 1;
+    null|1 b = ();
+    1 _ = b ?: 3;
+}
+
+function testElvisExprWithNilSubTypeLhsExprType(() w, null|null x, ()|() y, never? z) {
+    int _ = w ?: 2;
+    int _ = x ?: 2;
+    int _ = y ?: 2;
+    int _ = z ?: 2;
 }
