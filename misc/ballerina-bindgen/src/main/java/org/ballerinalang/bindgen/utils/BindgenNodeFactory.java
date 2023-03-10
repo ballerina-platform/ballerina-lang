@@ -76,7 +76,6 @@ import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeCastParamNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
-import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
@@ -1183,15 +1182,7 @@ class BindgenNodeFactory {
         Node rhsExpr = createSimpleNameReferenceNode(rhs);
 
         return NodeFactory.createBinaryExpressionNode(null, lhsExpr, operator, rhsExpr);
-    }
-
-    /**
-     * Creates a type test expression node using the details provided.
-     */
-    private static TypeTestExpressionNode createTypeTestExpressionNode(ExpressionNode expr, Node type) {
-        Token operator = createToken(SyntaxKind.IS_KEYWORD);
-        return NodeFactory.createTypeTestExpressionNode(expr, operator, type);
-    }
+}
 
     /**
      * Creates a foreach statement node using the details provided.
@@ -1363,7 +1354,7 @@ class BindgenNodeFactory {
     }
 
     /**
-     * Creates a elvis expression node (e.g: lhsExpression ?: rhsExpression)
+     * Creates a elvis expression node (e.g: lhsExpression ?: rhsExpression).
      */
     private static BinaryExpressionNode createElvisExpressionNode(Node lhs, Node rhs) {
         Token elvisToken = createToken(SyntaxKind.ELVIS_TOKEN);

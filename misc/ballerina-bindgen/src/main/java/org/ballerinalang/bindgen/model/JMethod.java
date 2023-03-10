@@ -157,7 +157,7 @@ public class JMethod extends BFunction {
 
         returnTypeJava = getBalReturnType(env, returnTypeClass);
         setExternalReturnType(getBallerinaHandleType(env, returnTypeClass));
-        returnType = getBallerinaReturnType( env, returnTypeClass);
+        returnType = getBallerinaReturnType(env, returnTypeClass);
         returnType = getExceptionName(returnTypeClass, returnType);
         if (returnTypeClass.isArray()) {
             javaArraysModule = true;
