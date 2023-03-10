@@ -238,7 +238,7 @@ public class DiagnosticsHelper {
             file project. So we only append the file URI for the build project case.
              */
             Path resolvedPath = projectRoot.toFile().isDirectory()
-                    ? projectRoot.resolve(lineRange.filePath())
+                    ? projectRoot.resolve(lineRange.fileName())
                     : projectRoot;
             String resolvedUri = resolvedPath.toUri().toString();
             String fileURI = PathUtil.getModifiedUri(workspaceManager, resolvedUri);
