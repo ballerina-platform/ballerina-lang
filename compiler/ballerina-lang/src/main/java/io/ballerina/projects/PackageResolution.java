@@ -33,6 +33,7 @@ import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.PackageContainer;
 import io.ballerina.projects.internal.PackageDiagnostic;
+import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.internal.model.BuildJson;
@@ -335,7 +336,11 @@ public class PackageResolution {
         // Add resolved packages to the container
         for (ResolutionResponse resolutionResp : resolutionResponses) {
             if (resolutionResp.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
-                PackageDescriptor pkgDesc = resolutionResp.responseDescriptor();
+                PackageDescriptor pkgDesc = resolutionResp.resolvedPackage().packageContext().
+                        packageManifest().descriptor();
+                if (Optional.ofNullable(pkgDesc.getDeprecated()).orElse(false)) {
+                    addDeprecationDiagnostic(pkgDesc);
+                }
                 ResolutionRequest resolutionReq = resolutionResp.resolutionRequest();
                 ResolvedPackageDependency resolvedPkg = new ResolvedPackageDependency(
                         resolutionResp.resolvedPackage(),
@@ -366,6 +371,16 @@ public class PackageResolution {
             }
         }
         return depGraphBuilder.build();
+    }
+
+    private void addDeprecationDiagnostic(PackageDescriptor pkgDesc) {
+        String deprecationMsg = Optional.ofNullable(pkgDesc.getDeprecationMsg()).orElse("");
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                ProjectDiagnosticErrorCode.DEPRECATED_PACKAGE.diagnosticId(), pkgDesc.toString() +
+                " is deprecated due to : " + deprecationMsg, DiagnosticSeverity.WARNING);
+        PackageDiagnostic diagnostic = new PackageDiagnostic(
+                diagnosticInfo, this.rootPackageContext.descriptor().name().toString());
+        this.diagnosticList.add(diagnostic);
     }
 
     private ResolutionRequest createFromDepNode(DependencyNode depNode) {
