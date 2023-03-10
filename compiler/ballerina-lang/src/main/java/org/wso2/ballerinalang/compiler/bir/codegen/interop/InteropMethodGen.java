@@ -265,7 +265,7 @@ public class InteropMethodGen {
 
         BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, bbPrefix, initMethodGen);
         BIRBasicBlock retBB = new BIRBasicBlock(getNextDesugarBBId(bbPrefix, initMethodGen));
-        List<BIROperand> receiverArgs = new ArrayList<>();
+        BIROperand receiverOp = null;
         List<BIROperand> args = new ArrayList<>();
         List<BIROperand> resourcePathArgs = new ArrayList<>();
         List<BIRNode.BIRFunctionParameter> birFuncParams = birFunc.parameters;
@@ -275,7 +275,7 @@ public class InteropMethodGen {
         if (jMethod.kind == JMethodKind.METHOD && !jMethod.isStatic()) {
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
             BIROperand argRef = new BIROperand(birFuncParam);
-            receiverArgs.add(argRef);
+            args.add(argRef);
             birFuncParamIndex = 1;
         }
 
@@ -283,7 +283,7 @@ public class InteropMethodGen {
         int jMethodParamIndex = 0;
         if (jMethod.getReceiverType() != null) {
             jMethodParamIndex++;
-            receiverArgs.add(new BIROperand(birFunc.receiver));
+            receiverOp = new BIROperand(birFunc.receiver);
         }
 
         if (jMethod.isBalEnvAcceptingMethod()) {
@@ -380,7 +380,7 @@ public class InteropMethodGen {
         if (jMethod.kind == JMethodKind.CONSTRUCTOR) {
             JIConstructorCall jCall = new JIConstructorCall(birFunc.pos);
             jCall.args = args;
-            jCall.receiverArgs = receiverArgs;
+            jCall.receiver = receiverOp;
             jCall.resourcePathArgs = resourcePathArgs;
             jCall.varArgExist = birFunc.restParam != null;
             jCall.varArgType = varArgType;
@@ -393,7 +393,7 @@ public class InteropMethodGen {
         } else {
             JIMethodCall jCall = new JIMethodCall(birFunc.pos);
             jCall.args = args;
-            jCall.receiverArgs = receiverArgs;
+            jCall.receiver = receiverOp;
             jCall.resourcePathArgs = resourcePathArgs;
             jCall.varArgExist = birFunc.restParam != null;
             jCall.varArgType = varArgType;
