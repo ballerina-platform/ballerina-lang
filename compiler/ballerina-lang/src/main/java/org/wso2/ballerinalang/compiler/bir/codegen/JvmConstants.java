@@ -258,6 +258,7 @@ public class JvmConstants {
 
     // types related constants
     public static final String TYPES_ERROR = "TYPE_ERROR";
+    public static final String TYPE_ANYDATA_ARRAY = "TYPE_ANYDATA_ARRAY";
 
     // error related constants
     public static final String PANIC_FIELD = "panic";

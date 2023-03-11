@@ -170,6 +170,7 @@ public class PredefinedTypes {
     public static final ArrayType TYPE_JSON_ARRAY;
     public static final AnydataType TYPE_ANYDATA;
     public static final AnydataType TYPE_READONLY_ANYDATA;
+    public static final ArrayType TYPE_ANYDATA_ARRAY;
     public static final MapType TYPE_DETAIL;
     public static final Type TYPE_ERROR_DETAIL;
     public static final ErrorType TYPE_ERROR;
@@ -196,6 +197,7 @@ public class PredefinedTypes {
         members.add(TYPE_XML);
         TYPE_ANYDATA = getAnydataType(members, TypeConstants.ANYDATA_TNAME, false);
         TYPE_READONLY_ANYDATA = getAnydataType(members, TypeConstants.READONLY_ANYDATA_TNAME, true);
+        TYPE_ANYDATA_ARRAY = new BArrayType(TYPE_ANYDATA);
     }
 
     private PredefinedTypes() {
