@@ -339,6 +339,7 @@ public class JvmSignatures {
     public static final String LOAD_JOBJECT_TYPE = "L" + OBJECT + ";";
     public static final String LOAD_ANY_TYPE = "L" + ANY_TYPE + ";";
     public static final String LOAD_ANYDATA_TYPE = "L" + ANYDATA_TYPE + ";";
+    public static final String LOAD_ARRAY_TYPE = "L" + ARRAY_TYPE + ";";
     public static final String INIT_ANYDATA_ARRAY = "([L" + OBJECT + ";L" + ARRAY_TYPE + ";)V";
     public static final String LOAD_BOOLEAN_TYPE = "L" + BOOLEAN_TYPE + ";";
     public static final String LOAD_BYTE_TYPE = "L" + BYTE_TYPE + ";";
