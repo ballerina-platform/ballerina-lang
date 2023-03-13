@@ -28,9 +28,9 @@ com.google.gson.JsonSyntaxException: com.google.gson.stream.MalformedJsonExcepti
 	at com.google.gson.Gson.fromJson(Gson.java:978)
 	at com.google.gson.Gson.fromJson(Gson.java:901)
 	at io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile(TestUtils.java:222)
-	at io.ballerina.cli.task.RunTestsTask.execute(RunTestsTask.java:219)
+	at io.ballerina.cli.task.RunTestsTask.execute(RunTestsTask.java:221)
 	at io.ballerina.cli.TaskExecutor.executeTasks(TaskExecutor.java:40)
-	at io.ballerina.cli.cmd.TestCommand.execute(TestCommand.java:315)
+	at io.ballerina.cli.cmd.TestCommand.execute(TestCommand.java:330)
 	at java.base/java.util.Optional.ifPresent(Optional.java:183)
 	at io.ballerina.cli.launcher.Main.main(Main.java:51)
 Caused by: com.google.gson.stream.MalformedJsonException: Unterminated object at line 1 column 87 path $.tests[0].name

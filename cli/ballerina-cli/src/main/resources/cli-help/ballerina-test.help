@@ -2,7 +2,7 @@ NAME
        ballerina-test - Run package tests
 
 SYNOPSIS
-       bal test [OPTIONS] [<package>|<source-file>] [-- <(-Ckey=value)...>]
+       bal test [OPTIONS] [<package>|<source-file>] [(-Ckey=value)...]
                
 
 DESCRIPTION
@@ -80,10 +80,6 @@ OPTIONS
 
 
 ARGUMENTS
-       --
-           The '--' argument signals the end of the bal tool options
-           Arguments following '--' are treated as arguments to the program.
-
        (-Ckey=value)...
            The list of configurable variables for the Ballerina program.
 

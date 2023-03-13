@@ -186,7 +186,7 @@ public class TestCommand implements BLauncherCmd {
     private Boolean nativeImage;
 
     private static final String testCmd = "bal test [--OPTIONS]\n" +
-            "                   [<ballerina-file> | <package-path>] [-- (-Ckey=value)...]\n ";
+            "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]\n ";
 
     public void execute() {
         long start = 0;
@@ -198,19 +198,13 @@ public class TestCommand implements BLauncherCmd {
 
         String[] cliArgs = new String[0];
         if (!argList.isEmpty()) {
-            if (!ProjectConstants.ARGS_SEPARATOR.equals(argList.get(0))) {
+            if (!argList.get(0).matches(ProjectConstants.CONFIG_ARGS_PATTERN)) {
                 this.projectPath = Paths.get(argList.get(0));
-                if (argList.size() > 1 && !ProjectConstants.ARGS_SEPARATOR.equals(argList.get(1))) {
-                    CommandUtil.printError(this.errStream,
-                            "unmatched command argument found: " + argList.get(1), testCmd, false);
-                    CommandUtil.exitError(this.exitWhenFinish);
-                    return;
-                }
-                if (argList.size() > 2 && ProjectConstants.ARGS_SEPARATOR.equals(argList.get(1))) {
-                    cliArgs = argList.subList(2, argList.size()).toArray(new String[0]);
-                }
-            } else if (argList.size() > 1 && ProjectConstants.ARGS_SEPARATOR.equals(argList.get(0))) {
+                if (argList.size() > 1) {
                     cliArgs = argList.subList(1, argList.size()).toArray(new String[0]);
+                }
+            } else {
+                cliArgs = argList.toArray(new String[0]);
             }
         }
 
