@@ -44,7 +44,7 @@ public class ParserTestFormatter extends FormatterTest {
 //        Path buildDirectory = Paths.get("build").toAbsolutePath().normalize();
 //
 //        return new Object[][] {
-//                {"import_decl_source_08.bal", getFilePath("import_decl_source_08.bal",
+//                {"annot_decl_source_01.bal", getFilePath("annot_decl_source_01.bal",
 //                        buildDirectory.resolve("resources").resolve("test").toString()).orElse(null)}
 //        };
 //    }

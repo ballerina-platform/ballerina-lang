@@ -58,8 +58,12 @@ public class IdentifierTest extends AbstractMiscTest {
 
     @Test
     public void testVersionAsIdentifier() {
-        testFile("identifiers/version_as_identifier_source.bal",
-                "identifiers/version_as_identifier_assert.json");
+        testFile("identifiers/version_as_identifier_source_01.bal",
+                "identifiers/version_as_identifier_assert_01.json");
+        testFile("identifiers/version_as_identifier_source_02.bal",
+                "identifiers/version_as_identifier_assert_02.json");
+        testFile("identifiers/version_as_identifier_source_03.bal",
+                "identifiers/version_as_identifier_assert_03.json");
     }
 
     // Invalid Syntax
