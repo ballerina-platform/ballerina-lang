@@ -18,8 +18,12 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 
 /**
  * Native implementation of lang.table:remove(table&lt;Type&gt;, KeyType).
@@ -35,6 +39,12 @@ import io.ballerina.runtime.api.values.BTable;
 public class Remove {
 
     public static BMap remove(BTable tbl, Object key) {
-        return (BMap) tbl.removeOrThrow(key);
+        try {
+            return (BMap) tbl.removeOrThrow(key);
+        } catch (BError e) {
+            throw BLangExceptionHelper.handleBallerinaException(StringUtils.fromString(e.getMessage()),
+                    ((BMap<String, BString>) e.getDetails()).get(StringUtils.fromString("message")),
+                    StringUtils.fromString("Failed to remove member from table"));
+        }
     }
 }

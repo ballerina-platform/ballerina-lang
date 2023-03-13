@@ -18,7 +18,12 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 
 /**
  * Native implementation of lang.array:setLength((any|error)[], int).
@@ -33,6 +38,12 @@ import io.ballerina.runtime.api.values.BArray;
 public class SetLength {
 
     public static void setLength(BArray arr, long i) {
-        arr.setLength(i);
+        try {
+            arr.setLength(i);
+        } catch (BError e) {
+            throw BLangExceptionHelper.handleBallerinaException(StringUtils.fromString(e.getMessage()),
+                    ((BMap<String, BString>) e.getDetails()).get(StringUtils.fromString("message")),
+                    StringUtils.fromString("Failed to change length of the array"));
+        }
     }
 }
