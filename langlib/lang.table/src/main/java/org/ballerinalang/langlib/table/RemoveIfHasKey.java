@@ -18,7 +18,12 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 
 /**
  * Native implementation of lang.table:removeIfHasKey(table&lt;Type&gt;, KeyType).
@@ -34,6 +39,12 @@ import io.ballerina.runtime.api.values.BTable;
 public class RemoveIfHasKey {
 
     public static Object removeIfHasKey(BTable tbl, Object key) {
-        return tbl.remove(key);
+        try {
+            return tbl.remove(key);
+        } catch (BError e) {
+            throw BLangExceptionHelper.handleBallerinaException(StringUtils.fromString(e.getMessage()),
+                    ((BMap<String, BString>) e.getDetails()).get(StringUtils.fromString("message")),
+                    StringUtils.fromString("Failed to remove member from table"));
+        }
     }
 }

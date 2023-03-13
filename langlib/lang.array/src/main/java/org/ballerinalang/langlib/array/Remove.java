@@ -18,8 +18,13 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
 
@@ -38,6 +43,12 @@ public class Remove {
 
     public static Object remove(BArray arr, long i) {
         checkIsArrayOnlyOperation(TypeUtils.getReferredType(arr.getType()), "remove()");
-        return arr.shift(i);
+        try {
+            return arr.shift(i);
+        } catch (BError e) {
+            throw BLangExceptionHelper.handleBallerinaException(StringUtils.fromString(e.getMessage()),
+                    ((BMap<String, BString>) e.getDetails()).get(StringUtils.fromString("message")),
+                    StringUtils.fromString("Failed to remove member from array"));
+        }
     }
 }

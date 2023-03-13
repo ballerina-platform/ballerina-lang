@@ -18,10 +18,11 @@
 
 package org.ballerinalang.langlib.map;
 
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.BLangFreezeException;
 
 import static io.ballerina.runtime.internal.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRecord;
@@ -38,9 +39,9 @@ public class RemoveAll {
         validateRecord(m);
         try {
             m.clear();
-        } catch (io.ballerina.runtime.internal.util.exceptions.BLangFreezeException e) {
-            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
-                                           StringUtils.fromString("Failed to clear map: " + e.getDetail()));
+        } catch (BLangFreezeException e) {
+            throw BLangExceptionHelper.handleBallerinaException(StringUtils.fromString(e.getMessage()),
+                    StringUtils.fromString(e.getDetail()), StringUtils.fromString("Failed to remove all from map"));
         }
     }
 }

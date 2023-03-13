@@ -18,9 +18,13 @@
 
 package org.ballerinalang.langlib.table;
 
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 
 /**
  * Native implementation of lang.table:add(table&lt;Type&gt;, (any|error)...).
@@ -35,7 +39,13 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 public class Add {
 
     public static void add(BTable tbl, BMap val) {
-        tbl.add(val);
+        try {
+            tbl.add(val);
+        } catch (BError e) {
+            throw BLangExceptionHelper.handleBallerinaException(StringUtils.fromString(e.getMessage()),
+                    ((BMap<String, BString>) e.getDetails()).get(StringUtils.fromString("message")),
+                    StringUtils.fromString("Failed to add member to table"));
+        }
     }
 
     public static void add_bstring(Strand strand, BTable tbl, BMap val) {
