@@ -167,7 +167,8 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot find key 'AAA'\"\\}.*")
+                    "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot find key 'AAA'\"," +
+                            "\"description\":\"Failed to remove member from table\"\\}.*")
     public void removeWithInvalidKey() {
         BRunUtil.invoke(compileResult, "removeWithInvalidKey");
         Assert.fail();
@@ -288,7 +289,7 @@ public class LangLibTableTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.table\\}KeyConstraintViolation \\{\"message\":\"a value found for key " +
-                            "'5'\"\\}.*")
+                            "'5'\",\"description\":\"Failed to add member to table\"\\}.*")
     public void testAddExistingMember() {
         BRunUtil.invoke(compileResult, "testAddExistingMember");
         Assert.fail();
@@ -297,7 +298,7 @@ public class LangLibTableTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
                     "\\{\"message\":\"value type 'Person' inconsistent with the inherent table type 'table<Engineer> "
-                    + "key\\(name\\)'\"\\}.*")
+                    + "key\\(name\\)'\",\"description\":\"Failed to add member to table\"\\}.*")
     public void testAddInconsistentData() {
         BRunUtil.invoke(compileResult, "testAddInconsistentData");
         Assert.fail();
@@ -306,7 +307,7 @@ public class LangLibTableTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type 'table<Engineer>"
-                    + " key\\(name\\)'\"\\}.*")
+                    + " key\\(name\\)'\",\"description\":\"Failed to add member to table\"\\}.*")
     public void testAddInconsistentData2() {
         BRunUtil.invoke(compileResult, "testAddInconsistentData2");
         Assert.fail();
@@ -315,7 +316,7 @@ public class LangLibTableTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type " +
-                    "'table<Engineer>'\"\\}.*")
+                    "'table<Engineer>'\",\"description\":\"Failed to add member to table\"\\}.*")
     public void testAddInconsistentDataWithMapConstrTbl() {
         BRunUtil.invoke(compileResult, "testAddInconsistentDataWithMapConstrTbl");
         Assert.fail();
@@ -324,7 +325,7 @@ public class LangLibTableTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
                     "\\{\"message\":\"value type 'map<string>' inconsistent with the inherent table type " +
-                    "'table<Teacher>'\"\\}.*")
+                    "'table<Teacher>'\",\"description\":\"Failed to add member to table\"\\}.*")
     public void testAddInconsistentDataWithMapConstrTbl2() {
         BRunUtil.invoke(compileResult, "testAddInconsistentDataWithMapConstrTbl2");
         Assert.fail();
@@ -357,7 +358,7 @@ public class LangLibTableTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
                     "\\{\"message\":\"value type 'Person' inconsistent with the inherent table type 'table<Engineer> "
-                    + "key\\(name\\)'\"\\}.*")
+                    + "key\\(name\\)'\",\"description\":\"Failed to add member to table\"\\}.*")
     public void testPutInconsistentData() {
         BRunUtil.invoke(compileResult, "testPutInconsistentData");
         Assert.fail();
@@ -366,7 +367,7 @@ public class LangLibTableTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type 'table<Engineer>"
-                    + " key\\(name\\)'\"\\}.*")
+                    + " key\\(name\\)'\",\"description\":\"Failed to add member to table\"\\}.*")
     public void testPutInconsistentData2() {
         BRunUtil.invoke(compileResult, "testPutInconsistentData2");
         Assert.fail();
@@ -375,7 +376,7 @@ public class LangLibTableTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type " +
-                    "'table<Engineer>'\"\\}.*")
+                    "'table<Engineer>'\",\"description\":\"Failed to add member to table\"\\}.*")
     public void testPutInconsistentDataWithMapConstrTbl() {
         BRunUtil.invoke(compileResult, "testPutInconsistentDataWithMapConstrTbl");
         Assert.fail();
@@ -384,7 +385,7 @@ public class LangLibTableTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
                     "\\{\"message\":\"value type 'map<string>' inconsistent with the inherent table type " +
-                    "'table<Teacher>'\"\\}.*")
+                    "'table<Teacher>'\",\"description\":\"Failed to add member to table\"\\}.*")
     public void testPutInconsistentDataWithMapConstrTbl2() {
         BRunUtil.invoke(compileResult, "testPutInconsistentDataWithMapConstrTbl2");
         Assert.fail();
@@ -487,7 +488,7 @@ public class LangLibTableTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
                     "\\{\"message\":\"value type 'Person' inconsistent with the inherent table type " +
-                    "'table<Engineer>'\"\\}.*")
+                    "'table<Engineer>'\",\"description\":\"Failed to add member to table\"\\}.*")
     public void testAddInconsistentDataToKeylessTbl() {
         BRunUtil.invoke(compileResult, "testAddInconsistentDataToKeylessTbl");
         Assert.fail();
@@ -496,7 +497,7 @@ public class LangLibTableTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type " +
-                    "'table<Engineer>'\"\\}.*")
+                    "'table<Engineer>'\",\"description\":\"Failed to add member to table\"\\}.*")
     public void testAddInconsistentDataToKeylessTbl2() {
         BRunUtil.invoke(compileResult, "testAddInconsistentDataToKeylessTbl2");
         Assert.fail();
@@ -505,7 +506,7 @@ public class LangLibTableTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
                     "\\{\"message\":\"value type 'Person' inconsistent with the inherent table type " +
-                    "'table<Engineer>'\"\\}.*")
+                    "'table<Engineer>'\",\"description\":\"Failed to add member to table\"\\}.*")
     public void testPutInconsistentDataToKeylessTbl() {
         BRunUtil.invoke(compileResult, "testPutInconsistentDataToKeylessTbl");
         Assert.fail();
@@ -514,7 +515,7 @@ public class LangLibTableTest {
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type " +
-                    "'table<Engineer>'\"\\}.*")
+                    "'table<Engineer>'\",\"description\":\"Failed to add member to table\"\\}.*")
     public void testPutInconsistentDataToKeylessTbl2() {
         BRunUtil.invoke(compileResult, "testPutInconsistentDataToKeylessTbl2");
         Assert.fail();
@@ -591,5 +592,34 @@ public class LangLibTableTest {
         BRunUtil.invoke(compileResult, "testTableIterationAfterPut2");
         BRunUtil.invoke(compileResult, "testTableIterationAfterPut3");
         BRunUtil.invoke(compileResult, "testTableIterationAfterPut4");
+    }
+
+    @Test(dataProvider = "functionsToTestTableLangLibFuncs")
+    public void functionsToTestTableLangLibFuncs(String function) {
+        BRunUtil.invoke(compileResult, function);
+    }
+
+    @DataProvider
+    public  Object[] functionsToTestTableLangLibFuncs() {
+        return new String[] {
+                "testRemoveAllFromReadOnlyKeylessTable1",
+                "testRemoveAllFromReadOnlyKeylessTable2",
+                "testRemoveAllFromReadOnlyKeyedTable1",
+                "testRemoveAllFromReadOnlyKeyedTable2",
+                "testRemoveFromReadOnlyKeyedTable1",
+                "testRemoveFromReadOnlyKeyedTable2",
+                "testRemoveIfHasKeyFromReadOnlyKeyedTable1",
+                "testRemoveIfHasKeyFromReadOnlyKeyedTable2",
+                "testPutWithReadOnlyKeylessTable1",
+                "testPutWithReadOnlyKeylessTable2",
+                "testPutWithReadOnlyKeyedTable1",
+                "testPutWithReadOnlyKeyedTable2",
+                "testAddWithReadOnlyKeylessTable1",
+                "testAddWithReadOnlyKeylessTable2",
+                "testAddWithReadOnlyKeyedTable1",
+                "testAddWithReadOnlyKeyedTable2",
+                "testRemoveWithInvalidKey1",
+                "testRemoveWithInvalidKey2",
+        };
     }
 }

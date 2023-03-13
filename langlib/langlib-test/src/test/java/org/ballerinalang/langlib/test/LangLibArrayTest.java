@@ -273,34 +273,35 @@ public class LangLibArrayTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
-                    "\\{\"message\":\"cannot change the length of an array of fixed length '7' to '0'\"}.*")
+                    "\\{\"message\":\"cannot change the length of an array of fixed length '7' to '0'\"," +
+                    "\"description\":\"Failed to remove all from array\"}.*")
     public void testRemoveAllFixedLengthArray() {
         BRunUtil.invoke(compileResult, "testRemoveAllFixedLengthArray");
         Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the length"
-                            + " of a tuple of fixed length '2' to '3'\"}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
+                    "\\{\"message\":\"cannot change the length of a tuple of fixed length '2' to '3'\"," +
+                    "\"description\":\"Failed to change length of the array\"}.*")
     public void testTupleResize() {
         BRunUtil.invoke(compileResult, "testTupleResize");
         Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the " +
-                            "length of a tuple of fixed length '2' to '0'\"}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
+                    "\\{\"message\":\"cannot change the length of a tuple of fixed length '2' to '0'\"," +
+                    "\"description\":\"Failed to remove all from array\"}.*")
     public void testTupleRemoveAll() {
         BRunUtil.invoke(compileResult, "testTupleRemoveAll");
         Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the length"
-                            + " of a tuple with '2' mandatory member\\(s\\) to '0'\"}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
+                    "\\{\"message\":\"cannot change the length of a tuple with '2' mandatory member\\(s\\) to '0'\"," +
+                    "\"description\":\"Failed to remove all from array\"}.*")
     public void testTupleRemoveAllForTupleWithRestMemberType() {
         BRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithRestMemberType");
         Assert.fail();
@@ -325,9 +326,9 @@ public class LangLibArrayTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp =
-                  "error: \\{ballerina/lang.array}InherentTypeViolation \\{\"message\":\"cannot change the length " +
-                          "of a tuple with '2' mandatory member\\(s\\) to '1'\"}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InherentTypeViolation " +
+                    "\\{\"message\":\"cannot change the length of a tuple with '2' mandatory member\\(s\\) to '1'\"," +
+                    "\"description\":\"Failed to change length of the array\"}.*")
     public void testTupleSetLengthIllegal() {
         BRunUtil.invoke(compileResult, "testTupleSetLengthIllegal");
         Assert.fail();
@@ -600,7 +601,12 @@ public class LangLibArrayTest {
                 "testModificationWithinEvery",
                 "testArrSortWithNamedArgs1",
                 "testArrSortWithNamedArgs2",
-                "testArrSortWithNamedArgs3"
+                "testArrSortWithNamedArgs3",
+                "testRemoveAllFromReadOnlyArray",
+                "testRemoveAllFromReadOnlyTuple",
+                "testRemoveFromReadOnlyArray",
+                "testSetLengthFromReadOnlyArray",
+                "testSetLengthFromReadOnlyTuple"
         };
     }
 }
