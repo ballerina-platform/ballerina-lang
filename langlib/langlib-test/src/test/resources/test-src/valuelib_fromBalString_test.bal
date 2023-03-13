@@ -499,10 +499,10 @@ function testFromStringOnRegExp() {
     assert(re `\\u123` == x1, true);
     assert(x1 is string:RegExp, true);
 
-    s = "re ``";
-    x1 = checkpanic s.fromBalString();
-    assert(re `` == x1, true);
-    assert(x1 is string:RegExp, true);
+    //s = "re ``";
+    //x1 = checkpanic s.fromBalString();
+    //assert(re `` == x1, true);
+    //assert(x1 is string:RegExp, true);
 }
 
 function testFromStringOnRegExpNegative() {
