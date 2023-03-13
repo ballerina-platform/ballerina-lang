@@ -117,8 +117,6 @@ public class SyntaxErrors {
             case OBJECT_METHOD_THIRD_QUALIFIER:
             case OBJECT_METHOD_FOURTH_QUALIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
-            case IMPORT_SUB_VERSION:
-                return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case SINGLE_KEYWORD_ATTACH_POINT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_ATTACH_POINT_NAME;
             case SIMPLE_TYPE_DESCRIPTOR:
@@ -182,11 +180,6 @@ public class SyntaxErrors {
             case EXPRESSION:
             case TERMINAL_EXPRESSION:
                 return DiagnosticErrorCode.ERROR_MISSING_EXPRESSION;
-            case VERSION_NUMBER:
-            case MAJOR_VERSION:
-            case MINOR_VERSION:
-            case PATCH_VERSION:
-                return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_INTEGER_LITERAL;
             case STRING_LITERAL_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
             case DECIMAL_INTEGER_LITERAL_TOKEN:

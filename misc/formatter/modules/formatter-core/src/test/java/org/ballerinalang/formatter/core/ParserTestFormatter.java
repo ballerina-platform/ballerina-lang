@@ -44,7 +44,7 @@ public class ParserTestFormatter extends FormatterTest {
 //        Path buildDirectory = Paths.get("build").toAbsolutePath().normalize();
 //
 //        return new Object[][] {
-//                {"annot_decl_source_01.bal", getFilePath("annot_decl_source_01.bal",
+//                {"import_decl_source_08.bal", getFilePath("import_decl_source_08.bal",
 //                        buildDirectory.resolve("resources").resolve("test").toString()).orElse(null)}
 //        };
 //    }
@@ -112,7 +112,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "service_decl_source_11.bal", "import_decl_source_19.bal", "import_decl_source_20.bal",
                 "import_decl_source_21.bal", "import_decl_source_23.bal", "import_decl_source_22.bal",
                 "import_decl_source_06.bal", "import_decl_source_04.bal", "import_decl_source_10.bal",
-                "import_decl_source_05.bal", "import_decl_source_15.bal", "import_decl_source_14.bal",
+                "import_decl_source_05.bal", "import_decl_source_08.bal",
+                "import_decl_source_15.bal", "import_decl_source_14.bal",
                 "import_decl_source_16.bal", "module_var_decl_source_09.bal", "module_var_decl_source_03.bal",
                 "module_var_decl_source_07.bal", "module_var_decl_source_06.bal", "isolated_service_func_source_04.bal",
                 "func_def_source_06.bal", "func_def_source_12.bal", "func_def_source_16.bal", "func_def_source_03.bal",

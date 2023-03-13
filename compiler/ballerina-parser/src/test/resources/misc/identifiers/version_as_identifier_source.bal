@@ -1,3 +1,3 @@
 public function func() {
-    int version  = 3;
+    int version = 3;
 }

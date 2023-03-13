@@ -1003,9 +1003,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.TRUE_KEYWORD || nextToken.kind == SyntaxKind.FALSE_KEYWORD;
                     break;
                 case DECIMAL_INTEGER_LITERAL_TOKEN:
-                case MAJOR_VERSION:
-                case MINOR_VERSION:
-                case PATCH_VERSION:
                     hasMatch = nextToken.kind == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN;
                     break;
                 case SLASH:
@@ -1396,10 +1393,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ELSE_BODY:
             case CALL_STMT_START:
             case IMPORT_PREFIX_DECL:
-            case IMPORT_VERSION_DECL:
             case IMPORT_DECL_ORG_OR_MODULE_NAME_RHS:
             case AFTER_IMPORT_MODULE_NAME:
-            case MAJOR_MINOR_VERSION_END:
             case RETURN_STMT_RHS:
             case ACCESS_EXPRESSION:
             case FIRST_MAPPING_FIELD:
@@ -1688,12 +1683,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CALL_STMT_START:
                 return ParserRuleContext.VARIABLE_REF;
             case IMPORT_PREFIX_DECL:
-            case IMPORT_VERSION_DECL:
                 return ParserRuleContext.SEMICOLON;
             case IMPORT_DECL_ORG_OR_MODULE_NAME_RHS:
                 return ParserRuleContext.AFTER_IMPORT_MODULE_NAME;
             case AFTER_IMPORT_MODULE_NAME:
-            case MAJOR_MINOR_VERSION_END:
             case RETURN_STMT_RHS:
                 return ParserRuleContext.SEMICOLON;
             case ACCESS_EXPRESSION:
@@ -2207,9 +2200,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case AFTER_IMPORT_MODULE_NAME:
                 alternativeRules = AFTER_IMPORT_MODULE_NAME;
-                break;
-            case MAJOR_MINOR_VERSION_END:
-                alternativeRules = MAJOR_MINOR_VERSION_END;
                 break;
             case OPTIONAL_ABSOLUTE_PATH:
                 alternativeRules = OPTIONAL_ABSOLUTE_PATH;
@@ -3265,8 +3255,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case IMPORT_PREFIX:
             case NAMESPACE_PREFIX:
                 return ParserRuleContext.SEMICOLON;
-            case VERSION_NUMBER:
-                return ParserRuleContext.MAJOR_VERSION;
             case SLASH:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.ABSOLUTE_RESOURCE_PATH) {
@@ -3281,12 +3269,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.IMPORT_DECL_ORG_OR_MODULE_NAME_RHS;
             case IMPORT_MODULE_NAME:
                 return ParserRuleContext.AFTER_IMPORT_MODULE_NAME;
-            case MAJOR_VERSION:
-            case MINOR_VERSION:
-            case IMPORT_SUB_VERSION:
-                return ParserRuleContext.MAJOR_MINOR_VERSION_END;
-            case PATCH_VERSION:
-                return ParserRuleContext.IMPORT_PREFIX_DECL;
             case IMPORT_DECL:
                 return ParserRuleContext.IMPORT_KEYWORD;
             case CONTINUE_STATEMENT:
@@ -5760,10 +5742,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESCRIPTOR:
             case NAMED_ARG_BINDING_PATTERN:
                 return SyntaxKind.IDENTIFIER_TOKEN;
-            case VERSION_NUMBER:
-            case MAJOR_VERSION:
-            case MINOR_VERSION:
-            case PATCH_VERSION:
             case DECIMAL_INTEGER_LITERAL_TOKEN:
             case SIGNED_INT_OR_FLOAT_RHS:
                 return SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN;
@@ -5775,7 +5753,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.ARRAY_TYPE_DESC;
             case HEX_INTEGER_LITERAL_TOKEN:
                 return SyntaxKind.HEX_INTEGER_LITERAL_TOKEN;
-            case IMPORT_SUB_VERSION:
             case OBJECT_FIELD_RHS:
                 return SyntaxKind.SEMICOLON_TOKEN;
             case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
