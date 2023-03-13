@@ -55,7 +55,7 @@ public class InvalidConfigurableCliArgsTestCase extends BaseTestCase {
                 "'xml<((lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text) " +
                 "& readonly)>', but found '<book>The Lost Symbol'", ERROR);
 
-        bMainInstance.runMain("test", new String[]{"--", "-CintVar=test",
+        bMainInstance.runMain("test", new String[]{"-CintVar=test",
                         "-CfloatVar=test1", "-CstringVar=main test", "-CxmlVal=<book>The Lost Symbol",
                         "-CtestInt=30", "-CtestFloat=5.6", "-CtestString=cli arg", "-CtestBoolean=false"},
                         null, new String[]{},
@@ -65,20 +65,18 @@ public class InvalidConfigurableCliArgsTestCase extends BaseTestCase {
         errorLeecher2.waitForText(5000);
         errorLeecher3.waitForText(5000);
         errorLeecher4.waitForText(5000);
-
     }
 
     @Test
     public void unusedConfigurableCliArgsTest() throws BallerinaTestException {
         LogLeecher errorLeecher1 = new LogLeecher("[extraVal=extraValue] unused command line argument", ERROR);
 
-        bMainInstance.runMain("test", new String[]{"--", "-CintVar=40", "-CfloatVar=4.5",
+        bMainInstance.runMain("test", new String[]{"-CintVar=40", "-CfloatVar=4.5",
                         "-CstringVar=main test", "-CbooleanVar=true", "-CxmlVal=<book>The Lost Symbol</book>",
                         "-CextraVal=extraValue", "-CtestInt=30", "-CtestFloat=5.6",
                         "-CtestString=cli arg", "-CtestBoolean=false"}, null, new String[]{},
                         new LogLeecher[]{errorLeecher1},
                 testFileLocation);
         errorLeecher1.waitForText(5000);
-
     }
 }
