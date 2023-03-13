@@ -37,6 +37,7 @@ import java.util.ResourceBundle;
 public class BLangExceptionHelper {
     private static ResourceBundle messageBundle = ResourceBundle.getBundle("MessagesBundle", Locale.getDefault());
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
+    private static final BString ERROR_DESC_FIELD = StringUtils.fromString("description");
 
     public static BError getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
         BString errorMsg = StringUtils
@@ -139,5 +140,22 @@ public class BLangExceptionHelper {
             throw ErrorCreator.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
                                            StringUtils.fromString("Failed to " + operation + ": " + e.getMessage()));
         }
+    }
+
+    /**
+     * Create a custom error with details for runtime exceptions when performing operations on
+     * arrays, maps, and tables.
+     *
+     * @param message Error message
+     * @param detailMessage Detailed error message
+     * @param detailReason Detailed error reason
+     */
+    public static BError handleBallerinaException(BString message, BString detailMessage, BString detailReason) {
+        MappingInitialValueEntry[] errorDetailEntries = new MappingInitialValueEntry[2];
+        errorDetailEntries[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD, detailMessage);
+        errorDetailEntries[1] = new MappingInitialValueEntry.KeyValueEntry(ERROR_DESC_FIELD, detailReason);
+        MapValueImpl<BString, Object> errorDetailsMap = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL,
+                errorDetailEntries);
+        return ErrorCreator.createError(message, errorDetailsMap);
     }
 }
