@@ -98,7 +98,7 @@ public class RegExpValueTest {
         validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 28, 75);
         validateError(negativeResult, index++, "invalid char after backslash", 29, 30);
         validateError(negativeResult, index++, "incompatible types: expected 'boolean', found " +
-                "'regexp:regexp'", 30, 9);
+                "'regexp:RegExp'", 30, 9);
         validateError(negativeResult, index++, "missing backtick token", 32, 1);
         validateError(negativeResult, index++, "missing close brace token", 32, 1);
         validateError(negativeResult, index++, "missing colon token", 32, 1);
