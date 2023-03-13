@@ -63,21 +63,8 @@ public class BindgenOptionalReturnTypesTest extends BindgenUnitBaseTest {
 
     @Override
     @Test
-    public void errorMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
-        super.errorMapping();
-    }
-
-    @Override
-    @Test
     public void innerClassMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         super.innerClassMapping();
-    }
-
-    @Override
-    @Test
-    public void dependentClassMapping() throws FormatterException, ClassNotFoundException, BindgenException,
-            IOException {
-        super.dependentClassMapping();
     }
 
     @Override
@@ -85,13 +72,6 @@ public class BindgenOptionalReturnTypesTest extends BindgenUnitBaseTest {
     public void directThrowableMapping() throws FormatterException, ClassNotFoundException, BindgenException,
             IOException {
         super.directThrowableMapping();
-    }
-
-    @Override
-    @Test
-    public void dependentInnerClassMapping() throws FormatterException, ClassNotFoundException, BindgenException,
-            IOException {
-        super.dependentInnerClassMapping();
     }
 
     @Override

@@ -35,7 +35,7 @@ import java.util.Comparator;
  *
  * @since 1.2.5
  */
-public abstract class CommandTest {
+public abstract class BindgenCommandBaseTest {
 
     Path tmpDir;
     private ByteArrayOutputStream console;
