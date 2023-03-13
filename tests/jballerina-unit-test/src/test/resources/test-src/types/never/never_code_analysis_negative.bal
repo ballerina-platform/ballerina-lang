@@ -67,3 +67,31 @@ function testCyclicInclusionViaFieldWithNever() {
     Foo _ = {}; // error: expression of type 'never' or equivalent to type 'never' not allowed here
     Bar _ = {x: {}}; // OK
 }
+
+function testReturnUnionOfNever1() returns never|never {
+} // error
+
+function testReturnUnionOfNever2() returns never|never|never {
+} // error
+
+type Never never;
+
+function testReturnUnionOfNever3() returns never|Never {
+} // error
+
+function testReturnUnionOfNever4() returns never|Never|Never {
+} // error
+
+function testReturnUnionOfNever5() returns never|int {
+} // error
+
+function testReturnUnionOfNever6() returns int|Never {
+} // error
+
+type NeverNever never|Never;
+
+function testReturnUnionOfNever7() returns NeverNever {
+} // error
+
+function testReturnUnionOfNever8() returns NeverNever|never {
+} // error

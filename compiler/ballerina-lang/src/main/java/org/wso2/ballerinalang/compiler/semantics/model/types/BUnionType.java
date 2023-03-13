@@ -190,14 +190,20 @@ public class BUnionType extends BType implements UnionType {
             return new BUnionType(tsymbol, memberTypes, hasNilableType, isImmutable);
         }
 
+        boolean foundNotNeverType = false;
         for (BType memBType : toFlatTypeSet(types)) {
             if (getReferredType(memBType).tag != TypeTags.NEVER) {
+                foundNotNeverType = true;
                 memberTypes.add(memBType);
             }
 
             if (isImmutable && !Symbols.isFlagOn(memBType.flags, Flags.READONLY)) {
                 isImmutable = false;
             }
+        }
+
+        if (!foundNotNeverType) {
+            memberTypes.addAll(types);
         }
 
         for (BType memberType : memberTypes) {
