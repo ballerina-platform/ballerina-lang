@@ -302,7 +302,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         int expTypeTag = Types.getReferredType(expType).tag;
 
         if (expTypeTag == TypeTags.NONE || expTypeTag == TypeTags.READONLY) {
-            data.resultType = defineInferredRecordType(recordLiteral, expType, data);
+            data.resultType = validateMapTypeAndInferredType(recordLiteral, expType, expType, data);
             return;
         }
         data.resultType = checkMappingConstructorCompatibility(data.expType, recordLiteral, data);
@@ -413,95 +413,14 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         data.resultType = finiteType;
     }
 
-    private BType defineInferredRecordType(BLangRecordLiteral recordLiteral, BType expType, AnalyzerData data) {
-        boolean containErrors = false;
-        SymbolEnv env = data.env;
-        PackageID pkgID = env.enclPkg.symbol.pkgID;
-        BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, recordLiteral.pos, VIRTUAL, data);
-        LinkedHashMap<String, BField> inferredFields = new LinkedHashMap<>();
-        List<RecordLiteralNode.RecordField> computedFields = new ArrayList<>();
-
-        for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
-            if (field.isKeyValueField()) {
-                BLangRecordLiteral.BLangRecordKeyValueField keyValue =
-                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
-                BLangRecordLiteral.BLangRecordKey key = keyValue.key;
-
-                if (key.computedKey) {
-                    // Computed fields can overwrite the existing field values.
-                    // Therefore, Computed key fields should be evaluated at the end.
-                    // Temporarily added them into a list.
-                    computedFields.add(field);
-                    continue;
-                }
-
-                BLangExpression keyValueExpr = keyValue.valueExpr;
-                BType keyValueType = checkConstExpr(keyValueExpr, data);
-                BLangExpression keyExpr = key.expr;
-
-                // Add the resolved field.
-                if (!addFields(inferredFields, keyValueType, getKeyName(keyExpr), keyExpr.pos, recordSymbol, false)) {
-                    containErrors = true;
-                }
-            } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                BLangRecordLiteral.BLangRecordVarNameField varNameField =
-                        (BLangRecordLiteral.BLangRecordVarNameField) field;
-                BType varRefType = checkConstExpr(varNameField, data.expType, data);
-                if (!addFields(inferredFields, Types.getReferredType(varRefType), getKeyName(varNameField),
-                        varNameField.pos, recordSymbol, false)) {
-                    containErrors = true;
-                }
-            } else { // Spread Field
-                BLangExpression fieldExpr = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
-                BType spreadOpType = checkConstExpr(fieldExpr, data);
-                BType type = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(spreadOpType));
-                if (type.tag != TypeTags.RECORD) {
-                    containErrors = true;
-                    continue;
-                }
-
-                BRecordType recordType = (BRecordType) type;
-                for (BField recField : recordType.fields.values()) {
-                    if (!addFields(inferredFields, Types.getReferredType(recField.type), recField.name.value,
-                            fieldExpr.pos, recordSymbol, false)) {
-                        containErrors = true;
-                    }
-                }
-            }
-        }
-
-        for (RecordLiteralNode.RecordField field : computedFields) {
-            BLangRecordLiteral.BLangRecordKeyValueField keyValue = (BLangRecordLiteral.BLangRecordKeyValueField) field;
-            BLangRecordLiteral.BLangRecordKey key = keyValue.key;
-            BType fieldName = checkConstExpr(key.expr, data);
-            if (fieldName.tag == TypeTags.FINITE && ((BFiniteType) fieldName).getValueSpace().size() == 1) {
-                BLangLiteral fieldNameLiteral = (BLangLiteral) ((BFiniteType) fieldName).getValueSpace().iterator().next();
-                if (fieldNameLiteral.getBType().tag == TypeTags.STRING) {
-                    BType keyValueType = checkConstExpr(keyValue.valueExpr, data);
-                    if (!addFields(inferredFields, Types.getReferredType(keyValueType),
-                            fieldNameLiteral.getValue().toString(), key.pos, recordSymbol, true)) {
-                        containErrors = true;
-                    }
-                    continue;
-                }
-            }
-            dlog.error(key.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, fieldName, symTable.stringType);
-            containErrors = true;
-        }
-
-        if (containErrors) {
-            return symTable.semanticError;
-        }
-
-        BRecordType recordType = new BRecordType(recordSymbol);
+    private BRecordType createNewRecordType(BRecordTypeSymbol symbol, LinkedHashMap<String, BField> inferredFields,
+                                            AnalyzerData data) {
+        BRecordType recordType = new BRecordType(symbol);
         recordType.restFieldType = symTable.noType;
         recordType.fields = inferredFields;
-        recordSymbol.type = recordType;
-        recordType.tsymbol = recordSymbol;
+        symbol.type = recordType;
+        recordType.tsymbol = symbol;
         recordType.sealed = true;
-        if (expType.tag == TypeTags.READONLY) {
-            recordType.flags |= Flags.READONLY;
-        }
         createTypeDefinition(recordType, data.constantSymbol.pos, data.env);
         return recordType;
     }
@@ -613,6 +532,18 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     private BType validateSpecifiedFieldsAndGetType(BLangRecordLiteral mappingConstructor, BType possibleType,
                                                     AnalyzerData data) {
+        switch (possibleType.tag) {
+            case TypeTags.MAP:
+                BType expType = ((BMapType) possibleType).constraint;
+                return validateMapTypeAndInferredType(mappingConstructor, expType, possibleType, data);
+            case TypeTags.RECORD:
+                return validateRecordType(mappingConstructor, (BRecordType) possibleType, data);
+        }
+        return symTable.semanticError;
+    }
+
+    private BType validateMapTypeAndInferredType(BLangRecordLiteral mappingConstructor, BType expType,
+                                                BType possibleType, AnalyzerData data) {
         boolean containErrors = false;
         SymbolEnv env = data.env;
         PackageID pkgID = env.enclPkg.symbol.pkgID;
@@ -620,244 +551,247 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         LinkedHashMap<String, BField> inferredFields = new LinkedHashMap<>();
         List<RecordLiteralNode.RecordField> computedFields = new ArrayList<>();
 
-        BType expType;
         BLangExpression exprToCheck;
-        switch (possibleType.tag) {
-            case TypeTags.MAP:
-                expType = ((BMapType) possibleType).constraint;
-                for (RecordLiteralNode.RecordField field : mappingConstructor.fields) {
-                    if (field.isKeyValueField()) {
-                        BLangRecordLiteral.BLangRecordKeyValueField keyValue =
-                                (BLangRecordLiteral.BLangRecordKeyValueField) field;
-                        BLangRecordLiteral.BLangRecordKey key = keyValue.key;
+        for (RecordLiteralNode.RecordField field : mappingConstructor.fields) {
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField keyValue =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                BLangRecordLiteral.BLangRecordKey key = keyValue.key;
 
-                        if (key.computedKey) {
-                            // Computed fields can overwrite the existing field values.
-                            // Therefore, Computed key fields should be evaluated at the end.
-                            // Temporarily added them into a list.
-                            computedFields.add(field);
-                            continue;
-                        }
-
-                        exprToCheck = keyValue.valueExpr;
-                        if (data.commonAnalyzerData.nonErrorLoggingCheck) {
-                            exprToCheck = nodeCloner.cloneNode(keyValue.valueExpr);
-                        }
-                        BType keyValueType = checkConstExpr(exprToCheck, expType, data);
-                        if (keyValueType == symTable.semanticError) {
-                            containErrors = true;
-                            continue;
-                        }
-                        BLangExpression keyExpr = key.expr;
-
-                        // Add the resolved field.
-                        if (!addFields(inferredFields, keyValueType, getKeyName(keyExpr), keyExpr.pos, recordSymbol,
-                                false)) {
-                            containErrors = true;
-                        }
-                    } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                        BLangRecordLiteral.BLangRecordVarNameField varNameField =
-                                (BLangRecordLiteral.BLangRecordVarNameField) field;
-                        exprToCheck = varNameField;
-                        if (data.commonAnalyzerData.nonErrorLoggingCheck) {
-                            exprToCheck = nodeCloner.cloneNode(varNameField);
-                        }
-                        BType varRefType = checkConstExpr(exprToCheck, expType, data);
-
-                        if (varRefType == symTable.semanticError) {
-                            containErrors = true;
-                            continue;
-                        }
-
-                        if (!addFields(inferredFields, Types.getReferredType(varRefType), getKeyName(varNameField),
-                                varNameField.pos, recordSymbol, false)) {
-                            containErrors = true;
-                        }
-                    } else { // Spread Field
-                        BLangExpression fieldExpr = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
-                        BType spreadOpType = checkConstExpr(fieldExpr, data);
-                        BType type = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(spreadOpType));
-                        if (type.tag != TypeTags.RECORD) {
-                            containErrors = true;
-                            continue;
-                        }
-
-                        if (types.checkType(fieldExpr, type, possibleType) == symTable.semanticError) {
-                            containErrors = true;
-                            continue;
-                        }
-                        BRecordType recordType = (BRecordType) type;
-                        for (BField recField : recordType.fields.values()) {
-                            if (!addFields(inferredFields, Types.getReferredType(recField.type), recField.name.value,
-                                    fieldExpr.pos, recordSymbol, false)) {
-                                containErrors = true;
-                            }
-                        }
-                    }
+                if (key.computedKey) {
+                    // Computed fields can overwrite the existing field values.
+                    // Therefore, Computed key fields should be evaluated at the end.
+                    // Temporarily added them into a list.
+                    computedFields.add(field);
+                    continue;
                 }
-                for (RecordLiteralNode.RecordField field : computedFields) {
-                    BLangRecordLiteral.BLangRecordKeyValueField keyValue = (BLangRecordLiteral.BLangRecordKeyValueField) field;
-                    BLangRecordLiteral.BLangRecordKey key = keyValue.key;
-                    BType fieldName = checkConstExpr(key.expr, data);
-                    if (fieldName.tag == TypeTags.FINITE && ((BFiniteType) fieldName).getValueSpace().size() == 1) {
-                        BLangLiteral fieldNameLiteral =
-                                (BLangLiteral) ((BFiniteType) fieldName).getValueSpace().iterator().next();
-                        if (fieldNameLiteral.getBType().tag == TypeTags.STRING) {
-                            exprToCheck = keyValue.valueExpr;
-                            if (data.commonAnalyzerData.nonErrorLoggingCheck) {
-                                exprToCheck = nodeCloner.cloneNode(keyValue.valueExpr);
-                            }
-                            BType keyValueType = checkConstExpr(exprToCheck, expType, data);
-                            if (!addFields(inferredFields, Types.getReferredType(keyValueType),
-                                    fieldNameLiteral.getValue().toString(), key.pos, recordSymbol, true)) {
-                                containErrors = true;
-                            }
-                            continue;
-                        }
-                    }
-                    dlog.error(key.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, fieldName, symTable.stringType);
+
+                exprToCheck = keyValue.valueExpr;
+                if (data.commonAnalyzerData.nonErrorLoggingCheck) {
+                    exprToCheck = nodeCloner.cloneNode(keyValue.valueExpr);
+                }
+                BType keyValueType = checkConstExpr(exprToCheck, expType, data);
+                if (keyValueType == symTable.semanticError) {
+                    containErrors = true;
+                    continue;
+                }
+                BLangExpression keyExpr = key.expr;
+
+                // Add the resolved field.
+                if (!addFields(inferredFields, keyValueType, getKeyName(keyExpr), keyExpr.pos, recordSymbol,
+                        false)) {
                     containErrors = true;
                 }
-                break;
-            case TypeTags.RECORD:
-                BRecordType expRecordType = (BRecordType) possibleType;
-                LinkedHashMap<String, BField> targetFields = expRecordType.fields;
-                for (RecordLiteralNode.RecordField field : mappingConstructor.fields) {
-                    if (field.isKeyValueField()) {
-                        BLangRecordLiteral.BLangRecordKeyValueField keyValue =
-                                (BLangRecordLiteral.BLangRecordKeyValueField) field;
-                        BLangRecordLiteral.BLangRecordKey key = keyValue.key;
-                        if (!targetFields.containsKey(key.toString())) {
-                            if (expRecordType.sealed) {
-                                dlog.error(keyValue.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE,
-                                        key, possibleType.tsymbol.type.getKind().typeName(), possibleType);
-                                containErrors = true;
-                                continue;
-                            } else {
-                                expType = expRecordType.restFieldType;
-                            }
-                        } else {
-                            expType = targetFields.get(key.toString()).type;
-                        }
-
-                        if (key.computedKey) {
-                            // Computed fields can overwrite the existing field values.
-                            // Therefore, Computed key fields should be evaluated at the end.
-                            // Temporarily added them into a list.
-                            computedFields.add(field);
-                            continue;
-                        }
-
-                        exprToCheck = keyValue.valueExpr;
-                        if (data.commonAnalyzerData.nonErrorLoggingCheck) {
-                            exprToCheck = nodeCloner.cloneNode(keyValue.valueExpr);
-                        }
-                        BType keyValueType = checkConstExpr(exprToCheck, expType, data);
-                        BLangExpression keyExpr = key.expr;
-
-                        // Add the resolved field.
-                        if (!addFields(inferredFields, keyValueType, getKeyName(keyExpr), keyExpr.pos, recordSymbol,
-                                false)) {
-                            containErrors = true;
-                        }
-                    } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                        BLangRecordLiteral.BLangRecordVarNameField varNameField =
-                                (BLangRecordLiteral.BLangRecordVarNameField) field;
-                        String key = field.toString();
-                        if (!targetFields.containsKey(key)) {
-                            if (expRecordType.sealed) {
-                                containErrors = true;
-                                dlog.error(varNameField.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE,
-                                        key, possibleType.tsymbol.type.getKind().typeName(), possibleType);
-                                continue;
-                            } else {
-                                expType = expRecordType.restFieldType;
-                            }
-                        } else {
-                            expType = targetFields.get(key).type;
-                        }
-                        exprToCheck = varNameField;
-                        if (data.commonAnalyzerData.nonErrorLoggingCheck) {
-                            exprToCheck = nodeCloner.cloneNode(varNameField);
-                        }
-                        BType varRefType = checkConstExpr(exprToCheck, expType, data);
-                        if (!addFields(inferredFields, Types.getReferredType(varRefType), getKeyName(varNameField),
-                                varNameField.pos, recordSymbol, false)) {
-                            containErrors = true;
-                        }
-                    } else { // Spread Field
-                        BLangExpression fieldExpr = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
-                        BType spreadOpType = checkConstExpr(fieldExpr, data);
-                        BType type = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(spreadOpType));
-                        if (type.tag != TypeTags.RECORD) {
-                            containErrors = true;
-                            continue;
-                        }
-
-                        BRecordType recordType = (BRecordType) type;
-                        for (BField recField : recordType.fields.values()) {
-                            if (types.checkType(fieldExpr, recField.type, expRecordType.restFieldType)
-                                    == symTable.semanticError) {
-                                containErrors = true;
-                                continue;
-                            }
-                            if (!addFields(inferredFields, Types.getReferredType(recField.type), recField.name.value,
-                                    fieldExpr.pos, recordSymbol, false)) {
-                                containErrors = true;
-                            }
-                        }
-                    }
+            } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                        (BLangRecordLiteral.BLangRecordVarNameField) field;
+                exprToCheck = varNameField;
+                if (data.commonAnalyzerData.nonErrorLoggingCheck) {
+                    exprToCheck = nodeCloner.cloneNode(varNameField);
                 }
-                for (RecordLiteralNode.RecordField field : computedFields) {
-                    BLangRecordLiteral.BLangRecordKeyValueField keyValue = (BLangRecordLiteral.BLangRecordKeyValueField) field;
-                    BLangRecordLiteral.BLangRecordKey key = keyValue.key;
-                    BType fieldName = checkConstExpr(key.expr, data);
-                    if (fieldName.tag == TypeTags.FINITE && ((BFiniteType) fieldName).getValueSpace().size() == 1) {
-                        BLangLiteral fieldNameLiteral =
-                                (BLangLiteral) ((BFiniteType) fieldName).getValueSpace().iterator().next();
-                        if (fieldNameLiteral.getBType().tag == TypeTags.STRING) {
-                            if (!targetFields.containsKey(((BString) fieldNameLiteral).getValue())) {
-                                if (expRecordType.sealed) {
-                                    containErrors = true;
-                                    dlog.error(keyValue.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE,
-                                            key, possibleType.tsymbol.type.getKind().typeName(), possibleType);
-                                    continue;
-                                } else {
-                                    expType = expRecordType.restFieldType;
-                                }
-                            } else {
-                                expType = targetFields.get(key).type;
-                            }
-                            exprToCheck = keyValue.valueExpr;
-                            if (data.commonAnalyzerData.nonErrorLoggingCheck) {
-                                exprToCheck = nodeCloner.cloneNode(keyValue.valueExpr);
-                            }
-                            BType keyValueType = checkConstExpr(exprToCheck, expType, data);
-                            if (!addFields(inferredFields, Types.getReferredType(keyValueType),
-                                    fieldNameLiteral.getValue().toString(), key.pos, recordSymbol, true)) {
-                                containErrors = true;
-                            }
-                            continue;
-                        }
-                    }
-                    dlog.error(key.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, fieldName, symTable.stringType);
+                BType varRefType = checkConstExpr(exprToCheck, expType, data);
+
+                if (varRefType == symTable.semanticError) {
+                    containErrors = true;
+                    continue;
+                }
+
+                if (!addFields(inferredFields, Types.getReferredType(varRefType), getKeyName(varNameField),
+                        varNameField.pos, recordSymbol, false)) {
                     containErrors = true;
                 }
-                break;
+            } else { // Spread Field
+                BLangExpression fieldExpr = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
+                BType spreadOpType = checkConstExpr(fieldExpr, data);
+                BType type = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(spreadOpType));
+                if (type.tag != TypeTags.RECORD) {
+                    containErrors = true;
+                    continue;
+                }
+
+                if (types.checkType(fieldExpr, type, possibleType) == symTable.semanticError) {
+                    containErrors = true;
+                    continue;
+                }
+                BRecordType recordType = (BRecordType) type;
+                for (BField recField : recordType.fields.values()) {
+                    if (!addFields(inferredFields, Types.getReferredType(recField.type), recField.name.value,
+                            fieldExpr.pos, recordSymbol, false)) {
+                        containErrors = true;
+                    }
+                }
+            }
+        }
+        for (RecordLiteralNode.RecordField field : computedFields) {
+            BLangRecordLiteral.BLangRecordKeyValueField keyValue = (BLangRecordLiteral.BLangRecordKeyValueField) field;
+            BLangRecordLiteral.BLangRecordKey key = keyValue.key;
+            BType fieldName = checkConstExpr(key.expr, data);
+            if (fieldName.tag == TypeTags.FINITE && ((BFiniteType) fieldName).getValueSpace().size() == 1) {
+                BLangLiteral fieldNameLiteral =
+                        (BLangLiteral) ((BFiniteType) fieldName).getValueSpace().iterator().next();
+                if (fieldNameLiteral.getBType().tag == TypeTags.STRING) {
+                    exprToCheck = keyValue.valueExpr;
+                    if (data.commonAnalyzerData.nonErrorLoggingCheck) {
+                        exprToCheck = nodeCloner.cloneNode(keyValue.valueExpr);
+                    }
+                    BType keyValueType = checkConstExpr(exprToCheck, expType, data);
+                    if (!addFields(inferredFields, Types.getReferredType(keyValueType),
+                            fieldNameLiteral.getValue().toString(), key.pos, recordSymbol, true)) {
+                        containErrors = true;
+                    }
+                    continue;
+                }
+            }
+            dlog.error(key.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, fieldName, symTable.stringType);
+            containErrors = true;
         }
 
         if (containErrors) {
             return symTable.semanticError;
         }
 
-        BRecordType recordType = new BRecordType(recordSymbol);
-        recordType.restFieldType = symTable.noType;
-        recordType.fields = inferredFields;
-        recordSymbol.type = recordType;
-        recordType.tsymbol = recordSymbol;
-        recordType.sealed = true;
-        createTypeDefinition(recordType, data.constantSymbol.pos, data.env);
-        return recordType;
+        return createNewRecordType(recordSymbol, inferredFields, data);
+    }
+
+    private BType validateRecordType(BLangRecordLiteral mappingConstructor, BRecordType expRecordType,
+                                     AnalyzerData data) {
+        boolean containErrors = false;
+        SymbolEnv env = data.env;
+        PackageID pkgID = env.enclPkg.symbol.pkgID;
+        BRecordTypeSymbol recordSymbol = createRecordTypeSymbol(pkgID, mappingConstructor.pos, VIRTUAL, data);
+        LinkedHashMap<String, BField> inferredFields = new LinkedHashMap<>();
+        List<RecordLiteralNode.RecordField> computedFields = new ArrayList<>();
+
+        LinkedHashMap<String, BField> targetFields = expRecordType.fields;
+        BLangExpression exprToCheck;
+        BType expType;
+        for (RecordLiteralNode.RecordField field : mappingConstructor.fields) {
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField keyValue =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                BLangRecordLiteral.BLangRecordKey key = keyValue.key;
+                if (!targetFields.containsKey(key.toString())) {
+                    if (expRecordType.sealed) {
+                        dlog.error(keyValue.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE,
+                                key, expRecordType.tsymbol.type.getKind().typeName(), expRecordType);
+                        containErrors = true;
+                        continue;
+                    } else {
+                        expType = expRecordType.restFieldType;
+                    }
+                } else {
+                    expType = targetFields.get(key.toString()).type;
+                }
+
+                if (key.computedKey) {
+                    // Computed fields can overwrite the existing field values.
+                    // Therefore, Computed key fields should be evaluated at the end.
+                    // Temporarily added them into a list.
+                    computedFields.add(field);
+                    continue;
+                }
+
+                exprToCheck = keyValue.valueExpr;
+                if (data.commonAnalyzerData.nonErrorLoggingCheck) {
+                    exprToCheck = nodeCloner.cloneNode(keyValue.valueExpr);
+                }
+                BType keyValueType = checkConstExpr(exprToCheck, expType, data);
+                BLangExpression keyExpr = key.expr;
+
+                // Add the resolved field.
+                if (!addFields(inferredFields, keyValueType, getKeyName(keyExpr), keyExpr.pos, recordSymbol,
+                        false)) {
+                    containErrors = true;
+                }
+            } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                        (BLangRecordLiteral.BLangRecordVarNameField) field;
+                String key = field.toString();
+                if (!targetFields.containsKey(key)) {
+                    if (expRecordType.sealed) {
+                        containErrors = true;
+                        dlog.error(varNameField.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE,
+                                key, expRecordType.tsymbol.type.getKind().typeName(), expRecordType);
+                        continue;
+                    } else {
+                        expType = expRecordType.restFieldType;
+                    }
+                } else {
+                    expType = targetFields.get(key).type;
+                }
+                exprToCheck = varNameField;
+                if (data.commonAnalyzerData.nonErrorLoggingCheck) {
+                    exprToCheck = nodeCloner.cloneNode(varNameField);
+                }
+                BType varRefType = checkConstExpr(exprToCheck, expType, data);
+                if (!addFields(inferredFields, Types.getReferredType(varRefType), getKeyName(varNameField),
+                        varNameField.pos, recordSymbol, false)) {
+                    containErrors = true;
+                }
+            } else { // Spread Field
+                BLangExpression fieldExpr = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
+                BType spreadOpType = checkConstExpr(fieldExpr, data);
+                BType type = Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(spreadOpType));
+                if (type.tag != TypeTags.RECORD) {
+                    containErrors = true;
+                    continue;
+                }
+
+                BRecordType recordType = (BRecordType) type;
+                for (BField recField : recordType.fields.values()) {
+                    if (types.checkType(fieldExpr, recField.type, expRecordType.restFieldType)
+                            == symTable.semanticError) {
+                        containErrors = true;
+                        continue;
+                    }
+                    if (!addFields(inferredFields, Types.getReferredType(recField.type), recField.name.value,
+                            fieldExpr.pos, recordSymbol, false)) {
+                        containErrors = true;
+                    }
+                }
+            }
+        }
+        for (RecordLiteralNode.RecordField field : computedFields) {
+            BLangRecordLiteral.BLangRecordKeyValueField keyValue = (BLangRecordLiteral.BLangRecordKeyValueField) field;
+            BLangRecordLiteral.BLangRecordKey key = keyValue.key;
+            BType fieldName = checkConstExpr(key.expr, data);
+            if (fieldName.tag == TypeTags.FINITE && ((BFiniteType) fieldName).getValueSpace().size() == 1) {
+                BLangLiteral fieldNameLiteral =
+                        (BLangLiteral) ((BFiniteType) fieldName).getValueSpace().iterator().next();
+                if (fieldNameLiteral.getBType().tag == TypeTags.STRING) {
+                    if (!targetFields.containsKey(((BString) fieldNameLiteral).getValue())) {
+                        if (expRecordType.sealed) {
+                            containErrors = true;
+                            dlog.error(keyValue.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE,
+                                    key, expRecordType.tsymbol.type.getKind().typeName(), expRecordType);
+                            continue;
+                        } else {
+                            expType = expRecordType.restFieldType;
+                        }
+                    } else {
+                        expType = targetFields.get(key).type;
+                    }
+                    exprToCheck = keyValue.valueExpr;
+                    if (data.commonAnalyzerData.nonErrorLoggingCheck) {
+                        exprToCheck = nodeCloner.cloneNode(keyValue.valueExpr);
+                    }
+                    BType keyValueType = checkConstExpr(exprToCheck, expType, data);
+                    if (!addFields(inferredFields, Types.getReferredType(keyValueType),
+                            fieldNameLiteral.getValue().toString(), key.pos, recordSymbol, true)) {
+                        containErrors = true;
+                    }
+                    continue;
+                }
+            }
+            dlog.error(key.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, fieldName, symTable.stringType);
+            containErrors = true;
+        }
+
+        if (containErrors) {
+            return symTable.semanticError;
+        }
+
+        return createNewRecordType(recordSymbol, inferredFields, data);
     }
 
     private void createTypeDefinition(BRecordType type, Location pos, SymbolEnv env) {
@@ -965,9 +899,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         // Create new tuple type using inferred members.
         BTupleType resultTupleType = createNewTupleType(listConstructor.pos, memberTypes, data);
-        if (expType.tag == TypeTags.READONLY) {
-            resultTupleType.flags |= Flags.READONLY;
-        }
         return resultTupleType;
     }
 
