@@ -30,4 +30,4 @@ configurable int testInt = 0;
  function testIntValue() {
     test:assertEquals(testInt, 89);
  }
- 
+

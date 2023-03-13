@@ -133,4 +133,4 @@ EXAMPLES
 
        Run the test functions with three program args:
               val1=add, val2=10, and val3=5.
-                  $ bal test -- -Cval1=add -Cval2=10 -Cval3=5
+                  $ bal test -Cval1=add -Cval2=10 -Cval3=5

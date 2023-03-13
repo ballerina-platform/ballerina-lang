@@ -186,7 +186,7 @@ public class TestCommand implements BLauncherCmd {
     private Boolean nativeImage;
 
     private static final String testCmd = "bal test [--OPTIONS]\n" +
-            "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]\n ";
+            "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
 
     public void execute() {
         long start = 0;
