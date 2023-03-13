@@ -20,7 +20,6 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
-import org.ballerinalang.testerina.test.utils.CommonUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -135,8 +134,6 @@ public class DataProviderTest extends BaseTestCase {
 
     @Test
     public void testCodeFragmentKeys() throws BallerinaTestException, IOException {
-        String endString = " SEVERE {b7a.log.crash} - ";
-        String firstString = "We thank you for helping make us better.";
         List<String> keys = new ArrayList<>(Arrays.asList("'%60'%22%5Ca%22%22'",
                 "'%22%5Cu{D7FF}%22%22%09%22'", "'a +%0A%0D b'",
                 "'(x * 1) %21= (y / 3) || (a ^ b) == (b & c) >> (1 % 2)'", "'%281'", "'a:x(c%2Cd)[]; ^(x|y).ok();'",
@@ -146,10 +143,24 @@ public class DataProviderTest extends BaseTestCase {
             String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunction3#" + key, "data-providers"});
             String output = balClient.runMainAndReadStdOut("test", args,
                     new HashMap<>(), projectPath, false);
-            if (output.contains(endString) && output.contains(firstString)) {
-                output = CommonUtils.replaceVaryingString(firstString, endString, output);
-            }
             AssertionUtils.assertOutput("DataProviderTest-testCodeFragmentKeys"
+                    + count + ".txt", output);
+            count++;
+        }
+    }
+
+    @Test
+    public void testCodeFragmentKeysWithWildCard() throws BallerinaTestException, IOException {
+        List<String> keys = new ArrayList<>(Arrays.asList("'%60'%22%5C*%22%22'",
+                "'%22%5Cu{D7FF}%22*%09%22'", "'a +%0A* b'",
+                "'(x * 1) *= (y / 3) || (a ^ b) == (b & c) >> (1 % 2)'", "'*1'", "'a:x(c*d)[]; ^(x|y).ok();'",
+                "'map<any> v = { *x%22: 1 };'"));
+        int count = 0;
+        for (String key:keys) {
+            String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunction3#" + key, "data-providers"});
+            String output = balClient.runMainAndReadStdOut("test", args,
+                    new HashMap<>(), projectPath, false);
+            AssertionUtils.assertOutput("DataProviderTest-testCodeFragmentKeysWithWildCard"
                     + count + ".txt", output);
             count++;
         }
@@ -167,7 +178,7 @@ public class DataProviderTest extends BaseTestCase {
 
     }
 
-    @Test(enabled = false) // Enable once https://github.com/ballerina-platform/ballerina-lang/issues/39671 completed
+    @Test
     public void testValidDataProviderWithBeforeAfterFunctions() throws BallerinaTestException, IOException {
         String msg1 = "6 passing";
         String msg2 = "0 failing";
