@@ -61,6 +61,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BLANG_SRC_FILE_SUFFIX;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.CLASS_EXTENSION;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.PATH_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_XML_FILE;
@@ -113,7 +114,7 @@ public class CodeCoverageUtils {
                 File file = new File(destJarDir, entry.getName());
                 if (isRequiredFile(entry.getName(), orgName, enableIncludesFilter,
                         includesInCoverage)) {
-                    String classEntry = entry.getName().replace(".class", "")
+                    String classEntry = entry.getName().replace(CLASS_EXTENSION, "")
                             .replace(PATH_SEPARATOR, DOT);
                     if (externalExclusionList != null && externalExclusionList.contains(classEntry)) {
                         continue;

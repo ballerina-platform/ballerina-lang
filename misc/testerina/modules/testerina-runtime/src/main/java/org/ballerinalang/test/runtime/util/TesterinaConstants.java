@@ -40,6 +40,8 @@ public class TesterinaConstants {
 
     public static final String DOT = ".";
 
+    public static final String IGNORE_PATTERN = "!";
+
     public static final String FULLY_QULAIFIED_MODULENAME_SEPRATOR = ".";
 
     public static final String STANDALONE_SRC_PACKAGENAME = ".";

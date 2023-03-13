@@ -47,15 +47,19 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
@@ -66,12 +70,16 @@ import static io.ballerina.cli.utils.TestUtils.generateCoverage;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
 import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
+import static io.ballerina.projects.util.ProjectConstants.GENERATED_MODULES_ROOT;
+import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FULLY_QULAIFIED_MODULENAME_SEPRATOR;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.IGNORE_PATTERN;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.PATH_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RELATIVE_PATH_PREFIX;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.STANDALONE_SRC_PACKAGENAME;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.WILDCARD;
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
@@ -220,7 +228,7 @@ public class RunTestsTask implements Task {
         if (hasTests) {
             int testResult;
             try {
-                List<String> exclusionClassList = new ArrayList<>();
+                Set<String> exclusionClassList = new HashSet<>();
                 testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames,
                              exclusionClassList);
 
@@ -262,7 +270,7 @@ public class RunTestsTask implements Task {
     }
 
     private int runTestSuite(Target target, Package currentPackage, JBallerinaBackend jBallerinaBackend,
-                            List<String> mockClassNames, List<String> exclusionClassList) throws IOException,
+                             List<String> mockClassNames, Set<String> exclusionClassList) throws IOException,
             InterruptedException, ClassNotFoundException {
         String packageName = currentPackage.packageName().toString();
         String orgName = currentPackage.packageOrg().toString();
@@ -297,7 +305,8 @@ public class RunTestsTask implements Task {
             }
 
             if (!STANDALONE_SRC_PACKAGENAME.equals(packageName) && this.excludesInCoverage != null) {
-                List<String> exclusionSourceList = List.of((this.excludesInCoverage).split(","));
+                List<String> exclusionSourceList = new ArrayList<>(List.of((this.excludesInCoverage).
+                                                    split(",")));
                 getclassFromSourceFilePath(exclusionSourceList, currentPackage, exclusionClassList);
                 agentCommand += ",excludes=" + String.join(":", exclusionClassList);
             }
@@ -327,55 +336,114 @@ public class RunTestsTask implements Task {
         return proc.waitFor();
     }
 
-    private void getclassFromSourceFilePath(List<String> sourceFileList, Package currentPackage,
-                                                                            List<String> classFileList) {
+    private List<Path> getAllSourceFilePaths(String projectRootString) throws IOException {
+        List<Path> sourceFilePaths = new ArrayList<>();
+        List<Path> paths = Files.walk(Paths.get(projectRootString), 3).collect(Collectors.toList());
+        List<Path> defaultModuleSources = filterPathStream(paths.stream(), projectRootString +
+                PATH_SEPARATOR + WILDCARD + BLANG_SOURCE_EXT);
+        List<Path> generatedSources = filterPathStream(paths.stream(),
+                projectRootString + PATH_SEPARATOR + GENERATED_MODULES_ROOT + WILDCARD + WILDCARD +
+                        BLANG_SOURCE_EXT);
+        List<Path> moduleSources = filterPathStream(paths.stream(),
+                projectRootString + PATH_SEPARATOR + MODULES_ROOT + PATH_SEPARATOR +
+                        WILDCARD + PATH_SEPARATOR + WILDCARD + BLANG_SOURCE_EXT);
+        Stream.of(defaultModuleSources, generatedSources, moduleSources).forEach(sourceFilePaths::addAll);
+        return sourceFilePaths;
+
+    }
+
+    private static List<Path> filterPathStream(Stream<Path> pathStream, String combinedPattern) {
+        return pathStream.filter(
+                        FileSystems.getDefault().getPathMatcher("glob:" + combinedPattern)::matches)
+                .collect(Collectors.toList());
+    }
+
+    private void getclassFromSourceFilePath(List<String> sourcePatternList, Package currentPackage,
+                                                                            Set<String> classFileList) {
         String sourceRoot = currentPackage.project().sourceRoot().toString();
-        for (String sourceFile : sourceFileList) {
-            validateSourceFilePath(sourceRoot, sourceFile);
-            if (sourceFile.startsWith(sourceRoot)) {
+        try {
+            List<Path> allSourceFilePaths = getAllSourceFilePaths(sourceRoot);
+            List<Path> validSourceFileList = extractValidSourceList(allSourceFilePaths, sourcePatternList, sourceRoot);
+
+            for (Path sourceFilePath : validSourceFileList) {
+                String sourceFile = sourceFilePath.toAbsolutePath().toString();
                 sourceFile = sourceFile.replace(sourceRoot + PATH_SEPARATOR, "");
-            } else if (sourceFile.startsWith(RELATIVE_PATH_PREFIX)) {
-                sourceFile = sourceFile.replace(RELATIVE_PATH_PREFIX, "");
-            }
-            String org = currentPackage.packageOrg().toString();
-            String packageName = currentPackage.packageName().toString();
-            String version = currentPackage.packageVersion().toString();
 
-            if (sourceFile.contains(("modules")) || sourceFile.contains(("generated"))) {
-                sourceFile = sourceFile.replace("modules/", "")
-                        .replace("generated/", "");
-            }
+                String org = currentPackage.packageOrg().toString();
+                String packageName = currentPackage.packageName().toString();
+                String version = currentPackage.packageVersion().toString();
 
+                if (sourceFile.contains((MODULES_ROOT)) || sourceFile.contains((GENERATED_MODULES_ROOT))) {
+                    sourceFile = sourceFile.replace(MODULES_ROOT + PATH_SEPARATOR, "")
+                            .replace(GENERATED_MODULES_ROOT + PATH_SEPARATOR, "");
+                }
 
-            if (sourceFile.split(PATH_SEPARATOR).length == 2) {
-                String moduleName = sourceFile.split(PATH_SEPARATOR)[0];
-                String balFile = sourceFile.split(PATH_SEPARATOR)[1].replace(BLANG_SOURCE_EXT, "");
-                String className = getQualifiedClassName(org, packageName +
-                                FULLY_QULAIFIED_MODULENAME_SEPRATOR + moduleName, version, balFile);
-                classFileList.add(className);
-            } else if (sourceFile.split(PATH_SEPARATOR).length == 1) {
-                String balFile = sourceFile.split(PATH_SEPARATOR)[0].replace(BLANG_SOURCE_EXT, "");
-                String className = getQualifiedClassName(org, packageName, version, balFile);
-                classFileList.add(className);
+                if (sourceFile.split(PATH_SEPARATOR).length == 2) {
+                    String moduleName = sourceFile.split(PATH_SEPARATOR)[0];
+                    String balFile = sourceFile.split(PATH_SEPARATOR)[1].replace(BLANG_SOURCE_EXT, "");
+                    String className = getQualifiedClassName(org, packageName +
+                                    FULLY_QULAIFIED_MODULENAME_SEPRATOR + moduleName, version, balFile);
+                    classFileList.add(className);
+                } else if (sourceFile.split(PATH_SEPARATOR).length == 1) {
+                    String balFile = sourceFile.split(PATH_SEPARATOR)[0].replace(BLANG_SOURCE_EXT, "");
+                    String className = getQualifiedClassName(org, packageName, version, balFile);
+                    classFileList.add(className);
+                }
             }
+        } catch (IOException e) {
+            throw createLauncherException("unable to resolve classes for given source files.");
         }
     }
 
-    private void validateSourceFilePath(String projectRootDir, String sourceFileName) {
-        if (sourceFileName.startsWith(RELATIVE_PATH_PREFIX)) {
-            sourceFileName = sourceFileName.replace(RELATIVE_PATH_PREFIX, projectRootDir + PATH_SEPARATOR);
+    private List<Path> extractValidSourceList(List<Path> allSourceFilePaths, List<String> sourcePatternList,
+                                              String sourceRoot) {
+        List<String> unMatchedPatterns = new ArrayList<>();
+        Set<Path> validSourceFileSet = new HashSet<>();
+        for (String sourcePattern : sourcePatternList) {
+            boolean isIgnoringPattern = false;
+            if (sourcePattern.startsWith(IGNORE_PATTERN)) {
+                isIgnoringPattern = true;
+                sourcePattern = sourcePattern.substring(1);
+            }
+
+            String formattedSourcePattern = sourcePattern;
+
+            // Replace the './' with 'sourceRoot/' to handle prefix properly.
+            if (sourcePattern.startsWith(RELATIVE_PATH_PREFIX)) {
+                formattedSourcePattern = sourcePattern.replace(RELATIVE_PATH_PREFIX, sourceRoot
+                        + PATH_SEPARATOR);
+            }
+
+            // Add to handle suffix properly
+            if (!sourcePattern.endsWith(WILDCARD) && !sourcePattern.endsWith(BLANG_SOURCE_EXT)) {
+                if (!sourcePattern.endsWith(PATH_SEPARATOR)) {
+                    formattedSourcePattern = formattedSourcePattern + PATH_SEPARATOR;
+                }
+                formattedSourcePattern = formattedSourcePattern + WILDCARD + WILDCARD;
+            }
+
+            if (!isIgnoringPattern) {
+                List<Path> filteredPaths = filterPathStream(allSourceFilePaths.stream(), formattedSourcePattern);
+                if (filteredPaths.isEmpty()) {
+                    unMatchedPatterns.add(sourcePattern);
+                    continue;
+                }
+                validSourceFileSet.addAll(filteredPaths);
+                continue;
+            }
+
+            List<Path> filteredPaths = filterPathStream(validSourceFileSet.stream(), formattedSourcePattern);
+            if (filteredPaths.isEmpty()) {
+                unMatchedPatterns.add(IGNORE_PATTERN + sourcePattern);
+                continue;
+            }
+            validSourceFileSet.removeAll(filteredPaths);
+        }
+        if (!unMatchedPatterns.isEmpty()) {
+            out.println("WARNING: " + String.join(", ", unMatchedPatterns) + " are skipped.");
         }
 
-        if (!sourceFileName.startsWith(projectRootDir)) {
-            throw createLauncherException(sourceFileName + " does not exist within the project. " +
-                    "It can not be used for code coverage exclusion.");
-        }
-
-        File sourceFile = new File(sourceFileName);
-        if (!sourceFile.isFile()) {
-            throw createLauncherException(sourceFileName + " does not exist within the project. " +
-                    "It can not be used for code coverage exclusion.");
-        }
+        return new ArrayList<>(validSourceFileSet);
     }
 
     private String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {

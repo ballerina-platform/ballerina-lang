@@ -182,7 +182,7 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--native", description = "enable running test suite against native image")
     private Boolean nativeImage;
 
-    @CommandLine.Option(names = "--excludes", description = "option to exclude files from code coverage")
+    @CommandLine.Option(names = "--excludes", description = "option to exclude source files/folders from code coverage")
     private String excludes;
 
     private static final String testCmd = "bal test [--offline]\n" +

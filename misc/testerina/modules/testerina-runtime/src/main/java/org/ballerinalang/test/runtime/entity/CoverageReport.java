@@ -53,7 +53,6 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -115,11 +114,11 @@ public class CoverageReport {
      *
      * @param jBallerinaBackend  JBallerinaBackend
      * @param includesInCoverage boolean
-     * @param exclusionClassList
+     * @param exclusionClassList list of classes to be excluded
      * @throws IOException
      */
     public void generateReport(JBallerinaBackend jBallerinaBackend, String includesInCoverage,
-                               String reportFormat, Module originalModule, List<String> exclusionClassList)
+                               String reportFormat, Module originalModule, Set<String> exclusionClassList)
             throws IOException {
         String orgName = this.module.packageInstance().packageOrg().toString();
         String packageName = this.module.packageInstance().packageName().toString();
@@ -180,13 +179,14 @@ public class CoverageReport {
      * @param orgName            package org name
      * @param packageName        package name
      * @param filteredPathList   List of the extracted source path
-     * @param exclusionClassList
+     * @param originalModule     Module
+     * @param exclusionClassList list of classes to be excluded
      * @return CoverageBuilder
      * @throws IOException
      */
     private CoverageBuilder generateTesterinaCoverageReport(String orgName, String packageName,
                                                             List<Path> filteredPathList,
-                                                            Module originalModule, List<String> exclusionClassList)
+                                                            Module originalModule, Set<String> exclusionClassList)
                                                             throws IOException {
         // For the Testerina report only the ballerina specific sources need to be extracted
         addCompiledSources(filteredPathList, orgName, packageName, exclusionClassList);
@@ -281,16 +281,15 @@ public class CoverageReport {
         }
     }
 
-    private void addCompiledSources(List<Path> pathList, String orgName, String packageName, List<String>
+    private void addCompiledSources(List<Path> pathList, String orgName, String packageName, Set<String>
             exclusionClassList) throws IOException {
-        Set<String> externalExclusionList = new HashSet<>(exclusionClassList);
         if (!pathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
             for (Path jarPath : pathList) {
                 try {
                     // Creates coverage folder with each class per module
                     CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir.resolve(BIN_DIR),
-                            orgName, packageName, false, null, externalExclusionList);
+                            orgName, packageName, false, null, exclusionClassList);
                 } catch (NoSuchFileException e) {
                     if (Files.exists(coverageDir.resolve(BIN_DIR))) {
                         CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
@@ -302,15 +301,14 @@ public class CoverageReport {
     }
 
     private void addCompiledSources(List<Path> pathList, String orgName, String packageName,
-                                    String includesInCoverage, List<String> exclusionClassList) throws IOException {
-        Set<String> externalExclusionList = new HashSet<>(exclusionClassList);
+                                    String includesInCoverage, Set<String> exclusionClassList) throws IOException {
         if (!pathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
             for (Path jarPath : pathList) {
                 try {
                     // Creates coverage folder with each class per module
                     CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir.resolve(BIN_DIR), orgName, packageName,
-                            true, includesInCoverage, externalExclusionList);
+                            true, includesInCoverage, exclusionClassList);
                 } catch (NoSuchFileException e) {
                     if (Files.exists(coverageDir.resolve(BIN_DIR))) {
                         CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
@@ -333,9 +331,8 @@ public class CoverageReport {
     }
 
     private void createReport(final IBundleCoverage bundleCoverage, Map<String, ModuleCoverage> moduleCoverageMap,
-                              List<DocumentId> exclusionList, List<String> exclusionClassList) {
+                              List<DocumentId> exclusionList, Set<String> exclusionClassList) {
         boolean containsSourceFiles = true;
-        Set<String> externalExclusionList = new HashSet<>(exclusionClassList);
 
         for (IPackageCoverage packageCoverage : bundleCoverage.getPackages()) {
 
@@ -368,7 +365,7 @@ public class CoverageReport {
                         String exclusionClassFileName = sourceFileCoverage.getPackageName() + PATH_SEPARATOR +
                                 sourceFileCoverage.getName().replace(BLANG_SRC_FILE_SUFFIX, "");
                         exclusionClassFileName = exclusionClassFileName.replace(PATH_SEPARATOR, DOT);
-                        if (externalExclusionList.contains(exclusionClassFileName)) {
+                        if (exclusionClassList.contains(exclusionClassFileName)) {
                             continue;
                         }
                         if (moduleCoverage.containsSourceFile(sourceFileCoverage.getName())) {

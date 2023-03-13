@@ -51,10 +51,32 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
                 .resolve("test_results.json");
     }
 
-    @Test()
+    @Test(description = "Exclude coverage with relative source paths and wildcards")
     public void testExcludingBalFileCoverage() throws BallerinaTestException, IOException {
-        String [] exclusionList = {"./main.bal", "./modules/util/util.bal", "./generated/util/util_gen.bal",
-                "./generated/util2/util2_gen.bal", "./generated/main_gen.bal"};
+        String [][] exclusionListOfList = {{"./main.bal", "./modules/util/util.bal", "./generated/util/util_gen.bal",
+                "./generated/util2/util2_gen.bal", "./generated/main_gen.bal"},
+                {"./*", "./modules/util/ut*.bal", "./generated**"},
+                {"./"},
+                {"./**"}};
+        for (String [] exclusionList : exclusionListOfList) {
+            String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",
+                    "--excludes=" + String.join(",", exclusionList)});
+            String output = balClient.runMainAndReadStdOut("test", args,
+                    new HashMap<>(), projectPath.toString(), false);
+            Gson gson = new Gson();
+
+            try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {
+                resultObj = gson.fromJson(bufferedReader, JsonObject.class);
+            } catch (IOException e) {
+                throw new BallerinaTestException("Failed to read test_results.json");
+            }
+            validateModuleWiseCoverage();
+        }
+    }
+
+    @Test(description = "Exclude a source file from coverage exclusion list")
+    public void testExcludesSrcFileFromExclusionList() throws BallerinaTestException, IOException {
+        String [] exclusionList =  {"./*", "!./main.bal"};
         String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",
                 "--excludes=" + String.join(",", exclusionList)});
         String output = balClient.runMainAndReadStdOut("test", args,
@@ -66,29 +88,55 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
         } catch (IOException e) {
             throw new BallerinaTestException("Failed to read test_results.json");
         }
-        validateModuleWiseCoverage();
-
+        validateModuleWiseCoverage(40F, 100F, 0F, 2, 2,
+                1, 8, 5, 61.54F);
     }
+
+    @Test(description = "Exclude a folder from coverage exclusion list")
+    public void testExcludesSrcFolderFromExclusionList() throws BallerinaTestException, IOException {
+        String [] exclusionList = {"./generated", "!./generated/util"};
+        String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",
+                "--excludes=" + String.join(",", exclusionList)});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath.toString(), false);
+        Gson gson = new Gson();
+
+        try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {
+            resultObj = gson.fromJson(bufferedReader, JsonObject.class);
+        } catch (IOException e) {
+            throw new BallerinaTestException("Failed to read test_results.json");
+        }
+        validateModuleWiseCoverage(0F, 100F, 0F, 1, 2,
+                0,  6, 3, 66.67F);
+    }
+
     private void validateModuleWiseCoverage() {
+        validateModuleWiseCoverage(0F, 0F, 0F, 0, 0,
+                 0, 0, 0, 0F);
+    }
+
+    private void validateModuleWiseCoverage(Float defaultModuleCov, Float utilCov, Float util2Cov,
+                                            int defaultModuleFilesCount, int utilFilesCount, int util2FilesCount,
+                                            int coveredLines, int missedLines, Float coveragePercentage) {
         for (JsonElement element : resultObj.get("moduleCoverage").getAsJsonArray()) {
             JsonObject moduleObj = ((JsonObject) element);
 
             if ("code_cov_exclusion".equals(moduleObj.get("name").getAsString())) {
-                Assert.assertEquals(new Float(0.0), moduleObj.get("coveragePercentage").getAsFloat());
-                Assert.assertEquals(0, moduleObj.get("sourceFiles").getAsJsonArray().size());
+                Assert.assertEquals(defaultModuleCov, moduleObj.get("coveragePercentage").getAsFloat());
+                Assert.assertEquals(defaultModuleFilesCount, moduleObj.get("sourceFiles").getAsJsonArray().size());
 
             } else if ("code_cov_exclusion.util".equals(moduleObj.get("name").getAsString())) {
-                Assert.assertEquals(new Float(0.0), moduleObj.get("coveragePercentage").getAsFloat());
-                Assert.assertEquals(0, moduleObj.get("sourceFiles").getAsJsonArray().size());
+                Assert.assertEquals(utilCov, moduleObj.get("coveragePercentage").getAsFloat());
+                Assert.assertEquals(utilFilesCount, moduleObj.get("sourceFiles").getAsJsonArray().size());
             } else if ("code_cov_exclusion.util2".equals(moduleObj.get("name").getAsString())) {
-                Assert.assertEquals(new Float(0.0), moduleObj.get("coveragePercentage").getAsFloat());
-                Assert.assertEquals(0, moduleObj.get("sourceFiles").getAsJsonArray().size());
+                Assert.assertEquals(util2Cov, moduleObj.get("coveragePercentage").getAsFloat());
+                Assert.assertEquals(util2FilesCount, moduleObj.get("sourceFiles").getAsJsonArray().size());
             }
 
             // Verify project level coverage details
-            Assert.assertEquals(0, resultObj.get("coveredLines").getAsInt());
-            Assert.assertEquals(0, resultObj.get("missedLines").getAsInt());
-            Assert.assertEquals(new Float(0.0), resultObj.get("coveragePercentage").getAsFloat());
+            Assert.assertEquals(coveredLines, resultObj.get("coveredLines").getAsInt());
+            Assert.assertEquals(missedLines, resultObj.get("missedLines").getAsInt());
+            Assert.assertEquals(coveragePercentage, resultObj.get("coveragePercentage").getAsFloat());
         }
     }
 }
