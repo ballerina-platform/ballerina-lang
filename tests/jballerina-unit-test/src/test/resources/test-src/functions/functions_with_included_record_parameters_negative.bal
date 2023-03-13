@@ -293,11 +293,11 @@ function fn6(*Record5 record5, *Record6 record6) {
 }
 
 function testInvokingFunctionWithNamedArgForIncludedRecordParam() {
-    fn5(record5 = {}, j = 2); // error
-    fn5(j = 2, record5 = {}); // error
-    fn6(record5 = {}, j = 2); // error
-    fn6(record5 = {}, record6 = {}, j = 2); // error
-    fn6(j = 2, record5 = {}, record6 = {}); // error
+    fn5(record5 = {}, j = 2);
+    fn5(j = 2, record5 = {});
+    fn6(record5 = {}, j = 2);
+    fn6(record5 = {}, record6 = {}, j = 2);
+    fn6(j = 2, record5 = {}, record6 = {});
 }
 
 type Baz record {|

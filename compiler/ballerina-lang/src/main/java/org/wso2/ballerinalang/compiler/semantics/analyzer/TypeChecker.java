@@ -6862,9 +6862,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             switch (expr.getKind()) {
                 case NAMED_ARGS_EXPR:
                     foundNamedArg = true;
-                    BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) expr;
                     boolean namedArgForIncRecordParam =
-                                  isNamedArgForIncRecordParam(namedArg.name.value, incRecordParamAllowAdditionalFields);
+                                  isNamedArgForIncRecordParam(((BLangNamedArgsExpression) expr).name.value,
+                                                              incRecordParamAllowAdditionalFields);
                     if (i < parameterCountForNamedArgs) {
                         if (namedArgForIncRecordParam) {
                             incRecordAllowAdditionalFields = false;
