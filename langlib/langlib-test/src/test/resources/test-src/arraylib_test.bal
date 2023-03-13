@@ -1805,3 +1805,75 @@ function testPushWithErrorConstructorExpr() {
     assertTrue(e is Error);
     assertValueEquality("e2", e.message());
 }
+
+function testRemoveAllFromReadOnlyArray() {
+    int[] arr = [1, 2];
+    int[] readonlyArr = arr.cloneReadOnly();
+    error? err = trap readonlyArr.removeAll();
+    assertTrue(err is error);
+    if err is error {
+        assertValueEquality("{ballerina/lang.array}InvalidUpdate", err.message());
+        assertValueEquality("modification not allowed on readonly value", <string>checkpanic err.detail()["message"]);
+        assertValueEquality("Failed to remove all from array", <string>checkpanic err.detail()["description"]);
+    }
+}
+
+function testRemoveAllFromReadOnlyTuple() {
+    [int, string] arr = [1, "Anne"];
+    [int, string] readonlyArr = arr.cloneReadOnly();
+    error? err = trap readonlyArr.removeAll();
+    assertTrue(err is error);
+    if err is error {
+        assertValueEquality("{ballerina/lang.array}InvalidUpdate", err.message());
+        assertValueEquality("modification not allowed on readonly value", <string>checkpanic err.detail()["message"]);
+        assertValueEquality("Failed to remove all from array", <string>checkpanic err.detail()["description"]);
+    }
+}
+
+function testRemoveFromReadOnlyArray() {
+    int[] arr = [1, 2];
+    int[] readonlyArr = arr.cloneReadOnly();
+    int|error err = trap readonlyArr.remove(0);
+    assertTrue(err is error);
+    if err is error {
+        assertValueEquality("{ballerina/lang.array}InvalidUpdate", err.message());
+        assertValueEquality("modification not allowed on readonly value", <string>checkpanic err.detail()["message"]);
+        assertValueEquality("Failed to remove member from array", <string>checkpanic err.detail()["description"]);
+    }
+}
+
+function testShiftFromReadOnlyArray() {
+    int[] arr = [1, 2];
+    int[] readonlyArr = arr.cloneReadOnly();
+    int|error err = trap readonlyArr.shift();
+    assertTrue(err is error);
+    if err is error {
+        assertValueEquality("{ballerina/lang.array}InvalidUpdate", err.message());
+        assertValueEquality("modification not allowed on readonly value", <string>checkpanic err.detail()["message"]);
+        assertValueEquality("Failed to remove the first member from array", <string>checkpanic err.detail()["description"]);
+    }
+}
+
+function testSetLengthFromReadOnlyArray() {
+    int[] arr = [1, 2, 3];
+    int[] readonlyArr = arr.cloneReadOnly();
+    error? err = trap readonlyArr.setLength(2);
+    assertTrue(err is error);
+    if err is error {
+        assertValueEquality("{ballerina/lang.array}InvalidUpdate", err.message());
+        assertValueEquality("modification not allowed on readonly value", <string>checkpanic err.detail()["message"]);
+        assertValueEquality("Failed to change length of the array", <string>checkpanic err.detail()["description"]);
+    }
+}
+
+function testSetLengthFromReadOnlyTuple() {
+    [int, string] arr = [1, "Anne"];
+    [int, string] readonlyArr = arr.cloneReadOnly();
+    error? err = trap readonlyArr.setLength(1);
+    assertTrue(err is error);
+    if err is error {
+        assertValueEquality("{ballerina/lang.array}InvalidUpdate", err.message());
+        assertValueEquality("modification not allowed on readonly value", <string>checkpanic err.detail()["message"]);
+        assertValueEquality("Failed to change length of the array", <string>checkpanic err.detail()["description"]);
+    }
+}

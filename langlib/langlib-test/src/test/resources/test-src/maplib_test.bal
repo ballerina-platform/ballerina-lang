@@ -320,3 +320,161 @@ function testReadOnlyMapFilter() {
     });
     assertFalse(passed.isReadOnly());
 }
+
+function testRemoveAllFromReadOnlyMap() {
+    map<int> m = {a: 1, b: 2, c: 3};
+    map<int> readonlyMap = m.cloneReadOnly();
+    error? err = trap readonlyMap.removeAll();
+    assertTrue(err is error);
+    if err is error {
+        assert("{ballerina/lang.map}InvalidUpdate", err.message());
+        assert("modification not allowed on readonly value", <string> checkpanic err.detail()["message"]);
+        assert("Failed to remove all from map", <string> checkpanic err.detail()["description"]);
+    }
+}
+
+type OpenRecord record {
+    int a?;
+    int b?;
+};
+
+type ClosedRecord record {|
+    int a?;
+    int b?;
+|};
+
+function testRemoveAllFromReadOnlyRecordWithAllOptionalFields() {
+    record {|int a?; int b?;|} m = {a: 1, b: 2};
+    record {|int a?; int b?;|} readonlyRec1 = m.cloneReadOnly();
+    error? err = trap readonlyRec1.removeAll();
+    assertTrue(err is error);
+    if err is error {
+        assert("{ballerina/lang.map}InvalidUpdate", err.message());
+        assert("modification not allowed on readonly value", <string> checkpanic err.detail()["message"]);
+        assert("Failed to remove all from map", <string> checkpanic err.detail()["description"]);
+    }
+
+    record {int a?; int b?;} m2 = {a: 1, b: 2};
+    record {int a?; int b?;} readonlyRec2 = m2.cloneReadOnly();
+    error? err2 = trap readonlyRec2.removeAll();
+    assertTrue(err2 is error);
+    if err2 is error {
+        assert("{ballerina/lang.map}InvalidUpdate", err2.message());
+        assert("modification not allowed on readonly value", <string> checkpanic err2.detail()["message"]);
+        assert("Failed to remove all from map", <string> checkpanic err2.detail()["description"]);
+    }
+
+    OpenRecord m3 = {a: 1, b: 2};
+    OpenRecord readonlyRec3 = m3.cloneReadOnly();
+    error? err3 = trap readonlyRec3.removeAll();
+    assertTrue(err3 is error);
+    if err3 is error {
+        assert("{ballerina/lang.map}InvalidUpdate", err3.message());
+        assert("modification not allowed on readonly value", <string> checkpanic err3.detail()["message"]);
+        assert("Failed to remove all from map", <string> checkpanic err3.detail()["description"]);
+    }
+
+    ClosedRecord m4 = {a: 1, b: 2};
+    ClosedRecord readonlyRec4 = m4.cloneReadOnly();
+    error? err4 = trap readonlyRec4.removeAll();
+    assertTrue(err4 is error);
+    if err4 is error {
+        assert("{ballerina/lang.map}InvalidUpdate", err4.message());
+        assert("modification not allowed on readonly value", <string> checkpanic err4.detail()["message"]);
+        assert("Failed to remove all from map", <string> checkpanic err4.detail()["description"]);
+    }
+}
+
+type OpenRecord2 record {
+    int a;
+    int b?;
+};
+
+type ClosedRecord2 record {|
+    int a;
+    int b?;
+|};
+
+function testRemoveFromReadOnlyRecord() {
+    record {|int a; int b?;|} m = {a: 1, b: 2};
+    record {|int a; int b?;|} readonlyRec1 = m.cloneReadOnly();
+    int|error err = trap readonlyRec1.remove("b");
+    assertTrue(err is error);
+    if err is error {
+        assert("{ballerina/lang.map}InvalidUpdate", err.message());
+        assert("modification not allowed on readonly value", <string> checkpanic err.detail()["message"]);
+        assert("Failed to remove member from map", <string> checkpanic err.detail()["description"]);
+    }
+
+    record {int a; int b?;} m2 = {a: 1, b: 2};
+    record {int a; int b?;} readonlyRec2 = m2.cloneReadOnly();
+    anydata|error err2 = trap readonlyRec2.remove("b");
+    assertTrue(err2 is error);
+    if err2 is error {
+        assert("{ballerina/lang.map}InvalidUpdate", err2.message());
+        assert("modification not allowed on readonly value", <string> checkpanic err2.detail()["message"]);
+        assert("Failed to remove member from map", <string> checkpanic err2.detail()["description"]);
+    }
+
+    OpenRecord2 m3 = {a: 1, b: 2};
+    OpenRecord2 readonlyRec3 = m3.cloneReadOnly();
+    anydata|error err3 = trap readonlyRec3.remove("b");
+    assertTrue(err3 is error);
+    if err3 is error {
+        assert("{ballerina/lang.map}InvalidUpdate", err3.message());
+        assert("modification not allowed on readonly value", <string> checkpanic err3.detail()["message"]);
+        assert("Failed to remove member from map", <string> checkpanic err3.detail()["description"]);
+    }
+
+    ClosedRecord2 m4 = {a: 1, b: 2};
+    ClosedRecord2 readonlyRec4 = m4.cloneReadOnly();
+    int|error err4 = trap readonlyRec4.remove("b");
+    assertTrue(err4 is error);
+    if err4 is error {
+        assert("{ballerina/lang.map}InvalidUpdate", err4.message());
+        assert("modification not allowed on readonly value", <string> checkpanic err4.detail()["message"]);
+        assert("Failed to remove member from map", <string> checkpanic err4.detail()["description"]);
+    }
+}
+
+function testRemoveIfHasKeyFromReadOnlyRecord() {
+    record {|int a; int b?;|} m = {a: 1, b: 2};
+    record {|int a; int b?;|} readonlyRec1 = m.cloneReadOnly();
+    int?|error err = trap readonlyRec1.removeIfHasKey("b");
+    assertTrue(err is error);
+    if err is error {
+        assert("{ballerina/lang.map}InvalidUpdate", err.message());
+        assert("modification not allowed on readonly value", <string> checkpanic err.detail()["message"]);
+        assert("Failed to remove member from map", <string> checkpanic err.detail()["description"]);
+    }
+
+    record {int a; int b?;} m2 = {a: 1, b: 2};
+    record {int a; int b?;} readonlyRec2 = m2.cloneReadOnly();
+    anydata?|error err2 = trap readonlyRec2.removeIfHasKey("b");
+    assertTrue(err2 is error);
+    if err2 is error {
+        assert("{ballerina/lang.map}InvalidUpdate", err2.message());
+        assert("modification not allowed on readonly value", <string> checkpanic err2.detail()["message"]);
+        assert("Failed to remove member from map", <string> checkpanic err2.detail()["description"]);
+    }
+
+    OpenRecord2 m3 = {a: 1, b: 2};
+    OpenRecord2 readonlyRec3 = m3.cloneReadOnly();
+    anydata?|error err3 = trap readonlyRec3.removeIfHasKey("b");
+    assertTrue(err3 is error);
+    if err3 is error {
+        assert("{ballerina/lang.map}InvalidUpdate", err3.message());
+        assert("modification not allowed on readonly value", <string> checkpanic err3.detail()["message"]);
+        assert("Failed to remove member from map", <string> checkpanic err3.detail()["description"]);
+    }
+
+    ClosedRecord2 m4 = {a: 1, b: 2};
+    ClosedRecord2 readonlyRec4 = m4.cloneReadOnly();
+    int?|error err4 = trap readonlyRec4.removeIfHasKey("b");
+    assertTrue(err4 is error);
+    if err4 is error {
+        assert("{ballerina/lang.map}InvalidUpdate", err4.message());
+        assert("modification not allowed on readonly value", <string> checkpanic err4.detail()["message"]);
+        assert("Failed to remove member from map", <string> checkpanic err4.detail()["description"]);
+    }
+}
