@@ -42,12 +42,12 @@ public class ManifestUtils {
         LineRange lineRange = diagnostic.location().lineRange();
 
         LineRange oneBasedLineRange = LineRange.from(
-                lineRange.filePath(),
+                lineRange.fileName(),
                 LinePosition.from(lineRange.startLine().line(), lineRange.startLine().offset() + 1),
                 LinePosition.from(lineRange.endLine().line(), lineRange.endLine().offset() + 1));
 
         return diagnostic.diagnosticInfo().severity().toString() + " [" +
-                oneBasedLineRange.filePath() + ":" + oneBasedLineRange + "] " + diagnostic.message();
+                oneBasedLineRange.fileName() + ":" + oneBasedLineRange + "] " + diagnostic.message();
     }
 
     public static String getStringFromTomlTableNode(TopLevelNode topLevelNode) {

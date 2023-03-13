@@ -45,7 +45,9 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ARRAY_TYPE_POPULATE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONSTANTS_PER_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ARRAY_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
 
@@ -72,7 +74,7 @@ public class JvmArrayTypeConstantsGen {
                 JvmCodeGenUtil.getModuleLevelClassName(packageID, JvmConstants.ARRAY_TYPE_CONSTANT_CLASS_NAME);
         cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         generateConstantsClassInit(cw, arrayConstantsClass);
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_ARRAY_TYPE_INIT_METHOD, "()V", null, null);
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_ARRAY_TYPE_INIT_METHOD, VOID_METHOD_DESC, null, null);
         this.arrayTypeVarMap = new TreeMap<>(bTypeHashComparator);
         this.types = types;
     }
@@ -94,9 +96,9 @@ public class JvmArrayTypeConstantsGen {
         String varName = JvmConstants.ARRAY_TYPE_VAR_PREFIX + constantIndex++;
         if (arrayTypeVarCount % MAX_CONSTANTS_PER_METHOD == 0 && arrayTypeVarCount != 0) {
             mv.visitMethodInsn(INVOKESTATIC, arrayConstantsClass,
-                    B_ARRAY_TYPE_INIT_METHOD + methodCount, "()V", false);
+                    B_ARRAY_TYPE_INIT_METHOD + methodCount, VOID_METHOD_DESC, false);
             genMethodReturn(mv);
-            mv = cw.visitMethod(ACC_STATIC, B_ARRAY_TYPE_INIT_METHOD + methodCount++, "()V",
+            mv = cw.visitMethod(ACC_STATIC, B_ARRAY_TYPE_INIT_METHOD + methodCount++, VOID_METHOD_DESC,
                     null, null);
         }
         createBArrayType(mv, arrayType, varName);
@@ -108,9 +110,9 @@ public class JvmArrayTypeConstantsGen {
     }
 
     private void genPopulateMethod(BArrayType arrayType, String varName) {
-        String methodName = "$populate" + varName;
+        String methodName = POPULATE_METHOD_PREFIX + varName;
         funcNames.add(methodName);
-        MethodVisitor methodVisitor = cw.visitMethod(ACC_STATIC, methodName, "()V", null, null);
+        MethodVisitor methodVisitor = cw.visitMethod(ACC_STATIC, methodName, VOID_METHOD_DESC, null, null);
         methodVisitor.visitCode();
         generateGetBArrayType(methodVisitor, varName);
         jvmArrayTypeGen.populateArray(methodVisitor, arrayType);
@@ -121,16 +123,16 @@ public class JvmArrayTypeConstantsGen {
         int populateFuncCount = 0;
         int populateInitMethodCount = 1;
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_ARRAY_TYPE_POPULATE_METHOD,
-                "()V", null, null);
+                VOID_METHOD_DESC, null, null);
         for (String funcName : funcNames) {
             if (populateFuncCount % MAX_CONSTANTS_PER_METHOD == 0 && populateFuncCount != 0) {
                 mv.visitMethodInsn(INVOKESTATIC, arrayConstantsClass,
-                        B_ARRAY_TYPE_POPULATE_METHOD + populateInitMethodCount, "()V", false);
+                        B_ARRAY_TYPE_POPULATE_METHOD + populateInitMethodCount, VOID_METHOD_DESC, false);
                 genMethodReturn(mv);
                 mv = cw.visitMethod(ACC_STATIC, B_ARRAY_TYPE_POPULATE_METHOD + populateInitMethodCount++,
-                        "()V", null, null);
+                        VOID_METHOD_DESC, null, null);
             }
-            mv.visitMethodInsn(INVOKESTATIC, arrayConstantsClass, funcName, "()V", false);
+            mv.visitMethodInsn(INVOKESTATIC, arrayConstantsClass, funcName, VOID_METHOD_DESC, false);
             populateFuncCount++;
         }
         genMethodReturn(mv);

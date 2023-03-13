@@ -29,20 +29,25 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.codeaction.ExpressionNodeValidator;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -113,27 +118,75 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
             return Collections.emptyList();
         }
 
-        String varName = getLocalVarName(context);
-        String value = node.toSourceCode().strip();
-        LineRange replaceRange = node.lineRange();
         Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(node);
         if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
             return Collections.emptyList();
         }
 
         Node statementNode = getStatementNode(node);
-        if (statementNode == null) {
+        if (statementNode == null || statementNode.kind() == SyntaxKind.OBJECT_FIELD) {
             return Collections.emptyList();
         }
-        String typeDescriptor = FunctionGenerator.getReturnTypeAsString(context, typeSymbol.get().signature());
-        if (statementNode.kind() == SyntaxKind.INVALID_EXPRESSION_STATEMENT) {
-            String variable = String.format("%s %s = %s", typeDescriptor, varName, value);
-            TextEdit edit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
-                    PositionUtil.toPosition(replaceRange.endLine())), variable);
-            return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_VARIABLE,
-                    List.of(edit), context.fileUri(), CodeActionKind.RefactorExtract));
+
+        // Check if the selection is a range or a position, and whether quick picks are supported by the client
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (CodeActionUtil.isRangeSelection(context.range())
+                || !lsClientCapabilities.getInitializationOptions().isQuickPickSupported()) {
+
+            List<TextEdit> textEdits = getTextEdits(context, typeSymbol.get(), node, statementNode);
+
+            CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_VARIABLE,
+                    textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
+            CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_VARIABLE,
+                    getRenamePosition(textEdits.get(1).getRange().getStart()));
+            return Collections.singletonList(codeAction);
         }
+
+        ExpressionNodeValidator nodeValidator = new ExpressionNodeValidator();
+        node.accept(nodeValidator);
+        if (nodeValidator.isInvalidNode()) {
+            return Collections.emptyList();
+        }
+
+        // Selection is a position
+        List<Node> nodeList = getPossibleExpressionNodes(node);
+        LinkedHashMap<String, List<TextEdit>> textEditMap = new LinkedHashMap<>();
+        LinkedHashMap<String, Position> renamePositionMap = new LinkedHashMap<>();
+
+        // List out the expression node list that we are going to provide quick pick support
+        // Find the arg list for each of the expression nodes
+        nodeList.forEach(extractableNode -> {
+            Optional<TypeSymbol> tSymbol = context.currentSemanticModel()
+                    .flatMap(semanticModel -> semanticModel.typeOf(extractableNode));
+            if (tSymbol.isEmpty() || tSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+                return;
+            }
+            String key = extractableNode.toSourceCode().strip();
+            textEditMap.put(key,
+                    getTextEdits(context, tSymbol.get(), extractableNode, statementNode));
+            renamePositionMap.put(key, getRenamePosition(PositionUtil.toRange(extractableNode.lineRange()).getStart()));
+        });
+
+        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
+            return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_VARIABLE,
+                    new Command(NAME, CommandConstants.EXTRACT_COMMAND,
+                            List.of(NAME, context.filePath().toString(), textEditMap, renamePositionMap)),
+                    CodeActionKind.RefactorExtract));
+        }
+
+        return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_VARIABLE,
+                new Command(NAME, CommandConstants.EXTRACT_COMMAND,
+                        List.of(NAME, context.filePath().toString(), textEditMap)), CodeActionKind.RefactorExtract));
+    }
+
+    private List<TextEdit> getTextEdits(CodeActionContext context, TypeSymbol typeSymbol, Node matchedNode,
+                                        Node statementNode) {
+        String varName = getLocalVarName(context);
+        String value = matchedNode.toSourceCode().strip();
+        LineRange replaceRange = matchedNode.lineRange();
+
         String paddingStr = StringUtils.repeat(" ", statementNode.lineRange().startLine().offset());
+        String typeDescriptor = FunctionGenerator.getReturnTypeAsString(context, typeSymbol.signature());
         String varDeclStr = String.format("%s %s = %s;%n%s", typeDescriptor, varName, value, paddingStr);
         Position varDeclPos = new Position(statementNode.lineRange().startLine().line(),
                 statementNode.lineRange().startLine().offset());
@@ -141,16 +194,28 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         TextEdit replaceEdit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
                 PositionUtil.toPosition(replaceRange.endLine())), varName);
 
-        CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_VARIABLE,
-                List.of(varDeclEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract);
-        CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_VARIABLE,
-                getRenamePosition(replaceEdit.getRange().getStart()));
-
-        return Collections.singletonList(codeAction);
+        return List.of(varDeclEdit, replaceEdit);
     }
-    
+
     private Position getRenamePosition(Position position) {
         return new Position(position.getLine() + 1, position.getCharacter());
+    }
+
+    private static List<Node> getPossibleExpressionNodes(Node node) {
+        ExpressionNodeValidator nodeValidator = new ExpressionNodeValidator();
+        // Identify the sub-expressions to be extracted
+        List<Node> nodeList = new ArrayList<>();
+        while (node != null && !isStatementOrModuleDeclaration(node) && node.kind() != SyntaxKind.OBJECT_FIELD
+                && !nodeValidator.isInvalidNode()) {
+            nodeList.add(node);
+            node = node.parent();
+            node.accept(nodeValidator);
+        }
+        return nodeList;
+    }
+
+    private static boolean isStatementOrModuleDeclaration(Node node) {
+        return node instanceof StatementNode || node instanceof ModuleMemberDeclarationNode;
     }
 
     @Override
@@ -208,4 +273,5 @@ public class ExtractToLocalVarCodeAction implements RangeBasedCodeActionProvider
         return context.currentSemanticModel().get()
                 .visibleSymbols(context.currentDocument().get(), PositionUtil.getLinePosition(position));
     }
+    
 }
