@@ -305,5 +305,12 @@ type Baz record {|
 |};
 
 function fn7(*Baz r) {
+}
 
+function fn8(string k, *Record5 record5) {
+}
+
+function testInvokingFunctionWithPositionArgForIncludedRecordParam() {
+    fn8("abc", {}, j = 2);
+    fn8("abc", {}, j = 2, i = 10);
 }

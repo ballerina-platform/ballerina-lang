@@ -130,6 +130,9 @@ public class FunctionWithIncludedRecordParam {
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'j'", 300, 9);
         BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn6()'", 300, 30);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'r'", 307, 15);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn8()'", 314, 20);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn8()'", 315, 20);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn8()'", 315, 27);
         Assert.assertEquals(i, result.getErrorCount());
     }
 
