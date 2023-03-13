@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 5,
+    "character": 3
+  },
+  "source": "createVariableWithTypeDesc.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 3
+            },
+            "end": {
+              "line": 5,
+              "character": 3
+            }
+          },
+          "newText": "typedesc:TypeId[]? & readonly typeIds = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariableWithTypeDesc.bal",
+          {
+            "line": 5,
+            "character": 33
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

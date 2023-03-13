@@ -38,6 +38,11 @@ public interface InitializationOptions {
     String KEY_RENAME_SUPPORT = "supportRenamePopup";
 
     /**
+     * Whether the client supports {@link org.eclipse.lsp4j.Position} based rename popup.
+     */
+    String KEY_POSITIONAL_RENAME_SUPPORT = "supportPositionalRenamePopup";
+    
+    /**
      * Whether the client supports quick picks.
      */
     String KEY_QUICKPICK_SUPPORT = "supportQuickPick";
@@ -67,6 +72,12 @@ public interface InitializationOptions {
      * @return True if supported, false otherwise
      */
     boolean isRefactorRenameSupported();
+
+    /**
+     * Returns if the client supports {@link org.eclipse.lsp4j.Position} based rename.
+     * @return True if supported, false otherwise
+     */
+    boolean isPositionalRefactorRenameSupported();
 
     /**
      * Returns if the client supports quick picks.

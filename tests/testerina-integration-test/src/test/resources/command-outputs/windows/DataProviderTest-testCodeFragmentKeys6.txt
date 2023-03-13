@@ -1,0 +1,48 @@
+Compiling source
+	intg_tests/dataproviders:0.0.0
+WARNING [tests\new-data-provider-tests.bal:(121:9,121:21)] unused variable 'a'
+WARNING [tests\new-data-provider-tests.bal:(153:9,153:21)] unused variable 'a'
+
+Running Tests with Coverage
+
+	dataproviders
+		[pass] testFunction3#map<any> v = { "x": 1 };
+
+
+		1 passing
+		0 failing
+		0 skipped
+
+	dataproviders.module1
+
+
+		No tests found
+ballerina: Oh no, something really went wrong. Bad. Sad.
+
+We appreciate it if you can report the code that broke Ballerina in
+https://github.com/ballerina-platform/ballerina-lang/issues with the
+log you get below and your sample code.
+
+We thank you for helping make us better.***** SEVERE {b7a.log.crash} - com.google.gson.stream.MalformedJsonException: Unterminated object at line 1 column 100 path $.tests[0].name 
+com.google.gson.JsonSyntaxException: com.google.gson.stream.MalformedJsonException: Unterminated object at line 1 column 100 path $.tests[0].name
+	at com.google.gson.Gson.fromJson(Gson.java:978)
+	at com.google.gson.Gson.fromJson(Gson.java:901)
+	at io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile(TestUtils.java:222)
+	at io.ballerina.cli.task.RunTestsTask.execute(RunTestsTask.java:219)
+	at io.ballerina.cli.TaskExecutor.executeTasks(TaskExecutor.java:40)
+	at io.ballerina.cli.cmd.TestCommand.execute(TestCommand.java:315)
+	at java.base/java.util.Optional.ifPresent(Optional.java:183)
+	at io.ballerina.cli.launcher.Main.main(Main.java:51)
+Caused by: com.google.gson.stream.MalformedJsonException: Unterminated object at line 1 column 100 path $.tests[0].name
+	at com.google.gson.stream.JsonReader.syntaxError(JsonReader.java:1562)
+	at com.google.gson.stream.JsonReader.doPeek(JsonReader.java:490)
+	at com.google.gson.stream.JsonReader.hasNext(JsonReader.java:413)
+	at com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$Adapter.read(ReflectiveTypeAdapterFactory.java:216)
+	at com.google.gson.internal.bind.TypeAdapterRuntimeTypeWrapper.read(TypeAdapterRuntimeTypeWrapper.java:41)
+	at com.google.gson.internal.bind.CollectionTypeAdapterFactory$Adapter.read(CollectionTypeAdapterFactory.java:82)
+	at com.google.gson.internal.bind.CollectionTypeAdapterFactory$Adapter.read(CollectionTypeAdapterFactory.java:61)
+	at com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$1.read(ReflectiveTypeAdapterFactory.java:131)
+	at com.google.gson.internal.bind.ReflectiveTypeAdapterFactory$Adapter.read(ReflectiveTypeAdapterFactory.java:222)
+	at com.google.gson.Gson.fromJson(Gson.java:963)
+	... 7 more
+ 

@@ -1,0 +1,52 @@
+{
+  "position": {
+    "line": 61,
+    "character": 66
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source77.bal",
+  "description": "Tests completion in binding pattern context of a record typed named argument",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "protocol",
+      "kind": "Field",
+      "detail": "SecureSocket.protocol",
+      "sortText": "K",
+      "insertText": "protocol: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "auth",
+      "kind": "Field",
+      "detail": "SecureSocket.auth",
+      "sortText": "K",
+      "insertText": "auth: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "'key",
+      "kind": "Field",
+      "detail": "SecureSocket.key",
+      "sortText": "K",
+      "insertText": "'key: {privateKey: ${1:\"\"}, pubicCert: ${2:\"\"}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill SecureSocket Required Fields",
+      "kind": "Property",
+      "detail": "SecureSocket",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "protocol: ${1:\"\"},\n'key: {privateKey: ${2:\"\"}, pubicCert: ${3:\"\"}}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

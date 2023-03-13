@@ -52,7 +52,6 @@ import java.util.stream.Collectors;
 public class BallerinaTomlCompletionContext implements TomlCompletionContext {
 
     private List<Symbol> visibleSymbols;
-    private List<ImportDeclarationNode> currentDocImports;
     private Map<ImportDeclarationNode, ModuleSymbol> currentDocImportsMap;
     private final LanguageServerContext languageServerContext;
     private final CompletionCapabilities capabilities;
@@ -97,16 +96,13 @@ public class BallerinaTomlCompletionContext implements TomlCompletionContext {
 
     @Override
     public List<ImportDeclarationNode> currentDocImports() {
-        if (this.currentDocImports == null) {
-            Optional<Document> document = this.workspace().document(this.filePath());
-            if (document.isEmpty()) {
-                throw new RuntimeException("Cannot find a valid document");
-            }
-            this.currentDocImports = ((ModulePartNode) document.get().syntaxTree().rootNode()).imports().stream()
-                    .collect(Collectors.toList());
+        Optional<Document> document = this.workspace().document(this.filePath());
+        if (document.isEmpty()) {
+            throw new RuntimeException("Cannot find a valid document");
         }
 
-        return this.currentDocImports;
+        return ((ModulePartNode) document.get().syntaxTree().rootNode()).imports().stream()
+                .collect(Collectors.toList());
     }
 
     @Override

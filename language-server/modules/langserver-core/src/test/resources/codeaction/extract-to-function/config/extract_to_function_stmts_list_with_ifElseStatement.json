@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() returns int {\n    int localVar \u003d 0;\n    boolean bool \u003d true;\n    if bool {\n        localVar \u003d 1;\n    } else {\n        localVar \u003d -1;\n    }\n    return localVar;\n}"
+          "newText": "\n\nfunction extracted() returns int {\n    int localVar = 0;\n    boolean bool = true;\n    if bool {\n        localVar = 1;\n    } else {\n        localVar = -1;\n    }\n    return localVar;\n}"
         },
         {
           "range": {
@@ -39,9 +39,21 @@
               "character": 5
             }
           },
-          "newText": "int localVar \u003d extracted();"
+          "newText": "int localVar = extracted();"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_stmts_list_with_ifElseStatement.bal",
+          {
+            "line": 1,
+            "character": 4
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

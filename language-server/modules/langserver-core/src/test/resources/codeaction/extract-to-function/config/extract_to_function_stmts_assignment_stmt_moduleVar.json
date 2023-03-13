@@ -10,6 +10,7 @@
     }
   },
   "source": "extract_to_function_stmts_assignment_stmt_moduleVar.bal",
+  "description": "Extract to function for assignment statement, checks when a assignment statement for a global variable is selected",
   "expected": [
     {
       "title": "Extract to function",
@@ -26,7 +27,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() {\n    globalVar \u003d globalVar + 1;\n}"
+          "newText": "\n\nfunction extracted() {\n    globalVar = globalVar + 1;\n}"
         },
         {
           "range": {
@@ -41,8 +42,19 @@
           },
           "newText": "extracted();"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_stmts_assignment_stmt_moduleVar.bal",
+          {
+            "line": 3,
+            "character": 4
+          }
+        ]
+      },
+      "resolvable": false
     }
-  ],
-  "description": "Extract to function for assignment statement, checks when a assignment statement for a global variable is selected"
+  ]
 }

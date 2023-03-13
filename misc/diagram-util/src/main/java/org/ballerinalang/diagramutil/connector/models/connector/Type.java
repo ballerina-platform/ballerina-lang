@@ -24,6 +24,8 @@ import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterKind;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
@@ -32,6 +34,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
@@ -254,6 +257,7 @@ public class Type {
             Type restType = recordTypeSymbol.restTypeDescriptor().isPresent() ?
                     fromSemanticSymbol(recordTypeSymbol.restTypeDescriptor().get()) : null;
             type = new RecordType(fields, restType);
+            parentSymbols.remove(parentSymbols.size() - 1);
         } else if (symbol instanceof ArrayTypeSymbol) {
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) symbol;
             type = new ArrayType(fromSemanticSymbol(arrayTypeSymbol.memberTypeDescriptor()));
@@ -313,6 +317,15 @@ public class Type {
         } else if (symbol instanceof RecordFieldSymbol) {
             RecordFieldSymbol recordFieldSymbol = (RecordFieldSymbol) symbol;
             type = fromSemanticSymbol(recordFieldSymbol.typeDescriptor());
+        } else if (symbol instanceof ParameterSymbol) {
+            ParameterSymbol parameterSymbol = (ParameterSymbol) symbol;
+            type = fromSemanticSymbol(parameterSymbol.typeDescriptor());
+            if (type != null) {
+                type.defaultable = parameterSymbol.paramKind() == ParameterKind.DEFAULTABLE;
+            }
+        } else if (symbol instanceof VariableSymbol) {
+            VariableSymbol variableSymbol = (VariableSymbol) symbol;
+            type = fromSemanticSymbol(variableSymbol.typeDescriptor());
         } else if (symbol instanceof TypeSymbol) {
             type = new PrimitiveType(((TypeSymbol) symbol).signature());
         }

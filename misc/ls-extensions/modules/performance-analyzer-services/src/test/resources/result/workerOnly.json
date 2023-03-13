@@ -5,7 +5,7 @@
       "name": "Client",
       "baseUrl": "https://postman-echo.com/post",
       "pos": {
-        "filePath": "main.bal",
+        "fileName": "main.bal",
         "startLine": {
           "line": 6,
           "offset": 20
@@ -21,7 +21,7 @@
       "name": "Client",
       "baseUrl": "https://postman-echo.com/",
       "pos": {
-        "filePath": "workerOnly.bal",
+        "fileName": "workerOnly.bal",
         "startLine": {
           "line": 8,
           "offset": 24
@@ -37,7 +37,7 @@
       "name": "Client",
       "baseUrl": "https://postman-echo.com/",
       "pos": {
-        "filePath": "workerOnly.bal",
+        "fileName": "workerOnly.bal",
         "startLine": {
           "line": 14,
           "offset": 24

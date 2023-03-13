@@ -213,6 +213,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_HEX_NUMBER_AFTER_HEX_INDICATOR("BCE0415", "error.missing.hex.number.after.hex.indicator"),
     ERROR_MISSING_DIGIT_AFTER_DOT("BCE0416", "error.missing.digit.after.dot"),
     ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE("BCE0417", "error.missing.unicode.property.value"),
+    ERROR_MISSING_RE_QUANTIFIER_DIGIT("BCE0418", "error.missing.digit.in.quantifier"),
+    ERROR_MISSING_BACKSLASH("BCE0420", "error.missing.backslash"),
 
     // Missing non-terminal nodes
     ERROR_MISSING_FUNCTION_NAME("BCE0500", "error.missing.function.name"),
@@ -282,7 +284,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_METADATA("BCE0621", "error.invalid.metadata"),
     ERROR_INVALID_QUALIFIER("BCE0622", "error.invalid.qualifier"),
     ERROR_ANNOTATIONS_ATTACHED_TO_STATEMENT("BCE0623", "error.annotations.attached.to.statement"),
-    ERROR_INVALID_DOCUMENTATION("BCE0624", "error.invalid.documentation"),
     ERROR_ACTION_AS_A_WAIT_EXPR("BCE0625", "error.action.as.a.wait.expr"),
     ERROR_INVALID_USAGE_OF_VAR("BCE0626", "error.invalid.usage.of.var"),
     ERROR_MATCH_PATTERN_AFTER_REST_MATCH_PATTERN("BCE0627", "error.match.pattern.after.rest.match.pattern"),
@@ -352,10 +353,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     RESOURCE_ACCESS_SEGMENT_IS_NOT_ALLOWED_AFTER_REST_SEGMENT("BCE0680",
             "error.resource.access.segment.is.not.allowed.after.rest.segment"),
     ERROR_INVALID_TOKEN_IN_REG_EXP("BCE0681", "error.invalid.token.in.reg.exp"),
-    ERROR_INVALID_UNICODE_PROP_ESCAPE_IN_REG_EXP("BCE0682", "error.invalid.unicode.property.escape.in.reg.exp"),
+    ERROR_INVALID_FLAG_IN_REG_EXP("BCE0682", "error.invalid.flag.in.reg.exp"),
     ERROR_INVALID_QUANTIFIER_IN_REG_EXP("BCE0683", "error.invalid.quantifier.in.reg.exp"),
-    ERROR_INVALID_CHARACTER_SET_IN_REG_EXP("BCE0684", "error.invalid.character.set.in.reg.exp"),
-    ERROR_INVALID_FLAG_IN_REG_EXP("BCE0685", "error.invalid.flag.in.reg.exp")
+    ERROR_ANNOTATIONS_NOT_ALLOWED_FOR_TUPLE_REST_DESCRIPTOR("BCE0684",
+            "error.annotations.not.allowed.for.tuple.rest.descriptor"),
+    ERROR_INVALID_RE_SYNTAX_CHAR("BCE0685", "error.invalid.syntax.char")
     ;
 
     String diagnosticId;

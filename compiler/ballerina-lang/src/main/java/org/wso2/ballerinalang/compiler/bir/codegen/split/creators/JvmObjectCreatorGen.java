@@ -131,7 +131,7 @@ public class JvmObjectCreatorGen {
             generateCreateObjectMethodSplits(cw, objectTypeDefList, moduleId, moduleInitClass, typeOwnerClass,
                     symbolTable, metadataVarName);
         }
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_OBJECT_VALUE, objectsClass);
         mv.visitEnd();
     }
 
@@ -197,6 +197,7 @@ public class JvmObjectCreatorGen {
             mv.visitVarInsn(ALOAD, schedulerIndex);
             mv.visitVarInsn(ALOAD, parentIndex);
             mv.visitVarInsn(ALOAD, propertiesIndex);
+            mv.visitInsn(ACONST_NULL);
             mv.visitMethodInsn(INVOKESPECIAL, STRAND_CLASS, JVM_INIT_METHOD,
                     INIT_STRAND, false);
             mv.visitVarInsn(ASTORE, strandVarIndex);

@@ -108,7 +108,7 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
         String gitignoreContent = Files.readString(
                 packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
-        String expectedGitignoreContent = "target\n" +
+        String expectedGitignoreContent = "target\ngenerated\n" +
                 "Config.toml\n";
         Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
         Assert.assertTrue(readOutput().contains("Created new package"));
@@ -719,6 +719,31 @@ public class NewCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput();
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput(outputLog));
+    }
+
+    @DataProvider(name = "PackageNameHasOnlyNonAlphanumeric")
+    public Object[][] providePackageNameHasOnlyNonAlphanumeric() {
+        return new Object[][] {
+                { "#", "my_package" },
+                { "_", "my_package" }
+        };
+    }
+    @Test(description = "Test new command with package name has only non alpha-numeric characters",
+            dataProvider = "PackageNameHasOnlyNonAlphanumeric")
+    public void testNewCommandWithPackageNameHasOnlyNonAlphanumeric(String pkgName, String derivedPkgName)
+            throws IOException {
+        String[] args = {pkgName};
+        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+        Path packageDir = tmpDir.resolve(pkgName);
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
+        String buildOutput = readOutput().replaceAll("\r", "");
+        Assert.assertEquals(buildOutput, "package name is derived as '" + derivedPkgName + "'. " +
+                "Edit the Ballerina.toml to change it.\n\n" +
+                "Created new package '" + derivedPkgName + "' at " + pkgName + ".\n");
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

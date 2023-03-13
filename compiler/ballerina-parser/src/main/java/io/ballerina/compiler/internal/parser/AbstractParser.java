@@ -269,7 +269,7 @@ public abstract class AbstractParser {
      * @param node node to be cloned
      * @return a cloned node with invalid node minutiae
      */
-    private STNode addInvalidNodeStackToTrailingMinutiae(STNode node) {
+    protected STNode addInvalidNodeStackToTrailingMinutiae(STNode node) {
         while (!invalidNodeInfoStack.isEmpty()) {
             InvalidNodeInfo invalidNodeInfo = invalidNodeInfoStack.pop();
             node = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(node, invalidNodeInfo.node,

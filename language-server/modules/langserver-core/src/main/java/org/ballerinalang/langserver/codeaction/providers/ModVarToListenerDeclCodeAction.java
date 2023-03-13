@@ -113,7 +113,7 @@ public class ModVarToListenerDeclCodeAction implements DiagnosticBasedCodeAction
             }
             Path filePath = project.get().sourceRoot()
                     .resolve("modules").resolve(symbol.get().getModule().get().id().modulePrefix())
-                    .resolve(location.get().lineRange().filePath());
+                    .resolve(location.get().lineRange().fileName());
             Optional<SyntaxTree> syntaxTree = context.workspace().syntaxTree(filePath);
             if (syntaxTree.isEmpty()) {
                 return Optional.empty();

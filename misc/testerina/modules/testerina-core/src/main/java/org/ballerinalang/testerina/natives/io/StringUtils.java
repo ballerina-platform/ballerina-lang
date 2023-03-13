@@ -21,6 +21,7 @@ package org.ballerinalang.testerina.natives.io;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -145,7 +146,7 @@ public class StringUtils {
 
     private static void formatHexString(StringBuilder result, int k, StringBuilder padding, char x, Object... args) {
         final Object argsValues = args[k];
-        final Type type = TypeChecker.getType(argsValues);
+        final Type type = TypeUtils.getReferredType(TypeChecker.getType(argsValues));
         if (TypeTags.ARRAY_TAG == type.getTag() && TypeTags.BYTE_TAG == ((ArrayType) type).getElementType().getTag()) {
             BArray byteArray = ((BArray) argsValues);
             for (int i = 0; i < byteArray.size(); i++) {

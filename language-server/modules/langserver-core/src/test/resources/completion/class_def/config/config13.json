@@ -4,6 +4,7 @@
     "character": 14
   },
   "source": "class_def/source/source13.bal",
+  "description": "",
   "items": [
     {
       "label": "remote",
@@ -83,7 +84,7 @@
       "detail": "Snippet",
       "sortText": "P",
       "filterText": "resource_function",
-      "insertText": "resource function ${1:accessor} ${2:path} (${3})${4} {\n\t${5}\n}",
+      "insertText": "resource function ${1:accessor} ${2:path}(${3})${4} {\n\t${5}\n}",
       "insertTextFormat": "Snippet"
     }
   ]

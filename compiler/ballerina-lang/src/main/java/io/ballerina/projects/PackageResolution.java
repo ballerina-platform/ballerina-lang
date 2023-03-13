@@ -33,7 +33,7 @@ import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.PackageContainer;
 import io.ballerina.projects.internal.PackageDiagnostic;
-import io.ballerina.projects.internal.PackageResolutionDiagnostic;
+import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.internal.model.BuildJson;
@@ -54,11 +54,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
@@ -71,32 +69,23 @@ import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
  */
 public class PackageResolution {
     private final PackageContext rootPackageContext;
-    private final IDLPluginManager idlPluginManager;
     private final BlendedManifest blendedManifest;
     private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
     private final CompilationOptions compilationOptions;
     private final PackageResolver packageResolver;
     private final ModuleResolver moduleResolver;
     private final List<Diagnostic> diagnosticList;
-    private final List<Diagnostic> pluginDiagnosticList;
     private DiagnosticResult diagnosticResult;
     private boolean autoUpdate;
     private String dependencyGraphDump;
 
     private List<ModuleContext> topologicallySortedModuleList;
     private Collection<ResolvedPackageDependency> dependenciesWithTransitives;
-    private final List<ModuleConfig> generatedModules;
-    private final Set<IDLClientEntry> clientsToCache;
 
-    private PackageResolution(PackageContext rootPackageContext, CompilationOptions compilationOptions,
-                              IDLPluginManager idlPluginManager) {
+    private PackageResolution(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
         this.rootPackageContext = rootPackageContext;
-        this.idlPluginManager = idlPluginManager;
         this.diagnosticList = new ArrayList<>();
-        this.pluginDiagnosticList = new ArrayList<>();
         this.compilationOptions = compilationOptions;
-        this.generatedModules = new ArrayList<>();
-        this.clientsToCache = new HashSet<>();
         ResolutionOptions resolutionOptions = getResolutionOptions(rootPackageContext, compilationOptions);
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
@@ -111,9 +100,8 @@ public class PackageResolution {
         resolveDependencies(dependencyResolution);
     }
 
-    static PackageResolution from(PackageContext rootPackageContext, CompilationOptions compilationOptions,
-                                  IDLPluginManager idlPluginManager) {
-        return new PackageResolution(rootPackageContext, compilationOptions, idlPluginManager);
+    static PackageResolution from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {
+        return new PackageResolution(rootPackageContext, compilationOptions);
     }
 
     /**
@@ -171,26 +159,13 @@ public class PackageResolution {
                           ModuleDescriptor moduleDescriptor) {
         var diagnosticInfo = new DiagnosticInfo(diagnosticErrorCode, message, severity);
         var diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
-        var packageDiagnostic = new PackageDiagnostic(diagnostic, moduleDescriptor, rootPackageContext.project(),
-                false);
+        var packageDiagnostic = new PackageDiagnostic(diagnostic, moduleDescriptor, rootPackageContext.project());
         this.diagnosticList.add(packageDiagnostic);
         this.diagnosticResult = new DefaultDiagnosticResult(this.diagnosticList);
     }
 
     public boolean autoUpdate() {
         return autoUpdate;
-    }
-
-    List<ModuleConfig> generatedModules() {
-        return generatedModules;
-    }
-
-    Set<IDLClientEntry> clientsToCache() {
-        return clientsToCache;
-    }
-
-    public List<Diagnostic> pluginDiagnosticList() {
-        return pluginDiagnosticList;
     }
 
     private boolean getSticky(PackageContext rootPackageContext) {
@@ -256,39 +231,13 @@ public class PackageResolution {
         LinkedHashSet<ModuleLoadRequest> allModuleLoadRequests = new ModuleContext.OverwritableLinkedHashSet();
         for (ModuleId moduleId : rootPackageContext.moduleIds()) {
             ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
-            allModuleLoadRequests.addAll(moduleContext.populateModuleLoadRequests(
-                    idlPluginManager, compilationOptions, rootPackageContext.project().currentPackage()));
+            allModuleLoadRequests.addAll(moduleContext.populateModuleLoadRequests());
         }
 
         for (ModuleId moduleId : rootPackageContext.moduleIds()) {
             ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
-            allModuleLoadRequests.addAll(moduleContext.populateTestSrcModuleLoadRequests(
-                    idlPluginManager, compilationOptions, rootPackageContext.project().currentPackage()));
+            allModuleLoadRequests.addAll(moduleContext.populateTestSrcModuleLoadRequests());
         }
-        for (ModuleId moduleId : rootPackageContext.moduleIds()) {
-            ModuleContext moduleContext = rootPackageContext.moduleContext(moduleId);
-            this.pluginDiagnosticList.addAll(moduleContext.idlPluginDiagnostics());
-        }
-
-        for (String moduleName : idlPluginManager.cachedModuleNames()) {
-            if (rootPackageContext.moduleContext(
-                    ModuleName.from(rootPackageContext.packageName(), moduleName)) == null) {
-                Optional<ModuleConfig> config = idlPluginManager.generatedModuleConfigs().stream().filter(
-                        moduleConfig -> moduleConfig.moduleDescriptor().name().moduleNamePart()
-                                .equals(moduleName)).findFirst();
-                if (config.isEmpty()) {
-                    idlPluginManager.generatedModuleConfigs().add(
-                            Utils.createModuleConfig(moduleName, rootPackageContext.project()));
-                }
-            }
-        }
-        for (ModuleConfig generatedModuleConfig : idlPluginManager.generatedModuleConfigs()) {
-            if (!rootPackageContext.moduleIds().contains(generatedModuleConfig.moduleId())) {
-                this.generatedModules.add(generatedModuleConfig);
-            }
-        }
-        this.clientsToCache.addAll(idlPluginManager.cachedClientEntries());
-
 
         // TODO: Move to compiler extension once new Compiler Extension model is introduced
         if (compilationOptions.observabilityIncluded()) {
@@ -387,7 +336,11 @@ public class PackageResolution {
         // Add resolved packages to the container
         for (ResolutionResponse resolutionResp : resolutionResponses) {
             if (resolutionResp.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
-                PackageDescriptor pkgDesc = resolutionResp.responseDescriptor();
+                PackageDescriptor pkgDesc = resolutionResp.resolvedPackage().packageContext().
+                        packageManifest().descriptor();
+                if (Optional.ofNullable(pkgDesc.getDeprecated()).orElse(false)) {
+                    addDeprecationDiagnostic(pkgDesc);
+                }
                 ResolutionRequest resolutionReq = resolutionResp.resolutionRequest();
                 ResolvedPackageDependency resolvedPkg = new ResolvedPackageDependency(
                         resolutionResp.resolvedPackage(),
@@ -418,6 +371,16 @@ public class PackageResolution {
             }
         }
         return depGraphBuilder.build();
+    }
+
+    private void addDeprecationDiagnostic(PackageDescriptor pkgDesc) {
+        String deprecationMsg = Optional.ofNullable(pkgDesc.getDeprecationMsg()).orElse("");
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                ProjectDiagnosticErrorCode.DEPRECATED_PACKAGE.diagnosticId(), pkgDesc.toString() +
+                " is deprecated due to : " + deprecationMsg, DiagnosticSeverity.WARNING);
+        PackageDiagnostic diagnostic = new PackageDiagnostic(
+                diagnosticInfo, this.rootPackageContext.descriptor().name().toString());
+        this.diagnosticList.add(diagnostic);
     }
 
     private ResolutionRequest createFromDepNode(DependencyNode depNode) {
@@ -468,7 +431,7 @@ public class PackageResolution {
                                 .map(dependency -> dependency.packageInstance().descriptor().toString())
                                 .collect(Collectors.joining(" -> ")) + "''",
                         DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.severity());
-                PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(diagnosticInfo,
+                PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
                         rootPackageContext.descriptor().name().toString());
                 diagnosticList.add(diagnostic);
             }
@@ -489,7 +452,7 @@ public class PackageResolution {
                                             + desc.version().toString())
                                     .collect(Collectors.joining(" -> ")) + "''",
                             DiagnosticErrorCode.CYCLIC_MODULE_IMPORTS_DETECTED.severity());
-                    PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(diagnosticInfo,
+                    PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
                             resolvedPackage.descriptor().name().toString());
                     diagnosticList.add(diagnostic);
                 }

@@ -1,0 +1,16 @@
+Compiling source
+	testorg/runtime_api:1.0.0
+
+Running Tests with Coverage
+
+	runtime_api
+		[pass] testRuntimeApi
+
+
+		1 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	runtime-api-tests\target\report\test_results.json
+

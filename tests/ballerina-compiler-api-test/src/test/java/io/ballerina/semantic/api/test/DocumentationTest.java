@@ -186,7 +186,7 @@ public class DocumentationTest {
         assertTrue(symbol.get().getLocation().isPresent());
 
         Location pos = symbol.get().getLocation().get();
-        assertEquals(pos.lineRange().filePath(), "documentation_symbol_position_test.bal");
+        assertEquals(pos.lineRange().fileName(), "documentation_symbol_position_test.bal");
         assertEquals(pos.lineRange().startLine().line(), defSLine);
         assertEquals(pos.lineRange().startLine().offset(), defSCol);
         assertEquals(pos.lineRange().endLine().line(), defELine);
