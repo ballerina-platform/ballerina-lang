@@ -32,23 +32,35 @@ public class ConfigurableCliArgsTest extends BaseTestCase {
 
     private BMainInstance bMainInstance;
     private String testFileLocation;
+    private String singleFileTestLocation;
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
         bMainInstance = new BMainInstance(balServer);
         testFileLocation = projectBasedTestsPath.resolve("configurable-cli-args-test").toString();
+        singleFileTestLocation = singleFileTestsPath.resolve("configurable-cli-arguments").toString();
     }
 
     @Test
     public void configurableCliArgsTest() throws BallerinaTestException {
         LogLeecher testLog1 = new LogLeecher("5 passing");
         LogLeecher testLog2 = new LogLeecher("5 passing");
-        bMainInstance.runMain("test", new String[]{"--", "-CintVar=40", "-CfloatVar=4.5",
+        bMainInstance.runMain("test", new String[]{"-CintVar=40", "-CfloatVar=4.5",
                         "-CstringVar=main test", "-CbooleanVar=true", "-CxmlVal=<book>The Lost Symbol</book>",
                         "-CtestInt=30", "-CtestFloat=5.6", "-CtestString=cli arg", "-CtestBoolean=false"},
                 null, new String[]{}, new LogLeecher[]{testLog1, testLog2},
                 testFileLocation);
         testLog1.waitForText(5000);
         testLog2.waitForText(5000);
+    }
+
+    @Test
+    public void configurableCliArgsForSingleFileTest() throws BallerinaTestException {
+        LogLeecher testLog1 = new LogLeecher("2 passing");
+        bMainInstance.runMain("test", new String[]{"configurable-cli-args.bal",
+                        "-CtestString=single test", "-CtestInt=89"},
+                null, new String[]{}, new LogLeecher[]{testLog1},
+                singleFileTestLocation);
+        testLog1.waitForText(5000);
     }
 }
