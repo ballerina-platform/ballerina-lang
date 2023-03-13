@@ -215,8 +215,9 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":\"failed " +
-                    "to remove element from map: modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
+                    "\"modification not allowed on readonly value\"," +
+                    "\"description\":\"Failed to remove member from map\"\\}.*")
     public void testRemovalFromFrozenJson() {
         BRunUtil.invoke(result, "testRemovalFromFrozenJson", new Object[0]);
     }
@@ -237,7 +238,8 @@ public class FreezeAndIsFrozenTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
-                    "\"failed to remove element from map: modification not allowed on readonly value\".*")
+                    "\"modification not allowed on readonly value\"," +
+                    "\"description\":\"Failed to remove member from map\"\\}.*")
     public void testRemovalFromFrozenInnerJson() {
         BRunUtil.invoke(result, "testRemovalFromFrozenInnerJson", new Object[0]);
     }
@@ -266,14 +268,16 @@ public class FreezeAndIsFrozenTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":\"" +
-                    "failed to remove element from map: modification not allowed on readonly value\".*")
+                    "modification not allowed on readonly value\"," +
+                    "\"description\":\"Failed to remove member from map\"\\}.*")
     public void testFrozenMapRemoval() {
         BRunUtil.invoke(result, "testFrozenMapRemoval", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
-                    "\"Failed to clear map: modification not allowed on readonly value\".*")
+                    "\"modification not allowed on readonly value\"," +
+                    "\"description\":\"Failed to remove all from map\"\\}.*")
     public void testFrozenMapClear() {
         BRunUtil.invoke(result, "testFrozenMapClear", new Object[0]);
     }
@@ -287,14 +291,16 @@ public class FreezeAndIsFrozenTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
-                    "\"failed to remove element from map: modification not allowed on readonly value\".*")
+                    "\"modification not allowed on readonly value\"," +
+                    "\"description\":\"Failed to remove member from map\"\\}.*")
     public void testFrozenInnerMapRemoval() {
         BRunUtil.invoke(result, "testFrozenInnerMapRemoval", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
-                    "\"Failed to clear map: modification not allowed on readonly value\".*")
+                    "\"modification not allowed on readonly value\"," +
+                    "\"description\":\"Failed to remove all from map\"\\}.*")
     public void testFrozenInnerMapClear() {
         BRunUtil.invoke(result, "testFrozenInnerMapClear", new Object[0]);
     }
@@ -349,14 +355,16 @@ public class FreezeAndIsFrozenTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table}InvalidUpdate " +
-                    "\\{\"message\":\"modification not allowed on readonly value\"}.*")
+                    "\\{\"message\":\"modification not allowed on readonly value\"," +
+                    "\"description\":\"Failed to add member to table\"}.*")
     public void testFrozenTableAddition() {
         BRunUtil.invoke(result, "testFrozenTableAddition", new Object[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table}InvalidUpdate " +
-                    "\\{\"message\":\"modification not allowed on readonly value\"}.*")
+                    "\\{\"message\":\"modification not allowed on readonly value\"," +
+                    "\"description\":\"Failed to remove member from table\"}.*")
     public void testFrozenTableRemoval() {
         BRunUtil.invoke(result, "testFrozenTableRemoval", new Object[0]);
     }
