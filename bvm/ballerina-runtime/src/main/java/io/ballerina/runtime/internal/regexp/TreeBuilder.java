@@ -35,7 +35,9 @@ import io.ballerina.runtime.internal.values.RegExpTerm;
 import io.ballerina.runtime.internal.values.RegExpValue;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Regular expression tree builder for Ballerina regular expression node.
@@ -43,6 +45,7 @@ import java.util.List;
  * @since 2201.3.0
  */
 public class TreeBuilder {
+
     private final TokenReader tokenReader;
 
     public TreeBuilder(TokenReader tokenReader) {
@@ -119,7 +122,7 @@ public class TreeBuilder {
         }
         return new RegExpAtomQuantifier(reAtom, quantifier);
     }
-    
+
     private RegExpAssertion readRegAssertion() {
         return new RegExpAssertion(consume().value);
     }
@@ -147,7 +150,7 @@ public class TreeBuilder {
                 return consumedToken.value;
         }
     }
-    
+
     private String readRegUnicodePropertyEscape(String backSlash) {
         Token consumedPropertyToken = consume();
         String property = consumedPropertyToken.value;
@@ -156,7 +159,7 @@ public class TreeBuilder {
         String closeBrace = readCloseBrace();
         return backSlash + property + openBrace + unicodeProperty + closeBrace;
     }
-    
+
     private String readOpenBrace() {
         Token consumedToken = consume();
         return consumedToken.value;
@@ -204,7 +207,7 @@ public class TreeBuilder {
         Token simpleCharClassCode = consume();
         return backSlash + simpleCharClassCode.value;
     }
-    
+
     private RegExpCharacterClass readRegCharacterClass() {
         String characterClassStart = consume().value;
         // Read ^ char.
@@ -253,7 +256,7 @@ public class TreeBuilder {
         RegExpCharSet reCharSetNoDash = readCharSetNoDash(nextToken);
         return new RegExpCharSet(new Object[]{startReCharSetAtom, reCharSetNoDash});
     }
-    
+
     private RegExpCharSet readCharSetNoDash(Token nextToken) {
         String startReCharSetAtomNoDash = readCharSetAtom(nextToken);
         nextToken = peek();
@@ -327,7 +330,7 @@ public class TreeBuilder {
         }
         return digits.toString();
     }
-    
+
     private String readCloseBrace() {
         Token nextToken = peek();
         if (nextToken.kind == TokenKind.CLOSE_BRACE_TOKEN) {
@@ -336,7 +339,7 @@ public class TreeBuilder {
         }
         throw new BallerinaException("Missing '}' character");
     }
-    
+
     private String readNonGreedyChar() {
         Token nextToken = peek();
         if (nextToken.kind == TokenKind.QUESTION_MARK_TOKEN) {
@@ -346,7 +349,7 @@ public class TreeBuilder {
         // Return empty string if there is no non greedy char.
         return "";
     }
-    
+
     private RegExpCapturingGroup readRegCapturingGroups() {
         String openParenthesis = consume().value;
         Token nextToken = peek();
@@ -386,6 +389,7 @@ public class TreeBuilder {
             dash = minus.value;
             rhsFlags = readRegFlags();
         }
+        checkValidityOfFlags(lhsReFlags + rhsFlags);
         return new RegExpFlagOnOff(lhsReFlags + dash + rhsFlags);
     }
 
@@ -408,7 +412,7 @@ public class TreeBuilder {
         }
         throw new BallerinaException("Missing ')' character");
     }
-    
+
     private boolean isEndOfReDisjunction(TokenKind kind) {
         switch (kind) {
             case EOF_TOKEN:
@@ -473,5 +477,16 @@ public class TreeBuilder {
 
     private Token consume() {
         return this.tokenReader.read();
+    }
+
+    private void checkValidityOfFlags(String flags) {
+        Set<Character> charList = new HashSet<>();
+        for (int i = 0; i < flags.length(); i++) {
+            char flag = flags.charAt(i);
+            if (charList.contains(flag)) {
+                throw new BallerinaException("duplicate flag '" + flag + "'");
+            }
+            charList.add(flag);
+        }
     }
 }
