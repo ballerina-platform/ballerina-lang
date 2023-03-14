@@ -238,3 +238,595 @@ function testUnInitVars10() {
     str1 += "-> reached end";
     str2 += "-> reached end";
 }
+
+function testUnInitVars11() {
+    int i;
+    int j;
+    int k;
+    do {
+        i = 0;
+        j = 1;
+        check getErrorOrNil();
+        k = 1;
+    } on fail {
+        k = -1;
+    }
+    i += 1;
+    j += 1;
+    k += 1;
+}
+
+function testUnInitVars12() {
+    int i;
+    int j;
+    int k;
+    do {
+        i = 0;
+        j = check getErrorOrInt();
+        k = 1;
+        j += 1;
+    } on fail {
+        k = -1;
+    }
+    i += 1;
+    j += 1;
+    k += 1;
+}
+
+function testUnInitVars13() {
+    boolean bool = true;
+    int i;
+    int j;
+    do {
+        if (bool) {
+            i = 1;
+            check getErrorOrNil();
+            j = 1;
+        } else {
+            i = 2;
+            j = 2;
+        }
+        i += 1;
+        j += 1;
+    } on fail {
+        j += 1;
+    }
+    i += 1;
+    j += 1;
+}
+
+function testUnInitVars14() {
+    int[] x;
+    int[] y;
+    int[] z;
+    do {
+        z = [];
+        x = check getErrorOrIntArr();
+        y = [];
+        _ = x[0];
+        _ = y[0];
+        _ = z[0];
+    } on fail {
+        return;
+    }
+    _ = x[0];
+    _ = y[0];
+    _ = z[0];
+}
+
+function testUnInitVars15(boolean bool) {
+    int[] x;
+    int[] y;
+    int[] z;
+    do {
+        if bool {
+            z = [];
+            x = check getErrorOrIntArr();
+            y = [];
+        } else {
+            z = [];
+            x = [];
+            y = [];
+        }
+        _ = x[0];
+        _ = y[0];
+        _ = z[0];
+    } on fail {
+        return;
+    }
+    _ = x[0];
+    _ = y[0];
+    _ = z[0];
+}
+
+function testUnInitVars16(boolean bool) {
+    int[] i;
+    do {
+        do {
+            i = check getErrorOrIntArr();
+        }
+    } on fail {
+        if bool {
+            i = [];
+        } else {
+            i = [];
+        }
+    }
+    _ = i[0];
+}
+
+function testUnInitVars17(boolean bool) {
+    int[] x;
+    int[] y;
+    int[] z;
+    do {
+        if bool {
+            z = [];
+            x = check getErrorOrIntArr();
+            y = [];
+        } else {
+            z = [];
+            x = [];
+            y = [];
+        }
+        _ = x[0];
+        _ = y[0];
+        _ = z[0];
+    } on fail {
+        _ = x[0];
+        _ = y[0];
+        _ = z[0];
+    }
+    _ = x[0];
+    _ = y[0];
+    _ = z[0];
+}
+
+function testUnInitVars18(boolean bool) {
+    int[] x;
+    int[] y;
+    int[] z;
+    do {
+        if bool {
+            z = [];
+            x = check getErrorOrIntArr();
+            y = [];
+        } else {
+            z = [];
+            x = [];
+            y = [];
+        }
+        _ = x[0];
+        _ = y[0];
+        _ = z[0];
+    } on fail {
+        x = [];
+    }
+    _ = x[0];
+    _ = y[0];
+    _ = z[0];
+}
+
+function testUnInitVars19() {
+    int[] x;
+    int[] y;
+    int[] z;
+    do {
+        do {
+            z = [];
+            x = check getErrorOrIntArr();
+            y = [];
+        } on fail error e {
+            fail e;
+        }
+        _ = x[0]; //no compilation error
+        _ = y[0];
+        _ = z[0];
+    } on fail {
+    }
+    _ = x[0]; // compilation error for x, y
+    _ = y[0];
+    _ = z[0];
+}
+
+function testUnInitVars20() {
+    int[] x;
+    int[] y;
+    int[] z;
+    do {
+        do {
+            z = [];
+            x = check getErrorOrIntArr();
+            y = [];
+        } on fail error e {
+            fail e;
+        }
+        _ = x[0]; //no compilation error
+        _ = y[0];
+        _ = z[0];
+    } on fail {
+        x = [];
+    }
+    _ = x[0];
+    _ = y[0]; // compilation error for uninit var y
+    _ = z[0];
+}
+
+function testUnInitVars21() {
+    int[] x;
+    int[] y;
+    int[] z;
+    do {
+        do {
+            z = [];
+            x = check getErrorOrIntArr();
+            y = [];
+        } on fail error e {
+            y = [];
+            fail e;
+        }
+        _ = x[0]; //no compilation error
+        _ = y[0];
+        _ = z[0];
+    } on fail {
+    }
+    _ = x[0]; // compilation error for uninit var x
+    _ = y[0];
+    _ = z[0];
+}
+
+function testUnInitVars22() {
+    int[] x;
+    int[] y;
+    int[] z;
+    do {
+        do {
+            z = [];
+            x = check getErrorOrIntArr();
+            y = [];
+        } on fail error e {
+            y = [];
+            fail e;
+        }
+        _ = x[0];
+        _ = y[0];
+        _ = z[0];
+    } on fail {
+        return;
+    }
+    _ = x[0];
+    _ = y[0];
+    _ = z[0];
+}
+
+function testUnInitVars23() {
+    int[] x;
+    int[] y;
+    int[] z;
+
+    do {
+        z = [];
+        x = [];
+    } on fail {
+        y = [];
+    }
+    _ = x[0];
+    _ = y[0]; //compilation error for uninit var x
+    _ = z[0];
+}
+
+function testUnInitVars24() {
+    int[] x;
+    int[] y;
+    int[] z;
+    do {
+        do {
+            z = [];
+            x = check getErrorOrIntArr();
+            y = [];
+        } on fail {
+            y = [];
+        }
+        _ = x[0]; //compilation error for uninit var x
+        _ = y[0];
+        _ = z[0];
+    } on fail {
+        x = [];
+    }
+    _ = x[0]; //compilation error for uninit var x
+    _ = y[0];
+    _ = z[0];
+}
+
+function testUnInitVars25() {
+    int[] x;
+    int[] y;
+    int[] z;
+    do {
+        do {
+            z = [];
+            x = check getErrorOrIntArr();
+            y = [];
+        } on fail {
+            y = [];
+        }
+        _ = x[0]; //compilation error for uninit var x
+        _ = y[0];
+        _ = z[0];
+    } on fail {
+        _ = x[0];
+    }
+    _ = x[0]; //compilation error for uninit var x
+    _ = y[0];
+    _ = z[0];
+}
+
+function testUnInitVars26() {
+    int[] x;
+    int[] y;
+    int[] z;
+    do {
+        do {
+            z = [];
+            x = check getErrorOrIntArr();
+            y = [];
+        } on fail {
+            y = [];
+        }
+        _ = x[0]; //compilation error for uninit var x
+        _ = y[0];
+        _ = z[0];
+    } on fail {
+        x = [];
+    }
+    _ = x[0]; //compilation error for uninit var x
+    _ = y[0];
+    _ = z[0];
+}
+
+function testUnInitVars27(boolean bool) {
+    int i;
+    do {
+        if (bool) {
+            fail error("Dummy 1");
+        } else {
+            i = 0;
+            fail error("Dummy 2");
+        }
+    } on fail {
+        i = 0;
+    }
+    _ = i;
+}
+
+function testUnInitVars28(boolean bool) {
+    int i;
+    do {
+        if (bool) {
+            fail error("Dummy 1");
+        } else {
+            i = 0;
+            fail error("Dummy 2");
+        }
+    } on fail {
+    }
+    _ = i;
+}
+
+function testUnInitVars29(boolean bool) returns error? {
+    int[] x;
+    int[] y;
+    int[] z;
+
+    do {
+        do {
+            z = [];
+            if bool {
+                x = check getErrorOrIntArr();
+            } else {
+                y = [];
+            }
+            _ = x[0];
+            _ = y[0];
+            _ = z[0];
+        } on fail error e {
+            fail e;
+        }
+        _ = x[0];
+        _ = y[0];
+        _ = z[0];
+    } on fail error e {
+        return e;
+    }
+    _ = x[0];
+    _ = y[0];
+    _ = z[0];
+}
+
+function testUnInitVars30(boolean bool) returns error? {
+    int i;
+    do {
+        if bool {
+            fail error("Dummy error");
+        }
+        _ = i;
+    } on fail {
+        i = 0;
+    }
+    _ = i;
+}
+
+function testUnInitVars31(boolean bool) {
+   int i;
+   do {
+	   i = 0;
+       if bool {
+           fail error("Dummy 1");
+       } else {
+           fail error("Dummy 2");
+       }
+       _ = i; //unreachable code
+   } on fail {
+       i = 0;
+   }
+   // the following line should not result in a compile-time error
+   _ = i;
+}
+
+function testUnInitVars32(boolean bool) {
+    int i;
+    do {
+        i = 0;
+        if bool {
+            fail error("Dummy 1");
+        } else {
+            fail error("Dummy 2");
+        }
+    } on fail {
+    }
+    // the following line should not result in a compile-time error
+    _ = i;
+}
+
+function testUnInitVars33(boolean bool) {
+    int a = 1;
+    final int c;
+    do {
+        if (a == 3) {
+            fail error("Dummy error");
+        }
+    } on fail {
+        c = 0;
+    }
+    // the following line should result in a compile-time error
+    // variable c may not have been initialized
+    _ = c;
+}
+
+function testUnInitVars34() {
+    int i;
+    do {
+        if true {
+            fail error("Dummy error");
+        }
+    } on fail {
+        i = 0;
+    }
+    // the following line should not result in a compile-time error
+    _ = i;
+}
+
+function testUnInitVars35(boolean bool) {
+    int i;
+    do {
+        if bool {
+            fail error("Dummy error");
+        }
+    } on fail {
+        i = 0;
+    }
+    // the following line should result in a compile-time error
+    // variable i may not have been initialized
+    _ = i;
+}
+
+function testUnInitVars36() {
+    int i;
+    int j;
+    do {
+        i = check getErrorOrInt();
+        return;
+    } on fail {
+        i = 0;
+        j = 0;
+    }
+    // the following line should not result in a compile-time error
+    _ = i;
+    _ = j;
+}
+
+function testUnInitVars37() {
+    int[] i;
+    do {
+    } on fail {
+        lock {
+            _ = i[0]; //variable 'i' is not initialized
+        }
+    }
+}
+
+function testUnInitVars38() {
+    int[] i;
+    do {
+        i = check getErrorOrIntArr();
+    } on fail {
+        lock {
+            _ = i[0]; //variable 'i' may not have been initialized
+        }
+    }
+}
+
+function testUnInitVars39() {
+    int[] i;
+    do {
+        i = [];
+        i = check getErrorOrIntArr();
+    } on fail {
+        lock {
+            _ = i[0]; //no compilation error
+        }
+    }
+}
+
+function testUnInitVars40() returns error? {
+    int[] i;
+    transaction {
+        check commit;
+    } on fail {
+        lock {
+            _ = i[0]; //variable 'i' is not initialized
+        }
+    }
+}
+
+function testUnInitVars41() returns error? {
+    int[] i;
+    transaction {
+        check commit;
+    } on fail {
+        i = [];
+    }
+    _ = i[0]; //variable 'i' may not have been initialized
+}
+
+function testUnInitVars42(boolean bool) {
+    int[] i;
+    foreach int j in 1 ... 3 {
+        if bool {
+            i = [check getErrorOrInt()];
+        }
+        break;
+    } on fail {
+        i = [];
+    }
+    _ = i[0]; //variable 'i' may not have been initialized
+}
+
+function testUnInitVars43(boolean bool) returns error? {
+    int[] i;
+    foreach int j in 1 ... 3 {
+        if bool {
+            i = [check getErrorOrInt()];
+        } else {
+            i = [check getErrorOrInt()];
+        }
+        break;
+    } on fail {
+        i = [];
+    }
+    _ = i[0]; //no compilation error
+}
+
+function getErrorOrIntArr() returns int[]|error {
+    return getError();
+}
