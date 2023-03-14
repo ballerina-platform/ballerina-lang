@@ -234,6 +234,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -261,9 +262,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private Map<BSymbol, Location> unusedLocalVariables;
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private Map<BSymbol, Set<BSymbol>> functionToDependency;
+    private Map<BLangOnFailClause, Map<BSymbol, InitStatus>> onFailUninitializedVars;
+    private Stack<BLangOnFailClause> enclosingOnFailClause;
     private boolean flowTerminated = false;
     private boolean possibleFailureReached = false;
-    private boolean visitingOnFailStmt = false;
+    private boolean definiteFailureReached = false;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
     private Deque<BSymbol> currDependentSymbolDeque;
@@ -299,6 +302,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.uninitializedVars = new LinkedHashMap<>();
         this.globalNodeDependsOn = new LinkedHashMap<>();
         this.functionToDependency = new HashMap<>();
+        this.onFailUninitializedVars = new LinkedHashMap<>();
+        this.enclosingOnFailClause = new Stack<>();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);
@@ -437,6 +442,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.uninitializedVars = copyUninitializedVars();
         this.flowTerminated = false;
         this.possibleFailureReached = false;
+        this.definiteFailureReached = false;
 
         analyzeNode(funcNode.body, funcEnv);
 
@@ -536,6 +542,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.uninitializedVars = copyUninitializedVars();
             this.flowTerminated = false;
             this.possibleFailureReached = false;
+            this.definiteFailureReached = false;
             visitedOCE = true;
         }
         SymbolEnv objectEnv = SymbolEnv.createClassEnv(classDef, classDef.symbol.scope, env);
@@ -723,7 +730,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangCompoundAssignment compoundAssignNode) {
         analyzeNode(compoundAssignNode.expr, env);
         analyzeNode(compoundAssignNode.varRef, env);
+        boolean overrideOnFailInit = false;
+        Map<BSymbol, InitStatus> onFailInitStatus = null;
+        if (!this.enclosingOnFailClause.isEmpty()) {
+            onFailInitStatus = copyOnFailUninitializedVars(this.enclosingOnFailClause.peek());
+            overrideOnFailInit = onFailInitStatus.containsKey(compoundAssignNode.varRef.symbol);
+        }
         checkAssignment(compoundAssignNode.varRef);
+        if (overrideOnFailInit) {
+            this.onFailUninitializedVars.put(this.enclosingOnFailClause.peek(), onFailInitStatus);
+        }
         this.uninitializedVars.remove(compoundAssignNode.varRef.symbol);
     }
 
@@ -735,7 +751,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangReturn returnNode) {
         analyzeNode(returnNode.expr, env);
-
+        //if the do statement returns, what matters after on-fail is the on-fail branch result,
+        //so we need to set the definiteFailureReached to true
+        this.definiteFailureReached = true;
         // return statement will exit from the function.
         terminateFlow();
     }
@@ -751,22 +769,43 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BranchResult ifResult = analyzeBranch(ifNode.body, env);
         BranchResult elseResult = analyzeBranch(ifNode.elseStmt, env);
 
-        // If the flow was terminated within 'if' block, then after the if-else block,
-        // only the results of the 'else' block matters.
-        if (ifResult.flowTerminated) {
-            this.uninitializedVars = elseResult.uninitializedVars;
-            return;
-        }
+        if (ifResult.flowTerminated && elseResult.flowTerminated && ifResult.possibleFailureReached &&
+                elseResult.possibleFailureReached) {
+            this.onFailUninitializedVars.put(this.enclosingOnFailClause.peek(),
+                    mergeUninitializedVars(ifResult.possibleFailureUnInitVars, elseResult.possibleFailureUnInitVars));
+        } else {
+            boolean ifExprConst = ConditionResolver.checkConstCondition(types, symTable, ifNode.expr) == symTable.trueType;
+            // If the flow was terminated within 'if' block, then after the if-else block,
+            // only the results of the 'else' block matters.
+            if (ifResult.flowTerminated) {
+                this.uninitializedVars = elseResult.uninitializedVars;
+                if (elseResult.possibleFailureUnInitVars != null) {
+                    this.onFailUninitializedVars.put(this.enclosingOnFailClause.peek(), elseResult.possibleFailureUnInitVars);
+                }
+                if (ifExprConst) {
+                    this.flowTerminated = ifResult.flowTerminated;
+                    this.definiteFailureReached = ifResult.definiteFailureReached;
+                }
+                return;
+            }
 
-        // If the flow was terminated within 'else' block, then after the if-else block,
-        // only the results of the 'if' block matters.
-        if (elseResult.flowTerminated ||
-                ConditionResolver.checkConstCondition(types, symTable, ifNode.expr) == symTable.trueType) {
-            this.uninitializedVars = ifResult.uninitializedVars;
-            return;
+            // If the flow was terminated within 'else' block, then after the if-else block,
+            // only the results of the 'if' block matters.
+            if (elseResult.flowTerminated || ifExprConst) {
+                this.uninitializedVars = ifResult.uninitializedVars;
+                if (ifResult.possibleFailureUnInitVars != null) {
+                    this.onFailUninitializedVars.put(this.enclosingOnFailClause.peek(), ifResult.possibleFailureUnInitVars);
+                }
+                return;
+            }
         }
-
         this.uninitializedVars = mergeUninitializedVars(ifResult.uninitializedVars, elseResult.uninitializedVars);
+        if (ifResult.possibleFailureUnInitVars != null && elseResult.possibleFailureUnInitVars != null) {
+            this.onFailUninitializedVars.put(this.enclosingOnFailClause.peek(), mergeUninitializedVars(ifResult.possibleFailureUnInitVars,
+                    elseResult.possibleFailureUnInitVars));
+        }
+        this.flowTerminated = ifResult.flowTerminated && elseResult.flowTerminated;
+        this.definiteFailureReached = ifResult.definiteFailureReached && elseResult.definiteFailureReached;
     }
 
     @Override
@@ -854,28 +893,58 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWhile whileNode) {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
-        boolean prevVisitingOnFailStmt = this.visitingOnFailStmt;
-        if (whileNode.onFailClause != null) {
-            this.visitingOnFailStmt = true;
-        }
+        createUninitializedVarsForOnFailClause(whileNode.onFailClause);
         analyzeNode(whileNode.expr, env);
         BranchResult whileResult = analyzeBranch(whileNode.body, env);
-        analyzeOnFailBranch(whileNode.onFailClause, whileResult);
-
         BType constCondition = ConditionResolver.checkConstCondition(types, symTable, whileNode.expr);
+        boolean onFailClauseAvailable = whileNode.onFailClause != null;
 
         if (constCondition == symTable.falseType) {
             this.uninitializedVars = prevUninitializedVars;
+            removeEnclosingOnFail(onFailClauseAvailable);
             return;
         }
+        updateUninitializedVarsForOnFailClause(whileNode.onFailClause, whileResult);
+        BranchResult onFailResult = null;
+        if (onFailClauseAvailable) {
+            onFailResult = analyzeOnFailBranch(whileNode.onFailClause, whileResult);
+        }
 
-        if (whileResult.flowTerminated || constCondition == symTable.trueType) {
+        if (constCondition == symTable.trueType) {
             this.uninitializedVars = whileResult.uninitializedVars;
+            if (whileResult.possibleFailureUnInitVars != null) {
+                this.onFailUninitializedVars.put(this.enclosingOnFailClause.peek(), whileResult.possibleFailureUnInitVars);
+                if (onFailClauseAvailable) {
+                    this.uninitializedVars = mergeUninitializedVars(whileResult.uninitializedVars, onFailResult.uninitializedVars);
+                }
+            }
+            removeEnclosingOnFail(onFailClauseAvailable);
             return;
         }
 
         this.uninitializedVars = mergeUninitializedVars(this.uninitializedVars, whileResult.uninitializedVars);
-        this.visitingOnFailStmt = prevVisitingOnFailStmt;
+        removeEnclosingOnFail(onFailClauseAvailable);
+    }
+
+    private void createUninitializedVarsForOnFailClause(BLangOnFailClause onFailClause) {
+        if (onFailClause != null) {
+            this.enclosingOnFailClause.push(onFailClause);
+            this.onFailUninitializedVars.put(onFailClause, copyUninitializedVars());
+        }
+    }
+
+    private void updateUninitializedVarsForOnFailClause(BLangOnFailClause onFailClause, BranchResult result) {
+        if (onFailClause == null) {
+            if (!this.enclosingOnFailClause.isEmpty()) {
+                this.onFailUninitializedVars.put(this.enclosingOnFailClause.peek(), result.possibleFailureUnInitVars);
+            }
+        }
+    }
+
+    private void removeEnclosingOnFail(boolean onFailAvailable) {
+        if (onFailAvailable) {
+            this.onFailUninitializedVars.remove(this.enclosingOnFailClause.pop());
+        }
     }
 
     @Override
@@ -884,36 +953,62 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeErrorHandlingStatement(BLangBlockStmt blockStmt, BLangOnFailClause onFailClause) {
-        boolean prevVisitingOnFailStmt = this.visitingOnFailStmt;
-        if (onFailClause != null) {
-            this.visitingOnFailStmt = true;
-        }
+        createUninitializedVarsForOnFailClause(onFailClause);
         BranchResult doResult = analyzeBranch(blockStmt, env);
         this.uninitializedVars = doResult.uninitializedVars;
-        analyzeOnFailBranch(onFailClause, doResult);
-        this.visitingOnFailStmt = prevVisitingOnFailStmt;
+        if (onFailClause == null) {
+            if (!this.enclosingOnFailClause.isEmpty()) {
+                this.onFailUninitializedVars.put(this.enclosingOnFailClause.peek(), doResult.possibleFailureUnInitVars);
+            }
+            return;
+        }
+        BranchResult onFailResult = analyzeOnFailBranch(onFailClause, doResult);
+        if (blockStmt.failureBreakMode == BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE) {
+            //todo @chiran: check if this is correct, can we remove possibleFailureUnInitVars
+            this.uninitializedVars = mergeUninitializedVars(doResult.uninitializedVars, doResult.possibleFailureUnInitVars);
+            removeEnclosingOnFail(true);
+            return;
+        }
+
+        // If the flow was terminated within 'onfail' block, then after the do-onfail block,
+        // only the results of the 'do' block matters.
+        if (onFailResult.flowTerminated) {
+            this.uninitializedVars = doResult.uninitializedVars;
+        } else if (doResult.definiteFailureReached) {
+            this.uninitializedVars = onFailResult.uninitializedVars;
+        } else {
+            //todo @chiran
+            this.uninitializedVars = mergeUninitializedVars(doResult.uninitializedVars, onFailResult.uninitializedVars);
+        }
+        int enclosiveOnFailSize = this.enclosingOnFailClause.size();
+        if (enclosiveOnFailSize > 1) {
+            BLangOnFailClause enclosingOnFail = this.enclosingOnFailClause.get(enclosiveOnFailSize-2);
+            this.onFailUninitializedVars.put(enclosingOnFail,
+                    mergeUninitializedVars(doResult.uninitializedVars, onFailResult.uninitializedVars));
+        }
+        this.onFailUninitializedVars.remove(this.enclosingOnFailClause.pop());
     }
 
-    private void analyzeOnFailBranch(BLangOnFailClause onFailClause, BranchResult doResult) {
-        if (this.visitingOnFailStmt) {
-            // loop through the partial init variables from statement block
-            // and remove from `uninitializedVars` map if initialized in on-fail branch
-            BranchResult onFailResult = analyzeBranch(onFailClause, env);
-            Set<BSymbol> symbols = new HashSet<>();
-            for (Map.Entry<BSymbol, InitStatus> varRef : doResult.uninitializedVars.entrySet()) {
-                InitStatus status = onFailResult.uninitializedVars.get(varRef.getKey());
-                if (status == null && varRef.getValue() != InitStatus.UN_INIT) {
-                    symbols.add(varRef.getKey());
-                }
-            }
-            for (BSymbol symbol : symbols) {
-                doResult.uninitializedVars.remove(symbol);
-            }
+    private BranchResult analyzeOnFailBranch(BLangOnFailClause onFailClause, BranchResult doResult) {
+        Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
+        if (doResult.possibleFailureUnInitVars != null) {
+//            this.uninitializedVars = doResult.possibleFailureUnInitVars;
+            this.uninitializedVars = mergeUninitializedVars(this.uninitializedVars, doResult.possibleFailureUnInitVars);
         }
+        this.onFailUninitializedVars.put(onFailClause, copyUninitializedVars());
+        BranchResult onFailResult = analyzeBranch(onFailClause, env);
+        if (!onFailResult.possibleFailureUnInitVars.isEmpty()) {
+            onFailResult.uninitializedVars = mergeUninitializedVars(onFailResult.uninitializedVars,
+                    onFailResult.possibleFailureUnInitVars);
+        }
+        this.uninitializedVars = prevUninitializedVars;
+        return onFailResult;
     }
 
     public void visit(BLangFail failNode) {
         this.possibleFailureReached = true;
+        this.flowTerminated = true;
+        this.definiteFailureReached = true;
         analyzeNode(failNode.expr, env);
     }
 
@@ -1937,7 +2032,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
-        if (this.visitingOnFailStmt) {
+        if (!this.enclosingOnFailClause.isEmpty()) {
             this.possibleFailureReached = true;
         }
         analyzeNode(checkedExpr.expr, env);
@@ -2325,8 +2420,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
      */
     private BranchResult analyzeBranch(BLangNode node, SymbolEnv env) {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
+        Map<BSymbol, InitStatus> prevOnFailUninitializedVars = null;
+        if (!this.enclosingOnFailClause.isEmpty() && node != null) {
+            BLangOnFailClause onFailClause = this.enclosingOnFailClause.peek();
+            prevOnFailUninitializedVars = this.onFailUninitializedVars.get(onFailClause);
+            this.onFailUninitializedVars.put(onFailClause, copyOnFailUninitializedVars(onFailClause));
+        }
         boolean prevFlowTerminated = this.flowTerminated;
         boolean prevFailureReached = this.possibleFailureReached;
+        boolean prevDefiniteFailureReached = this.definiteFailureReached;
 
         // Get a snapshot of the current uninitialized vars before visiting the node.
         // This is done so that the original set of uninitialized vars will not be
@@ -2334,20 +2436,30 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.uninitializedVars = copyUninitializedVars();
         this.flowTerminated = false;
         this.possibleFailureReached = false;
+        this.definiteFailureReached = false;
 
         analyzeNode(node, env);
-        BranchResult branchResult = new BranchResult(this.uninitializedVars, this.flowTerminated);
+        BranchResult branchResult = new BranchResult(this.uninitializedVars,
+                this.enclosingOnFailClause.isEmpty() ? null : this.onFailUninitializedVars.get(this.enclosingOnFailClause.peek()),
+                this.flowTerminated, this.possibleFailureReached, this.definiteFailureReached);
 
         // Restore the original set of uninitialized vars
         this.uninitializedVars = prevUninitializedVars;
         this.flowTerminated = prevFlowTerminated;
         this.possibleFailureReached = prevFailureReached;
-
+        this.definiteFailureReached = prevDefiniteFailureReached;
+        if (!this.enclosingOnFailClause.isEmpty() && node != null) {
+            this.onFailUninitializedVars.put(this.enclosingOnFailClause.peek(), prevOnFailUninitializedVars);
+        }
         return branchResult;
     }
 
     private Map<BSymbol, InitStatus> copyUninitializedVars() {
         return new LinkedHashMap<>(this.uninitializedVars);
+    }
+
+    private Map<BSymbol, InitStatus> copyOnFailUninitializedVars(BLangOnFailClause onFailClause) {
+        return new LinkedHashMap<>(this.onFailUninitializedVars.get(onFailClause));
     }
 
     private void analyzeNode(BLangNode node, SymbolEnv env) {
@@ -2365,8 +2477,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         intersection.retainAll(secondUninitVars.keySet());
 
         return Stream.concat(firstUninitVars.entrySet().stream(), secondUninitVars.entrySet().stream())
-                .collect(Collectors.toMap(entry -> entry.getKey(),
-                        // If only one branch have uninitialized the var, then its a partial initialization
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        // If only one branch have uninitialized the var, then it's a partial initialization
                         entry -> intersection.contains(entry.getKey()) ? entry.getValue() : InitStatus.PARTIAL_INIT,
                         (a, b) -> {
                             // If atleast one of the branches have partially initialized the var,
@@ -2376,7 +2488,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                             }
 
                             return InitStatus.UN_INIT;
-                        }));
+                        }, LinkedHashMap::new));
     }
 
     private void checkVarRef(BSymbol symbol, Location pos) {
@@ -2512,10 +2624,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         BSymbol symbol = ((BLangVariableReference) varRef).symbol;
         if (this.possibleFailureReached && this.uninitializedVars.containsKey(symbol)) {
-            this.uninitializedVars.put(symbol, InitStatus.PARTIAL_INIT);
-        } else {
-            this.uninitializedVars.remove(symbol);
+            this.onFailUninitializedVars.get(this.enclosingOnFailClause.peek()).put(symbol, InitStatus.PARTIAL_INIT);
+        } else if (!this.possibleFailureReached && !this.onFailUninitializedVars.isEmpty()) {
+            this.onFailUninitializedVars.get(this.enclosingOnFailClause.peek()).remove(symbol);
         }
+        this.uninitializedVars.remove(symbol);
     }
 
     private void checkFinalObjectFieldUpdate(BLangFieldBasedAccess fieldAccess) {
@@ -2758,11 +2871,19 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private class BranchResult {
 
         Map<BSymbol, InitStatus> uninitializedVars;
+        Map<BSymbol, InitStatus> possibleFailureUnInitVars;
         boolean flowTerminated;
+        boolean definiteFailureReached;
+        boolean possibleFailureReached;
 
-        BranchResult(Map<BSymbol, InitStatus> uninitializedVars, boolean flowTerminated) {
+
+        BranchResult(Map<BSymbol, InitStatus> uninitializedVars, Map<BSymbol, InitStatus> possibleFailureUnInitVars,
+                     boolean flowTerminated, boolean possibleFailureReached, boolean definiteFailureReached) {
             this.uninitializedVars = uninitializedVars;
+            this.possibleFailureUnInitVars = possibleFailureUnInitVars;
             this.flowTerminated = flowTerminated;
+            this.possibleFailureReached = possibleFailureReached;
+            this.definiteFailureReached = definiteFailureReached;
         }
     }
 }
