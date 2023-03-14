@@ -1015,8 +1015,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangFail failNode) {
-        this.possibleFailureReached = true;
-        this.definiteFailureReached = true;
+        if (isOnFailEnclosed()) {
+            this.possibleFailureReached = true;
+            this.definiteFailureReached = true;
+        }
         terminateFlow();
         analyzeNode(failNode.expr, env);
     }
@@ -2637,9 +2639,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         BSymbol symbol = ((BLangVariableReference) varRef).symbol;
         if (this.possibleFailureReached && this.uninitializedVars.containsKey(symbol)) {
-            this.possibleFailureUnInitVars.get(this.enclosingOnFailClause.peek()).put(symbol, InitStatus.PARTIAL_INIT);
-        } else if (!this.possibleFailureReached && !this.possibleFailureUnInitVars.isEmpty()) {
-            this.possibleFailureUnInitVars.get(this.enclosingOnFailClause.peek()).remove(symbol);
+            getPossibleFailureUnInitVars().put(symbol, InitStatus.PARTIAL_INIT);
+        } else if (!this.possibleFailureUnInitVars.isEmpty() && !this.possibleFailureReached) {
+            getPossibleFailureUnInitVars().remove(symbol);
         }
         this.uninitializedVars.remove(symbol);
     }
