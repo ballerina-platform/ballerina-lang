@@ -16,7 +16,6 @@
 
 package io.ballerina.runtime.api.values;
 
-import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 /**
