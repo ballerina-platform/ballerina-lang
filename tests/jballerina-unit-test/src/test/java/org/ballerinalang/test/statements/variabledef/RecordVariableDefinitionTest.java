@@ -386,6 +386,10 @@ public class RecordVariableDefinitionTest {
                 "invalid record binding pattern with type 'record {| int b?; anydata...; |}[1]'", 349, 17);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'int?', found 'string?'",
                 360, 19);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'record {| readonly (string[] & " +
+                "readonly) x; readonly string y; |} & readonly', found 'ReadOnlyRecord'", 373, 17);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'int[] & readonly', found " +
+                "'int[]'", 381, 9);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 
@@ -419,6 +423,21 @@ public class RecordVariableDefinitionTest {
     @Test
     public void testRecordFieldBindingPatternsWithIdentifierEscapes() {
         BRunUtil.invoke(result, "testRecordFieldBindingPatternsWithIdentifierEscapes");
+    }
+
+    @Test
+    public void testReadOnlyRecordWithMappingBindingPattern() {
+        BRunUtil.invoke(result, "testReadOnlyRecordWithMappingBindingPatternInVarDecl");
+    }
+
+    @Test
+    public void testRecordVariableWithAnonymousType() {
+        BRunUtil.invoke(result, "testRecordVariableWithAnonymousType");
+    }
+
+    @Test
+    public void testNestedRecordVariableWithAnonymousType() {
+        BRunUtil.invoke(result, "testNestedRecordVariableWithAnonymousType");
     }
 
     @AfterClass

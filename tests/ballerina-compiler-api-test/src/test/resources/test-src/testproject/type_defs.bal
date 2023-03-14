@@ -135,3 +135,7 @@ public function testAnonTypeDefSymbolsIsNotVisible() {
 
 public type Service distinct service object {
 };
+
+public type FnTypeA function(int m, int n, float p) returns string;
+
+public type FnTypeB function(int m, function(int a, string... b) returns string fn2) returns string;

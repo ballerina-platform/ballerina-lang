@@ -1,0 +1,108 @@
+{
+  "position": {
+    "line": 1,
+    "character": 22
+  },
+  "source": "extractToLocalVariableExprsWithQuickPick.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "command": {
+        "title": "Extract To Local Variable",
+        "command": "ballerina.action.extract",
+        "arguments": [
+          "Extract To Local Variable",
+          "extractToLocalVariableExprsWithQuickPick.bal",
+          {
+            "10": [
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 4
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 4
+                  }
+                },
+                "newText": "int var1 = 10;\n    "
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 23
+                  }
+                },
+                "newText": "var1"
+              }
+            ],
+            "10 * 20": [
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 4
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 4
+                  }
+                },
+                "newText": "int var1 = 10 * 20;\n    "
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 28
+                  }
+                },
+                "newText": "var1"
+              }
+            ],
+            "10 * 20 + 30": [
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 4
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 4
+                  }
+                },
+                "newText": "int var1 = 10 * 20 + 30;\n    "
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 1,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 1,
+                    "character": 33
+                  }
+                },
+                "newText": "var1"
+              }
+            ]
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

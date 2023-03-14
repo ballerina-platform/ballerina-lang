@@ -101,3 +101,42 @@ function functionCallTest() {
     int s = getIntValue(2, "a") + a;
     int s = getIntValue(a, "a");
 }
+
+type Type record {|
+    string name;
+|};
+
+function testPositionalArgs() {
+    json myJson;
+    myJson.cloneWithType();
+    myJson.cloneWithType(Ty);
+    
+    string s = "1abc";
+    s.includes("abc");
+    s.includes("abc",);
+    s.includes("abc",2);
+}
+
+public function testRestParams() {
+    add();
+    add(1,2,);
+    calculate("add");
+    calculate("sub",);
+    calculate("div",1,);
+}
+
+function add(int... vals) {
+
+}
+
+function calculate(string ops, int... vals) {
+
+}
+
+public function main() {
+    myFunction("abc", arg3 = 10,)
+}
+
+function myFunction(string arg1, string arg2, int arg3 = 101) {
+
+}

@@ -19,7 +19,8 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
-import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.CodeGeneratorResult;
+import io.ballerina.projects.CodeModifierResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
@@ -87,9 +88,6 @@ public class CompileTask implements Task {
         try {
             List<Diagnostic> diagnostics = new ArrayList<>();
             long start = 0;
-            if (project.buildOptions().dumpBuildTime()) {
-                start = System.currentTimeMillis();
-            }
 
             if (project.currentPackage().compilationOptions().dumpGraph()
                     || project.currentPackage().compilationOptions().dumpRawGraphs()) {
@@ -97,14 +95,21 @@ public class CompileTask implements Task {
                 this.out.println("Resolving dependencies");
             }
 
+            if (project.buildOptions().dumpBuildTime()) {
+                start = System.currentTimeMillis();
+            }
             PackageResolution packageResolution = project.currentPackage().getResolution();
+            if (project.buildOptions().dumpBuildTime()) {
+                BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
+            }
 
             if (project.currentPackage().compilationOptions().dumpRawGraphs()) {
                 packageResolution.dumpGraphs(out);
             }
 
             if (project.buildOptions().dumpBuildTime()) {
-                BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
+                BuildTime.getInstance().codeGeneratorPluginDuration = 0;
+                BuildTime.getInstance().codeModifierPluginDuration = 0;
                 start = System.currentTimeMillis();
             }
 
@@ -122,10 +127,20 @@ public class CompileTask implements Task {
                         // Hence, we run the code generators only for BuildProject.
                         if (this.isPackageModified || !this.cachesEnabled) {
                             // Run code gen and modify plugins, if project has updated only
-                            DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
-                                    .runCodeGenAndModifyPlugins();
-                            if (codeGenAndModifyDiagnosticResult != null) {
-                                diagnostics.addAll(codeGenAndModifyDiagnosticResult.diagnostics());
+                            CodeGeneratorResult codeGeneratorResult = project.currentPackage()
+                                    .runCodeGeneratorPlugins();
+                            diagnostics.addAll(codeGeneratorResult.reportedDiagnostics().diagnostics());
+                            if (project.buildOptions().dumpBuildTime()) {
+                                BuildTime.getInstance().codeGeneratorPluginDuration =
+                                        System.currentTimeMillis() - start;
+                                start = System.currentTimeMillis();
+                            }
+                            CodeModifierResult codeModifierResult = project.currentPackage()
+                                    .runCodeModifierPlugins();
+                            diagnostics.addAll(codeModifierResult.reportedDiagnostics().diagnostics());
+                            if (project.buildOptions().dumpBuildTime()) {
+                                BuildTime.getInstance().codeModifierPluginDuration =
+                                        System.currentTimeMillis() - start;
                             }
                         }
                     }
@@ -157,6 +172,9 @@ public class CompileTask implements Task {
             }
 
             // Package resolution is successful. Continue compiling the package.
+            if (project.buildOptions().dumpBuildTime()) {
+                start = System.currentTimeMillis();
+            }
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageCompilationDuration = System.currentTimeMillis() - start;
@@ -174,7 +192,7 @@ public class CompileTask implements Task {
                 if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
                     hasErrors = true;
                 }
-                err.println(d.toString());
+                err.println(d);
             }
             if (hasErrors) {
                 throw createLauncherException("compilation contains errors");

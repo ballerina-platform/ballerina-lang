@@ -198,3 +198,15 @@ function testInvalidUsageWithoutContextuallyExpectedTypeAndArgument() {
     fooFn3(float);
     var x = fooFn1();
 }
+
+function dependentlyTypedFunctionWithoutTypeRefType1(typedesc<anydata> targetType = <>)
+    returns targetType|json = external;
+
+function dependentlyTypedFunctionWithTypeRefType1(TargetType targetType = <>) returns targetType|json = external;
+
+function dependentlyTypedFunctionWithoutTypeRefType2(typedesc<anydata> targetType = <>)
+    returns json|targetType|error = external;
+
+function dependentlyTypedFunctionWithTypeRefType2(TargetType targetType = <>) returns targetType|json|error = external;
+
+public type TargetType typedesc<anydata>;

@@ -6484,18 +6484,20 @@ public class BallerinaParser extends AbstractParser {
         STToken secondToken = peek();
         switch (secondToken.kind) {
             case EQUAL_TOKEN:
+                if (argNameOrExpr.kind != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                    break;
+                }
                 STNode equal = parseAssignOp();
                 STNode valExpr = parseExpression();
                 return STNodeFactory.createNamedArgumentNode(argNameOrExpr, equal, valExpr);
             case COMMA_TOKEN:
             case CLOSE_PAREN_TOKEN:
                 return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
-            default:
-                // Treat everything else as a single expression. If something is missing,
-                // expression-parsing will recover it.
-                argNameOrExpr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, argNameOrExpr, true, false);
-                return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
         }
+        // Treat everything else as a single expression. If something is missing,
+        // expression-parsing will recover it.
+        argNameOrExpr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, argNameOrExpr, true, false);
+        return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
     }
 
     /**
@@ -18286,6 +18288,7 @@ public class BallerinaParser extends AbstractParser {
         STNode identifier = parseIdentifier(ParserRuleContext.VARIABLE_REF);
         switch (peek().kind) {
             case COMMA_TOKEN: // { foo,
+            case CLOSE_BRACE_TOKEN: // {foo}
                 // could be map literal or mapping-binding-pattern
                 STNode colon = STNodeFactory.createEmptyNode();
                 STNode value = STNodeFactory.createEmptyNode();

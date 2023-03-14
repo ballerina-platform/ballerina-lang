@@ -282,6 +282,93 @@ function testRecordFieldBindingPatternsWithIdentifierEscapes() {
     assertEquality("basic", d);
 }
 
+type ReadOnlyRecord readonly & record {|
+    int[] x;
+    string y;
+|};
+
+function testReadOnlyRecordWithMappingBindingPatternInDestructuringAssignment() {
+    ReadOnlyRecord f1 = {x: [1, 2], y: "s1"};
+    int[] & readonly x;
+    string y;
+
+    {x, y} = f1;
+    assertEquality(<int[]> [1, 2], x);
+    assertEquality("s1", y);
+
+    readonly & record {
+        int[] a;
+        ReadOnlyRecord b;
+    } r = {a: [12, 34, 56], b: f1};
+    int[] & readonly a;
+    int[] & readonly x2;
+    string y2;
+    {a, b: {x: x2, y: y2}} = r;
+    assertEquality(<int[]> [12, 34, 56], a);
+    assertEquality(<int[]> [1, 2], x2);
+    assertEquality("s1", y2);
+
+    int[] c;
+    int[] d;
+    {a: c, b: {x: d, y: y2}} = r;
+    assertEquality(<int[]> [12, 34, 56], c);
+    assertEquality(<int[]> [1, 2], d);
+    assertEquality("s1", y2);
+}
+
+type ClosedRec record {|
+    string a;
+    string b;
+|};
+
+type OpenRec record {
+    string a;
+    string b;
+};
+
+function testMappingBindingWithSingleNameFieldBinding() {
+    record {|
+        string a;
+        string b;
+    |} x = {a: "foo", b: "bar"};
+
+    string a;
+    string b;
+
+    {a} = x;
+    assertEquality("foo", a);
+
+    {b} = x;
+    assertEquality("bar", b);
+
+    ClosedRec y = {a: "foo2", b: "bar2"};
+
+    {a} = y;
+    assertEquality("foo2", a);
+
+    {b} = y;
+    assertEquality("bar2", b);
+
+    record {
+        string a;
+        string b;
+    } v = {a: "foo3", b: "bar3"};
+
+    {a} = v;
+    assertEquality("foo3", a);
+
+    {b} = v;
+    assertEquality("bar3", b);
+
+    OpenRec w = {a: "foo4", b: "bar4"};
+
+    {a} = w;
+    assertEquality("foo4", a);
+
+    {b} = w;
+    assertEquality("bar4", b);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

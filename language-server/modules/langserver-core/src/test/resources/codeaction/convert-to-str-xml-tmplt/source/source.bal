@@ -29,3 +29,9 @@ const string myConst = `sample template`;
 function testDefaultableParam(xml name = `test`) returns string {
     return "test";
 }
+
+string:RegExp moduleVarDeclaration2 = `Module Var Declaration`;
+
+function testFunctionWithRegExpReturn() returns string:RegExp {
+    return `Ballerina`;
+}

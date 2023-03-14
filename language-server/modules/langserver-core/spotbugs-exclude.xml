@@ -181,4 +181,10 @@
             <Bug pattern="DM_DEFAULT_ENCODING" />
         </OR>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.completions.providers.context.util.RegexpCompletionProvider" />
+        <OR>
+            <Bug pattern="BC_UNCONFIRMED_CAST" />
+        </OR>
+    </Match>
 </FindBugsFilter>

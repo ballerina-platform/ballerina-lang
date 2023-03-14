@@ -1409,6 +1409,9 @@ public class Types {
         if (Symbols.isFlagOn(target.flags, Flags.ANY_FUNCTION)) {
             return true;
         }
+        if (Symbols.isFlagOn(source.flags, Flags.ANY_FUNCTION) && !Symbols.isFlagOn(target.flags, Flags.ANY_FUNCTION)) {
+            return false;
+        }
 
         // For invokable types with typeParam parameters, we have to check whether the source param types are
         // covariant with the target param types.
@@ -3584,7 +3587,7 @@ public class Types {
             return true;
         }
 
-        if (source.tag == TypeTags.UNION && ((BUnionType) source).isCyclic) {
+        if (isJsonAnydataOrUserDefinedUnion(source) && ((BUnionType) source).isCyclic) {
             // add cyclic source to target pair to avoid recursive calls
             unresolvedTypes.add(pair);
         }
@@ -3592,7 +3595,7 @@ public class Types {
         Set<BType> sourceTypes = new LinkedHashSet<>();
         Set<BType> targetTypes = new LinkedHashSet<>();
 
-        if (source.tag == TypeTags.UNION || source.tag == TypeTags.JSON || source.tag == TypeTags.ANYDATA) {
+        if (isJsonAnydataOrUserDefinedUnion(source)) {
             sourceTypes.addAll(getEffectiveMemberTypes((BUnionType) source));
         } else {
             sourceTypes.add(source);
@@ -3700,6 +3703,11 @@ public class Types {
 
         unresolvedTypes.add(pair);
         return true;
+    }
+
+    private boolean isJsonAnydataOrUserDefinedUnion(BType type) {
+        int tag = type.tag;
+        return tag == TypeTags.UNION || tag == TypeTags.JSON || tag == TypeTags.ANYDATA;
     }
 
     public boolean isSelfReferencedStructuredType(BType source, BType s) {
@@ -3980,7 +3988,13 @@ public class Types {
                 if (NumericLiteralSupport.isDecimalDiscriminated(originalValue)) {
                     return false;
                 }
-                double baseDoubleVal = Double.parseDouble(baseValueStr);
+                double baseDoubleVal;
+                try {
+                    baseDoubleVal = Double.parseDouble(baseValueStr);
+                } catch (NumberFormatException e) {
+                    // We reach here if a floating point literal has syntax diagnostics.
+                    return false;
+                }
                 double candidateDoubleVal;
                 if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
                     if (candidateLiteral.value instanceof Double) {
@@ -4319,6 +4333,9 @@ public class Types {
                 BUnionType unionType = (BUnionType) type;
                 Set<BType> memberTypes = unionType.getMemberTypes();
                 BType firstTypeInUnion = getBasicTypeOfBuiltinSubtype(getReferredType(memberTypes.iterator().next()));
+                if (!validationFunction.validate(firstTypeInUnion)) {
+                    return false;
+                }
                 if (firstTypeInUnion.tag == TypeTags.FINITE) {
                     Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
                     BType baseExprType = valSpace.iterator().next().getBType();
@@ -5422,6 +5439,9 @@ public class Types {
     private BType createRecordIntersection(IntersectionContext intersectionContext,
                                            BRecordType recordTypeOne, BRecordType recordTypeTwo, SymbolEnv env,
                                            LinkedHashSet<BType> visitedTypes) {
+        if (!visitedTypes.add(recordTypeOne)) {
+            return recordTypeOne;
+        }
         LinkedHashMap<String, BField> recordOneFields = recordTypeOne.fields;
         LinkedHashMap<String, BField> recordTwoFields = recordTypeTwo.fields;
 
@@ -7114,9 +7134,6 @@ public class Types {
     public static class CommonAnalyzerData {
         Stack<SymbolEnv> queryEnvs = new Stack<>();
         Stack<BLangNode> queryFinalClauses = new Stack<>();
-        boolean queryCompletesEarly = false;
-        boolean checkWithinQueryExpr = false;
-        HashSet<BType> completeEarlyErrorList = new HashSet<>();
         HashSet<BType> checkedErrorList = new HashSet<>();
         boolean breakToParallelQueryEnv = false;
         int letCount = 0;
