@@ -6,7 +6,7 @@ WARNING [tests\new-data-provider-tests.bal:(153:9,153:21)] unused variable 'a'
 Running Tests with Coverage
 
 	dataproviders
-		[pass] testFunction3#"\u{D7FF}""	"
+		[pass] testFunction3#a:x(c,d)[]; ^(x|y).ok();
 
 
 		1 passing
