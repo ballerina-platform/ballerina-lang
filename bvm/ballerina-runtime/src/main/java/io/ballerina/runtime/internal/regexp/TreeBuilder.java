@@ -109,6 +109,7 @@ public class TreeBuilder {
             default:
                 // Read chars in ReLiteralChar, . or ReEscape.
                 reAtom = readRegChars();
+                break;
         }
 
         nextToken = peek();
