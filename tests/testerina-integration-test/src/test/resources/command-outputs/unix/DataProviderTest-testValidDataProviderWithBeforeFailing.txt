@@ -1,0 +1,30 @@
+Compiling source
+	intg_tests/dataproviders:0.0.0
+WARNING [tests/new-data-provider-tests.bal:(121:9,121:21)] unused variable 'a'
+WARNING [tests/new-data-provider-tests.bal:(153:9,153:21)] unused variable 'a'
+
+Running Tests with Coverage
+
+	dataproviders
+	[fail] [before test function for the test]:
+	     / by zero
+		[pass] testDividingValuesWithBeforeFailing#0
+		[pass] testDividingValuesWithBeforeFailing#1
+		[pass] testDividingValuesWithBeforeFailing#3
+		[pass] testDividingValuesWithBeforeFailing#4
+		[pass] testExecutionOfBeforeFailing
+
+
+		5 passing
+		0 failing
+		1 skipped
+
+	dataproviders.module1
+
+
+		No tests found
+
+Generating Test Report
+	data-providers/target/report/test_results.json
+
+error: there are test failures

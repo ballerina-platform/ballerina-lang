@@ -25,9 +25,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangFail;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -65,10 +62,6 @@ class BIRGenEnv {
     Stack<List<BIRBasicBlock>> trapBlocks = new Stack<>();
 
     Map<BlockNode, List<BIRVariableDcl>> varDclsByBlock = new HashMap<>();
-    Map<BVarSymbol, BIRVariableDcl> syntheticErrorVarDclMap = new HashMap<>();
-    Map<BLangFail, BIRBasicBlock> onFailStartBlockByFailNode = new HashMap<>();
-    Map<BLangBlockStmt, BIRBasicBlock> failStartBasicBlockMap = new HashMap<>();
-    boolean failStartBBAlreadyAvailable;
 
     // This is to hold variables to unlock in each scope
     // for example when we are to return from somewhere, we need to unlock all the

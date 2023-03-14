@@ -572,6 +572,12 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_COLON_TOKEN;
             case RE_UNICODE_PROPERTY_VALUE:
                 return DiagnosticErrorCode.ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE;
+            case DIGIT:
+                return DiagnosticErrorCode.ERROR_MISSING_RE_QUANTIFIER_DIGIT;
+            case BITWISE_XOR_TOKEN:
+                return DiagnosticErrorCode.ERROR_INVALID_RE_SYNTAX_CHAR;
+            case BACK_SLASH_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_BACKSLASH;
             default:
                 return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }

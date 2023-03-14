@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -215,15 +216,16 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BTupleType typeInSymbol, BType boundType) {
-        List<BType> newTupleTypes = new ArrayList<>();
+        List<BTupleMember> newTupleMembers = new ArrayList<>();
 
-        List<BType> tupleTypes = typeInSymbol.tupleTypes;
+        List<BTupleMember> tupleMembers = typeInSymbol.getMembers();
         boolean areAllSameType = true;
 
-        for (BType type : tupleTypes) {
-            BType newType = resolve(type, boundType);
-            areAllSameType &= newType == type;
-            newTupleTypes.add(newType);
+        for (BTupleMember tupleMember : tupleMembers) {
+            BType newType = resolve(tupleMember.type, boundType);
+            areAllSameType &= newType == tupleMember.type;
+            BVarSymbol varSymbol = createNewVarSymbol(tupleMember.symbol, newType);
+            newTupleMembers.add(new BTupleMember(newType, varSymbol));
         }
 
         BType newRestType = typeInSymbol.restType != null ? resolve(typeInSymbol.restType, boundType) : null;
@@ -232,7 +234,7 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
             return typeInSymbol;
         }
 
-        return new BTupleType(typeInSymbol.tsymbol, newTupleTypes, newRestType, typeInSymbol.flags,
+        return new BTupleType(typeInSymbol.tsymbol, newTupleMembers, newRestType, typeInSymbol.flags,
                               typeInSymbol.isCyclic);
     }
 

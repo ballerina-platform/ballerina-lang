@@ -106,23 +106,49 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         Position constDeclPosition = constantData.getPosition();
         boolean addNewLineAtStart = constantData.isAddNewLineAtStart();
 
+        List<TextEdit> textEdits = getTextEdits(node, typeSymbol.get(), constName, constDeclPosition,
+                addNewLineAtStart);
+
         // Check if the selection is a range or a position, and whether quick picks are supported by the client
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (isRange(context.range()) || !lsClientCapabilities.getInitializationOptions().isQuickPickSupported()) {
 
             // Selection is a range
-            List<TextEdit> textEdits =
-                    getTextEdits(node, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart);
-            return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
-                    textEdits, context.fileUri(), CodeActionKind.RefactorExtract));
+            CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                    textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
+            CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_CONSTANT,
+                    getRenamePosition(textEdits.get(1).getRange().getStart(), addNewLineAtStart));
+            return Collections.singletonList(codeAction);
         }
 
         // Selection is a position
         List<Node> nodeList = getPossibleExpressionNodes(node, nodeValidator);
-        LinkedHashMap<String, List<TextEdit>> textEditMap = new LinkedHashMap<>();
+        if (nodeList.size() == 1) {
+            CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                    textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
+            CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_CONSTANT,
+                    getRenamePosition(textEdits.get(1).getRange().getStart(), addNewLineAtStart));
+            return Collections.singletonList(codeAction);
+        }
 
-        nodeList.forEach(extractableNode -> textEditMap.put(extractableNode.toSourceCode().strip(),
-                getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart)));
+        LinkedHashMap<String, List<TextEdit>> textEditMap = new LinkedHashMap<>();
+        nodeList.forEach(extractableNode -> {
+            textEditMap.put(extractableNode.toSourceCode().strip(),
+                    getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart));
+        });
+
+        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
+            LinkedHashMap<String, Position> renamePositionMap = new LinkedHashMap<>();
+            nodeList.forEach(extractableNode ->
+                    renamePositionMap.put(extractableNode.toSourceCode().strip(),
+                            getRenamePosition(PositionUtil.toRange(extractableNode.lineRange()).getStart(),
+                                    addNewLineAtStart)));
+            return Collections.singletonList(
+                    CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                            new Command(NAME, EXTRACT_COMMAND,
+                                    List.of(NAME, context.filePath().toString(), textEditMap, renamePositionMap)),
+                            CodeActionKind.RefactorExtract));
+        }
 
         return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
                 new Command(NAME, EXTRACT_COMMAND, List.of(NAME, context.filePath().toString(),
@@ -143,6 +169,15 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
 
     private boolean isExpressionNode(Node node) {
         return node instanceof StatementNode || node instanceof ModuleMemberDeclarationNode;
+    }
+
+    private Position getRenamePosition(Position replacePosition, boolean addNewLineAtStart) {
+        // line position will increment by one due to const declaration statement
+        int line = replacePosition.getLine() + 1;
+        if (addNewLineAtStart) {
+            line += 1;
+        }
+        return new Position(line, replacePosition.getCharacter());
     }
 
     @Override
@@ -238,6 +273,7 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
     }
 
     private static class ConstantData {
+
         Position position;
         boolean addNewLineAtStart;
 

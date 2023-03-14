@@ -115,7 +115,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
             if (packageName.equals(DOT)) {
                 diagnosticLog.logDiagnostic(
                         DiagnosticSeverity.ERROR, (ModuleDescriptor) null, attachmentNode.getPosition(),
-                        "function mocking is not supported for single file projects");
+                        "function mocking is not supported with standalone Ballerina files");
                 return;
             }
             String annotationName = attachmentNode.getAnnotationName().getValue();
@@ -130,7 +130,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     if (null == attachmentNode.getExpression()
                             || attachmentNode.getExpression().getKind() != NodeKind.RECORD_LITERAL_EXPR) {
                         diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                                "annotation should be a record with 'functionName' and 'moduleName'(optional) fields");
+                                "missing required 'functionName' field");
                         continue;
                     }
                     // Get list of attributes in the Mock annotation
@@ -259,7 +259,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                                     + MODULE_DELIMITER + className + MOCK_LEGACY_DELIMITER + vals[1], functionName);
                 } else {
                     diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                            "annotation should be a record with 'functionName' and 'moduleName'(optional) fields");
+                            "missing required 'functionName' field");
                 }
             }
         }
@@ -446,7 +446,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                 bPackageSymbol.pkgID.orgName.getValue(),
                 bPackageSymbol.pkgID.name.getValue(),
                 bPackageSymbol.pkgID.version.getValue(),
-                pos.lineRange().filePath()
+                pos.lineRange().fileName()
                         .replace(ProjectConstants.BLANG_SOURCE_EXT, "")
                         .replace(ProjectConstants.DOT, FILE_NAME_PERIOD_SEPARATOR)
                         .replace("/", ProjectConstants.DOT));

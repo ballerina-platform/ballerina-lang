@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.internal.parser;
 
+import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.internal.parser.tree.STAbstractNodeFactory;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
@@ -42,7 +43,7 @@ public class RegExpParser extends AbstractParser {
 
     @Override
     public STNode parse() {
-        return parseReDisjunction();
+        return parseReDisjunction(false);
     }
 
     /**
@@ -50,11 +51,11 @@ public class RegExpParser extends AbstractParser {
      *
      * @return ReDisjunction node
      */
-    private STNode parseReDisjunction() {
+    private STNode parseReDisjunction(boolean inCapturingGroup) {
         List<STNode> reSequenceList = new ArrayList<>();
         STToken nextToken = peek();
-        while (!isEndOfReDisjunction(nextToken.kind)) {
-            STNode reSequence = parseReSequence();
+        while (!isEndOfReDisjunction(nextToken.kind, inCapturingGroup)) {
+            STNode reSequence = parseReSequence(inCapturingGroup);
             reSequenceList.add(reSequence);
             nextToken = peek();
             if (nextToken.kind == SyntaxKind.PIPE_TOKEN) {
@@ -71,10 +72,10 @@ public class RegExpParser extends AbstractParser {
      *
      * @return ReSequence node
      */
-    private STNode parseReSequence() {
+    private STNode parseReSequence(boolean inCapturingGroup) {
         List<STNode> reTerms = new ArrayList<>();
         STToken nextToken = peek();
-        while (!isEndOfReSequence(nextToken.kind)) {
+        while (!isEndOfReSequence(nextToken.kind, inCapturingGroup)) {
             STNode reTerm = parseReTerm();
             reTerms.add(reTerm);
             nextToken = peek();
@@ -90,14 +91,19 @@ public class RegExpParser extends AbstractParser {
     private STNode parseReTerm() {
         STToken nextToken = peek();
         SyntaxKind tokenKind = nextToken.kind;
-        if (tokenKind == SyntaxKind.RE_ASSERTION_VALUE) {
+        if (tokenKind == SyntaxKind.BITWISE_XOR_TOKEN ||
+                tokenKind == SyntaxKind.DOLLAR_TOKEN) {
             return parseReAssertion();
         }
 
         STNode reAtom;
         switch (nextToken.kind) {
-            case RE_CHAR:
-            case RE_ESCAPE:
+            case RE_LITERAL_CHAR:
+            case RE_NUMERIC_ESCAPE:
+            case RE_CONTROL_ESCAPE:
+            case COMMA_TOKEN:
+            case DOT_TOKEN:
+            case DIGIT:
                 reAtom = parseChars();
                 break;
             case BACK_SLASH_TOKEN:
@@ -107,23 +113,40 @@ public class RegExpParser extends AbstractParser {
                 reAtom = parseCharacterClass();
                 break;
             case OPEN_PAREN_TOKEN:
-                reAtom = parseCapturingGroups();
+                reAtom = parseCapturingGroup();
                 break;
             case INTERPOLATION_START_TOKEN:
                 reAtom = parseInterpolation();
                 break;
             default:
-                reAtom = consume();
+                // Here the token is a syntax char, which is invalid. A syntax char should have a backslash prior
+                // to the token.
+                STNode missingBackSlash =
+                        SyntaxErrors.createMissingRegExpTokenWithDiagnostics(SyntaxKind.BACK_SLASH_TOKEN);
+                reAtom = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(missingBackSlash, consume());
+                break;
         }
 
         nextToken = peek();
-        if (nextToken.kind == SyntaxKind.RE_BASE_QUANTIFIER_VALUE ||
-                nextToken.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
-            STNode quantifier = parseReQuantifier();
+        STNode quantifier = parseOptionalQuantifier(nextToken.kind);
+
+        if (quantifier != null) {
             return STNodeFactory.createReAtomQuantifierNode(reAtom, quantifier);
         }
 
         return STNodeFactory.createReAtomQuantifierNode(reAtom, null);
+    }
+
+    private STNode parseOptionalQuantifier(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case PLUS_TOKEN:
+            case ASTERISK_TOKEN:
+            case QUESTION_MARK_TOKEN:
+            case OPEN_BRACE_TOKEN:
+                return parseReQuantifier();
+            default:
+                return null;
+        }
     }
 
     /**
@@ -143,16 +166,39 @@ public class RegExpParser extends AbstractParser {
      */
     private STNode parseReEscape() {
         STNode backSlash = consume();
+        return parseEscapeChar(backSlash);
+    }
+
+    private STNode parseEscapeChar(STNode backSlash) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case RE_PROPERTY:
                 return parseReUnicodePropertyEscape(backSlash);
-            case RE_SYNTAX_CHAR:
+            case BITWISE_XOR_TOKEN:
+            case DOLLAR_TOKEN:
+            case BACK_SLASH_TOKEN:
+            case DOT_TOKEN:
+            case ASTERISK_TOKEN:
+            case PLUS_TOKEN:
+            case QUESTION_MARK_TOKEN:
+            case OPEN_PAREN_TOKEN:
+            case CLOSE_PAREN_TOKEN:
+            case OPEN_BRACKET_TOKEN:
+            case CLOSE_BRACKET_TOKEN:
+            case OPEN_BRACE_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+            case PIPE_TOKEN:
                 return parseReQuoteEscape(backSlash);
-            case RE_SIMPLE_CHAR_CLASS_CODE:
-                return parseReSimpleCharClassEscape(backSlash);
             default:
-                return consume();
+                if (isReSimpleCharClassCode(nextToken)) {
+                    return parseReSimpleCharClassEscape(backSlash);
+                }
+                // "BITWISE_XOR_TOKEN" syntax kind is used here to mock the flow for a ReSyntaxChar and give the
+                // diagnostic, instead of having a separate syntax kind to represent ReSyntaxChar.
+                STNode syntaxChar = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.BITWISE_XOR_TOKEN,
+                        DiagnosticErrorCode.ERROR_INVALID_RE_SYNTAX_CHAR);
+                syntaxChar = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(syntaxChar, consume());
+                return STNodeFactory.createReQuoteEscapeNode(backSlash, syntaxChar);
         }
     }
 
@@ -254,13 +300,30 @@ public class RegExpParser extends AbstractParser {
         return STNodeFactory.createReQuoteEscapeNode(backSlash, syntaxChar);
     }
 
+    static boolean isReSimpleCharClassCode(STToken token) {
+        if (token.kind != SyntaxKind.RE_LITERAL_CHAR) {
+            return false;
+        }
+        switch (token.text()) {
+            case "d":
+            case "D":
+            case "s":
+            case "S":
+            case "w":
+            case "W":
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**
      * Parse ReSimpleCharClassEscape.
      *
      * @return ReSimpleCharClassEscapeNode node
      */
     private STNode parseReSimpleCharClassEscape(STNode backSlash) {
-        STNode simpleCharClassCode = consume();
+        STNode simpleCharClassCode = getLiteralValueToken(consume(), SyntaxKind.RE_SIMPLE_CHAR_CLASS_CODE);
         return STNodeFactory.createReSimpleCharClassEscapeNode(backSlash, simpleCharClassCode);
     }
 
@@ -270,24 +333,11 @@ public class RegExpParser extends AbstractParser {
      * @return Character class node
      */
     private STNode parseCharacterClass() {
-        STNode characterClassStart = parseCharacterClassStart();
+        STNode characterClassStart = consume();
         STNode negation = parseNegation();
-        STNode characterSet = parseReCharSet();
+        STNode characterSet = parseReCharSet(negation);
         STNode characterClassEnd = parseCharacterClassEnd();
         return STNodeFactory.createReCharacterClassNode(characterClassStart, negation, characterSet, characterClassEnd);
-    }
-
-    /**
-     * Parse open bracket token in a character class.
-     *
-     * @return Open bracket token
-     */
-    private STNode parseCharacterClassStart() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
-            return consume();
-        }
-        throw new IllegalStateException();
     }
 
     /**
@@ -308,29 +358,29 @@ public class RegExpParser extends AbstractParser {
      *
      * @return ReCharSet node
      */
-    private STNode parseReCharSet() {
+    private STNode parseReCharSet(STNode prevNode) {
         STToken nextToken = peek();
         if (isCharacterClassEnd(nextToken.kind)) {
             return null;
         }
-        STNode startReCharSetAtom = parseCharSetAtom(nextToken);
+        STNode startReCharSetAtom = parseCharSetAtom(nextToken, prevNode);
         nextToken = peek();
         if (isCharacterClassEnd(nextToken.kind)) {
             return startReCharSetAtom;
         }
-        if (nextToken.kind == SyntaxKind.MINUS_TOKEN) {
+        if ("-".equals(nextToken.text())) {
             STNode minus = consume();
             nextToken = peek();
             if (isCharacterClassEnd(nextToken.kind)) {
                 return STNodeFactory.createReCharSetAtomWithReCharSetNoDashNode(startReCharSetAtom, minus);
             }
-            STNode rhsReCharSetAtom = parseCharSetAtom(nextToken);
+            STNode rhsReCharSetAtom = parseCharSetAtom(nextToken, minus);
             STNode reCharSetRange = STNodeFactory.createReCharSetRangeNode(startReCharSetAtom, minus,
                     rhsReCharSetAtom);
-            STNode reCharSet = parseReCharSet();
+            STNode reCharSet = parseReCharSet(reCharSetRange);
             return STNodeFactory.createReCharSetRangeWithReCharSetNode(reCharSetRange, reCharSet);
         }
-        STNode reCharSetNoDash = parseCharSetAtomNoDash(nextToken);
+        STNode reCharSetNoDash = parseCharSetNoDash(nextToken, startReCharSetAtom);
         return STNodeFactory.createReCharSetAtomWithReCharSetNoDashNode(startReCharSetAtom, reCharSetNoDash);
     }
 
@@ -339,35 +389,67 @@ public class RegExpParser extends AbstractParser {
      *
      * @return ReCharSetNoDash node
      */
-    private STNode parseCharSetAtomNoDash(STToken nextToken) {
-        STNode startReCharSetAtomNoDash = parseCharSetAtom(nextToken);
+    private STNode parseCharSetNoDash(STToken nextToken, STNode prevNode) {
+        STNode startReCharSetAtomNoDash = parseCharSetAtom(nextToken, prevNode);
         nextToken = peek();
         if (isCharacterClassEnd(nextToken.kind)) {
             return startReCharSetAtomNoDash;
         }
-        if (nextToken.kind == SyntaxKind.MINUS_TOKEN) {
+        if ("-".equals(nextToken.text())) {
             STNode minus = consume();
             nextToken = peek();
             if (isCharacterClassEnd(nextToken.kind)) {
                 return STNodeFactory.createReCharSetAtomNoDashWithReCharSetNoDashNode(startReCharSetAtomNoDash,
                         minus);
             }
-            STNode rhsReCharSetAtom = parseCharSetAtom(nextToken);
+            STNode rhsReCharSetAtom = parseCharSetAtom(nextToken, minus);
             STNode reCharSetRange = STNodeFactory.createReCharSetRangeNoDashNode(startReCharSetAtomNoDash, minus,
                     rhsReCharSetAtom);
-            STNode reCharSet = parseReCharSet();
+            STNode reCharSet = parseReCharSet(reCharSetRange);
             return STNodeFactory.createReCharSetRangeNoDashWithReCharSetNode(reCharSetRange, reCharSet);
         }
-        STNode reCharSetNoDash = parseCharSetAtomNoDash(nextToken);
+        STNode reCharSetNoDash = parseCharSetNoDash(nextToken, startReCharSetAtomNoDash);
         return STNodeFactory.createReCharSetAtomNoDashWithReCharSetNoDashNode(startReCharSetAtomNoDash,
                 reCharSetNoDash);
     }
 
-    private STNode parseCharSetAtom(STToken nextToken) {
-        if (nextToken.kind == SyntaxKind.BACK_SLASH_TOKEN) {
-            return parseReEscape();
+    private STNode parseCharSetAtom(STToken nextToken, STNode prevNode) {
+        switch (nextToken.kind) {
+            case RE_NUMERIC_ESCAPE:
+            case RE_CONTROL_ESCAPE:
+                return parseChars();
+            case BACK_SLASH_TOKEN:
+                STToken token = peek(2);
+                if (token.kind == SyntaxKind.RE_LITERAL_CHAR &&
+                        token.text().equals(Character.toString(LexerTerminals.MINUS))) {
+                    consume();
+                    STNode minusToken = consume();
+                    return STNodeFactory.createToken(SyntaxKind.ESCAPED_MINUS_TOKEN, minusToken.leadingMinutiae(),
+                            minusToken.trailingMinutiae());
+                }
+                return parseReEscape();
+            default:
+                STNode consumedToken = consume();
+                if ("-".equals(nextToken.text())) {
+                    return consumedToken;
+                }
+                if (isReCharSetLiteralChar(nextToken.text())) {
+                    return consumedToken;
+                }
+                return SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, consumedToken,
+                        DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
         }
-        return consume();
+    }
+
+    private boolean isReCharSetLiteralChar(String tokenText) {
+        switch (tokenText) {
+            case "\\":
+            case "-":
+            case "]":
+                return false;
+            default:
+                return true;
+        }
     }
 
     private boolean isCharacterClassEnd(SyntaxKind kind) {
@@ -417,12 +499,19 @@ public class RegExpParser extends AbstractParser {
         }
         // Parse the braced quantifier.
         STNode openBrace = consume();
+        nextToken = peek();
+        if (isInvalidDigit(nextToken, true)) {
+            openBrace = invalidateNonDigitNodesAndAddToTrailingMinutiae(openBrace, true);
+        }
         STNode leastDigits = parseDigits(true);
         STNode comma = null;
         STNode mostDigits = null;
         nextToken = peek();
         if (nextToken.kind == SyntaxKind.COMMA_TOKEN) {
             comma = consume();
+            if (isInvalidDigit(nextToken, false)) {
+                comma = invalidateNonDigitNodesAndAddToTrailingMinutiae(comma, false);
+            }
             mostDigits = parseDigits(false);
         }
         STNode closeBrace = parseCloseBrace();
@@ -439,10 +528,22 @@ public class RegExpParser extends AbstractParser {
         STToken nextToken = peek();
         while (!isEndOfDigits(nextToken.kind, isLeastDigits)) {
             STNode digit = consume();
-            digits.add(digit);
+            if (nextToken.kind != SyntaxKind.DIGIT) {
+                updateLastNodeInListWithInvalidNode(digits, digit, DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
+            } else {
+                digits.add(digit);
+            }
             nextToken = peek();
         }
+        // There should be at least one least digit.
+        if (isLeastDigits && digits.isEmpty()) {
+            digits.add(createMissingTokenWithDiagnostics(SyntaxKind.DIGIT));
+        }
         return STAbstractNodeFactory.createNodeList(digits);
+    }
+
+    private boolean isInvalidDigit(STToken nextToken, boolean isLeastDigits) {
+        return !isEndOfDigits(nextToken.kind, isLeastDigits) && nextToken.kind != SyntaxKind.DIGIT;
     }
 
     private boolean isEndOfDigits(SyntaxKind kind, boolean isLeastDigits) {
@@ -467,7 +568,7 @@ public class RegExpParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
             return consume();
         } else {
-            return createMissingTokenWithDiagnostics(SyntaxKind.CLOSE_PAREN_TOKEN);
+            return createMissingTokenWithDiagnostics(SyntaxKind.CLOSE_BRACE_TOKEN);
         }
     }
 
@@ -489,30 +590,17 @@ public class RegExpParser extends AbstractParser {
      *
      * @return Capturing group node
      */
-    private STNode parseCapturingGroups() {
-        STNode openParenthesis = parseOpenParenthesis();
+    private STNode parseCapturingGroup() {
+        STNode openParenthesis = consume();
         STToken nextToken = peek();
         STNode flagExpression = null;
         if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
             flagExpression = parseFlagExpression();
         }
-        STNode reDisjunction = parseReDisjunction();
+        STNode reDisjunction = parseReDisjunction(true);
         STNode closeParenthesis = parseCloseParenthesis();
         return STNodeFactory.createReCapturingGroupsNode(openParenthesis, flagExpression, reDisjunction,
                 closeParenthesis);
-    }
-
-    /**
-     * Parse open parenthesis token in capturing group.
-     *
-     * @return Open parenthesis token
-     */
-    private STNode parseOpenParenthesis() {
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
-            return consume();
-        }
-        throw new IllegalStateException();
     }
 
     /**
@@ -525,6 +613,9 @@ public class RegExpParser extends AbstractParser {
         STToken nextToken = peek();
         STNode reFlagsOnOff = null;
         if (!isEndOfFlagExpression(nextToken.kind)) {
+            if (isInvalidFlag(nextToken, true)) {
+                questionMark = invalidateNonFlagNodesAndAddToTrailingMinutiae(questionMark, true);
+            }
             reFlagsOnOff = parseReFlagsOnOff();
         }
         STNode colon = parseColon();
@@ -535,19 +626,42 @@ public class RegExpParser extends AbstractParser {
         return kind == SyntaxKind.COLON_TOKEN || kind == SyntaxKind.EOF_TOKEN;
     }
 
+    private boolean isInvalidFlag(STToken nextToken, boolean isLhsFlag) {
+        return !isEndOfReFlags(nextToken, isLhsFlag) && !isReFlag(nextToken);
+    }
+
+    static boolean isReFlag(STToken nextToken) {
+        if (nextToken.kind != SyntaxKind.RE_LITERAL_CHAR) {
+            return false;
+        }
+        switch (nextToken.text()) {
+            case "m":
+            case "s":
+            case "i":
+            case "x":
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**
      * Parse ReFlagsOnOff in a flag expression.
      *
      * @return ReFlagsOnOff node
      */
     private STNode parseReFlagsOnOff() {
-        STNode lhsReFlags = parseReFlags();
+        STNode lhsReFlags = parseReFlags(true);
         STToken nextToken = peek();
         STNode dash = null;
         STNode rhsReFlags = null;
-        if (nextToken.kind == SyntaxKind.MINUS_TOKEN) {
-            dash = consume();
-            rhsReFlags = parseReFlags();
+        if (nextToken.kind == SyntaxKind.RE_LITERAL_CHAR &&
+                nextToken.text().equals(Character.toString(LexerTerminals.MINUS))) {
+            dash = getToken(consume(), SyntaxKind.MINUS_TOKEN);
+            if (isInvalidFlag(nextToken, false)) {
+                dash = invalidateNonFlagNodesAndAddToTrailingMinutiae(dash, false);
+            }
+            rhsReFlags = parseReFlags(false);
         }
         return STNodeFactory.createReFlagsOnOffNode(lhsReFlags, dash, rhsReFlags);
     }
@@ -557,19 +671,33 @@ public class RegExpParser extends AbstractParser {
      *
      * @return ReFlags node
      */
-    private STNode parseReFlags() {
+    private STNode parseReFlags(boolean isLhsFlag) {
         List<STNode> reFlags = new ArrayList<>();
         STToken nextToken = peek();
-        while (!isEndOfReFlags(nextToken.kind)) {
-            STNode reFlag = consume();
-            reFlags.add(reFlag);
+        while (!isEndOfReFlags(nextToken, isLhsFlag)) {
+            STNode reFlag = getLiteralValueToken(consume(), SyntaxKind.RE_FLAGS_VALUE);
+            if (!isReFlag(nextToken)) {
+                updateLastNodeInListWithInvalidNode(reFlags, reFlag,
+                        DiagnosticErrorCode.ERROR_INVALID_FLAG_IN_REG_EXP);
+            } else {
+                reFlags.add(reFlag);
+            }
             nextToken = peek();
         }
         return STNodeFactory.createReFlagsNode(STAbstractNodeFactory.createNodeList(reFlags));
     }
 
-    private boolean isEndOfReFlags(SyntaxKind kind) {
-        return kind == SyntaxKind.MINUS_TOKEN || kind == SyntaxKind.COLON_TOKEN || kind == SyntaxKind.EOF_TOKEN;
+    private boolean isEndOfReFlags(STToken nextToken, boolean isLhsFlag) {
+        SyntaxKind kind = nextToken.kind;
+        if (kind == SyntaxKind.EOF_TOKEN) {
+            return true;
+        }
+        if (kind != SyntaxKind.RE_LITERAL_CHAR) {
+            return false;
+        }
+        String tokenText = nextToken.text();
+        return (isLhsFlag && tokenText.equals(Character.toString(LexerTerminals.MINUS))) ||
+                tokenText.equals(Character.toString(LexerTerminals.COLON));
     }
 
     /**
@@ -579,8 +707,9 @@ public class RegExpParser extends AbstractParser {
      */
     private STNode parseColon() {
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.COLON_TOKEN) {
-            return consume();
+        if (nextToken.kind == SyntaxKind.RE_LITERAL_CHAR &&
+                nextToken.text().equals(Character.toString(LexerTerminals.COLON))) {
+            return getToken(consume(), SyntaxKind.COLON_TOKEN);
         } else {
             return createMissingTokenWithDiagnostics(SyntaxKind.COLON_TOKEN);
         }
@@ -616,27 +745,74 @@ public class RegExpParser extends AbstractParser {
         return this.interpolationExprs.remove();
     }
 
-    private boolean isEndOfReDisjunction(SyntaxKind kind) {
+    private boolean isEndOfReDisjunction(SyntaxKind kind, boolean inCapturingGroup) {
         switch (kind) {
             case EOF_TOKEN:
             case BACKTICK_TOKEN:
-            case CLOSE_PAREN_TOKEN:
                 return true;
             default:
-                return false;
+                return kind == SyntaxKind.CLOSE_PAREN_TOKEN && inCapturingGroup;
         }
     }
 
-    private boolean isEndOfReSequence(SyntaxKind kind) {
+    private boolean isEndOfReSequence(SyntaxKind kind, boolean inCapturingGroup) {
         switch (kind) {
             case EOF_TOKEN:
             case BACKTICK_TOKEN:
             case PIPE_TOKEN:
-            case CLOSE_PAREN_TOKEN:
                 return true;
             default:
-                return false;
+                return kind == SyntaxKind.CLOSE_PAREN_TOKEN && inCapturingGroup;
         }
+    }
+
+    private STNode getToken(STToken token, SyntaxKind syntaxKind) {
+        return STAbstractNodeFactory.createToken(syntaxKind, token.leadingMinutiae(),
+                token.trailingMinutiae(), token.diagnostics());
+    }
+
+    private STNode getLiteralValueToken(STToken token, SyntaxKind syntaxKind) {
+        return STAbstractNodeFactory.createLiteralValueToken(syntaxKind, token.text(),
+                token.leadingMinutiae(), token.trailingMinutiae(), token.diagnostics());
+    }
+
+    /**
+     * Marks the next non-digits in a braced quantifier in regular expression as invalid and attach them as trailing
+     * minutiae of the given node.
+     *
+     * @param node the node to attach the invalid tokens as trailing minutiae.
+     * @return Parsed node
+     */
+    private STNode invalidateNonDigitNodesAndAddToTrailingMinutiae(STNode node, boolean isLeastDigits) {
+        node = addInvalidNodeStackToTrailingMinutiae(node);
+
+        while (isInvalidDigit(peek(), isLeastDigits)) {
+            node = addTrailingInvalidNode(node, DiagnosticErrorCode.ERROR_INVALID_QUANTIFIER_IN_REG_EXP);
+        }
+
+        return node;
+    }
+
+    private STNode addTrailingInvalidNode(STNode node, DiagnosticErrorCode errorCode) {
+        STToken invalidToken = consume();
+        return SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(node, invalidToken, errorCode);
+    }
+
+    /**
+     * Marks the next non-flags in a flag expression in capturing group as invalid and attach them as trailing
+     * minutiae of the given node.
+     *
+     * @param node the node to attach the invalid tokens as trailing minutiae.
+     * @return Parsed node
+     */
+    private STNode invalidateNonFlagNodesAndAddToTrailingMinutiae(STNode node, boolean isLhsFlag) {
+        node = addInvalidNodeStackToTrailingMinutiae(node);
+
+        while (isInvalidFlag(peek(), isLhsFlag)) {
+            node = addTrailingInvalidNode(node, DiagnosticErrorCode.ERROR_INVALID_FLAG_IN_REG_EXP);
+        }
+
+        return node;
     }
 
     private STNode createMissingTokenWithDiagnostics(SyntaxKind expectedKind) {

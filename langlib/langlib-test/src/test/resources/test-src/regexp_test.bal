@@ -533,31 +533,41 @@ function testReplaceAll() {
     string str1 = "ReplaceTTTGGGThis";
     var regExpr1 = re `T.*G`;
     string replacement1 = " ";
-    string result1 = regExpr1.replaceAll(str1, replacement1);
-    assertEquality("Replace This", result1);
+    string result11 = regExpr1.replaceAll(str1, replacement1);
+    assertEquality("Replace This", result11);
+    string result12 = regExpr1.replaceAll(str1, replacement1, 2);
+    assertEquality("Replace This", result12);
 
     string str2 = "100100011";
     var regExpr2 = re `0+`;
     string replacement2 = "*";
-    string result2 = regExpr2.replaceAll(str2, replacement2);
-    assertEquality("1*1*11", result2);
+    string result21 = regExpr2.replaceAll(str2, replacement2);
+    assertEquality("1*1*11", result21);
+    string result22 = regExpr2.replaceAll(str2, replacement2, 3);
+    assertEquality("1001*11", result22);
 
     //non matching
     string str3 = "100100011";
     var regExpr3 = re `95`;
     string replacement3 = "*";
-    string result3 = regExpr3.replaceAll(str3, replacement3);
-    assertEquality(str3, result3);
+    string result31 = regExpr3.replaceAll(str3, replacement3);
+    assertEquality(str3, result31);
+    string result32 = regExpr3.replaceAll(str3, replacement3, 7);
+    assertEquality(str3, result32);
 
     string str4 = "100100011";
     var regExpr4 = re `0+`;
     string replacement4 = "";
-    string result4 = regExpr4.replaceAll(str4, replacement4);
-    assertEquality("1111", result4);
+    string result41 = regExpr4.replaceAll(str4, replacement4);
+    assertEquality("1111", result41);
+    string result42 = regExpr4.replaceAll(str4, replacement4, 3);
+    assertEquality("100111", result42);
 
     string str5 = "100000100011";
-    string result5 = regExpr4.replaceAll(str5, replacementFunctionForReplaceAll);
-    assertEquality("151311", result5);
+    string result51 = regExpr4.replaceAll(str5, replacementFunctionForReplaceAll);
+    assertEquality("151311", result51);
+    string result52 = regExpr4.replaceAll(str5, replacementFunctionForReplaceAll, 6);
+    assertEquality("1000001311", result52);
 }
 
 isolated function replacementFunctionForReplaceAll(regexp:Groups groups) returns string {
@@ -1048,6 +1058,73 @@ function testLangLibFuncWithNamedArgExpr() {
     if (x1 is string:RegExp) {
        assertTrue(re `AB+C*D{1,4}` == x1);
     }
+}
+
+function testEmptyRegexpFind() {
+    // find
+    regexp:Span? resA1 = regexp:find(re = re ``, str = "HelloWorld");
+    assertTrue(resA1 is ());
+    regexp:Span? resA2 = regexp:find(re = re `World`, str = "");
+    assertTrue(resA2 is ());
+    regexp:Span? resA3 = regexp:find(re = re ``, str = "");
+    assertTrue(resA3 is ());
+    regexp:Span? resA4 = regexp:find(re = re `${""}`, str = "");
+    assertTrue(resA4 is ());
+    regexp:Span? resA5 = regexp:find(re = re `${""}`, str = "HelloWorld");
+    assertTrue(resA5 is ());
+    string regexStrA = "";
+    regexp:Span? resA6 = regexp:find(re = re `${regexStrA}`, str = "HelloWorld");
+    assertTrue(resA6 is ());
+    regexp:Span? resA7 = regexp:find(re = re `${regexStrA}`, str = "");
+    assertTrue(resA7 is ());
+    regexp:Span? resA8 = regexp:find(re = re `(.*)`, str = "");
+    assertTrue(resA8 is regexp:Span);
+
+    // find all
+    regexp:Span[] resB1 = regexp:findAll(re ``, "There once was a king who liked to sing");
+    assertEquality(0, resB1.length());
+    regexp:Span[] resB2 = regexp:findAll(re `(\w+ing)`, "");
+    assertEquality(0, resB2.length());
+    regexp:Span[] resB3 = regexp:findAll(re ``, "");
+    assertEquality(0, resB3.length());
+    regexp:Span[] resB4 = regexp:findAll(re `${""}`, "");
+    assertEquality(0, resB4.length());
+    regexp:Span[] resB5 = regexp:findAll(re `${""}`, "There once was a king who liked to sing");
+    assertEquality(0, resB5.length());
+
+   // find groups
+    regexp:Groups? resC1 = regexp:findGroups(re ``, "Butter was bought by Betty but the butter was bitter");
+    assertTrue(resC1 is ());
+    regexp:Groups? resC2 = regexp:findGroups(re `(\w+tt\w+)`, "");
+    assertTrue(resC2 is ());
+    regexp:Groups? resC3 = regexp:findGroups(re ``, "");
+    assertTrue(resC3 is ());
+    regexp:Groups? resC4 = regexp:findGroups(re `${""}`, "");
+    assertTrue(resC4 is ());
+
+   // find all groups
+    regexp:Groups[] resD1 = regexp:findAllGroups(re ``, "rubble, trouble, bubble, hubble");
+    assertEquality(0, resD1.length());
+    regexp:Groups[] resD2 = regexp:findAllGroups(re `(\w+ble)`, "");
+    assertEquality(0, resD2.length());
+    regexp:Groups[] resD3 = regexp:findAllGroups(re ``, "");
+    assertEquality(0, resD3.length());
+    regexp:Groups[] resD4 = regexp:findAllGroups(re `${""}`, "");
+    assertEquality(0, resD4.length());
+}
+
+function testEmptyRegexpMatch() {
+    // matchAt
+    regexp:Span? resA1 = regexp:matchAt(re = re ``, str = "HelloWorld");
+    assertTrue(resA1 is ());
+    regexp:Span? resA2 = regexp:matchAt(re = re ``, str = "HelloWorld", startIndex = 4);
+    assertTrue(resA2 is ());
+    string regexStrA = "";
+    regexp:Span? resA3 = regexp:matchAt(re = re `${regexStrA}`, str = "HelloWorld");
+    assertTrue(resA3 is ());
+    regexp:Span? resA4 = regexp:matchAt(re = re `${regexStrA}`, str = "HelloWorld", startIndex = 4);
+    assertTrue(resA4 is ());
+
 }
 
 function assertEquality(any|error expected, any|error actual) {

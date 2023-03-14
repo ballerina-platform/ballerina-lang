@@ -1,0 +1,22 @@
+Compiling source
+	intg_tests/dataproviders:0.0.0
+WARNING [tests/new-data-provider-tests.bal:(121:9,121:21)] unused variable 'a'
+WARNING [tests/new-data-provider-tests.bal:(153:9,153:21)] unused variable 'a'
+
+Running Tests with Coverage
+
+	dataproviders
+
+
+		No tests found
+
+	dataproviders.module1
+		[pass] stringDataProviderMod1Test#1
+
+
+		1 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	data-providers/target/report/test_results.json

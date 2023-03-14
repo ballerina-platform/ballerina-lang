@@ -93,7 +93,8 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
 
         CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
         addRenamePopup(context, edits, createVarTextEdits.edits.get(0), codeAction,
-                createVarTextEdits.renamePositions.get(0));
+                createVarTextEdits.renamePositions.get(0), createVarTextEdits.varRenamePosition.get(0),
+                createVarTextEdits.imports.size());
         return Collections.singletonList(codeAction);
     }
 

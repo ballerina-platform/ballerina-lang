@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -57,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRegexpType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -128,8 +130,9 @@ public class SymbolTable {
     public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BArrayType arrayType = new BArrayType(anyType);
     public final BArrayType arrayStringType = new BArrayType(stringType);
-
-    public final BType tupleType = new BTupleType(Lists.of(noType));
+    BVarSymbol varSymbol = new BVarSymbol(0, null, null,
+            noType, null, null, SymbolOrigin.VIRTUAL);
+    public final BType tupleType = new BTupleType(Lists.of(new BTupleMember(noType, varSymbol)));
     public final BType recordType = new BRecordType(null);
     public final BType stringArrayType = new BArrayType(stringType);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
@@ -170,7 +173,7 @@ public class SymbolTable {
     public final BXMLSubType xmlPIType = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI);
     public final BXMLSubType xmlCommentType = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT);
     public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY);
-    public final BRegexpType regExpType = new BRegexpType(TypeTags.REGEXP, Names.REGEXP);
+    public final BRegexpType regExpType = new BRegexpType(TypeTags.REGEXP, Names.REGEXP_TYPE);
     public final BType xmlNeverType = new BXMLType(neverType,  null);
     public final BType xmlElementSeqType = new BXMLType(xmlElementType, null);
 
@@ -281,7 +284,7 @@ public class SymbolTable {
         initializeTSymbol(xmlPIType, Names.XML_PI, PackageID.XML);
         initializeTSymbol(xmlCommentType, Names.XML_COMMENT, PackageID.XML);
         initializeTSymbol(xmlTextType, Names.XML_TEXT, PackageID.XML);
-        initializeTSymbol(regExpType, Names.REGEXP, PackageID.REGEXP);
+        initializeTSymbol(regExpType, Names.REGEXP_TYPE, PackageID.REGEXP);
 
         BLangLiteral trueLiteral = new BLangLiteral();
         trueLiteral.setBType(this.booleanType);
@@ -457,6 +460,7 @@ public class SymbolTable {
 
     public void updateBuiltinSubtypeOwners() {
         updateIntSubtypeOwners();
+        updateRegExpTypeOwners();
         updateStringSubtypeOwners();
         updateXMLSubtypeOwners();
     }
@@ -479,6 +483,10 @@ public class SymbolTable {
         this.xmlCommentType.tsymbol.owner = this.langXmlModuleSymbol;
         this.xmlPIType.tsymbol.owner = this.langXmlModuleSymbol;
         this.xmlTextType.tsymbol.owner = this.langXmlModuleSymbol;
+    }
+    
+    public void updateRegExpTypeOwners() {
+        this.regExpType.tsymbol.owner = this.langRegexpModuleSymbol;
     }
 
     public void defineOperators() {
