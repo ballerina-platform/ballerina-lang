@@ -713,9 +713,6 @@ function testFromJsonWithTypeOnRegExp() {
     s = "";
     x1 = s.fromJsonWithType(RegExpType);
     assertEquality(x1 is string:RegExp, true);
-    //if (x1 is string:RegExp) {
-    //    assertEquality(re `` == x1, true);
-    //}
 }
 
 function testFromJsonWithTypeOnRegExpNegative() {
