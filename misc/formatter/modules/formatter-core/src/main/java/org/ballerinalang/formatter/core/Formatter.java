@@ -15,8 +15,41 @@
  */
 package org.ballerinalang.formatter.core;
 
+import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
+import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
+import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.LetExpressionNode;
+import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.NodeParser;
+import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
+import io.ballerina.compiler.syntax.tree.RequiredExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
+import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
+import io.ballerina.compiler.syntax.tree.TransactionalExpressionNode;
+import io.ballerina.compiler.syntax.tree.TrapExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
+import io.ballerina.compiler.syntax.tree.TypeofExpressionNode;
+import io.ballerina.compiler.syntax.tree.UnaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLFilterExpressionNode;
+import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
@@ -100,6 +133,118 @@ public class Formatter {
      */
     public static SyntaxTree format(SyntaxTree syntaxTree, FormattingOptions options) throws FormatterException {
         return modifyTree(syntaxTree, options, null);
+    }
+
+    /**
+     * Formats the provided expression while using the default formatting options.
+     *
+     * @param text The expression which is to be formatted
+     * @return The modified text after formatting changes
+     * @throws FormatterException Exception caught while formatting
+     */
+    public static String formatExpression(String text) throws FormatterException {
+        FormattingTreeModifier treeModifier = new FormattingTreeModifier(FormattingOptions.builder().build(), null);
+        ExpressionNode parsedNode = NodeParser.parseExpression(text);
+        ExpressionNode formattedNode;
+        switch (parsedNode.kind()) {
+            case ANNOT_ACCESS:
+                formattedNode = treeModifier.transform((AnnotAccessExpressionNode) parsedNode);
+                break;
+            case BINARY_EXPRESSION:
+                formattedNode = treeModifier.transform((BinaryExpressionNode) parsedNode);
+                break;
+            case BRACED_EXPRESSION:
+                formattedNode = treeModifier.transform((BracedExpressionNode) parsedNode);
+                break;
+            case CHECK_EXPRESSION:
+                formattedNode = treeModifier.transform((CheckExpressionNode) parsedNode);
+                break;
+            case CONDITIONAL_EXPRESSION:
+                formattedNode = treeModifier.transform((ConditionalExpressionNode) parsedNode);
+                break;
+            case ERROR_CONSTRUCTOR:
+                formattedNode = treeModifier.transform((ErrorConstructorExpressionNode) parsedNode);
+                break;
+            case EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION:
+                formattedNode = treeModifier.transform((ExplicitAnonymousFunctionExpressionNode) parsedNode);
+                break;
+            case EXPLICIT_NEW_EXPRESSION:
+                formattedNode = treeModifier.transform((ExplicitNewExpressionNode) parsedNode);
+                break;
+            case FIELD_ACCESS:
+                formattedNode = treeModifier.transform((FieldAccessExpressionNode) parsedNode);
+                break;
+            case FUNCTION_CALL:
+                formattedNode = treeModifier.transform((FunctionCallExpressionNode) parsedNode);
+                break;
+            case IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION:
+                formattedNode = treeModifier.transform((ImplicitAnonymousFunctionExpressionNode) parsedNode);
+                break;
+            case IMPLICIT_NEW_EXPRESSION:
+                formattedNode = treeModifier.transform((ImplicitNewExpressionNode) parsedNode);
+                break;
+            case INDEXED_EXPRESSION:
+                formattedNode = treeModifier.transform((IndexedExpressionNode) parsedNode);
+                break;
+            case LET_EXPRESSION:
+                formattedNode = treeModifier.transform((LetExpressionNode) parsedNode);
+                break;
+            case LIST_CONSTRUCTOR:
+                formattedNode = treeModifier.transform((ListConstructorExpressionNode) parsedNode);
+                break;
+            case MAPPING_CONSTRUCTOR:
+                formattedNode = treeModifier.transform((MappingConstructorExpressionNode) parsedNode);
+                break;
+            case METHOD_CALL:
+                formattedNode = treeModifier.transform((MethodCallExpressionNode) parsedNode);
+                break;
+            case OBJECT_CONSTRUCTOR:
+                formattedNode = treeModifier.transform((ObjectConstructorExpressionNode) parsedNode);
+                break;
+            case OPTIONAL_FIELD_ACCESS:
+                formattedNode = treeModifier.transform((OptionalFieldAccessExpressionNode) parsedNode);
+                break;
+            case QUERY_EXPRESSION:
+                formattedNode = treeModifier.transform((QueryExpressionNode) parsedNode);
+                break;
+            case REQUIRED_EXPRESSION:
+                formattedNode = treeModifier.transform((RequiredExpressionNode) parsedNode);
+                break;
+            case TABLE_CONSTRUCTOR:
+                formattedNode = treeModifier.transform((TableConstructorExpressionNode) parsedNode);
+                break;
+            case RAW_TEMPLATE_EXPRESSION:
+                formattedNode = treeModifier.transform((TemplateExpressionNode) parsedNode);
+                break;
+            case TRANSACTIONAL_EXPRESSION:
+                formattedNode = treeModifier.transform((TransactionalExpressionNode) parsedNode);
+                break;
+            case TRAP_EXPRESSION:
+                formattedNode = treeModifier.transform((TrapExpressionNode) parsedNode);
+                break;
+            case TYPE_CAST_EXPRESSION:
+                formattedNode = treeModifier.transform((TypeCastExpressionNode) parsedNode);
+                break;
+            case TYPE_TEST_EXPRESSION:
+                formattedNode = treeModifier.transform((TypeTestExpressionNode) parsedNode);
+                break;
+            case TYPEOF_EXPRESSION:
+                formattedNode = treeModifier.transform((TypeofExpressionNode) parsedNode);
+                break;
+            case UNARY_EXPRESSION:
+                formattedNode = treeModifier.transform((UnaryExpressionNode) parsedNode);
+                break;
+            case XML_FILTER_EXPRESSION:
+                formattedNode = treeModifier.transform((XMLFilterExpressionNode) parsedNode);
+                break;
+            case XML_STEP_EXPRESSION:
+                formattedNode = treeModifier.transform((XMLStepExpressionNode) parsedNode);
+                break;
+            default:
+                throw new FormatterException("Unsupported expression type: " + parsedNode.kind());
+        }
+
+        return formattedNode.toSourceCode().strip();
     }
 
     private static SyntaxTree modifyTree(SyntaxTree syntaxTree, FormattingOptions options, LineRange range)

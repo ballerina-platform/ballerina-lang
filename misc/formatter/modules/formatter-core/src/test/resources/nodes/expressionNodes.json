@@ -1,0 +1,22 @@
+[
+  {
+    "source": "varA-          varB",
+    "expected": "varA - varB"
+  },
+  {
+    "source": "age >      18    ? \"Adult\" :     \"Child\"     ",
+    "expected": "age > 18 ? \"Adult\" : \"Child\""
+  },
+  {
+    "source": "foo   .toString(   )",
+    "expected": "foo.toString()"
+  },
+  {
+    "source": "[1,    2    , 3    ]",
+    "expected": "[1, 2, 3]"
+  },
+  {
+    "source": "   foo   (5,    a,    age = 18,   ...subjects    )",
+    "expected": "foo(5, a, age = 18, ...subjects)"
+  }
+]
