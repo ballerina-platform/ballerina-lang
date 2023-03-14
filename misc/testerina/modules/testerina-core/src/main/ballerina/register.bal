@@ -39,6 +39,7 @@ type TestFunction record {|
     int dependsOnCount = 0;
     TestFunction[] dependents = [];
     boolean visited = false;
+    TestConfig? config = ();
 |};
 
 class TestRegistry {
@@ -92,21 +93,29 @@ class GroupRegistry {
 }
 
 class GroupStatusRegistry {
+    private final map<int> enabledTests = {};
     private final map<int> totalTests = {};
     private final map<int> executedTests = {};
     private final map<boolean> skip = {};
 
     function firstExecuted(string group) returns boolean => self.executedTests.get(group) > 0;
 
-    function lastExecuted(string group) returns boolean => self.executedTests.get(group) == self.totalTests.get(group);
+    function lastExecuted(string group) returns boolean => self.executedTests.get(group) == self.enabledTests.get(group);
 
-    function incrementTotalTest(string group) {
-        self.skip[group] = false;
+    function incrementTotalTest(string group, boolean enabled) {
         if self.totalTests.hasKey(group) {
             self.totalTests[group] = self.totalTests.get(group) + 1;
         } else {
             self.totalTests[group] = 1;
-            self.executedTests[group] = 0;
+        }
+        if enabled {
+            self.skip[group] = false;
+            if self.enabledTests.hasKey(group) {
+                self.enabledTests[group] = self.enabledTests.get(group) + 1;
+            } else {
+                self.enabledTests[group] = 1;
+                self.executedTests[group] = 0;
+            }
         }
     }
 

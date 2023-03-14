@@ -331,7 +331,7 @@ public class TestProcessor {
                 PackageID moduleTestCompilationId = module.descriptor().moduleTestCompilationId();
                 String testModuleName = testable ? moduleTestCompilationId.name.value + Names.TEST_PACKAGE :
                         moduleTestCompilationId.name.value;
-                String className = pos.lineRange().filePath()
+                String className = pos.lineRange().fileName()
                         .replace(ProjectConstants.BLANG_SOURCE_EXT, "")
                         .replace(ProjectConstants.DOT, FILE_NAME_PERIOD_SEPARATOR)
                         .replace("/", ProjectConstants.DOT);

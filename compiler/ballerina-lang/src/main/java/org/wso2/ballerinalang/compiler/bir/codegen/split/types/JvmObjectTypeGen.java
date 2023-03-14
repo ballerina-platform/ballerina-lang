@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -72,12 +73,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.METHOD_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_OBJECT_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REMOTE_METHOD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_METHOD_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_METHOD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_TYPEID_SET_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_TYPE_IMPL_ARRAY_PARAM;
@@ -91,6 +94,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_METHODS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_RESOURCE_METHOD_TYPE_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ID_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
  * BIR object type to JVM byte code generation class.
@@ -196,7 +200,7 @@ public class JvmObjectTypeGen {
         mv.visitLdcInsn((long) attachedFunctions.size() - resourceFunctionCount(attachedFunctions));
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, METHOD_TYPE_IMPL);
-        String methodName = "$populate" + fieldName + "$attachedFunctions";
+        String methodName = POPULATE_METHOD_PREFIX + fieldName + "$attachedFunctions";
         int methodCount = splitObjectAttachedFunctions(cw, methodName, attachedFunctions, objType, symbolTable);
         if (methodCount > 0) {
             mv.visitVarInsn(ASTORE, 0);
@@ -298,7 +302,7 @@ public class JvmObjectTypeGen {
         mv.visitLdcInsn(resourceFunctionCount(attachedFunctions));
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, RESOURCE_METHOD_TYPE);
-        String methodName = "$populate" + fieldName + "$resourceFunctions";
+        String methodName = POPULATE_METHOD_PREFIX + fieldName + "$resourceFunctions";
         int methodCount = splitResourceMethods(cw, methodName, attachedFunctions, objType, symbolTable);
         if (methodCount > 0) {
             mv.visitVarInsn(ASTORE, 0);
@@ -460,7 +464,21 @@ public class JvmObjectTypeGen {
         jvmTypeGen.loadType(mv, resourceFunction.type);
 
         // Load the resource path type
-        jvmTypeGen.loadType(mv, resourceFunction.resourcePathType);
+        List<BResourcePathSegmentSymbol> pathSegmentSymbols = resourceFunction.pathSegmentSymbols;
+        int pathSegmentSize = pathSegmentSymbols.size();
+        mv.visitLdcInsn((long) pathSegmentSize);
+        mv.visitInsn(L2I);
+        mv.visitTypeInsn(ANEWARRAY, TYPE);
+        for (int i = 0; i < pathSegmentSize; i++) {
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn((long) i);
+            mv.visitInsn(L2I);
+
+            // load resource path name
+            jvmTypeGen.loadType(mv, pathSegmentSymbols.get(i).type);
+
+            mv.visitInsn(AASTORE);
+        }
 
         // Load flags
         mv.visitLdcInsn(resourceFunction.symbol.flags);
@@ -469,12 +487,11 @@ public class JvmObjectTypeGen {
         mv.visitLdcInsn(decodeIdentifier(resourceFunction.accessor.value));
 
         // Load resource path
-        mv.visitLdcInsn((long) resourceFunction.resourcePath.size());
+        mv.visitLdcInsn((long) pathSegmentSize);
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, STRING_VALUE);
-        List<Name> resourcePath = resourceFunction.resourcePath;
-        for (int i = 0, resourcePathSize = resourcePath.size(); i < resourcePathSize; i++) {
-            Name path = resourcePath.get(i);
+        for (int i = 0; i < pathSegmentSize; i++) {
+            Name path = pathSegmentSymbols.get(i).name;
             mv.visitInsn(DUP);
             mv.visitLdcInsn((long) i);
             mv.visitInsn(L2I);
@@ -500,7 +517,7 @@ public class JvmObjectTypeGen {
         // Create the fields map
         mv.visitTypeInsn(NEW, LINKED_HASH_MAP);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         if (!fields.isEmpty()) {
             mv.visitInsn(DUP);
             mv.visitMethodInsn(INVOKESTATIC, objectTypesClass, methodName + "$addField$", SET_LINKED_HASH_MAP, false);

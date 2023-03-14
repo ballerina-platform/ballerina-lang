@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -84,6 +85,7 @@ import java.util.Optional;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DISPLAY_ANNOTATION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVABLE_ANNOTATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVE_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_CHECKPOINT_METHOD;
@@ -356,7 +358,7 @@ class JvmObservabilityGen {
                 BType type = arg.variableDcl.type;
                 argTypes.add(type);
             }
-            Name lambdaName = new Name("$lambda$observability" + lambdaIndex++ + "$" +
+            Name lambdaName = new Name(LAMBDA_PREFIX + "observability" + lambdaIndex++ + "$" +
                     asyncCallIns.name.getValue().replace(".", "_"));
             BInvokableType bInvokableType = new BInvokableType(argTypes, null,
                     returnType, null);
@@ -466,9 +468,9 @@ class JvmObservabilityGen {
                         if (Objects.equals(attachedFunc.funcName.getValue(), functionName)) {
                             BResourceFunction resourceFunction = (BResourceFunction) attachedFunc;
                             StringBuilder resourcePathOrFunctionBuilder = new StringBuilder();
-                            for (Name name : resourceFunction.resourcePath) {
+                            for (BResourcePathSegmentSymbol pathSegmentSym : resourceFunction.pathSegmentSymbols) {
                                 resourcePathOrFunctionBuilder.append("/").append(
-                                        Utils.unescapeBallerina(name.getValue()));
+                                        Utils.unescapeBallerina(pathSegmentSym.name.getValue()));
                             }
                             resourcePathOrFunction = resourcePathOrFunctionBuilder.toString();
                             resourceAccessor = resourceFunction.accessor.getValue();
@@ -1061,7 +1063,7 @@ class JvmObservabilityGen {
                                                   Location pos) {
         BIROperand pkgOperand = generateGlobalConstantOperand(pkg, symbolTable.stringType,
                 generatePackageId(pkg.packageID));
-        BIROperand fileNameOperand = getTempLocalVariable(FILE_NAME_STRING, pos, pos.lineRange().filePath(),
+        BIROperand fileNameOperand = getTempLocalVariable(FILE_NAME_STRING, pos, pos.lineRange().fileName(),
                 symbolTable.stringType, observeStartBB);
         addLocalVarIfAbsent(func, fileNameOperand.variableDcl);
         BIROperand startLineOperand = getTempLocalVariable(START_LINE_STRING, pos,

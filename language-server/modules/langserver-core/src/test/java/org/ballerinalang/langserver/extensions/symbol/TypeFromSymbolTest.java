@@ -103,6 +103,26 @@ public class TypeFromSymbolTest {
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
 
+    @Test(description = "type info retrieved for a let variable")
+    public void testTypeForLetVarDeclaration() throws IOException, ExecutionException, InterruptedException {
+        Path inputFile = LSExtensionTestUtil.createTempFile(typeFromSymbolBalFile);
+        URI uri = URI.create(inputFile.toUri().toString());
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+
+        LinePosition position = LinePosition.from(67, 73);
+        LinePosition[] positions = {position};
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypeFromSymbol(
+                uri, positions, this.serviceEndpoint);
+
+        Assert.assertNotNull(typesFromSymbolResponse.getTypes());
+
+        ResolvedTypeForSymbol type = typesFromSymbolResponse.getTypes().get(0);
+        Assert.assertTrue(SymbolServiceTestUtil.isPositionsEquals(position, type.getRequestedPosition()));
+        Assert.assertTrue(type.getType() instanceof PrimitiveType);
+
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+    }
+
     @Test(description = "type info retrieved for multiple symbols")
     public void testTypesForMultipleSymbols() throws IOException, ExecutionException, InterruptedException {
         Path inputFile = LSExtensionTestUtil.createTempFile(typeFromSymbolBalFile);

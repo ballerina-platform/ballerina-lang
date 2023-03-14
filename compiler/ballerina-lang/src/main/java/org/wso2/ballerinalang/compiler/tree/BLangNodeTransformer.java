@@ -268,6 +268,10 @@ public abstract class BLangNodeTransformer<T, R> {
     public R transform(BLangResourceFunction node, T data) {
         return transformNode(node, data);
     }
+    
+    public R transform(BLangResourcePathSegment node, T data) {
+        return transformNode(node, data);
+    }
 
     public R transform(BLangRetrySpec node, T data) {
         return transformNode(node, data);

@@ -4,6 +4,7 @@
     "character": 9
   },
   "source": "expression_context/source/mapping_expr_ctx_source6.bal",
+  "description": "",
   "items": [
     {
       "label": "getInt()",
@@ -15,7 +16,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "AC",
       "filterText": "getInt",
       "insertText": "getInt()",
       "insertTextFormat": "Snippet"
@@ -24,7 +25,7 @@
       "label": "value1",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "B",
+      "sortText": "AB",
       "insertText": "value1",
       "insertTextFormat": "Snippet"
     },
@@ -32,7 +33,7 @@
       "label": "value2",
       "kind": "Variable",
       "detail": "int",
-      "sortText": "B",
+      "sortText": "AB",
       "insertText": "value2",
       "insertTextFormat": "Snippet"
     },
@@ -46,7 +47,7 @@
           "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "AC",
       "filterText": "getField",
       "insertText": "getField()",
       "insertTextFormat": "Snippet"
@@ -61,7 +62,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "AC",
       "filterText": "testFunction",
       "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
@@ -76,7 +77,7 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "AC",
       "filterText": "doTask",
       "insertText": "doTask()",
       "insertTextFormat": "Snippet"
@@ -85,7 +86,7 @@
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "O",
+      "sortText": "S",
       "filterText": "module1",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
@@ -374,7 +375,7 @@
       "label": "decimal",
       "kind": "TypeParameter",
       "detail": "Decimal",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
@@ -382,7 +383,7 @@
       "label": "error",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "L",
+      "sortText": "AL",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -390,7 +391,7 @@
       "label": "xml",
       "kind": "TypeParameter",
       "detail": "Xml",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
@@ -398,7 +399,7 @@
       "label": "boolean",
       "kind": "TypeParameter",
       "detail": "Boolean",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -406,7 +407,7 @@
       "label": "future",
       "kind": "TypeParameter",
       "detail": "Future",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -414,7 +415,7 @@
       "label": "int",
       "kind": "TypeParameter",
       "detail": "Int",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -422,7 +423,7 @@
       "label": "float",
       "kind": "TypeParameter",
       "detail": "Float",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -430,7 +431,7 @@
       "label": "function",
       "kind": "TypeParameter",
       "detail": "Function",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "function",
       "insertTextFormat": "Snippet"
     },
@@ -438,7 +439,7 @@
       "label": "string",
       "kind": "TypeParameter",
       "detail": "String",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
@@ -446,7 +447,7 @@
       "label": "typedesc",
       "kind": "TypeParameter",
       "detail": "Typedesc",
-      "sortText": "N",
+      "sortText": "R",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     }

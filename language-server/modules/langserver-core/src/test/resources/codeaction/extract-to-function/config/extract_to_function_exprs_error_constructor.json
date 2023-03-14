@@ -10,6 +10,7 @@
     }
   },
   "source": "extract_to_function_exprs_error_constructor.bal",
+  "description": "Extract to function for expressions, error constructor",
   "expected": [
     {
       "title": "Extract to function",
@@ -41,8 +42,19 @@
           },
           "newText": "extracted()"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_error_constructor.bal",
+          {
+            "line": 1,
+            "character": 21
+          }
+        ]
+      },
+      "resolvable": false
     }
-  ],
-  "description": "Extract to function for expressions, error constructor"
+  ]
 }

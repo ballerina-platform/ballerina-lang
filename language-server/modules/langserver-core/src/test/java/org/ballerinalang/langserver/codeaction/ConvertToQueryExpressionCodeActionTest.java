@@ -53,6 +53,19 @@ public class ConvertToQueryExpressionCodeActionTest extends AbstractCodeActionTe
     }
 
     @Override
+    @Test(dataProvider = "negativeDataProvider")
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
+    }
+
+    @DataProvider
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"convert_to_query_expression_negative1.json"}
+        };
+    }
+
+    @Override
     public String getResourceDir() {
         return "convert-to-query-expr";
     }

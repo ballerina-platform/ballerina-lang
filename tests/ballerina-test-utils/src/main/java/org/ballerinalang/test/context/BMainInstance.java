@@ -23,12 +23,14 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,7 +39,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -50,6 +51,34 @@ public class BMainInstance implements BMain {
     private static final String JAVA_OPTS = "JAVA_OPTS";
     private String agentArgs = "";
     private BalServer balServer;
+
+    private static class StreamGobbler extends Thread {
+        private InputStream inputStream;
+        private PrintStream printStream;
+
+        public StreamGobbler(InputStream inputStream, PrintStream printStream) {
+            this.inputStream = inputStream;
+            this.printStream = printStream;
+        }
+
+        @Override
+        public void run() {
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            String lineContent = null;
+            while (true) {
+                try {
+                    lineContent = bufferedReader.readLine();
+                    if (lineContent == null) {
+                        break;
+                    }
+                    printStream.println(lineContent);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
 
     public BMainInstance(BalServer balServer) throws BallerinaTestException {
         this.balServer = balServer;
@@ -586,26 +615,24 @@ public class BMainInstance implements BMain {
             }
 
             String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
-            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
+            ProcessBuilder processBuilder =
+                    new ProcessBuilder(cmdArgs).directory(new File(commandDir)).redirectErrorStream(true);
             addJavaAgents(envProperties);
             Map<String, String> env = processBuilder.environment();
             env.putAll(envProperties);
 
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream out = new PrintStream(baos);
             Process process = processBuilder.start();
-
-            // Give a small timeout so that the output is given.
-            Thread.sleep(5000);
-
-            String output = "";
-            InputStream inputStream = readErrStream ? process.getErrorStream() : process.getInputStream();
-            try (InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                 BufferedReader buffer = new BufferedReader(inputStreamReader)) {
-                output = buffer.lines().collect(Collectors.joining("\n"));
-            } catch (Exception e) {
-                throw new BallerinaTestException("Error when reading from the stdout ", e);
-            }
-
+            StreamGobbler outputGobbler =
+                    new StreamGobbler(process.getInputStream(), out);
+            outputGobbler.start();
             process.waitFor();
+            outputGobbler.join();
+            String output = baos.toString();
+            if (output.endsWith("\n")) {
+                output = output.substring(0, output.length() - 1);
+            }
             return output;
         } catch (IOException e) {
             throw new BallerinaTestException("Error executing ballerina", e);

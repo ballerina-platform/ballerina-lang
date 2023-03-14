@@ -787,9 +787,17 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "cannot.infer.typedesc.argument.without.cet"),
     OUTER_JOIN_MUST_BE_DECLARED_WITH_VAR(
             "BCE4039", "outer.join.must.be.declared.with.var"),
-    CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION("BCE4040",
+    UNSUPPORTED_USAGE_OF_DEFAULT_VALUES_FOR_KEY_FIELD_IN_TABLE_MEMBER(
+            "BCE4040", "unsupported.usage.of.default.values.for.key.field.in.table.member"),
+    CANNOT_USE_WILDCARD_BINDING_PATTERN_FOR_ERROR_CAUSE("BCE4041",
+            "cannot.use.wildcard.binding.pattern.for.error.cause"),
+    WORKER_SEND_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT(
+            "BCE4042", "worker.send.action.not.allowed.in.lock.statement"),
+    WORKER_RECEIVE_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT(
+            "BCE4043", "worker.receive.action.not.allowed.in.lock.statement"),,
+    CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION("BCE4044",
             "cannot.use.alternate.wait.action.within.multiple.wait.action"),
-    EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4041", "future.expression.expected")
+    EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4045", "future.expression.expected")
     ;
 
     private String diagnosticId;

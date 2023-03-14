@@ -42,8 +42,8 @@ public class ArrowExprTest {
     @BeforeClass
     public void setup() {
         basic = BCompileUtil.compile("test-src/expressions/lambda/arrow-expression.bal");
-        resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/lambda/arrow-expression-semantics-" +
-                "negative.bal");
+        resultSemanticsNegative = BCompileUtil.compile(
+                "test-src/expressions/lambda/arrow-expression-semantics-negative.bal");
         resultNegative = BCompileUtil.compile("test-src/expressions/lambda/arrow-expression-negative.bal");
         resultTypeNarrowNegative = BCompileUtil.compile("test-src/expressions/lambda/" +
                 "arrow-expression-type-narrow-negative.bal");
@@ -204,7 +204,6 @@ public class ArrowExprTest {
     @Test(description = "Test compile time errors for arrow expression")
     public void testArrowExprSemanticsNegative() {
         int i = 0;
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 12);
         BAssertUtil.validateError(resultSemanticsNegative, i++,
                 "operator '/' not defined for 'string' and 'int'", 18, 54);
         BAssertUtil.validateError(resultSemanticsNegative, i++,
@@ -229,6 +228,26 @@ public class ArrowExprTest {
                 "undefined symbol 'm'", 60, 58);
         BAssertUtil.validateError(resultSemanticsNegative, i++,
                 "invalid number of parameters used in arrow expression. expected: '0' but found '1'", 68, 40);
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
+                                  "operator '+' not defined for 'string' and 'int'", 78, 38);
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
+                                  "operator '+' not defined for 'string' and 'int'", 81, 25);
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
+                                  "operator '+' not defined for 'int' and 'string'", 84, 25);
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
+                                  "operator '+' not defined for 'string' and 'int'", 87, 25);
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
+                                  "operator '+' not defined for 'int' and 'string'", 90, 25);
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
+                                  "cannot define a variable of type 'never' or equivalent to type 'never'", 92, 16);
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
+                                  "operator '+' not defined for 'never' and 'int'", 92, 21);
+//        https://github.com/ballerina-platform/ballerina-lang/issues/26191
+//        BAssertUtil.validateError(resultSemanticsNegative, i++,
+//                                  "cannot define a variable of type 'never' or equivalent to type 'never'", 95, 22);
+//        BAssertUtil.validateError(resultSemanticsNegative, i++,
+//                                  "operator '+' not defined for 'int' and 'never'", 95, 27);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i);
     }
 
     @Test(description = "Test compile time errors for arrow expression")
@@ -260,6 +279,11 @@ public class ArrowExprTest {
     @Test(description = "Test type narrowing in arrow expression")
     public void testTypeNarrowingInArrowExpression() {
         BRunUtil.invoke(basic, "testTypeNarrowingInArrowExpression");
+    }
+
+    @Test
+    public void testExpressionBodiedFunctionWithBinaryExpr() {
+        BRunUtil.invoke(basic, "testExpressionBodiedFunctionWithBinaryExpr");
     }
 
     @AfterClass
