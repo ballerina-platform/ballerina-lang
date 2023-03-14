@@ -265,10 +265,11 @@ public class InteropMethodGen {
 
         BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, bbPrefix, initMethodGen);
         BIRBasicBlock retBB = new BIRBasicBlock(getNextDesugarBBId(bbPrefix, initMethodGen));
-
+        BIROperand receiverOp = null;
         List<BIROperand> args = new ArrayList<>();
-
+        List<BIROperand> resourcePathArgs = new ArrayList<>();
         List<BIRNode.BIRFunctionParameter> birFuncParams = birFunc.parameters;
+
         int birFuncParamIndex = 0;
         // Load receiver which is the 0th parameter in the birFunc
         if (jMethod.kind == JMethodKind.METHOD && !jMethod.isStatic()) {
@@ -282,7 +283,7 @@ public class InteropMethodGen {
         int jMethodParamIndex = 0;
         if (jMethod.getReceiverType() != null) {
             jMethodParamIndex++;
-            args.add(new BIROperand(birFunc.receiver));
+            receiverOp = new BIROperand(birFunc.receiver);
         }
 
         if (jMethod.isBalEnvAcceptingMethod()) {
@@ -292,10 +293,19 @@ public class InteropMethodGen {
         int paramCount = birFuncParams.size();
         while (birFuncParamIndex < paramCount) {
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
-            boolean isVarArg = (birFuncParamIndex == (paramCount - 1)) && birFunc.restParam != null;
             BType bPType = birFuncParam.type;
-            JType jPType = JInterop.getJType(jMethodParamTypes[jMethodParamIndex]);
             BIROperand argRef = new BIROperand(birFuncParam);
+            boolean isVarArg = (birFuncParamIndex == (paramCount - 1)) && birFunc.restParam != null;
+            if (jMethod.hasBundledPathParams && birFuncParam.isPathParameter) {
+                if (resourcePathArgs.isEmpty()) {
+                    jMethodParamIndex++;
+                }
+                resourcePathArgs.add(argRef);
+                birFuncParamIndex++;
+                continue;
+            }
+
+            JType jPType = JInterop.getJType(jMethodParamTypes[jMethodParamIndex]);
             // we generate cast operations for unmatching B to J types
             if (!isVarArg && !isMatchingBAndJType(bPType, jPType)) {
                 String varName = "$_param_jobject_var" + birFuncParamIndex + "_$";
@@ -311,7 +321,7 @@ public class InteropMethodGen {
             }
             // for var args, we have two options
             // 1 - desugar java array creation here,
-            // 2 - keep the var arg type in the intstruction and do the array creation in instruction gen
+            // 2 - keep the var arg type in the instruction and do the array creation in instruction gen
             // we are going with the option two for the time being, hence keeping var arg type in the instructions
             // (drawback with option 2 is, function frame may not have proper variables)
             if (isVarArg) {
@@ -370,6 +380,8 @@ public class InteropMethodGen {
         if (jMethod.kind == JMethodKind.CONSTRUCTOR) {
             JIConstructorCall jCall = new JIConstructorCall(birFunc.pos);
             jCall.args = args;
+            jCall.receiver = receiverOp;
+            jCall.resourcePathArgs = resourcePathArgs;
             jCall.varArgExist = birFunc.restParam != null;
             jCall.varArgType = varArgType;
             jCall.lhsOp = jRetVarRef;
@@ -381,6 +393,8 @@ public class InteropMethodGen {
         } else {
             JIMethodCall jCall = new JIMethodCall(birFunc.pos);
             jCall.args = args;
+            jCall.receiver = receiverOp;
+            jCall.resourcePathArgs = resourcePathArgs;
             jCall.varArgExist = birFunc.restParam != null;
             jCall.varArgType = varArgType;
             jCall.lhsOp = jRetVarRef;

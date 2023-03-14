@@ -31,11 +31,13 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
@@ -741,5 +743,29 @@ public class StaticMethods {
         integers.forEach(i -> {
             throw ErrorCreator.createError(StringUtils.fromString("error!!!"));
         });
+    }
+
+    public static int getResource(BArray paths) {
+        return paths.size();
+    }
+
+    public static int getResource(BObject client, BArray path) {
+        return path.size();
+    }
+
+    public static int getResource(BObject client, BArray paths, double value, BString str) {
+        return paths.size();
+    }
+
+    public static int getResource(BObject client, BArray path, BString p2, double value, BString str) {
+        return path.size();
+    }
+
+    public static int getResource(BObject client, long p1, BString p2, double value, BString str) {
+        return 1;
+    }
+
+    public static BString getResource(Environment env, BObject client, BArray path, BString str) {
+        return str;
     }
 }
