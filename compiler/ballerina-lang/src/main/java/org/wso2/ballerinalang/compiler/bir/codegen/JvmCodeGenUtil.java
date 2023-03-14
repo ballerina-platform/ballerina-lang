@@ -148,6 +148,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STRING_BUILDER_APPEND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -271,10 +272,10 @@ public class JvmCodeGenUtil {
     }
 
     public static void generateDefaultConstructor(ClassWriter cw, String ownerClass) {
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JVM_INIT_METHOD, "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JVM_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, ownerClass, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, ownerClass, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(1, 1);
         mv.visitEnd();
@@ -670,7 +671,7 @@ public class JvmCodeGenUtil {
 
         StringBuilder yieldLocationData = new StringBuilder(fullyQualifiedFuncName);
         if (terminatorPos != null) {
-            yieldLocationData.append("(").append(terminatorPos.lineRange().filePath()).append(":")
+            yieldLocationData.append("(").append(terminatorPos.lineRange().fileName()).append(":")
                     .append(terminatorPos.lineRange().startLine().line() + 1).append(")");
         }
         mv.visitLdcInsn(yieldLocationData.toString());
@@ -835,5 +836,15 @@ public class JvmCodeGenUtil {
 
     public static String getRefTypeConstantName(BTypeReferenceType type) {
         return JvmConstants.TYPEREF_TYPE_VAR_PREFIX + Utils.encodeNonFunctionIdentifier(type.tsymbol.name.value);
+    }
+
+    public static void visitMaxStackForMethod(MethodVisitor mv, String funcName, String className) {
+        try {
+            mv.visitMaxs(0, 0);
+        } catch (Throwable e) {
+            throw new BLangCompilerException(
+                    "error while generating method '" + Utils.decodeIdentifier(funcName) + "' in class '" +
+                            Utils.decodeIdentifier(className) + "'", e);
+        }
     }
 }

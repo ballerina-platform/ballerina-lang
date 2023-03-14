@@ -298,11 +298,11 @@ function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType t
                     continue;
                 }
             }
-            string|error decodedSubFilter = decode(updatedSubFilter, UTF8_ENC);
-            updatedSubFilter = decodedSubFilter is string? decodedSubFilter : updatedSubFilter;
-            string|error decodedSuffix = decode(suffix, UTF8_ENC);
-            string updatedSuffix = decodedSuffix is string? decodedSuffix : suffix;
-            
+            string|error decodedSubFilter = escapeSpecialCharacters(updatedSubFilter);
+            updatedSubFilter = decodedSubFilter is string ? decodedSubFilter : updatedSubFilter;
+            string|error decodedSuffix = escapeSpecialCharacters(suffix);
+            string updatedSuffix = decodedSuffix is string ? decodedSuffix : suffix;
+
             boolean wildCardMatchBoolean = false;
             if (updatedSubFilter.includes(WILDCARD)) {
                     boolean|error wildCardMatch = matchWildcard(updatedSuffix, updatedSubFilter);
@@ -333,6 +333,7 @@ function executeFunctions(TestFunction[] testFunctions, boolean skip = false) re
 function executeTestFunction(TestFunction testFunction, string suffix, TestType testType, AnyOrError[]? params = ()) returns ExecutionError|boolean {
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
         : trap function:call(testFunction.executableFunction, ...params);
+
     if output is TestError {
         exitCode = 1;
         reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output), testType = testType);
