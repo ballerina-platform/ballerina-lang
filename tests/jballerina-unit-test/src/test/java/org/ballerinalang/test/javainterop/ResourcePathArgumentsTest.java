@@ -29,7 +29,6 @@ import org.testng.annotations.Test;
  *
  * @since 2201.5.0
  */
-
 public class ResourcePathArgumentsTest {
 
     private CompileResult result;
