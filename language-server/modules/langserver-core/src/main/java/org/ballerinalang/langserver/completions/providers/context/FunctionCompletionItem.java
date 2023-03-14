@@ -26,9 +26,9 @@ import org.eclipse.lsp4j.CompletionItem;
  *
  * @since 2201.4.0
  */
-public class MainFunctionCompletionItem extends AbstractLSCompletionItem {
+public class FunctionCompletionItem extends AbstractLSCompletionItem {
     private final CompletionItem completionItem;
-    public MainFunctionCompletionItem(BallerinaCompletionContext context, CompletionItem completionItem) {
+    public FunctionCompletionItem(BallerinaCompletionContext context, CompletionItem completionItem) {
         super(context, completionItem, CompletionItemType.SNIPPET);
         this.completionItem = completionItem;
     }

@@ -176,7 +176,7 @@ public class ModuleVariableDeclarationNodeContext extends
                 );
                 snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));
                 CompletionItem mainCompletionItem = FunctionCompletionItemBuilder.buildMainFunction(context);
-                completionItems.add(new MainFunctionCompletionItem(context, mainCompletionItem));
+                completionItems.add(new FunctionCompletionItem(context, mainCompletionItem));
                 return completionItems;
             case SERVICE_KEYWORD:
             case CLIENT_KEYWORD:

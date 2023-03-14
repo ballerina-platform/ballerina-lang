@@ -673,15 +673,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "public main function",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "D",
-      "filterText": "public_function_main",
-      "insertText": "function main() {\n\t${1}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "configurable",
       "kind": "Keyword",
       "detail": "Keyword",

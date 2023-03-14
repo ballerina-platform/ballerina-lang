@@ -45,6 +45,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SnippetGenerator;
@@ -388,7 +389,7 @@ public final class FunctionCompletionItemBuilder {
         NonTerminalNode node = context.getNodeAtCursor();
         Optional<Token> lastQualifier = Optional.empty();
         while (node != null) {
-            lastQualifier = CommonUtil.getLastQualifier(context, node);
+            lastQualifier = ModulePartNodeContextUtil.getLastQualifier(context, node);
             if (lastQualifier.isPresent() || node.kind() == SyntaxKind.MODULE_PART) {
                 break;
             }
@@ -397,7 +398,7 @@ public final class FunctionCompletionItemBuilder {
 
         CompletionItem completionItem = new CompletionItem();
         String insertText;
-        if (lastQualifier.isPresent() && lastQualifier.get().text().contains(ItemResolverConstants.PUBLIC_KEYWORD)) {
+        if (lastQualifier.isPresent() && lastQualifier.get().kind() == SyntaxKind.PUBLIC_KEYWORD) {
             insertText = "function main() ";
         } else {
             insertText = "public function main() ";
