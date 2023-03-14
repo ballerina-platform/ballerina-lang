@@ -71,7 +71,7 @@ class PositionUtil {
         int enclStartOffset = enclRange.startLine().offset();
         int enclEndOffset = enclRange.endLine().offset();
 
-        return enclRange.filePath().equals(range.filePath())
+        return enclRange.fileName().equals(range.fileName())
                 && (startLine == enclStartLine && startOffset >= enclStartOffset || startLine > enclStartLine)
                 && (endLine == enclEndLine && endOffset <= enclEndOffset || endLine < enclEndLine);
     }

@@ -35,6 +35,7 @@ import org.testng.annotations.Test;
 public class LangLibRegexpTest {
 
     private CompileResult compileResult, negativeTests;
+    private static final String NEW_LINE_CHAR = System.lineSeparator();
 
     @BeforeClass
     public void setup() {
@@ -130,20 +131,26 @@ public class LangLibRegexpTest {
     }
 
     @Test(dataProvider = "invalidRegexpPatternSyntaxProvider")
-    public void testInvalidRegexpPatternSyntax(String functionName) {
+    public void testInvalidRegexpPatternSyntax(String functionName, String message) {
         Object returns = BRunUtil.invoke(negativeTests, functionName);
         Assert.assertEquals(returns.toString(), "error(\"{ballerina}RegularExpressionParsingError\",message=\"invalid" +
-                " regexp pattern\")");
+                " regexp pattern: " + message + "\")");
     }
 
     @DataProvider(name = "invalidRegexpPatternSyntaxProvider")
     private Object[][] getInvalidRegexpPatternSyntax() {
         return new Object[][] {
-                {"testInvalidRegexpPatternSyntax1"},
-                {"testInvalidRegexpPatternSyntax2"},
-                {"testInvalidRegexpPatternSyntax3"},
-                {"testInvalidRegexpPatternSyntax4"},
-                {"testInvalidRegexpPatternSyntax5"},
+                {"testInvalidRegexpPatternSyntax1", "Illegal character range near index 9" + NEW_LINE_CHAR +
+                        "([(a{1})-(z)])" + NEW_LINE_CHAR + "         ^"},
+                {"testInvalidRegexpPatternSyntax2", "Unclosed character class near index 24" + NEW_LINE_CHAR +
+                        "(?i-s:[[A\\\\sB\\WC\\Dd\\\\]\\])" + NEW_LINE_CHAR + "                        ^"},
+                {"testInvalidRegexpPatternSyntax3", "Unclosed character class near index 23" + NEW_LINE_CHAR +
+                        "(?xsmi:[]\\P{sc=Braille})" + NEW_LINE_CHAR +
+                        "                       ^"},
+                {"testInvalidRegexpPatternSyntax4", "Illegal character range near index 9" + NEW_LINE_CHAR
+                        + "([(a{1})-(z)])" + NEW_LINE_CHAR + "         ^"},
+                {"testInvalidRegexpPatternSyntax5", "Unclosed character class near index 23" + NEW_LINE_CHAR +
+                        "(?xsmi:[]\\P{sc=Braille})" + NEW_LINE_CHAR + "                       ^"},
         };
     }
 }

@@ -58,6 +58,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_STOP_PANIC_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
@@ -78,6 +79,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_STOP_DYNAMIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
  * Generates Jvm byte code for the stop method.
@@ -116,7 +118,7 @@ public class ModuleStopMethodGen {
 
         String moduleInitClass = getModuleInitClassName(module.packageID);
         String fullFuncName = MethodGenUtils.calculateLambdaStopFuncName(module.packageID);
-        String lambdaName = generateStopDynamicLambdaBody(cw);
+        String lambdaName = generateStopDynamicLambdaBody(cw, initClass);
         generateCallStopDynamicLambda(mv, lambdaName, moduleInitClass, asyncDataCollector);
         scheduleStopLambda(mv, initClass, fullFuncName, moduleInitClass, asyncDataCollector);
         int i = imprtMods.size() - 1;
@@ -128,15 +130,15 @@ public class ModuleStopMethodGen {
             scheduleStopLambda(mv, initClass, fullFuncName, moduleInitClass, asyncDataCollector);
         }
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, MODULE_STOP_METHOD, initClass);
         mv.visitEnd();
     }
 
-    private String generateStopDynamicLambdaBody(ClassWriter cw) {
-        String lambdaName = "$lambda$stopdynamic";
+    private String generateStopDynamicLambdaBody(ClassWriter cw, String initClass) {
+        String lambdaName = LAMBDA_PREFIX + "stopdynamic";
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, lambdaName, LAMBDA_STOP_DYNAMIC, null, null);
         mv.visitCode();
-        generateCallSchedulerStopDynamicListeners(mv);
+        generateCallSchedulerStopDynamicListeners(mv, lambdaName, initClass);
         return lambdaName;
     }
 
@@ -159,7 +161,7 @@ public class ModuleStopMethodGen {
         mv.visitLabel(labelIf);
     }
 
-    private void generateCallSchedulerStopDynamicListeners(MethodVisitor mv) {
+    private void generateCallSchedulerStopDynamicListeners(MethodVisitor mv, String lambdaName, String initClass) {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitInsn(ICONST_1);
         mv.visitInsn(AALOAD);
@@ -171,7 +173,7 @@ public class ModuleStopMethodGen {
         mv.visitMethodInsn(INVOKEVIRTUAL, RUNTIME_REGISTRY_CLASS, "gracefulStop",
                            SET_STRAND, false);
         mv.visitInsn(ACONST_NULL);
-        MethodGenUtils.visitReturn(mv);
+        MethodGenUtils.visitReturn(mv, lambdaName, initClass);
     }
 
     private void addRuntimeRegistryAsParameter(MethodVisitor mv) {
@@ -218,11 +220,11 @@ public class ModuleStopMethodGen {
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, STRAND, GET_STRAND);
         mv.visitTypeInsn(NEW, STACK);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, STACK, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, STACK, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, STACK_FRAMES);
         int schedulerIndex = indexMap.get(SCHEDULER_VAR);
         mv.visitVarInsn(ALOAD, schedulerIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, VOID_METHOD_DESC, false);
 
     }
 

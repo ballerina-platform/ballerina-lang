@@ -54,7 +54,7 @@ public class RegexUtil {
             return getMatcher(regexpVal, inputStr.getValue());
         } catch (PatternSyntaxException e) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
-                    RuntimeErrors.REGEXP_INVALID_PATTERN);
+                    RuntimeErrors.REGEXP_INVALID_PATTERN, e.getMessage());
         }
     }
 

@@ -37,7 +37,7 @@ public class Matches {
             return null;
         }
 
-        Matcher matcher = getMatcher(regExp, str);
+        Matcher matcher = RegexUtil.getMatcher(regExp, str);
         matcher.region(startIndex, str.length());
         if (matcher.matches()) {
             return RegexUtil.getGroupZeroAsSpan(matcher);
@@ -50,7 +50,7 @@ public class Matches {
             return null;
         }
 
-        Matcher matcher = getMatcher(regExp, str);
+        Matcher matcher = RegexUtil.getMatcher(regExp, str);
         matcher.region(startIndex, str.length());
         BArray resultArray = null;
         if (matcher.matches()) {
@@ -67,11 +67,7 @@ public class Matches {
             return false;
         }
 
-        Matcher matcher = getMatcher(regExp, str);
+        Matcher matcher = RegexUtil.getMatcher(regExp, str);
         return matcher.matches();
-    }
-
-    private static Matcher getMatcher(BRegexpValue regExp, BString str) {
-        return RegexUtil.getMatcher(regExp, str);
     }
 }

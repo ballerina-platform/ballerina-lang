@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -379,6 +380,18 @@ public class MockDesugar {
     private BLangListConstructorExpr generateClassListConstructorExpr() {
         List<BLangCompilationUnit> compUnitList = this.bLangPackage.getTestablePkg().getCompilationUnits();
         BArrayType bArrayType = new BArrayType(symTable.stringType, null, -1, BArrayState.OPEN);
+
+        List<BLangCompilationUnit> modifiedcompUnitList = new ArrayList<>();
+        for (BLangCompilationUnit compUnit : compUnitList) {
+            List<TopLevelNode> topLevelNodes = compUnit.getTopLevelNodes();
+            for (TopLevelNode topLevelNode : topLevelNodes) {
+                if (topLevelNode instanceof BLangFunction) {
+                    modifiedcompUnitList.add(compUnit);
+                    break;
+                }
+            }
+        }
+        compUnitList = modifiedcompUnitList;
 
         BLangListConstructorExpr bLangListConstructorExpr =
                 ASTBuilderUtil.createListConstructorExpr(bLangPackage.pos, bArrayType);

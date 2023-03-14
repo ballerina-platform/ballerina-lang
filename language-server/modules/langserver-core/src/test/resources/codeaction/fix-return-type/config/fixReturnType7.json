@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 6,
+    "character": 12
+  },
+  "source": "fixReturnType2.bal",
+  "expected": [
+    {
+      "title": "Change return type to 'string:RegExp'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 35
+            },
+            "end": {
+              "line": 4,
+              "character": 35
+            }
+          },
+          "newText": " returns string:RegExp"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

@@ -107,7 +107,7 @@ public class ExecutorPositionsUtil {
             if (defaultModuleFunctionList.get(0).getLocation().isPresent()) {
                 Location location = defaultModuleFunctionList.get(0).getLocation().get();
                 mainFunctionObject.add(RANGE, GSON.toJsonTree(location.lineRange()));
-                mainFunctionObject.addProperty(FILE_PATH, location.lineRange().filePath());
+                mainFunctionObject.addProperty(FILE_PATH, location.lineRange().fileName());
             }
             execPositions.add(mainFunctionObject);
         }
@@ -130,7 +130,7 @@ public class ExecutorPositionsUtil {
                     if (serviceSymbol.getLocation().isPresent()) {
                         Location location = serviceSymbol.getLocation().get();
                         serviceObject.add(RANGE, GSON.toJsonTree(location.lineRange()));
-                        serviceObject.addProperty(FILE_PATH, location.lineRange().filePath());
+                        serviceObject.addProperty(FILE_PATH, location.lineRange().fileName());
                     }
                     Optional<ServiceAttachPoint> serviceAttachPoint = serviceSymbol.attachPoint();
                     if (serviceAttachPoint.isPresent()) {

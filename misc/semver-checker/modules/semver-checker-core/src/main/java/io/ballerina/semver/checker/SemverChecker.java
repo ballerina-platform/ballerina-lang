@@ -128,7 +128,7 @@ public class SemverChecker {
             // Ignores .toml diagnostics as we consider source code compatibility.
             // Todo - support toml changes validation
             List<Diagnostic> srcErrors = compilation.diagnosticResult().errors().stream()
-                    .filter(diagnostic -> diagnostic.location().lineRange().filePath().endsWith(BAL_FILE_EXT))
+                    .filter(diagnostic -> diagnostic.location().lineRange().fileName().endsWith(BAL_FILE_EXT))
                     .collect(Collectors.toList());
             if (srcErrors.isEmpty()) {
                 return;

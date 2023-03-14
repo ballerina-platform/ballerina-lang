@@ -383,6 +383,12 @@ public class TupleVariableReferenceTest {
                 "[int[] & readonly,any]]', found '([int[],ReadOnlyTuple] & readonly)'", 197, 19);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int[] & readonly', " +
                 "found 'int[]'", 199, 9);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid list binding pattern; member variable count " +
+                "mismatch with member type count", 204, 5);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid list binding pattern; member variable count " +
+                "mismatch with member type count", 207, 5);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid list binding pattern; member variable count " +
+                "mismatch with member type count", 210, 10);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
