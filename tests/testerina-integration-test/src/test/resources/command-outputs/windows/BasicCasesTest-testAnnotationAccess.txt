@@ -20,9 +20,9 @@ java.lang.ClassCastException: class org.wso2.ballerinalang.compiler.semantics.mo
 	at org.ballerinalang.testerina.core.TestProcessor.addUtilityFunctions(TestProcessor.java:315)
 	at org.ballerinalang.testerina.core.TestProcessor.generateTestSuite(TestProcessor.java:169)
 	at org.ballerinalang.testerina.core.TestProcessor.testSuite(TestProcessor.java:118)
-	at io.ballerina.cli.task.RunTestsTask.execute(RunTestsTask.java:168)
+	at io.ballerina.cli.task.RunTestsTask.execute(RunTestsTask.java:184)
 	at io.ballerina.cli.TaskExecutor.executeTasks(TaskExecutor.java:40)
-	at io.ballerina.cli.cmd.TestCommand.execute(TestCommand.java:315)
+	at io.ballerina.cli.cmd.TestCommand.execute(TestCommand.java:322)
 	at java.base/java.util.Optional.ifPresent(Optional.java:183)
 	at io.ballerina.cli.launcher.Main.main(Main.java:51)
- 
+ 

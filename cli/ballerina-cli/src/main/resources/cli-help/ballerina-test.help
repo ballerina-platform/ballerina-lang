@@ -134,10 +134,10 @@ EXAMPLES
        report in the XML format.
            $ bal test --test-report --code-coverage --coverage-format=xml
 
-       Run the tests with the code coverage and exclude files/folders from coverage
+       Run the tests with the code coverage with files excluded from coverage
        calculation.
            $ bal test --code-coverage --excludes=<source_path1>,<source_path2>
 
-       Run the tests with the code coverage and exclude files/folders from coverage
+       Run the tests with the code coverage with directories excludes from coverage
        calculation with '*' and '!'.
            $ bal test --code-coverage --excludes=<source_path1/**>,<!source_path2>
