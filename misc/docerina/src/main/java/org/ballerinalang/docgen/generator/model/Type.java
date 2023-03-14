@@ -275,9 +275,9 @@ public class Type {
             type = functionType;
         } else if (node instanceof MapTypeDescriptorNode) {
             MapTypeDescriptorNode mapTypeDesc = (MapTypeDescriptorNode) node;
-                type.name = "map";
-                type.category = "map";
-                type.constraint = fromNode(mapTypeDesc.mapTypeParamsNode().typeNode(), semanticModel);
+            type.name = "map";
+            type.category = "map";
+            type.constraint = fromNode(mapTypeDesc.mapTypeParamsNode().typeNode(), semanticModel);
         } else if (node instanceof ParameterizedTypeDescriptorNode) {
             ParameterizedTypeDescriptorNode parameterizedTypeNode = (ParameterizedTypeDescriptorNode) node;
             SyntaxKind typeKind = node.kind();
