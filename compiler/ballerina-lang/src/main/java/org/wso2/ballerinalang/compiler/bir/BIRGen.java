@@ -670,7 +670,7 @@ public class BIRGen extends BLangNodeVisitor {
                         pathSegmentPosList.add(pathSegmentSym.pos);
                         pathSegmentTypeList.add(pathSegmentSym.type);
                     }
-                    
+
                     birFunc.resourcePathSegmentPosList = pathSegmentPosList;
                     birFunc.resourcePath = pathSegmentNameList;
                     birFunc.accessor = resourceFunction.accessor;
@@ -1282,7 +1282,6 @@ public class BIRGen extends BLangNodeVisitor {
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
         List<BLangExpression> restArgs = invocationExpr.restArgs;
         List<BIROperand> args = new ArrayList<>(requiredArgs.size() + restArgs.size());
-        boolean transactional = Symbols.isFlagOn(invocationExpr.symbol.flags, Flags.TRANSACTIONAL);
 
         for (BLangExpression requiredArg : requiredArgs) {
             if (requiredArg.getKind() != NodeKind.IGNORE_EXPR) {
@@ -1325,7 +1324,7 @@ public class BIRGen extends BLangNodeVisitor {
         if (invocationExpr.functionPointerInvocation) {
             boolean workerDerivative = Symbols.isFlagOn(invocationExpr.symbol.flags, Flags.WORKER);
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
-                    fp, args, lhsOp, invocationExpr.async, transactional, thenBB, this.currentScope, workerDerivative);
+                    fp, args, lhsOp, invocationExpr.async, thenBB, this.currentScope, workerDerivative);
         } else if (invocationExpr.async) {
             BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             List<BIRAnnotationAttachment> calleeAnnots = getBIRAnnotAttachments(bInvokableSymbol.getAnnotations());
@@ -1390,7 +1389,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
         LineRange lineRange = this.env.enclFunc.pos.lineRange();
         LinePosition endLine = lineRange.endLine();
-        return new BLangDiagnosticLocation(lineRange.filePath(), endLine.line(), endLine.line(), endLine.offset(),
+        return new BLangDiagnosticLocation(lineRange.fileName(), endLine.line(), endLine.line(), endLine.offset(),
                 endLine.offset(), 0, 0);
     }
 

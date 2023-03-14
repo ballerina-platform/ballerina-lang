@@ -581,6 +581,38 @@ function testFunctionCallingFunctionWithIsolatedParamAnnotatedParam() {
     assertFalse(<any> nonIsolatedConcat is isolated function);
 }
 
+isolated function inferAnonFuncWithParamTypeNarrowingForIsolatedParam() {
+    (int|string)[] a = [];
+    string[] _ = a.map(n => n is int ? "int" : n);
+
+    (int|string|boolean)[] c = [];
+    string[] _ = c.map(n => n is int|boolean ? (n is int ? n.toString() : "boolean") : n);
+}
+
+function anonFuncWithParamTypeNarrowingForIsolatedParam() {
+    (int|string)[] a = [];
+    string[] _ = a.map(function (int|string n) returns string => n is int ? "int" : n);
+
+    (int|string|boolean)[] c = [];
+    string[] _ = c.map(n => n is int|boolean ? (n is int ? n.toString() : "boolean") : n);
+}
+
+function nonIsolatedAnonFuncWithTypeNarrowingForIsolatedParam() {
+    (int|string)[] a = [];
+    int|string a2 = 1;
+    string[] _ = a.map(function (int|string n) returns string => a2 is int ? "int" : n.toString());
+
+    (int|string|boolean)[] c = [];
+    string d = "";
+    string[] _ = c.map(n => n is int|boolean ? (n is int ? n.toString() : "boolean") : d);
+}
+
+function testInferringIsolatedForAnonFuncArgForIsolatedParamAnnotatedParam() {
+    assertTrue(inferAnonFuncWithParamTypeNarrowingForIsolatedParam is isolated function ());
+    assertTrue(anonFuncWithParamTypeNarrowingForIsolatedParam is isolated function ());
+    assertFalse(nonIsolatedAnonFuncWithTypeNarrowingForIsolatedParam is isolated function ());
+}
+
 class ListenerTwo {
 
     public function attach(service object {} s, string|string[]? name = ()) returns error?  {

@@ -124,6 +124,13 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             try {
                 if (semanticModel != null) {
                     Optional<TypeSymbol> typeSymbol = this.semanticModel.type(lineRange);
+                    if (node.kind() == SyntaxKind.OBJECT_FIELD) {
+                        // HACK: Cannot identify client qualifier with display annotation
+                        ObjectFieldNode objectFieldNode = (ObjectFieldNode) node;
+                        if (objectFieldNode.metadata().isPresent()) {
+                            typeSymbol = this.semanticModel.type(objectFieldNode.children().get(1));
+                        }
+                    }
                     if (typeSymbol.isPresent()) {
                         TypeSymbol rawType = getRawType(typeSymbol.get());
                         if (rawType.typeKind() == TypeDescKind.OBJECT) {
@@ -155,6 +162,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                         }
                     }
                 }
+            } catch (RuntimeException e) {
+                // Ignore as semantic API calls cannot break the ST JSON creation.
             } catch (Exception | AssertionError e) {
                 // TODO: Remove the AssertionError catcher when fix the symbolVisitor to be extended from BaseVisitor.
                 // Ignore as semantic API calls cannot break the ST JSON creation.

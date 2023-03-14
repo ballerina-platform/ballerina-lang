@@ -38,12 +38,15 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URI;
+import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -63,6 +66,8 @@ import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_R
  */
 public class Utils {
 
+    public static final String DEPRECATED_META_FILE_NAME = "deprecated.txt";
+
     private Utils() {
     }
 
@@ -81,14 +86,16 @@ public class Utils {
      * @param pkgOrg                package org
      * @param pkgName               package name
      * @param isNightlyBuild        is nightly build
+     * @param deprecationMsg        deprecation message for deprecated packages
      * @param newUrl                new redirect url
      * @param contentDisposition    content disposition header
      * @param outStream             Output print stream
      * @param logFormatter          log formatter
      */
     public static void createBalaInHomeRepo(Response balaDownloadResponse, Path pkgPathInBalaCache, String pkgOrg,
-                                            String pkgName, boolean isNightlyBuild, String newUrl,
-                                            String contentDisposition, PrintStream outStream, LogFormatter logFormatter)
+                                            String pkgName, boolean isNightlyBuild, String deprecationMsg,
+                                            String newUrl, String contentDisposition, PrintStream outStream,
+                                            LogFormatter logFormatter)
             throws CentralClientException {
 
         long responseContentLength = 0;
@@ -153,6 +160,7 @@ public class Utils {
         }
 
         handleNightlyBuild(isNightlyBuild, balaCacheWithPkgPath, logFormatter);
+        handlePackageDeprecation(deprecationMsg, balaCacheWithPkgPath, logFormatter);
     }
 
     /**
@@ -264,8 +272,28 @@ public class Utils {
             // If its a nightly build tag the file as a module from nightly
             Path nightlyBuildMetaFile = Paths.get(balaCacheWithPkgPath.toString(), "nightly.build");
             if (!nightlyBuildMetaFile.toFile().exists()) {
-                createNightlyBuildMetaFile(nightlyBuildMetaFile, logFormatter);
+                createMetaFile(nightlyBuildMetaFile, logFormatter, "error occurred while creating nightly.build file.");
             }
+        }
+    }
+
+    /**
+     * Handle package deprecation.
+     *
+     * @param deprecateMsg       deprecated message
+     * @param balaCacheWithPkgPath bala cache with package path
+     * @param logFormatter         log formatter
+     */
+    private static void handlePackageDeprecation(String deprecateMsg, Path balaCacheWithPkgPath,
+                                           LogFormatter logFormatter) throws CentralClientException {
+        if (deprecateMsg != null) {
+            // If its a deprecated package tag a file to denote as deprecated
+            Path deprecateMsgFile = Paths.get(balaCacheWithPkgPath.toString(), DEPRECATED_META_FILE_NAME);
+            if (!deprecateMsgFile.toFile().exists()) {
+                createMetaFile(deprecateMsgFile, logFormatter,
+                        "error occurred while creating the file '" + DEPRECATED_META_FILE_NAME + "'");
+            }
+            writeDeprecatedMsg(deprecateMsgFile, logFormatter, deprecateMsg);
         }
     }
 
@@ -308,18 +336,39 @@ public class Utils {
     }
 
     /**
-     * Create nightly build meta file.
+     * Create meta file in given path.
      *
-     * @param nightlyBuildMetaFilePath nightly build meta file path
-     * @param logFormatter             log formatter
+     * @param metaFilePath meta file path
+     * @param logFormatter log formatter
      */
-    private static void createNightlyBuildMetaFile(Path nightlyBuildMetaFilePath, LogFormatter logFormatter)
+    private static void createMetaFile(Path metaFilePath, LogFormatter logFormatter, String message)
             throws CentralClientException {
         try {
-            Files.createFile(nightlyBuildMetaFilePath);
+            Files.createFile(metaFilePath);
         } catch (Exception e) {
             throw new CentralClientException(
-                    logFormatter.formatLog("error occurred while creating nightly.build file."));
+                    logFormatter.formatLog(message));
+        }
+    }
+
+    /**
+     * Write deprecated message to meta file.
+     *
+     * @param metaFilePath deprecated message meta file path
+     * @param logFormatter log formatter
+     */
+    private static void writeDeprecatedMsg(Path metaFilePath, LogFormatter logFormatter, String message)
+            throws CentralClientException {
+        if (metaFilePath.toFile().exists()) {
+            try (FileWriter fileWriter = new FileWriter(metaFilePath.toAbsolutePath().toString(),
+                    Charset.defaultCharset());
+                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+                bufferedWriter.write(message);
+            } catch (IOException e) {
+                throw new CentralClientException(
+                        logFormatter.formatLog("error occurred while writing deprecation message to the file '"
+                                + DEPRECATED_META_FILE_NAME + "'"));
+            }
         }
     }
 

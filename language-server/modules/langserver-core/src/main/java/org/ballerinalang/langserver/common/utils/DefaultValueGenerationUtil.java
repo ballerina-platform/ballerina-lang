@@ -24,7 +24,6 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -108,6 +107,9 @@ public class DefaultValueGenerationUtil {
             case ERROR:
                 defaultValue = "error(\"\")";
                 break;
+            case REGEXP:
+                defaultValue = "re ``";
+                break;
             default:
                 if (typeKind.isIntegerType()) {
                     defaultValue = Integer.toString(0);
@@ -135,6 +137,9 @@ public class DefaultValueGenerationUtil {
         switch (typeKind) {
             case SINGLETON:
                 defaultValue = typeSymbol.signature();
+                break;
+            case TYPE_REFERENCE:
+                defaultValue = getDefaultValueForTypeDescKind(CommonUtil.getRawType(typeSymbol)).orElse(null);
                 break;
             default:
                 defaultValue = getDefaultValueForTypeDescKind(typeKind).orElse(null);
@@ -269,8 +274,7 @@ public class DefaultValueGenerationUtil {
                 }
                 break;
             case TABLE:
-                TypeSymbol rowType = ((TableTypeSymbol) rawType).rowTypeParameter();
-                String rowValue = getDefaultValueForTypeDescKind(rowType).orElse("");
+                String rowValue = "";
                 valueString = "table [" + (isSnippet ?
                         generateSnippetEntry(rowValue, context.incrementAndGetPlaceholderCount()) : rowValue) + "]";
                 break;
@@ -309,6 +313,8 @@ public class DefaultValueGenerationUtil {
                 valueString = isSnippet ?
                         generateSnippetEntry(valueString, context.incrementAndGetPlaceholderCount()) : valueString;
                 break;
+            case TYPE_REFERENCE:
+                return getDefaultValueForType(CommonUtil.getRawType(bType), isSnippet, context);
             default:
                 Optional<String> value = getDefaultValueForTypeDescKind(typeKind);
                 if (value.isEmpty()) {
