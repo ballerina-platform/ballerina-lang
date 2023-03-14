@@ -787,8 +787,16 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "cannot.infer.typedesc.argument.without.cet"),
     OUTER_JOIN_MUST_BE_DECLARED_WITH_VAR(
             "BCE4039", "outer.join.must.be.declared.with.var"),
-    INCOMPATIBLE_QUERY_CONSTRUCT_TYPE("BCE4040", "invalid.error.query.construct.type"),
-    INCOMPATIBLE_QUERY_CONSTRUCT_MAP_TYPE("BCE4041", "invalid.error.query.construct.map.type")
+    UNSUPPORTED_USAGE_OF_DEFAULT_VALUES_FOR_KEY_FIELD_IN_TABLE_MEMBER(
+            "BCE4040", "unsupported.usage.of.default.values.for.key.field.in.table.member"),
+    CANNOT_USE_WILDCARD_BINDING_PATTERN_FOR_ERROR_CAUSE("BCE4041",
+            "cannot.use.wildcard.binding.pattern.for.error.cause"),
+    WORKER_SEND_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT(
+            "BCE4042", "worker.send.action.not.allowed.in.lock.statement"),
+    WORKER_RECEIVE_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT(
+            "BCE4043", "worker.receive.action.not.allowed.in.lock.statement"),
+    INCOMPATIBLE_QUERY_CONSTRUCT_TYPE("BCE4044", "invalid.error.query.construct.type"),
+    INCOMPATIBLE_QUERY_CONSTRUCT_MAP_TYPE("BCE4045", "invalid.error.query.construct.map.type")
     ;
 
     private String diagnosticId;

@@ -20,18 +20,19 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -55,8 +56,13 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
 
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
-        ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> contextType = node.apply(resolver);
+        Optional<TypeSymbol> contextType = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            contextType = context.currentSemanticModel().get().expectedType(context.currentDocument().get(),
+                    LinePosition.from(context.getCursorPosition().getLine(),
+                            context.getCursorPosition().getCharacter()));
+        }
+
         for (LSCompletionItem lsCItem : completionItems) {
             String sortText;
             if (contextType.isEmpty()) {
@@ -136,13 +142,23 @@ public abstract class NodeWithRHSInitializerProvider<T extends Node> extends Abs
         if (contextType.isEmpty()) {
             return completionItems;
         }
-        TypeSymbol rawType = CommonUtil.getRawType(contextType.get());
-        if (rawType.typeKind() == TypeDescKind.STREAM) {
-            LSCompletionItem implicitNewCompletionItem = this.getImplicitNewCItemForStreamType(rawType, context);
+        TypeSymbol typeSymbol = CommonUtil.getRawType(contextType.get());
+        if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+            Optional<TypeSymbol> memberType = ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors().stream()
+                    .map(CommonUtil::getRawType)
+                    .filter(type -> type.typeKind() == TypeDescKind.STREAM || type.kind() == SymbolKind.CLASS)
+                    .findFirst();
+            if (memberType.isEmpty()) {
+                return completionItems;
+            }
+            typeSymbol = memberType.get();
+        }
+        if (typeSymbol.typeKind() == TypeDescKind.STREAM) {
+            LSCompletionItem implicitNewCompletionItem = this.getImplicitNewCItemForStreamType(typeSymbol, context);
             completionItems.add(implicitNewCompletionItem);
-        } else if (rawType.kind() == SymbolKind.CLASS) {
+        } else if (typeSymbol.kind() == SymbolKind.CLASS) {
             LSCompletionItem implicitNewCompletionItem =
-                    this.getImplicitNewCItemForClass((ClassSymbol) rawType, context);
+                    this.getImplicitNewCItemForClass((ClassSymbol) typeSymbol, context);
             completionItems.add(implicitNewCompletionItem);
         }
 

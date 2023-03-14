@@ -480,6 +480,22 @@ public class QueryExprWithQueryConstructTypeTest {
         BRunUtil.invoke(result, "testDiffQueryConstructsUsedAsFuncArgs");
     }
 
+    @Test(dataProvider = "dataToTestQueryExprWithQueryConstructTypWithRegExp")
+    public void testQueryExprWithQueryConstructTypeWithRegExp(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestQueryExprWithQueryConstructTypWithRegExp() {
+        return new Object[]{
+                "testQueryExprConstructingTableWithRegExp",
+                "testQueryExprConstructingMapWithRegExp",
+                "testQueryExprConstructingStreamWithRegExpWithInterpolations",
+                "testNestedQueryExprConstructingTableWithRegExp",
+                "testJoinedQueryExprConstructingMapWithRegExp"
+        };
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

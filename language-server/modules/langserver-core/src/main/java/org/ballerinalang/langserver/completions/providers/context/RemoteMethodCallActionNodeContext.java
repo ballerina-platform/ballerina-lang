@@ -22,13 +22,13 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.TypeResolverUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -60,10 +60,13 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
             this.sort(context, node, completionItems);
             return completionItems;
         }
-        
-        ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> expressionType = node.expression().apply(resolver);
 
+        Optional<TypeSymbol> expressionType = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition linePosition = node.expression().location().lineRange().endLine();
+            expressionType = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
         if (expressionType.isEmpty() || !SymbolUtil.isClient(expressionType.get())) {
             return Collections.emptyList();
         }

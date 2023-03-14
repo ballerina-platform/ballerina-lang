@@ -23,7 +23,6 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.ReFlagExpressionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -33,13 +32,10 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.providers.context.util.RegexpCompletionProvider;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
-import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.SnippetBlock;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -67,14 +63,13 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (node.kind() == SyntaxKind.REGEX_TEMPLATE_EXPRESSION) {
-            completionItems.addAll(this.getRegexCompletions(nodeAtCursor, context));
+            completionItems.addAll(RegexpCompletionProvider.getRegexCompletions(nodeAtCursor, context));
         }
 
         Optional<InterpolationNode> interpolationNode = findInterpolationNode(nodeAtCursor, node);
         if (interpolationNode.isEmpty() || !this.isWithinInterpolation(context, node)) {
             return completionItems;
         }
-        
         // If the node at cursor is an interpolation, show expression suggestions
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
@@ -88,45 +83,6 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         this.sort(context, node, completionItems, interpolationParent);
 
         return completionItems;
-    }
-
-    private List<LSCompletionItem> getRegexCompletions(NonTerminalNode nodeAtCursor, BallerinaCompletionContext ctx) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (nodeAtCursor.kind() == SyntaxKind.RE_CHAR_ESCAPE 
-                && nodeAtCursor.toSourceCode().equals(SyntaxKind.BACK_SLASH_TOKEN.stringValue())) {
-            // Eg: re `\<cursor>`
-            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_DIGIT.get()));
-            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_NON_DIGIT.get()));
-            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_WHITESPACE.get()));
-            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_NON_WHITESPACE.get()));
-            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_ALPHA_NUMERIC.get()));
-            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_NON_ALPHA_NUMERIC.get()));
-            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_RETURN.get()));
-            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_NEWLINE.get()));
-            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_TAB.get()));
-        } else if (isFlagExpr(nodeAtCursor, ctx)) {
-            // Eg: re `(?<cursor>)`
-            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_MULTILINE_FLAG.get()));
-            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_DOT_ALL_FLAG.get()));
-            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_IGNORE_CASE_FLAG.get()));
-            completionItems.add(new SnippetCompletionItem(ctx, RegexSnippet.DEF_COMMENT_FLAG.get()));
-        } else {
-            // Eg: re `<cursor>`, re `(<cursor>)`
-            completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_PARANTHESIS.get()));
-            completionItems.add(new SnippetCompletionItem(ctx, Snippet.DEF_SQUARE_BRACKET.get()));
-        } 
-            return completionItems;
-    }
-
-    private boolean isFlagExpr(NonTerminalNode nodeAtCursor, BallerinaCompletionContext ctx) {
-        return nodeAtCursor.kind() == SyntaxKind.RE_FLAG_EXPR 
-                && ((ReFlagExpressionNode) nodeAtCursor).questionMark().position() + 1 == ctx.getCursorPositionInTree();
-    }
-
-    @Override
-    public boolean onPreValidation(BallerinaCompletionContext context, TemplateExpressionNode node) {
-        return node.textRange().startOffset() <= context.getCursorPositionInTree() 
-                && context.getCursorPositionInTree() <= node.textRange().endOffset();
     }
 
     /**
@@ -202,6 +158,12 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         }
     }
 
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, TemplateExpressionNode node) {
+        return node.textRange().startOffset() <= context.getCursorPositionInTree()
+                && context.getCursorPositionInTree() <= node.textRange().endOffset();
+    }
+
     private Predicate<Symbol> symbolFilterPredicate() {
         return CommonUtil.getVariableFilterPredicate()
                 .or(symbol -> symbol.kind() == SymbolKind.FUNCTION
@@ -222,7 +184,7 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
     private String getSortTextForResolvedType(TypeSymbol typeSymbol, SyntaxKind interpolationParent) {
         TypeSymbol resolvedType = this.getResolvedType(typeSymbol);
         TypeDescKind typeKind = resolvedType.typeKind();
-        
+
         // Note: The following logic can be simplified. Although, kept it as it is in order to improve the
         // readability and maintainability over the changes 
         switch (interpolationParent) {
@@ -254,57 +216,5 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
                 break;
         }
         return SortingUtil.genSortText(3);
-    }
-    
-    private enum RegexSnippet {
-        
-        DEF_DIGIT(new SnippetBlock("d", "d", "d", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
-
-        DEF_NON_DIGIT(new SnippetBlock("D", "D", "D", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
-
-        DEF_WHITESPACE(new SnippetBlock("s", "s", "s", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
-
-        DEF_NON_WHITESPACE(new SnippetBlock("S", "S", "S", ItemResolverConstants.SNIPPET_TYPE, 
-                SnippetBlock.Kind.SNIPPET)),
-
-        DEF_ALPHA_NUMERIC(new SnippetBlock("w", "w", "w", ItemResolverConstants.SNIPPET_TYPE, 
-                SnippetBlock.Kind.SNIPPET)),
-
-        DEF_NON_ALPHA_NUMERIC(new SnippetBlock("W", "W", "W", ItemResolverConstants.SNIPPET_TYPE, 
-                SnippetBlock.Kind.SNIPPET)),
-
-        DEF_RETURN(new SnippetBlock("r", "r", "r", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
-
-        DEF_NEWLINE(new SnippetBlock("n", "n", "n", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
-
-        DEF_TAB(new SnippetBlock("t", "t", "t", ItemResolverConstants.SNIPPET_TYPE, SnippetBlock.Kind.SNIPPET)),
-
-        DEF_MULTILINE_FLAG(new SnippetBlock("m", "m", "m", ItemResolverConstants.SNIPPET_TYPE, 
-                SnippetBlock.Kind.SNIPPET)),
-
-        DEF_DOT_ALL_FLAG(new SnippetBlock("s", "s", "s", ItemResolverConstants.SNIPPET_TYPE, 
-                SnippetBlock.Kind.SNIPPET)),
-
-        DEF_IGNORE_CASE_FLAG(new SnippetBlock("i", "i", "i", ItemResolverConstants.SNIPPET_TYPE, 
-                SnippetBlock.Kind.SNIPPET)),
-
-        DEF_COMMENT_FLAG(new SnippetBlock("x", "x", "x", ItemResolverConstants.SNIPPET_TYPE, 
-                SnippetBlock.Kind.SNIPPET));
-
-        private final SnippetBlock snippetBlock;
-
-        RegexSnippet(SnippetBlock snippetBlock) {
-            this.snippetBlock = snippetBlock;
-            this.snippetBlock.setId(name());
-        }
-
-        /**
-         * Get the SnippetBlock.
-         *
-         * @return {@link SnippetBlock} SnippetBlock
-         */
-        public SnippetBlock get() {
-            return this.snippetBlock;
-        }
     }
 }

@@ -211,6 +211,10 @@ public class InferredDependentlyTypeFunctionTest {
                 "an argument for the parameter or a contextually-expected type to infer the argument", 198, 5);
         validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': expected " +
                 "an argument for the parameter or a contextually-expected type to infer the argument", 199, 13);
+        validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 203, 13);
+        validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 205, 87);
+        validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 208, 13);
+        validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 210, 87);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 }

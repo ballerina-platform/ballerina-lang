@@ -132,6 +132,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             } else {
                 commandTitle = String.format(CommandConstants.CHANGE_VAR_TYPE_TITLE, variableName.get(), typeName);
             }
+            edits.addAll(importEdits);
             actions.add(CodeActionUtil
                     .createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
         }
