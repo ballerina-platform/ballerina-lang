@@ -61,19 +61,9 @@ public class RegexUtil {
     static Matcher getMatcher(BRegexpValue regexpVal, String inputStr) {
         // Map the required ballerina regexp constructs to java.
         RegExpValue translatedRegExpVal = RegExpFactory.translateRegExpConstructs((RegExpValue) regexpVal);
-        String patternStr = getRegexpStrValue(translatedRegExpVal);
+        String patternStr = StringUtils.getStringValue(translatedRegExpVal, null);
         Pattern pattern = Pattern.compile(patternStr);
         return pattern.matcher(inputStr);
-    }
-
-    private static String getRegexpStrValue(RegExpValue translatedRegExpVal) {
-        // If the string value is empty, then convert it into the non-capturing group (?:) and return.
-        String stringValue = StringUtils.getStringValue(translatedRegExpVal, null);
-        if (stringValue.equals("")) {
-            return "(?:)";
-        }
-
-        return stringValue;
     }
 
     static BArray getGroupZeroAsSpan(Matcher matcher) {

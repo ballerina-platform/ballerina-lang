@@ -160,10 +160,12 @@ public class LangLibRegexpTest {
     @Test
     public void testEmptyRegexpCompilationError() {
         CompileResult errResult = BCompileUtil.compile("test-src/regexp_empty_test_negative.bal");
-        Assert.assertEquals(errResult.getErrorCount(), 13);
-        for (int i = 0; i < getErrorIndexes().size(); i++) {
+        List<Pair<Integer, Integer>> errorIndexes = getErrorIndexes();
+        int errCount = errorIndexes.size();
+        Assert.assertEquals(errResult.getErrorCount(), errCount);
+        for (int i = 0; i < errCount; i++) {
             BAssertUtil.validateError(errResult, i, "regular expression is not allowed: empty RegExp",
-                    getErrorIndexes().get(i).first(), getErrorIndexes().get(i).second());
+                    errorIndexes.get(i).first(), errorIndexes.get(i).second());
         }
     }
 
@@ -181,7 +183,9 @@ public class LangLibRegexpTest {
                 Pair.of(29, 40),
                 Pair.of(30, 40),
                 Pair.of(31, 32),
-                Pair.of(32, 32)
+                Pair.of(32, 32),
+                Pair.of(33, 12),
+                Pair.of(34, 12)
         );
     }
 }

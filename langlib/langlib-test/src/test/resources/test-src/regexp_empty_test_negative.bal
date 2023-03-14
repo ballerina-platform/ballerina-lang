@@ -30,4 +30,6 @@ function emptyRegexpCompilationErrTest() {
     _ = regexp:fullMatchGroups(re = re ``, str = "");
     _ = regexp:matchAt(re = re ``, str = "HelloWorld");
     _ = regexp:matchAt(re = re ``, str = "HelloWorld", startIndex = 4);
+    _ = re ``.find("abc");
+    _ = re ``.find("a", 1);
 }
