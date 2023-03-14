@@ -162,7 +162,7 @@ public class LangLibRegexpTest {
         CompileResult errResult = BCompileUtil.compile("test-src/regexp_empty_test_negative.bal");
         Assert.assertEquals(errResult.getErrorCount(), 13);
         for (int i = 0; i < getErrorIndexes().size(); i++) {
-            BAssertUtil.validateError(errResult, i, "regular expression with empty string is not allowed",
+            BAssertUtil.validateError(errResult, i, "regular expression is not allowed: empty RegExp",
                     getErrorIndexes().get(i).first(), getErrorIndexes().get(i).second());
         }
     }
