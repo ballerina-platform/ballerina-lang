@@ -21,6 +21,7 @@ import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageCache;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.environment.ResolutionOptions;
@@ -72,6 +73,7 @@ public class PackageResolution {
     private final BlendedManifest blendedManifest;
     private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
     private final CompilationOptions compilationOptions;
+    private final ResolutionOptions resolutionOptions;
     private final PackageResolver packageResolver;
     private final ModuleResolver moduleResolver;
     private final List<Diagnostic> diagnosticList;
@@ -86,15 +88,15 @@ public class PackageResolution {
         this.rootPackageContext = rootPackageContext;
         this.diagnosticList = new ArrayList<>();
         this.compilationOptions = compilationOptions;
-        ResolutionOptions resolutionOptions = getResolutionOptions(rootPackageContext, compilationOptions);
+        this.resolutionOptions = getResolutionOptions(rootPackageContext, compilationOptions);
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
         this.blendedManifest = createBlendedManifest(rootPackageContext, projectEnvContext);
         diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
 
-        this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext, resolutionOptions);
+        this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext, this.resolutionOptions);
 
-        this.dependencyGraph = buildDependencyGraph(resolutionOptions);
+        this.dependencyGraph = buildDependencyGraph(this.resolutionOptions);
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
         resolveDependencies(dependencyResolution);
@@ -384,7 +386,8 @@ public class PackageResolution {
     }
 
     private ResolutionRequest createFromDepNode(DependencyNode depNode) {
-        return ResolutionRequest.from(depNode.pkgDesc(), depNode.scope(), depNode.resolutionType());
+        return ResolutionRequest.from(depNode.pkgDesc(), depNode.scope(), depNode.resolutionType(),
+                resolutionOptions.packageLockingMode());
     }
 
     private DependencyGraph<DependencyNode> createDependencyNodeGraph(
@@ -485,11 +488,19 @@ public class PackageResolution {
 
     private ResolutionOptions getResolutionOptions(PackageContext rootPackageContext,
                                                    CompilationOptions compilationOptions) {
+        boolean sticky = getSticky(rootPackageContext);
+        PackageLockingMode packageLockingMode;
+        if (System.getenv("UPDATE_MINOR") == null) {
+            packageLockingMode = PackageLockingMode.MEDIUM;
+        } else {
+           packageLockingMode = PackageLockingMode.SOFT;
+        }
         return ResolutionOptions.builder()
                 .setOffline(compilationOptions.offlineBuild())
-                .setSticky(getSticky(rootPackageContext))
+                .setSticky(sticky)
                 .setDumpGraph(compilationOptions.dumpGraph())
                 .setDumpRawGraphs(compilationOptions.dumpRawGraphs())
+                .setPackageLockingMode(packageLockingMode)
                 .build();
     }
 
