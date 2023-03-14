@@ -156,15 +156,14 @@ class JMethodResolver {
     private List<JMethod> resolveByParamCount(List<JMethod> jMethods, JMethodRequest jMethodRequest) {
         List<JMethod> list = new ArrayList<>();
         for (JMethod jMethod : jMethods) {
-            if (hasEqualParamCounts(jMethodRequest, jMethod)
-                    || (hasEquivalentParamCounts(jMethodRequest, jMethod) && jMethod.getParamTypes().length > 0)) {
+            if (hasEquivalentParamCounts(jMethodRequest, jMethod)) {
                 list.add(jMethod);
             }
         }
         return list;
     }
 
-    private boolean hasEqualParamCounts(JMethodRequest jMethodRequest, JMethod jMethod) {
+    private boolean hasEquivalentParamCounts(JMethodRequest jMethodRequest, JMethod jMethod) {
         int expectedCount = getBFuncParamCount(jMethodRequest, jMethod);
         int count = jMethod.getParamTypes().length;
         if (count == expectedCount) {
@@ -175,20 +174,23 @@ class JMethodResolver {
                 return true;
             }
             jMethod.setReceiverType(jMethodRequest.receiverType);
-            return jMethodRequest.receiverType != null;
+            return jMethodRequest.receiverType != null || isAcceptingBundledParams(jMethodRequest, jMethod);
         } else if (count == expectedCount + 2) {
             // This is for object interop functions when both BalEnv and self is passed as parameters.
             if (jMethodRequest.receiverType != null) {
                 jMethod.setReceiverType(jMethodRequest.receiverType);
             }
-            return jMethod.isBalEnvAcceptingMethod();
+            return jMethod.isBalEnvAcceptingMethod() || isAcceptingBundledParams(jMethodRequest, jMethod);
         }
-        return false;
+        return isAcceptingBundledParams(jMethodRequest, jMethod);
     }
 
-    private boolean hasEquivalentParamCounts(JMethodRequest jMethodRequest, JMethod jMethod) {
-        int reducedParamCount = getBundledParamCount(jMethodRequest, jMethod);
+    private boolean isAcceptingBundledParams(JMethodRequest jMethodRequest, JMethod jMethod) {
         int count = jMethod.getParamTypes().length;
+        if (count < 1) {
+            return false;
+        }
+        int reducedParamCount = getBundledParamCount(jMethodRequest, jMethod);
         Class<?>[] paramTypes = jMethod.getParamTypes();
         try {
             if (count == reducedParamCount && this.classLoader.loadClass(BArray.class.getCanonicalName())
@@ -197,9 +199,6 @@ class JMethodResolver {
             } else if ((count == reducedParamCount + 1) && this.classLoader.loadClass(BArray.class.getCanonicalName())
                     .isAssignableFrom(paramTypes[1])) {
                 // This is for object interop functions when self is passed as a parameter
-                if (jMethod.isBalEnvAcceptingMethod()) {
-                    return true;
-                }
                 jMethod.setReceiverType(jMethodRequest.receiverType);
                 return jMethodRequest.receiverType != null;
             } else if ((count == reducedParamCount + 2) && this.classLoader.loadClass(BArray.class.getCanonicalName())
@@ -277,12 +276,7 @@ class JMethodResolver {
 
         validateExceptionTypes(jMethodRequest, jMethod);
 
-        try {
-            validateArgumentTypes(jMethodRequest, jMethod);
-        } catch (JInteropException e) {
-            bundlePathParams(jMethodRequest, jMethod, e);
-            validateArgumentTypes(jMethodRequest, jMethod);
-        }
+        validateArgumentTypes(jMethodRequest, jMethod);
 
         validateReturnTypes(jMethodRequest, jMethod);
     }
@@ -344,6 +338,9 @@ class JMethodResolver {
     private void validateArgumentTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
 
         Class<?>[] jParamTypes = jMethod.getParamTypes();
+        if (isAcceptingBundledParams(jMethodRequest, jMethod)) {
+            bundlePathParams(jMethodRequest, jMethod);
+        }
         BType[] bParamTypes = jMethodRequest.bParamTypes;
         int bParamCount = bParamTypes.length;
         int i = 0;
@@ -405,11 +402,11 @@ class JMethodResolver {
         }
     }
 
-    private void bundlePathParams(JMethodRequest jMethodRequest, JMethod jMethod, JInteropException e) {
+    private void bundlePathParams(JMethodRequest jMethodRequest, JMethod jMethod) {
 
         List<BVarSymbol> pathParamSymbols = jMethodRequest.pathParamSymbols;
         if (pathParamSymbols.isEmpty()) {
-            throw e;
+            return;
         }
         List<BType> paramTypes = new ArrayList<>(Arrays.asList(jMethodRequest.bParamTypes));
         int initialPathParamIndex = paramTypes.indexOf(pathParamSymbols.get(0).type);

@@ -72,7 +72,7 @@ public function testResourceFuncWithMultiplePathParams() {
     test:assertEquals(response, 4);
 
     response = cl->/abc/abc/def/ghi/jkl/mno/pqr/stu/vwx/yz();
-    test:assertEquals(response, 9);
+    test:assertEquals(response, 1);
 
     response = cl->/def/abc/[1001]/def/[101]/[10002]();
     test:assertEquals(response, 4);
