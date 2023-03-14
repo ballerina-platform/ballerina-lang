@@ -46,7 +46,10 @@ import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
+import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import java.util.ArrayList;
@@ -187,7 +190,7 @@ public class ValueConverter {
                             .createKeyFieldEntry(StringUtils.fromString(entry.getKey().toString()), newValue);
                     count++;
                 }
-                return ValueCreator.createMapValue((MapType) targetType, initialValues);
+                return new MapValueImpl<>(targetRefType, initialValues);
             case TypeTags.RECORD_TYPE_TAG:
                 RecordType recordType = (RecordType) targetType;
                 Type restFieldType = recordType.getRestFieldType();
@@ -253,9 +256,8 @@ public class ValueConverter {
                 }
                 BArray data = ValueCreator
                         .createArrayValue(tableValues, TypeCreator.createArrayType(tableType.getConstrainedType()));
-                BArray fieldNames;
-                fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
-                return ValueCreator.createTableValue(tableType, data, fieldNames);
+                BArray fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
+                return new TableValueImpl(targetRefType, (ArrayValue) data, (ArrayValue) fieldNames);
             default:
                 break;
         }
@@ -274,8 +276,7 @@ public class ValueConverter {
         }
         BArray data = ValueCreator.createArrayValue(tableValues,
                 TypeCreator.createArrayType(tableType.getConstrainedType()));
-        BArray fieldNames;
-        fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
-        return ValueCreator.createTableValue(tableType, data, fieldNames);
+        BArray fieldNames = StringUtils.fromStringArray(tableType.getFieldNames());
+        return new TableValueImpl(targetRefType, (ArrayValue) data, (ArrayValue) fieldNames);
     }
 }
