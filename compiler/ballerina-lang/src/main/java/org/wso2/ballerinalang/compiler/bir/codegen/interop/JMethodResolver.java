@@ -156,14 +156,14 @@ class JMethodResolver {
     private List<JMethod> resolveByParamCount(List<JMethod> jMethods, JMethodRequest jMethodRequest) {
         List<JMethod> list = new ArrayList<>();
         for (JMethod jMethod : jMethods) {
-            if (hasEquivalentParamCounts(jMethodRequest, jMethod)) {
+            if (hasEqualParamCounts(jMethodRequest, jMethod) || isAcceptingBundledParams(jMethodRequest, jMethod)) {
                 list.add(jMethod);
             }
         }
         return list;
     }
 
-    private boolean hasEquivalentParamCounts(JMethodRequest jMethodRequest, JMethod jMethod) {
+    private boolean hasEqualParamCounts(JMethodRequest jMethodRequest, JMethod jMethod) {
         int expectedCount = getBFuncParamCount(jMethodRequest, jMethod);
         int count = jMethod.getParamTypes().length;
         if (count == expectedCount) {
@@ -174,15 +174,15 @@ class JMethodResolver {
                 return true;
             }
             jMethod.setReceiverType(jMethodRequest.receiverType);
-            return jMethodRequest.receiverType != null || isAcceptingBundledParams(jMethodRequest, jMethod);
+            return jMethodRequest.receiverType != null;
         } else if (count == expectedCount + 2) {
             // This is for object interop functions when both BalEnv and self is passed as parameters.
             if (jMethodRequest.receiverType != null) {
                 jMethod.setReceiverType(jMethodRequest.receiverType);
             }
-            return jMethod.isBalEnvAcceptingMethod() || isAcceptingBundledParams(jMethodRequest, jMethod);
+            return jMethod.isBalEnvAcceptingMethod();
         }
-        return isAcceptingBundledParams(jMethodRequest, jMethod);
+        return false;
     }
 
     private boolean isAcceptingBundledParams(JMethodRequest jMethodRequest, JMethod jMethod) {
@@ -338,7 +338,10 @@ class JMethodResolver {
     private void validateArgumentTypes(JMethodRequest jMethodRequest, JMethod jMethod) {
 
         Class<?>[] jParamTypes = jMethod.getParamTypes();
-        if (isAcceptingBundledParams(jMethodRequest, jMethod)) {
+        // Bundle path parameters into an anydata array if the resolved Java method accepts a BArray for path params
+        // and the first path param is not a rest param.
+        if (isAcceptingBundledParams(jMethodRequest, jMethod) &&
+                !isFirstPathParamARestParam(jMethodRequest, jMethod)) {
             bundlePathParams(jMethodRequest, jMethod);
         }
         BType[] bParamTypes = jMethodRequest.bParamTypes;
@@ -933,6 +936,15 @@ class JMethodResolver {
 
     private int getBundledParamCount(JMethodRequest jMethodRequest, JMethod jMethod) {
         return getBFuncParamCount(jMethodRequest, jMethod) - jMethodRequest.pathParamCount + 1;
+    }
+
+    private boolean isFirstPathParamARestParam(JMethodRequest jMethodRequest, JMethod jMethod) {
+        if (jMethodRequest.kind != JMethodKind.METHOD) {
+            return false;
+        }
+        return jMethod.isStatic() ? jMethodRequest.bParamTypes[0].tag == TypeTags.ARRAY :
+                jMethodRequest.bParamTypes[1].tag == TypeTags.ARRAY &&
+                        jMethodRequest.bParamTypes[0].tag == TypeTags.HANDLE;
     }
 
     private String getParamTypesAsString(ParamTypeConstraint[] constraints) {
