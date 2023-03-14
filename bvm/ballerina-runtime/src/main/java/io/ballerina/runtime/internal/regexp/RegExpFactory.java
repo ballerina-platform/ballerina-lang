@@ -192,7 +192,6 @@ public class RegExpFactory {
                 range.setRhsCharSetAom(translateCharInCharacterClass(range.getRhsCharSetAtom()));
                 continue;
             }
-
             if (charAtom != null) {
                 charAtoms[i] = translateCharInCharacterClass((String) charAtom);
             }
