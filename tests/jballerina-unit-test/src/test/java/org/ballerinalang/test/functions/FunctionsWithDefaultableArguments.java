@@ -250,6 +250,16 @@ public class FunctionsWithDefaultableArguments {
         Assert.assertEquals(returns.toString(), "hellohelloasyncworldworldasyncsamplevalue");
     }
 
+    @Test
+    public void testFuncWithComputedNameFieldInRecordLiteralForDefaultValue() {
+        BRunUtil.invoke(result, "testFuncWithComputedNameFieldInRecordLiteralForDefaultValue");
+    }
+
+    @Test
+    public void testFuncWithSpreadFieldInRecordLiteralForDefaultValue() {
+        BRunUtil.invoke(result, "testFuncWithSpreadFieldInRecordLiteralForDefaultValue");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

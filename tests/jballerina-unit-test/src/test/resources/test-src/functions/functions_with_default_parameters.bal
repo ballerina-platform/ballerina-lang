@@ -270,6 +270,29 @@ public function sleep(int millis) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
 
+function testFuncWithComputedNameFieldInRecordLiteralForDefaultValue() {
+    int a = 10;
+    function (record {| int a;|} x = {a}) returns int y = value1;
+    assertEquality(y(), 10);
+}
+
+function value1(record {| int a;|} x) returns int {
+    return x.a;
+}
+
+function testFuncWithSpreadFieldInRecordLiteralForDefaultValue() {
+    int a = 10;
+    int b = 20;
+
+    record {| int a; int b; |} r = {a: a, b: b};
+    function (record {| int a; int b;|} x = {...r}) returns int y = value2;
+    assertEquality(y(), 30);
+}
+
+function value2(record {| int a; int b;|} x) returns int {
+    return x.a + x.b;
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {
