@@ -19,10 +19,11 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.testng.Assert;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -40,106 +41,88 @@ public class GroupingTest extends BaseTestCase {
     }
 
     @Test
-    public void testSingleGroupExecution() throws BallerinaTestException {
+    public void testSingleGroupExecution() throws BallerinaTestException, IOException {
         String msg = "3 passing";
         String[] args = mergeCoverageArgs(new String[]{"--groups", "g1", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg)) {
-            Assert.fail("Test failed due to single group test execution failure.");
-        }
+        AssertionUtils.assertOutput("GroupingTest-testSingleGroupExecution.txt", output);
     }
 
     @Test
-    public void testMultipleGroupExecution() throws BallerinaTestException {
+    public void testMultipleGroupExecution() throws BallerinaTestException, IOException {
         String msg = "3 passing";
         String[] args = mergeCoverageArgs(new String[]{"--groups", "g2,g4", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg)) {
-            Assert.fail("Test failed due to multiple group test execution failure.");
-         }
+        AssertionUtils.assertOutput("GroupingTest-testMultipleGroupExecution.txt", output);
     }
 
     @Test
-    public void testSingleGroupExclusion() throws BallerinaTestException {
+    public void testSingleGroupExclusion() throws BallerinaTestException, IOException {
         String msg1 = "4 passing";
         String msg2 = "1 failing";
         String[] args = mergeCoverageArgs(new String[]{"--disable-groups", "g5", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2)) {
-            Assert.fail("Test failed due to single group exclusion failure.");
-        }
+        AssertionUtils.assertOutput("GroupingTest-testSingleGroupExclusion.txt", output);
     }
 
     @Test
-    public void testMultipleGroupExclusion() throws BallerinaTestException {
+    public void testMultipleGroupExclusion() throws BallerinaTestException, IOException {
         String msg = "1 passing";
         String[] args = mergeCoverageArgs(new String[]{"--disable-groups", "g1,g5,g6", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg)) {
-            Assert.fail("Test failed due to multiple group exclusion failure.");
-        }
+        AssertionUtils.assertOutput("GroupingTest-testMultipleGroupExclusion.txt", output);
     }
 
     @Test
-    public void testNonExistingGroupInclusion() throws BallerinaTestException {
+    public void testNonExistingGroupInclusion() throws BallerinaTestException, IOException {
         String msg = "No tests found";
         String[] args = mergeCoverageArgs(new String[]{"--groups", "g10", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg)) {
-            Assert.fail("Test failed due to non existent group inclusion failure.");
-        }
+        AssertionUtils.assertOutput("GroupingTest-testNonExistingGroupInclusion.txt", output);
     }
 
     @Test
-    public void testNonExistingGroupExclusion() throws BallerinaTestException {
+    public void testNonExistingGroupExclusion() throws BallerinaTestException, IOException {
         String msg1 = "4 passing";
         String msg2 = "2 failing";
         String[] args = mergeCoverageArgs(new String[]{"--disable-groups", "g10", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2)) {
-            Assert.fail("Test failed due to non existent group exclusion failure.");
-        }
+        AssertionUtils.assertOutput("GroupingTest-testNonExistingGroupExclusion.txt", output);
     }
 
     @Test
-    public void testListingOfSingleTestGroups() throws BallerinaTestException {
+    public void testListingOfSingleTestGroups() throws BallerinaTestException, IOException {
         String msg = "[g1, g2, g3, g4, g5, g6]";
         String[] args = mergeCoverageArgs(new String[]{"--list-groups", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg)) {
-            Assert.fail("Test failed due to listing test groups failure.");
-        }
+        AssertionUtils.assertOutput("GroupingTest-testListingOfSingleTestGroups.txt", output);
     }
 
     @Test
-    public void testListingOfTestGroups() throws BallerinaTestException {
+    public void testListingOfTestGroups() throws BallerinaTestException, IOException {
         String msg = "[g1, g2, g3, g4, g5, g6]";
         String[] args = {"--list-groups"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(),
                 projectBasedTestsPath.resolve("group-test").toString(),
                 false);
-        if (!output.contains(msg)) {
-            Assert.fail("Test failed due to listing test groups failure.");
-        }
+        AssertionUtils.assertOutput("GroupingTest-testListingOfTestGroups.txt", output);
     }
 
     @Test
-    public void testListGroupsWithOtherFlags() throws BallerinaTestException {
+    public void testListGroupsWithOtherFlags() throws BallerinaTestException, IOException {
         String msg = "Warning: Other flags are skipped when list-groups flag is provided.";
         String[] args = mergeCoverageArgs(new String[]{"--groups", "g1", "--list-groups", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg)) {
-            Assert.fail("Test failed due to listing test groups with other flags failure.");
-        }
+        AssertionUtils.assertOutput("GroupingTest-testListGroupsWithOtherFlags.txt", output);
     }
 
     /**
@@ -148,13 +131,11 @@ public class GroupingTest extends BaseTestCase {
      * @throws BallerinaTestException
      */
     @Test
-    public void beforeGroupsAfterGroups1() throws BallerinaTestException {
+    public void beforeGroupsAfterGroups1() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"before-groups-after-groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        if (output.contains("[fail] afterSuiteFunc")) {
-            Assert.fail("Test failed due to assertion failure in after suite function.");
-        }
+        AssertionUtils.assertOutput("GroupingTest-beforeGroupsAfterGroups1.txt", output);
     }
 
     /**
@@ -163,56 +144,46 @@ public class GroupingTest extends BaseTestCase {
      * @throws BallerinaTestException
      */
     @Test
-    public void beforeGroupsAfterGroups2() throws BallerinaTestException {
+    public void beforeGroupsAfterGroups2() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"before-groups-after-groups-test2.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        if (output.contains("[fail] afterSuiteFunc")) {
-            Assert.fail("Test failed due to assertion failure in after suite function.");
-        }
+        AssertionUtils.assertOutput("GroupingTest-beforeGroupsAfterGroups2.txt", output);
     }
 
     @Test
-    public void afterGroupsWithDisabledTest() throws BallerinaTestException {
+    public void afterGroupsWithDisabledTest() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"--groups", "g1", "after-groups-with-disabled-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        if (output.contains("[fail] afterSuiteFunc")) {
-            Assert.fail("Test failed due to assertion failure in after suite function");
-        }
+        AssertionUtils.assertOutput("GroupingTest-afterGroupsWithDisabledTest.txt", output);
     }
 
     @Test
-    public void failedBeforeGroupTest() throws BallerinaTestException {
+    public void failedBeforeGroupTest() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"failed-before-groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        if (output.contains("[fail] afterSuiteFunc")) {
-            Assert.fail("Test failed due to issue in handling before groups test failure");
-        }
+        AssertionUtils.assertOutput("GroupingTest-failedBeforeGroupTest.txt", output);
     }
 
     @Test
-    public void failedBeforeEachTest() throws BallerinaTestException {
+    public void failedBeforeEachTest() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"failed-before-each-with-groups.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        if (output.contains("[fail] afterSuiteFunc")) {
-            Assert.fail("Test failed due to issue in handling before each failure with groups.");
-        }
+        AssertionUtils.assertOutput("GroupingTest-failedBeforeEachTest.txt", output);
     }
 
     @Test
-    public void testWhenAfterGroupsFails() throws BallerinaTestException {
+    public void testWhenAfterGroupsFails() throws BallerinaTestException, IOException {
         String msg1 = "5 passing";
         String msg2 = "0 failing";
         String msg3 = "0 skipped";
         String[] args = mergeCoverageArgs(new String[]{"failed-after-groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
-            Assert.fail("Test failed due to error while skipping test when after groups fails.");
-        }
+        AssertionUtils.assertOutput("GroupingTest-testWhenAfterGroupsFails.txt", output);
     }
 
 }

@@ -116,12 +116,6 @@ public class RegExpLexer extends AbstractLexer {
             case LexerTerminals.QUESTION_MARK:
                 return getRegExpSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
             case LexerTerminals.BACKSLASH:
-                // This is used to identify `\-` in ReCharSetAtomNoDash. It's an invalid node if it's in any other
-                // position.
-                if (peek() == LexerTerminals.MINUS) {
-                    this.reader.advance();
-                    return getRegExpSyntaxToken(SyntaxKind.ESCAPED_MINUS_TOKEN);
-                }
                 return processReEscape();
             // Start parsing ReSyntaxChar character class [[^] [ReCharSet]].
             case LexerTerminals.OPEN_BRACKET:

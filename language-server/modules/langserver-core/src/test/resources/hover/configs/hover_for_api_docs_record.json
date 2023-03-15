@@ -10,7 +10,7 @@
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "[View API Docs](https://lib.ballerina.io/ballerina\\/module1\\/0.1.0\\/records\\/TestRecord1)"
+        "value": "[View API Docs](https://lib.ballerina.io/ballerina/module1/0.1.0#TestRecord1)"
       }
     },
     "id": {

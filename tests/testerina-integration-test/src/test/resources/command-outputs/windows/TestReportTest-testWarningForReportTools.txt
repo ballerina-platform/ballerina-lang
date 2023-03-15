@@ -1,0 +1,5 @@
+Compiling source
+	test*****project-based-tests\test-report-tests\target\report\test_results.json
+
+warning: Could not find the required HTML report tools for code coverage at <ballerina.home>\lib\tools\coverage\report.zip
+error: there are test failures

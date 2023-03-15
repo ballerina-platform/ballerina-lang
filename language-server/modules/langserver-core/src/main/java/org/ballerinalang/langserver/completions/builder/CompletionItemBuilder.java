@@ -39,6 +39,8 @@ public class CompletionItemBuilder {
                 return CompletionItemKind.Keyword;
             case TYPE:
                 return CompletionItemKind.TypeParameter;
+            case VALUE:
+                return CompletionItemKind.Value;
             case SNIPPET:
             case STATEMENT:
             default:
