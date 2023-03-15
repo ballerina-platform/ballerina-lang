@@ -784,11 +784,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             // only the results of the 'else' block matters.
             if (ifResult.flowTerminated) {
                 this.uninitializedVars = elseResult.uninitializedVars;
-                if (elseResult.possibleFailureUnInitVars != null) {
-                    updateUnInitVarsForOnFailClause(elseResult.possibleFailureUnInitVars);
-                }
                 if (ifExprConst) {
-                    this.flowTerminated = ifResult.flowTerminated;
+                    this.flowTerminated = true;
                     this.definiteFailureReached = ifResult.definiteFailureReached;
                 }
                 return;

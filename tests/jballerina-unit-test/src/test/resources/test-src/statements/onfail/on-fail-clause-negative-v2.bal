@@ -827,6 +827,19 @@ function testUnInitVars43(boolean bool) returns error? {
     _ = i[0]; //no compilation error
 }
 
+function testUnInitVars44(boolean bool) {
+    int i;
+    do {
+        if bool {
+            fail error("", message = "error");
+        } else {
+            i = 1;
+        }
+    } on fail {
+    }
+    _ = i; //error: variable 'i' may not have been initialized
+}
+
 function getErrorOrIntArr() returns int[]|error {
     return getError();
 }
