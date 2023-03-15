@@ -75,6 +75,7 @@ public class TypeResolver {
     private HashSet<BLangConstant> resolvingConstants = new HashSet<>();
     private HashSet<BLangClassDefinition> resolvedClassDef = new HashSet<>();
     private Map<String, BLangNode> modTable = new LinkedHashMap<>();
+    private Map<String, BLangConstantValue> constantMap = new HashMap<>();
     private SymbolEnv pkgEnv;
 
     public TypeResolver(CompilerContext context) {
@@ -106,7 +107,10 @@ public class TypeResolver {
         this.pkgEnv = pkgEnv;
         typePrecedence = 0;
         for (BLangNode typeAndClassDef : moduleDefs) {
-            modTable.put(symEnter.getTypeOrClassName(typeAndClassDef), typeAndClassDef);
+            String typeOrClassName = symEnter.getTypeOrClassName(typeAndClassDef);
+            if (!modTable.containsKey(typeOrClassName)) {
+                modTable.put(typeOrClassName, typeAndClassDef);
+            }
         }
 
         for (BLangNode def : moduleDefs) {
@@ -1337,7 +1341,7 @@ public class TypeResolver {
 
         type = symbol.type;
 
-        if (type.getKind() != TypeKind.OTHER) {
+        if (symbol != symTable.notFoundSymbol) {
             return type;
         }
 
@@ -1575,31 +1579,10 @@ public class TypeResolver {
         return (int) ((BLangLiteral) t).value;
     }
 
-    public void definetypeDefinition(BLangTypeDefinition typeDefinition, BType resolvedType, SymbolEnv env, Map<String, BLangNode> mod) {
-        if (resolvedType == symTable.semanticError) {
-            // TODO : Fix this properly. issue #21242
+    public void definetypeDefinition(BLangTypeDefinition typeDefinition, BType resolvedType, SymbolEnv env,
+                                     Map<String, BLangNode> mod) {
 
-            symEnter.invalidateAlreadyDefinedErrorType(typeDefinition);
-            return;
-        }
-
-        if (resolvedType == symTable.semanticError || resolvedType == symTable.noType) {
-            return;
-        }
-
-//        if (definedType == symTable.noType) {
-//            // This is to prevent concurrent modification exception.
-//            if (!this.unresolvedTypes.contains(typeDefinition)) {
-//                this.unresolvedTypes.add(typeDefinition);
-//            }
-//            return;
-//        }
-
-        if (resolvedType == null) {
-            return;
-        }
-
-        if (typeDefinition.symbol != null) {
+        if (resolvedType == null || resolvedType == symTable.noType || typeDefinition.symbol != null) {
             return;
         }
 
@@ -1644,7 +1627,6 @@ public class TypeResolver {
         }
 
 //        typeDefinition.setPrecedence(this.typePrecedence++);
-//        BSymbol typeDefSymbol = typeDefinition.symbol;
         BSymbol typeDefSymbol = Symbols.createTypeDefinitionSymbol(Flags.asMask(typeDefinition.flagSet),
                 names.fromIdNode(typeDefinition.name), env.enclPkg.packageID, resolvedType, env.scope.owner,
                 typeDefinition.name.pos, symEnter.getOrigin(typeDefinition.name.value));
@@ -1654,6 +1636,11 @@ public class TypeResolver {
         typeSymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
         ((BTypeDefinitionSymbol) typeDefSymbol).referenceType = new BTypeReferenceType(resolvedType, typeSymbol,
                 typeDefSymbol.type.flags);
+
+        if (resolvedType == symTable.semanticError && resolvedType.tsymbol == null) {
+            typeDefinition.symbol = typeDefSymbol;
+            return;
+        }
 
         boolean isLabel = true;
         //todo remove after type ref introduced to runtime
@@ -1778,11 +1765,38 @@ public class TypeResolver {
             return;
         }
         if (resolvedConstants.contains(constant)) { // Already resolved constant.
+            resolvingConstants.remove(constant);
             return;
         }
         defineConstant(symEnv, modTable, constant);
         resolvingConstants.remove(constant);
         resolvedConstants.add(constant);
+        checkUniqueness(constant);
+    }
+
+    private void checkUniqueness(BLangConstant constant) {
+        if (constant.symbol.kind == SymbolKind.CONSTANT) {
+            String nameString = constant.name.value;
+            BLangConstantValue value = constant.symbol.value;
+
+            if (constantMap.containsKey(nameString)) {
+                if (value == null) {
+                    dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, nameString);
+                } else {
+                    BLangConstantValue lastValue = constantMap.get(nameString);
+                    if (!value.equals(lastValue)) {
+                        if (lastValue == null) {
+                            dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL, nameString);
+                        } else {
+                            dlog.error(constant.name.pos, DiagnosticErrorCode.ALREADY_INITIALIZED_SYMBOL_WITH_ANOTHER,
+                                    nameString, lastValue);
+                        }
+                    }
+                }
+            } else {
+                constantMap.put(nameString, value);
+            }
+        }
     }
 
     private void defineConstant(SymbolEnv symEnv, Map<String, BLangNode> modTable, BLangConstant constant) {
