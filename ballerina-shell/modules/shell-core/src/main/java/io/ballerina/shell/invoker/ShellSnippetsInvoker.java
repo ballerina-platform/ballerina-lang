@@ -434,7 +434,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             }
         } catch (InvokerPanicException panicError) {
             List<String> stacktrace = Arrays.stream(panicError.getCause().getStackTrace())
-                    .filter(element -> !(element.toString().contains(MODULE_STATEMENT_METHOD_NAME)||
+                    .filter(element -> !(element.toString().contains(MODULE_STATEMENT_METHOD_NAME) ||
                                         element.toString().contains(MODULE_RUN_METHOD_NAME)))
                     .collect(Collectors.toList())
                     .stream().map(element -> "at " + element.getMethodName() + "()").collect(Collectors.toList());
