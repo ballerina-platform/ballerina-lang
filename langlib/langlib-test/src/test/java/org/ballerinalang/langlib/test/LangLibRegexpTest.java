@@ -189,4 +189,23 @@ public class LangLibRegexpTest {
                 Pair.of(34, 12)
         );
     }
+    
+    @Test(dataProvider = "negativeRegexpNonCapturingGroupProvider")
+    public void negativeTestRegexpEmptyCharClass(String functionName) {
+        BRunUtil.invoke(negativeTests, functionName);
+    }
+
+    @DataProvider(name = "negativeRegexpNonCapturingGroupProvider")
+    private Object[][] negativeRegexpEmptyCharClass() {
+        return new Object[][]{
+                {"testNegativeDuplicateFlags1"},
+                {"testNegativeDuplicateFlags2"},
+                {"testNegativeDuplicateFlags3"},
+                {"testNegativeDuplicateFlags4"},
+                {"testNegativeDuplicateFlags5"},
+                {"testNegativeInvalidFlags1"},
+                {"testNegativeInvalidFlags2"},
+                {"testNegativeInvalidFlags3"},
+        };
+    }
 }

@@ -45,7 +45,6 @@ import java.util.Set;
  * @since 2201.3.0
  */
 public class TreeBuilder {
-
     private final TokenReader tokenReader;
 
     public TreeBuilder(TokenReader tokenReader) {
@@ -109,7 +108,6 @@ public class TreeBuilder {
             default:
                 // Read chars in ReLiteralChar, . or ReEscape.
                 reAtom = readRegChars();
-                break;
         }
 
         nextToken = peek();

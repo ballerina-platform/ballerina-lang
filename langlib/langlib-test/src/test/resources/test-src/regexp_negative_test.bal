@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.regexp;
 
 public function testNegativeIndexFind() returns error? {
     string:RegExp r = re `e`;
@@ -100,4 +101,53 @@ public function testInvalidRegexpPatternSyntax4() returns error? {
 public function testInvalidRegexpPatternSyntax5() returns error? {
     string:RegExp x = re `(?xsmi:[]\P{sc=Braille})`;
     _ = check (trap x.matchGroupsAt(":*A*a"));
+}
+
+public function testNegativeDuplicateFlags1() returns error? {
+    anydata|error result = trap re `${"(?i-i:ABC))"}`;
+    check assertEqualMessage(result, "Invalid insertion in regular expression: duplicate flag 'i'");
+}
+
+public function testNegativeDuplicateFlags2() returns error? {
+    anydata|error result = trap re `ABC${"(?ims-xi:ABC))"}(?-:)`;
+    check assertEqualMessage(result, "Invalid insertion in regular expression: duplicate flag 'i'");
+}
+
+public function testNegativeDuplicateFlags3() returns error? {
+    anydata|error result = regexp:fromString("(?ms-ims:ABC))");
+    check assertEqualMessage(result, "Failed to parse regular expression: duplicate flag 'm'");
+}
+
+public function testNegativeDuplicateFlags4() returns error? {
+    anydata|error result = regexp:fromString("(?imi:(ABC))");
+    check assertEqualMessage(result, "Failed to parse regular expression: duplicate flag 'i'");
+}
+
+public function testNegativeDuplicateFlags5() returns error? {
+    anydata|error result = regexp:fromString("(?-imi:(ABC))");
+    check assertEqualMessage(result, "Failed to parse regular expression: duplicate flag 'i'");
+}
+
+public function testNegativeInvalidFlags1() returns error? {
+    anydata|error result = trap re `${"(?i-mk:ABC))"}`;
+    check assertEqualMessage(result, "Invalid insertion in regular expression: invalid flag in regular expression");
+}
+
+public function testNegativeInvalidFlags2() returns error? {
+    anydata|error result = trap re `ABC${"(?lms-xi:ABC))"}(?-:)`;
+    check assertEqualMessage(result, "Invalid insertion in regular expression: invalid flag in regular expression");
+}
+
+public function testNegativeInvalidFlags3() returns error? {
+    anydata|error result = regexp:fromString("(?ls-ims:ABC))");
+    check assertEqualMessage(result, "Failed to parse regular expression: invalid flag in regular expression");
+}
+
+function assertEqualMessage(anydata|error actual, anydata|error expected) returns error? {
+    anydata expectedValue = (expected is error)? check (<error> expected).detail().get("message").ensureType() : expected;
+    anydata actualValue = (actual is error)? check (<error> actual).detail().get("message").ensureType() : actual;
+    if expectedValue == actualValue {
+        return;
+    }
+    panic error(string `expected '${expectedValue.toBalString()}', found '${actualValue.toBalString()}'`);
 }
