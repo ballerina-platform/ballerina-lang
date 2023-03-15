@@ -1274,7 +1274,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             BLangArrowFunction bLangArrowFunction = (BLangArrowFunction) enclEnv.node;
 
             for (BLangSimpleVariable param : bLangArrowFunction.params) {
-                if (param.symbol == symbol) {
+                if (param.symbol == getOriginalSymbol(symbol)) {
                     return;
                 }
             }
@@ -4075,7 +4075,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         LinePosition linePosition = lineRange.startLine();
         int startLine = linePosition.line();
         int startColumn = linePosition.offset();
-        return new BLangDiagnosticLocation(lineRange.filePath(), startLine, startLine, startColumn, startColumn);
+        return new BLangDiagnosticLocation(lineRange.fileName(), startLine, startLine, startColumn, startColumn);
     }
 
     private DiagnosticHintCode getHintCode(boolean isolatedService, boolean isolatedMethod) {
