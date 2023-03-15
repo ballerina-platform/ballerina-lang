@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "boolean var1 \u003d (area \u003d\u003d 5);\n    "
+          "newText": "boolean var1 = (area == 5);\n    "
         },
         {
           "range": {
@@ -41,7 +41,19 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInBracedExpression.bal",
+          {
+            "line": 3,
+            "character": 7
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

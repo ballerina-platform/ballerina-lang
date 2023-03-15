@@ -590,9 +590,15 @@ function testIncompatibleJsonToFloat() returns float|error {
     return value;
 }
 
-function testBooleanInJsonToInt() returns int|error {
+function testBooleanInJsonToInt() {
     json j = true;
-    return trap <int> j;
+    var result = trap <int> j;
+    test:assertTrue(result is error);
+    if (result is error) {
+        test:assertEquals("{ballerina}TypeCastError", result.message());
+        test:assertEquals("incompatible types: 'boolean' cannot be cast to 'int'",
+        <string> checkpanic result.detail()["message"]);
+    }
 }
 
 type Address record {

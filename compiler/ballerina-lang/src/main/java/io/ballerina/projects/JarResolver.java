@@ -17,8 +17,14 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.internal.DefaultDiagnosticResult;
+import io.ballerina.projects.internal.PackageDiagnostic;
+import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.ObservabilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
@@ -61,6 +67,8 @@ public class JarResolver {
     private final PackageResolution pkgResolution;
     private final PackageContext rootPackageContext;
     private final PrintStream err = System.err;
+    private final List<Diagnostic> diagnosticList;
+    private DiagnosticResult diagnosticResult;
 
     private ClassLoader classLoaderWithAllJars;
 
@@ -68,6 +76,14 @@ public class JarResolver {
         this.jBalBackend = jBalBackend;
         this.pkgResolution = pkgResolution;
         this.rootPackageContext = pkgResolution.packageContext();
+        this.diagnosticList = new ArrayList<>();
+    }
+
+    DiagnosticResult diagnosticResult() {
+        if (this.diagnosticResult == null) {
+            this.diagnosticResult = new DefaultDiagnosticResult(this.diagnosticList);
+        }
+        return diagnosticResult;
     }
 
     // TODO These method names are too long. Refactor them soon
@@ -171,14 +187,18 @@ public class JarResolver {
                 ComparableVersion newVersion = new ComparableVersion(newEntry.version().get());
 
                 if (existingVersion.compareTo(newVersion) >= 0) {
-                    if (!newEntry.packageName().orElseThrow().startsWith(ProjectConstants.BALLERINA_ORG)) {
-                        // TODO: issue a warning. For this we need to design diagnostic reporting in JarResolver
+                    if (!existingEntry.packageName().orElseThrow().startsWith(ProjectConstants.BALLERINA_ORG)
+                            || !newEntry.packageName().orElseThrow().startsWith(ProjectConstants.BALLERINA_ORG)) {
+                        reportDiagnostic(newEntry, existingEntry);
                     }
                     continue;
                 }
+                if (!newEntry.packageName().orElseThrow().startsWith(ProjectConstants.BALLERINA_ORG) ||
+                        !newEntry.packageName().orElseThrow().startsWith(ProjectConstants.BALLERINA_ORG)) {
+                    reportDiagnostic(existingEntry, newEntry);
+                }
                 libraryPaths.remove(existingEntry);
             }
-
             libraryPaths.add(new JarLibrary(
                     newEntry.path(),
                     scope,
@@ -187,6 +207,18 @@ public class JarResolver {
                     newEntry.version().orElseThrow(),
                     newEntry.packageName().orElseThrow()));
         }
+    }
+
+    private void reportDiagnostic(JarLibrary existingEntry, JarLibrary newEntry) {
+        var diagnosticInfo = new DiagnosticInfo(
+                ProjectDiagnosticErrorCode.CONFLICTING_PLATFORM_JAR_FILES.diagnosticId(),
+                "detected conflicting jar files. '" + newEntry.path().getFileName() + "' dependency of '" +
+                        newEntry.packageName().get() + "' conflicts with '" + existingEntry.path().getFileName() +
+                        "' dependency of '" + existingEntry.packageName().get() + "'. Picking '" +
+                        newEntry.path().getFileName() + "' over '" + existingEntry.path().getFileName() + "'.",
+                DiagnosticSeverity.WARNING);
+        diagnosticList.add(new PackageDiagnostic(diagnosticInfo,
+                this.jBalBackend.packageContext().descriptor().name().toString()));
     }
 
     public Collection<JarLibrary> getJarFilePathsRequiredForTestExecution(ModuleName moduleName) {

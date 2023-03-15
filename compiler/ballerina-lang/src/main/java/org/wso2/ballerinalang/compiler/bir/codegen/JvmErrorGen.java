@@ -35,6 +35,7 @@ import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_INTEROP_ERROR_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK_OVERFLOW_ERROR;
@@ -104,7 +105,7 @@ public class JvmErrorGen {
                 Label errorValueLabel = new Label();
                 this.mv.visitTryCatchBlock(startLabel, endLabel, errorValueLabel, catchIns.errorClass);
                 this.mv.visitLabel(errorValueLabel);
-                this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, "createInteropError",
+                this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, CREATE_INTEROP_ERROR_METHOD,
                         CREATE_ERROR_FROM_THROWABLE, false);
                 jvmInstructionGen.generateVarStore(this.mv, retVarDcl, retIndex);
                 termGen.genReturnTerm(retIndex, func, invocationVarIndex);
@@ -122,7 +123,7 @@ public class JvmErrorGen {
             this.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, THROWABLE);
 
             this.mv.visitLabel(otherErrorLabel);
-            this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, "createInteropError",
+            this.mv.visitMethodInsn(INVOKESTATIC, ERROR_UTILS, CREATE_INTEROP_ERROR_METHOD,
                     CREATE_ERROR_FROM_THROWABLE, false);
             this.mv.visitInsn(ATHROW);
             this.mv.visitJumpInsn(GOTO, jumpLabel);

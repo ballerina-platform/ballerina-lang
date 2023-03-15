@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: 
-        branch: ["master", "2201.1.x", "2201.2.x", "2201.2.2-stage", "2201.3.x", "2201.3.0-stage"]
+        branch: ["master", "2201.2.x", "2201.3.x", "2201.4.x", "2201.4.0-stage"]
         skipGenerators: ["", "IMPORT_STATEMENT"]
 
     steps:

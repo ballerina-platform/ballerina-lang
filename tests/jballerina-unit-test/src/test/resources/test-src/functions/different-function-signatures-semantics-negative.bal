@@ -130,3 +130,33 @@ class Foo {
 function foobar(string ')  {
 
 }
+
+function returnAnyFunction1() returns function {
+    return function () returns int {
+        return 1;
+    };
+}
+
+function returnAnyFunction2() returns function {
+    return function (int i) returns boolean {
+        return true;
+    };
+}
+
+function acceptFunction1(function () returns int fn) {
+
+}
+
+function acceptFunction2(function (int i) returns boolean fn) {
+
+}
+
+function testAnyFunctionReturn() {
+    var f1 = returnAnyFunction1();
+    acceptFunction1(f1); // error
+    var f2 = returnAnyFunction2();
+    acceptFunction2(f2); // error
+    var f3 = returnAnyFunction2();
+    int[] arr = [1, 2, 3];
+    _ = arr.filter(f3); // error
+}

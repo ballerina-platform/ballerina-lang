@@ -30,10 +30,12 @@ import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
@@ -253,12 +255,12 @@ public class Utils {
             return CONFIG_FILE_NAME;
         }
         LineRange oneBasedLineRange = getOneBasedLineRange(node.location().lineRange());
-        return oneBasedLineRange.filePath() + ":" + oneBasedLineRange;
+        return oneBasedLineRange.fileName() + ":" + oneBasedLineRange;
     }
 
     static LineRange getOneBasedLineRange(LineRange lineRange) {
         return LineRange.from(
-                lineRange.filePath(),
+                lineRange.fileName(),
                 LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
                 LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
     }
@@ -353,7 +355,7 @@ public class Utils {
 
     private static boolean checkDoubleValue(BFiniteType type, int tag, double doubleValue) {
         for (Object value : type.getValueSpace()) {
-            if (TypeChecker.getType(value).getTag() == tag) {
+            if (TypeUtils.getReferredType(TypeChecker.getType(value)).getTag() == tag) {
                 if (tag == TypeTags.DECIMAL_TAG) {
                     return doubleValue == ((DecimalValue) value).floatValue();
                 } else {
@@ -388,10 +390,11 @@ public class Utils {
 
     private static boolean containsType(BUnionType unionType, int tag) {
         for (Type type : unionType.getMemberTypes()) {
-            int typeTag = getEffectiveType(type).getTag();
+            Type effectiveType = getEffectiveType(type);
+            int typeTag = effectiveType.getTag();
             if (typeTag == TypeTags.FINITE_TYPE_TAG) {
-                for (Object obj : ((FiniteType) type).getValueSpace()) {
-                    if (TypeChecker.getType(obj).getTag() == tag) {
+                for (Object obj : ((FiniteType) effectiveType).getValueSpace()) {
+                    if (TypeUtils.getReferredType(TypeChecker.getType(obj)).getTag() == tag) {
                         return true;
                     }
                 }
@@ -432,10 +435,14 @@ public class Utils {
     }
 
     static Type getEffectiveType(Type type) {
-        if (type.getTag() == TypeTags.INTERSECTION_TAG) {
-            return ((IntersectionType) type).getEffectiveType();
+        switch (type.getTag()) {
+            case TypeTags.INTERSECTION_TAG:
+                return ((IntersectionType) type).getEffectiveType();
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return getEffectiveType(((ReferenceType) type).getReferredType());
+            default:
+                return type;
         }
-        return type;
     }
 
     private static boolean isMappingType(int typeTag) {

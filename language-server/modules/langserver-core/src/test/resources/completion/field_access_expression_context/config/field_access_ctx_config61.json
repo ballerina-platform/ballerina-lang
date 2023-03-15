@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 30,
+    "character": 28
+  },
+  "source": "field_access_expression_context/source/field_access_ctx_source61.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "myFunc()",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "myFunc",
+      "insertText": "myFunc()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myFunc2()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "myFunc2",
+      "insertText": "myFunc2()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

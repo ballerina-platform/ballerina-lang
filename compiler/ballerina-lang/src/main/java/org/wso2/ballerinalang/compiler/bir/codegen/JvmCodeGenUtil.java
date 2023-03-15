@@ -57,6 +57,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -82,6 +83,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VAR_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
@@ -93,6 +95,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACK
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAKE_CONCAT_WITH_CONSTANTS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_STRINGS_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_OF_HEADING_WITH_SEMICOLON;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
@@ -143,6 +146,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STRING_BUILDER_APPEND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -266,10 +270,10 @@ public class JvmCodeGenUtil {
     }
 
     public static void generateDefaultConstructor(ClassWriter cw, String ownerClass) {
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JVM_INIT_METHOD, "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JVM_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, ownerClass, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, ownerClass, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(1, 1);
         mv.visitEnd();
@@ -659,7 +663,7 @@ public class JvmCodeGenUtil {
 
         StringBuilder yieldLocationData = new StringBuilder(fullyQualifiedFuncName);
         if (terminatorPos != null) {
-            yieldLocationData.append("(").append(terminatorPos.lineRange().filePath()).append(":")
+            yieldLocationData.append("(").append(terminatorPos.lineRange().fileName()).append(":")
                     .append(terminatorPos.lineRange().startLine().line() + 1).append(")");
         }
         mv.visitLdcInsn(yieldLocationData.toString());
@@ -733,8 +737,9 @@ public class JvmCodeGenUtil {
             return;
         } else if (TypeTags.isStringTypeTag(typeTag)) {
             String val = String.valueOf(constVal);
-            String varName = jvmConstantsGen.getBStringConstantVar(val);
-            String stringConstantsClass = jvmConstantsGen.getStringConstantsClass();
+            int index = jvmConstantsGen.getBStringConstantVarIndex(val);
+            String varName = B_STRING_VAR_PREFIX + index;
+            String stringConstantsClass = getStringConstantsClass(index, jvmConstantsGen);
             mv.visitFieldInsn(GETSTATIC, stringConstantsClass, varName, GET_BSTRING);
             return;
         }
@@ -767,6 +772,11 @@ public class JvmCodeGenUtil {
             default:
                 throw new BLangCompilerException("JVM generation is not supported for type : " + bType);
         }
+    }
+
+    private static String getStringConstantsClass(int varIndex, JvmConstantsGen jvmConstantsGen) {
+        int classIndex = varIndex / MAX_STRINGS_PER_METHOD;
+        return jvmConstantsGen.getStringConstantsClass() + UNDERSCORE + classIndex;
     }
 
     private static String removeDecimalDiscriminator(String value) {
@@ -818,5 +828,15 @@ public class JvmCodeGenUtil {
 
     public static String getRefTypeConstantName(BTypeReferenceType type) {
         return JvmConstants.TYPEREF_TYPE_VAR_PREFIX + Utils.encodeNonFunctionIdentifier(type.tsymbol.name.value);
+    }
+
+    public static void visitMaxStackForMethod(MethodVisitor mv, String funcName, String className) {
+        try {
+            mv.visitMaxs(0, 0);
+        } catch (Throwable e) {
+            throw new BLangCompilerException(
+                    "error while generating method '" + Utils.decodeIdentifier(funcName) + "' in class '" +
+                            Utils.decodeIdentifier(className) + "'", e);
+        }
     }
 }

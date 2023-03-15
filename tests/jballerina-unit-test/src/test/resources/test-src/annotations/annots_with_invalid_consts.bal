@@ -59,3 +59,33 @@ service object {} ser3 = @v2 {
     }
 };
 
+// public const annotation record {| int increment = 1; |} v3 on source type;
+
+// int x = 1;
+
+// @v3 {
+//     increment: -x
+// }
+// type Quux record {|
+//     int x;
+// |};
+
+const annotation record {| int[] arr; |}[] v3 on type;
+
+int[] intArr = [1, 2];
+int i = 1;
+const TWO = 2;
+
+@v3 {
+    arr: intArr
+}
+@v3 {
+    arr: [TWO, i]
+}
+@v3 {
+    arr: [i, i]
+}
+type Corge record {|
+    int a;
+    int b;
+|};

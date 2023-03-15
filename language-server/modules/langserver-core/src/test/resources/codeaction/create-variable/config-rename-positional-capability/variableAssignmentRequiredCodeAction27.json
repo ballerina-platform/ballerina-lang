@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 11,
+    "character": 4
+  },
+  "source": "createVariable4.bal",
+  "expected": [
+    {
+      "title": "Create variable with 'int[]'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 4
+            }
+          },
+          "newText": "int[] listResult = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariable4.bal",
+          {
+            "line": 11,
+            "character": 10
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

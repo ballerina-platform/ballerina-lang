@@ -1015,42 +1015,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STClientDeclarationNode transform(
-            STClientDeclarationNode clientDeclarationNode) {
-        STNode annotations = modifyNode(clientDeclarationNode.annotations);
-        STNode clientKeyword = modifyNode(clientDeclarationNode.clientKeyword);
-        STNode clientUri = modifyNode(clientDeclarationNode.clientUri);
-        STNode asKeyword = modifyNode(clientDeclarationNode.asKeyword);
-        STNode clientPrefix = modifyNode(clientDeclarationNode.clientPrefix);
-        STNode semicolonToken = modifyNode(clientDeclarationNode.semicolonToken);
-        return clientDeclarationNode.modify(
-                annotations,
-                clientKeyword,
-                clientUri,
-                asKeyword,
-                clientPrefix,
-                semicolonToken);
-    }
-
-    @Override
-    public STModuleClientDeclarationNode transform(
-            STModuleClientDeclarationNode moduleClientDeclarationNode) {
-        STNode annotations = modifyNode(moduleClientDeclarationNode.annotations);
-        STNode clientKeyword = modifyNode(moduleClientDeclarationNode.clientKeyword);
-        STNode clientUri = modifyNode(moduleClientDeclarationNode.clientUri);
-        STNode asKeyword = modifyNode(moduleClientDeclarationNode.asKeyword);
-        STNode clientPrefix = modifyNode(moduleClientDeclarationNode.clientPrefix);
-        STNode semicolonToken = modifyNode(moduleClientDeclarationNode.semicolonToken);
-        return moduleClientDeclarationNode.modify(
-                annotations,
-                clientKeyword,
-                clientUri,
-                asKeyword,
-                clientPrefix,
-                semicolonToken);
-    }
-
-    @Override
     public STFunctionBodyBlockNode transform(
             STFunctionBodyBlockNode functionBodyBlockNode) {
         STNode openBraceToken = modifyNode(functionBodyBlockNode.openBraceToken);
@@ -2905,6 +2869,15 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 commaToken,
                 mostTimesMatchedDigit,
                 closeBraceToken);
+    }
+  
+    public STMemberTypeDescriptorNode transform(
+            STMemberTypeDescriptorNode memberTypeDescriptorNode) {
+        STNode annotations = modifyNode(memberTypeDescriptorNode.annotations);
+        STNode typeDescriptor = modifyNode(memberTypeDescriptorNode.typeDescriptor);
+        return memberTypeDescriptorNode.modify(
+                annotations,
+                typeDescriptor);
     }
 
     // Tokens

@@ -36,6 +36,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTANTS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTANT_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONSTANTS_PER_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
 
@@ -47,11 +48,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmCon
 public class JvmBallerinaConstantsGen {
 
     private final String constantClass;
-
     private final String moduleInitClass;
-
     private final JvmConstantsGen jvmConstantsGen;
-
     private final BIRNode.BIRPackage module;
 
     public JvmBallerinaConstantsGen(BIRNode.BIRPackage module, String moduleInitClass,
@@ -84,14 +82,15 @@ public class JvmBallerinaConstantsGen {
         int methodCount = 0;
         for (BIRNode.BIRConstant constant : module.constants) {
             if (moduleCount % MAX_CONSTANTS_PER_METHOD == 0) {
-                mv = cw.visitMethod(ACC_STATIC, CONSTANT_INIT_METHOD_PREFIX + methodCount++, "()V", null, null);
+                mv = cw.visitMethod(ACC_STATIC, CONSTANT_INIT_METHOD_PREFIX + methodCount++, VOID_METHOD_DESC, null,
+                        null);
             }
             setConstantField(mv, constant, moduleInitClass, jvmConstantsGen);
             moduleCount++;
             if (moduleCount % MAX_CONSTANTS_PER_METHOD == 0) {
                 if (moduleCount != module.constants.size()) {
                     mv.visitMethodInsn(INVOKESTATIC, constantClass, CONSTANT_INIT_METHOD_PREFIX + methodCount,
-                                       "()V", false);
+                            VOID_METHOD_DESC, false);
                 }
                 genMethodReturn(mv);
             }
@@ -103,8 +102,9 @@ public class JvmBallerinaConstantsGen {
     }
 
     private void generateConstantInitPublicMethod(ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC + ACC_PUBLIC, CONSTANT_INIT_METHOD_PREFIX, "()V", null, null);
-        mv.visitMethodInsn(INVOKESTATIC, constantClass, CONSTANT_INIT_METHOD_PREFIX + 0, "()V", false);
+        MethodVisitor mv =
+                cw.visitMethod(ACC_STATIC + ACC_PUBLIC, CONSTANT_INIT_METHOD_PREFIX, VOID_METHOD_DESC, null, null);
+        mv.visitMethodInsn(INVOKESTATIC, constantClass, CONSTANT_INIT_METHOD_PREFIX + 0, VOID_METHOD_DESC, false);
         genMethodReturn(mv);
     }
 

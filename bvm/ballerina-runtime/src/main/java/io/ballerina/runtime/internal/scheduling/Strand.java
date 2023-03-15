@@ -78,6 +78,7 @@ public class Strand {
     public Set<ChannelDetails> channelDetails;
     public Set<SchedulerItem> dependants;
     public boolean cancel;
+    public int acquiredLockCount;
 
     SchedulerItem schedulerItem;
     List<WaitContext> waitingContexts;
@@ -104,31 +105,30 @@ public class Strand {
         this.metadata = metadata;
         this.trxContexts = new Stack<>();
         this.parent = parent;
-        this.functionInvocation = 0;
 
         //TODO: improve by using a copy on write map #26710
         if (properties != null) {
             this.globalProps = properties;
-            Object currentContext = globalProps.get(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
-            if (currentContext != null) {
-                TransactionLocalContext branchedContext =
-                        createTrxContextBranch((TransactionLocalContext) currentContext, name);
-                setCurrentTransactionContext(branchedContext);
-            }
         } else if (parent != null) {
             this.globalProps = new HashMap<>(parent.globalProps);
         } else {
             this.globalProps = new HashMap<>();
         }
     }
-
     public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
                   Map<String, Object> properties, TransactionLocalContext currentTrxContext) {
         this(name, metadata, scheduler, parent, properties);
         if (currentTrxContext != null) {
             this.trxContexts = parent.trxContexts;
             this.trxContexts.push(currentTrxContext);
-            this.currentTrxContext = createTrxContextBranch(currentTrxContext, name);
+            this.currentTrxContext = currentTrxContext;
+        } else {
+            Object currentContext = globalProps.get(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
+            if (currentContext != null) {
+                TransactionLocalContext branchedContext =
+                        createTrxContextBranch((TransactionLocalContext) currentContext, name);
+                setCurrentTransactionContext(branchedContext);
+            }
         }
     }
 
