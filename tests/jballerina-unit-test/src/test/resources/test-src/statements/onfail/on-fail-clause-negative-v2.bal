@@ -221,8 +221,8 @@ function testUnInitVars9() {
         str1 = "-> error caught. Hence value returning";
         str2 = "-> error caught. Hence value returning";
     }
-    str1 += "-> reached end";
-    str2 += "-> reached end";
+    str1 += "-> reached end"; //error: variable 'str1' is not initialized
+    str2 += "-> reached end"; //error: variable 'str2' is not initialized
 }
 
 function testUnInitVars10() {
@@ -235,7 +235,7 @@ function testUnInitVars10() {
         str1 = "partial init";
         str2 = "-> error caught. Hence value returning";
     }
-    str1 += "-> reached end";
+    str1 += "-> reached end"; //error: variable 'str1' may not have been initialized
     str2 += "-> reached end";
 }
 
@@ -269,7 +269,7 @@ function testUnInitVars12() {
         k = -1;
     }
     i += 1;
-    j += 1;
+    j += 1; //error: variable 'j' may not have been initialized
     k += 1;
 }
 
@@ -289,10 +289,10 @@ function testUnInitVars13() {
         i += 1;
         j += 1;
     } on fail {
-        j += 1;
+        j += 1; //error: variable 'j' may not have been initialized
     }
     i += 1;
-    j += 1;
+    j += 1; //error: variable 'j' may not have been initialized
 }
 
 function testUnInitVars14() {
@@ -373,12 +373,12 @@ function testUnInitVars17(boolean bool) {
         _ = y[0];
         _ = z[0];
     } on fail {
-        _ = x[0];
-        _ = y[0];
+        _ = x[0]; //error: variable 'x' may not have been initialized
+        _ = y[0]; //error: variable 'y' may not have been initialized
         _ = z[0];
     }
-    _ = x[0];
-    _ = y[0];
+    _ = x[0]; //error: variable 'x' may not have been initialized
+    _ = y[0]; //error: variable 'y' may not have been initialized
     _ = z[0];
 }
 
@@ -403,7 +403,7 @@ function testUnInitVars18(boolean bool) {
         x = [];
     }
     _ = x[0];
-    _ = y[0];
+    _ = y[0]; //error: variable 'y' may not have been initialized
     _ = z[0];
 }
 
@@ -424,8 +424,8 @@ function testUnInitVars19() {
         _ = z[0];
     } on fail {
     }
-    _ = x[0]; // compilation error for x, y
-    _ = y[0];
+    _ = x[0]; //error: variable 'x' may not have been initialized
+    _ = y[0]; //error: variable 'y' may not have been initialized
     _ = z[0];
 }
 
@@ -448,7 +448,7 @@ function testUnInitVars20() {
         x = [];
     }
     _ = x[0];
-    _ = y[0]; // compilation error for uninit var y
+    _ = y[0]; //error: variable 'y' may not have been initialized
     _ = z[0];
 }
 
@@ -470,7 +470,7 @@ function testUnInitVars21() {
         _ = z[0];
     } on fail {
     }
-    _ = x[0]; // compilation error for uninit var x
+    _ = x[0]; //error: variable 'x' may not have been initialized
     _ = y[0];
     _ = z[0];
 }
@@ -511,7 +511,7 @@ function testUnInitVars23() {
         y = [];
     }
     _ = x[0];
-    _ = y[0]; //compilation error for uninit var x
+    _ = y[0]; //error: variable 'y' is not initialized"
     _ = z[0];
 }
 
@@ -527,13 +527,13 @@ function testUnInitVars24() {
         } on fail {
             y = [];
         }
-        _ = x[0]; //compilation error for uninit var x
+        _ = x[0]; //error: variable 'x' may not have been initialized
         _ = y[0];
         _ = z[0];
     } on fail {
         x = [];
     }
-    _ = x[0]; //compilation error for uninit var x
+    _ = x[0]; //error: variable 'x' may not have been initialized
     _ = y[0];
     _ = z[0];
 }
@@ -550,13 +550,13 @@ function testUnInitVars25() {
         } on fail {
             y = [];
         }
-        _ = x[0]; //compilation error for uninit var x
+        _ = x[0]; //error: variable 'x' may not have been initialized
         _ = y[0];
         _ = z[0];
     } on fail {
-        _ = x[0];
+        _ = x[0]; //error: variable 'x' may not have been initialized
     }
-    _ = x[0]; //compilation error for uninit var x
+    _ = x[0]; //error: variable 'x' may not have been initialized
     _ = y[0];
     _ = z[0];
 }
@@ -573,13 +573,13 @@ function testUnInitVars26() {
         } on fail {
             y = [];
         }
-        _ = x[0]; //compilation error for uninit var x
+        _ = x[0]; //error: variable 'x' may not have been initialized
         _ = y[0];
         _ = z[0];
     } on fail {
         x = [];
     }
-    _ = x[0]; //compilation error for uninit var x
+    _ = x[0]; //error: variable 'x' may not have been initialized
     _ = y[0];
     _ = z[0];
 }
@@ -610,7 +610,7 @@ function testUnInitVars28(boolean bool) {
         }
     } on fail {
     }
-    _ = i;
+    _ = i; //error: variable 'i' may not have been initialized
 }
 
 function testUnInitVars29(boolean bool) returns error? {
@@ -626,20 +626,20 @@ function testUnInitVars29(boolean bool) returns error? {
             } else {
                 y = [];
             }
-            _ = x[0];
-            _ = y[0];
+            _ = x[0]; //error: variable 'x' may not have been initialized
+            _ = y[0]; //error: variable 'y' may not have been initialized
             _ = z[0];
         } on fail error e {
             fail e;
         }
-        _ = x[0];
-        _ = y[0];
+        _ = x[0]; //error: variable 'x' may not have been initialized
+        _ = y[0]; //error: variable 'y' may not have been initialized
         _ = z[0];
     } on fail error e {
         return e;
     }
-    _ = x[0];
-    _ = y[0];
+    _ = x[0]; //error: variable 'x' may not have been initialized
+    _ = y[0]; //error: variable 'y' may not have been initialized
     _ = z[0];
 }
 
@@ -649,11 +649,11 @@ function testUnInitVars30(boolean bool) returns error? {
         if bool {
             fail error("Dummy error");
         }
-        _ = i;
+        _ = i; //error: variable 'x' is not initialized
     } on fail {
         i = 0;
     }
-    _ = i;
+    _ = i; //error: variable 'x' may not have been initialized
 }
 
 function testUnInitVars31(boolean bool) {
@@ -665,7 +665,7 @@ function testUnInitVars31(boolean bool) {
        } else {
            fail error("Dummy 2");
        }
-       _ = i; //unreachable code
+       _ = i; //error: unreachable code
    } on fail {
        i = 0;
    }
@@ -750,7 +750,7 @@ function testUnInitVars37() {
     do {
     } on fail {
         lock {
-            _ = i[0]; //variable 'i' is not initialized
+            _ = i[0]; //error: variable 'i' is not initialized
         }
     }
 }
@@ -761,7 +761,7 @@ function testUnInitVars38() {
         i = check getErrorOrIntArr();
     } on fail {
         lock {
-            _ = i[0]; //variable 'i' may not have been initialized
+            _ = i[0]; //error: variable 'i' may not have been initialized
         }
     }
 }
@@ -784,7 +784,7 @@ function testUnInitVars40() returns error? {
         check commit;
     } on fail {
         lock {
-            _ = i[0]; //variable 'i' is not initialized
+            _ = i[0]; //error: variable 'i' is not initialized
         }
     }
 }
@@ -796,7 +796,7 @@ function testUnInitVars41() returns error? {
     } on fail {
         i = [];
     }
-    _ = i[0]; //variable 'i' may not have been initialized
+    _ = i[0]; //error: variable 'i' may not have been initialized
 }
 
 function testUnInitVars42(boolean bool) {
@@ -809,7 +809,7 @@ function testUnInitVars42(boolean bool) {
     } on fail {
         i = [];
     }
-    _ = i[0]; //variable 'i' may not have been initialized
+    _ = i[0]; //error: variable 'i' may not have been initialized
 }
 
 function testUnInitVars43(boolean bool) returns error? {
