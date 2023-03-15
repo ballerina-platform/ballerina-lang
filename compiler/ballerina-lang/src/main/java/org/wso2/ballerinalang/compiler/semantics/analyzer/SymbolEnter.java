@@ -413,7 +413,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (!PackageID.ANNOTATIONS.equals(pkgNode.packageID)) {
             initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
         }
-
         // Define type definitions.
         this.typePrecedence = 0;
 
@@ -1171,7 +1170,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
         }
-        this.env = prevEnv;
     }
 
     @Override
@@ -2164,7 +2162,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 getFuncSymbolName(funcNode), getFuncSymbolOriginalName(funcNode),
                 env.enclPkg.symbol.pkgID, null, env.scope.owner,
                 funcNode.hasBody(), funcNode.name.pos, SOURCE);
-        funcSymbol.source = funcNode.pos.lineRange().filePath();
+        funcSymbol.source = funcNode.pos.lineRange().fileName();
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, env);
         defineInvokableSymbol(funcNode, funcSymbol, invokableEnv);
@@ -2204,7 +2202,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner,
                                                                    funcNode.hasBody(), symbolPos,
                                                                    getOrigin(funcNode.name.value));
-        funcSymbol.source = funcNode.pos.lineRange().filePath();
+        funcSymbol.source = funcNode.pos.lineRange().fileName();
         funcSymbol.markdownDocumentation = getMarkdownDocAttachment(funcNode.markdownDocumentationAttachment);
         SymbolEnv invokableEnv;
         NodeKind previousNodeKind = env.node.getKind();
@@ -2681,7 +2679,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         int memberVarsSize = varNode.memberVariables.size();
         BLangVariable restVariable = varNode.restVariable;
         int tupleTypesSize = tupleTypeNode.getMembers().size();
-        if (memberVarsSize > tupleTypesSize) {
+        if ((memberVarsSize > tupleTypesSize) ||
+                (tupleTypesSize == memberVarsSize && restVariable != null && tupleTypeNode.restType == null)) {
             return false;
         }
         return restVariable != null ||
@@ -3716,6 +3715,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(REGEXP)) {
             symTable.langRegexpModuleSymbol = packageSymbol;
+            symTable.updateRegExpTypeOwners();
             return;
         }
     }
@@ -5506,7 +5506,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         int enclStartOffset = targetRange.startLine().offset();
         int enclEndOffset = targetRange.endLine().offset();
 
-        return targetRange.filePath().equals(srcRange.filePath())
+        return targetRange.fileName().equals(srcRange.fileName())
                 && (startLine == enclStartLine && startOffset >= enclStartOffset || startLine > enclStartLine)
                 && (endLine == enclEndLine && endOffset <= enclEndOffset || endLine < enclEndLine);
     }

@@ -1,0 +1,90 @@
+{
+  "position": {
+    "line": 20,
+    "character": 18
+  },
+  "source": "extractToLocalVariableExprsWithQuickPick.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "command": {
+        "title": "Extract To Local Variable",
+        "command": "ballerina.action.extract",
+        "arguments": [
+          "Extract To Local Variable",
+          "extractToLocalVariableExprsWithQuickPick.bal",
+          {
+            "r * r": [
+              {
+                "range": {
+                  "start": {
+                    "line": 20,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 20,
+                    "character": 0
+                  }
+                },
+                "newText": "int var1 = r * r;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 20,
+                    "character": 13
+                  },
+                  "end": {
+                    "line": 20,
+                    "character": 18
+                  }
+                },
+                "newText": "var1"
+              }
+            ],
+            "r * r * float:PI": [
+              {
+                "range": {
+                  "start": {
+                    "line": 20,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 20,
+                    "character": 0
+                  }
+                },
+                "newText": "float var1 = r * r * float:PI;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 20,
+                    "character": 13
+                  },
+                  "end": {
+                    "line": 20,
+                    "character": 29
+                  }
+                },
+                "newText": "var1"
+              }
+            ]
+          },
+          {
+            "r * r": {
+              "line": 21,
+              "character": 13
+            },
+            "r * r * float:PI": {
+              "line": 21,
+              "character": 13
+            }
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

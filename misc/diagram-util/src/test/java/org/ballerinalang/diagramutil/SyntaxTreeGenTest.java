@@ -364,7 +364,7 @@ public class SyntaxTreeGenTest {
 
         Assert.assertEquals(stJson.getAsJsonObject().get("kind").getAsString(), "ModulePart");
         Assert.assertTrue(stJson.getAsJsonObject().get("members").isJsonArray());
-        Assert.assertTrue(stJson.getAsJsonObject().get("members").getAsJsonArray().size() == 9);
+        Assert.assertTrue(stJson.getAsJsonObject().get("members").getAsJsonArray().size() == 10);
         JsonArray members = stJson.getAsJsonObject().get("members").getAsJsonArray();
 
         // Verify main function

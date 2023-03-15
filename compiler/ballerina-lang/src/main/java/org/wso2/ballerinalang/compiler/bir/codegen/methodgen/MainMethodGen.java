@@ -70,6 +70,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_RE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_THROWABLE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
@@ -103,6 +104,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.LAMBDA_MAIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_STRING_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
  * Generates Jvm byte code for the main method.
@@ -116,6 +118,7 @@ public class MainMethodGen {
     public static final String MAIN_FUTURE_VAR = "mainFutureVar";
     public static final String SCHEDULER_VAR = "schedulerVar";
     public static final String CONFIG_VAR = "configVar";
+    public static final String LAMBDA_MAIN_METHOD = "$lambda$main$";
     private final SymbolTable symbolTable;
     private final BIRVarToJVMIndexMap indexMap;
     private final JvmTypeGen jvmTypeGen;
@@ -182,7 +185,7 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_ALL_THROWABLE_METHOD,
                            HANDLE_THROWABLE, false);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "main", initClass);
         mv.visitEnd();
     }
 
@@ -191,13 +194,13 @@ public class MainMethodGen {
         mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
         mv.visitIntInsn(BIPUSH, 1);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
-        genSubmitToScheduler(initClass, mv, "$lambda$" + lambdaName + "$", funcName, futureVar);
+        genSubmitToScheduler(initClass, mv, LAMBDA_PREFIX + lambdaName + "$", funcName, futureVar);
         genReturn(mv, indexMap, futureVar);
     }
 
     private void startScheduler(int schedulerVarIndex, MethodVisitor mv) {
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, VOID_METHOD_DESC, false);
     }
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
@@ -272,7 +275,7 @@ public class MainMethodGen {
         loadCLIArgsForMain(mv, userMainFunc.parameters, userMainFunc.annotAttachments);
 
         // invoke the user's main method
-        genSubmitToScheduler(initClass, mv, "$lambda$main$", "main", MAIN_FUTURE_VAR);
+        genSubmitToScheduler(initClass, mv, LAMBDA_MAIN_METHOD, "main", MAIN_FUTURE_VAR);
         handleErrorFromFutureValue(mv, MAIN_FUTURE_VAR);
         // At this point we are done executing all the functions including asyncs
         boolean isVoidFunction = userMainFunc.type.retType.tag == TypeTags.NIL;
@@ -398,7 +401,7 @@ public class MainMethodGen {
                          GET_STRAND);
         mv.visitTypeInsn(NEW, STACK);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, STACK, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, STACK, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, STACK_FRAMES);
 
         startScheduler(indexMap.get(SCHEDULER_VAR), mv);
@@ -444,7 +447,7 @@ public class MainMethodGen {
     public void generateLambdaForMain(BIRNode.BIRFunction userMainFunc, ClassWriter cw, String mainClass) {
         BType returnType = userMainFunc.type.retType;
 
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, "$lambda$main$",
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, LAMBDA_MAIN_METHOD,
                                           LAMBDA_MAIN, null,
                                           null);
         mv.visitCode();
@@ -470,6 +473,6 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, mainClass, userMainFunc.name.value,
                            JvmCodeGenUtil.getMethodDesc(paramTypes, returnType), false);
         jvmCastGen.addBoxInsn(mv, returnType);
-        MethodGenUtils.visitReturn(mv);
+        MethodGenUtils.visitReturn(mv, LAMBDA_MAIN_METHOD, mainClass);
     }
 }

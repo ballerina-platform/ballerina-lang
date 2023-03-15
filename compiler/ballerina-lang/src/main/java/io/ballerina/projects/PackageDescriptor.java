@@ -34,6 +34,10 @@ public class PackageDescriptor implements Comparable<PackageDescriptor> {
     private final PackageVersion packageVersion;
     private final String repository;
 
+    private final Boolean isDeprecated;
+
+    private final String deprecationMsg;
+
     private PackageDescriptor(PackageOrg packageOrg,
                               PackageName packageName,
                               PackageVersion packageVersion,
@@ -43,6 +47,21 @@ public class PackageDescriptor implements Comparable<PackageDescriptor> {
         this.repository = repository;
         this.packageVersion = ProjectUtils.isBuiltInPackage(packageOrg, packageName.value()) ?
                 PackageVersion.BUILTIN_PACKAGE_VERSION : packageVersion;
+        this.isDeprecated = false;
+        this.deprecationMsg = "";
+    }
+
+    private PackageDescriptor(PackageOrg packageOrg,
+                              PackageName packageName,
+                              PackageVersion packageVersion,
+                              String repository, Boolean isDeprecated, String deprecationMsg) {
+        this.packageName = packageName;
+        this.packageOrg = packageOrg;
+        this.repository = repository;
+        this.packageVersion = ProjectUtils.isBuiltInPackage(packageOrg, packageName.value()) ?
+                PackageVersion.BUILTIN_PACKAGE_VERSION : packageVersion;
+        this.isDeprecated = isDeprecated;
+        this.deprecationMsg = deprecationMsg;
     }
 
     public static PackageDescriptor from(PackageOrg packageOrg, PackageName packageName) {
@@ -57,6 +76,11 @@ public class PackageDescriptor implements Comparable<PackageDescriptor> {
     public static PackageDescriptor from(PackageOrg packageOrg, PackageName packageName,
                                          PackageVersion packageVersion, String repository) {
         return new PackageDescriptor(packageOrg, packageName, packageVersion, repository);
+    }
+
+    public static PackageDescriptor from(PackageOrg packageOrg, PackageName packageName,
+                                         PackageVersion packageVersion, Boolean isDeprecated, String deprecationMsg) {
+        return new PackageDescriptor(packageOrg, packageName, packageVersion, null, isDeprecated, deprecationMsg);
     }
 
     public PackageName name() {
@@ -81,6 +105,14 @@ public class PackageDescriptor implements Comparable<PackageDescriptor> {
 
     public boolean isBuiltInPackage() {
         return ProjectUtils.isBuiltInPackage(packageOrg, packageName.value());
+    }
+
+    public Boolean getDeprecated() {
+        return isDeprecated;
+    }
+
+    public String getDeprecationMsg() {
+        return deprecationMsg;
     }
 
     @Override
