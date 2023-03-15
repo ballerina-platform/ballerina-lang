@@ -778,7 +778,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
         if (!isOnFailEnclosed() || !ifResult.definiteFailureReached
                 || !elseResult.definiteFailureReached) {
-            boolean ifExprConst = ConditionResolver.checkConstCondition(types, symTable, ifNode.expr) == symTable.trueType;
+            boolean ifExprConst
+                    = ConditionResolver.checkConstCondition(types, symTable, ifNode.expr) == symTable.trueType;
             // If the flow was terminated within 'if' block, then after the if-else block,
             // only the results of the 'else' block matters.
             if (ifResult.flowTerminated) {
@@ -964,7 +965,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BranchResult onFailResult = analyzeOnFailBranch(onFailClause, doResult);
         if (blockStmt.failureBreakMode == BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE) {
             // If the failureBreakMode is NOT_BREAKABLE, then the on-fail block is not reachable
-            this.uninitializedVars = mergeUninitializedVars(doResult.uninitializedVars, doResult.possibleFailureUnInitVars);
+            this.uninitializedVars
+                    = mergeUninitializedVars(doResult.uninitializedVars, doResult.possibleFailureUnInitVars);
             removeEnclosingOnFail(true);
             return;
         }
