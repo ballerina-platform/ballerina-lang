@@ -1154,10 +1154,82 @@
                                                                                       "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
                                                                                       "children": [
                                                                                         {
-                                                                                          "kind": "CLOSE_BRACE_TOKEN"
+                                                                                          "kind": "RE_LITERAL_CHAR",
+                                                                                          "value": "i"
                                                                                         },
                                                                                         {
-                                                                                          "kind": "CLOSE_PAREN_TOKEN"
+                                                                                          "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
+                                                                                          "children": [
+                                                                                            {
+                                                                                              "kind": "RE_LITERAL_CHAR",
+                                                                                              "value": "n"
+                                                                                            },
+                                                                                            {
+                                                                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
+                                                                                              "children": [
+                                                                                                {
+                                                                                                  "kind": "RE_LITERAL_CHAR",
+                                                                                                  "value": "p"
+                                                                                                },
+                                                                                                {
+                                                                                                  "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
+                                                                                                  "children": [
+                                                                                                    {
+                                                                                                      "kind": "RE_LITERAL_CHAR",
+                                                                                                      "value": "u"
+                                                                                                    },
+                                                                                                    {
+                                                                                                      "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
+                                                                                                      "children": [
+                                                                                                        {
+                                                                                                          "kind": "RE_LITERAL_CHAR",
+                                                                                                          "value": "t"
+                                                                                                        },
+                                                                                                        {
+                                                                                                          "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
+                                                                                                          "children": [
+                                                                                                            {
+                                                                                                              "kind": "RE_LITERAL_CHAR",
+                                                                                                              "value": "S"
+                                                                                                            },
+                                                                                                            {
+                                                                                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
+                                                                                                              "children": [
+                                                                                                                {
+                                                                                                                  "kind": "RE_LITERAL_CHAR",
+                                                                                                                  "value": "t"
+                                                                                                                },
+                                                                                                                {
+                                                                                                                  "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
+                                                                                                                  "children": [
+                                                                                                                    {
+                                                                                                                      "kind": "RE_LITERAL_CHAR",
+                                                                                                                      "value": "r"
+                                                                                                                    },
+                                                                                                                    {
+                                                                                                                      "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
+                                                                                                                      "children": [
+                                                                                                                        {
+                                                                                                                          "kind": "CLOSE_BRACE_TOKEN"
+                                                                                                                        },
+                                                                                                                        {
+                                                                                                                          "kind": "CLOSE_PAREN_TOKEN"
+                                                                                                                        }
+                                                                                                                      ]
+                                                                                                                    }
+                                                                                                                  ]
+                                                                                                                }
+                                                                                                              ]
+                                                                                                            }
+                                                                                                          ]
+                                                                                                        }
+                                                                                                      ]
+                                                                                                    }
+                                                                                                  ]
+                                                                                                }
+                                                                                              ]
+                                                                                            }
+                                                                                          ]
                                                                                         }
                                                                                       ]
                                                                                     }
