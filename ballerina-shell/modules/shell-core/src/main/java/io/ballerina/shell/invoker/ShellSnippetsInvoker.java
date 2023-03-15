@@ -64,12 +64,14 @@ import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Invoker that invokes a command to evaluate a list of snippets.
@@ -86,6 +88,8 @@ import java.util.function.Function;
 public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     /* Constants related to execution */
     protected static final String MODULE_RUN_METHOD_NAME = "__run";
+
+    protected static final String MODULE_STATEMENT_METHOD_NAME = "__stmt";
     private static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String CONFIGURE_INIT_CLASS_NAME = "$configurationMapper";
     private static final String MODULE_INIT_METHOD_NAME = "$moduleInit";
@@ -429,7 +433,13 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                 errorStream.println("fail: " + failErrorMessage);
             }
         } catch (InvokerPanicException panicError) {
+            List<String> stacktrace = Arrays.stream(panicError.getCause().getStackTrace())
+                    .filter(element -> !(element.toString().contains(MODULE_STATEMENT_METHOD_NAME)||
+                                        element.toString().contains(MODULE_RUN_METHOD_NAME)))
+                    .collect(Collectors.toList())
+                    .stream().map(element -> "at " + element.getMethodName() + "()").collect(Collectors.toList());
             errorStream.println("panic: " + StringUtils.getErrorStringValue(panicError.getCause()));
+            stacktrace.forEach(errorStream::println);
             addErrorDiagnostic("Execution aborted due to unhandled runtime error.");
             throw panicError;
         } catch (MalformedURLException e) {
