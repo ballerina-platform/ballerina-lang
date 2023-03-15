@@ -94,9 +94,8 @@ public class PackageResolution {
         this.blendedManifest = createBlendedManifest(rootPackageContext, projectEnvContext);
         diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
 
-        this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext, this.resolutionOptions);
-
-        this.dependencyGraph = buildDependencyGraph(this.resolutionOptions);
+        this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext);
+        this.dependencyGraph = buildDependencyGraph();
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
         resolveDependencies(dependencyResolution);
@@ -220,12 +219,12 @@ public class PackageResolution {
      *
      * @return package dependency graph of this package
      */
-    private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph(ResolutionOptions resolutionOptions) {
+    private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph() {
         // TODO We should get diagnostics as well. Need to design that contract
         if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT) {
-            return resolveBALADependencies(resolutionOptions);
+            return resolveBALADependencies();
         } else {
-            return resolveSourceDependencies(resolutionOptions);
+            return resolveSourceDependencies();
         }
     }
 
@@ -265,17 +264,17 @@ public class PackageResolution {
         return allModuleLoadRequests;
     }
 
-    private DependencyGraph<ResolvedPackageDependency> resolveBALADependencies(ResolutionOptions resolutionOptions) {
+    private DependencyGraph<ResolvedPackageDependency> resolveBALADependencies() {
         // 1) Convert package descriptor graph to DependencyNode graph
         DependencyGraph<DependencyNode> dependencyNodeGraph = createDependencyNodeGraph(
                 rootPackageContext.dependencyGraph());
 
         //2 ) Create the package dependency graph by downloading packages if necessary.
         return buildPackageGraph(dependencyNodeGraph, rootPackageContext.project().currentPackage(),
-                packageResolver, resolutionOptions);
+                packageResolver);
     }
 
-    private DependencyGraph<ResolvedPackageDependency> resolveSourceDependencies(ResolutionOptions resolutionOptions) {
+    private DependencyGraph<ResolvedPackageDependency> resolveSourceDependencies() {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
         LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
 
@@ -290,7 +289,7 @@ public class PackageResolution {
 
         //3 ) Create the package dependency graph by downloading packages if necessary.
         return buildPackageGraph(dependencyNodeGraph, rootPackageContext.project().currentPackage(),
-                packageResolver, resolutionOptions);
+                packageResolver);
     }
 
     static Optional<ModuleContext> findModuleInPackage(PackageContext resolvedPackage, String moduleNameStr) {
@@ -316,8 +315,7 @@ public class PackageResolution {
 
     private DependencyGraph<ResolvedPackageDependency> buildPackageGraph(DependencyGraph<DependencyNode> depGraph,
                                                                          Package rootPackage,
-                                                                         PackageResolver packageResolver,
-                                                                         ResolutionOptions resolutionOptions) {
+                                                                         PackageResolver packageResolver) {
         PackageContainer<ResolvedPackageDependency> resolvedPkgContainer = new PackageContainer<>();
 
         // Add root node to the container
@@ -469,8 +467,7 @@ public class PackageResolution {
     }
 
     private ModuleResolver createModuleResolver(PackageContext rootPackageContext,
-                                                ProjectEnvironment projectEnvContext,
-                                                ResolutionOptions resolutionOptions) {
+                                                ProjectEnvironment projectEnvContext) {
         List<ModuleName> moduleNames = rootPackageContext.moduleIds().stream()
                 .map(rootPackageContext::moduleContext)
                 .map(ModuleContext::moduleName)
@@ -492,8 +489,6 @@ public class PackageResolution {
         PackageLockingMode packageLockingMode;
         if (System.getenv("UPDATE_MINOR") == null) {
             packageLockingMode = PackageLockingMode.MEDIUM;
-        } else {
-           packageLockingMode = PackageLockingMode.SOFT;
         }
         return ResolutionOptions.builder()
                 .setOffline(compilationOptions.offlineBuild())
