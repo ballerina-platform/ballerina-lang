@@ -1488,6 +1488,7 @@ public class BallerinaLexer extends AbstractLexer {
                             if (this.mode == ParserMode.REGEXP) {
                                 break;
                             }
+                            //falls through
                         default:
                             char nextNextChar = this.reader.peek(1);
                             if (this.mode == ParserMode.REGEXP && (nextNextChar == LexerTerminals.OPEN_BRACKET
