@@ -95,7 +95,7 @@ public class Async {
     }
 
     public static boolean isIsolatedFunctionWithName(BObject obj, BString method) {
-        ObjectType objectType = (ObjectType) obj.getType();
+        ObjectType objectType = obj.getType();
         return objectType.isIsolated() && objectType.isIsolated(method.getValue());
     }
 
