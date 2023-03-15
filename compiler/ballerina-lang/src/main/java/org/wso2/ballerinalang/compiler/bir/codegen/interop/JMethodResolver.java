@@ -191,28 +191,32 @@ class JMethodResolver {
             return false;
         }
         int reducedParamCount = getBundledParamCount(jMethodRequest, jMethod);
+        if (count < reducedParamCount || count > reducedParamCount + 2) {
+            return false;
+        }
         Class<?>[] paramTypes = jMethod.getParamTypes();
-        try {
-            if (count == reducedParamCount && this.classLoader.loadClass(BArray.class.getCanonicalName())
-                    .isAssignableFrom(paramTypes[0])) {
-                return true;
-            } else if ((count == reducedParamCount + 1) && this.classLoader.loadClass(BArray.class.getCanonicalName())
-                    .isAssignableFrom(paramTypes[1])) {
-                // This is for object interop functions when self is passed as a parameter
+        if (count == reducedParamCount && isParamAssignableToBArray(paramTypes[0])) {
+            return true;
+        } else if ((count == (reducedParamCount + 1)) && isParamAssignableToBArray(paramTypes[1])) {
+            // This is for object interop functions when self is passed as a parameter
+            jMethod.setReceiverType(jMethodRequest.receiverType);
+            return jMethodRequest.receiverType != null;
+        } else if ((count == (reducedParamCount + 2)) && isParamAssignableToBArray(paramTypes[2])) {
+            // This is for object interop functions when both BalEnv and self is passed as parameters.
+            if (jMethodRequest.receiverType != null) {
                 jMethod.setReceiverType(jMethodRequest.receiverType);
-                return jMethodRequest.receiverType != null;
-            } else if ((count == reducedParamCount + 2) && this.classLoader.loadClass(BArray.class.getCanonicalName())
-                    .isAssignableFrom(paramTypes[2])) {
-                // This is for object interop functions when both BalEnv and self is passed as parameters.
-                if (jMethodRequest.receiverType != null) {
-                    jMethod.setReceiverType(jMethodRequest.receiverType);
-                }
-                return jMethod.isBalEnvAcceptingMethod();
             }
+            return jMethod.isBalEnvAcceptingMethod();
+        }
+        return false;
+    }
+
+    private boolean isParamAssignableToBArray(Class<?> paramType) {
+        try {
+            return this.classLoader.loadClass(BArray.class.getCanonicalName()).isAssignableFrom(paramType);
         } catch (ClassNotFoundException e) {
             throw new JInteropException(CLASS_NOT_FOUND, e.getMessage(), e);
         }
-        return false;
     }
 
     private JMethod resolve(JMethodRequest jMethodRequest, List<JMethod> jMethods) {
