@@ -46,7 +46,6 @@ public class QueryEvaluatorTest extends AbstractEvaluatorTest {
 
     @Test
     public void testEvaluateQueryAction() throws BallerinaShellException {
-        // TODO: (#28390) Module-level query expressions don't work
         testEvaluate(QUERY_ACTION_EVALUATOR_TESTCASE);
     }
 }
