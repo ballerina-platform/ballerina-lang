@@ -794,7 +794,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     WORKER_SEND_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT(
             "BCE4042", "worker.send.action.not.allowed.in.lock.statement"),
     WORKER_RECEIVE_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT(
-            "BCE4043", "worker.receive.action.not.allowed.in.lock.statement"),,
+            "BCE4043", "worker.receive.action.not.allowed.in.lock.statement"),
     CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION("BCE4044",
             "cannot.use.alternate.wait.action.within.multiple.wait.action"),
     EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4045", "future.expression.expected")
