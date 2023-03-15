@@ -35,7 +35,7 @@ import java.util.Optional;
  */
 public class IsolatedBlockResolver extends NodeTransformer<Boolean> {
 
-    public Boolean findIsolatedBlock(NonTerminalNode node) {
+    public Boolean findIsolatedBlock(Node node) {
         if (node.kind() == SyntaxKind.LIST) {
             return node.parent().apply(this);
         }

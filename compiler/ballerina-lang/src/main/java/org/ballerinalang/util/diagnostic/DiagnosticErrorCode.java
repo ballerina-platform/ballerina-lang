@@ -791,7 +791,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNSUPPORTED_USAGE_OF_DEFAULT_VALUES_FOR_KEY_FIELD_IN_TABLE_MEMBER(
             "BCE4040", "unsupported.usage.of.default.values.for.key.field.in.table.member"),
     CANNOT_USE_WILDCARD_BINDING_PATTERN_FOR_ERROR_CAUSE("BCE4041",
-            "cannot.use.wildcard.binding.pattern.for.error.cause")
+            "cannot.use.wildcard.binding.pattern.for.error.cause"),
+    WORKER_SEND_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT(
+            "BCE4042", "worker.send.action.not.allowed.in.lock.statement"),
+    WORKER_RECEIVE_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT(
+            "BCE4043", "worker.receive.action.not.allowed.in.lock.statement"),
     ;
 
     private String diagnosticId;
