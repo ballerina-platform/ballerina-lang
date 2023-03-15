@@ -53,6 +53,7 @@ public class ExecutorPositionsUtil {
     protected static final String KIND = "kind";
     protected static final String FUNC_MAIN = "main";
     protected static final String MODULES = "modules";
+    protected static final String GENERATED_MODULES = "generated";
     protected static final String NAME = "name";
     protected static final String RANGE = "range";
     protected static final String SOURCE = "source";
@@ -180,12 +181,21 @@ public class ExecutorPositionsUtil {
                 Document testDocument = module.document(testDocumentId);
                 Path testDocPath;
                 if (module.isDefaultModule()) {
-                    testDocPath = project.sourceRoot().resolve(testDocument.name());
+                    testDocPath = project.sourceRoot().resolve(GENERATED_MODULES).resolve(testDocument.name());
+                    if (!filePath.endsWith(testDocPath)) {
+                        testDocPath = project.sourceRoot().resolve(testDocument.name());
+                    }
                 } else {
                     testDocPath = project.sourceRoot()
-                            .resolve(MODULES)
+                            .resolve(GENERATED_MODULES)
                             .resolve(moduleName)
                             .resolve(testDocument.name());
+                    if (!filePath.endsWith(testDocPath)) {
+                        testDocPath = project.sourceRoot()
+                                .resolve(MODULES)
+                                .resolve(moduleName)
+                                .resolve(testDocument.name());
+                    }
                 }
                 try {
                     if (Files.isSameFile(filePath, testDocPath)) {
