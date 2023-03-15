@@ -61,6 +61,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 /**
@@ -487,7 +488,15 @@ public class PackageResolution {
                                                    CompilationOptions compilationOptions) {
         boolean sticky = getSticky(rootPackageContext);
         PackageLockingMode packageLockingMode;
-        if (System.getenv("UPDATE_MINOR") == null) {
+        SemanticVersion prevDistributionVersion = rootPackageContext.dependencyManifest().distributionVersion();
+        SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+        if (!sticky && (null == prevDistributionVersion
+                || isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion))) {
+            packageLockingMode = PackageLockingMode.SOFT;
+            if (rootPackageContext.dependenciesTomlContext().isPresent()) {
+                addOlderSLUpdateDistributionDiagnostic(prevDistributionVersion, currentDistributionVersion);
+            }
+        } else {
             packageLockingMode = PackageLockingMode.MEDIUM;
         }
         return ResolutionOptions.builder()
@@ -497,6 +506,39 @@ public class PackageResolution {
                 .setDumpRawGraphs(compilationOptions.dumpRawGraphs())
                 .setPackageLockingMode(packageLockingMode)
                 .build();
+    }
+
+    private boolean isNewUpdateDistribution(SemanticVersion prevDistributionVersion,
+                                                  SemanticVersion currentDistributionVersion) {
+        return currentDistributionVersion.major() == prevDistributionVersion.major()
+                && currentDistributionVersion.minor() > prevDistributionVersion.minor();
+    }
+
+    private void addOlderSLUpdateDistributionDiagnostic(SemanticVersion prevDistributionVersion,
+                                                        SemanticVersion currentDistributionVersion) {
+        String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
+        if (currentDistributionVersion.patch() != 0) {
+            currentVersionForDiagnostic += DOT + currentDistributionVersion.patch();
+        }
+        String prevVersionForDiagnostic;
+        if (null != prevDistributionVersion) {
+            prevVersionForDiagnostic = String.valueOf(prevDistributionVersion.minor());
+            if (prevDistributionVersion.patch() != 0) {
+                prevVersionForDiagnostic += DOT + prevDistributionVersion.patch();
+            }
+        } else {
+            prevVersionForDiagnostic = "4 or an older Update";
+        }
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId(),
+                "Detected an attempt to build this package using Swan Lake Update " + currentVersionForDiagnostic +
+                        ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
+                        ". To ensure compatibility, the Dependencies.toml file will be updated with the " +
+                        "latest versions that are compatible with Update " + currentVersionForDiagnostic + ".",
+                DiagnosticSeverity.WARNING);
+        PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
+                rootPackageContext.descriptor().name().toString());
+        diagnosticList.add(diagnostic);
     }
 
     /**
