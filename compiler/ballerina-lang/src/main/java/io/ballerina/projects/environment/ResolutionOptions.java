@@ -29,7 +29,8 @@ public class ResolutionOptions {
     private final boolean dumpRawGraphs;
     private final PackageLockingMode packageLockingMode;
 
-    private ResolutionOptions(boolean offline, boolean sticky, boolean dumpGraph, boolean dumpRawGraphs, PackageLockingMode packageLockingMode) {
+    private ResolutionOptions(boolean offline, boolean sticky, boolean dumpGraph, boolean dumpRawGraphs,
+                              PackageLockingMode packageLockingMode) {
         this.offline = offline;
         this.sticky = sticky;
         this.dumpGraph = dumpGraph;
