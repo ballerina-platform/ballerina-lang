@@ -62,7 +62,6 @@ public class TypeResolver {
     private final SymbolEnter symEnter;
     private final BLangDiagnosticLog dlog;
     private final Types types;
-    private final ConstantValueResolver constResolver;
     private int typePrecedence;
     private final TypeParamAnalyzer typeParamAnalyzer;
     private final ConstantTypeChecker constantTypeChecker;
@@ -90,7 +89,6 @@ public class TypeResolver {
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
-        this.constResolver = ConstantValueResolver.getInstance(context);
         this.constantTypeChecker = ConstantTypeChecker.getInstance(context);
         this.resolveConstantExpressionType = ConstantTypeChecker.ResolveConstantExpressionType.getInstance(context);
     }
@@ -179,7 +177,7 @@ public class TypeResolver {
         classDefinition.typeDefEnv = typeDefEnv;
 
         for (BLangSimpleVariable field : classDefinition.fields) {
-            resolveTypeDesc(env, mod, null, 0, field.typeNode);
+            resolveTypeDesc(env, mod, null, 1, field.typeNode);
             symEnter.defineNode(field, typeDefEnv);
             if (field.expr != null) {
                 field.symbol.isDefaultable = true;
@@ -408,7 +406,7 @@ public class TypeResolver {
         if (depth == defn.cycleDepth) {
             // We cannot define recursive typeDefinitions with same depths.
             dlog.error(defn.pos, DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, defn.name);
-            return null;
+            return symTable.semanticError;
         }
 
         defn.cycleDepth = depth;
@@ -430,9 +428,6 @@ public class TypeResolver {
         }
 
         // Resolve the type
-//        BSymbol typeDefSymbol = Symbols.createTypeDefinitionSymbol(Flags.asMask(defn.flagSet),
-//                names.fromIdNode(defn.name), symEnv.enclPkg.packageID, null, symEnv.scope.owner,
-//                defn.name.pos, symEnter.getOrigin(defn.name.value));
         BType type = resolveTypeDesc(symEnv, mod, defn, depth, defn.typeNode);
 
         // Define the typeDefinition. Add symbol, flags etc.
@@ -449,10 +444,8 @@ public class TypeResolver {
         if (defn.getBType() == null) {
             defn.setBType(type);
             defn.cycleDepth = -1;
-            return type;
-        } else {
-            return type;
         }
+        return type;
     }
 
     private void updateIsCyclicFlag(BType type) {
@@ -1039,7 +1032,7 @@ public class TypeResolver {
         }
 
         BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, retType, null);
-        bInvokableType.flags = flags;
+        bInvokableType.flags |= flags;
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
                 env.enclPkg.symbol.pkgID, bInvokableType,
                 env.scope.owner, location, BUILTIN);
@@ -1135,7 +1128,7 @@ public class TypeResolver {
 
         for (BLangType langType : td.memberTypeNodes) {
             BType resolvedType = resolveTypeDesc(symEnv, mod, typeDefinition, depth, langType);
-            if (resolvedType == null || resolvedType.tag == TypeTags.SEMANTIC_ERROR) {
+            if (resolvedType == null || resolvedType == symTable.semanticError) {
                 return symTable.semanticError;
             }
             if (resolvedType == symTable.noType) {
@@ -1271,25 +1264,6 @@ public class TypeResolver {
         //    If the package alias is not empty or null, then find the package scope,
         if (symbol == symTable.notFoundSymbol) {
             BSymbol tempSymbol = symResolver.lookupMainSpaceSymbolInPackage(td.pos, symEnv, pkgAlias, typeName);
-
-            if (tempSymbol == symTable.notFoundSymbol && pkgAlias == Names.EMPTY && mod.containsKey(typeName.value)) {
-                if (mod.get(typeName.value).getKind() == NodeKind.TYPE_DEFINITION) {
-                    BLangTypeDefinition typeDefinition = (BLangTypeDefinition) mod.get(typeName.value);
-                    BTypeDefinition defn = (typeDefinition).typeNode.defn;
-                    if (defn != null) {
-//                        if (depth == typeDefinition.cycleDepth) {
-//                            // We cannot define recursive typeDefinitions with same depths.
-//                            dlog.error(typeDefinition.pos, DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, typeDefinition.name);
-//                            return symTable.semanticError;
-//                        }
-                        BType defType = defn.type;
-                        logErrorForCyclicMapAndArray(defType);
-                        updateIsCyclicFlag(defType);
-                        return defType;
-                    }
-                }
-            }
-
             BSymbol refSymbol = tempSymbol.tag == SymTag.TYPE_DEF ? Types.getReferredType(tempSymbol.type).tsymbol
                     : tempSymbol;
             if ((refSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
@@ -1377,6 +1351,16 @@ public class TypeResolver {
             BLangTypeDefinition typeDefinition = (BLangTypeDefinition) moduleLevelDef;
             BType resolvedType = resolveTypeDefinition(symEnv, mod, typeDefinition, depth);
 //            symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(typeDefinition); // temporary disable due to intersections
+            if (resolvedType == symTable.semanticError) {
+                return symTable.semanticError;
+            }
+            symbol = typeDefinition.symbol;
+            if (symbol.kind == SymbolKind.TYPE_DEF && !Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
+                BType referenceType = ((BTypeDefinitionSymbol) symbol).referenceType;
+                referenceType.flags |= symbol.type.flags;
+                referenceType.tsymbol.flags |= symbol.type.flags;
+                return referenceType;
+            }
             return resolvedType;
         } else if (moduleLevelDef.getKind() == NodeKind.CONSTANT) {
             BLangConstant constant = (BLangConstant) moduleLevelDef;
@@ -1698,11 +1682,11 @@ public class TypeResolver {
             typeDefSymbol.pos = typeDefinition.name.pos;
         }
 
-        boolean isErrorIntersection = symEnter.isErrorIntersection(resolvedType);
-        if (isErrorIntersection) {
-            symEnter.populateSymbolNameOfErrorIntersection(resolvedType, typeDefinition.name.value);
-            symEnter.populateAllReadyDefinedErrorIntersection(resolvedType, typeDefinition, env);
-        }
+        boolean isErrorIntersection = isErrorIntersection(resolvedType);
+//        if (isErrorIntersection) {
+//            symEnter.populateSymbolNameOfErrorIntersection(resolvedType, typeDefinition.name.value);
+//            symEnter.populateAllReadyDefinedErrorIntersection(resolvedType, typeDefinition, env);
+//        }
 
         BType referenceConstraintType = Types.getReferredType(resolvedType);
         boolean isIntersectionType = referenceConstraintType.tag == TypeTags.INTERSECTION && !isLabel;
@@ -1766,10 +1750,24 @@ public class TypeResolver {
             return;
         }
         // We may have already defined error intersection
-        if (symEnter.lookupTypeSymbol(env, typeDefinition.name) == symTable.notFoundSymbol) {
+        if (!isErrorIntersection || symEnter.lookupTypeSymbol(env, typeDefinition.name) == symTable.notFoundSymbol) {
             symEnter.defineSymbol(typeDefinition.name.pos, typeDefSymbol, env);
         }
 //        }
+    }
+
+    private boolean isErrorIntersection(BType definedType) {
+        BType type = Types.getReferredType(definedType);
+        if (type.tag == TypeTags.INTERSECTION) {
+            if (((BIntersectionType) type).effectiveType != null) {
+                BIntersectionType intersectionType = (BIntersectionType) type;
+                return intersectionType.effectiveType.tag == TypeTags.ERROR;
+            } else {
+                return ((BIntersectionType) type).getConstituentTypes().stream()
+                        .anyMatch(t -> Types.getReferredType(t).tag == TypeTags.ERROR);
+            }
+        }
+        return false;
     }
 
     public void resolveConstant(SymbolEnv symEnv, Map<String, BLangNode> modTable, BLangConstant constant) {
