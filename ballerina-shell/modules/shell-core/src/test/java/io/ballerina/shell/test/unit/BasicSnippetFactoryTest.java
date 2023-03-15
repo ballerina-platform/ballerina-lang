@@ -80,7 +80,7 @@ public class BasicSnippetFactoryTest {
             try {
                 Collection<Node> nodes = treeParser.parse(testCase.getInput());
                 for (Node node : nodes) {
-                    Snippet snippet = snippetFactory.createSnippet(node);
+                    Snippet snippet = snippetFactory.createSnippets(node).stream().findFirst().orElse(null);
                     Assert.assertNotNull(snippet, testCase.getName());
                     Assert.assertTrue(testCase.isAccepted(), testCase.getName());
                     Assert.assertEquals(snippet.getKind(), kind, testCase.getName());

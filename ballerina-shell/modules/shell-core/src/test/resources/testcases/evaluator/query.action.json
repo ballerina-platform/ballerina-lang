@@ -1,0 +1,37 @@
+[
+  {
+    "description": "Define nums list.",
+    "code": "int[] nums = [1, 2, 3, 4];"
+  },
+  {
+    "description": "Define numsTimes10 list.",
+    "code": "int[] numsTimes10 = [];"
+  },
+  {
+    "description": "Query action evaluation.",
+    "code": "error? e = from var i in nums do { numsTimes10.push(i * 10); };"
+  },
+  {
+    "description": "Evaluate list.",
+    "code": "numsTimes10",
+    "expr": "[10,20,30,40]"
+  },
+  {
+    "description": "Define numsTimes20 list.",
+    "code": "int[] numsTimes20 = [];"
+  },
+  {
+    "description": "Query action evaluation.",
+    "code": "error? e = from var i in nums do { numsTimes20.push(i * 20); };"
+  },
+  {
+    "description": "Evaluate list.",
+    "code": "numsTimes20",
+    "expr": "[20,40,60,80]"
+  },
+  {
+    "description": "Check error vaue.",
+    "code": "e is error",
+    "expr": "false"
+  }
+]
