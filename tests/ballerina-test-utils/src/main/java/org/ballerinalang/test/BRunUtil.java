@@ -169,7 +169,7 @@ public class BRunUtil {
         String funcClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
                 packageManifest.name().toString(),
                 packageManifest.version().toString(),
-                getClassName(function.pos.lineRange().filePath()));
+                getClassName(function.pos.lineRange().fileName()));
 
         try {
             Class<?> funcClass = compileResult.getClassLoader().loadClass(funcClassName);

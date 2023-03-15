@@ -34,6 +34,7 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FRAME_CLASS_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
@@ -74,9 +75,9 @@ public class MethodGenUtils {
                 SCHEDULE_LOCAL, false);
     }
 
-    static void visitReturn(MethodVisitor mv) {
+    static void visitReturn(MethodVisitor mv, String funcName, String className) {
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, funcName, className);
         mv.visitEnd();
     }
 
@@ -108,7 +109,7 @@ public class MethodGenUtils {
             funcName = orgName + "/" + funcName;
         }
 
-        return "$lambda$" + Utils.encodeFunctionIdentifier(funcName);
+        return LAMBDA_PREFIX + Utils.encodeFunctionIdentifier(funcName);
     }
 
     private MethodGenUtils() {

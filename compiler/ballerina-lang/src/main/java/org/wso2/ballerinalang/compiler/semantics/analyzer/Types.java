@@ -3988,7 +3988,13 @@ public class Types {
                 if (NumericLiteralSupport.isDecimalDiscriminated(originalValue)) {
                     return false;
                 }
-                double baseDoubleVal = Double.parseDouble(baseValueStr);
+                double baseDoubleVal;
+                try {
+                    baseDoubleVal = Double.parseDouble(baseValueStr);
+                } catch (NumberFormatException e) {
+                    // We reach here if a floating point literal has syntax diagnostics.
+                    return false;
+                }
                 double candidateDoubleVal;
                 if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
                     if (candidateLiteral.value instanceof Double) {

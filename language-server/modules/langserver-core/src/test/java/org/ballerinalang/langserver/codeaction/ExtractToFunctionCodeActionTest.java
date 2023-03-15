@@ -267,7 +267,8 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"neg_extract_to_function_exprs_pos_in_type_definition.json"},
                 {"neg_extract_to_function_exprs_pos_in_function_call_with_qualNameRef.json"},
                 {"neg_extract_to_function_exprs_pos_mapping_cons_cur_inside_fields.json"},
-                {"negative_extract_to_function_exprs_pos_function_call_in_let_expr.json"}
+                {"negative_extract_to_function_exprs_pos_function_call_in_let_expr.json"},
+                {"negative_extract_to_function_exprs_match_clause.json"}
         };
     }
 
