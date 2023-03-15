@@ -111,6 +111,9 @@ public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
                 }
             }
         }
+        
+        // Perform any additional filtering
+        processFileImports(fileImports, context);
 
         // Re-create imports list text
         StringBuilder editText = new StringBuilder();
@@ -123,6 +126,17 @@ public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
         actions.add(CodeActionUtil.createCodeAction(getCodeActionTitle(), edits, uri,
                 getCodeActionKind()));
         return actions;
+    }
+
+    /**
+     * Given filtered file imports, this method should perform any filtering on the finalized imports. Useful for the
+     * child classes to perform additional checks and filter the imports, etc.
+     *
+     * @param fileImports Filtered imports list
+     * @param context     Code action context
+     */
+    protected void processFileImports(List<ImportDeclarationNode> fileImports, CodeActionContext context) {
+        // Do nothing
     }
 
     protected String getCodeActionKind() {
