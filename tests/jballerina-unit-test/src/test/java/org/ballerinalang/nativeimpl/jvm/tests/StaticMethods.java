@@ -745,6 +745,10 @@ public class StaticMethods {
         });
     }
 
+    public static int getResource() {
+        return 1;
+    }
+
     public static int getResource(BArray paths) {
         return paths.size();
     }
@@ -766,6 +770,14 @@ public class StaticMethods {
     }
 
     public static BString getResource(Environment env, BObject client, BArray path, BString str) {
+        return str;
+    }
+
+    public static BString getResource(Environment env, BArray path, BObject client, BString str, BArray arr) {
+        return str;
+    }
+
+    public static BString getResource(Environment env, BObject client, BArray path, BString str, BArray arr) {
         return str;
     }
 }
