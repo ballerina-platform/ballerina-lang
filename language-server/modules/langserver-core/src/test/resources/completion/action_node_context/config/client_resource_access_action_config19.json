@@ -4,9 +4,10 @@
     "character": 40
   },
   "source": "action_node_context/source/client_resource_access_action_source19.bal",
+  "description": "",
   "items": [
     {
-      "label": ".post",
+      "label": "/[string... params]",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -16,8 +17,38 @@
         }
       },
       "sortText": "G",
-      "filterText": "post",
-      "insertText": ".post",
+      "filterText": "|get",
+      "insertText": "/[${1:\"\"}]",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 38,
+              "character": 39
+            },
+            "end": {
+              "line": 38,
+              "character": 40
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/[string... params].post",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` id  \n- `string[]` params"
+        }
+      },
+      "sortText": "G",
+      "filterText": "|post",
+      "insertText": "/[${1:\"\"}].post",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

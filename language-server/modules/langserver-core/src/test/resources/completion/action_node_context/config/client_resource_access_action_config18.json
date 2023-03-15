@@ -4,9 +4,10 @@
     "character": 22
   },
   "source": "action_node_context/source/client_resource_access_action_source18.bal",
+  "description": "",
   "items": [
     {
-      "label": "(string id)",
+      "label": "/[string... params](string id)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -17,7 +18,7 @@
       },
       "sortText": "G",
       "filterText": "get",
-      "insertText": "(${1})",
+      "insertText": "/[${1:\"\"}](${2})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -40,7 +41,7 @@
       }
     },
     {
-      "label": ".post",
+      "label": "/[string... params].post",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -51,7 +52,7 @@
       },
       "sortText": "G",
       "filterText": "post",
-      "insertText": ".post",
+      "insertText": "/[${1:\"\"}].post",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -70,7 +71,7 @@
       ]
     },
     {
-      "label": ".put",
+      "label": "/[string... params].put",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -81,7 +82,7 @@
       },
       "sortText": "G",
       "filterText": "put",
-      "insertText": ".put",
+      "insertText": "/[${1:\"\"}].put",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
