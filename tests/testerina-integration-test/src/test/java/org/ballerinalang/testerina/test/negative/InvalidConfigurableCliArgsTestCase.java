@@ -29,6 +29,7 @@ import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
 
 /**
  * Test class containing negative test cases related to configurable cli arguments.
+ * @since 2201.6.0
  */
 
 public class InvalidConfigurableCliArgsTestCase extends BaseTestCase {

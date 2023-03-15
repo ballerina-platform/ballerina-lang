@@ -148,6 +148,5 @@ EXAMPLES
        calculation with '**' and '*'.
            $ bal test --code-coverage --excludes=<source_path1/**>,<source_path2/*>
 
-       Run the test functions with three program args:
-              val1=add, val2=10, and val3=5.
-                  $ bal test -Cval1=add -Cval2=10 -Cval3=5
+       Run the test functions with values provided for configurable variables:
+           $ bal test -Cval1=add -Cval2=10 -Cval3=5
