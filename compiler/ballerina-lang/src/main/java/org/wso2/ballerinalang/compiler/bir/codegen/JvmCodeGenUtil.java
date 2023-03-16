@@ -327,10 +327,6 @@ public class JvmCodeGenUtil {
         return getPackageNameWithSeparator(packageID, "/");
     }
 
-    public static String getSourcePackageName(PackageID packageID) {
-        return getPackageNameWithSeparator(packageID, "/", true);
-    }
-
     private static String getPackageNameWithSeparator(PackageID packageID, String separator) {
         return getPackageNameWithSeparator(packageID, separator, false);
     }

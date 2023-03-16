@@ -71,6 +71,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPERAND;
@@ -161,7 +162,9 @@ public class MainMethodGen {
         genShutdownHook(mv, initClass);
 
         boolean hasInitFunction = MethodGenUtils.hasInitFunction(pkg);
-        generateExecuteFunctionCall(initClass, mv, userMainFunc, testExecuteFunc);
+        generateExecuteFunctionCall(initClass, mv, MODULE_EXECUTE_METHOD, MAIN_METHOD, INIT_FUTURE_VAR, userMainFunc,
+                testExecuteFunc);
+
         if (hasInitFunction) {
             setListenerFound(mv, serviceEPAvailable);
         }
@@ -183,9 +186,9 @@ public class MainMethodGen {
         mv.visitEnd();
     }
 
-    private void generateExecuteFunctionCall(String initClass, MethodVisitor mv,
-                                             BIRNode.BIRFunction userMainFunc,
-                                             BIRNode.BIRFunction testExecuteFunc) {
+    private void generateExecuteFunctionCall(String initClass, MethodVisitor mv, String lambdaName,
+                    String funcName, String futureVar, BIRNode.BIRFunction userMainFunc,
+                    BIRNode.BIRFunction testExecuteFunc) {
         mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
         if (userMainFunc != null) {
             loadCLIArgsForMain(mv, userMainFunc.parameters, userMainFunc.annotAttachments);
@@ -196,9 +199,9 @@ public class MainMethodGen {
             mv.visitTypeInsn(ANEWARRAY, OBJECT);
         }
         // invoke the module execute method
-        genSubmitToScheduler(initClass, mv, LAMBDA_PREFIX + JvmConstants.MODULE_EXECUTE_METHOD + "$",
-                JvmConstants.MAIN_METHOD, MainMethodGen.INIT_FUTURE_VAR, testExecuteFunc != null);
-        genReturn(mv, indexMap, MainMethodGen.INIT_FUTURE_VAR);
+        genSubmitToScheduler(initClass, mv, LAMBDA_PREFIX + lambdaName + "$", funcName, futureVar,
+                testExecuteFunc != null);
+        genReturn(mv, indexMap, futureVar);
     }
 
     private void generateModuleStopCall(String initClass, MethodVisitor mv) {
@@ -418,7 +421,7 @@ public class MainMethodGen {
     }
 
     private void handleErrorFromFutureValue(MethodVisitor mv, String futureVar, String initClass,
-                                            boolean isTestFunction) {
+            boolean isTestFunction) {
         mv.visitVarInsn(ALOAD, indexMap.get(futureVar));
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETFIELD , FUTURE_VALUE , PANIC_FIELD,

@@ -613,9 +613,8 @@ public class JvmTerminatorGen {
             mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
             mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD, INIT_BAL_ENV, false);
         }
-
         if (callIns.isInternal) {
-            this.mv.visitVarInsn(ALOAD, localVarOffset);
+            this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
         }
 
         int argsCount = callIns.varArgExist ? callIns.args.size() - 1 : callIns.args.size();

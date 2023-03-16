@@ -134,9 +134,7 @@ public class InitMethodGen {
 
         String funcName = MethodGenUtils.calculateLambdaStopFuncName(pkg.packageID);
         MethodVisitor mv = visitFunction(cw, funcName);
-
         invokeStopFunction(initClass, mv, funcName);
-
         for (PackageID id : depMods) {
             String jvmClass = JvmCodeGenUtil.getPackageName(id) + MODULE_INIT_CLASS_NAME;
             generateLambdaForDepModStopFunc(cw, id, jvmClass);
@@ -146,7 +144,7 @@ public class InitMethodGen {
     public void generateLambdaForModuleExecuteFunction(ClassWriter cw, String initClass, JvmCastGen jvmCastGen,
                                                        BIRNode.BIRFunction mainFunc,
                                                        BIRNode.BIRFunction testExecuteFunc) {
-        String lambdaFuncName = LAMBDA_PREFIX + JvmConstants.MODULE_EXECUTE_METHOD + "$";
+        String lambdaFuncName = LAMBDA_PREFIX + MODULE_EXECUTE_METHOD + "$";
         MethodVisitor mv = visitFunction(cw, lambdaFuncName);
         mv.visitCode();
         String methodDesc;
@@ -456,18 +454,15 @@ public class InitMethodGen {
                                                                   BIROperand boolRef, String typeOwnerClass) {
         BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
-
         lastBB.terminator = getExitMethodCall(nextBB, typeOwnerClass);
 
         BIRNonTerminator.TypeTest typeTest = new BIRNonTerminator.TypeTest(null, symbolTable.errorType, boolRef,
                 retVar);
         nextBB.instructions.add(typeTest);
-
         BIRNode.BIRBasicBlock trueBB = addAndGetNextBasicBlock(func);
         BIRNode.BIRBasicBlock retBB = addAndGetNextBasicBlock(func);
         retBB.terminator = new BIRTerminator.Return(null);
         trueBB.terminator = new BIRTerminator.GOTO(null, retBB);
-
         BIRNode.BIRBasicBlock falseBB = addAndGetNextBasicBlock(func);
         nextBB.terminator = new BIRTerminator.Branch(null, boolRef, trueBB, falseBB);
         return falseBB;
