@@ -54,7 +54,7 @@ public class TestConnectorGenerator {
             .resolve("test-TestConnector-any-0.3.0.bala");
     private final Path testClientBalaFile = TestUtil.RES_DIR
             .resolve("connector/TestClient")
-            .resolve("test-TestClient-any-0.1.0.bala");
+            .resolve("test-TestClient-any-0.1.1.bala");
     private Project testConProject;
 
     @BeforeClass
