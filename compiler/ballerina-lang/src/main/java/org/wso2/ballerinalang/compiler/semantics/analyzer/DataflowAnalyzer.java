@@ -891,38 +891,37 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWhile whileNode) {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
-        createUninitializedVarsForOnFailClause(whileNode.onFailClause);
+
         analyzeNode(whileNode.expr, env);
-        BranchResult whileResult = analyzeBranch(whileNode.body, env);
+
         BType constCondition = ConditionResolver.checkConstCondition(types, symTable, whileNode.expr);
-        boolean onFailClauseAvailable = whileNode.onFailClause != null;
-
-        if (constCondition == symTable.falseType) {
-            this.uninitializedVars = prevUninitializedVars;
-            removeEnclosingOnFail(onFailClauseAvailable);
-            return;
-        }
-        BranchResult onFailResult = null;
-        if (onFailClauseAvailable) {
-            updateUnInitVarsForOnFailClause(whileResult.possibleFailureUnInitVars);
-            onFailResult = analyzeOnFailBranch(whileNode.onFailClause, whileResult);
-        }
-
-        if (constCondition == symTable.trueType) {
-            this.uninitializedVars = whileResult.uninitializedVars;
-            if (whileResult.possibleFailureUnInitVars != null) {
-                updateUnInitVarsForOnFailClause(whileResult.possibleFailureUnInitVars);
-                if (onFailClauseAvailable) {
-                    this.uninitializedVars
-                            = mergeUninitializedVars(whileResult.uninitializedVars, onFailResult.uninitializedVars);
-                }
+        boolean ifExprConst = constCondition == symTable.trueType;
+        boolean failuresSelfHandled = whileNode.onFailClause != null;
+        if (ifExprConst) {
+            //if the condition is always true, we don't have to consider it as a branch.
+            analyzeStmtWithOnFail(whileNode.body, whileNode.onFailClause);
+        } else {
+            createUninitializedVarsForOnFailClause(whileNode.onFailClause);
+            BranchResult whileResult = analyzeBranch(whileNode.body, env);
+            if (constCondition == symTable.falseType) {
+                //if the condition is always false, we can reset to the previous state.
+                this.uninitializedVars = prevUninitializedVars;
+                removeEnclosingOnFail(failuresSelfHandled);
+                return;
             }
-            removeEnclosingOnFail(onFailClauseAvailable);
-            return;
+            this.uninitializedVars = mergeUninitializedVars(this.uninitializedVars, whileResult.uninitializedVars);
+            if (failuresSelfHandled) {
+                BranchResult onfailResult = analyzeOnFailBranch(whileNode.onFailClause, whileResult);
+                if (whileResult.definiteFailureReached) {
+                    this.uninitializedVars = onfailResult.uninitializedVars;
+                } else {
+                    this.uninitializedVars
+                            = mergeUninitializedVars(this.uninitializedVars, onfailResult.uninitializedVars);
+                }
+                updateEnclosingOnFailUnInits(this.uninitializedVars);
+                removeEnclosingOnFail(true);
+            }
         }
-
-        this.uninitializedVars = mergeUninitializedVars(this.uninitializedVars, whileResult.uninitializedVars);
-        removeEnclosingOnFail(onFailClauseAvailable);
     }
 
     private void createUninitializedVarsForOnFailClause(BLangOnFailClause onFailClause) {
@@ -981,13 +980,17 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.uninitializedVars = mergedUninitializedVars;
         }
 
+        updateEnclosingOnFailUnInits(mergedUninitializedVars);
+        removeEnclosingOnFail(true);
+    }
+
+    private void updateEnclosingOnFailUnInits(Map<BSymbol, InitStatus> possibleUninitializedVars) {
         // Update the enclosing on-fail clause's possible failure uninitialized variables
         int enclosingOnFailSize = this.enclosingOnFailClause.size();
         if (enclosingOnFailSize > 1) {
             BLangOnFailClause enclosingOnFail = this.enclosingOnFailClause.get(enclosingOnFailSize - 2);
-            this.possibleFailureUnInitVars.put(enclosingOnFail, mergedUninitializedVars);
+            this.possibleFailureUnInitVars.put(enclosingOnFail, possibleUninitializedVars);
         }
-        this.possibleFailureUnInitVars.remove(this.enclosingOnFailClause.pop());
     }
 
     private BranchResult analyzeOnFailBranch(BLangOnFailClause onFailClause, BranchResult doResult) {
@@ -2430,7 +2433,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
      */
     private BranchResult analyzeBranch(BLangNode node, SymbolEnv env) {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
-        Map<BSymbol, InitStatus> prevOnFailUninitializedVars = null;
+        Map<BSymbol, InitStatus> prevOnFailUninitializedVars = getPossibleFailureUnInitVars();
         if (node != null && isOnFailEnclosed()) {
             BLangOnFailClause onFailClause = this.enclosingOnFailClause.peek();
             prevOnFailUninitializedVars = this.possibleFailureUnInitVars.get(onFailClause);

@@ -118,6 +118,15 @@ public class OnFailClauseTest {
         BAssertUtil.validateError(negativeResult, i++, "variable 'i' may not have been initialized", 799, 9);
         BAssertUtil.validateError(negativeResult, i++, "variable 'i' may not have been initialized", 812, 9);
         BAssertUtil.validateError(negativeResult, i++, "variable 'i' may not have been initialized", 840, 9);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'j' may not have been initialized", 851, 9);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'j' may not have been initialized", 863, 9);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'j' may not have been initialized", 886, 9);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'j' may not have been initialized", 898, 9);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'j' may not have been initialized", 910, 9);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'j' may not have been initialized", 951, 9);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'j' may not have been initialized", 981, 9);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'j' may not have been initialized", 1013, 9);
+        BAssertUtil.validateError(negativeResult, i++, "variable 'j' may not have been initialized", 1044, 9);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

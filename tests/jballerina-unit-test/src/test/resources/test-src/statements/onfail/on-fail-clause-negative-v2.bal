@@ -840,6 +840,210 @@ function testUnInitVars44(boolean bool) {
     _ = i; //error: variable 'i' may not have been initialized
 }
 
+function testUnInitVars45(int count) {
+    int i = 0;
+    int j;
+    while count > i {
+        check getErrorOrNil();
+        j = i;
+    } on fail {
+    }
+    _ = j; //error: variable 'j' may not have been initialized
+}
+
+function testUnInitVars46(int count) {
+    int i = 0;
+    int j;
+    while count > i {
+        check getErrorOrNil();
+        j = i;
+    } on fail {
+        j = 1;
+    }
+    _ = j; //error: variable 'j' may not have been initialized
+}
+
+function testUnInitVars47() {
+    int i = 0;
+    int j;
+    while true {
+        check getErrorOrNil();
+        j = i;
+    } on fail {
+        j = 1;
+    }
+    _ = j; //no compile error
+}
+
+function testUnInitVars48() {
+    int i = 0;
+    int j;
+    while true {
+        check getErrorOrNil();
+        j = i;
+    } on fail {
+    }
+    _ = j; //error: variable 'j' may not have been initialized
+}
+
+function testUnInitVars49() {
+    int i = 0;
+    int j;
+    while true {
+        check getErrorOrNil();
+        j = i;
+        return;
+    } on fail {
+    }
+    _ = j; //error: variable 'j' may not have been initialized
+}
+
+function testUnInitVars50() {
+    int i = 0;
+    int j;
+    while true {
+        check getErrorOrNil();
+        j = i;
+        return;
+    } on fail {
+    }
+    _ = j; //error: variable 'j' may not have been initialized
+}
+
+function testUnInitVars51() {
+    int i = 0;
+    int j;
+    while true {
+        check getErrorOrNil();
+        j = i;
+        return;
+    } on fail {
+        j = 1;
+    }
+    _ = j; //no compilation error
+}
+
+function testUnInitVars52(boolean bool) {
+    int i = 0;
+    int j;
+    while bool {
+        check getErrorOrNil();
+        j = i;
+        return;
+    } on fail {
+        j = 1;
+    }
+    _ = j; //no compilation error
+}
+
+function testUnInitVars53(boolean bool) {
+    int i = 0;
+    int j;
+    do {
+        while bool {
+            check getErrorOrNil();
+            j = i;
+        } on fail {
+            j = 1;
+        }
+    } on fail {
+    }
+    _ = j; //error: variable 'j' may not have been initialized
+}
+
+function testUnInitVars54() {
+    int i = 0;
+    int j;
+    do {
+        while true {
+            check getErrorOrNil();
+            j = i;
+        } on fail {
+            j = 1;
+        }
+    } on fail {
+    }
+    _ = j; //no compilation error
+}
+
+function testUnInitVars55() {
+    int i = 0;
+    int j;
+    do {
+        while true {
+            check getErrorOrNil();
+            j = i;
+        } on fail error e {
+            fail e;
+        }
+    } on fail {
+    }
+    _ = j; //error: variable 'j' may not have been initialized
+}
+
+function testUnInitVars56() {
+    int i = 0;
+    int j;
+    do {
+        while true {
+            check getErrorOrNil();
+            j = i;
+        } on fail error e {
+            fail e;
+        }
+    } on fail {
+        j = 1;
+    }
+    _ = j; //no compilation error
+}
+
+function testUnInitVars57(boolean bool) {
+    int i = 0;
+    int j;
+    do {
+        while bool {
+            check getErrorOrNil();
+            j = i;
+        } on fail error e {
+            fail e;
+        }
+    } on fail {
+        j = 1;
+    }
+    _ = j; //error: variable 'j' may not have been initialized
+}
+
+function testUnInitVars58() {
+    int i = 0;
+    int j;
+    do {
+        foreach int _ in [1] {
+            check getErrorOrNil();
+            j = i;
+        } on fail error e {
+            fail e;
+        }
+    } on fail {
+        j = 1;
+    }
+    _ = j; //no compilation error
+}
+
+function testUnInitVars59() {
+    int i = 0;
+    int j;
+    do {
+        foreach int _ in [1] {
+            check getErrorOrNil();
+            j = i;
+        } on fail {
+        }
+    } on fail {
+        j = 1;
+    }
+    _ = j; //error: variable 'j' may not have been initialized
+}
+
 function getErrorOrIntArr() returns int[]|error {
     return getError();
 }
