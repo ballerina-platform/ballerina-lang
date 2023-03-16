@@ -3467,11 +3467,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         List<BType> errorDetailTypes = new ArrayList<>(expandedCandidates.size());
         for (BType expandedCandidate : expandedCandidates) {
-            BType detailType = Types.getReferredType(expandedCandidate);
-            if (detailType.tag == TypeTags.INTERSECTION) {
-                detailType = ((BIntersectionType) detailType).effectiveType;
-            }
-            detailType = ((BErrorType) detailType).detailType;
+            BType detailType = ((BErrorType) Types.getEffectiveType(Types
+                    .getReferredType(expandedCandidate))).detailType;
             errorDetailTypes.add(Types.getReferredType(detailType));
         }
 
@@ -3653,10 +3650,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             }
         } else {
             // if `errorTypeRef.type == semanticError` then an error is already logged.
-            BType errorType = Types.getReferredType(errorTypeRef.getBType());
-            if (errorType.tag == TypeTags.INTERSECTION) {
-                errorType = ((BIntersectionType) errorType).effectiveType;
-            }
+            BType errorType = Types.getEffectiveType(Types.getReferredType(errorTypeRef.getBType()));
             if (errorType.tag != TypeTags.ERROR) {
                 if (errorType.tag != TypeTags.SEMANTIC_ERROR) {
                     dlog.error(errorTypeRef.pos, DiagnosticErrorCode.INVALID_ERROR_TYPE_REFERENCE, errorTypeRef);
