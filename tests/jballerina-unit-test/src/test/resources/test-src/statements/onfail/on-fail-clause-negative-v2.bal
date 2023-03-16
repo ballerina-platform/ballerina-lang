@@ -1044,6 +1044,51 @@ function testUnInitVars59() {
     _ = j; //error: variable 'j' may not have been initialized
 }
 
+function testUnInitVars60() {
+    int i;
+    int j;
+    do {
+        check getErrorOrNil();
+        [i, j] = [1, 2];
+    } on fail {
+    }
+    _ = i; //error: variable 'i' may not have been initialized
+    _ = j; //error: variable 'j' may not have been initialized
+}
+
+function testUnInitVars61() {
+    int i;
+    int j;
+    do {
+        foreach int _ in [1] {
+            check getErrorOrNil();
+            [i, j] = [1, 2];
+        } on fail {
+        }
+    } on fail {
+        [i, j] = [1, 2];
+    }
+    _ = i; //error: variable 'i' may not have been initialized
+    _ = j; //error: variable 'j' may not have been initialized
+}
+
+function testUnInitVars62() {
+    int i;
+    int j;
+    do {
+        foreach int _ in [1] {
+            check getErrorOrNil();
+            [i, j] = [1, 2];
+        } on fail error e {
+            fail e;
+        }
+    } on fail {
+        [i, j] = [1, 2];
+    }
+    _ = i; //no compilation error
+    _ = j; //no compilation error
+}
+
 function getErrorOrIntArr() returns int[]|error {
     return getError();
 }
