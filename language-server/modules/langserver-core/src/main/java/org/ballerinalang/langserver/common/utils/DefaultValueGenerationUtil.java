@@ -204,7 +204,7 @@ public class DefaultValueGenerationUtil {
                     String value = getDefaultValueForTypeDescKind(CommonUtil.getRawType(mandatoryField
                             .typeDescriptor())).orElse("");
                     String fieldName = CommonUtil.escapeReservedKeyword(mandatoryField.getName().get());
-                    fieldInsertText.add( fieldName + ": " + (isSnippet ?
+                    fieldInsertText.add(fieldName + ": " + (isSnippet ?
                             generateSnippetEntry(value, context.incrementAndGetPlaceholderCount()) : value));
                 }
                 valueString += String.join(", ", fieldInsertText);
