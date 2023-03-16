@@ -143,7 +143,7 @@ public class BTestMain {
                                      String[] args) {
         int exitStatus = 0;
         try {
-            TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader, args);
+            exitStatus = TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader, args);
         } catch (RuntimeException e) {
             exitStatus = 1;
         } finally {
