@@ -600,7 +600,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
         if (declarationType != -1) {
             Optional<ModuleSymbol> moduleSymbol = symbol.get().getModule();
             // Add the symbol's semantic token if it is in the same file
-            if (symbolLineRange.filePath().equals(this.semanticTokensContext.currentDocument().get().name()) &&
+            if (symbolLineRange.fileName().equals(this.semanticTokensContext.currentDocument().get().name()) &&
                     moduleSymbol.isPresent() && moduleSymbol.get().getName().isPresent() &&
                     this.semanticTokensContext.currentModule().isPresent() && moduleSymbol.get().getName().get()
                     .equals(this.semanticTokensContext.currentModule().get().moduleId().moduleName())) {
@@ -620,7 +620,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
 
             List<Location> locations = semanticModel.get().references(symbol.get(),
                     this.semanticTokensContext.currentDocument().get(), false);
-            locations.stream().filter(location -> location.lineRange().filePath()
+            locations.stream().filter(location -> location.lineRange().fileName()
                     .equals(this.semanticTokensContext.currentDocument().get().name())).forEach(location -> {
                         LinePosition position = location.lineRange().startLine();
                         SemanticToken semanticToken = new SemanticToken(position.line(), position.offset());
@@ -674,7 +674,7 @@ public class SemanticTokensVisitor extends NodeVisitor {
         List<Location> locations = semanticModel.get().references(document, document, linePosition,
                 false);
         locations.stream().filter(location ->
-                location.lineRange().filePath().equals(document.name())).forEach(location -> {
+                location.lineRange().fileName().equals(document.name())).forEach(location -> {
             LinePosition position = location.lineRange().startLine();
             SemanticToken semanticToken = new SemanticToken(position.line(), position.offset());
             if (!semanticTokens.contains(semanticToken) && location.textRange().length() == length) {

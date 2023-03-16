@@ -109,7 +109,7 @@ public class Find {
         }
 
         int strLength = str.length();
-        if (strLength <= startIndex) {
+        if (strLength != 0 && strLength <= startIndex) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
                     RuntimeErrors.INVALID_REGEXP_FIND_INDEX, startIndex, strLength);
         }

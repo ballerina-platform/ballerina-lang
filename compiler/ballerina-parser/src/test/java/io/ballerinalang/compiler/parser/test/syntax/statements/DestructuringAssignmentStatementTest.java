@@ -69,4 +69,10 @@ public class DestructuringAssignmentStatementTest extends AbstractStatementTest 
         testFile("destructuring-assignment/error_binding_pattern_source_03.bal",
                 "destructuring-assignment/error_binding_pattern_assert_03.json");
     }
+
+    @Test
+    public void testMappingBindingPatternWithSingleVarNameField() {
+        testFile("destructuring-assignment/mapping_binding_pattern_source_02.bal",
+                "destructuring-assignment/mapping_binding_pattern_assert_02.json");
+    }
 }

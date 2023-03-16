@@ -160,7 +160,7 @@ public class PathUtil {
         Collection<ResolvedPackageDependency> dependencies = 
                 project.currentPackage().getResolution().dependencyGraph().getNodes();
         // Symbol location has only the name of the file
-        String sourceFile = symbol.getLocation().get().lineRange().filePath();
+        String sourceFile = symbol.getLocation().get().lineRange().fileName();
         for (ResolvedPackageDependency depNode : dependencies) {
             // Check for matching dependency
             Package depPackage = depNode.packageInstance();
@@ -204,7 +204,7 @@ public class PathUtil {
             return Optional.empty();
         }
         Package langLibPackage = langLibPackages.get(0);
-        String sourceFile = symbol.getLocation().get().lineRange().filePath();
+        String sourceFile = symbol.getLocation().get().lineRange().fileName();
 
         Optional<Path> filepath = Optional.empty();
         for (ModuleId moduleId : langLibPackage.moduleIds()) {
@@ -257,7 +257,7 @@ public class PathUtil {
      * @return file path
      */
     public static Path getPathFromLocation(Module module, Location location) {
-        String filePath = location.lineRange().filePath();
+        String filePath = location.lineRange().fileName();
 
         if (module.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             return module.project().sourceRoot();

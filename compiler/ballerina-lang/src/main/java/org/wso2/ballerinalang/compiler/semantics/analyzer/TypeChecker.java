@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -2438,7 +2439,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             BLangUserDefinedType origTypeRef = new BLangUserDefinedType(
                     ASTBuilderUtil.createIdentifier(
                             pos,
-                            TypeDefBuilderHelper.getPackageAlias(data.env, pos.lineRange().filePath(),
+                            TypeDefBuilderHelper.getPackageAlias(data.env, pos.lineRange().fileName(),
                                                                  applicableRecordTypeSymbol.pkgID)),
                     ASTBuilderUtil.createIdentifier(pos, applicableRecordTypeSymbol.name.value));
             origTypeRef.pos = pos;
@@ -5823,6 +5824,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral, AnalyzerData data) {
+        semanticAnalyzer.analyzeNode(regExpTemplateLiteral, data.env);
         // Check expr with insertions to resolve its type.
         List<BLangExpression> interpolationsList =
                 symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
@@ -6865,6 +6867,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         iExpr.requiredArgs.add(expr);
                     } else {
                         // can not provide a rest parameters as named args
+                        checkTypeParamExpr(expr, new BNoType(TypeTags.NONE), iExpr.langLibInvocation, data);
                         dlog.error(expr.pos, DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
                     }
                     i++;
@@ -6973,6 +6976,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                             nonRestParams, incRecordParams, incRecordParamAllowAdditionalFields, data);
 
                 if (varSym == null) {
+                    checkTypeParamExpr(arg, new BNoType(TypeTags.NONE), iExpr.langLibInvocation, data);
                     dlog.error(arg.pos, DiagnosticErrorCode.UNDEFINED_PARAMETER, argName);
                     break;
                 }
@@ -8910,7 +8914,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private Name getCurrentCompUnit(BLangNode node) {
-        return names.fromString(node.pos.lineRange().filePath());
+        return names.fromString(node.pos.lineRange().fileName());
     }
 
 

@@ -383,6 +383,11 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         };
     }
 
+    @Test
+    public void testQueryExprWithLangLibCallsWithArrowFunctions() {
+        BRunUtil.invoke(result, "testQueryExprWithLangLibCallsWithArrowFunctions");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

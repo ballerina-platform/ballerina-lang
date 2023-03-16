@@ -84,6 +84,10 @@ public class ModuleData {
         return testSrcDocs;
     }
 
+    public void addTestSourceDocs(List<DocumentData> docs) {
+        testSrcDocs.addAll(docs);
+    }
+
     public Optional<DocumentData> moduleMd() {
         return Optional.ofNullable(this.moduleMd);
     }

@@ -1704,9 +1704,9 @@ function testSplit() {
     assertEquality(arrExpected5, resArr5);
 
     string str6 = "ballerina.geeks.wso2";
-    string[] arrExpected6 = [str6];
-    string[] resArr6 = re `.`.split(str6);
-    assertEquality(1, resArr6.length());
+    string[] arrExpected6 = ["ballerina", "geeks", "wso2"];
+    string[] resArr6 = re `\.`.split(str6);
+    assertEquality(3, resArr6.length());
     assertEquality(arrExpected6, resArr6);
 
     string str7 = "zzzzayyyybxxxxawwww";
@@ -1780,6 +1780,24 @@ function testSplit() {
     string[] arrExpected18 = ["a", "b"];
     assertEquality(2, resArr18.length());
     assertEquality(arrExpected18, resArr18);
+
+    string str19 = "a123";
+    string[] resArr19 = re `a`.split(str19);
+    string[] arrExpected19 = ["", "123"];
+    assertEquality(2, resArr19.length());
+    assertEquality(arrExpected19, resArr19);
+
+    string str20 = "123a";
+    string[] resArr20 = re `a`.split(str20);
+    string[] arrExpected20 = ["123", ""];
+    assertEquality(2, resArr20.length());
+    assertEquality(arrExpected20, resArr20);
+
+    string str21 = "abab";
+    string[] resArr21 = re `[ab]`.split(str21);
+    string[] arrExpected21 = ["", "", "", "", ""];
+    assertEquality(5, resArr21.length());
+    assertEquality(arrExpected21, resArr21);
 }
 
 function testLangLibFuncWithNamedArgExpr() {
@@ -1844,6 +1862,69 @@ function testLangLibFuncWithNamedArgExpr() {
     if (x1 is string:RegExp) {
        assertTrue(re `AB+C*D{1,4}` == x1);
     }
+}
+
+function testEmptyRegexpFind() {
+    // find
+    regexp:Span? resA1 = regexp:find(re = re `World`, str = "");
+    assertTrue(resA1 is ());
+    regexp:Span? resA2 = regexp:find(re = re `${""}`, str = "");
+    assertTrue(resA2 is regexp:Span);
+    regexp:Span? resA3 = regexp:find(re = re `${""}`, str = "HelloWorld");
+    assertTrue(resA3 is regexp:Span);
+    string regexStrA = "";
+    regexp:Span? resA4 = regexp:find(re = re `${regexStrA}`, str = "HelloWorld");
+    assertTrue(resA4 is regexp:Span);
+    regexp:Span? resA5 = regexp:find(re = re `${regexStrA}`, str = "");
+    assertTrue(resA5 is regexp:Span);
+    regexp:Span? resA6 = regexp:find(re = re `(.*)`, str = "");
+    assertTrue(resA6 is regexp:Span);
+
+    // find all
+    regexp:Span[] resB1 = regexp:findAll(re `(\w+ing)`, "");
+    assertEquality(0, resB1.length());
+    regexp:Span[] resB2 = regexp:findAll(re `${""}`, "");
+    assertEquality(1, resB2.length());
+    regexp:Span[] resB3 = regexp:findAll(re `${""}`, "There once was a king who liked to sing");
+    assertEquality(40, resB3.length());
+
+    // find groups
+    regexp:Groups? resC1 = regexp:findGroups(re `(\w+tt\w+)`, "");
+    assertTrue(resC1 is ());
+    regexp:Groups? resC2 = regexp:findGroups(re `${""}`, "");
+    assertTrue(resC2 is regexp:Groups);
+
+    // find all groups
+    regexp:Groups[] resD1 = regexp:findAllGroups(re `(\w+ble)`, "");
+    assertEquality(0, resD1.length());
+    regexp:Groups[] resD2 = regexp:findAllGroups(re `${""}`, "");
+    assertEquality(1, resD2.length());
+
+    // full match groups
+    regexp:Groups? resE1 = regexp:fullMatchGroups(re = re `${""}`, str = "HelloWorld");
+    assertTrue(resE1 is ());
+    regexp:Groups? resE2 = regexp:fullMatchGroups(re = re `${""}`, str = "");
+    assertTrue(resE2 is regexp:Groups);
+}
+
+function testEmptyRegexpMatch() {
+    // matchAt
+    string regexStrA = "";
+    regexp:Span? resA1 = regexp:matchAt(re = re `${regexStrA}`, str = "HelloWorld");
+    assertTrue(resA1 is ());
+    regexp:Span? resA2 = regexp:matchAt(re = re `${regexStrA}`, str = "HelloWorld", startIndex = 4);
+    assertTrue(resA2 is ());
+}
+
+public function testRegexpFromString() returns error? {
+    regexp:RegExp regex1 = check regexp:fromString("[a-z]");
+    regexp:Span? res1 = regexp:find(regex1, "TLearn/ Ballerina^ in");
+    assertTrue(res1 is regexp:Span);
+
+    //Need to be addressed in https://github.com/ballerina-platform/ballerina-lang/issues/39686
+    //regexp:RegExp regex2 = check regexp:fromString("^[^a-zA-Z0-9]");
+    //regexp:Span? res2 = regexp:find(regex2, "*TLearn/ Ballerina^ in");
+    //assertTrue(res2 is regexp:Span);
 }
 
 function assertEquality(any|error expected, any|error actual) {
