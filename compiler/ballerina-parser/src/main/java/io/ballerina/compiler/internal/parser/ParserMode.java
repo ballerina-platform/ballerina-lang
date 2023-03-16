@@ -30,6 +30,7 @@ public enum ParserMode {
     TEMPLATE,
     INTERPOLATION,
     INTERPOLATION_BRACED_CONTENT,
+    REGEXP,
 
     // Documentation Parser
     DOC_LINE_START_HASH,
@@ -57,7 +58,6 @@ public enum ParserMode {
     XML_CDATA_SECTION,
 
     // RegExp Parser
-    REGEXP,
     RE_DISJUNCTION,
     RE_FLAG_EXPRESSION,
     RE_UNICODE_PROP_ESCAPE,

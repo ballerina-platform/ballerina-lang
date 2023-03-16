@@ -47,8 +47,10 @@ public class BallerinaLexer extends AbstractLexer {
         STToken token;
         switch (this.mode) {
             case TEMPLATE:
+                token = readTemplateToken(false);
+                break;
             case REGEXP:
-                token = readTemplateToken();
+                token = readTemplateToken(true);
                 break;
             case INTERPOLATION:
                 processLeadingTrivia();
@@ -1444,7 +1446,8 @@ public class BallerinaLexer extends AbstractLexer {
         return STNodeFactory.createToken(SyntaxKind.BACKTICK_TOKEN, leadingTrivia, trailingTrivia);
     }
 
-    private STToken readTemplateToken() {
+    boolean shouldProcessInterpolations = true;
+    private STToken readTemplateToken(boolean isRegexpMode) {
         reader.mark();
         if (reader.isEOF()) {
             return getSyntaxToken(SyntaxKind.EOF_TOKEN);
@@ -1457,51 +1460,53 @@ public class BallerinaLexer extends AbstractLexer {
                 endMode();
                 return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
             case LexerTerminals.DOLLAR:
-                if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                if (shouldProcessInterpolations && reader.peek(1) == LexerTerminals.OPEN_BRACE) {
                     // Switch to interpolation mode. Then the next token will be read in that mode.
                     startMode(ParserMode.INTERPOLATION);
                     reader.advance(2);
 
                     return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
                 }
-                // fall through
-            default:
-                if (this.mode == ParserMode.REGEXP) {
-                    if (nextChar == LexerTerminals.OPEN_BRACKET || nextChar == LexerTerminals.CLOSE_BRACKET) {
-                        reader.advance();
-                        break;
-                    }
+            case LexerTerminals.CLOSE_BRACKET:
+                if (isRegexpMode) {
+                    shouldProcessInterpolations = true;
                 }
+                reader.advance();
+                break;
+            case LexerTerminals.OPEN_BRACKET:
+                if (isRegexpMode) {
+                    shouldProcessInterpolations = false;
+                }
+                reader.advance();
+                break;
+            default:
                 while (!reader.isEOF()) {
                     reader.advance();
                     nextChar = this.reader.peek();
                     switch (nextChar) {
                         case LexerTerminals.DOLLAR:
-                            if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                            if (shouldProcessInterpolations && this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
                                 break;
                             }
                             continue;
                         case LexerTerminals.BACKTICK:
                             break;
                         case LexerTerminals.OPEN_BRACKET:
+                            if (isRegexpMode) {
+                                shouldProcessInterpolations = false;
+                            }
+                            continue;
                         case LexerTerminals.CLOSE_BRACKET:
-                            if (this.mode == ParserMode.REGEXP) {
-                                break;
+                            if (isRegexpMode) {
+                                shouldProcessInterpolations = true;
                             }
-                            //falls through
+                            continue;
                         default:
-                            char nextNextChar = this.reader.peek(1);
-                            if (this.mode == ParserMode.REGEXP && (nextNextChar == LexerTerminals.OPEN_BRACKET
-                                    || nextNextChar == LexerTerminals.CLOSE_BRACKET)) {
-                                reader.advance();
-                                break;
-                            }
                             continue;
                     }
                     break;
                 }
         }
-
         return getLiteral(SyntaxKind.TEMPLATE_STRING);
     }
 

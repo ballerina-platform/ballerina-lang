@@ -105,10 +105,7 @@ public class RegExpLexer extends AbstractLexer {
             case LexerTerminals.BITWISE_XOR:
                 return getRegExpSyntaxToken(SyntaxKind.BITWISE_XOR_TOKEN);
             case LexerTerminals.DOLLAR:
-                if (this.mode == ParserMode.RE_CHAR_CLASS) {
-                    return getRegExpSyntaxToken(SyntaxKind.DOLLAR_TOKEN);
-                }
-                if (peek() == LexerTerminals.OPEN_BRACE) {
+                if (this.mode != ParserMode.RE_CHAR_CLASS && peek() == LexerTerminals.OPEN_BRACE) {
                     // Start interpolation mode.
                     startMode(ParserMode.INTERPOLATION);
                     this.reader.advance();
@@ -180,7 +177,7 @@ public class RegExpLexer extends AbstractLexer {
                     startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
                 }
                 break;
-            case '[':
+            case LexerTerminals.OPEN_BRACKET:
                 startMode(ParserMode.RE_QUOTE_ESCAPE);
                 break;
             default:
