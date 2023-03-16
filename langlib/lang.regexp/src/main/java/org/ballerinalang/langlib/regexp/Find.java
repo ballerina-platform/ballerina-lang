@@ -29,7 +29,6 @@ import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import java.util.regex.Matcher;
 
 import static org.ballerinalang.langlib.regexp.RegexUtil.GROUPS_AS_SPAN_ARRAY_TYPE;
-import static org.ballerinalang.langlib.regexp.RegexUtil.isEmptyRegexp;
 
 /**
  * Native implementation of lang.regexp:find(string).
@@ -39,10 +38,6 @@ import static org.ballerinalang.langlib.regexp.RegexUtil.isEmptyRegexp;
 public class Find {
 
     public static BArray find(BRegexpValue regExp, BString str, long startIndex) {
-        if (isEmptyRegexp(regExp)) {
-            return null;
-        }
-
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         if (matcher.find((int) startIndex)) {
@@ -52,10 +47,6 @@ public class Find {
     }
 
     public static BArray findGroups(BRegexpValue regExp, BString str, long startIndex) {
-        if (isEmptyRegexp(regExp)) {
-            return null;
-        }
-
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
@@ -76,10 +67,6 @@ public class Find {
     }
 
     public static BArray findAll(BRegexpValue regExp, BString str, long startIndex) {
-        if (isEmptyRegexp(regExp)) {
-            return null;
-        }
-
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
@@ -94,10 +81,6 @@ public class Find {
     }
 
     public static BArray findAllGroups(BRegexpValue regExp, BString str, long startIndex) {
-        if (isEmptyRegexp(regExp)) {
-            return null;
-        }
-
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         matcher.region((int) startIndex, str.length());
