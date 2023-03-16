@@ -130,6 +130,9 @@ public class RegExpFactory {
 
     public static RegExpValue translateRegExpConstructs(RegExpValue regExpValue) {
         RegExpDisjunction disjunction = regExpValue.getRegExpDisjunction();
+        if (disjunction.stringValue(null).equals("")) {
+            disjunction = getNonCapturingGroupDisjunction();
+        }
         for (Object s : disjunction.getRegExpSeqList()) {
             if (!(s instanceof RegExpSequence)) {
                 continue;
@@ -138,6 +141,17 @@ public class RegExpFactory {
             translateRegExpTerms(seq.getRegExpTermsList());
         }
         return new RegExpValue(disjunction);
+    }
+
+    private static RegExpDisjunction getNonCapturingGroupDisjunction() {
+        // Create a disjunction for non-capturing group regex: (?:)
+        RegExpFlagOnOff flagsOnOff = new RegExpFlagOnOff("");
+        RegExpFlagExpression flagExpr = new RegExpFlagExpression("?", flagsOnOff, ":");
+        RegExpDisjunction reDisjunction = new RegExpDisjunction(new Object[]{});
+        RegExpCapturingGroup reAtom = new RegExpCapturingGroup("(", flagExpr, reDisjunction, ")");
+        RegExpQuantifier reQuantifier = new RegExpQuantifier("", "");
+        RegExpTerm[] termList = new RegExpTerm[]{new RegExpAtomQuantifier(reAtom, reQuantifier)};
+        return new RegExpDisjunction(new Object[]{new RegExpSequence(termList)});
     }
 
     private static void translateRegExpTerms(RegExpTerm[] terms) {
