@@ -1,5 +1,3 @@
-import ballerina/http;
-
 # Test connector to test all the Ballerina syntaxes
 # array, tuple, map, record, inline record, closed record
 #
@@ -66,7 +64,7 @@ public client class Client {
         return;
     }
 
-    resource isolated function put .(F f, G g) returns json|http:NotFound {
+    resource isolated function put .(F f, G g) returns json {
         return {"i": g.i, "f": g.h.j};
     }
 
