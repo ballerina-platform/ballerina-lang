@@ -1,0 +1,4 @@
+[package]
+org = "testorg"
+name = "module_execute_invocation_project"
+version = "0.1.0"

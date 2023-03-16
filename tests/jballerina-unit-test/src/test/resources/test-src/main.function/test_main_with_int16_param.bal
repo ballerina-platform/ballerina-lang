@@ -1,6 +1,6 @@
-// Copyright (c) 2019 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2023 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -16,16 +16,8 @@
 
 import ballerina/jballerina.java;
 
-public function main(int val, string s = "default", int i = 1, float j = 2.0, decimal k = 1e100, byte l = 34) {
-    string result =
-    "value : " + val.toString() +
-    ", string arg : " + s +
-    ", int arg : " + i.toString() +
-    ", float arg : " + j.toString() +
-    ", decimal arg : " + k.toString() + 
-    ", byte arg : " + l.toString();
-    print(result);
-
+public function main(int:Signed16 i) {
+    print(i);
 }
 
 public function print(any|error... values) = @java:Method {
