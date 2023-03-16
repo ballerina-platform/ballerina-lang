@@ -241,7 +241,14 @@ public class TreeBuilder {
             RegExpCharSetRange reCharSetRange = new RegExpCharSetRange(startReCharSetAtom, minus.value,
                     rhsReCharSetAtom);
             RegExpCharSet reCharSet = readRegCharSet();
-            return new RegExpCharSet(new Object[]{reCharSetRange, reCharSet});
+
+            List<Object> charSetAtoms = new ArrayList<>();
+            charSetAtoms.add(reCharSetRange);
+            if (reCharSet.getCharSetAtoms().length > 0) {
+                charSetAtoms.add(reCharSet);
+            }
+
+            return new RegExpCharSet(charSetAtoms.toArray());
         }
         RegExpCharSet reCharSetNoDash = readCharSetNoDash(nextToken);
         return new RegExpCharSet(new Object[]{startReCharSetAtom, reCharSetNoDash});

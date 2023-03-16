@@ -3,4 +3,4 @@ warning: ignoring --includes flag since code coverage is not enabled
 Compiling source
 	function-mock.bal
 ERROR [function-mock.bal:(12:1,12:38)] function mocking is not supported with standalone Ballerina files
-error: compilation contains errors
+error: compilation contains errors

@@ -47,7 +47,9 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TUPLE_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TUPLE_TYPE_POPULATE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONSTANTS_PER_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TUPLE_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
 
@@ -74,7 +76,7 @@ public class JvmTupleTypeConstantsGen {
                 JvmConstants.TUPLE_TYPE_CONSTANT_CLASS_NAME);
         cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         generateConstantsClassInit(cw, tupleVarConstantsClass);
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_TUPLE_TYPE_INIT_METHOD, "()V", null, null);
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_TUPLE_TYPE_INIT_METHOD, VOID_METHOD_DESC, null, null);
         tupleTypeVarMap = new TreeMap<>(bTypeHashComparator);
     }
 
@@ -98,9 +100,9 @@ public class JvmTupleTypeConstantsGen {
         String varName = JvmConstants.TUPLE_TYPE_VAR_PREFIX + constantIndex++;
         if (tupleTypeConstCount % MAX_CONSTANTS_PER_METHOD == 0 && tupleTypeConstCount != 0) {
             mv.visitMethodInsn(INVOKESTATIC, tupleVarConstantsClass,
-                    B_TUPLE_TYPE_INIT_METHOD + methodCount, "()V", false);
+                    B_TUPLE_TYPE_INIT_METHOD + methodCount, VOID_METHOD_DESC, false);
             genMethodReturn(mv);
-            mv = cw.visitMethod(ACC_STATIC, B_TUPLE_TYPE_INIT_METHOD + methodCount++, "()V",
+            mv = cw.visitMethod(ACC_STATIC, B_TUPLE_TYPE_INIT_METHOD + methodCount++, VOID_METHOD_DESC,
                     null, null);
         }
         visitBTupleField(varName);
@@ -121,9 +123,9 @@ public class JvmTupleTypeConstantsGen {
     }
 
     private void genPopulateMethod(BTupleType type, String varName, SymbolTable symbolTable) {
-        String methodName = "$populate" + varName;
+        String methodName = POPULATE_METHOD_PREFIX + varName;
         funcNames.add(methodName);
-        MethodVisitor methodVisitor = cw.visitMethod(ACC_STATIC, methodName, "()V", null, null);
+        MethodVisitor methodVisitor = cw.visitMethod(ACC_STATIC, methodName, VOID_METHOD_DESC, null, null);
         methodVisitor.visitCode();
         generateGetBTupleType(methodVisitor, varName);
         jvmTupleTypeGen.populateTuple(methodVisitor, type, symbolTable);
@@ -134,16 +136,16 @@ public class JvmTupleTypeConstantsGen {
         int populateFuncCount = 0;
         int populateInitMethodCount = 1;
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_TUPLE_TYPE_POPULATE_METHOD,
-                "()V", null, null);
+                VOID_METHOD_DESC, null, null);
         for (String funcName : funcNames) {
             if (populateFuncCount % MAX_CONSTANTS_PER_METHOD == 0 && populateFuncCount != 0) {
                 mv.visitMethodInsn(INVOKESTATIC, tupleVarConstantsClass,
-                        B_TUPLE_TYPE_POPULATE_METHOD + populateInitMethodCount, "()V", false);
+                        B_TUPLE_TYPE_POPULATE_METHOD + populateInitMethodCount, VOID_METHOD_DESC, false);
                 genMethodReturn(mv);
                 mv = cw.visitMethod(ACC_STATIC, B_TUPLE_TYPE_POPULATE_METHOD + populateInitMethodCount++,
-                        "()V", null, null);
+                        VOID_METHOD_DESC, null, null);
             }
-            mv.visitMethodInsn(INVOKESTATIC, tupleVarConstantsClass, funcName, "()V", false);
+            mv.visitMethodInsn(INVOKESTATIC, tupleVarConstantsClass, funcName, VOID_METHOD_DESC, false);
             populateFuncCount++;
         }
         genMethodReturn(mv);

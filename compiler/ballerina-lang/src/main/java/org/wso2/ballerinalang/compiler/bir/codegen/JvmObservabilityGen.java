@@ -85,6 +85,7 @@ import java.util.Optional;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DISPLAY_ANNOTATION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVABLE_ANNOTATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVE_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_CHECKPOINT_METHOD;
@@ -357,7 +358,7 @@ class JvmObservabilityGen {
                 BType type = arg.variableDcl.type;
                 argTypes.add(type);
             }
-            Name lambdaName = new Name("$lambda$observability" + lambdaIndex++ + "$" +
+            Name lambdaName = new Name(LAMBDA_PREFIX + "observability" + lambdaIndex++ + "$" +
                     asyncCallIns.name.getValue().replace(".", "_"));
             BInvokableType bInvokableType = new BInvokableType(argTypes, null,
                     returnType, null);

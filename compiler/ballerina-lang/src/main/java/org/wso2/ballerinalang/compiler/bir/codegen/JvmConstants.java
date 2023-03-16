@@ -329,6 +329,9 @@ public class JvmConstants {
     public static final String MODULE_INIT_METHOD = "$moduleInit";
     public static final String MODULE_START_METHOD = "$moduleStart";
     public static final String MODULE_STOP_METHOD = "$moduleStop";
+
+    public static final String MODULE_EXECUTE_METHOD = "$moduleExecute";
+    public static final String MAIN_METHOD = "main";
     public static final String BAL_EXTENSION = ".bal";
     public static final String WINDOWS_PATH_SEPERATOR = "\\";
     public static final String UNIX_PATH_SEPERATOR = "/";
@@ -339,6 +342,7 @@ public class JvmConstants {
     public static final String FRAME_CLASS_PREFIX = "frames/$frame$";
     public static final String BALLERINA = "ballerina";
     public static final String ENCODED_DOT_CHARACTER = "$0046";
+    public static final String ENCODED_JAVA_MODULE = "jballerina$0046java";
     public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, new Name(ENCODED_DOT_CHARACTER),
                                                           DEFAULT_VERSION);
     public static final String BUILT_IN_PACKAGE_NAME = "lang" + ENCODED_DOT_CHARACTER + "annotations";
@@ -373,6 +377,10 @@ public class JvmConstants {
     public static final String HANDLE_ANYDATA_VALUES = "handleAnydataValues";
     public static final String MAKE_CONCAT_WITH_CONSTANTS = "makeConcatWithConstants";
     public static final String START_OF_HEADING_WITH_SEMICOLON = ":\u0001";
+    public static final String CREATE_INTEROP_ERROR_METHOD = "createInteropError";
+    public static final String LAMBDA_PREFIX = "$lambda$";
+    public static final String POPULATE_METHOD_PREFIX = "$populate";
+    public static final String ADD_METHOD = "add";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
@@ -382,6 +390,8 @@ public class JvmConstants {
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
     public static final String CREATE_ERROR_VALUE = "createErrorValue";
     public static final String CALL_FUNCTION = "call";
+    public static final String INSTANTIATE_FUNCTION = "instantiate";
+
     public static final String GET_ANON_TYPE_METHOD = "getAnonType";
 
     // strand data related constants
@@ -391,6 +401,8 @@ public class JvmConstants {
     public static final String STRAND_POLICY_NAME = "policy";
     public static final String STRAND_VALUE_ANY = "any";
     public static final String STRAND_METADATA_VAR_PREFIX = "$strand_metadata$";
+    public static final String MAIN_ARG_VAR_PREFIX = "%param";
+    public static final String GRACEFUL_EXIT_METHOD_NAME = "gracefulExit";
     public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
     public static final String YIELD_LOCATION = "yieldLocation";
     public static final String YIELD_STATUS = "yieldStatus";
@@ -408,7 +420,6 @@ public class JvmConstants {
     public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
     public static final String DISPLAY_ANNOTATION = "display";
     public static final String RECORD_CHECKPOINT_METHOD = "recordCheckpoint";
-
     // visibility flags
     public static final int BAL_PUBLIC = 1;
     public static final int BAL_NATIVE = 2;
