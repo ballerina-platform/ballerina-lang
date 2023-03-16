@@ -1718,7 +1718,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 if (symbol instanceof BVarSymbol) {
                     ((BVarSymbol) symbol).originalSymbol = null;
                     if (withinLambdaOrArrowFunc || withinQuery) {
-                        if ((withinLambdaOrArrowFunc && symbol.closure) || (!withinLambdaOrArrowFunc && withinQuery)) {
+                        if (!withinLambdaOrArrowFunc || symbol.closure) {
                             // When there's a closure in a lambda inside a query lambda the symbol.closure is
                             // true for all its usages. Therefore mark symbol.closure = false for the existing
                             // symbol and create a new symbol with the same properties.
@@ -2175,9 +2175,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     public void visit(BLangQueryAction queryAction) {
         SymbolEnv prevQueryEnv = this.queryEnv;
         boolean prevWithinQuery = withinQuery;
-        if (isInQuery(queryAction.parent)) {
-            this.withinQuery = true;
-        }
+        // This can be set to true directly since it's invoked only for nested queries.
+        this.withinQuery = true;
         queryAction.getQueryClauses().forEach(this::acceptNode);
         this.withinQuery = prevWithinQuery;
         this.queryEnv = prevQueryEnv;
@@ -2187,24 +2186,13 @@ public class QueryDesugar extends BLangNodeVisitor {
     public void visit(BLangQueryExpr queryExpr) {
         SymbolEnv prevQueryEnv = this.queryEnv;
         boolean prevWithinQuery = withinQuery;
-        if (isInQuery(queryExpr.parent)) {
-            this.withinQuery = true;
-        }
+        // This can be set to true directly since it's invoked only for nested queries.
+        this.withinQuery = true;
         queryExpr.getQueryClauses().forEach(this::acceptNode);
         this.withinQuery = prevWithinQuery;
         this.queryEnv = prevQueryEnv;
     }
-
-    private boolean isInQuery(BLangNode parent) {
-        while (parent != null) {
-            if (isQueryExprOrAction(parent)) {
-                return true;
-            }
-            parent = parent.parent;
-        }
-        return false;
-    }
-
+    
     @Override
     public void visit(BLangForeach foreach) {
         this.acceptNode(foreach.collection);
@@ -2234,16 +2222,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSelectClause selectClause) {
         this.acceptNode(selectClause.expression);
-    }
-
-    private boolean isQueryExprOrAction(BLangNode node) {
-        if (node.getKind() == NodeKind.QUERY_EXPR || node.getKind() == NodeKind.DO_ACTION) {
-            return true;
-        }
-        if (node.getKind() == NodeKind.GROUP_EXPR) {
-            return isQueryExprOrAction(((BLangGroupExpr) node).expression);
-        }
-        return false;
     }
 
     @Override
