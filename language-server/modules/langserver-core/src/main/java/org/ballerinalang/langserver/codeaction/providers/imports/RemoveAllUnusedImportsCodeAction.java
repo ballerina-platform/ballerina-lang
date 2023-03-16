@@ -16,15 +16,11 @@
 package org.ballerinalang.langserver.codeaction.providers.imports;
 
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionKind;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Code Action to remove all unused imports, except when there is a re-declared import statement.
@@ -35,29 +31,9 @@ import java.util.stream.Collectors;
 public class RemoveAllUnusedImportsCodeAction extends OptimizeImportsCodeAction {
 
     public static final String NAME = "Remove all unused imports";
-
-    public static final String REDECLARED_IMPORT_DIAGNOSTIC_CODE = "BCE2004";
     
     public RemoveAllUnusedImportsCodeAction() {
         super();
-    }
-
-    @Override
-    protected void processFileImports(List<ImportDeclarationNode> fileImports, CodeActionContext context) {
-        List<LineRange> reDeclaredImportLocations = context.diagnostics(context.filePath()).stream()
-                .filter(diag -> REDECLARED_IMPORT_DIAGNOSTIC_CODE.equals(diag.diagnosticInfo().code()))
-                .map(diag -> diag.location().lineRange())
-                .collect(Collectors.toList());
-
-        Iterator<ImportDeclarationNode> iterator = fileImports.iterator();
-        while (iterator.hasNext()) {
-            ImportDeclarationNode importDeclarationNode = iterator.next();
-            boolean redeclared = reDeclaredImportLocations.stream()
-                    .anyMatch(lineRange -> lineRange.equals(importDeclarationNode.location().lineRange()));
-            if (redeclared) {
-                iterator.remove();
-            }
-        }
     }
     
     @Override

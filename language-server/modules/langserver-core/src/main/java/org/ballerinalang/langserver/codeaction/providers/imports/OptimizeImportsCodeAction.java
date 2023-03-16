@@ -38,6 +38,7 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -51,7 +52,8 @@ import java.util.stream.Collectors;
 public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
 
     public static final String NAME = "Optimize Imports";
-    public static final String DIAGNOSTIC_CODE = "BCE2002";
+    public static final String UNUSED_IMPORT_DIAGNOSTIC_CODE = "BCE2002";
+    public static final String REDECLARED_IMPORT_DIAGNOSTIC_CODE = "BCE2004";
 
     public List<SyntaxKind> getSyntaxKinds() {
         return Collections.singletonList(SyntaxKind.IMPORT_DECLARATION);
@@ -71,7 +73,7 @@ public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
         ((ModulePartNode) syntaxTree.rootNode()).imports().stream().forEach(fileImports::add);
 
         List<LineRange> toBeRemovedImportsLocations = context.diagnostics(context.filePath()).stream()
-                .filter(diag -> DIAGNOSTIC_CODE.equals(diag.diagnosticInfo().code()))
+                .filter(diag -> UNUSED_IMPORT_DIAGNOSTIC_CODE.equals(diag.diagnosticInfo().code()))
                 .map(diag -> diag.location().lineRange())
                 .collect(Collectors.toList());
 
@@ -136,7 +138,20 @@ public class OptimizeImportsCodeAction implements RangeBasedCodeActionProvider {
      * @param context     Code action context
      */
     protected void processFileImports(List<ImportDeclarationNode> fileImports, CodeActionContext context) {
-        // Do nothing
+        List<LineRange> reDeclaredImportLocations = context.diagnostics(context.filePath()).stream()
+                .filter(diag -> REDECLARED_IMPORT_DIAGNOSTIC_CODE.equals(diag.diagnosticInfo().code()))
+                .map(diag -> diag.location().lineRange())
+                .collect(Collectors.toList());
+
+        Iterator<ImportDeclarationNode> iterator = fileImports.iterator();
+        while (iterator.hasNext()) {
+            ImportDeclarationNode importDeclarationNode = iterator.next();
+            boolean redeclared = reDeclaredImportLocations.stream()
+                    .anyMatch(lineRange -> lineRange.equals(importDeclarationNode.location().lineRange()));
+            if (redeclared) {
+                iterator.remove();
+            }
+        }
     }
 
     protected String getCodeActionKind() {
