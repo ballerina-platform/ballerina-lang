@@ -95,3 +95,20 @@ function testReturnUnionOfNever7() returns NeverNever {
 
 function testReturnUnionOfNever8() returns NeverNever|never {
 } // error
+
+type BazNever Baz|never; // never
+type Baz never|never; // never
+
+function testReturnUnionOfNever9() returns BazNever {
+} // error
+
+function testReturnUnionOfNever10() returns Baz {
+} // error
+
+function testReturnUnionOfNever11() {
+    function() returns never _ = function() returns never|never {
+    };
+
+    function() returns never _ = function() returns NeverNever|never {
+    };
+} // error

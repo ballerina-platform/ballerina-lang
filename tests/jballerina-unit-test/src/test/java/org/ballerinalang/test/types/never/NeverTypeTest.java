@@ -389,6 +389,14 @@ public class NeverTypeTest {
                 "'never' cannot implicitly return 'nil' by falling off the end of the function body", 93, 1);
         BAssertUtil.validateError(compileResult, i++, "function with return type 'never' or equivalent to type " +
                 "'never' cannot implicitly return 'nil' by falling off the end of the function body", 96, 1);
+        BAssertUtil.validateError(compileResult, i++, "function with return type 'never' or equivalent to type " +
+                "'never' cannot implicitly return 'nil' by falling off the end of the function body", 102, 1);
+        BAssertUtil.validateError(compileResult, i++, "function with return type 'never' or equivalent to type " +
+                "'never' cannot implicitly return 'nil' by falling off the end of the function body", 105, 1);
+        BAssertUtil.validateError(compileResult, i++, "function with return type 'never' or equivalent to type " +
+                "'never' cannot implicitly return 'nil' by falling off the end of the function body", 109, 34);
+        BAssertUtil.validateError(compileResult, i++, "function with return type 'never' or equivalent to type " +
+                "'never' cannot implicitly return 'nil' by falling off the end of the function body", 112, 34);
         Assert.assertEquals(compileResult.getErrorCount(), i - 1);
         Assert.assertEquals(compileResult.getWarnCount(), 1);
     }
