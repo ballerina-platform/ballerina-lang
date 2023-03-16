@@ -1199,6 +1199,17 @@ function testEmptyRegexpMatch() {
 
 }
 
+public function testRegexpFromString() returns error? {
+    regexp:RegExp regex1 = check regexp:fromString("[a-z]");
+    regexp:Span? res1 = regexp:find(regex1, "TLearn/ Ballerina^ in");
+    assertTrue(res1 is regexp:Span);
+
+    //Need to be addressed in https://github.com/ballerina-platform/ballerina-lang/issues/39686
+    //regexp:RegExp regex2 = check regexp:fromString("^[^a-zA-Z0-9]");
+    //regexp:Span? res2 = regexp:find(regex2, "*TLearn/ Ballerina^ in");
+    //assertTrue(res2 is regexp:Span);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
