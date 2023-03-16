@@ -34,6 +34,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -106,7 +107,7 @@ public class TestConnectorGenerator {
     }
 
     @Test(description = "Test connector metadata generation")
-    public void getConnectorMetadata() throws Exception {
+    public void getConnectorMetadata() throws IOException {
         List<Connector> connectors = ConnectorGenerator.generateConnectorModel(testConProject);
         Assert.assertEquals(connectors.size(), 1);
         Connector connector = connectors.get(0);
@@ -155,7 +156,7 @@ public class TestConnectorGenerator {
     }
 
     @Test(description = "Test connector metadata generation")
-    public void getFunctionMetadata() throws Exception {
+    public void getFunctionMetadata() throws IOException {
         Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(testConProject);
         ModuleDoc testConnector = moduleDocMap.get(moduleName);
         SyntaxTree st = testConnector.syntaxTreeMap.get("main.bal");
