@@ -412,6 +412,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_CLIENT_REMOTE_METHOD_CALL("BCE2645", "invalid.client.remote.method.call"),
     NEVER_TYPED_VAR_DEF_NOT_ALLOWED("BCE2646", "never.typed.var.def.not.allowed"),
     NEVER_TYPED_OBJECT_FIELD_NOT_ALLOWED("BCE2647", "never.typed.object.field.not.allowed"),
+    NIL_CONDITIONAL_EXPR_NOT_YET_SUPPORTED_WITH_NIL("BCE2648", "nil.conditional.expr.not.yet.supported.with.nil"),
 
     CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES("BCE2650",
           "cannot.use.type.inclusion.with.more.than.one.open.record.with.different.rest.descriptor.types"),
