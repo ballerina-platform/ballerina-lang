@@ -417,8 +417,10 @@ public class JvmPackageGen {
                 }
                 MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, jvmCastGen,
                                                                 asyncDataCollector);
-                mainMethodGen.generateMainMethod(mainFunc, testExecuteFunc, cw, module, moduleClass, serviceEPAvailable);
-                initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc, testExecuteFunc);
+                mainMethodGen.generateMainMethod(mainFunc, testExecuteFunc, cw, module, moduleClass,
+                        serviceEPAvailable);
+                initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc,
+                        testExecuteFunc);
                 initMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports);
                 initMethodGen.generateGracefulExitMethod(cw);
                 if (testExecuteFunc != null) {
