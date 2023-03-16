@@ -118,6 +118,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ST
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_EP_AVAILABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
@@ -247,7 +248,7 @@ public class JvmPackageGen {
     private static void generateStaticInitializer(ClassWriter cw, String className, BIRPackage birPackage,
                                                   boolean isInitClass, boolean serviceEPAvailable,
                                                   AsyncDataCollector asyncDataCollector,
-                                                  JvmConstantsGen jvmConstantsGen) {
+                                                  JvmConstantsGen jvmConstantsGen, boolean isTestablePackage) {
         if (!isInitClass && asyncDataCollector.getStrandMetadata().isEmpty()) {
             return;
         }
@@ -258,6 +259,9 @@ public class JvmPackageGen {
             setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
             setModuleStatusField(cw, mv, className);
             setCurrentModuleField(cw, mv, jvmConstantsGen, birPackage.packageID, className);
+            if (isTestablePackage) {
+                setInitialTestExecutionState(mv, className);
+            }
         }
         JvmCodeGenUtil.generateStrandMetadata(mv, className, birPackage.packageID, asyncDataCollector);
         mv.visitInsn(RETURN);
@@ -409,12 +413,19 @@ public class JvmPackageGen {
                     }
                 }
 
+                if (testExecuteFunc != null) {
+                    generateTestExecutionStateField(cw);
+                }
+
                 MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, jvmCastGen,
                                                                 asyncDataCollector);
                 mainMethodGen.generateMainMethod(mainFunc, testExecuteFunc, cw, module, moduleClass, serviceEPAvailable);
                 initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc, testExecuteFunc);
                 initMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports);
                 initMethodGen.generateGracefulExitMethod(cw);
+                if (testExecuteFunc != null) {
+                    initMethodGen.generateGetTestExecutionState(cw, moduleClass);
+                }
 
                 generateLockForVariable(cw);
                 initMethodGen.generateModuleInitializer(cw, module, moduleInitClass, typesClass);
@@ -439,7 +450,7 @@ public class JvmPackageGen {
             }
             JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
             generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable,
-                    asyncDataCollector, jvmConstantsGen);
+                    asyncDataCollector, jvmConstantsGen, testExecuteFunc != null);
             cw.visitEnd();
 
             byte[] bytes = getBytes(cw, module);
@@ -850,5 +861,16 @@ public class JvmPackageGen {
             }
         }
         return false;
+    }
+
+    private static void generateTestExecutionStateField(ClassWriter cw) {
+        FieldVisitor fv = cw.visitField(ACC_PUBLIC | ACC_STATIC, TEST_EXECUTION_STATE, "I",
+                null, null);
+        fv.visitEnd();
+    }
+
+    private static void setInitialTestExecutionState(MethodVisitor mv, String initClass) {
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTSTATIC, initClass, TEST_EXECUTION_STATE, "I");
     }
 }

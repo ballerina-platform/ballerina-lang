@@ -83,11 +83,12 @@ public class TesterinaUtils {
      * @param sourceRootPath source root path
      * @param testSuite test meta data
      */
-    public static void executeTests(Path sourceRootPath, TestSuite testSuite,
+    public static int executeTests(Path sourceRootPath, TestSuite testSuite,
                                     ClassLoader classLoader, String[] args) throws RuntimeException {
         try {
-            execute(testSuite, classLoader, args);
+            int exitStatus = execute(testSuite, classLoader, args);
             cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
+            return exitStatus;
         } catch (BallerinaTestException e) {
             if (e.getMessage() != null) {
                 errStream.println("error: " + e.getMessage());
@@ -98,7 +99,7 @@ public class TesterinaUtils {
         }
     }
 
-    private static void execute(TestSuite suite, ClassLoader classLoader, String[] args) {
+    private static int execute(TestSuite suite, ClassLoader classLoader, String[] args) {
         String initClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
                 suite.getTestPackageID(),
                 suite.getVersion(),
@@ -112,24 +113,45 @@ public class TesterinaUtils {
 
         // This will init and start the test module.
         startSuite(initClazz, args);
+        return getTestExecutionState(initClazz);
     }
 
     private static void startSuite(Class<?> initClazz, String[] args) {
         // Call test module main
         String funcName = cleanupFunctionName("main");
+        Object response = runTestModuleMain(initClazz, funcName, args, String[].class);
+        if (response instanceof Throwable) {
+            throw new BallerinaTestException("dependant module execution for test suite failed due to " +
+                    formatErrorMessage((Throwable) response), (Throwable) response);
+        }
+    }
+
+    private static Object runTestModuleMain(Class<?> initClazz, String name, String[] args,
+                                            Class<?>... parameterTypes) {
+
         try {
-            final Method method = initClazz.getDeclaredMethod(funcName, String[].class);
-            method.invoke(null, (Object) args);
-        } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException e) {
-            throw new BallerinaTestException("Failed to invoke the function '" + funcName + " due to " +
-                    e.getMessage(), e);
+            final Method method = initClazz.getDeclaredMethod(name, parameterTypes);
+            return method.invoke(null, (Object) args);
         } catch (InvocationTargetException e) {
             Throwable targetException = e.getTargetException();
             if (targetException instanceof BError) {
-                return;
+                return targetException;
             }
-            throw new BallerinaTestException("dependant module execution for test suite failed due to " +
-                    formatErrorMessage(e.getTargetException()), targetException);
+            return targetException;
+        } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException e) {
+            return new BallerinaTestException("Failed to invoke the function '" + name + " due to " +
+                    e.getMessage(), e);
+        }
+    }
+
+    private static int getTestExecutionState(Class<?> initClazz) {
+        String funcName = cleanupFunctionName("$getTestExecutionState");
+        try {
+            final Method method = initClazz.getDeclaredMethod(funcName);
+            return (int) method.invoke(null);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new BallerinaTestException("Failed to invoke the function '" + funcName + " due to " +
+                    e.getMessage(), e);
         }
     }
 
