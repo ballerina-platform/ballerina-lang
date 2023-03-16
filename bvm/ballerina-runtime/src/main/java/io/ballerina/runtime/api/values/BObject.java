@@ -43,7 +43,7 @@ public interface BObject extends RefValue {
      *
      * @return Ballerina object type.
      * @deprecated use {@link BObject#getOriginalType()} ()} instead.
-     * The API {@link BValue#getType()} should be used after fixing the cache issue (#39850).
+     * The API {@link BValue#getType()} should be used after fixing the cache issue #39850.
      */
     @Deprecated
     ObjectType getType();
