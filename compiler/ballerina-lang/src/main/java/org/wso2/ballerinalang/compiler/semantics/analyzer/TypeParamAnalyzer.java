@@ -738,6 +738,12 @@ public class TypeParamAnalyzer {
             return symTable.noType;
         }
 
+        for (SymbolEnv.TypeParamEntry typeParamEntry : env.typeParamsEntries) {
+            if (typeParamEntry.boundType == expType) {
+                return typeParamEntry.boundType;
+            }
+        }
+
         if (resolvedTypes.contains(expType)) {
             return expType;
         }
