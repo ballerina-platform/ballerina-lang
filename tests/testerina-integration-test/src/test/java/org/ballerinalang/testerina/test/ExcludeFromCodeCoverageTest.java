@@ -56,8 +56,17 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
         String [][] exclusionListOfList = {{"./main.bal", "./modules/util/util.bal", "./generated/util/util_gen.bal",
                 "./generated/util2/util2_gen.bal", "./generated/main_gen.bal"},
                 {"./*", "./modules/util/ut*.bal", "./generated**"},
+                {"./*", "modules/util/ut*.bal", "generated"},
+                {"./*", "modules/util/ut*.bal", "generated/"},
+                {"./*.bal", "modules/util/ut*.bal", "/generated"},
+                {"./*.bal", "modules/util/ut*.bal", "/generated/"},
+                {"./*.bal", "modules/util/uti?.bal", "/generated/"},
+                {"./*.bal", "modules/util/uti[k-m].bal", "/generated/"},
+                {"./*.bal", "**util/util.bal", "/generated/"},
                 {"./"},
-                {"./**"}};
+                {"./**"},
+                {"/**"},
+                {"*.bal"}};
         for (String [] exclusionList : exclusionListOfList) {
             String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",
                     "--excludes=" + String.join(",", exclusionList)});
@@ -74,7 +83,7 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
         }
     }
 
-    @Test(description = "Exclude a source file from coverage exclusion list")
+    @Test(description = "Exclude a source file from coverage exclusion list", enabled = false)
     public void testExcludesSrcFileFromExclusionList() throws BallerinaTestException, IOException {
         String [] exclusionList =  {"./*", "!./main.bal"};
         String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",
@@ -92,7 +101,7 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
                 1, 8, 5, 61.54F);
     }
 
-    @Test(description = "Exclude a folder from coverage exclusion list")
+    @Test(description = "Exclude a folder from coverage exclusion list", enabled = false)
     public void testExcludesSrcFolderFromExclusionList() throws BallerinaTestException, IOException {
         String [] exclusionList = {"./generated", "!./generated/util"};
         String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",

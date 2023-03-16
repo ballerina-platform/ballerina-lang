@@ -81,10 +81,10 @@ OPTIONS
        --excludes
             Specify the Ballerina source files/folders to be excluded from code coverage
             calculation. Multiple source files/folders can be provided as a comma separated list.
-            Source file path can be absolute or relative to the package directory. '!' is used to omit
-            folders/files from exclusion. The '*' character is used to match zero or more source files
-            within a single directory level, without traversing into subdirectories. The '**' can be used
-            to traverse the sub-directories also.
+            Source file path can be absolute or relative to the package directory. The '*' character is used to
+            match zero or more source files within a single directory level, without traversing into subdirectories.
+            The '**' can be used to traverse the sub-directories also.
+            For more details:- https://ballerina.io/learn/test-ballerina-code/execute-tests/#generate-test-report-and-code-coverage
 
 
 EXAMPLES
@@ -139,5 +139,5 @@ EXAMPLES
            $ bal test --code-coverage --excludes=<source_path1>,<source_path2>
 
        Run the tests with the code coverage with directories excludes from coverage
-       calculation with '*' and '!'.
-           $ bal test --code-coverage --excludes=<source_path1/**>,<!source_path2>
+       calculation with '**' and '*'.
+           $ bal test --code-coverage --excludes=<source_path1/**>,<source_path2/*>

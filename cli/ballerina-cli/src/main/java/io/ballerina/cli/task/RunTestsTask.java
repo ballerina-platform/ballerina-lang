@@ -55,9 +55,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -76,8 +78,6 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.FULLY_QULAI
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.IGNORE_PATTERN;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.PATH_SEPARATOR;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.RELATIVE_PATH_PREFIX;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.STANDALONE_SRC_PACKAGENAME;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.WILDCARD;
 import static org.ballerinalang.test.runtime.util.TesterinaUtils.getQualifiedClassName;
@@ -108,6 +108,16 @@ public class RunTestsTask implements Task {
     private boolean listGroups;
 
     TestReport testReport;
+    private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
+            .contains("win");
+    public static final String EXCLUDES_PATTERN_PATH_SEPARATOR = isWindows ? "\\\\" : "/";
+
+    public static final String RELATIVE_PATH_PREFIX = isWindows ? ".\\" : "./";
+
+    public static final String PATH_SEPARATOR = isWindows ? "\\" : "/";
+
+    public static final String UNIX_PATH_SEPARATOR = "/";
+
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                         String disableGroupList, String testList, String includes, String coverageFormat,
@@ -339,14 +349,20 @@ public class RunTestsTask implements Task {
     private List<Path> getAllSourceFilePaths(String projectRootString) throws IOException {
         List<Path> sourceFilePaths = new ArrayList<>();
         List<Path> paths = Files.walk(Paths.get(projectRootString), 3).collect(Collectors.toList());
+
+        if (isWindows) {
+            projectRootString = projectRootString.replace(PATH_SEPARATOR, EXCLUDES_PATTERN_PATH_SEPARATOR);
+        }
+
         List<Path> defaultModuleSources = filterPathStream(paths.stream(), projectRootString +
-                PATH_SEPARATOR + WILDCARD + BLANG_SOURCE_EXT);
+                EXCLUDES_PATTERN_PATH_SEPARATOR + WILDCARD + BLANG_SOURCE_EXT);
         List<Path> generatedSources = filterPathStream(paths.stream(),
-                projectRootString + PATH_SEPARATOR + GENERATED_MODULES_ROOT + WILDCARD + WILDCARD +
-                        BLANG_SOURCE_EXT);
+                projectRootString + EXCLUDES_PATTERN_PATH_SEPARATOR +
+                        GENERATED_MODULES_ROOT + WILDCARD + WILDCARD + BLANG_SOURCE_EXT);
         List<Path> moduleSources = filterPathStream(paths.stream(),
-                projectRootString + PATH_SEPARATOR + MODULES_ROOT + PATH_SEPARATOR +
-                        WILDCARD + PATH_SEPARATOR + WILDCARD + BLANG_SOURCE_EXT);
+                projectRootString + EXCLUDES_PATTERN_PATH_SEPARATOR + MODULES_ROOT +
+                        EXCLUDES_PATTERN_PATH_SEPARATOR + WILDCARD + EXCLUDES_PATTERN_PATH_SEPARATOR +
+                        WILDCARD + BLANG_SOURCE_EXT);
         Stream.of(defaultModuleSources, generatedSources, moduleSources).forEach(sourceFilePaths::addAll);
         return sourceFilePaths;
 
@@ -378,14 +394,14 @@ public class RunTestsTask implements Task {
                             .replace(GENERATED_MODULES_ROOT + PATH_SEPARATOR, "");
                 }
 
-                if (sourceFile.split(PATH_SEPARATOR).length == 2) {
-                    String moduleName = sourceFile.split(PATH_SEPARATOR)[0];
-                    String balFile = sourceFile.split(PATH_SEPARATOR)[1].replace(BLANG_SOURCE_EXT, "");
+                if (sourceFile.split(Pattern.quote(PATH_SEPARATOR)).length == 2) {
+                    String moduleName = sourceFile.split(Pattern.quote(PATH_SEPARATOR))[0];
+                    String balFile = sourceFile.split(Pattern.quote(PATH_SEPARATOR))[1].replace(BLANG_SOURCE_EXT, "");
                     String className = getQualifiedClassName(org, packageName +
                                     FULLY_QULAIFIED_MODULENAME_SEPRATOR + moduleName, version, balFile);
                     classFileList.add(className);
-                } else if (sourceFile.split(PATH_SEPARATOR).length == 1) {
-                    String balFile = sourceFile.split(PATH_SEPARATOR)[0].replace(BLANG_SOURCE_EXT, "");
+                } else if (sourceFile.split(Pattern.quote(PATH_SEPARATOR)).length == 1) {
+                    String balFile = sourceFile.split(Pattern.quote(PATH_SEPARATOR))[0].replace(BLANG_SOURCE_EXT, "");
                     String className = getQualifiedClassName(org, packageName, version, balFile);
                     classFileList.add(className);
                 }
@@ -406,24 +422,36 @@ public class RunTestsTask implements Task {
                 sourcePattern = sourcePattern.substring(1);
             }
 
-            String formattedSourcePattern = sourcePattern;
+            if (isWindows) {
+                sourcePattern = sourcePattern.replace(UNIX_PATH_SEPARATOR, PATH_SEPARATOR);
+            }
 
             // Replace the './' with 'sourceRoot/' to handle prefix properly.
             if (sourcePattern.startsWith(RELATIVE_PATH_PREFIX)) {
-                formattedSourcePattern = sourcePattern.replace(RELATIVE_PATH_PREFIX, sourceRoot
-                        + PATH_SEPARATOR);
+                sourcePattern = sourceRoot + PATH_SEPARATOR + sourcePattern.substring(2);
+            } else if (sourcePattern.startsWith(PATH_SEPARATOR) && !sourcePattern.startsWith(sourceRoot +
+                    PATH_SEPARATOR)) { // Replace the '/' with 'sourceRoot/' to handle prefix properly.
+                sourcePattern = sourceRoot + PATH_SEPARATOR + sourcePattern.substring(1);
+            } else if (!sourcePattern.startsWith(sourceRoot + PATH_SEPARATOR)) {
+                // Add 'sourceRoot/' prefix if a directory/file is specified as 'foo'/'foo.bal'
+                sourcePattern = WILDCARD + WILDCARD + PATH_SEPARATOR + sourcePattern;
             }
 
-            // Add to handle suffix properly
+
+            // Convert 'foo/' or 'foo' as 'foo/**' and ignore 'foo*' or 'foo/*' or 'foo.bal'
             if (!sourcePattern.endsWith(WILDCARD) && !sourcePattern.endsWith(BLANG_SOURCE_EXT)) {
                 if (!sourcePattern.endsWith(PATH_SEPARATOR)) {
-                    formattedSourcePattern = formattedSourcePattern + PATH_SEPARATOR;
+                    sourcePattern = sourcePattern + PATH_SEPARATOR;
                 }
-                formattedSourcePattern = formattedSourcePattern + WILDCARD + WILDCARD;
+                sourcePattern = sourcePattern + WILDCARD + WILDCARD;
+            }
+
+            if (isWindows) {
+                sourcePattern = sourcePattern.replace(PATH_SEPARATOR, EXCLUDES_PATTERN_PATH_SEPARATOR);
             }
 
             if (!isIgnoringPattern) {
-                List<Path> filteredPaths = filterPathStream(allSourceFilePaths.stream(), formattedSourcePattern);
+                List<Path> filteredPaths = filterPathStream(allSourceFilePaths.stream(), sourcePattern);
                 if (filteredPaths.isEmpty()) {
                     unMatchedPatterns.add(sourcePattern);
                     continue;
@@ -432,7 +460,7 @@ public class RunTestsTask implements Task {
                 continue;
             }
 
-            List<Path> filteredPaths = filterPathStream(validSourceFileSet.stream(), formattedSourcePattern);
+            List<Path> filteredPaths = filterPathStream(validSourceFileSet.stream(), sourcePattern);
             if (filteredPaths.isEmpty()) {
                 unMatchedPatterns.add(IGNORE_PATTERN + sourcePattern);
                 continue;
