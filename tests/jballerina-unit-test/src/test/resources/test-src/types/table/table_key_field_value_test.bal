@@ -34,7 +34,7 @@ function testLiteralAsKeyValue() {
     error? err = trap tbl.add({k: 12, value: 20});
     assertEqual(true, err is error);
     if (err is error) {
-        map<string> msg = {"message":"a value found for key '12'"};
+        map<string> msg = {"message":"a value found for key '12'", "description":"Failed to add member to table"};
         assertEqual(msg, err.detail());
     }
 }
@@ -500,21 +500,21 @@ function testRegExpAsKeyValue() {
     }
 
     table<Row9> key(k) tbl3 = table [
-       {k: re `[a-z]??|(AB)*`, value: 17}
+       {k: re `[]??|(AB)*`, value: 17}
     ];
 
-    tbl3.add({k: re `[a-z]?|(AC){1}`, value: 25});
-    var tbl4 = table key(k) [{ k: re `[a-z]??|(AB)*`, value: 17 },
-                             {k: re `[a-z]?|(AC){1}`, value: 25}];
+    tbl3.add({k: re `[]?|(AC){1}`, value: 25});
+    var tbl4 = table key(k) [{ k: re `[]??|(AB)*`, value: 17 },
+                             {k: re `[]?|(AC){1}`, value: 25}];
     assertEqual(tbl4, tbl3);
 
-    Row9 row2 = {k: re `[a-z]?|(AC){1}`, value: 25};
-    assertEqual(row2, tbl3.get(re `[a-z]?|(AC){1}`));
+    Row9 row2 = {k: re `[]?|(AC){1}`, value: 25};
+    assertEqual(row2, tbl3.get(re `[]?|(AC){1}`));
 
-    error? err3 = trap tbl3.add({k: re `[a-z]??|(AB)*`, value: 20});
+    error? err3 = trap tbl3.add({k: re `[]??|(AB)*`, value: 20});
     assertEqual(true, err3 is error);
     if (err3 is error) {
-        map<string> msg = {"message":"a value found for key '[a-z]??|(AB)*'"};
+        map<string> msg = {"message":"a value found for key '[]??|(AB)*'"};
         assertEqual(msg, err3.detail());
     }
 
