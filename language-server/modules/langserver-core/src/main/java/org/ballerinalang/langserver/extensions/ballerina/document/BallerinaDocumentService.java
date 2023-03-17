@@ -541,22 +541,12 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 Either<List<Location>, Object> getLocationPositionList = Either.forLeft(DefinitionUtil.getDefinition(
                         defContext, params.getPosition()));
                 List<Location> leftLocations = getLocationPositionList.getLeft();
-                if (leftLocations.size() == 0) {
-                    return reply;
-                }
 
                 Location location = leftLocations.get(0);
-
                 String fileUri = location.getUri();
                 Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
-                if (filePath.isEmpty()) {
-                    return reply;
-                }
 
                 Optional<Document> srcFile = this.workspaceManagerProxy.get().document(filePath.get());
-                if (srcFile.isEmpty()) {
-                    return reply;
-                }
 
                 // Get the semantic model.
                 Optional<SemanticModel> semanticModel = this.workspaceManagerProxy.get().semanticModel(filePath.get());
