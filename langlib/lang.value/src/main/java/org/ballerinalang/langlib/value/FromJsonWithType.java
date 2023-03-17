@@ -18,6 +18,8 @@
 
 package org.ballerinalang.langlib.value;
 
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.ValueUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -39,6 +41,32 @@ public class FromJsonWithType {
     public static Object fromJsonWithType(Object value, BTypedesc t) {
         try {
             return ValueConverter.convert(value, t);
+        } catch (BError e) {
+            return createError(VALUE_LANG_LIB_CONVERSION_ERROR, (BMap<BString, Object>) e.getDetails());
+        }
+    }
+
+    // TODO: remove this after fixing standard libraries to use the runtime API
+    /**
+     * @deprecated use {@link ValueUtils#convert(Object, Type)} instead.
+     */
+    @Deprecated
+    public static Object convert(Object value, Type targetType) {
+        try {
+            return ValueConverter.convert(value, targetType);
+        } catch (BError e) {
+            return createError(VALUE_LANG_LIB_CONVERSION_ERROR, (BMap<BString, Object>) e.getDetails());
+        }
+    }
+
+    // TODO: remove this after fixing standard libraries to use the runtime API
+    /**
+     * @deprecated use {@link ValueUtils#convert(Object, Type)} instead.
+     */
+    @Deprecated
+    public static Object convert(Object value, Type targetType, BTypedesc t) {
+        try {
+            return ValueConverter.convert(value, targetType);
         } catch (BError e) {
             return createError(VALUE_LANG_LIB_CONVERSION_ERROR, (BMap<BString, Object>) e.getDetails());
         }
