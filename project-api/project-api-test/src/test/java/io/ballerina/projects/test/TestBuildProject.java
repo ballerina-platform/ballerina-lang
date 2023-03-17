@@ -61,11 +61,12 @@ import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.SkipException;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -112,9 +113,16 @@ import static org.testng.Assert.assertTrue;
  */
 public class TestBuildProject extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    private static Path tempResourceDir;
     static final PrintStream OUT = System.out;
     private final String dummyContent = "function foo() {\n}";
 
+    @BeforeClass
+    public void setup() throws IOException {
+        tempResourceDir = Files.createTempDirectory("project-api-test");
+        FileUtils.copyDirectory(RESOURCE_DIRECTORY.resolve("project_no_permission").toFile(),
+                tempResourceDir.resolve("project_no_permission").toFile());
+    }
     @Test (description = "tests loading a valid build project")
     public void testBuildProjectAPI() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
@@ -188,7 +196,7 @@ public class TestBuildProject extends BaseTest {
             throw new SkipException("Skipping tests on Windows");
         }
 
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
+        Path projectPath = tempResourceDir.resolve("project_no_permission");
 
         // 1) Remove read permission
         boolean readable = projectPath.toFile().setReadable(false, true);
@@ -216,7 +224,7 @@ public class TestBuildProject extends BaseTest {
             throw new SkipException("Skipping tests on Windows");
         }
 
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
+        Path projectPath = tempResourceDir.resolve("project_no_permission");
 
         // 1) Remove write permission
         boolean writable = projectPath.toFile().setWritable(false, true);
@@ -290,15 +298,22 @@ public class TestBuildProject extends BaseTest {
 
         // Verify paths in packageCompilation diagnostics
         List<String> diagnosticFilePaths = compilation.diagnosticResult().diagnostics().stream().map(diagnostic ->
-                diagnostic.location().lineRange().filePath()).distinct().collect(Collectors.toList());
+                diagnostic.location().lineRange().fileName()).distinct().collect(Collectors.toList());
 
         for (String path : expectedPaths) {
             Assert.assertTrue(diagnosticFilePaths.contains(path), diagnosticFilePaths.toString());
         }
+        String diagnoticsStr = compilation.diagnosticResult().diagnostics().stream().map(Diagnostic::toString)
+                .distinct().collect(Collectors.joining());
+
+        // Verify the Diagnostic.toString method
+        for (String path : expectedPaths) {
+            Assert.assertTrue(diagnoticsStr.contains(path), diagnoticsStr);
+        }
 
         // Verify paths in jBallerina backend diagnostics
         diagnosticFilePaths = jBallerinaBackend.diagnosticResult().diagnostics().stream().map(diagnostic ->
-                diagnostic.location().lineRange().filePath()).distinct().collect(Collectors.toList());
+                diagnostic.location().lineRange().fileName()).distinct().collect(Collectors.toList());
 
         for (String path : expectedPaths) {
             Assert.assertTrue(diagnosticFilePaths.contains(path), diagnosticFilePaths.toString());
@@ -1226,7 +1241,7 @@ public class TestBuildProject extends BaseTest {
         PackageCompilation compilation1 = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
-        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().fileName(),
                 "main.bal");
         Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
                 .contains("missing required parameter 'c'"));
@@ -1253,7 +1268,7 @@ public class TestBuildProject extends BaseTest {
         PackageCompilation compilation1 = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
-        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().fileName(),
                 "main.bal");
         Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
                 .contains("undefined function 'concatStrings'"));
@@ -1285,7 +1300,7 @@ public class TestBuildProject extends BaseTest {
         DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
 
-        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().fileName(),
                 Paths.get("modules").resolve("schema").resolve("schema.bal").toString());
         Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
                 .contains("unknown type 'PersonalDetails'"));
@@ -2170,7 +2185,7 @@ public class TestBuildProject extends BaseTest {
         PackageCompilation compilation = currentPackage.getCompilation();
 
         List<String> actualDiagnosticPaths = compilation.diagnosticResult().diagnostics().stream().map(diagnostic ->
-                diagnostic.location().lineRange().filePath()).distinct().collect(Collectors.toList());
+                diagnostic.location().lineRange().fileName()).distinct().collect(Collectors.toList());
 
         List<String> expectedDiagnosticPaths = Arrays.asList(
                 "main.bal", Paths.get("tests").resolve("main_test.bal").toString(),
@@ -2302,12 +2317,6 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(diagnostics.get(1).toString(), "WARNING [platformLibNonBalPkg3] detected conflicting jar" +
                 " files. 'lib3-2.0.1.jar' dependency of 'platformlib/pkg2' conflicts with 'lib3-2.0.0.jar'" +
                 " dependency of 'platformlib/pkg1'. Picking 'lib3-2.0.1.jar' over 'lib3-2.0.0.jar'.");
-    }
-
-    @AfterClass (alwaysRun = true)
-    public void reset() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
-        TestUtils.resetPermissions(projectPath);
     }
 
     private static BuildProject loadBuildProject(Path projectPath) {

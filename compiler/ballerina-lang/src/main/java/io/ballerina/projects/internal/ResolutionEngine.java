@@ -382,7 +382,7 @@ public class ResolutionEngine {
                             "Version specified in " + sourceFile + ": " + blendedDep.version() +
                             " and the version resolved from other dependencies: " + unresolvedNode.pkgDesc.version(),
                     DiagnosticSeverity.ERROR);
-            PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(
+            PackageDiagnostic diagnostic = new PackageDiagnostic(
                     diagnosticInfo, this.rootPkgDesc.name().toString());
             diagnostics.add(diagnostic);
             return null;

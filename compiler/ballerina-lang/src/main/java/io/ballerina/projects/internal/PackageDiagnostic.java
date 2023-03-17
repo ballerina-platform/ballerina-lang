@@ -36,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
 
@@ -116,12 +117,12 @@ public class PackageDiagnostic extends Diagnostic {
 
     @Override
     public String toString() {
-        String filePath = this.diagnostic.location().lineRange().filePath();
+        String filePath = this.location.lineRange().filePath();
         // add package info if it is a dependency
         if (this.project != null && ProjectKind.BALA_PROJECT.equals(this.project.kind())) {
             filePath = moduleDescriptor.org() + "/" +
                     moduleDescriptor.name().toString() + "/" +
-                    moduleDescriptor.version() + "::" + filePath;
+                    moduleDescriptor.version() + "::" + Optional.of(Paths.get(filePath).getFileName()).get();
         }
         // Handle null location based diagnostics
         if (this.diagnostic.location() instanceof NullLocation) {

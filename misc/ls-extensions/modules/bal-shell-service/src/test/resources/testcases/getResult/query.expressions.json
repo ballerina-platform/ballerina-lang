@@ -69,7 +69,7 @@
       "shellValue": {
         "value":"[{\"first\":\"Melina\", \"last\":\"Kodel\"}, {\"first\":\"Tom\", \"last\":\"Riddle\"}]",
         "mimeType":"ballerina-notebook/json-view",
-        "type":"map\u003c(any|error)\u003e[]"
+        "type":"record {| string first; string last; |}[]"
       },
       "errors":[],
       "diagnostics":[],
@@ -83,7 +83,7 @@
       "shellValue": {
         "value":"[{\"first\":\"Melina\", \"last\":\"Kodel\"}, {\"first\":\"Tom\", \"last\":\"Riddle\"}]",
         "mimeType":"ballerina-notebook/json-view",
-        "type":"map\u003c(any|error)\u003e[]"
+        "type":"record {| string first; string last; |}[]"
       },
       "errors":[],
       "diagnostics":[],

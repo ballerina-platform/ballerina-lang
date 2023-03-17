@@ -197,12 +197,6 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
                         }
                         actual.command = actualCommand;
                     }
-                } else {
-                    if (right.has("command") && !right.get("command").isJsonNull() &&
-                            !isReportUsageStatsCommand(right.getAsJsonObject("command"))) {
-                        actual.command = right.getAsJsonObject("command");
-                        misMatched = true;
-                    }
                 }
 
                 // Code-action matched
@@ -487,8 +481,8 @@ public abstract class AbstractCodeActionTest extends AbstractLSTest {
         return TestUtil.isArgumentsSubArray(actualArgs, expArgs);
     }
 
-    private boolean validateExtractCmd(JsonObject actualCommand, JsonArray actualArgs,
-                                       JsonArray expArgs, Path sourceRoot) {
+    private boolean validateExtractCmd(JsonObject actualCommand, JsonArray actualArgs, JsonArray expArgs, 
+                                       Path sourceRoot) {
         String actualName = actualArgs.get(0).getAsString();
         String expectedName = expArgs.get(0).getAsString();
 
