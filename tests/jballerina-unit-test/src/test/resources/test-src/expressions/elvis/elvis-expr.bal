@@ -1,3 +1,5 @@
+import ballerina/lang.regexp;
+
 function testElvisValueTypePositive() returns (int) {
     int|() x = 120;
     int b;
@@ -442,7 +444,104 @@ function testElvisExprWithIntersectionTypes() {
     assertEquals([30, 21], d);
 }
 
+function testElvisExprWithBuiltInNilableUnion() {
+    json j1 = 1;
+    json j2 = j1 ?: "nil";
+    assertEquals(1, j2);
+    json j3 = ();
+    json j4 = j3 ?: "nil";
+    assertEquals("nil", j4);
+    anydata a1 = j3 ?: xml `text`;
+    assertEquals(xml `text`, a1);
+
+    anydata k1 = 12;
+    anydata k2 = k1 ?: 123;
+    assertEquals(12, k2);
+    anydata k3 = ();
+    anydata k4 = k3 ?: 123;
+    assertEquals(123, k4);
+    any k5 = k3 ?: "nil value 2";
+    assertEquals("nil value 2", <anydata> k5);
+
+    any l1 = 3;
+    any l2 = l1 ?: "empty";
+    assertEquals(3, <anydata> l2);
+    any l3 = ();
+    any l4 = l3 ?: "empty";
+    assertEquals("empty", <anydata> l4);
+}
+
+type JsonWithoutNil boolean|int|float|decimal|string|json[]|map<json>;
+
+function testElvisExprWithJson() {
+    json i = 1;
+    JsonWithoutNil j = i ?: 10;
+    assertEquals(1, j);
+
+    i = ();
+    j = i ?: 10;
+    assertEquals(10, j);
+
+    json|xml k = 12;
+    JsonWithoutNil|xml l = k ?: xml `test`;
+    assertEquals(12, l);
+
+    k = ();
+    l = k ?: xml `test`;
+    assertEquals(xml `test`, l);
+}
+
+type AnydataWithoutNil boolean|int|float|decimal|string|xml|regexp:RegExp|anydata[]|map<anydata>|table<map<anydata>>;
+
+function testElvisExprWithAnydata() {
+    anydata i = "hello";
+    AnydataWithoutNil j = i ?: 10;
+    assertEquals("hello", j);
+
+    i = ();
+    j = i ?: 10;
+    assertEquals(10, j);
+
+    error e = error("Oops");
+    error|anydata k = 234;
+    error|AnydataWithoutNil l = k ?: e;
+    assertEquals(234, checkpanic l);
+
+    k = ();
+    l = k ?: e;
+    assertTrue(l is error);
+    assertTrue(l === e);
+}
+
+function testElvisExprWithFiniteType() {
+    1|null a = 1;
+    int b = a ?: 2;
+    assertEquals(1, b);
+
+    a = ();
+    b = a ?: 2;
+    assertEquals(2, b);
+}
+
+function testElvisExprWithUnionWithFiniteTypeContainingNull() {
+    1|null|string a = 1;
+    string|1 b = a ?: "hello";
+    assertEquals(1, b);
+
+    1|null|string c = ();
+    string|1 d = c ?: "hello";
+    assertEquals("hello", d);
+
+    1|null|string e = ();
+    int|string f = e ?: 23;
+    assertEquals(23, f);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(anydata actual) {
+    assertEquals(true, actual);
+}
 
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
