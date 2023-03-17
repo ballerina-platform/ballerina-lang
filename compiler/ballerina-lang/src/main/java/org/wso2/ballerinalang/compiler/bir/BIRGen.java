@@ -1382,7 +1382,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
         LineRange lineRange = this.env.enclFunc.pos.lineRange();
         LinePosition endLine = lineRange.endLine();
-        return new BLangDiagnosticLocation(lineRange.filePath(), endLine.line(), endLine.line(), endLine.offset(),
+        return new BLangDiagnosticLocation(lineRange.fileName(), endLine.line(), endLine.line(), endLine.offset(),
                 endLine.offset(), 0, 0);
     }
 

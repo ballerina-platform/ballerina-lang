@@ -401,9 +401,7 @@ public class Scheduler {
                     // (number of started stands - finished stands) = 0, all the work is done
                     assert runnableList.isEmpty();
 
-                    if (!immortal) {
-                        poison();
-                    }
+                    gracefulExit();
                 }
                 break;
             default:
@@ -538,5 +536,11 @@ public class Scheduler {
                     RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
         }
         return poolSize;
+    }
+
+    public void gracefulExit() {
+        if (!this.immortal) {
+            this.poison();
+        }
     }
 }

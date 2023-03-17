@@ -39,6 +39,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -65,6 +66,7 @@ import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_DIR;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
+import static io.ballerina.projects.util.ProjectConstants.DEPRECATED_META_FILE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.MODULE_NAME_SEPARATOR;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
@@ -259,9 +261,9 @@ public class BalaFiles {
             if (!Files.notExists(compilerPluginJsonPath)) {
                 CompilerPluginJson compilerPluginJson = readCompilerPluginJson(balrPath, compilerPluginJsonPath);
                 extractCompilerPluginLibraries(compilerPluginJson, balrPath, zipFileSystem);
-                return getPackageManifest(packageJson, Optional.of(compilerPluginJson));
+                return getPackageManifest(packageJson, Optional.of(compilerPluginJson), null);
             }
-            return getPackageManifest(packageJson, Optional.empty());
+            return getPackageManifest(packageJson, Optional.empty(), null);
         } catch (IOException e) {
             throw new ProjectException("Failed to read balr file:" + balrPath);
         }
@@ -282,9 +284,27 @@ public class BalaFiles {
         if (!Files.notExists(compilerPluginJsonPath)) {
             CompilerPluginJson compilerPluginJson = readCompilerPluginJson(balrPath, compilerPluginJsonPath);
             setCompilerPluginDependencyPaths(compilerPluginJson, balrPath);
-            return getPackageManifest(packageJson, Optional.of(compilerPluginJson));
+            return getPackageManifest(packageJson, Optional.of(compilerPluginJson), null);
         }
-        return getPackageManifest(packageJson, Optional.empty());
+        // Load `deprecated.txt`
+        Path deprecateFilePath = balrPath.resolve(DEPRECATED_META_FILE_NAME);
+        if (Files.exists(deprecateFilePath)) {
+            StringBuilder fileContents = new StringBuilder();
+            try (BufferedReader reader = new BufferedReader(new FileReader(deprecateFilePath.toString(),
+                    Charset.defaultCharset()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    fileContents.append(line).append("\n");
+                }
+            } catch (IOException e) {
+                throw new ProjectException("unable to read content from the file '" + DEPRECATED_META_FILE_NAME +
+                        "'", e);
+            }
+            // Remove the last new line character and pass it to the package manifest
+            return getPackageManifest(packageJson, Optional.empty(), fileContents.substring(0, fileContents
+                    .length() - 2));
+        }
+        return getPackageManifest(packageJson, Optional.empty(), null);
     }
 
     private static DependencyManifest createDependencyManifestFromBalaFile(Path balrPath) {
@@ -372,9 +392,16 @@ public class BalaFiles {
     }
 
     private static PackageManifest getPackageManifest(PackageJson packageJson,
-            Optional<CompilerPluginJson> compilerPluginJson) {
-        PackageDescriptor pkgDesc = PackageDescriptor.from(PackageOrg.from(packageJson.getOrganization()),
-                PackageName.from(packageJson.getName()), PackageVersion.from(packageJson.getVersion()));
+            Optional<CompilerPluginJson> compilerPluginJson, String deprecationMsg) {
+        PackageDescriptor pkgDesc;
+        if (deprecationMsg != null) {
+            pkgDesc = PackageDescriptor.from(PackageOrg.from(packageJson.getOrganization()),
+                    PackageName.from(packageJson.getName()), PackageVersion.from(packageJson.getVersion()),
+                    true, deprecationMsg);
+        } else {
+            pkgDesc = PackageDescriptor.from(PackageOrg.from(packageJson.getOrganization()),
+                    PackageName.from(packageJson.getName()), PackageVersion.from(packageJson.getVersion()));
+        }
 
         Map<String, PackageManifest.Platform> platforms = new HashMap<>(Collections.emptyMap());
         if (packageJson.getPlatformDependencies() != null) {
