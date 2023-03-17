@@ -1,0 +1,35 @@
+Code coverage is not yet supported with single bal files. Ignoring the flag and continuing the test run...
+warning: ignoring --includes flag since code coverage is not enabled
+Compiling source
+	skip-when-beforeGroups-fails.bal
+WARNING [skip-when-beforeGroups-fails.bal:(32:5,32:17)] unused variable 'b'
+
+Running Tests
+
+	skip-when-beforeGroups-fails.bal
+	[fail] beforeGroupsFunc2[before test group function for the test]:
+	     / by zero
+	[fail] afterSuiteFunc[after test suite function]:
+	    Assertion Failed!
+ 
+expected: '123'
+actual	: '1237'
+ 
+Diff	:
+
+--- actual
++++ expected 
+ 
+ @@ -1,1 +1,1 @@ 
+ 
+ -1237
++123
+
+		[pass] testFunction
+		[pass] testFunction2
+
+
+		2 passing
+		0 failing
+		3 skipped
+error: there are test failures

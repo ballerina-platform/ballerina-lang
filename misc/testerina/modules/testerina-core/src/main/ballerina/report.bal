@@ -141,16 +141,16 @@ function failedTestsReport(ReportData data) {
 function moduleStatusReport(ReportData data) {
     map<string>[] tests = [];
     data.passedCases().forEach(result => tests.push({
-        "name": result.fullName(),
+        "name": escapeSpecialCharactersJson(result.fullName()),
         "status": "PASSED"
     }));
     data.failedCases().forEach(result => tests.push({
-        "name": result.fullName(),
+        "name": escapeSpecialCharactersJson(result.fullName()),
         "status": "FAILURE",
         "failureMessage": replaceDoubleQuotes(result.message())
     }));
     data.skippedCases().forEach(result => tests.push({
-        "name": result.fullName(),
+        "name": escapeSpecialCharactersJson(result.fullName()),
         "status": "SKIPPED"
     }));
 
@@ -167,6 +167,11 @@ function moduleStatusReport(ReportData data) {
     if err is error {
         println(err.message());
     }
+}
+
+function escapeSpecialCharactersJson(string name) returns string {
+    string|error encodedName = escapeSpecialCharacters(name);
+    return ((encodedName is string) ? encodedName : name);
 }
 
 function replaceDoubleQuotes(string originalString) returns string {

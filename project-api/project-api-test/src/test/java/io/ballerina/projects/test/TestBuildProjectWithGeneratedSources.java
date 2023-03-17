@@ -80,6 +80,40 @@ public class TestBuildProjectWithGeneratedSources extends BaseTest {
 
     }
 
+    @Test (description = "tests loading a valid build project with generated sources and test sources")
+    public void testBuildProjectAPIWithTests() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("my_generated_project_with_tests");
+
+        // 1) Initialize the project instance
+        BuildProject project = loadBuildProject(projectPath);
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+        // 3) Load the default module
+        Module defaultModule = currentPackage.getDefaultModule();
+        Assert.assertEquals(defaultModule.documentIds().size(), 4);
+
+        // 4) Get Ballerina.toml file
+        Optional<BallerinaToml> ballerinaTomlOptional = currentPackage.ballerinaToml();
+        Assert.assertTrue(ballerinaTomlOptional.isPresent());
+
+        int noOfSrcDocuments = 0;
+        int noOfTestDocuments = 0;
+        final Collection<ModuleId> moduleIds = currentPackage.moduleIds();
+        Assert.assertEquals(moduleIds.size(), 5);
+        for (ModuleId moduleId : moduleIds) {
+            Module module = currentPackage.module(moduleId);
+            noOfSrcDocuments += module.documentIds().size();
+            noOfTestDocuments += module.testDocumentIds().size();
+            for (DocumentId docId : module.documentIds()) {
+                Assert.assertNotNull(module.document(docId).syntaxTree());
+            }
+        }
+
+        Assert.assertEquals(noOfSrcDocuments, 9);
+        Assert.assertEquals(noOfTestDocuments, 6);
+
+    }
+
     @Test (description = "tests loading a build project with generated sources with no read permission")
     public void testBuildProjectWithNoReadPermission() {
         // Skip test in windows due to file permission setting issue
@@ -106,7 +140,7 @@ public class TestBuildProjectWithGeneratedSources extends BaseTest {
     }
 
     @Test (description = "tests loading a valid build project with a new generated module")
-    public void testProjectWithNewGeneratedModule() {
+    public void testProjectWithNewGeneratedModules() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("new_generated_mod");
 
         // 1) Initialize the project instance
@@ -124,7 +158,7 @@ public class TestBuildProjectWithGeneratedSources extends BaseTest {
         int noOfSrcDocuments = 0;
         int noOfTestDocuments = 0;
         final Collection<ModuleId> moduleIds = currentPackage.moduleIds();
-        Assert.assertEquals(moduleIds.size(), 2);
+        Assert.assertEquals(moduleIds.size(), 3);
         for (ModuleId moduleId : moduleIds) {
             Module module = currentPackage.module(moduleId);
             noOfSrcDocuments += module.documentIds().size();
@@ -134,7 +168,7 @@ public class TestBuildProjectWithGeneratedSources extends BaseTest {
             }
         }
         Assert.assertEquals(noOfSrcDocuments, 2);
-        Assert.assertEquals(noOfTestDocuments, 0);
+        Assert.assertEquals(noOfTestDocuments, 1);
     }
     @AfterClass (alwaysRun = true)
     public void reset() {

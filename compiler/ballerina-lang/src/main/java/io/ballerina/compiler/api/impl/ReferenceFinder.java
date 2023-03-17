@@ -1429,7 +1429,7 @@ public class ReferenceFinder extends BaseVisitor {
      */
     private Location getLocationForLiteral(Location location) {
         LineRange lineRange = location.lineRange();
-        return new BLangDiagnosticLocation(lineRange.filePath(),
+        return new BLangDiagnosticLocation(lineRange.fileName(),
                                            lineRange.startLine().line(), lineRange.endLine().line(),
                                            lineRange.startLine().offset() + 1, lineRange.endLine().offset() - 1,
                                            location.textRange().startOffset(), location.textRange().length());

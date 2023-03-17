@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 8,
+    "character": 19
+  },
+  "source": "fill_record_fields_source12.bal",
+  "expected": [
+    {
+      "title": "Fill 'Type2' required fields",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 19
+            },
+            "end": {
+              "line": 8,
+              "character": 19
+            }
+          },
+          "newText": "pattern: re ``, target: \"\""
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

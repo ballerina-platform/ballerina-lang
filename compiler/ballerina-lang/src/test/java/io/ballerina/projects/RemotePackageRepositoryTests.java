@@ -115,9 +115,14 @@ public class RemotePackageRepositoryTests {
         Assert.assertEquals(httpResult.resolvedDescriptor().version().toString(), "1.2.2");
         Assert.assertEquals(httpResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
 
-        // If the remote repository version is lower than filesystem it should return filesystem version
+        // If the remote repository version is lower than filesystem
+        // This behavior changed with the introduction of deprecated packages
+        // filesystem version not deprecated & remote repository version not deprecate
+        //      - filesystem version is the latest :
+        //      This implies that remote repository has the same version as the filesystem but it is deprecated.
+        //      So, it returns a lower version which is not deprecated. Details in filesystem might not be up to date.
         PackageMetadataResponse covidResult =  resolutionResponseDescriptors.get(1);
-        Assert.assertEquals(covidResult.resolvedDescriptor().version().toString(), "1.5.9");
+        Assert.assertEquals(covidResult.resolvedDescriptor().version().toString(), "1.5.7");
         Assert.assertEquals(covidResult.resolutionStatus(), ResolutionResponse.ResolutionStatus.RESOLVED);
 
         // Check if dependencies are populated for two sub levels
