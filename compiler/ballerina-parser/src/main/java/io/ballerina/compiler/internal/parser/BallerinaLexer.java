@@ -1459,15 +1459,6 @@ public class BallerinaLexer extends AbstractLexer {
                 reader.advance();
                 endMode();
                 return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
-            case LexerTerminals.DOLLAR:
-                if (shouldProcessInterpolations && reader.peek(1) == LexerTerminals.OPEN_BRACE) {
-                    // Switch to interpolation mode. Then the next token will be read in that mode.
-                    startMode(ParserMode.INTERPOLATION);
-                    reader.advance(2);
-
-                    return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
-                }
-                // fall through
             case LexerTerminals.CLOSE_BRACKET:
                 if (isRegexpMode) {
                     shouldProcessInterpolations = true;
@@ -1480,6 +1471,15 @@ public class BallerinaLexer extends AbstractLexer {
                 }
                 reader.advance();
                 break;
+            case LexerTerminals.DOLLAR:
+                if (shouldProcessInterpolations && reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                    // Switch to interpolation mode. Then the next token will be read in that mode.
+                    startMode(ParserMode.INTERPOLATION);
+                    reader.advance(2);
+
+                    return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
+                }
+                // fall through
             default:
                 while (!reader.isEOF()) {
                     reader.advance();
