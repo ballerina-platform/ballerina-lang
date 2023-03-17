@@ -34,6 +34,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVE
 import static org.ballerinalang.bindgen.utils.BindgenConstants.EXCEPTION_CLASS_PREFIX;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING_ARRAY;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.QUESTION_MARK;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBalReturnType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
@@ -171,15 +172,11 @@ public class JMethod extends BFunction {
                 isStringArrayReturn = true;
             } else {
                 returnComponentType = getAlias(returnTypeClass.getComponentType(), env.getAliases());
-                if (isOptionalReturnTypes) {
-                    returnComponentType = returnComponentType + "?";
-                }
+                returnComponentType = isOptionalReturnTypes ? returnComponentType + QUESTION_MARK : returnComponentType;
 
                 returnComponentType = getExceptionName(returnTypeClass.getComponentType(), returnComponentType);
                 returnType = returnComponentType + ARRAY_BRACKETS;
-                if (isOptionalReturnTypes) {
-                    returnType = returnType + "?";
-                }
+                returnType = isOptionalReturnTypes ? returnType + QUESTION_MARK : returnType;
 
                 if (env.getModulesFlag()) {
                     returnType = getPackageAlias(returnType, returnTypeClass.getComponentType());
@@ -319,7 +316,7 @@ public class JMethod extends BFunction {
             }
         } else if (getHasException()) {
             if (isHandleException()) {
-                returnString.append(getExceptionName()).append("?");
+                returnString.append(getExceptionName()).append(QUESTION_MARK);
                 if (isReturnError()) {
                     returnString.append("|error?");
                 }

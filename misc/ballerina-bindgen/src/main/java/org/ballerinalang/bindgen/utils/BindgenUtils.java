@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.bindgen.utils.BindgenConstants.ARRAY_BRACKETS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_NILLABLE_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_NILLABLE_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
@@ -62,6 +63,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.INT_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.LONG;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.QUESTION_MARK;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.SHORT;
 
 /**
@@ -194,10 +196,10 @@ public class BindgenUtils {
             String objectType = getAlias(javaType, bindgenEnv.getAliases());
             if (javaType.isArray() && (bindgenEnv.isOptionalTypes() || bindgenEnv.isOptionalParamTypes())) {
                 // if optional parameter types generation is enabled: Foo[] -> Foo?[]?
-                return objectType.replace("[]", "?[]") + "?";
+                return objectType.replace(ARRAY_BRACKETS, QUESTION_MARK + ARRAY_BRACKETS + QUESTION_MARK);
             } else if (bindgenEnv.isOptionalTypes() || bindgenEnv.isOptionalParamTypes()) {
                 // if optional parameter types generation is enabled: Foo -> Foo?
-                return objectType + "?";
+                return objectType + QUESTION_MARK;
             } else {
                 return objectType;
             }
@@ -221,7 +223,7 @@ public class BindgenUtils {
             if (returnType.equals(HANDLE)) {
                 String objectType = getAlias(javaType, bindgenEnv.getAliases());
                 if (bindgenEnv.isOptionalTypes() || bindgenEnv.isOptionalReturnTypes()) {
-                    return objectType + "?";
+                    return objectType + QUESTION_MARK;
                 }
                 return objectType;
             }

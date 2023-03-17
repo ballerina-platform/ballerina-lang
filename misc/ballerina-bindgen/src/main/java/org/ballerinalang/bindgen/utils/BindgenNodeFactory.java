@@ -96,10 +96,12 @@ import java.util.Map;
 
 import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createToken;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.CLOSE_PAREN_TOKEN;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.ARRAY_BRACKETS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CLASS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.HANDLE;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.PARAM_TYPES;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.QUESTION_MARK;
 
 /**
  * Class for generating the Ballerina syntax tree util nodes and tokens.
@@ -838,7 +840,7 @@ class BindgenNodeFactory {
         List<StatementNode> statementNodes = new LinkedList<>();
 
         statementNodes.add(getExternalFunctionCallStatement(HANDLE, jMethod));
-        String returnType = jMethod.getReturnType().replace("?", "");
+        String returnType = jMethod.getReturnType().replace(QUESTION_MARK, "");
         statementNodes.add(createVariableDeclarationNode(createTypedBindingPatternNode(returnType, "newObj"),
                 createImplicitNewExpressionNode(Collections.singletonList("externalObj"))));
 
@@ -1030,8 +1032,8 @@ class BindgenNodeFactory {
                 createSimpleNameReferenceNode("element"));
         if (env.isOptionalTypes() || env.isOptionalReturnTypes()) {
             assignmentStatementNode = createIfElseStatementNode(
-                    createBracedExpressionNode(createSimpleNameReferenceNode(
-                            String.format("newObj is %s", elementType.replace("?", "?[]")))),
+                    createBracedExpressionNode(createSimpleNameReferenceNode(String.format("newObj is %s",
+                            elementType.replace(QUESTION_MARK, QUESTION_MARK + ARRAY_BRACKETS)))),
                     createBlockStatementNode(AbstractNodeFactory.createNodeList(assignmentStatementNode)), null);
             createAssignmentStatementNode(
                     createSimpleNameReferenceNode("newObj[i]"),

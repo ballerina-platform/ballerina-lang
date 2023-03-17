@@ -32,6 +32,7 @@ public class BindgenConstants {
     static final String DEFAULT_TEMPLATE_DIR = "templates";
     public static final String USER_DIR = "user.dir";
     public static final String ARRAY_BRACKETS = "[]";
+    public static final String QUESTION_MARK = "?";
     public static final String MODULES_DIR = "modules";
     static final String NAME = "name";
     static final String CLASS = "'class";
