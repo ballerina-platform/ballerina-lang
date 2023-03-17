@@ -30,7 +30,7 @@ public class QueryEvaluatorTest extends AbstractEvaluatorTest {
     private static final String QUERY_EXPR_EVALUATOR_TESTCASE = "testcases/evaluator/query.expr.json";
     private static final String QUERY_JOIN_EVALUATOR_TESTCASE = "testcases/evaluator/query.join.json";
 
-    private static final String QUERY_ACTION_EVALUATOR_TESTCASE = "testcases/evaluator/query.join.json";
+    private static final String QUERY_ACTION_EVALUATOR_TESTCASE = "testcases/evaluator/query.action.json";
 
     @Test
     public void testEvaluateQueryExpr() throws BallerinaShellException {
