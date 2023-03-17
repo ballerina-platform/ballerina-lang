@@ -126,7 +126,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef.BLangRecordVarRefKeyValue;
