@@ -121,7 +121,7 @@ public class TreeBuilder {
         }
         return new RegExpAtomQuantifier(reAtom, quantifier);
     }
-
+    
     private RegExpAssertion readRegAssertion() {
         return new RegExpAssertion(consume().value);
     }
@@ -149,7 +149,7 @@ public class TreeBuilder {
                 return consumedToken.value;
         }
     }
-
+    
     private String readRegUnicodePropertyEscape(String backSlash) {
         Token consumedPropertyToken = consume();
         String property = consumedPropertyToken.value;
@@ -158,7 +158,7 @@ public class TreeBuilder {
         String closeBrace = readCloseBrace();
         return backSlash + property + openBrace + unicodeProperty + closeBrace;
     }
-
+    
     private String readOpenBrace() {
         Token consumedToken = consume();
         return consumedToken.value;
@@ -206,7 +206,7 @@ public class TreeBuilder {
         Token simpleCharClassCode = consume();
         return backSlash + simpleCharClassCode.value;
     }
-
+    
     private RegExpCharacterClass readRegCharacterClass() {
         String characterClassStart = consume().value;
         // Read ^ char.
@@ -255,7 +255,7 @@ public class TreeBuilder {
         RegExpCharSet reCharSetNoDash = readCharSetNoDash(nextToken);
         return new RegExpCharSet(new Object[]{startReCharSetAtom, reCharSetNoDash});
     }
-
+    
     private RegExpCharSet readCharSetNoDash(Token nextToken) {
         String startReCharSetAtomNoDash = readCharSetAtom(nextToken);
         nextToken = peek();
@@ -329,7 +329,7 @@ public class TreeBuilder {
         }
         return digits.toString();
     }
-
+    
     private String readCloseBrace() {
         Token nextToken = peek();
         if (nextToken.kind == TokenKind.CLOSE_BRACE_TOKEN) {
@@ -338,7 +338,7 @@ public class TreeBuilder {
         }
         throw new BallerinaException("Missing '}' character");
     }
-
+    
     private String readNonGreedyChar() {
         Token nextToken = peek();
         if (nextToken.kind == TokenKind.QUESTION_MARK_TOKEN) {
@@ -348,7 +348,7 @@ public class TreeBuilder {
         // Return empty string if there is no non greedy char.
         return "";
     }
-
+    
     private RegExpCapturingGroup readRegCapturingGroups() {
         String openParenthesis = consume().value;
         Token nextToken = peek();
@@ -411,7 +411,7 @@ public class TreeBuilder {
         }
         throw new BallerinaException("Missing ')' character");
     }
-
+    
     private boolean isEndOfReDisjunction(TokenKind kind) {
         switch (kind) {
             case EOF_TOKEN:

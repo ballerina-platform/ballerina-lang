@@ -143,6 +143,11 @@ public function testNegativeInvalidFlags3() returns error? {
     check assertEqualMessage(result, "Failed to parse regular expression: invalid flag in regular expression");
 }
 
+public function testNegativeInvalidFlags4() returns error? {
+    anydata|error result = regexp:fromString("(?ii-mk:ABC))");
+    check assertEqualMessage(result, "Failed to parse regular expression: invalid flag in regular expression");
+}
+
 function assertEqualMessage(anydata|error actual, anydata|error expected) returns error? {
     anydata expectedValue = (expected is error)? check (<error> expected).detail().get("message").ensureType() : expected;
     anydata actualValue = (actual is error)? check (<error> actual).detail().get("message").ensureType() : actual;

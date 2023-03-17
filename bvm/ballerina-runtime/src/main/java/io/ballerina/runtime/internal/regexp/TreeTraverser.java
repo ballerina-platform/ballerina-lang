@@ -27,12 +27,11 @@ import java.util.ArrayDeque;
  * @since 2201.3.0
  */
 public class TreeTraverser {
-
     private CharReader reader;
     private ParserMode mode;
     private ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
     private final String errorMsgStart = "Invalid character '";
-
+    
     public TreeTraverser(CharReader charReader) {
         this.reader = charReader;
         this.mode = ParserMode.RE_DISJUNCTION;
@@ -562,8 +561,8 @@ public class TreeTraverser {
      * <p>
      * <code>
      * ReCharSetAtom :=
-     * ReCharSetAtomNoDash
-     * | "-"
+     *   ReCharSetAtomNoDash
+     *   | "-"
      * </code>
      */
     private boolean processReCharSetAtom() {
@@ -580,9 +579,9 @@ public class TreeTraverser {
      * <p>
      * <code>
      * ReCharSetAtomNoDash :=
-     * ReCharSetLiteralChar
-     * | ReEscape
-     * | "\-"
+     *   ReCharSetLiteralChar
+     *   | ReEscape
+     *   | "\-"
      * </code>
      */
     private boolean processReCharSetAtomNoDash(int nextToken) {
@@ -608,10 +607,10 @@ public class TreeTraverser {
      * <code>
      * ReQuantifier := ReBaseQuantifier ["?"]
      * ReBaseQuantifier :=
-     * "*"
-     * | "+"
-     * | "?"
-     * | "{" Digit+ ["," Digit*] "}"
+     *    "*"
+     *   | "+"
+     *   | "?"
+     *   | "{" Digit+ ["," Digit*] "}"
      * </code>
      */
     private Token readTokenInQuantifier() {
@@ -747,11 +746,11 @@ public class TreeTraverser {
      * <p>
      * <code>
      * ReEscape :=
-     * NumericEscape
-     * | ControlEscape
-     * | ReQuoteEscape
-     * | ReUnicodePropEscape
-     * | ReSimpleCharClassEscape
+     *    NumericEscape
+     *    | ControlEscape
+     *    | ReQuoteEscape
+     *    | ReUnicodePropEscape
+     *    | ReSimpleCharClassEscape
      * </code>
      */
     private boolean processOnlyNumericEscapeOrControlEscape() {
@@ -802,7 +801,7 @@ public class TreeTraverser {
         while (isHexDigit(this.reader.peek())) {
             reader.advance();
         }
-
+        
         if (this.reader.peek() != Terminals.CLOSE_BRACE) {
             throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
         }
@@ -821,7 +820,7 @@ public class TreeTraverser {
     private Token getRegExpText(TokenKind kind) {
         return new Token(kind, getMarkedChars());
     }
-
+    
     /**
      * Returns the next character from the reader, without consuming the stream.
      *
@@ -865,8 +864,8 @@ public class TreeTraverser {
      * <p>
      * <code>
      * ReSyntaxChar :=
-     * "^" | "$" | "\" | "." | "*" | "+" | "?"
-     * | "(" | ")" | "[" | "]" | "{" | "}" | "|"
+     *   "^" | "$" | "\" | "." | "*" | "+" | "?"
+     *   | "(" | ")" | "[" | "]" | "{" | "}" | "|"
      * </code>
      *
      * @param c character to check
@@ -944,10 +943,10 @@ public class TreeTraverser {
      * <p>
      * <code>
      * ReFlag :=
-     * ReMultilineFlag
-     * | ReDotAllFlag
-     * | ReIgnoreCaseFlag
-     * | ReCommentFlag
+     *   ReMultilineFlag
+     *   | ReDotAllFlag
+     *   | ReIgnoreCaseFlag
+     *   | ReCommentFlag
      * </code>
      *
      * @param c character to check
