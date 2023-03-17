@@ -1467,6 +1467,7 @@ public class BallerinaLexer extends AbstractLexer {
 
                     return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
                 }
+                // fall through
             case LexerTerminals.CLOSE_BRACKET:
                 if (isRegexpMode) {
                     shouldProcessInterpolations = true;
