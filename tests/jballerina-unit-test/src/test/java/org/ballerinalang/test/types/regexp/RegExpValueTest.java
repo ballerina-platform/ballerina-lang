@@ -97,14 +97,13 @@ public class RegExpValueTest {
         validateError(negativeResult, index++, "duplicate flag 'x'", 28, 67);
         validateError(negativeResult, index++, START_CHAR_CODE_GREATER_THAN_END_CHAR_CODE, 28, 75);
         validateError(negativeResult, index++, "invalid char after backslash", 29, 30);
-        validateError(negativeResult, index++, "invalid escape sequence '\\P'", 30, 55);
         validateError(negativeResult, index++, "incompatible types: expected 'boolean', found " +
-                "'regexp:RegExp'", 31, 9);
-        validateError(negativeResult, index++, "missing backtick token", 33, 1);
-        validateError(negativeResult, index++, "missing close brace token", 33, 1);
-        validateError(negativeResult, index++, "missing colon token", 33, 1);
-        validateError(negativeResult, index++, "missing expression", 33, 1);
-        validateError(negativeResult, index++, "missing semicolon token", 33, 1);
+                "'regexp:RegExp'", 30, 9);
+        validateError(negativeResult, index++, "missing backtick token", 32, 1);
+        validateError(negativeResult, index++, "missing close brace token", 32, 1);
+        validateError(negativeResult, index++, "missing colon token", 32, 1);
+        validateError(negativeResult, index++, "missing expression", 32, 1);
+        validateError(negativeResult, index++, "missing semicolon token", 32, 1);
         assertEquals(negativeResult.getErrorCount(), index);
     }
 
