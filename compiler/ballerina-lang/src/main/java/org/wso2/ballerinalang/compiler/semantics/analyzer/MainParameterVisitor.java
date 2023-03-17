@@ -81,17 +81,16 @@ public class MainParameterVisitor {
 
     public boolean isOperandType(BType type) {
         switch (type.tag) {
-            case TypeTags.INT:
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
-            case TypeTags.STRING:
+            case TypeTags.BYTE:
                 return true;
             case TypeTags.BOOLEAN:
                 return option;
             case TypeTags.TYPEREFDESC:
                 return isOperandType(((BTypeReferenceType) type).referredType);
             default:
-                return false;
+                return TypeTags.isIntegerTypeTag(type.tag) || TypeTags.isStringTypeTag(type.tag);
         }
     }
 }

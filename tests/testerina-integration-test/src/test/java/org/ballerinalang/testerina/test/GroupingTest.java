@@ -42,7 +42,6 @@ public class GroupingTest extends BaseTestCase {
 
     @Test
     public void testSingleGroupExecution() throws BallerinaTestException, IOException {
-        String msg = "3 passing";
         String[] args = mergeCoverageArgs(new String[]{"--groups", "g1", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -51,7 +50,6 @@ public class GroupingTest extends BaseTestCase {
 
     @Test
     public void testMultipleGroupExecution() throws BallerinaTestException, IOException {
-        String msg = "3 passing";
         String[] args = mergeCoverageArgs(new String[]{"--groups", "g2,g4", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -60,8 +58,6 @@ public class GroupingTest extends BaseTestCase {
 
     @Test
     public void testSingleGroupExclusion() throws BallerinaTestException, IOException {
-        String msg1 = "4 passing";
-        String msg2 = "1 failing";
         String[] args = mergeCoverageArgs(new String[]{"--disable-groups", "g5", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -70,7 +66,6 @@ public class GroupingTest extends BaseTestCase {
 
     @Test
     public void testMultipleGroupExclusion() throws BallerinaTestException, IOException {
-        String msg = "1 passing";
         String[] args = mergeCoverageArgs(new String[]{"--disable-groups", "g1,g5,g6", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -79,7 +74,6 @@ public class GroupingTest extends BaseTestCase {
 
     @Test
     public void testNonExistingGroupInclusion() throws BallerinaTestException, IOException {
-        String msg = "No tests found";
         String[] args = mergeCoverageArgs(new String[]{"--groups", "g10", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -88,8 +82,6 @@ public class GroupingTest extends BaseTestCase {
 
     @Test
     public void testNonExistingGroupExclusion() throws BallerinaTestException, IOException {
-        String msg1 = "4 passing";
-        String msg2 = "2 failing";
         String[] args = mergeCoverageArgs(new String[]{"--disable-groups", "g10", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -98,7 +90,6 @@ public class GroupingTest extends BaseTestCase {
 
     @Test
     public void testListingOfSingleTestGroups() throws BallerinaTestException, IOException {
-        String msg = "[g1, g2, g3, g4, g5, g6]";
         String[] args = mergeCoverageArgs(new String[]{"--list-groups", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -107,7 +98,6 @@ public class GroupingTest extends BaseTestCase {
 
     @Test
     public void testListingOfTestGroups() throws BallerinaTestException, IOException {
-        String msg = "[g1, g2, g3, g4, g5, g6]";
         String[] args = {"--list-groups"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(),
@@ -118,7 +108,6 @@ public class GroupingTest extends BaseTestCase {
 
     @Test
     public void testListGroupsWithOtherFlags() throws BallerinaTestException, IOException {
-        String msg = "Warning: Other flags are skipped when list-groups flag is provided.";
         String[] args = mergeCoverageArgs(new String[]{"--groups", "g1", "--list-groups", "groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -177,9 +166,6 @@ public class GroupingTest extends BaseTestCase {
 
     @Test
     public void testWhenAfterGroupsFails() throws BallerinaTestException, IOException {
-        String msg1 = "5 passing";
-        String msg2 = "0 failing";
-        String msg3 = "0 skipped";
         String[] args = mergeCoverageArgs(new String[]{"failed-after-groups-test.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);

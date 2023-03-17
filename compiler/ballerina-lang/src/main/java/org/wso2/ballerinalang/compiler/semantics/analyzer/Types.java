@@ -6441,19 +6441,10 @@ public class Types {
                 ((TypeTags.isStringTypeTag(firstTypeTag)) && (TypeTags.isStringTypeTag(secondTypeTag)));
     }
 
-    public boolean isUnionOfSimpleBasicTypes(BType bType) {
-        BType type = getReferredType(bType);
-        if (type.tag == TypeTags.UNION) {
-            Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
-            for (BType memType : memberTypes) {
-                memType = getReferredType(memType);
-                if (!isSimpleBasicType(memType.tag)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return isSimpleBasicType(type.tag);
+    public boolean isSubTypeOfSimpleBasicTypeOrString(BType bType) {
+        return isAssignable(getReferredType(bType),
+                            BUnionType.create(null, symTable.nilType, symTable.booleanType, symTable.intType,
+                                              symTable.floatType, symTable.decimalType, symTable.stringType));
     }
 
     public BType findCompatibleType(BType type) {
