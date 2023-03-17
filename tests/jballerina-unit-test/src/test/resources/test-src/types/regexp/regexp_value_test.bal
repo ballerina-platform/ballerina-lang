@@ -246,6 +246,9 @@ function testRegExpValueWithCapturingGroups5() {
 
     string:RegExp x16= re `(\d*)\d(\d+)`;
     assertEquality("(\\d*)\\d(\\d+)", x16.toString());
+
+    string:RegExp x17 = re `()`;
+    assertEquality("()", x17.toString());
 }
 
 function testComplexRegExpValue() {

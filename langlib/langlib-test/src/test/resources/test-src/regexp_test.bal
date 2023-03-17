@@ -1248,9 +1248,6 @@ function testEmptyRegexpMatch() {
     assertTrue(resA1 is ());
     regexp:Span? resA2 = regexp:matchAt(re = re `${regexStrA}`, str = "HelloWorld", startIndex = 4);
     assertTrue(resA2 is ());
-
-    _ = re `()`;
-    _ = re `(?xsmi:()\P{sc=Braille})`;
 }
 
 public function testRegexpFromString() returns error? {
