@@ -74,6 +74,11 @@ public abstract class FindAllReferencesTest {
             return;
         }
 
+        // References for nodes with empty symbols shall not be retrieved through .references(symbol) API.
+        if (expLocations.size() == 1 && expLocations.get(0).equals(def) && symbol.isEmpty()) {
+            return;
+        }
+
         List<Location> locations = model.references(symbol.get());
         assertLocations(locations, expLocations);
     }
@@ -93,6 +98,11 @@ public abstract class FindAllReferencesTest {
 
         if (expLocations.isEmpty()) {
             assertTrue(symbol.isEmpty());
+            return;
+        }
+
+        // References for nodes with empty symbols shall not be retrieved through .references(symbol) API.
+        if (expLocations.size() == 1 && expLocations.get(0).equals(def) && symbol.isEmpty()) {
             return;
         }
 
