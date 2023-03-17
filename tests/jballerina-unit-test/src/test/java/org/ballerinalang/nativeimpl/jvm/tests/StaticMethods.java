@@ -780,4 +780,12 @@ public class StaticMethods {
     public static BString getResource(Environment env, BObject client, BArray path, BString str, BArray arr) {
         return str;
     }
+
+    public static BString getResourceOne(Environment env, BObject client, BArray path, BTypedesc recordType) {
+        return StringUtils.fromString("getResourceOne");
+    }
+
+    public static BString getResourceTwo(Environment env, BObject client, BTypedesc recordType) {
+        return StringUtils.fromString("getResourceTwo");
+    }
 }

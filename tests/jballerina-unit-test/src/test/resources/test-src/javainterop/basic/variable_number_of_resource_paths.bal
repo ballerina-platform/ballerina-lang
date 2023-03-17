@@ -17,52 +17,65 @@
 import ballerina/jballerina.java;
 import ballerina/test;
 
+type OrderItemTargetType typedesc<int|string>;
+
 public client isolated class Client {
 
     public isolated function init() {
 
     }
 
-    isolated resource function get abc/[string ...path] () returns int = @java:Method {
+    isolated resource function get abc/[string ...path]() returns int = @java:Method {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
         name: "getResource",
         paramTypes: ["io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray"]
     } external;
 
-    isolated resource function get abc/[int id]/[float v]/[string path]/[string ...paths] () returns int = @java:Method {
+    isolated resource function get abc/[int id]/[float v]/[string path]/[string ...paths]() returns int = @java:Method {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
         name: "getResource",
         paramTypes: ["io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray"]
     } external;
 
-    isolated resource function get def/[string path]/[int path1]/[string path2]/[int ...path3] () returns int = @java:Method {
+    isolated resource function get def/[string path]/[int path1]/[string path2]/[int ...path3]() returns int = @java:Method {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
         name: "getResource",
         paramTypes: ["io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray"]
     } external;
 
-    isolated resource function get abc/[int id]/[string path] (float f, string s) returns int = @java:Method {
+    isolated resource function get abc/[int id]/[string path](float f, string s) returns int = @java:Method {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
         name: "getResource",
         paramTypes: ["io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "double", "io.ballerina.runtime.api.values.BString"]
     } external;
 
-    isolated resource function get abc/[int id]/[string path]/[string p2] (string a, float f, string s) returns int = @java:Method {
+    isolated resource function get abc/[int id]/[string path]/[string p2](string a, float f, string s) returns int = @java:Method {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
         name: "getResource",
         paramTypes: ["io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BString", "double", "io.ballerina.runtime.api.values.BString"]
     } external;
 
-    isolated resource function get def/[int id]/[string path]/[string p2] (string s) returns string = @java:Method {
+    isolated resource function get def/[int id]/[string path]/[string p2](string s) returns string = @java:Method {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
         name: "getResource",
         paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BString"]
     } external;
 
-    isolated resource function get ghi/[int id]/[string p1]/[string p2]/[int ...ids] (string s) returns string = @java:Method {
+    isolated resource function get ghi/[int id]/[string p1]/[string p2]/[int ...ids](string s) returns string = @java:Method {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
         name: "getResource",
         paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "io.ballerina.runtime.api.values.BString"]
+    } external;
+
+    isolated resource function get orderitem/[string orderId]/[string itemId](OrderItemTargetType targetType = <>) returns string = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name: "getResourceOne"
+    } external;
+
+
+    isolated resource function get orderitem(OrderItemTargetType targetType = <>) returns string = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods",
+        name: "getResourceTwo"
     } external;
 }
 
@@ -88,4 +101,10 @@ public function testResourceFuncWithMultiplePathParams() {
 
     res = cl->/ghi/[1]/["aaa"]/["bbb"]/[4]/[5]/[6]/[7]/[8]/[9]("xyz");
     test:assertEquals(res, "xyz");
+
+    res = cl->/orderitem/["1234"]/["abcd"].get();
+    test:assertEquals(res, "getResourceOne");
+
+    res = cl->/orderitem.get();
+    test:assertEquals(res, "getResourceTwo");
 }
