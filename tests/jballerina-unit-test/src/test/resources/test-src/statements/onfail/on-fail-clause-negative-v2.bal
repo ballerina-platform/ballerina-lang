@@ -1089,6 +1089,33 @@ function testUnInitVars62() {
     _ = j; //no compilation error
 }
 
+public function testUnInitVars63() returns error? {
+    int i;
+    do {
+        error? e = getError();
+        if e is error {
+            fail e;
+        }
+        i = 1;
+    } on fail {
+    }
+    _ = i; //error: variable 'i' may not have been initialized
+}
+
+public function testUnInitVars64() returns error? {
+    int i;
+    do {
+        error? e = getError();
+        if e is error {
+            fail e;
+        }
+        i = 1;
+    } on fail {
+        i = -1;
+    }
+    _ = i; //error: variable 'i' may not have been initialized
+}
+
 function getErrorOrIntArr() returns int[]|error {
     return getError();
 }
