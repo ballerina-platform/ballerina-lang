@@ -75,12 +75,12 @@ public class Settings {
     private String convertDiagnosticToString(Diagnostic diagnostic) {
         LineRange lineRange = diagnostic.location().lineRange();
 
-        LineRange oneBasedLineRange = LineRange.from(lineRange.filePath(), LinePosition
+        LineRange oneBasedLineRange = LineRange.from(lineRange.fileName(), LinePosition
                 .from(lineRange.startLine().line(), lineRange.startLine().offset() + 1), LinePosition
                                                              .from(lineRange.endLine().line(),
                                                                    lineRange.endLine().offset() + 1));
 
-        return diagnostic.diagnosticInfo().severity().toString() + " [" + oneBasedLineRange.filePath() + ":"
+        return diagnostic.diagnosticInfo().severity().toString() + " [" + oneBasedLineRange.fileName() + ":"
                 + oneBasedLineRange + "] " + diagnostic.message();
     }
 }

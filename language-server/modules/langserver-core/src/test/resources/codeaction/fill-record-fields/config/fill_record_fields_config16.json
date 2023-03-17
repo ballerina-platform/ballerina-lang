@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 25,
+    "character": 27
+  },
+  "source": "fill_record_fields_source13.bal",
+  "expected": [
+    {
+      "title": "Fill 'FinalRecordType' required fields",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 25,
+              "character": 27
+            },
+            "end": {
+              "line": 25,
+              "character": 27
+            }
+          },
+          "newText": "pattern1: re ``, pattern2: re ``, name: \"\", tbl: table []"
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

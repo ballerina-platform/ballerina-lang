@@ -43,7 +43,9 @@ import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TYPEREF_TYPE_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_TYPEREF_TYPE_POPULATE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_CONSTANTS_PER_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE_REF_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
 
@@ -68,7 +70,7 @@ public class JvmRefTypeConstantsGen {
                 JvmConstants.TYPEREF_TYPE_CONSTANT_CLASS_NAME);
         cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         generateConstantsClassInit(cw, typeRefVarConstantsClass);
-        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_TYPEREF_TYPE_INIT_METHOD, "()V", null, null);
+        mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_TYPEREF_TYPE_INIT_METHOD, VOID_METHOD_DESC, null, null);
         typeRefVarMap = new TreeMap<>(bTypeHashComparator);
     }
 
@@ -89,9 +91,9 @@ public class JvmRefTypeConstantsGen {
         String varName = JvmCodeGenUtil.getRefTypeConstantName(type);
         if (typeDefCount % MAX_CONSTANTS_PER_METHOD == 0 && typeDefCount != 0) {
             mv.visitMethodInsn(INVOKESTATIC, typeRefVarConstantsClass,
-                    B_TYPEREF_TYPE_INIT_METHOD + methodCount, "()V", false);
+                    B_TYPEREF_TYPE_INIT_METHOD + methodCount, VOID_METHOD_DESC, false);
             genMethodReturn(mv);
-            mv = cw.visitMethod(ACC_STATIC, B_TYPEREF_TYPE_INIT_METHOD + methodCount++, "()V",
+            mv = cw.visitMethod(ACC_STATIC, B_TYPEREF_TYPE_INIT_METHOD + methodCount++, VOID_METHOD_DESC,
                     null, null);
         }
         visitTypeRefField(varName);
@@ -105,25 +107,25 @@ public class JvmRefTypeConstantsGen {
         int populateFuncCount = 0;
         int populateInitMethodCount = 1;
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, B_TYPEREF_TYPE_POPULATE_METHOD,
-                "()V", null, null);
+                VOID_METHOD_DESC, null, null);
         for (String funcName : funcNames) {
             if (populateFuncCount % MAX_CONSTANTS_PER_METHOD == 0 && populateFuncCount != 0) {
                 mv.visitMethodInsn(INVOKESTATIC, typeRefVarConstantsClass,
-                        B_TYPEREF_TYPE_POPULATE_METHOD + populateInitMethodCount, "()V", false);
+                        B_TYPEREF_TYPE_POPULATE_METHOD + populateInitMethodCount, VOID_METHOD_DESC, false);
                 genMethodReturn(mv);
                 mv = cw.visitMethod(ACC_STATIC, B_TYPEREF_TYPE_POPULATE_METHOD + populateInitMethodCount++,
-                        "()V", null, null);
+                        VOID_METHOD_DESC, null, null);
             }
-            mv.visitMethodInsn(INVOKESTATIC, typeRefVarConstantsClass, funcName, "()V", false);
+            mv.visitMethodInsn(INVOKESTATIC, typeRefVarConstantsClass, funcName, VOID_METHOD_DESC, false);
             populateFuncCount++;
         }
         genMethodReturn(mv);
     }
 
     private void genPopulateMethod(BTypeReferenceType referenceType, String varName) {
-        String methodName = "$populate" + varName;
+        String methodName = POPULATE_METHOD_PREFIX + varName;
         funcNames.add(methodName);
-        MethodVisitor methodVisitor = cw.visitMethod(ACC_STATIC, methodName, "()V", null, null);
+        MethodVisitor methodVisitor = cw.visitMethod(ACC_STATIC, methodName, VOID_METHOD_DESC, null, null);
         methodVisitor.visitCode();
         generateGetBTypeRefType(methodVisitor, varName);
         jvmRefTypeGen.populateTypeRef(methodVisitor, referenceType);

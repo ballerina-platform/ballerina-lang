@@ -48,6 +48,10 @@ public class PackageResolutionResponse {
         private String version;
         private List<Dependency> dependencyGraph;
 
+        private Boolean isDeprecated;
+
+        private String deprecateMessage;
+
         public Package(String orgName, String name, String version, List<Dependency> dependencies) {
             this.org = orgName;
             this.name = name;
@@ -85,6 +89,22 @@ public class PackageResolutionResponse {
 
         public void setDependencies(List<Dependency> dependencies) {
             this.dependencyGraph = dependencies;
+        }
+
+        public Boolean getDeprecated() {
+            return isDeprecated;
+        }
+
+        public void setDeprecated(Boolean deprecated) {
+            isDeprecated = deprecated;
+        }
+
+        public String getDeprecateMessage() {
+            return deprecateMessage;
+        }
+
+        public void setDeprecateMessage(String deprecateMessage) {
+            this.deprecateMessage = deprecateMessage;
         }
     }
 

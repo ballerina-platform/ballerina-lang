@@ -43,6 +43,25 @@
           "newText": "xml `123`"
         }
       ]
+    },
+    {
+      "title": "Convert to 're' template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 19,
+              "character": 12
+            },
+            "end": {
+              "line": 19,
+              "character": 17
+            }
+          },
+          "newText": "re `123`"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,37 @@
+warning: ignoring --coverage-format flag since code coverage is not enabled
+Compiling source
+	testerina_report/foo:0.0.0
+WARNING [main.bal:(36:5,36:19)] unused variable 'b'
+
+Running Tests
+
+	foo
+		[pass] testFunc
+
+		[fail] testMain:
+
+		    Failed!
+			
+
+
+		1 passing
+		1 failing
+		1 skipped
+
+	foo.bar.tests
+		[pass] testBarAdd
+
+
+		1 passing
+		0 failing
+		0 skipped
+
+	foo.math
+		[pass] testFunction1
+		[pass] testFunction2
+
+
+		2 passing
+		0 failing
+		0 skipped
+error: there are test failures
