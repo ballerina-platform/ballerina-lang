@@ -411,7 +411,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     private void desugarFieldAnnotations(BSymbol owner, BTypeSymbol typeSymbol, List<BLangSimpleVariable> fields,
                                          Location pos) {
-        if (owner.getKind() == SymbolKind.PACKAGE || typeSymbol.name == Names.EMPTY) {
+        if (owner.getKind() == SymbolKind.PACKAGE && typeSymbol.name != Names.EMPTY) {
             return;
         }
         owner = getOwner(env);
