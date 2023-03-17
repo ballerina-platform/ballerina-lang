@@ -6859,7 +6859,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         if (incRecordAllowAdditionalFields && !namedArgForIncRecordParam) {
                             iExpr.requiredArgs.add(expr);
                         } else {
-                            checkTypeParamExpr(expr, new BNoType(TypeTags.NONE), iExpr.langLibInvocation, data);dlog.error(expr.pos, DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
+                            checkTypeParamExpr(expr, new BNoType(TypeTags.NONE), iExpr.langLibInvocation, data);
+                            dlog.error(expr.pos, DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
                         }
                     }
                     i++;
