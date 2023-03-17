@@ -1,8 +1,4 @@
 import ballerina/test;
 
-@test:Mock {
-    functionName: "createJdbcClient"
-}
-function getMockClient() returns string {
-    return "client";
-}
+@test:Mock { functionName: "intAdd" }
+test:MockFunction intAddMockFn = new();

@@ -131,12 +131,20 @@ public class CliSpec {
     private static Object getDefaultBValue(Type type) {
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
             case TypeTags.BYTE_TAG:
                 return 0;
             case TypeTags.BOOLEAN_TAG:
                 return false;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return getDefaultBValue(TypeUtils.getReferredType(type));
             default:
                 return null;
         }
