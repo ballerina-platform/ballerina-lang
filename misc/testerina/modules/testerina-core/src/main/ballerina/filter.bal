@@ -27,8 +27,8 @@ boolean terminate = false;
 boolean listGroups = false;
 
 public function setTestOptions(string inTargetPath, string inPackageName, string inModuleName, string inReport,
-    string inCoverage, string inGroups, string inDisableGroups, string inTests, string inRerunFailed,
-    string inListGroups) {
+        string inCoverage, string inGroups, string inDisableGroups, string inTests, string inRerunFailed,
+        string inListGroups) {
     targetPath = inTargetPath;
     packageName = inPackageName;
     moduleName = inModuleName;
@@ -42,7 +42,8 @@ public function setTestOptions(string inTargetPath, string inPackageName, string
     if rerunFailed {
         error? err = parseRerunJson();
         if err is error {
-            println("Unable to read the 'rerun_test.json': " + err.message());
+            println("error: " + err.message());
+            exitCode = 1;
             return;
         }
         hasFilteredTests = true;
@@ -96,19 +97,36 @@ function parseBooleanInput(string input, string variableName) returns boolean {
 }
 
 function parseRerunJson() returns error? {
-    map<ModuleRerunJson> rerunJson = check readRerunJson();
+    string rerunJsonFilePath = targetPath + "/" + RERUN_JSON_FILE;
 
-    ModuleRerunJson? moduleRerunJson = rerunJson[moduleName];
-    if moduleRerunJson is ModuleRerunJson {
-        filterTests = moduleRerunJson.testNames;
-        filterTestModules = moduleRerunJson.testModuleNames;
-        filterSubTests = moduleRerunJson.subTestNames;
+    // if there are no previous `bal test`` runs
+    if !fileExists(rerunJsonFilePath) {
+        return error("error while running failed tests : No previous test executions found.");
     }
+
+    map<ModuleRerunJson>|error rerunJson = readRerunJson();
+    if rerunJson is error {
+        // error could be due to,
+        //      1. rerun_test.json cannot be read
+        //      2. The json cannot be converted into a ModuleRerunJson
+        // but they are abstracted from the user
+        return error("error while running failed tests : Invalid failed test data. Please run `bal test` command.");
+    }
+    ModuleRerunJson? moduleRerunJson = rerunJson[moduleName];
+    if moduleRerunJson is () {
+        return error("error while running failed tests : Invalid failed test data. Please run `bal test` command.");
+    }
+    filterTests = moduleRerunJson.testNames;
+    filterTestModules = moduleRerunJson.testModuleNames;
+    filterSubTests = moduleRerunJson.subTestNames;
 }
 
 function readRerunJson() returns map<ModuleRerunJson>|error {
     string|error content = trap readContent(targetPath + "/" + RERUN_JSON_FILE);
-    return content is string ? content.fromJsonStringWithType() : content;
+    if content is error {
+        return content;
+    }
+    return content.fromJsonStringWithType();
 }
 
 function containsModulePrefix(string packageName, string moduleName, string testName) returns boolean {

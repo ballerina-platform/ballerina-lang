@@ -184,6 +184,11 @@ public class RecordVariableReferenceTest {
     }
 
     @Test
+    public void testMappingBindingWithSingleNameFieldBinding() {
+        BRunUtil.invoke(result, "testMappingBindingWithSingleNameFieldBinding");
+    }
+
+    @Test
     public void testRecordVariablesSemanticsNegative() {
         resultSemanticsNegative = BCompileUtil.compile(
                 "test-src/expressions/varref/record-variable-reference-semantics-negative.bal");

@@ -1,0 +1,136 @@
+{
+  "position": {
+    "line": 3,
+    "character": 34
+  },
+  "source": "extract_to_function_exprs_with_quickpick.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "command": {
+        "title": "Extract to function",
+        "command": "ballerina.action.extract",
+        "arguments": [
+          "Extract to function",
+          "extract_to_function_exprs_with_quickpick.bal",
+          {
+            "60": [
+              {
+                "range": {
+                  "start": {
+                    "line": 6,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 6,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction extracted() returns int {\n    return 60;\n}"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 32
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 34
+                  }
+                },
+                "newText": "extracted()"
+              }
+            ],
+            "60 * two": [
+              {
+                "range": {
+                  "start": {
+                    "line": 6,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 6,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction extracted(int two) returns int {\n    return 60 * two;\n}"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 32
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 40
+                  }
+                },
+                "newText": "extracted(two)"
+              }
+            ],
+            "40 + 50 + 60 * two": [
+              {
+                "range": {
+                  "start": {
+                    "line": 6,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 6,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction extracted(int two) returns int {\n    return 40 + 50 + 60 * two;\n}"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 22
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 40
+                  }
+                },
+                "newText": "extracted(two)"
+              }
+            ],
+            "intLiteral == 40 + 50 + 60 * two": [
+              {
+                "range": {
+                  "start": {
+                    "line": 6,
+                    "character": 1
+                  },
+                  "end": {
+                    "line": 6,
+                    "character": 1
+                  }
+                },
+                "newText": "\n\nfunction extracted(int intLiteral, int two) returns boolean {\n    return intLiteral == 40 + 50 + 60 * two;\n}"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 8
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 40
+                  }
+                },
+                "newText": "extracted(intLiteral, two)"
+              }
+            ]
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}
