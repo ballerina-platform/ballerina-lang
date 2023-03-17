@@ -2567,52 +2567,55 @@ public class TypeChecker {
 
     private static boolean checkIsLikeJSONType(Object sourceValue, Type sourceType, BJsonType targetType,
                                                List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            ArrayValue source = (ArrayValue) sourceValue;
-            Type elementType = ((BArrayType) source.getType()).getElementType();
-            if (isValueType(elementType)) {
-                return checkIsType(elementType, targetType, new ArrayList<>());
-            }
+        Type referredSourceType = TypeUtils.getReferredType(sourceType);
+        switch (referredSourceType.getTag()) {
+            case TypeTags.ARRAY_TAG:
+                ArrayValue source = (ArrayValue) sourceValue;
+                Type elementType = ((BArrayType) referredSourceType).getElementType();
+                if (isValueType(elementType)) {
+                    return checkIsType(elementType, targetType, new ArrayList<>());
+                }
 
-            Object[] arrayValues = source.getValues();
-            for (int i = 0; i < ((ArrayValue) sourceValue).size(); i++) {
-                if (!checkIsLikeType(null, arrayValues[i], targetType, unresolvedValues,
-                        allowNumericConversion, null)) {
-                    return false;
+                Object[] arrayValues = source.getValues();
+                for (int i = 0; i < source.size(); i++) {
+                    if (!checkIsLikeType(null, arrayValues[i], targetType, unresolvedValues,
+                            allowNumericConversion, null)) {
+                        return false;
+                    }
                 }
-            }
-            return true;
-        } else if (sourceType.getTag() == TypeTags.MAP_TAG) {
-            for (Object value : ((MapValueImpl) sourceValue).values()) {
-                if (!checkIsLikeType(null, value, targetType, unresolvedValues, allowNumericConversion,
-                        null)) {
-                    return false;
-                }
-            }
-            return true;
-        } else if (sourceType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
-            if (unresolvedValues.contains(typeValuePair)) {
                 return true;
-            }
-            unresolvedValues.add(typeValuePair);
-            for (Object object : ((MapValueImpl) sourceValue).values()) {
-                if (!checkIsLikeType(null, object, targetType, unresolvedValues, allowNumericConversion,
-                        null)) {
-                    return false;
+            case TypeTags.TUPLE_TAG:
+                for (Object obj : ((TupleValueImpl) sourceValue).getValues()) {
+                    if (!checkIsLikeType(null, obj, targetType, unresolvedValues, allowNumericConversion,
+                            null)) {
+                        return false;
+                    }
                 }
-            }
-            return true;
-        } else if (sourceType.getTag() == TypeTags.TUPLE_TAG) {
-            for (Object obj : ((TupleValueImpl) sourceValue).getValues()) {
-                if (!checkIsLikeType(null, obj, targetType, unresolvedValues, allowNumericConversion,
-                        null)) {
-                    return false;
+                return true;
+            case TypeTags.MAP_TAG:
+                for (Object value : ((MapValueImpl) sourceValue).values()) {
+                    if (!checkIsLikeType(null, value, targetType, unresolvedValues, allowNumericConversion,
+                            null)) {
+                        return false;
+                    }
                 }
-            }
-            return true;
+                return true;
+            case TypeTags.RECORD_TYPE_TAG:
+                TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
+                if (unresolvedValues.contains(typeValuePair)) {
+                    return true;
+                }
+                unresolvedValues.add(typeValuePair);
+                for (Object object : ((MapValueImpl) sourceValue).values()) {
+                    if (!checkIsLikeType(null, object, targetType, unresolvedValues, allowNumericConversion,
+                            null)) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return false;
         }
-        return false;
     }
 
     private static boolean checkIsLikeRecordType(Object sourceValue, BRecordType targetType,
