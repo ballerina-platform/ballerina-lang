@@ -914,8 +914,6 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.PANIC_KEYWORD);
             case LexerTerminals.IMPORT:
                 return getSyntaxToken(SyntaxKind.IMPORT_KEYWORD);
-            case LexerTerminals.VERSION:
-                return getSyntaxToken(SyntaxKind.VERSION_KEYWORD);
             case LexerTerminals.AS:
                 return getSyntaxToken(SyntaxKind.AS_KEYWORD);
             case LexerTerminals.SERVICE:
