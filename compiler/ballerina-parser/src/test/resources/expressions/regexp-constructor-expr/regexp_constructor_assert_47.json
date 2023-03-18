@@ -4,7 +4,17 @@
   "children": [
     {
       "kind": "LIST",
-      "children": []
+      "children": [
+        {
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
     },
     {
       "kind": "FUNCTION_KEYWORD",
@@ -17,7 +27,7 @@
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "foo"
+      "value": "main"
     },
     {
       "kind": "LIST",
@@ -134,243 +144,6 @@
                                           "kind": "OPEN_PAREN_TOKEN"
                                         },
                                         {
-                                          "kind": "LIST",
-                                          "children": []
-                                        },
-                                        {
-                                          "kind": "CLOSE_PAREN_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "hasDiagnostics": true,
-              "children": [
-                {
-                  "kind": "WILDCARD_BINDING_PATTERN",
-                  "children": [
-                    {
-                      "kind": "UNDERSCORE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "RE_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "hasDiagnostics": true,
-                      "children": [
-                        {
-                          "kind": "RE_SEQUENCE",
-                          "hasDiagnostics": true,
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "hasDiagnostics": true,
-                              "children": [
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "hasDiagnostics": true,
-                                  "children": [
-                                    {
-                                      "kind": "RE_CAPTURING_GROUP",
-                                      "hasDiagnostics": true,
-                                      "children": [
-                                        {
-                                          "kind": "OPEN_PAREN_TOKEN"
-                                        },
-                                        {
-                                          "kind": "RE_FLAG_EXPR",
-                                          "hasDiagnostics": true,
-                                          "children": [
-                                            {
-                                              "kind": "QUESTION_MARK_TOKEN"
-                                            },
-                                            {
-                                              "kind": "COLON_TOKEN",
-                                              "isMissing": true,
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_COLON_TOKEN"
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "LIST",
-                                          "children": []
-                                        },
-                                        {
-                                          "kind": "CLOSE_PAREN_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "hasDiagnostics": true,
-              "children": [
-                {
-                  "kind": "WILDCARD_BINDING_PATTERN",
-                  "children": [
-                    {
-                      "kind": "UNDERSCORE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "RE_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "hasDiagnostics": true,
-                      "children": [
-                        {
-                          "kind": "RE_SEQUENCE",
-                          "hasDiagnostics": true,
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "hasDiagnostics": true,
-                              "children": [
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "hasDiagnostics": true,
-                                  "children": [
-                                    {
-                                      "kind": "RE_CAPTURING_GROUP",
-                                      "hasDiagnostics": true,
-                                      "children": [
-                                        {
-                                          "kind": "OPEN_PAREN_TOKEN"
-                                        },
-                                        {
                                           "kind": "RE_FLAG_EXPR",
                                           "hasDiagnostics": true,
                                           "children": [
@@ -390,7 +163,40 @@
                                                         "diagnostics": [
                                                           "ERROR_INVALID_FLAG_IN_REG_EXP"
                                                         ],
-                                                        "value": "\u003d"
+                                                        "value": "\u003c"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "a"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "CLOSE_PAREN_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
                                                       }
                                                     ]
                                                   }
@@ -539,6 +345,23 @@
                                               "kind": "QUESTION_MARK_TOKEN",
                                               "hasDiagnostics": true,
                                               "trailingMinutiae": [
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "\u003c"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
                                                 {
                                                   "kind": "INVALID_NODE_MINUTIAE",
                                                   "invalidNode": {
@@ -568,7 +391,7 @@
                                                         "diagnostics": [
                                                           "ERROR_INVALID_FLAG_IN_REG_EXP"
                                                         ],
-                                                        "value": "f"
+                                                        "value": "a"
                                                       }
                                                     ]
                                                   }
@@ -580,12 +403,11 @@
                                                     "hasDiagnostics": true,
                                                     "children": [
                                                       {
-                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "kind": "CLOSE_PAREN_TOKEN",
                                                         "hasDiagnostics": true,
                                                         "diagnostics": [
                                                           "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                        ],
-                                                        "value": "o"
+                                                        ]
                                                       }
                                                     ]
                                                   }
@@ -597,12 +419,11 @@
                                                     "hasDiagnostics": true,
                                                     "children": [
                                                       {
-                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "kind": "QUESTION_MARK_TOKEN",
                                                         "hasDiagnostics": true,
                                                         "diagnostics": [
                                                           "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                        ],
-                                                        "value": "o"
+                                                        ]
                                                       }
                                                     ]
                                                   }
@@ -763,7 +584,73 @@
                                                         "diagnostics": [
                                                           "ERROR_INVALID_FLAG_IN_REG_EXP"
                                                         ],
-                                                        "value": "!"
+                                                        "value": "\u003c"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "\u003d"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "a"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "CLOSE_PAREN_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "PLUS_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
                                                       }
                                                     ]
                                                   }
@@ -924,7 +811,7 @@
                                                         "diagnostics": [
                                                           "ERROR_INVALID_FLAG_IN_REG_EXP"
                                                         ],
-                                                        "value": "!"
+                                                        "value": "\u003c"
                                                       }
                                                     ]
                                                   }
@@ -941,7 +828,7 @@
                                                         "diagnostics": [
                                                           "ERROR_INVALID_FLAG_IN_REG_EXP"
                                                         ],
-                                                        "value": "f"
+                                                        "value": "\u003d"
                                                       }
                                                     ]
                                                   }
@@ -958,7 +845,7 @@
                                                         "diagnostics": [
                                                           "ERROR_INVALID_FLAG_IN_REG_EXP"
                                                         ],
-                                                        "value": "o"
+                                                        "value": "a"
                                                       }
                                                     ]
                                                   }
@@ -970,12 +857,27 @@
                                                     "hasDiagnostics": true,
                                                     "children": [
                                                       {
-                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "kind": "CLOSE_PAREN_TOKEN",
                                                         "hasDiagnostics": true,
                                                         "diagnostics": [
                                                           "ERROR_INVALID_FLAG_IN_REG_EXP"
-                                                        ],
-                                                        "value": "o"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "ASTERISK_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
                                                       }
                                                     ]
                                                   }
@@ -1046,135 +948,6 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
-              "children": [
-                {
-                  "kind": "WILDCARD_BINDING_PATTERN",
-                  "children": [
-                    {
-                      "kind": "UNDERSCORE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "children": [
-                    {
-                      "kind": "RE_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "RE_SEQUENCE",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "children": [
-                                    {
-                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
-                                      "children": [
-                                        {
-                                          "kind": "RE_LITERAL_CHAR",
-                                          "value": "a"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "RE_QUANTIFIER",
-                                      "children": [
-                                        {
-                                          "kind": "RE_BRACED_QUANTIFIER",
-                                          "children": [
-                                            {
-                                              "kind": "OPEN_BRACE_TOKEN"
-                                            },
-                                            {
-                                              "kind": "LIST",
-                                              "children": [
-                                                {
-                                                  "kind": "DIGIT",
-                                                  "value": "2"
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "COMMA_TOKEN"
-                                            },
-                                            {
-                                              "kind": "LIST",
-                                              "children": [
-                                                {
-                                                  "kind": "DIGIT",
-                                                  "value": "1"
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "CLOSE_BRACE_TOKEN"
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
               "hasDiagnostics": true,
               "children": [
                 {
@@ -1246,70 +1019,158 @@
                                           "kind": "OPEN_PAREN_TOKEN"
                                         },
                                         {
-                                          "kind": "LIST",
+                                          "kind": "RE_FLAG_EXPR",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "RE_SEQUENCE",
+                                              "kind": "QUESTION_MARK_TOKEN",
+                                              "hasDiagnostics": true,
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "\u003c"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "\u003d"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "a"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "CLOSE_PAREN_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "OPEN_BRACE_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "DIGIT",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "1"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "CLOSE_BRACE_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_ATOM_QUANTIFIER",
-                                                      "children": [
-                                                        {
-                                                          "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
-                                                          "children": [
-                                                            {
-                                                              "kind": "RE_LITERAL_CHAR",
-                                                              "value": "a"
-                                                            }
-                                                          ]
-                                                        },
-                                                        {
-                                                          "kind": "RE_QUANTIFIER",
-                                                          "children": [
-                                                            {
-                                                              "kind": "RE_BRACED_QUANTIFIER",
-                                                              "children": [
-                                                                {
-                                                                  "kind": "OPEN_BRACE_TOKEN"
-                                                                },
-                                                                {
-                                                                  "kind": "LIST",
-                                                                  "children": [
-                                                                    {
-                                                                      "kind": "DIGIT",
-                                                                      "value": "2"
-                                                                    }
-                                                                  ]
-                                                                },
-                                                                {
-                                                                  "kind": "COMMA_TOKEN"
-                                                                },
-                                                                {
-                                                                  "kind": "LIST",
-                                                                  "children": [
-                                                                    {
-                                                                      "kind": "DIGIT",
-                                                                      "value": "1"
-                                                                    }
-                                                                  ]
-                                                                },
-                                                                {
-                                                                  "kind": "CLOSE_BRACE_TOKEN"
-                                                                }
-                                                              ]
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
+                                                      "kind": "LIST",
+                                                      "children": []
                                                     }
                                                   ]
                                                 }
                                               ]
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN",
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_COLON_TOKEN"
+                                              ]
                                             }
                                           ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": []
                                         },
                                         {
                                           "kind": "CLOSE_PAREN_TOKEN",
@@ -1347,6 +1208,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "WILDCARD_BINDING_PATTERN",
@@ -1379,6 +1241,7 @@
                 },
                 {
                   "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "RE_KEYWORD",
@@ -1394,62 +1257,155 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "RE_LITERAL_CHAR_DOT_OR_ESCAPE",
+                                      "kind": "RE_CAPTURING_GROUP",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "RE_LITERAL_CHAR",
-                                          "value": "a"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "RE_QUANTIFIER",
-                                      "children": [
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
                                         {
-                                          "kind": "RE_BRACED_QUANTIFIER",
+                                          "kind": "RE_FLAG_EXPR",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "OPEN_BRACE_TOKEN"
-                                            },
-                                            {
-                                              "kind": "LIST",
-                                              "children": [
+                                              "kind": "QUESTION_MARK_TOKEN",
+                                              "hasDiagnostics": true,
+                                              "trailingMinutiae": [
                                                 {
-                                                  "kind": "DIGIT",
-                                                  "value": "2"
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "\u003c"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "!"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "a"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "CLOSE_PAREN_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "QUESTION_MARK_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
                                                 }
                                               ]
                                             },
                                             {
-                                              "kind": "COMMA_TOKEN"
-                                            },
-                                            {
-                                              "kind": "LIST",
+                                              "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "DIGIT",
-                                                  "value": "1"
+                                                  "kind": "RE_FLAGS",
+                                                  "children": [
+                                                    {
+                                                      "kind": "LIST",
+                                                      "children": []
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
                                             {
-                                              "kind": "CLOSE_BRACE_TOKEN"
+                                              "kind": "COLON_TOKEN",
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_COLON_TOKEN"
+                                              ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "QUESTION_MARK_TOKEN"
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN",
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                                          ]
                                         }
                                       ]
                                     }
@@ -1550,487 +1506,132 @@
                                           "kind": "OPEN_PAREN_TOKEN"
                                         },
                                         {
-                                          "kind": "LIST",
+                                          "kind": "RE_FLAG_EXPR",
                                           "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "RE_SEQUENCE",
+                                              "kind": "QUESTION_MARK_TOKEN",
                                               "hasDiagnostics": true,
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "\u003c"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "!"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "a"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "CLOSE_PAREN_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "PLUS_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "RE_FLAGS_ON_OFF",
                                               "children": [
                                                 {
-                                                  "kind": "LIST",
-                                                  "hasDiagnostics": true,
+                                                  "kind": "RE_FLAGS",
                                                   "children": [
                                                     {
-                                                      "kind": "RE_ATOM_QUANTIFIER",
-                                                      "hasDiagnostics": true,
-                                                      "children": [
-                                                        {
-                                                          "kind": "BACK_SLASH_TOKEN",
-                                                          "isMissing": true,
-                                                          "hasDiagnostics": true,
-                                                          "diagnostics": [
-                                                            "ERROR_MISSING_BACKSLASH"
-                                                          ],
-                                                          "trailingMinutiae": [
-                                                            {
-                                                              "kind": "INVALID_NODE_MINUTIAE",
-                                                              "invalidNode": {
-                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                                                "children": [
-                                                                  {
-                                                                    "kind": "ASTERISK_TOKEN"
-                                                                  }
-                                                                ]
-                                                              }
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
+                                                      "kind": "LIST",
+                                                      "children": []
                                                     }
                                                   ]
                                                 }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN",
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_COLON_TOKEN"
                                               ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_PAREN_TOKEN"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "hasDiagnostics": true,
-              "children": [
-                {
-                  "kind": "WILDCARD_BINDING_PATTERN",
-                  "children": [
-                    {
-                      "kind": "UNDERSCORE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "RE_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "hasDiagnostics": true,
-                      "children": [
-                        {
-                          "kind": "RE_SEQUENCE",
-                          "hasDiagnostics": true,
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "hasDiagnostics": true,
-                              "children": [
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "hasDiagnostics": true,
-                                  "children": [
-                                    {
-                                      "kind": "BACK_SLASH_TOKEN",
-                                      "isMissing": true,
-                                      "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_MISSING_BACKSLASH"
-                                      ],
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "INVALID_NODE_MINUTIAE",
-                                          "invalidNode": {
-                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "children": [
-                                              {
-                                                "kind": "PLUS_TOKEN"
-                                              }
-                                            ]
-                                          }
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "hasDiagnostics": true,
-              "children": [
-                {
-                  "kind": "WILDCARD_BINDING_PATTERN",
-                  "children": [
-                    {
-                      "kind": "UNDERSCORE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "RE_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "hasDiagnostics": true,
-                      "children": [
-                        {
-                          "kind": "RE_SEQUENCE",
-                          "hasDiagnostics": true,
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "hasDiagnostics": true,
-                              "children": [
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "hasDiagnostics": true,
-                                  "children": [
-                                    {
-                                      "kind": "BACK_SLASH_TOKEN",
-                                      "isMissing": true,
-                                      "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_MISSING_BACKSLASH"
-                                      ],
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "INVALID_NODE_MINUTIAE",
-                                          "invalidNode": {
-                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "children": [
-                                              {
-                                                "kind": "QUESTION_MARK_TOKEN"
-                                              }
-                                            ]
-                                          }
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "hasDiagnostics": true,
-              "children": [
-                {
-                  "kind": "WILDCARD_BINDING_PATTERN",
-                  "children": [
-                    {
-                      "kind": "UNDERSCORE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "RE_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "hasDiagnostics": true,
-                      "children": [
-                        {
-                          "kind": "RE_SEQUENCE",
-                          "hasDiagnostics": true,
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "hasDiagnostics": true,
-                              "children": [
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "hasDiagnostics": true,
-                                  "children": [
-                                    {
-                                      "kind": "BACK_SLASH_TOKEN",
-                                      "isMissing": true,
-                                      "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_MISSING_BACKSLASH"
-                                      ],
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "INVALID_NODE_MINUTIAE",
-                                          "invalidNode": {
-                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "children": [
-                                              {
-                                                "kind": "CLOSE_PAREN_TOKEN"
-                                              }
-                                            ]
-                                          }
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "ASSIGNMENT_STATEMENT",
-              "hasDiagnostics": true,
-              "children": [
-                {
-                  "kind": "WILDCARD_BINDING_PATTERN",
-                  "children": [
-                    {
-                      "kind": "UNDERSCORE_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REGEX_TEMPLATE_EXPRESSION",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "RE_KEYWORD",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "BACKTICK_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "hasDiagnostics": true,
-                      "children": [
-                        {
-                          "kind": "RE_SEQUENCE",
-                          "hasDiagnostics": true,
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "hasDiagnostics": true,
-                              "children": [
-                                {
-                                  "kind": "RE_ATOM_QUANTIFIER",
-                                  "hasDiagnostics": true,
-                                  "children": [
-                                    {
-                                      "kind": "RE_CHARACTER_CLASS",
-                                      "hasDiagnostics": true,
-                                      "children": [
-                                        {
-                                          "kind": "OPEN_BRACKET_TOKEN"
+                                          "kind": "LIST",
+                                          "children": []
                                         },
                                         {
-                                          "kind": "CLOSE_BRACKET_TOKEN",
+                                          "kind": "CLOSE_PAREN_TOKEN",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [
-                                            "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
                                           ]
                                         }
                                       ]
@@ -2121,35 +1722,404 @@
                               "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "RE_ASSERTION",
+                                  "kind": "RE_ATOM_QUANTIFIER",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "BITWISE_XOR_TOKEN"
+                                      "kind": "RE_CAPTURING_GROUP",
+                                      "hasDiagnostics": true,
+                                      "children": [
+                                        {
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_FLAG_EXPR",
+                                          "hasDiagnostics": true,
+                                          "children": [
+                                            {
+                                              "kind": "QUESTION_MARK_TOKEN",
+                                              "hasDiagnostics": true,
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "\u003c"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "!"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "a"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "CLOSE_PAREN_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "ASTERISK_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "RE_FLAGS_ON_OFF",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_FLAGS",
+                                                  "children": [
+                                                    {
+                                                      "kind": "LIST",
+                                                      "children": []
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN",
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_COLON_TOKEN"
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN",
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                                          ]
+                                        }
+                                      ]
                                     }
                                   ]
-                                },
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "WILDCARD_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "UNDERSCORE_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "EQUAL_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "REGEX_TEMPLATE_EXPRESSION",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "RE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "BACKTICK_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "hasDiagnostics": true,
+                      "children": [
+                        {
+                          "kind": "RE_SEQUENCE",
+                          "hasDiagnostics": true,
+                          "children": [
+                            {
+                              "kind": "LIST",
+                              "hasDiagnostics": true,
+                              "children": [
                                 {
                                   "kind": "RE_ATOM_QUANTIFIER",
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "BACK_SLASH_TOKEN",
-                                      "isMissing": true,
+                                      "kind": "RE_CAPTURING_GROUP",
                                       "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_MISSING_BACKSLASH"
-                                      ],
-                                      "trailingMinutiae": [
+                                      "children": [
                                         {
-                                          "kind": "INVALID_NODE_MINUTIAE",
-                                          "invalidNode": {
-                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "children": [
-                                              {
-                                                "kind": "ASTERISK_TOKEN"
-                                              }
-                                            ]
-                                          }
+                                          "kind": "OPEN_PAREN_TOKEN"
+                                        },
+                                        {
+                                          "kind": "RE_FLAG_EXPR",
+                                          "hasDiagnostics": true,
+                                          "children": [
+                                            {
+                                              "kind": "QUESTION_MARK_TOKEN",
+                                              "hasDiagnostics": true,
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "\u003c"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "!"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "RE_LITERAL_CHAR",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "a"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "CLOSE_PAREN_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "OPEN_BRACE_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "DIGIT",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ],
+                                                        "value": "1"
+                                                      }
+                                                    ]
+                                                  }
+                                                },
+                                                {
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "CLOSE_BRACE_TOKEN",
+                                                        "hasDiagnostics": true,
+                                                        "diagnostics": [
+                                                          "ERROR_INVALID_FLAG_IN_REG_EXP"
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "RE_FLAGS_ON_OFF",
+                                              "children": [
+                                                {
+                                                  "kind": "RE_FLAGS",
+                                                  "children": [
+                                                    {
+                                                      "kind": "LIST",
+                                                      "children": []
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "kind": "COLON_TOKEN",
+                                              "isMissing": true,
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_COLON_TOKEN"
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
+                                          "kind": "CLOSE_PAREN_TOKEN",
+                                          "isMissing": true,
+                                          "hasDiagnostics": true,
+                                          "diagnostics": [
+                                            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+                                          ]
                                         }
                                       ]
                                     }

@@ -49,6 +49,9 @@ public class BallerinaLexer extends AbstractLexer {
             case TEMPLATE:
                 token = readTemplateToken();
                 break;
+            case REGEXP:
+                token = readRegExpTemplateToken();
+                break;
             case INTERPOLATION:
                 processLeadingTrivia();
                 token = readTokenInInterpolation();
@@ -1481,6 +1484,65 @@ public class BallerinaLexer extends AbstractLexer {
                 }
         }
 
+        return getLiteral(SyntaxKind.TEMPLATE_STRING);
+    }
+
+    /**
+     * Read a regular expression template token.
+     * Continues reading as a single token until it finds an interpolation or a backtick.
+     * Interpolations are treated as a single literal if they are nested within a character class.
+     *
+     * @return The regexp literal.
+     */
+    private STToken readRegExpTemplateToken() {
+        boolean shouldProcessInterpolations = true;
+        reader.mark();
+        if (reader.isEOF()) {
+            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        char nextChar = this.reader.peek();
+        switch (nextChar) {
+            case LexerTerminals.BACKTICK:
+                reader.advance();
+                endMode();
+                return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+            case LexerTerminals.DOLLAR:
+                if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                    // Switch to interpolation mode. Then the next token will be read in that mode.
+                    startMode(ParserMode.INTERPOLATION);
+                    reader.advance(2);
+
+                    return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
+                }
+                // fall through
+            default:
+                if (nextChar == LexerTerminals.OPEN_BRACKET) {
+                    shouldProcessInterpolations = false;
+                }
+                while (!reader.isEOF()) {
+                    reader.advance();
+                    nextChar = this.reader.peek();
+                    switch (nextChar) {
+                        case LexerTerminals.DOLLAR:
+                            if (shouldProcessInterpolations && this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                                break;
+                            }
+                            continue;
+                        case LexerTerminals.BACKTICK:
+                            break;
+                        case LexerTerminals.OPEN_BRACKET:
+                            shouldProcessInterpolations = false;
+                            continue;
+                        case LexerTerminals.CLOSE_BRACKET:
+                            shouldProcessInterpolations = true;
+                            continue;
+                        default:
+                            continue;
+                    }
+                    break;
+                }
+        }
         return getLiteral(SyntaxKind.TEMPLATE_STRING);
     }
 

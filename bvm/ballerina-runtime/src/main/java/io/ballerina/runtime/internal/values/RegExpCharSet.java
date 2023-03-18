@@ -70,7 +70,8 @@ public class RegExpCharSet extends RegExpCommonValue {
     public String stringValue(BLink parent) {
         StringJoiner atoms = new StringJoiner("");
         for (Object atom : this.charSetAtoms) {
-            if (atom instanceof RegExpCharSetRange || atom instanceof RegExpCharSet) {
+            if (atom instanceof RegExpCharSetRange || atom instanceof RegExpCharSet
+                    || atom instanceof RegExpLiteralCharOrEscape) {
                 atoms.add(((BValue) atom).stringValue(parent));
                 continue;
             }

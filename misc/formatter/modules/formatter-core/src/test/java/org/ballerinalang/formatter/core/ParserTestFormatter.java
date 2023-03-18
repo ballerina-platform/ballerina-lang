@@ -181,7 +181,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "member_access_expr_source_11.bal", "float_literal_source_08.bal", "object_type_def_source_47.bal", 
                 "client_resource_access_action_source_05.bal", "client_resource_access_action_source_06.bal",
                 "resiliency_source_05.bal", "regexp_constructor_source_26.bal", "regexp_constructor_source_28.bal",
-                "completion_source_07.bal", "regexp_constructor_source_44.bal", "regexp_constructor_source_45.bal");
+                "regexp_constructor_source_44.bal", "regexp_constructor_source_47.bal",
+                "regexp_constructor_source_52.bal", "regexp_constructor_source_53.bal", "completion_source_07.bal");
     }
 
     @DataProvider(name = "test-file-provider")
