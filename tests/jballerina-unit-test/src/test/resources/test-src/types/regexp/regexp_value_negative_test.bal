@@ -33,5 +33,6 @@ function testRegExpNegative() {
     _ = re `([^a-b${b-a}])`;
     string:RegExp _ = re `[]`;
     string:RegExp _ = re `(([abc])|([]))`;
+    string:RegExp _ = re `(?: [])`;
     _ = re `[AB\p{gc=Lu}]+` ? `;
 }

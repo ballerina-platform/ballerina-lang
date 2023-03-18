@@ -96,17 +96,17 @@ public function testInvalidRegexpPatternSyntax3() returns error? {
 public function testNegativeEmptyCharClass1() returns error? {
     string pattern = "[]";
     anydata|error result = trap re `${pattern}`;
-    check assertEqual(result, "Invalid insertion in regular expression: Empty character class disallowed");
+    check assertEqualMessage(result, "Invalid insertion in regular expression: Empty character class disallowed");
 }
 
 public function testNegativeEmptyCharClass2() returns error? {
     anydata|error result = trap re `(abc${"[]"})`;
-    check assertEqual(result, "Invalid insertion in regular expression: Empty character class disallowed");
+    check assertEqualMessage(result, "Invalid insertion in regular expression: Empty character class disallowed");
 }
 
 public function testNegativeEmptyCharClass3() returns error? {
     anydata|error result = trap regexp:fromString("(([abc])|([]))");
-    check assertEqual(result, "Failed to parse regular expression: Empty character class disallowed");
+    check assertEqualMessage(result, "Failed to parse regular expression: Empty character class disallowed");
 }
 
 public function testNegativeDuplicateFlags1() returns error? {

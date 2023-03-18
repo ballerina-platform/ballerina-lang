@@ -1325,9 +1325,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     @Override
     public void visit(BLangReCapturingGroups node, AnalyzerData data) {
-        if (node.disjunction != null) {
-            analyzeNode(node.disjunction, data);
-        }
+        analyzeNode(node.disjunction, data);
     }
 
     @Override
@@ -4286,12 +4284,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     void analyzeNode(BLangNode node, BType expType, AnalyzerData data) {
-        data.prevEnvs.push(data.env);
-        BType preExpType = data.expType;
-        data.expType = expType;
-        node.accept(this, data);
-        data.env = data.prevEnvs.pop();
-        data.expType = preExpType;
+        if (node != null) {
+            data.prevEnvs.push(data.env);
+            BType preExpType = data.expType;
+            data.expType = expType;
+            node.accept(this, data);
+            data.env = data.prevEnvs.pop();
+            data.expType = preExpType;
+        }
     }
 
     @Override

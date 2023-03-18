@@ -140,7 +140,7 @@ public class LangLibRegexpTest {
         Assert.assertEquals(returns.toString(), "error(\"{ballerina}RegularExpressionParsingError\",message=\"invalid" +
                 " regexp pattern: " + message + "\")");
     }
-    
+
     @DataProvider(name = "invalidRegexpPatternSyntaxProvider")
     private Object[][] getInvalidRegexpPatternSyntax() {
         return new Object[][] {
@@ -207,9 +207,7 @@ public class LangLibRegexpTest {
     
     @Test(dataProvider = "negativeRegexpEmptyCharClassInterpolationProvider")
     public void negativeTestRegexpEmptyCharClassInsertion(String functionName) {
-        Object returns = BRunUtil.invoke(negativeTests, functionName);
-        Assert.assertEquals(returns.toString(),String.format("error(\"{ballerina}RegularExpressionParsingError\"," +
-                "message=\"Invalid insertion in regular expression: Empty character class disallowed\")"));
+        BRunUtil.invoke(negativeTests, functionName);
     }
 
     @DataProvider(name = "negativeRegexpEmptyCharClassInterpolationProvider")
