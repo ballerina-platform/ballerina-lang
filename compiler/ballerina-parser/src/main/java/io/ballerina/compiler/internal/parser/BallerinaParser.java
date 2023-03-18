@@ -706,16 +706,9 @@ public class BallerinaParser extends AbstractParser {
                 STNode slash = parseSlashToken();
                 orgName = STNodeFactory.createImportOrgNameNode(identifier, slash);
                 moduleName = parseModuleName();
-                parseVersion(); // Parse version and log an error
                 alias = parseImportPrefixDecl();
                 break;
             case DOT_TOKEN:
-            case VERSION_KEYWORD:
-                orgName = STNodeFactory.createEmptyNode();
-                moduleName = parseModuleName(identifier);
-                parseVersion(); // Parse version and log an error
-                alias = parseImportPrefixDecl();
-                break;
             case AS_KEYWORD:
                 orgName = STNodeFactory.createEmptyNode();
                 moduleName = parseModuleName(identifier);
@@ -804,7 +797,6 @@ public class BallerinaParser extends AbstractParser {
             case DOT_TOKEN:
                 return consume();
             case AS_KEYWORD:
-            case VERSION_KEYWORD:
             case SEMICOLON_TOKEN:
                 return null;
             default:
@@ -834,111 +826,6 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse version component of a import declaration.
-     * <p>
-     * <code>version-decl := version sem-ver</code>
-     * @deprecated
-     * Version is no longer supported. Hence, parse it and log an error.
-     **/
-    @Deprecated
-    private void parseVersion() {
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case VERSION_KEYWORD:
-                STNode versionKeyword = parseVersionKeyword();
-                STNode versionNumber = parseVersionNumber();
-                addInvalidNodeToNextToken(versionKeyword,
-                        DiagnosticErrorCode.ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED);
-                addInvalidNodeToNextToken(versionNumber, null);
-                return;
-            case AS_KEYWORD:
-            case SEMICOLON_TOKEN:
-                return;
-            default:
-                if (isEndOfImportDecl(nextToken)) {
-                    return;
-                }
-
-                recover(peek(), ParserRuleContext.IMPORT_VERSION_DECL);
-                parseVersion();
-        }
-    }
-
-    /**
-     * Parse version keyword.
-     *
-     * @return Parsed node
-     */
-    private STNode parseVersionKeyword() {
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.VERSION_KEYWORD) {
-            return consume();
-        } else {
-            recover(peek(), ParserRuleContext.VERSION_KEYWORD);
-            return parseVersionKeyword();
-        }
-    }
-
-    /**
-     * Parse version number.
-     * <p>
-     * <code>sem-ver := major-num [. minor-num [. patch-num]]
-     * <br/>
-     * major-num := DecimalNumber
-     * <br/>
-     * minor-num := DecimalNumber
-     * <br/>
-     * patch-num := DecimalNumber
-     * </code>
-     *
-     * @return Parsed node
-     */
-    private STNode parseVersionNumber() {
-        STToken nextToken = peek();
-        STNode majorVersion;
-        switch (nextToken.kind) {
-            case DECIMAL_INTEGER_LITERAL_TOKEN:
-                majorVersion = parseMajorVersion();
-                break;
-            default:
-                recover(peek(), ParserRuleContext.VERSION_NUMBER);
-                return parseVersionNumber();
-        }
-
-        List<STNode> versionParts = new ArrayList<>();
-        versionParts.add(majorVersion);
-
-        STNode minorVersionEnd = parseSubVersionEnd();
-        if (minorVersionEnd != null) {
-            versionParts.add(minorVersionEnd);
-            STNode minorVersion = parseMinorVersion();
-            versionParts.add(minorVersion);
-
-            STNode patchVersionEnd = parseSubVersionEnd();
-            if (patchVersionEnd != null) {
-                versionParts.add(patchVersionEnd);
-                STNode patchVersion = parsePatchVersion();
-                versionParts.add(patchVersion);
-            }
-        }
-
-        return STNodeFactory.createNodeList(versionParts);
-
-    }
-
-    private STNode parseMajorVersion() {
-        return parseDecimalIntLiteral(ParserRuleContext.MAJOR_VERSION);
-    }
-
-    private STNode parseMinorVersion() {
-        return parseDecimalIntLiteral(ParserRuleContext.MINOR_VERSION);
-    }
-
-    private STNode parsePatchVersion() {
-        return parseDecimalIntLiteral(ParserRuleContext.PATCH_VERSION);
-    }
-
-    /**
      * Parse decimal literal.
      *
      * @param context Context in which the decimal literal is used.
@@ -951,21 +838,6 @@ public class BallerinaParser extends AbstractParser {
         } else {
             recover(peek(), context);
             return parseDecimalIntLiteral(context);
-        }
-    }
-
-    private STNode parseSubVersionEnd() {
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case AS_KEYWORD:
-            case SEMICOLON_TOKEN:
-            case EOF_TOKEN:
-                return null;
-            case DOT_TOKEN:
-                return parseDotToken();
-            default:
-                recover(nextToken, ParserRuleContext.IMPORT_SUB_VERSION);
-                return parseSubVersionEnd();
         }
     }
 
