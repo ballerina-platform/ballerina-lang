@@ -306,6 +306,18 @@ function testXmlFromBalString() {
         assert(result4, x4);
         assert(result5, x5);
     }
+
+    xml xmlVal = xml `<movie>
+                        <title>Some</title>
+                        <writer>Writer</writer>
+                      </movie>`;
+
+    string xmlString = xmlVal.toBalString();
+    string expectedXmlString = "xml`<movie>\n                        <title>Some</title>"
+    + "\n                        <writer>Writer</writer>\n                      </movie>`";
+    assert(xmlString, expectedXmlString);
+    anydata xmlValBack = checkpanic xmlString.fromBalString();
+    assert(xmlValBack, xmlVal);
 }
 
 function testObjectFromString() {

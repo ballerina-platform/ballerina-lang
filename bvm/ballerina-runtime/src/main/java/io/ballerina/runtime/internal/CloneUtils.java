@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,18 +16,18 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.value;
+package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BRefValue;
-import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.ErrorUtils;
 
 import java.util.HashMap;
 import java.util.List;
 
+import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_END;
+import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_SEPARATOR;
+import static io.ballerina.runtime.internal.TypeConverter.ERROR_MESSAGE_UNION_START;
 import static io.ballerina.runtime.internal.TypeConverter.MAX_CONVERSION_ERROR_COUNT;
 
 /**
@@ -37,7 +37,10 @@ import static io.ballerina.runtime.internal.TypeConverter.MAX_CONVERSION_ERROR_C
  */
 public class CloneUtils {
 
-    private static final BString NULL_REF_EXCEPTION = StringUtils.fromString("NullReferenceException");
+    static final String NEWLINE_WITH_TABS = "\n\t\t";
+    static final String TWO_SPACES = "  ";
+
+    private CloneUtils() {}
 
     /**
      * Returns a clone of `value`. A clone is a deep copy that does not copy immutable subtrees.A clone can therefore
@@ -83,17 +86,29 @@ public class CloneUtils {
         if (errors.isEmpty()) {
             return ErrorUtils.createConversionError(value, targetType);
         }
-        return ErrorUtils.createConversionError(value, targetType, getErrorMessage(errors));
+        return ErrorUtils.createConversionError(value, targetType, getErrorMessage(errors, MAX_CONVERSION_ERROR_COUNT));
     }
 
-    private static String getErrorMessage(List<String> errors) {
-        if (errors.size() == MAX_CONVERSION_ERROR_COUNT + 1) {
-            errors.remove(MAX_CONVERSION_ERROR_COUNT);
-            errors.add("...");
-        }
+    static String getErrorMessage(List<String> errors, int maxErrorCount) {
         StringBuilder errorMsg = new StringBuilder();
-        for (String error : errors) {
-            errorMsg.append("\n\t\t").append(error);
+        int totalErrorCount = errors.size();
+        int tabs = 0;
+        for (int i = 0; i < Math.min(totalErrorCount, maxErrorCount); i++) {
+            String err = errors.get(i);
+            // intentionally comparing whether the two String objects are the same
+            if (err == ERROR_MESSAGE_UNION_START) {
+                errorMsg.append(NEWLINE_WITH_TABS).append(TWO_SPACES.repeat(tabs++)).append(ERROR_MESSAGE_UNION_START);
+            } else if (err == ERROR_MESSAGE_UNION_END) {
+                errorMsg.append(NEWLINE_WITH_TABS).append(TWO_SPACES.repeat(--tabs)).append(ERROR_MESSAGE_UNION_END);
+            } else if (err == ERROR_MESSAGE_UNION_SEPARATOR) {
+                errorMsg.append(NEWLINE_WITH_TABS).append(TWO_SPACES.repeat(tabs - 1))
+                        .append(ERROR_MESSAGE_UNION_SEPARATOR);
+            } else {
+                errorMsg.append(NEWLINE_WITH_TABS).append(TWO_SPACES.repeat(tabs)).append(err);
+            }
+        }
+        if (totalErrorCount > maxErrorCount) {
+            errorMsg.append(NEWLINE_WITH_TABS + "...");
         }
         return errorMsg.toString();
     }
