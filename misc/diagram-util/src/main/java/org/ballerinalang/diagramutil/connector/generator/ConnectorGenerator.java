@@ -141,7 +141,7 @@ public class ConnectorGenerator {
      * @return
      * @throws IOException
      */
-    public static List<Connector> generateConnectorModel(Project project) throws Exception {
+    public static List<Connector> generateConnectorModel(Project project) throws IOException {
         List<Connector> connectors = new ArrayList<>();
         Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);
         for (Map.Entry<String, ModuleDoc> moduleDoc : moduleDocMap.entrySet()) {
