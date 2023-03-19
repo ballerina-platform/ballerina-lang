@@ -586,7 +586,7 @@ public class LargeMethodOptimizer {
             Name argName = funcArg.name;
             birFunc.requiredParams.add(new BIRParameter(lastIns.pos, argName, 0));
             BIRFunctionParameter funcParameter = new BIRFunctionParameter(lastIns.pos, funcArg.type, argName,
-                    VarScope.FUNCTION, VarKind.ARG, argName.getValue(), false);
+                    VarScope.FUNCTION, VarKind.ARG, argName.getValue(), false, false);
             functionParams.add(funcParameter);
             birFunc.parameters.add(funcParameter);
             if (funcArg.kind == VarKind.SELF) {
@@ -741,7 +741,7 @@ public class LargeMethodOptimizer {
             Name argName = funcArg.name;
             birFunc.requiredParams.add(new BIRParameter(currentIns.pos, argName, 0));
             BIRFunctionParameter funcParameter = new BIRFunctionParameter(currentIns.pos, funcArg.type, argName,
-                    VarScope.FUNCTION, VarKind.ARG, argName.getValue(), false);
+                    VarScope.FUNCTION, VarKind.ARG, argName.getValue(), false, false);
             functionParams.add(funcParameter);
             birFunc.parameters.add(funcParameter);
             if (funcArg.kind == VarKind.SELF) {

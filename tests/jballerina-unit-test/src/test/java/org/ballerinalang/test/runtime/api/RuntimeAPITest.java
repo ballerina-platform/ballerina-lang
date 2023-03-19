@@ -46,7 +46,8 @@ public class RuntimeAPITest {
                 "async",
                 "utils",
                 "stop_handler",
-                "identifier_utils"
+                "identifier_utils",
+                "environment"
         };
     }
 }
