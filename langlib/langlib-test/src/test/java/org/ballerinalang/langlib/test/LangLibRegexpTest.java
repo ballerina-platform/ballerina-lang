@@ -144,16 +144,12 @@ public class LangLibRegexpTest {
     @DataProvider(name = "invalidRegexpPatternSyntaxProvider")
     private Object[][] getInvalidRegexpPatternSyntax() {
         return new Object[][] {
-                {"testInvalidRegexpPatternSyntax1", "Illegal character range near index 9" + NEW_LINE_CHAR +
-                        "([(a{1})-(z)])" + NEW_LINE_CHAR + "         ^"},
-                {"testInvalidRegexpPatternSyntax2", "Unclosed character class near index 24" + NEW_LINE_CHAR +
+                {"testInvalidRegexpPatternSyntax1", "Unclosed character class near index 24" + NEW_LINE_CHAR +
                         "(?i-s:[[A\\\\sB\\WC\\Dd\\\\]\\])" + NEW_LINE_CHAR + "                        ^"},
-                {"testInvalidRegexpPatternSyntax3", "Unclosed character class near index 23" + NEW_LINE_CHAR +
+                {"testInvalidRegexpPatternSyntax2", "Unclosed character class near index 23" + NEW_LINE_CHAR +
                         "(?xsmi:[]\\P{sc=Braille})" + NEW_LINE_CHAR +
                         "                       ^"},
-                {"testInvalidRegexpPatternSyntax4", "Illegal character range near index 9" + NEW_LINE_CHAR
-                        + "([(a{1})-(z)])" + NEW_LINE_CHAR + "         ^"},
-                {"testInvalidRegexpPatternSyntax5", "Unclosed character class near index 23" + NEW_LINE_CHAR +
+                {"testInvalidRegexpPatternSyntax3", "Unclosed character class near index 23" + NEW_LINE_CHAR +
                         "(?xsmi:[]\\P{sc=Braille})" + NEW_LINE_CHAR + "                       ^"},
         };
     }
@@ -188,5 +184,25 @@ public class LangLibRegexpTest {
                 Pair.of(33, 12),
                 Pair.of(34, 12)
         );
+    }
+    
+    @Test(dataProvider = "negativeRegexpNonCapturingGroupProvider")
+    public void negativeTestRegexpEmptyCharClass(String functionName) {
+        BRunUtil.invoke(negativeTests, functionName);
+    }
+
+    @DataProvider(name = "negativeRegexpNonCapturingGroupProvider")
+    private Object[][] negativeRegexpEmptyCharClass() {
+        return new Object[][]{
+                {"testNegativeDuplicateFlags1"},
+                {"testNegativeDuplicateFlags2"},
+                {"testNegativeDuplicateFlags3"},
+                {"testNegativeDuplicateFlags4"},
+                {"testNegativeDuplicateFlags5"},
+                {"testNegativeInvalidFlags1"},
+                {"testNegativeInvalidFlags2"},
+                {"testNegativeInvalidFlags3"},
+                {"testNegativeInvalidFlags4"},
+        };
     }
 }

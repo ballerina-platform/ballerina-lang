@@ -246,6 +246,12 @@ function testRegExpValueWithCapturingGroups5() {
 
     string:RegExp x16= re `(\d*)\d(\d+)`;
     assertEquality("(\\d*)\\d(\\d+)", x16.toString());
+
+    string:RegExp x17 = re `()`;
+    assertEquality("()", x17.toString());
+
+    string:RegExp x18 = re `(?xsmi:()\P{sc=Braille})`;
+    assertEquality("(?xsmi:()\\P{sc=Braille})", x18.toString());
 }
 
 function testComplexRegExpValue() {
