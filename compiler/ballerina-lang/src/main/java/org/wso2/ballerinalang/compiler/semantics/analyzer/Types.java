@@ -1409,6 +1409,9 @@ public class Types {
         if (Symbols.isFlagOn(target.flags, Flags.ANY_FUNCTION)) {
             return true;
         }
+        if (Symbols.isFlagOn(source.flags, Flags.ANY_FUNCTION) && !Symbols.isFlagOn(target.flags, Flags.ANY_FUNCTION)) {
+            return false;
+        }
 
         // For invokable types with typeParam parameters, we have to check whether the source param types are
         // covariant with the target param types.
@@ -3985,7 +3988,13 @@ public class Types {
                 if (NumericLiteralSupport.isDecimalDiscriminated(originalValue)) {
                     return false;
                 }
-                double baseDoubleVal = Double.parseDouble(baseValueStr);
+                double baseDoubleVal;
+                try {
+                    baseDoubleVal = Double.parseDouble(baseValueStr);
+                } catch (NumberFormatException e) {
+                    // We reach here if a floating point literal has syntax diagnostics.
+                    return false;
+                }
                 double candidateDoubleVal;
                 if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
                     if (candidateLiteral.value instanceof Double) {
@@ -4324,6 +4333,9 @@ public class Types {
                 BUnionType unionType = (BUnionType) type;
                 Set<BType> memberTypes = unionType.getMemberTypes();
                 BType firstTypeInUnion = getBasicTypeOfBuiltinSubtype(getReferredType(memberTypes.iterator().next()));
+                if (!validationFunction.validate(firstTypeInUnion)) {
+                    return false;
+                }
                 if (firstTypeInUnion.tag == TypeTags.FINITE) {
                     Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
                     BType baseExprType = valSpace.iterator().next().getBType();
@@ -5427,6 +5439,9 @@ public class Types {
     private BType createRecordIntersection(IntersectionContext intersectionContext,
                                            BRecordType recordTypeOne, BRecordType recordTypeTwo, SymbolEnv env,
                                            LinkedHashSet<BType> visitedTypes) {
+        if (!visitedTypes.add(recordTypeOne)) {
+            return recordTypeOne;
+        }
         LinkedHashMap<String, BField> recordOneFields = recordTypeOne.fields;
         LinkedHashMap<String, BField> recordTwoFields = recordTypeTwo.fields;
 
@@ -6426,19 +6441,10 @@ public class Types {
                 ((TypeTags.isStringTypeTag(firstTypeTag)) && (TypeTags.isStringTypeTag(secondTypeTag)));
     }
 
-    public boolean isUnionOfSimpleBasicTypes(BType bType) {
-        BType type = getReferredType(bType);
-        if (type.tag == TypeTags.UNION) {
-            Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
-            for (BType memType : memberTypes) {
-                memType = getReferredType(memType);
-                if (!isSimpleBasicType(memType.tag)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return isSimpleBasicType(type.tag);
+    public boolean isSubTypeOfSimpleBasicTypeOrString(BType bType) {
+        return isAssignable(getReferredType(bType),
+                            BUnionType.create(null, symTable.nilType, symTable.booleanType, symTable.intType,
+                                              symTable.floatType, symTable.decimalType, symTable.stringType));
     }
 
     public BType findCompatibleType(BType type) {

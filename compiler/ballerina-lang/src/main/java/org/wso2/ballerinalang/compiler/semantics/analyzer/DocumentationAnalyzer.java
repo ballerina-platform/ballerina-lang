@@ -382,7 +382,7 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
 
         if (pkgName != Names.EMPTY) {
             BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(env, pkgName,
-                    names.fromString(location.lineRange().filePath()));
+                    names.fromString(location.lineRange().fileName()));
 
             if (pkgSymbol == symTable.notFoundSymbol) {
                 return symTable.notFoundSymbol;

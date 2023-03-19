@@ -18432,6 +18432,7 @@ public class BallerinaParser extends AbstractParser {
         STNode identifier = parseIdentifier(ParserRuleContext.VARIABLE_REF);
         switch (peek().kind) {
             case COMMA_TOKEN: // { foo,
+            case CLOSE_BRACE_TOKEN: // {foo}
                 // could be map literal or mapping-binding-pattern
                 STNode colon = STNodeFactory.createEmptyNode();
                 STNode value = STNodeFactory.createEmptyNode();

@@ -1,0 +1,16 @@
+Compiling source
+	intg_tests/anydata_type:0.0.0
+
+Running Tests with Coverage
+
+	anydata_type
+		[pass] testFn
+		[pass] testFoo
+
+
+		2 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	anydata-type-test/target/report/test_results.json

@@ -52,12 +52,13 @@ public class Find {
         BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
         matcher.region((int) startIndex, str.length());
         if (matcher.find()) {
-            resultArray.append(RegexUtil.getGroupZeroAsSpan(matcher));
             if (matcher.groupCount() != 0) {
                 BArray spanArr = RegexUtil.getMatcherGroupsAsSpanArr(matcher);
                 for (int i = 0; i < spanArr.getLength(); i++) {
                     resultArray.append(spanArr.get(i));
                 }
+            } else {
+                resultArray.append(RegexUtil.getGroupZeroAsSpan(matcher));
             }
         }
         if (resultArray.getLength() == 0) {
@@ -109,7 +110,7 @@ public class Find {
         }
 
         int strLength = str.length();
-        if (strLength <= startIndex) {
+        if (strLength != 0 && strLength <= startIndex) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
                     RuntimeErrors.INVALID_REGEXP_FIND_INDEX, startIndex, strLength);
         }

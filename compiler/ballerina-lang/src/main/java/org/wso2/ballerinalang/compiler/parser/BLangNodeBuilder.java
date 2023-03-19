@@ -658,7 +658,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
         }
 
-        Location newLocation = new BLangDiagnosticLocation(pos.lineRange().filePath(), 0, 0, 0, 0, 0, 0);
+        Location newLocation = new BLangDiagnosticLocation(pos.lineRange().fileName(), 0, 0, 0, 0, 0, 0);
 
         compilationUnit.pos = newLocation;
         compilationUnit.setPackageID(packageID);
@@ -2461,7 +2461,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             case RAW_TEMPLATE_EXPRESSION:
                 return createRawTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
             case REGEX_TEMPLATE_EXPRESSION:
-                return createRegExpTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
+                return createRegExpTemplateLiteral(expressionNode);
             default:
                 throw new RuntimeException("Syntax kind is not supported: " + kind);
         }
@@ -5534,12 +5534,15 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         return literal;
     }
-
-    private BLangNode createRegExpTemplateLiteral(NodeList<Node> reSequences, Location location) {
+    
+    private BLangNode createRegExpTemplateLiteral(TemplateExpressionNode expressionNode) {
         BLangRegExpTemplateLiteral regExpTemplateLiteral =
                 (BLangRegExpTemplateLiteral) TreeBuilder.createRegExpTemplateLiteralNode();
-        regExpTemplateLiteral.reDisjunction = (BLangReDisjunction) createReDisjunctionNode(reSequences, location);
-        regExpTemplateLiteral.pos = location;
+        
+        Location reDisjunctionPos = getPosition(expressionNode.startBacktick(), expressionNode.endBacktick());
+        regExpTemplateLiteral.reDisjunction = (BLangReDisjunction) createReDisjunctionNode(expressionNode.content(),
+                reDisjunctionPos);
+        regExpTemplateLiteral.pos = getPosition(expressionNode);
         return regExpTemplateLiteral;
     }
 
@@ -6994,7 +6997,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                (location.lineRange().startLine().line() == upTo.lineRange().startLine().line() &&
                        location.lineRange().startLine().offset() >= upTo.lineRange().startLine().offset());
 
-        Location expandedLocation = new BLangDiagnosticLocation(location.lineRange().filePath(),
+        Location expandedLocation = new BLangDiagnosticLocation(location.lineRange().fileName(),
                 upTo.lineRange().startLine().line(),
                 location.lineRange().endLine().line(),
                 upTo.lineRange().startLine().offset(),

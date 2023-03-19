@@ -322,7 +322,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 }
 
                 // Get the file path of the function symbol
-                String functionPath = functionSymbol.get().getLocation().get().lineRange().filePath();
+                String functionPath = functionSymbol.get().getLocation().get().lineRange().fileName();
 
                 // Get the project of current file
                 Optional<Project> project = workspaceManager.project(filePath.get());
