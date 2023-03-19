@@ -61,11 +61,19 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.SkipException;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.lang.management.ManagementFactory;
@@ -99,6 +107,9 @@ public class PackageResolutionTests extends BaseTest {
     public void setup() throws IOException {
         // Compile and cache dependency for custom repo tests
         cacheDependencyToLocalRepo(RESOURCE_DIRECTORY.resolve("package_c_with_pkg_private_function"));
+        replaceDependenciesTomlVersion(RESOURCE_DIRECTORY.resolve("package_n"));
+        replaceDependenciesTomlVersion(RESOURCE_DIRECTORY.resolve("package_p_withDep"));
+        replaceDependenciesTomlVersion(RESOURCE_DIRECTORY.resolve("package_p_withoutDep"));
     }
 
     @Test(description = "tests resolution with zero direct dependencies")
@@ -858,6 +869,35 @@ public class PackageResolutionTests extends BaseTest {
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+    }
+
+    @AfterClass
+    public void cleanUp() throws IOException {
+        deleteDependenciesToml(RESOURCE_DIRECTORY.resolve("package_n"));
+        deleteDependenciesToml(RESOURCE_DIRECTORY.resolve("package_p_withDep"));
+        deleteDependenciesToml(RESOURCE_DIRECTORY.resolve("package_p_withoutDep"));
+    }
+
+    private void replaceDependenciesTomlVersion(Path projectPath) throws IOException {
+        String currentDistrVersion = RepoUtils.getBallerinaShortVersion();
+        Path dependenciesTomlTemplatePath = projectPath.resolve("Dependencies-template.toml");
+        Path dependenciesTomlPath = projectPath.resolve("Dependencies.toml");
+
+        try (FileInputStream input = new FileInputStream(dependenciesTomlTemplatePath.toString());
+            FileOutputStream output = new FileOutputStream(dependenciesTomlPath.toString());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.replace("**INSERT_DISTRIBUTION_VERSION_HERE**", currentDistrVersion);
+                writer.write(line);
+                writer.newLine();
+            }
+        }
+    }
+
+    private void deleteDependenciesToml(Path projectPath) throws IOException {
+        Files.deleteIfExists(projectPath.resolve("Dependencies.toml"));
     }
 
     private void changeBallerinaVersionInPackageJson(String packageName, String balVersion) {
