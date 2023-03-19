@@ -21,7 +21,6 @@ package io.ballerina.cli.task;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.CodeGeneratorResult;
 import io.ballerina.projects.CodeModifierResult;
-import io.ballerina.projects.DependencyManifest;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
@@ -241,7 +240,8 @@ public class CompileTask implements Task {
                 }
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                         ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId(),
-                        "Detected an attempt to build this package using Swan Lake Update " + currentVersionForDiagnostic +
+                        "Detected an attempt to build this package using Swan Lake Update "
+                                + currentVersionForDiagnostic +
                                 ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
                                 ". To ensure compatibility, the Dependencies.toml file will be updated with the " +
                                 "latest versions that are compatible with Update " + currentVersionForDiagnostic + ".",
