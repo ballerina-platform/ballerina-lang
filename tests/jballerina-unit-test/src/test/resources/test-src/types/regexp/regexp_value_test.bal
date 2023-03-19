@@ -220,8 +220,8 @@ function testRegExpValueWithCapturingGroups5() {
     string:RegExp x7 = re `(?i:a|b)`;
     assertEquality("(?i:a|b)", x7.toString());
 
-    string:RegExp x8 = re `(?im:a|b|[])`;
-    assertEquality("(?im:a|b|[])", x8.toString());
+    string:RegExp x8 = re `(?im:a|b)`;
+    assertEquality("(?im:a|b)", x8.toString());
 
     string:RegExp x9 = re `(?i-m:[0-9])`;
     assertEquality("(?i-m:[0-9])", x9.toString());

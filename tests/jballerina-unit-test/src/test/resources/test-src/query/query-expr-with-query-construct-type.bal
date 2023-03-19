@@ -1502,11 +1502,11 @@ function testJoinedQueryExprConstructingMapWithRegExp() {
     map<string> arr3 = map from var re1 in arr1
         join string:RegExp re2 in arr2
         on re1 equals re2
-        let string:RegExp a = re `AB*[](A|B|[ab-fgh]+(?im-x:[cdeg-k]??${v})|)|^|PQ?`
+        let string:RegExp a = re `AB*(A|B|[ab-fgh]+(?im-x:[cdeg-k]??${v})|)|^|PQ?`
         select [re1.toString() + "1", re1.toString() + a.toString()];
     assertEqual({
-        A1: "AAB*[](A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?",
-        B1: "BAB*[](A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?"
+        A1: "AAB*(A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?",
+        B1: "BAB*(A|B|[ab-fgh]+(?im-x:[cdeg-k]??1)|)|^|PQ?"
     }, arr3);
 }
 

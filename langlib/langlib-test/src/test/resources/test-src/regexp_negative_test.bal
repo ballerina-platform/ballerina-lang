@@ -84,13 +84,29 @@ public function testInvalidRegexpPatternSyntax1() returns error? {
 }
 
 public function testInvalidRegexpPatternSyntax2() returns error? {
-    string:RegExp x = re `(?xsmi:[]\P{sc=Braille})`;
+    string:RegExp x = re `(?xsmi:[[ABC]\P{sc=Braille})`;
     _ = check (trap x.findAll(":*A*a").toBalString());
 }
 
 public function testInvalidRegexpPatternSyntax3() returns error? {
-    string:RegExp x = re `(?xsmi:[]\P{sc=Braille})`;
+    string:RegExp x = re `(?xsmi:[[ABC]\P{sc=Braille})`;
     _ = check (trap x.matchGroupsAt(":*A*a"));
+}
+
+public function testNegativeEmptyCharClass1() returns error? {
+    string pattern = "[]";
+    anydata|error result = trap re `${pattern}`;
+    check assertEqualMessage(result, "Invalid insertion in regular expression: Empty character class disallowed");
+}
+
+public function testNegativeEmptyCharClass2() returns error? {
+    anydata|error result = trap re `(abc${"[]"})`;
+    check assertEqualMessage(result, "Invalid insertion in regular expression: Empty character class disallowed");
+}
+
+public function testNegativeEmptyCharClass3() returns error? {
+    anydata|error result = trap regexp:fromString("(([abc])|([]))");
+    check assertEqualMessage(result, "Failed to parse regular expression: Empty character class disallowed");
 }
 
 public function testNegativeDuplicateFlags1() returns error? {

@@ -213,6 +213,9 @@ public class TreeBuilder {
         String negation = readNegation();
         RegExpCharSet characterSet = readRegCharSet();
         String characterClassEnd = readCharacterClassEnd();
+        if (negation.isEmpty() && characterSet.getCharSetAtoms().length == 0) {
+            throw new BallerinaException("Empty character class disallowed");
+        }
         return new RegExpCharacterClass(characterClassStart, negation, characterSet, characterClassEnd);
     }
 
