@@ -192,9 +192,10 @@ public class ClientResourceAccessActionNodeContext
                     completableSegmentList(resourceMethod, segments,
                             resourcePathSegments, context, node);
             if (completablePathSegments.getRight() && !completablePathSegments.getLeft().isEmpty()) {
-                CompletionItem completionItem = ResourcePathCompletionItemBuilder.build(resourceMethod,
+                List<CompletionItem> items = ResourcePathCompletionItemBuilder.build(resourceMethod,
                         completablePathSegments.getLeft(), context);
-                completionItems.add(new SymbolCompletionItem(context, resourceMethod, completionItem));
+                items.stream().map(completionItem -> new SymbolCompletionItem(context, resourceMethod, completionItem))
+                        .forEach(completionItems::add);
             } else if (completablePathSegments.getRight() && ResourcePathCompletionUtil
                     .isInMethodCallContext(node, context)) {
                 //suggest method call expressions
