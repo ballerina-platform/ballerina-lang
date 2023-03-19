@@ -2604,8 +2604,8 @@ public class TypeChecker {
             case TypeTags.ARRAY_TAG:
                 ArrayValue source = (ArrayValue) sourceValue;
                 Type elementType = ((BArrayType) referredSourceType).getElementType();
-                if (isValueType(elementType)) {
-                    return checkIsType(elementType, targetType, new ArrayList<>());
+                if (checkIsType(elementType, targetType, new ArrayList<>())) {
+                    return true;
                 }
 
                 Object[] arrayValues = source.getValues();
