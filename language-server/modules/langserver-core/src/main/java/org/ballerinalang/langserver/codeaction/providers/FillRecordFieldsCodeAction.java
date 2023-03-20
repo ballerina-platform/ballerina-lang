@@ -72,7 +72,7 @@ public class FillRecordFieldsCodeAction implements RangeBasedCodeActionProvider 
     public boolean validate(CodeActionContext context,
                             RangeBasedPositionDetails positionDetails) {
         return context.diagnostics(context.filePath()).stream().filter(diag -> PositionUtil
-                .isRangeWithinRange(context.range(), PositionUtil.toRange(diag.location().lineRange())))
+                        .isRangeWithinRange(context.range(), PositionUtil.toRange(diag.location().lineRange())))
                 .anyMatch(diagnostic -> diagnostic.diagnosticInfo().code().equals(DIAGNOSTIC_CODE))
                 && positionDetails.matchedCodeActionNode().apply(new ExtendedCodeActionNodeValidator());
     }
@@ -89,12 +89,12 @@ public class FillRecordFieldsCodeAction implements RangeBasedCodeActionProvider 
         if (expressionNode.isEmpty()) {
             return Collections.emptyList();
         }
-
-        Optional<TypeSymbol> typeSymbol = Optional.empty();
-        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
-             typeSymbol = context.currentSemanticModel().get()
-                    .expectedType(context.currentDocument().get(), expressionNode.get().lineRange().startLine());
+        LinePosition startPosition = expressionNode.get().lineRange().startLine();
+        if (context.currentSemanticModel().isEmpty() && context.currentDocument().isEmpty()) {
+            return Collections.emptyList();
         }
+        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get()
+                .expectedType(context.currentDocument().get(), startPosition);
         if (typeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
