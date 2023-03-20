@@ -94,7 +94,6 @@ public class CliUtil {
     }
 
     private static Object getCharValue(String argument, String parameterName) {
-
         try {
             return TypeConverter.stringToChar(StringUtils.fromString(argument));
         } catch (BError e) {
@@ -103,7 +102,6 @@ public class CliUtil {
     }
 
     private static Object getByteValue(String argument, String parameterName) {
-
         try {
             return TypeConverter.stringToByte(argument);
         } catch (NumberFormatException | BError e) {
