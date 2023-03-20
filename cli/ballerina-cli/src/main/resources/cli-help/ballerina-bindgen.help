@@ -42,6 +42,18 @@ OPTIONS
            `public`. This flag will be applicable only if the bindings are
            generated inside a single directory.
 
+       --with-optional-types
+           Generate Ballerina bindings with ballerina optional(i.e. nilable) types for function parameter
+           and return types, to support passing and retrieving java null values.
+
+       --with-optional-types-param
+           Generate Ballerina bindings with ballerina optional(i.e. nilable) types for function parameter
+           types, to support passing java null values.
+
+       --with-optional-types-return
+           Generate Ballerina bindings with ballerina optional(i.e. nilable) types for function return
+           types, to support retrieving java null values.
+
        <class-name>...
            One or more space-separated, fully-qualified Java class names for
            which the bridge code is to be generated.
@@ -50,6 +62,10 @@ OPTIONS
 EXAMPLES
        Generate the Ballerina bridge code for a standard Java class.
            $ bal bindgen java.utils.ArrayDeque
+
+       Generate the Ballerina bridge code for a standard Java class, with the
+       support to pass and retrieve java null values.
+           $ bal bindgen java.utils.ArrayDeque --with-optional-types
 
        Generate Ballerina bridge code for library Java classes.
            $ bal bindgen -cp ./libs/snakeyaml-1.32.jar,./libs/pdfbox-1.8.10.jar
