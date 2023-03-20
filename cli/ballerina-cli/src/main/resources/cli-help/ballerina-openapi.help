@@ -83,7 +83,7 @@ OPTIONS
             This option can be used in client generation to select the client method type, which can be `resource` or `remote`. (The default option is `remote`).
 
         --with-service-type
-            This option can be used in service generation to generate the service with the service type object.
+            This option can be used to generate the service with a service-type object.
 
 EXAMPLES
        Generate a Ballerina mock service using a `hello.yaml` OpenAPI contract.
@@ -121,7 +121,7 @@ EXAMPLES
            $ bal openapi -i hello.yaml --client-methods resource
            $ bal openapi -i hello.yaml --mode client --client-methods resource
 
-       Generate a Ballerina service with the service type object.
+       Generate a Ballerina service with a service-type object.
            $ bal openapi -i hello.yaml --with-service-type
            $ bal openapi -i hello.yaml --mode service --with-service-type
 
