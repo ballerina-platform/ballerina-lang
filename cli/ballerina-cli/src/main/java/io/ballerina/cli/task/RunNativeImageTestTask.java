@@ -56,7 +56,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
@@ -80,6 +79,7 @@ import java.util.zip.ZipInputStream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.NativeUtils.createReflectConfig;
+import static io.ballerina.cli.utils.NativeUtils.getURLList;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static io.ballerina.projects.util.ProjectConstants.BIN_DIR_NAME;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
@@ -106,6 +106,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTABLE;
 public class RunNativeImageTestTask implements Task {
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+    private static final String WIN_EXEC_EXT = "exe";
 
     private static class StreamGobbler extends Thread {
         private InputStream inputStream;
@@ -244,20 +245,6 @@ public class RunNativeImageTestTask implements Task {
         return cw.toByteArray();
     }
 
-    private static List<URL> getURLList(List<String> jarFilePaths) {
-        List<URL> urlList = new ArrayList<>();
-
-        for (String jarFilePath : jarFilePaths) {
-            try {
-                urlList.add(Paths.get(jarFilePath).toUri().toURL());
-            } catch (MalformedURLException e) {
-                // This path cannot get executed
-                throw new RuntimeException("Failed to create classloader with all jar files", e);
-            }
-        }
-        return urlList;
-    }
-
     //Get all mocked functions in a class
     private static void populateClassNameVsFunctionToMockMap(Map<String, List<String>> classVsMockFunctionsMap,
                                                              Map<String, String> mockFunctionMap) {
@@ -297,7 +284,7 @@ public class RunNativeImageTestTask implements Task {
         coverage = project.buildOptions().codeCoverage();
 
         if (coverage) {
-            this.out.println("WARNING: Code coverage generation is not supported currently by Ballerina native test");
+            this.out.println("WARNING: Code coverage generation is not supported with Ballerina native test");
         }
 
         if (report) {
@@ -377,6 +364,7 @@ public class RunNativeImageTestTask implements Task {
             testSuiteMapEntries.add(testSuiteMap);
         }
 
+        int accumulatedTestResult = 0;
         //Execute each testsuite within list one by one
         for (Map<String, TestSuite> testSuiteMap : testSuiteMapEntries) {
             try {
@@ -414,7 +402,9 @@ public class RunNativeImageTestTask implements Task {
                 int testResult = 1;
                 try {
                     testResult = runTestSuiteWithNativeImage(project.currentPackage(), target, testSuiteMap);
-
+                    if (testResult != 0) {
+                        accumulatedTestResult = testResult;
+                    }
                     if (report) {
                         for (Map.Entry<String, TestSuite> testSuiteEntry : testSuiteMap.entrySet()) {
                             String moduleName = testSuiteEntry.getKey();
@@ -434,11 +424,6 @@ public class RunNativeImageTestTask implements Task {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-
-                if (testResult != 0) {
-                    TestUtils.cleanTempCache(project, cachesRoot);
-                    throw createLauncherException("there are test failures");
-                }
             }
         }
         if (report && hasTests) {
@@ -448,6 +433,11 @@ public class RunNativeImageTestTask implements Task {
                 TestUtils.cleanTempCache(project, cachesRoot);
                 throw createLauncherException("error occurred while generating test report:", e);
             }
+        }
+
+        if (accumulatedTestResult != 0) {
+            TestUtils.cleanTempCache(project, cachesRoot);
+            throw createLauncherException("there are test failures");
         }
 
 
@@ -532,10 +522,12 @@ public class RunNativeImageTestTask implements Task {
         outputGobbler.start();
 
         if (process.waitFor() == 0) {
+            outputGobbler.join();
             cmdArgs = new ArrayList<>();
 
             // Run the generated image
-            cmdArgs.add(nativeTargetPath.resolve(packageName).toString());
+            String generatedImagePath = nativeTargetPath.resolve(packageName) + getGeneratedImageExtension();
+            cmdArgs.add(generatedImagePath);
 
             // Test Runner Class arguments
             cmdArgs.add(target.path().toString());                                  // 0
@@ -553,7 +545,9 @@ public class RunNativeImageTestTask implements Task {
             outputGobbler =
                     new StreamGobbler(process.getInputStream(), out);
             outputGobbler.start();
-            return process.waitFor();
+            int exitCode = process.waitFor();
+            outputGobbler.join();
+            return exitCode;
         } else {
             return 1;
         }
@@ -742,4 +736,10 @@ public class RunNativeImageTestTask implements Task {
         return unmodifiedFiles;
     }
 
+    private String getGeneratedImageExtension() {
+        if (OS.contains("win")) {
+            return DOT + WIN_EXEC_EXT;
+        }
+        return "";
+    }
 }

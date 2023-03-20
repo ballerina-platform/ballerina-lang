@@ -772,6 +772,7 @@ public class ProjectUtils {
         content.append("[ballerina]\n");
         content.append("dependencies-toml-version = \"").append(ProjectConstants.DEPENDENCIES_TOML_VERSION)
                 .append("\"\n");
+        content.append("distribution-version = \"").append(RepoUtils.getBallerinaShortVersion()).append("\"\n");
 
         // write dependencies from package dependency graph
         pkgDependencies.forEach(dependency -> {

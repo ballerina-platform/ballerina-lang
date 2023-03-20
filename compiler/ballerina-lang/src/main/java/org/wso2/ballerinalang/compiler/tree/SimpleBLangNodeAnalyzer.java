@@ -1514,7 +1514,7 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public void visit(BLangTupleTypeNode node, T data) {
         analyzeNode(node, data);
-        visitNode(node.memberTypeNodes, data);
+        visitNode(node.members, data);
         visitNode(node.restParamType, data);
     }
 

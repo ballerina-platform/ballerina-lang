@@ -41,7 +41,6 @@ public enum SyntaxKind {
     TYPE_KEYWORD(107, "type"),
     RECORD_KEYWORD(108, "record"),
     OBJECT_KEYWORD(109, "object"),
-    VERSION_KEYWORD(110, "version"),
     AS_KEYWORD(111, "as"),
     ON_KEYWORD(112, "on"),
     RESOURCE_KEYWORD(113, "resource"),
@@ -476,6 +475,7 @@ public enum SyntaxKind {
     SPREAD_MEMBER(3087),
     COMPUTED_RESOURCE_ACCESS_SEGMENT(3088),
     RESOURCE_ACCESS_REST_SEGMENT(3089),
+    MEMBER_TYPE_DESC(3090),
 
     // XML
     XML_ELEMENT(4000),

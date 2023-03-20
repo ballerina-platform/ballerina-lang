@@ -818,6 +818,8 @@ public class ParserTestUtils {
                 return SyntaxKind.INFERRED_TYPEDESC_DEFAULT;
             case "SPREAD_MEMBER":
                 return SyntaxKind.SPREAD_MEMBER;
+            case "MEMBER_TYPE_DESC":
+                return SyntaxKind.MEMBER_TYPE_DESC;
             default:
                 return getActionKind(kind);
         }
@@ -1106,8 +1108,6 @@ public class ParserTestUtils {
                 return SyntaxKind.PANIC_KEYWORD;
             case "IMPORT_KEYWORD":
                 return SyntaxKind.IMPORT_KEYWORD;
-            case "VERSION_KEYWORD":
-                return SyntaxKind.VERSION_KEYWORD;
             case "AS_KEYWORD":
                 return SyntaxKind.AS_KEYWORD;
             case "CONTINUE_KEYWORD":

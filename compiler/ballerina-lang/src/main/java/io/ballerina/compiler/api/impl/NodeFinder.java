@@ -985,7 +985,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        lookupNodes(tupleTypeNode.memberTypeNodes);
+        lookupNodes(tupleTypeNode.members);
         lookupNode(tupleTypeNode.restParamType);
     }
 
@@ -1501,6 +1501,7 @@ class NodeFinder extends BaseVisitor {
             return false;
         }
 
-        return ((BLangClassDefinition) node).flagSet.contains(Flag.SERVICE);
+        return ((BLangClassDefinition) node).flagSet.contains(Flag.SERVICE) && ((BLangClassDefinition) node).flagSet
+                .contains(Flag.ANONYMOUS);
     }
 }
