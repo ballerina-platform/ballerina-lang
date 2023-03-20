@@ -157,10 +157,8 @@ public class BasicSnippetFactory extends SnippetFactory {
                 TypedBindingPatternNode typedBindingPatternNode = varNode.typedBindingPattern();
                 TypeDescriptorNode typeDescriptorNode = typedBindingPatternNode.typeDescriptor();
                 BindingPatternNode bindingPatternNode = typedBindingPatternNode.bindingPattern();
-
                 String functionPart = "function() returns ";
                 String functionBody = varNode.initializer().get().toString();
-
                 String functionString = "var " + "f_" + varFunctionCount + " = " + functionPart
                         + typeDescriptorNode.toString() + "{" + typeDescriptorNode + bindingPatternNode.toString()
                         + " = " + functionBody + ";" + "return " + bindingPatternNode + ";};";
