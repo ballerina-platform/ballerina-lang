@@ -117,9 +117,9 @@ function testTupleMemberAnnotations2() returns [@annotOne {value: gVar1} @annotT
 }
 
 function testTupleMemberAnnotations() {
-    map<any> m1 = getLocalTupleAnnotations(typeof testTupleMemberAnnotations1(), "$field$.0");
-    map<any> m2 = getLocalTupleAnnotations(typeof testTupleMemberAnnotations1(), "$field$.1");
-    map<any> m3 = getLocalTupleAnnotations(typeof testTupleMemberAnnotations2(), "$field$.0");
+    map<any> m1 = getAnonymousTupleAnnotations(typeof testTupleMemberAnnotations1(), "$field$.0");
+    map<any> m2 = getAnonymousTupleAnnotations(typeof testTupleMemberAnnotations1(), "$field$.1");
+    map<any> m3 = getAnonymousTupleAnnotations(typeof testTupleMemberAnnotations2(), "$field$.0");
     assertEquality({value: "foo"}, <map<anydata>>m1["annotOne"]);
     assertEquality({name: "name", age: 10}, <map<anydata>>m2["details"]);
     assertEquality({value: "bar"}, <map<anydata>>m3["annotOne"]);
