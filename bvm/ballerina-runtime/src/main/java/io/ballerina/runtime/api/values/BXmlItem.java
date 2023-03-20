@@ -16,7 +16,6 @@
 
 package io.ballerina.runtime.api.values;
 
-import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
 /**
@@ -26,8 +25,7 @@ import javax.xml.namespace.QName;
  */
 public interface BXmlItem extends BXml {
 
-    String XMLNS_NS_URI_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
-
+    @Deprecated
     String XMLNS = "xmlns";
 
     QName getQName();

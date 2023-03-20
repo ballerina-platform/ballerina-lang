@@ -37,6 +37,7 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.types.BClientType;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 
 import java.util.List;
@@ -64,7 +65,9 @@ public class ObjectMock {
         if (!objectValueType.getName().contains(MockConstants.DEFAULT_MOCK_OBJ_ANON)) {
             // handle user-defined mock object
             if (objectValueType.getMethods().length == 0 &&
-                    objectValueType.getFields().size() == 0) {
+                    objectValueType.getFields().size() == 0 &&
+                    (objectValueType instanceof BClientType &&
+                            ((BClientType) objectValueType).getResourceMethods().length == 0)) {
                 String detail = "mock object type '" + objectValueType.getName()
                         + "' should have at least one member function or field declared.";
                 throw ErrorCreator.createError(
@@ -80,6 +83,15 @@ public class ObjectMock {
                             ((ObjectType) bTypedesc.getDescribingType()).getMethods());
                     if (error != null) {
                         throw  error;
+                    }
+                }
+                if (objectValueType instanceof BClientType) {
+                    for (MethodType attachedFunction : ((BClientType) objectValueType).getResourceMethods()) {
+                        BError error = validateFunctionSignatures(attachedFunction,
+                                ((BClientType) bTypedesc.getDescribingType()).getResourceMethods());
+                        if (error != null) {
+                            throw  error;
+                        }
                     }
                 }
                 for (Map.Entry<String, Field> field : objectValueType.getFields().entrySet()) {

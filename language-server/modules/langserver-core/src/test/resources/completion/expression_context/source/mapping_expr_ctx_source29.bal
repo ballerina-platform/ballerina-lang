@@ -1,7 +1,7 @@
 type Application record {|
     string id;
     string name;
-    int 'version;
+    int version;
 |};
 
 type ErrorData record {

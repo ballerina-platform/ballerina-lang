@@ -97,7 +97,6 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      */
     public static class Call extends BIRTerminator implements BIRAssignInstruction {
         public boolean isVirtual;
-        public boolean transactional;
         public List<BIROperand> args;
         public Name name;
         public PackageID calleePkg;
@@ -117,7 +116,6 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             super(pos, kind);
             this.lhsOp = lhsOp;
             this.isVirtual = isVirtual;
-            this.transactional = calleeFlags.contains(Flag.TRANSACTIONAL);
             this.args = args;
             this.thenBB = thenBB;
             this.name = name;
@@ -211,7 +209,6 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public BIROperand fp;
         public List<BIROperand> args;
         public boolean isAsync;
-        public boolean transactional;
         public boolean workerDerivative;
 
         public FPCall(Location pos,
@@ -237,12 +234,10 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                       List<BIROperand> args,
                       BIROperand lhsOp,
                       boolean isAsync,
-                      boolean transactional,
                       BIRBasicBlock thenBB,
                       BirScope scope,
                       boolean workerDerivative) {
             this(pos, kind, fp, args, lhsOp, isAsync, thenBB, scope);
-            this.transactional = transactional;
             this.workerDerivative = workerDerivative;
         }
 

@@ -25,6 +25,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -94,6 +95,23 @@ public class ForeachIterableObjectTest {
     @Test
     public void testNextIsNotInvokedTwiseBeforeInvokingBody() {
         BRunUtil.invoke(program, "testNextIsNotInvokedTwiseBeforeInvokingBody");
+    }
+
+    @Test(dataProvider = "langLibIntRangeFunctionTests")
+    public void testLangLibIntRangeFunction(String funcName) {
+        BRunUtil.invoke(program, funcName);
+    }
+
+    @DataProvider
+    private Object[][] langLibIntRangeFunctionTests() {
+        return new Object[][]{
+                {"testLangLibRangeFunction1"},
+                {"testLangLibRangeFunction2"},
+                {"testLangLibRangeFunction3"},
+                {"testLangLibRangeFunction4"},
+                {"testLangLibRangeFunction5"},
+                {"testLangLibRangeFunction6"}
+        };
     }
 
     @Test

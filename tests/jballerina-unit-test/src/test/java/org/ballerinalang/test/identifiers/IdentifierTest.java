@@ -64,6 +64,7 @@ public class IdentifierTest {
         validateError(result, index++, "redeclared symbol 'error'", 19, 18);
         validateError(result, index++, "redeclared symbol 'error'", 30, 11);
         validateError(result, index++, "redeclared symbol 'error'", 37, 73);
+        validateError(result, index++, "redeclared symbol 'error'", 39, 39);
         validateError(result, index++, "redeclared symbol 'error'", 39, 72);
         validateError(result, index++, "redeclared symbol 'error'", 39, 96);
         validateError(result, index++, "redeclared symbol 'error'", 41, 94);

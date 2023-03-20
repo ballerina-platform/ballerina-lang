@@ -47,6 +47,7 @@ public class RegExpLexer extends AbstractLexer {
         STToken token;
         switch (this.mode) {
             case RE_DISJUNCTION:
+            case RE_CHAR_CLASS:
                 token = readTokenInReDisjunction();
                 break;
             case RE_UNICODE_PROP_ESCAPE:
@@ -57,6 +58,10 @@ public class RegExpLexer extends AbstractLexer {
                 break;
             case INTERPOLATION:
                 token = readTokenInInterpolation();
+                break;
+            case RE_QUOTE_ESCAPE:
+                token = readTokenInReDisjunction();
+                endMode();
                 break;
             default:
                 token = null;
@@ -100,7 +105,7 @@ public class RegExpLexer extends AbstractLexer {
             case LexerTerminals.BITWISE_XOR:
                 return getRegExpSyntaxToken(SyntaxKind.BITWISE_XOR_TOKEN);
             case LexerTerminals.DOLLAR:
-                if (peek() == LexerTerminals.OPEN_BRACE) {
+                if (this.mode != ParserMode.RE_CHAR_CLASS && peek() == LexerTerminals.OPEN_BRACE) {
                     // Start interpolation mode.
                     startMode(ParserMode.INTERPOLATION);
                     this.reader.advance();
@@ -116,17 +121,18 @@ public class RegExpLexer extends AbstractLexer {
             case LexerTerminals.QUESTION_MARK:
                 return getRegExpSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
             case LexerTerminals.BACKSLASH:
-                // This is used to identify `\-` in ReCharSetAtomNoDash. It's an invalid node if it's in any other
-                // position.
-                if (peek() == LexerTerminals.MINUS) {
-                    this.reader.advance();
-                    return getRegExpSyntaxToken(SyntaxKind.ESCAPED_MINUS_TOKEN);
-                }
                 return processReEscape();
             // Start parsing ReSyntaxChar character class [[^] [ReCharSet]].
             case LexerTerminals.OPEN_BRACKET:
+                if (this.mode != ParserMode.RE_QUOTE_ESCAPE) {
+                    startMode(ParserMode.RE_CHAR_CLASS);
+                }
+
                 return getRegExpSyntaxToken(SyntaxKind.OPEN_BRACKET_TOKEN);
             case LexerTerminals.CLOSE_BRACKET:
+                if (this.mode == ParserMode.RE_CHAR_CLASS) {
+                    endMode();
+                }
                 return getRegExpSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
             case LexerTerminals.OPEN_BRACE:
                 return getRegExpSyntaxToken(SyntaxKind.OPEN_BRACE_TOKEN);
@@ -170,6 +176,9 @@ public class RegExpLexer extends AbstractLexer {
                     // Change the parser mode to handle ReUnicodePropertyEscape.
                     startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
                 }
+                break;
+            case LexerTerminals.OPEN_BRACKET:
+                startMode(ParserMode.RE_QUOTE_ESCAPE);
                 break;
             default:
                 break;

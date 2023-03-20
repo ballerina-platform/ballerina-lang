@@ -57,7 +57,7 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  * @since 0.995.0
  */
 public abstract class AbstractObjectValue implements ObjectValue {
-    private final BTypedesc typedesc;
+    private BTypedesc typedesc;
     private final BObjectType objectType;
     private final Type type;
 
@@ -66,7 +66,6 @@ public abstract class AbstractObjectValue implements ObjectValue {
     public AbstractObjectValue(Type type) {
         this.type = type;
         this.objectType = (BObjectType) TypeUtils.getReferredType(type);
-        this.typedesc = new TypedescValueImpl(type);
     }
 
     @Override
@@ -182,6 +181,9 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = new TypedescValueImpl(type);
+        }
         return typedesc;
     }
 

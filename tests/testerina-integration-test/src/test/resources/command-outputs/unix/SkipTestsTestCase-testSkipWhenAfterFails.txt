@@ -1,0 +1,35 @@
+Code coverage is not yet supported with single bal files. Ignoring the flag and continuing the test run...
+warning: ignoring --includes flag since code coverage is not enabled
+Compiling source
+	skip-when-after-fails.bal
+WARNING [skip-when-after-fails.bal:(30:5,30:18)] unused variable 'i'
+
+Running Tests
+
+	skip-when-after-fails.bal
+	[fail] [after test function for the test]:
+	     / by zero
+	[fail] afterSuite[after test suite function]:
+	    Assertion Failed!
+ 
+expected: 'beforetestafterEachtestafterEach'
+actual	: 'beforetestafterEachafterEachtestafterEach'
+ 
+Diff	:
+
+--- actual
++++ expected 
+ 
+ @@ -1,1 +1,1 @@ 
+ 
+ -beforetestafterEachafterEachtestafterEach
++beforetestafterEachtestafterEach
+
+		[pass] test1
+		[pass] test3
+
+
+		2 passing
+		0 failing
+		1 skipped
+error: there are test failures

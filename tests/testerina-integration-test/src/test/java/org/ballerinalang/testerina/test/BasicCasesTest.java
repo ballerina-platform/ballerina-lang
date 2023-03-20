@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
+import org.ballerinalang.testerina.test.utils.CommonUtils;
 import org.ballerinalang.testerina.test.utils.FileUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -45,138 +46,141 @@ public class BasicCasesTest extends BaseTestCase {
     }
 
     @Test
-    public void testAssertions() throws BallerinaTestException {
+    public void testAssertions() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"assertions"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "assertion failure");
+        AssertionUtils.assertOutput("BasicCasesTest-testAssertions.txt", output);
     }
 
     @Test
-    public void testAssertDiffError() throws BallerinaTestException {
+    public void testAssertDiffError() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"assertions-diff-error"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "assertion diff message failure in test framework");
+        AssertionUtils.assertOutput("BasicCasesTest-testAssertDiffError.txt", output);
     }
 
     @Test
-    public void testAssertionErrorMessage() throws BallerinaTestException {
+    public void testAssertionErrorMessage() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"assertions-error-messages"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "assertion diff message failure");
+        AssertionUtils.assertOutput("BasicCasesTest-testAssertionErrorMessage.txt", output);
     }
 
     @Test
-    public void testAssertBehavioralTypes() throws BallerinaTestException {
+    public void testAssertBehavioralTypes() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"assertions-behavioral-types"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "assertion failure for behavioral data types");
+        AssertionUtils.assertOutput("BasicCasesTest-testAssertBehavioralTypes.txt", output);
     }
 
     @Test
-    public void testAssertStructuralTypes() throws BallerinaTestException {
+    public void testAssertStructuralTypes() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"assertions-structural-types"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "assertion failure for structural data types");
+        AssertionUtils.assertOutput("BasicCasesTest-testAssertStructuralTypes.txt", output);
     }
 
     @Test
-    public void testAssertSequenceTypes() throws BallerinaTestException {
+    public void testAssertSequenceTypes() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"assertions-sequence-types"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "assertion failure for sequence data types");
+        AssertionUtils.assertOutput("BasicCasesTest-testAssertSequenceTypes.txt", output);
     }
 
     @Test
-    public void testAnnotationAccess() throws BallerinaTestException {
+    public void testAnnotationAccess() throws BallerinaTestException, IOException {
+        String endString = " SEVERE {b7a.log.crash} - ";
+        String firstString = "We thank you for helping make us better.";
         String[] args = mergeCoverageArgs(new String[]{"annotation-access"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "test annotation access failure");
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput("BasicCasesTest-testAnnotationAccess.txt", output);
     }
 
     @Test
-    public void testJavaInterops() throws BallerinaTestException {
+    public void testJavaInterops() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"interops"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "interops failure");
+        AssertionUtils.assertOutput("BasicCasesTest-testJavaInterops.txt", output);
     }
 
     @Test
-    public void testRuntimeApi() throws BallerinaTestException {
+    public void testRuntimeApi() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"runtime-api-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "runtime api failure");
+        AssertionUtils.assertOutput("BasicCasesTest-testRuntimeApi.txt", output);
     }
 
     @Test
-    public void testBeforeAfter() throws BallerinaTestException {
+    public void testBeforeAfter() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"before-after"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "before-after annotation attribute failure");
+        AssertionUtils.assertOutput("BasicCasesTest-testBeforeAfter.txt", output);
     }
 
     @Test
-    public void testBeforeEachAfterEach() throws BallerinaTestException {
+    public void testBeforeEachAfterEach() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"before-each-after-each"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "before-each-after-each annotation attribute failure");
+        AssertionUtils.assertOutput("BasicCasesTest-testBeforeEachAfterEach.txt", output);
     }
 
     @Test(dependsOnMethods = "testBeforeAfter")
-    public void testDependsOn() throws BallerinaTestException {
+    public void testDependsOn() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"depends-on"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "depends-on annotation attribute failure");
+        AssertionUtils.assertOutput("BasicCasesTest-testDependsOn.txt", output);
     }
 
     @Test(dependsOnMethods = "testDependsOn")
-    public void testAnnotations() throws BallerinaTestException {
+    public void testAnnotations() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"annotations"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "annotations failure");
+        AssertionUtils.assertOutput("BasicCasesTest-testAnnotations.txt", output);
     }
 
     @Test
-    public void testIsolatedFunctions() throws BallerinaTestException {
+    public void testIsolatedFunctions() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"isolated-functions"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "isolated functions failure");
+        AssertionUtils.assertOutput("BasicCasesTest-testIsolatedFunctions.txt", output);
     }
 
     @Test
-    public void testIntersectionTypes() throws BallerinaTestException {
+    public void testIntersectionTypes() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"intersection-type-test"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "intersection type failure");
+        AssertionUtils.assertOutput("BasicCasesTest-testIntersectionTypes.txt", output);
     }
 
     @Test
-    public void testAnydataType() throws BallerinaTestException {
+    public void testAnydataType() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"anydata-type-test"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "anydata type failure");
+        AssertionUtils.assertOutput("BasicCasesTest-testAnydataType.txt", output);
     }
 
     @Test
-    public void testAsyncInvocation() throws BallerinaTestException {
+    public void testAsyncInvocation() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"async"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "async invocation failure");
+        AssertionUtils.assertOutput("BasicCasesTest-testAsyncInvocation.txt", output);
     }
 }

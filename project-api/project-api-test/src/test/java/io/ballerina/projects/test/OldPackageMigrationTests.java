@@ -34,7 +34,7 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Iterator;
 
-import static io.ballerina.projects.test.TestUtils.readFileAsString;
+import static io.ballerina.projects.test.TestUtils.assertTomlFilesEquals;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
@@ -79,8 +79,8 @@ public class OldPackageMigrationTests extends BaseTest {
         Assert.assertEquals(diagnosticIterator.next().message(),
                 "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
         // Check updating to v2 the warning
-        Assert.assertEquals(readFileAsString(packagePath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                packagePath.resolve(RESOURCE_DIR_NAME).resolve("UpdatedDependencies.toml")));
+        assertTomlFilesEquals(packagePath.resolve(DEPENDENCIES_TOML),
+                packagePath.resolve(RESOURCE_DIR_NAME).resolve("UpdatedDependencies.toml"));
     }
 
     @Test
@@ -131,8 +131,8 @@ public class OldPackageMigrationTests extends BaseTest {
                         + "version = \"0.1.0\"\n"
                         + "repository = \"local\"\n");
         // Check updated Dependencies.toml
-        Assert.assertEquals(readFileAsString(packagePath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                packagePath.resolve(RESOURCE_DIR_NAME).resolve("UpdatedDependencies.toml")));
+        assertTomlFilesEquals(packagePath.resolve(DEPENDENCIES_TOML),
+                packagePath.resolve(RESOURCE_DIR_NAME).resolve("UpdatedDependencies.toml"));
     }
 
     @AfterMethod

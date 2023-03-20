@@ -33,7 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static io.ballerina.projects.test.TestUtils.readFileAsString;
+import static io.ballerina.projects.test.TestUtils.assertTomlFilesEquals;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
@@ -81,8 +81,8 @@ public class SubsequentBuildTests {
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         // Check Dependencies.toml content
-        Assert.assertEquals(readFileAsString(packagePath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                packagePath.resolve(RESOURCE_DIR_NAME).resolve("UpdatedDependencies.toml")));
+        assertTomlFilesEquals(packagePath.resolve(DEPENDENCIES_TOML),
+                packagePath.resolve(RESOURCE_DIR_NAME).resolve("UpdatedDependencies.toml"));
     }
 
     @Test(dependsOnMethods = "testBuildPackage")
@@ -111,8 +111,8 @@ public class SubsequentBuildTests {
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         // Check updated Dependencies.toml content
-        Assert.assertEquals(readFileAsString(packagePath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                packagePath.resolve(RESOURCE_DIR_NAME).resolve("UpdatedDependencies.toml")));
+        assertTomlFilesEquals(packagePath.resolve(DEPENDENCIES_TOML),
+                packagePath.resolve(RESOURCE_DIR_NAME).resolve("UpdatedDependencies.toml"));
     }
 
     @AfterClass

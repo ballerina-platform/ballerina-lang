@@ -20,7 +20,7 @@ public function main() {
     module1:TestRecord1 rec;
 
     //Enum
-    //module1:TestEnum1 testEnum;
+    module1:TestEnum1 testEnum;
 
     //Constant
     int constant = module1:TEST_INT_CONST1;

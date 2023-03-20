@@ -1,0 +1,13 @@
+Code coverage is not yet supported with single bal files. Ignoring the flag and continuing the test run...
+
+Warning: Other flags are skipped when list-groups flag is provided.
+
+warning: ignoring --includes flag since code coverage is not enabled
+Compiling source
+	groups-test.bal
+
+Running Tests
+
+	groups-test.bal
+	Following groups are available :
+	[g1, g2, g3, g4, g5, g6]

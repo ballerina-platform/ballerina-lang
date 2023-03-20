@@ -88,9 +88,9 @@ import java.util.Optional;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
+import static io.ballerina.projects.test.TestUtils.assertTomlFilesEquals;
 import static io.ballerina.projects.test.TestUtils.isWindows;
 import static io.ballerina.projects.test.TestUtils.loadProject;
-import static io.ballerina.projects.test.TestUtils.readFileAsString;
 import static io.ballerina.projects.test.TestUtils.resetPermissions;
 import static io.ballerina.projects.test.TestUtils.writeContent;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
@@ -298,7 +298,7 @@ public class TestBuildProject extends BaseTest {
 
         // Verify paths in packageCompilation diagnostics
         List<String> diagnosticFilePaths = compilation.diagnosticResult().diagnostics().stream().map(diagnostic ->
-                diagnostic.location().lineRange().filePath()).distinct().collect(Collectors.toList());
+                diagnostic.location().lineRange().fileName()).distinct().collect(Collectors.toList());
 
         for (String path : expectedPaths) {
             Assert.assertTrue(diagnosticFilePaths.contains(path), diagnosticFilePaths.toString());
@@ -313,7 +313,7 @@ public class TestBuildProject extends BaseTest {
 
         // Verify paths in jBallerina backend diagnostics
         diagnosticFilePaths = jBallerinaBackend.diagnosticResult().diagnostics().stream().map(diagnostic ->
-                diagnostic.location().lineRange().filePath()).distinct().collect(Collectors.toList());
+                diagnostic.location().lineRange().fileName()).distinct().collect(Collectors.toList());
 
         for (String path : expectedPaths) {
             Assert.assertTrue(diagnosticFilePaths.contains(path), diagnosticFilePaths.toString());
@@ -1241,7 +1241,7 @@ public class TestBuildProject extends BaseTest {
         PackageCompilation compilation1 = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
-        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().fileName(),
                 "main.bal");
         Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
                 .contains("missing required parameter 'c'"));
@@ -1268,7 +1268,7 @@ public class TestBuildProject extends BaseTest {
         PackageCompilation compilation1 = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
-        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().fileName(),
                 "main.bal");
         Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
                 .contains("undefined function 'concatStrings'"));
@@ -1300,7 +1300,7 @@ public class TestBuildProject extends BaseTest {
         DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
 
-        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().fileName(),
                 Paths.get("modules").resolve("schema").resolve("schema.bal").toString());
         Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
                 .contains("unknown type 'PersonalDetails'"));
@@ -1437,9 +1437,8 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(initialBuildJson.lastBuildTime() > 0, "invalid last_build_time in the build file");
         Assert.assertTrue(initialBuildJson.lastUpdateTime() > 0, "invalid last_update_time in the build file");
         Assert.assertFalse(initialBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
-        Assert.assertEquals(
-                readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")),
-                readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)));
+        assertTomlFilesEquals(projectPath.resolve(DEPENDENCIES_TOML),
+                projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml"));
 
 
         // 2) Build project again with build file after removing Dependencies.toml
@@ -1456,9 +1455,8 @@ public class TestBuildProject extends BaseTest {
                      "last_update_time has updated for the second build");
         Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
         Assert.assertFalse(projectSecondBuild.currentPackage().getResolution().autoUpdate());
-        Assert.assertEquals(
-                readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")),
-                readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)));
+        assertTomlFilesEquals(projectPath.resolve(DEPENDENCIES_TOML),
+                projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml"));
 
         // Remove generated files
         Files.deleteIfExists(projectSecondBuild.targetDir().resolve(BUILD_FILE));
@@ -1584,9 +1582,8 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         // Check Dependencies.toml
-        Assert.assertEquals(
-                readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")),
-                readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml"));
 
         // Clean Dependencies.toml and build file if already exists
         Files.deleteIfExists(projectDirPath.resolve(DEPENDENCIES_TOML));
@@ -2185,7 +2182,7 @@ public class TestBuildProject extends BaseTest {
         PackageCompilation compilation = currentPackage.getCompilation();
 
         List<String> actualDiagnosticPaths = compilation.diagnosticResult().diagnostics().stream().map(diagnostic ->
-                diagnostic.location().lineRange().filePath()).distinct().collect(Collectors.toList());
+                diagnostic.location().lineRange().fileName()).distinct().collect(Collectors.toList());
 
         List<String> expectedDiagnosticPaths = Arrays.asList(
                 "main.bal", Paths.get("tests").resolve("main_test.bal").toString(),

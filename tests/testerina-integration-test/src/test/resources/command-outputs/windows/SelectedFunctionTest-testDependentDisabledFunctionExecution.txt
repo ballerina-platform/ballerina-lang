@@ -1,0 +1,10 @@
+Code coverage is not yet supported with single bal files. Ignoring the flag and continuing the test run...
+warning: ignoring --includes flag since code coverage is not enabled
+Compiling source
+	single-test-execution.bal
+
+Running Tests
+
+	single-test-execution.bal
+error: Test [testDependentDisabledFunc] depends on function [testDisabledFunc], but it is either disabled or not included.
+error: there are test failures
