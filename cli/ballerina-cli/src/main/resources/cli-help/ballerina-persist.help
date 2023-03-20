@@ -1,14 +1,41 @@
 NAME
-       bal persist - Perform operations on Ballerina Persistent Layer
+       bal persist - Manage data persistence
 
 SYNOPSIS
-       bal persist
        bal persist <command> [<-h> | <--help>]
-       bal persist <command>
 
 DESCRIPTION
-       Perform operations on the Ballerina Persistent Layer. This can be used to initialize
-       the persistence layer, generate Ballerina client, types and SQL script for the model definition file.
+       Manage the data persistence in a Ballerina package.
+
+       Initializing the package for persistence is the first step toward achieving
+       data persistence in a Ballerina package. This step creates the required
+       directories and configuration files. For example:
+
+           $ bal persist init
+
+       Define the application's data model as the next step. Use the generated
+       definition file in the "persist" directory to define the data model
+       with the domain-specific entities. Use the standard Ballerina record type
+       definitions to represent entities and their relationships. For example:
+
+           type Department record {|
+               readonly string deptNo;
+               string deptName;
+               Employee[] employees;
+           |};
+
+           type Employee record {|
+               readonly string empNo;
+               string firstName;
+               string lastName;
+               Department department;
+           |};
+
+       Then, generate the client API based on the data model. Use the generated
+       API to query and manipulate the persistent data in the application.
+       For example:
+
+       $ bal persist generate
 
 OPTIONS
        -h, --help
@@ -17,20 +44,7 @@ OPTIONS
 BALLERINA COMMANDS
        The below is a list of available subcommands:
 
-       init            Initialize the persistence layer in the Ballerina project.
-       generate        Generate Ballerina client, types and SQL script for the model definition file in the persist directory.
+       init            Initialize the package for persistence
+       generate        Generate the client API based on the data model defined in the "persist" directory
 
 Use 'bal persist <command> --help' for more information on a specific command.
-
-EXAMPLES
-       Print the usage details of all commands.
-          $ bal persist --help
-
-       Print the usage details of the `bal persist init` command.
-          $ bal persist init --help
-
-       Initialize the persistence layer in the Ballerina project.
-          $ bal persist init
-
-       Generate Ballerina client, types and SQL script for the model definition file inside persist directory.
-          $ bal persist generate
