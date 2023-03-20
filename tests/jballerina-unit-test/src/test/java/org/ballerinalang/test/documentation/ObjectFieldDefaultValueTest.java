@@ -29,6 +29,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +41,7 @@ public class ObjectFieldDefaultValueTest {
     private List<BClass> bClasses;
 
     @BeforeClass
-    public void setup() throws Exception {
+    public void setup() throws IOException {
         String sourceRoot =
                 "test-src" + File.separator + "documentation" + File.separator + "default_value_initialization";
         io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);
