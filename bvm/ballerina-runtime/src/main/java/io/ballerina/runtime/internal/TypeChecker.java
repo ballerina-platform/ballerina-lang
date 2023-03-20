@@ -2625,29 +2625,31 @@ public class TypeChecker {
                 }
                 return true;
             case TypeTags.MAP_TAG:
-                for (Object value : ((MapValueImpl) sourceValue).values()) {
-                    if (!checkIsLikeType(null, value, targetType, unresolvedValues, allowNumericConversion,
-                            null)) {
-                        return false;
-                    }
-                }
-                return true;
+                return checkIsMappingLikeJsonType((MapValueImpl) sourceValue, targetType, unresolvedValues,
+                        allowNumericConversion);
             case TypeTags.RECORD_TYPE_TAG:
                 TypeValuePair typeValuePair = new TypeValuePair(sourceValue, targetType);
                 if (unresolvedValues.contains(typeValuePair)) {
                     return true;
                 }
                 unresolvedValues.add(typeValuePair);
-                for (Object object : ((MapValueImpl) sourceValue).values()) {
-                    if (!checkIsLikeType(null, object, targetType, unresolvedValues, allowNumericConversion,
-                            null)) {
-                        return false;
-                    }
-                }
-                return true;
+                return checkIsMappingLikeJsonType((MapValueImpl) sourceValue, targetType, unresolvedValues,
+                        allowNumericConversion);
             default:
                 return false;
         }
+    }
+
+    private static boolean checkIsMappingLikeJsonType(MapValueImpl sourceValue, BJsonType targetType,
+                                                      List<TypeValuePair> unresolvedValues,
+                                                      boolean allowNumericConversion) {
+        for (Object value : sourceValue.values()) {
+            if (!checkIsLikeType(null, value, targetType, unresolvedValues, allowNumericConversion,
+                    null)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean checkIsLikeRecordType(Object sourceValue, BRecordType targetType,
