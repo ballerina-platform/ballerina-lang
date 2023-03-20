@@ -66,7 +66,6 @@ public class SelectedFunctionTest extends BaseTestCase {
 
     @Test
     public void testNonExistingFunctionExecution() throws BallerinaTestException, IOException {
-        String msg = "No tests found";
         String[] args = mergeCoverageArgs(new String[]{"--tests", "nonExistingFunc", "single-test-execution.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -83,8 +82,6 @@ public class SelectedFunctionTest extends BaseTestCase {
 
     @Test
     public void testDependentDisabledFunctionExecution() throws BallerinaTestException, IOException {
-        String errMsg = "error: Test [testDependentDisabledFunc] depends on function [testDisabledFunc], " +
-                "but it is either disabled or not included.";
         String[] args = mergeCoverageArgs(
                 new String[]{"--tests", "testDependentDisabledFunc", "single-test-execution.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,

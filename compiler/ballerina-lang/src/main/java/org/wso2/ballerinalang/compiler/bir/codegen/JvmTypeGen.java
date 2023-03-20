@@ -952,18 +952,22 @@ public class JvmTypeGen {
                 false);
     }
 
-    private void loadFunctionParameters(MethodVisitor mv, BInvokableType invokableType) {
-
-        BInvokableTypeSymbol invokableSymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
+    protected void loadFunctionPathParameters(MethodVisitor mv, BInvokableTypeSymbol invokableSymbol) {
         List<BVarSymbol> params = new ArrayList<>();
-        if (invokableSymbol == null) {
-            if (!invokableType.paramTypes.isEmpty()) {
-                loadFunctionPointerParameters(mv, invokableType);
-                return;
+        if (invokableSymbol != null) {
+            for (BVarSymbol param : invokableSymbol.params) {
+                SymbolKind paramKind = param.getKind();
+                if (paramKind != SymbolKind.PATH_PARAMETER && paramKind != SymbolKind.PATH_REST_PARAMETER) {
+                    break;
+                }
+                params.add(param);
             }
-        } else {
-            params = invokableSymbol.params;
         }
+        populateFunctionParameters(mv, invokableSymbol, params);
+    }
+
+    private void populateFunctionParameters(MethodVisitor mv, BInvokableTypeSymbol invokableSymbol,
+                                            List<BVarSymbol> params) {
         mv.visitLdcInsn((long) params.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, FUNCTION_PARAMETER);
@@ -990,6 +994,20 @@ public class JvmTypeGen {
             mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, INIT_FUNCTION_PARAM, false);
             mv.visitInsn(AASTORE);
         }
+    }
+
+    private void loadFunctionParameters(MethodVisitor mv, BInvokableType invokableType) {
+        BInvokableTypeSymbol invokableSymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
+        List<BVarSymbol> params = new ArrayList<>();
+        if (invokableSymbol == null) {
+            if (!invokableType.paramTypes.isEmpty()) {
+                loadFunctionPointerParameters(mv, invokableType);
+                return;
+            }
+        } else {
+            params = invokableSymbol.params;
+        }
+        populateFunctionParameters(mv, invokableSymbol, params);
     }
 
     private void loadFunctionPointerParameters(MethodVisitor mv, BInvokableType invokableType) {

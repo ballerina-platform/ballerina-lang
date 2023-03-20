@@ -1,0 +1,1 @@
+This is an invalid json file. Testerina will throw an error when it tries to parse this as a json file.
