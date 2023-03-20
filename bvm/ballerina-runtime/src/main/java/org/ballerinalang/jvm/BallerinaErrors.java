@@ -252,7 +252,7 @@ public class BallerinaErrors {
 
         }
 
-        if (!fileName.endsWith(BLANG_SRC_FILE_SUFFIX)) {
+        if (fileName != null && !fileName.endsWith(BLANG_SRC_FILE_SUFFIX)) {
             // Remove java sources for bal stacktrace if they are not extern functions.
             return Optional.empty();
         }
