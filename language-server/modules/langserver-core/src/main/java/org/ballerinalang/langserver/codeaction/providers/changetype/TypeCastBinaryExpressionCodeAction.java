@@ -49,7 +49,7 @@ import java.util.Set;
  * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class TypeCastNumericExpression extends TypeCastCodeAction {
+public class TypeCastBinaryExpressionCodeAction extends TypeCastCodeAction {
 
     public static final String NAME = "Type Cast Numeric Expression";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE4026", "BCE2070");
@@ -91,33 +91,35 @@ public class TypeCastNumericExpression extends TypeCastCodeAction {
             contextType = context.currentSemanticModel().get().expectedType(context.currentDocument().get(), position);
         }
 
+        // If we can't determine the context type or if both LHS and RHS types are different from the context
+        // type, we don't take a risk of suggesting an invalid type cast. Instead avoid suggesting the code action.
+        if (contextType.isEmpty()) {
+            return Collections.emptyList();
+        }
+        
         String typeName;
         Node castExprNode;
-        if (contextType.isPresent() && contextType.get().typeKind() == lhsOperand.get().typeKind()) {
+        if (contextType.get().typeKind() == lhsOperand.get().typeKind()) {
             typeName = NameUtil.getModifiedTypeName(context, lhsOperand.get());
             castExprNode = binaryExpressionNode.rhsExpr();
-        } else if (contextType.isPresent() && contextType.get().typeKind() == rhsOperand.get().typeKind()) {
+        } else if (contextType.get().typeKind() == rhsOperand.get().typeKind()) {
             // If the context type is same as the rhs expr, we add the type cast to the lhs expr.
             typeName = NameUtil.getModifiedTypeName(context, rhsOperand.get());
             castExprNode = binaryExpressionNode.lhsExpr();
-        } else if (contextType.isPresent()) {
+        } else {
             if (isNumericType(contextType.get()) && isNumericType(lhsOperand.get())
                     && isNumericType(rhsOperand.get())) {
-                // If all 3 types are numeric, we suggest the cast to the context type.
+                // If all 3 types are numeric, we cast the RHS expr to the context type.
                 typeName = NameUtil.getModifiedTypeName(context, contextType.get());
                 castExprNode = binaryExpressionNode.rhsExpr();
             } else if (isStringType(contextType.get()) && isStringType(lhsOperand.get())
                     && isStringType(rhsOperand.get())) {
-                // If all 3 are string types, we suggest the cast to the context type.
+                // If all 3 are string types, we cast the RHS expr to the context type.
                 typeName = NameUtil.getModifiedTypeName(context, contextType.get());
                 castExprNode = binaryExpressionNode.rhsExpr();
             } else {
                 return Collections.emptyList();
             }
-        } else {
-            // If we can't determine the context type or if both LHS and RHS types are different from the context
-            // type, we don't take a risk of suggesting an invalid type cast. Instead avoid suggesting the code action.
-            return Collections.emptyList();
         }
         String exprSourceCode = castExprNode.toSourceCode().strip();
         if (typeName.isEmpty()) {

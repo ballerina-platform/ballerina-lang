@@ -31,11 +31,11 @@ import java.util.List;
 public class RemoveAllUnusedImportsCodeAction extends OptimizeImportsCodeAction {
 
     public static final String NAME = "Remove all unused imports";
-    
+
     public RemoveAllUnusedImportsCodeAction() {
         super();
     }
-    
+
     @Override
     protected List<ImportDeclarationNode> organizeFileImports(List<ImportDeclarationNode> fileImports) {
         return fileImports;
