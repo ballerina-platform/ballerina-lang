@@ -60,7 +60,7 @@ public client class Client {
         return;
     }
 
-    remote isolated function fun8(C c, D d, *E e) returns [string, int]|error? {
+    remote isolated function fun8(C c, D d, *E x) returns [string, int]|error? {
         return;
     }
 
@@ -123,14 +123,14 @@ public type D record {
 # Description
 #
 # + strm - Field Description  
-# + e - Field Description  
+# + er - Field Description  
 # + eop - Field Description  
 # + anyd - Field Description  
 # + 'any - Field Description  
 # + tdesc - Field Description
 public type E record {
     stream<int, error?> strm;
-    error e;
+    error er;
     error? eop;
     anydata anyd;
     any 'any;
