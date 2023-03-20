@@ -30,6 +30,7 @@ public enum ParserMode {
     TEMPLATE,
     INTERPOLATION,
     INTERPOLATION_BRACED_CONTENT,
+    REGEXP,
 
     // Documentation Parser
     DOC_LINE_START_HASH,
@@ -62,4 +63,6 @@ public enum ParserMode {
     RE_UNICODE_PROP_ESCAPE,
     RE_UNICODE_PROPERTY_VALUE,
     RE_ESCAPE,
+    RE_CHAR_CLASS,
+    RE_QUOTE_ESCAPE
 }
