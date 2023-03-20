@@ -21,7 +21,9 @@ package org.ballerinalang.testerina.natives.io;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
@@ -30,7 +32,14 @@ import org.ballerinalang.test.runtime.util.TesterinaConstants;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Deque;
 import java.util.IllegalFormatConversionException;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -42,18 +51,112 @@ import java.util.regex.PatternSyntaxException;
 public class StringUtils {
 
     private static final String CHAR_PREFIX = "$";
+    private static List<String> specialCharacters = new ArrayList<>(Arrays.asList(",", "\\n", "\\r", "\\t", "\n", "\r",
+            "\t",
+            "\"", "\\", "!", "`"));
+    private static List<String> bracketCharacters = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")"));
+    private static List<String> regexSpecialCharacters = new ArrayList<>(Arrays.asList("{", "}", "[", "]", "(", ")",
+            "+", "^", "|"));
 
     private StringUtils() {
     }
 
     public static Object matchWildcard(BString functionName, BString functionPattern) {
+        Object encodedFunctionPattern = encode(functionPattern.getValue(), regexSpecialCharacters);
+        Object encodedFunctionName = encode(functionName.getValue(), regexSpecialCharacters);
+
+        if (encodedFunctionPattern instanceof BError) {
+            return (BError) encodedFunctionPattern;
+        }
+
+        if (encodedFunctionName instanceof BError) {
+            return (BError) encodedFunctionName;
+        }
+
         try {
-            return Pattern.matches(functionPattern.getValue().replace(TesterinaConstants.WILDCARD,
-                    TesterinaConstants.DOT + TesterinaConstants.WILDCARD), functionName.getValue());
+            return Pattern.matches(((String) encodedFunctionPattern).replace(TesterinaConstants.WILDCARD,
+                    TesterinaConstants.DOT + TesterinaConstants.WILDCARD), (String) encodedFunctionName);
         } catch (PatternSyntaxException e) {
             return BLangExceptionHelper.getRuntimeException(
                     RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR, "Invalid wildcard pattern: " + e.getMessage());
         }
+    }
+
+    public static Object escapeSpecialCharacters(BString key) {
+        Object updatedKeyOrError = key.getValue();
+        if (!isBalanced((String) updatedKeyOrError)) {
+            updatedKeyOrError = encode((String) updatedKeyOrError, bracketCharacters);
+        }
+
+        if (updatedKeyOrError instanceof BError) {
+            return (BError) updatedKeyOrError;
+        }
+        updatedKeyOrError = encode((String) updatedKeyOrError, specialCharacters);
+
+        if (updatedKeyOrError instanceof BError) {
+            return (BError) updatedKeyOrError;
+        }
+        return io.ballerina.runtime.api.utils.StringUtils.fromString((String) updatedKeyOrError);
+    }
+
+    private static boolean isBalanced(String expr) {
+        Deque<Character> stack = new ArrayDeque<>();
+        for (int i = 0; i < expr.length(); i++) {
+            char val = expr.charAt(i);
+            if (val == '(' || val == '[' || val == '{') {
+                stack.push(val);
+                continue;
+            }
+            if ((val == ')' || val == ']' || val == '}')) {
+                if (stack.isEmpty()) {
+                    return false;
+                }
+                char topElement;
+                switch (val) {
+                    case ')':
+                        topElement = stack.pop();
+                        if (topElement == '{' || topElement == '[') {
+                            return false;
+                        }
+                        break;
+
+                    case '}':
+                        topElement = stack.pop();
+                        if (topElement == '(' || topElement == '[') {
+                            return false;
+                        }
+                        break;
+
+                    case ']':
+                        topElement = stack.pop();
+                        if (topElement == '(' || topElement == '{') {
+                            return false;
+                        }
+                        break;
+                }
+            } else {
+                continue;
+            }
+        }
+        // If the brackets are balanced, stack needs to be empty.
+        return stack.isEmpty();
+    }
+
+    private static Object encode(String key, List<String> specialCharacters) {
+        String encodedKey = key;
+        String encodedValue;
+        for (String character : specialCharacters) {
+            try {
+                if (encodedKey.contains(character)) {
+                    encodedValue = URLEncoder.encode(character, StandardCharsets.UTF_8.toString());
+                    encodedKey = encodedKey.replace(character, encodedValue);
+                }
+            } catch (UnsupportedEncodingException e) {
+                return BLangExceptionHelper.getRuntimeException(
+                        RuntimeErrors.INCOMPATIBLE_ARGUMENTS, "Error while encoding: " + e.getMessage());
+            }
+        }
+        return encodedKey;
     }
 
     public static Object decode(BString str, BString charset) {
@@ -145,7 +248,7 @@ public class StringUtils {
 
     private static void formatHexString(StringBuilder result, int k, StringBuilder padding, char x, Object... args) {
         final Object argsValues = args[k];
-        final Type type = TypeChecker.getType(argsValues);
+        final Type type = TypeUtils.getReferredType(TypeChecker.getType(argsValues));
         if (TypeTags.ARRAY_TAG == type.getTag() && TypeTags.BYTE_TAG == ((ArrayType) type).getElementType().getTag()) {
             BArray byteArray = ((BArray) argsValues);
             for (int i = 0; i < byteArray.size(); i++) {

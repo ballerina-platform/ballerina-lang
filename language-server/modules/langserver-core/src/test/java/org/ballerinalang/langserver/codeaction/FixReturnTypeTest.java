@@ -50,6 +50,9 @@ public class FixReturnTypeTest extends AbstractCodeActionTest {
                 {"fixReturnType3.json"},
                 {"fixReturnType4.json"},
                 {"fixReturnType5.json"},
+                {"fixReturnType6.json"},
+                {"fixReturnType7.json"},
+                {"fixReturnType8.json"},
                 {"fixReturnTypeWithImports1.json"},
                 {"fixReturnTypeWithClass1.json"},
 //                {"fixReturnTypeWithClass2.json"},
@@ -63,7 +66,21 @@ public class FixReturnTypeTest extends AbstractCodeActionTest {
                 {"fixReturnTypeInUnionContext2.json"},
                 {"fixReturnTypeInUnionContext3.json"},
                 {"fixReturnTypeInUnionContext4.json"},
-                {"fixReturnTypeInCommitAction.json"}
+                {"fixReturnTypeInCommitAction.json"},
+                {"fixReturnTypeInMain1.json"}
+        };
+    }
+
+    @Test(dataProvider = "negativeDataProvider")
+    @Override
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
+    }
+    
+    @DataProvider
+    public Object[][] negativeDataProvider() {
+        return new Object[][] {
+                {"negativeFixReturnTypeWithMain1.json"}      
         };
     }
 }

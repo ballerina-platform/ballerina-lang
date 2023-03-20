@@ -233,6 +233,32 @@ public class CheckedExpressionOperatorTest {
     }
 
     @Test
+    public void testJsonAccessWithCheckWithSubTypesOfSimpleBasicTypesCET() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/expressions/checkedexpr/check_expr_with_json_access.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+        BRunUtil.invoke(result, "testJsonAccessWithCheckWithSubTypesOfSimpleBasicTypesCET");
+    }
+
+    @Test
+    public void testJsonAccessWithCheckNegative() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/expressions/checkedexpr/check_expr_with_json_access_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "incompatible types: expected '(1|2[]|error)', found '(json|error)'",
+                                  21, 23);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected '(string|xml|error)', found '" +
+                "(json|error)'", 22, 26);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected '(xml[]|\"foo\"|error)', found '" +
+                "(json|error)'", 23, 27);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected '(int[]|BooleanOrStringValue|error)', " +
+                "found '(json|error)'", 24, 42);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected '(map<int>|IntMax|1d|error)', found '" +
+                "(json|error)'", 25, 34);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test
     public void testCheckingExprWithNoErrorType() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_with_no_error_type.bal");

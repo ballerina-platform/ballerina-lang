@@ -1,0 +1,54 @@
+{
+  "position": {
+    "line": 9,
+    "character": 14
+  },
+  "source": "extract_to_function_stmts_foreach_stmt2.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 1
+            },
+            "end": {
+              "line": 11,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted(TestRecordType[] rec, TestRecordType[] result) returns () {\n    return rec.push(...result);\n}\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 8
+            },
+            "end": {
+              "line": 9,
+              "character": 27
+            }
+          },
+          "newText": "extracted(rec, result)"
+        }
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_stmts_foreach_stmt2.bal",
+          {
+            "line": 9,
+            "character": 8
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ],
+  "description": "Extract to function for foreach statement, checks the basic foreach statement"
+}

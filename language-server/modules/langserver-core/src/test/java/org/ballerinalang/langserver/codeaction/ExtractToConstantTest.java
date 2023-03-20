@@ -15,7 +15,9 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.util.TestUtil;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -27,6 +29,11 @@ import java.io.IOException;
  * @since 2201.2.0
  */
 public class ExtractToConstantTest extends AbstractCodeActionTest {
+
+    @Override
+    protected void setupLanguageServer(TestUtil.LanguageServerBuilder builder) {
+        builder.withInitOption(InitializationOptions.KEY_POSITIONAL_RENAME_SUPPORT, true);
+    }
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
@@ -55,6 +62,8 @@ public class ExtractToConstantTest extends AbstractCodeActionTest {
                 {"extractExpressionToConstant.json"},
                 {"extractConstDeclToConstant1.json"},
                 {"extractToConstantWithImports.json"},
+                {"extractToConstantWithImports2.json"},
+                {"extractToConstantWithImports3.json"},
                 {"extractUnaryNumericExprToConstant.json"},
                 {"extractUnaryNumericExprToConstant2.json"},
                 {"extractUnaryLogicalExprToConstant.json"},
@@ -73,9 +82,7 @@ public class ExtractToConstantTest extends AbstractCodeActionTest {
                 {"extractInvalidExprStmtToConstant.json"},
                 {"extractExpressionToConstant1.json"},
                 {"extractExpressionToConstant2.json"},
-                {"extractExpressionToConstant3.json"},
-                {"extractServiceUriInModuleClientDeclToConstant.json"},
-                {"extractServiceUriInClientDeclarationToConstant.json"}
+                {"extractExpressionToConstant3.json"}
         };
     }
 

@@ -401,7 +401,7 @@ types:
       - id: tuple_types_count
         type: s4
       - id: tuple_type_cp_index
-        type: s4
+        type: tuple_member
         repeat: expr
         repeat-expr: tuple_types_count
       - id: has_rest_type
@@ -409,6 +409,16 @@ types:
       - id: rest_type_cp_index
         type: s4
         if: has_rest_type == 1
+  tuple_member:
+      seq:
+        - id: name_cp_index
+          type: s4
+        - id: flags
+          type: s8
+        - id: type_cp_index
+          type: s4
+        - id: annotation_attachments_content
+          type: annotation_attachments_content
   type_intersection:
     seq:
       - id: constituent_types_count
@@ -482,6 +492,8 @@ types:
         type: markdown
       - id: type_cp_index
         type: s4
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
   record_init_function:
     seq:
       - id: name_cp_index
@@ -512,12 +524,12 @@ types:
         type: type_definition
         repeat: expr
         repeat-expr: type_definition_count
-      - id: golbal_var_count
+      - id: global_var_count
         type: s4
-      - id: golbal_vars
-        type: golbal_var
+      - id: global_vars
+        type: global_var
         repeat: expr
-        repeat-expr: golbal_var_count
+        repeat-expr: global_var_count
       - id: type_definition_bodies_count
         type: s4
       - id: type_definition_bodies
@@ -542,7 +554,7 @@ types:
         type: service_declaration
         repeat: expr
         repeat-expr: service_decls_size
-  golbal_var:
+  global_var:
     seq:
       - id: position
         type: position
@@ -893,15 +905,21 @@ types:
       - id: rest_path_param
         type: path_param
         if: has_rest_path_param == 1
-      - id: resource_path_count
+      - id: resource_path_segment_count
         type: s4
-      - id: resource_path_segment_cp_index
-        type: s4  
+      - id: resource_path_segments
+        type: resource_path_segment
         repeat: expr
-        repeat-expr: resource_path_count
+        repeat-expr: resource_path_segment_count
       - id: resource_accessor
         type: s4
-      - id: resource_path_type_cp_index
+  resource_path_segment:
+    seq:
+      - id: resource_path_segment_cp_index
+        type: s4  
+      - id: resource_path_segment_pos
+        type: position  
+      - id: resource_path_segment_type
         type: s4
   path_param:
     seq:
@@ -1417,6 +1435,11 @@ types:
         type: s4
       - id: lhs_operand
         type: operand
+      - id: has_typedesc_operand
+        type: s1
+      - id: typedesc_operand
+        type: operand
+        if: has_typedesc_operand == 1
       - id: size_operand
         type: operand
       - id: init_values_count

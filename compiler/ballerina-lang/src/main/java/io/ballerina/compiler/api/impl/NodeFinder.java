@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -155,7 +154,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangSimpleMatchPatter
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
@@ -295,16 +293,6 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
         lookupNode(xmlnsNode.namespaceURI);
-    }
-
-    @Override
-    public void visit(BLangClientDeclarationStatement clientDeclStmt) {
-        lookupNode(clientDeclStmt.getClientDeclaration());
-    }
-
-    @Override
-    public void visit(BLangClientDeclaration clientDeclNode) {
-        lookupNode((BLangNode) clientDeclNode.getUri());
     }
 
     @Override
@@ -997,7 +985,7 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        lookupNodes(tupleTypeNode.memberTypeNodes);
+        lookupNodes(tupleTypeNode.members);
         lookupNode(tupleTypeNode.restParamType);
     }
 
@@ -1513,6 +1501,7 @@ class NodeFinder extends BaseVisitor {
             return false;
         }
 
-        return ((BLangClassDefinition) node).flagSet.contains(Flag.SERVICE);
+        return ((BLangClassDefinition) node).flagSet.contains(Flag.SERVICE) && ((BLangClassDefinition) node).flagSet
+                .contains(Flag.ANONYMOUS);
     }
 }

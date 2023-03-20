@@ -112,6 +112,7 @@ public class CommonUtil {
 
     public static final String EXPR_SCHEME = "expr";
 
+    //lang.array, regexp, lang.value, lang.runtime, jballerina.java are not pre-declared.
     public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
             "lang.error", "lang.float", "lang.function", "lang.future", "lang.int", "lang.map", "lang.object",
             "lang.stream", "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml");
@@ -436,9 +437,14 @@ public class CommonUtil {
                 List<Token> qualsAtCursor = getQualifiersAtCursor(context);
                 Set<SyntaxKind> foundQuals = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
                 context.getNodeAtCursor().leadingInvalidTokens().stream()
-                        .filter(token -> QUALIFIER_KINDS.contains(token.kind())
-                                && !foundQuals.contains(token.kind())).forEach(qualifiers::add);
-                qualifiers.addAll(qualsAtCursor);
+                        .filter(token -> QUALIFIER_KINDS.contains(token.kind()))
+                        .filter(token -> !foundQuals.contains(token.kind()))
+                        .forEach(qualifiers::add);
+                // Avoid duplicating the token at cursor.
+                qualsAtCursor.stream()
+                        .filter(token -> qualifiers.stream()
+                                .noneMatch(qual -> qual.textRange().equals(token.textRange())))
+                        .forEach(qualifiers::add);
                 return qualifiers;
             default:
         }

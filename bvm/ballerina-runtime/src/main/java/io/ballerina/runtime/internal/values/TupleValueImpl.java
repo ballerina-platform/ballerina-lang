@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
@@ -46,7 +47,6 @@ import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
@@ -65,10 +65,12 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 public class TupleValueImpl extends AbstractArrayValue {
 
     protected TupleType tupleType;
+    protected Type type;
     Object[] refValues;
     private int minSize;
     private boolean hasRestElement; // cached value for ease of access
     private BTypedesc typedesc;
+    private TypedescValueImpl inherentType;
     // ------------------------ Constructors -------------------------------------------------------------------
 
     @Override
@@ -84,13 +86,13 @@ public class TupleValueImpl extends AbstractArrayValue {
         TupleValueImpl that = (TupleValueImpl) o;
         return minSize == that.minSize &&
                 hasRestElement == that.hasRestElement &&
-                tupleType.equals(that.tupleType) &&
+                type.equals(that.type) &&
                 Arrays.equals(refValues, that.refValues);
     }
 
     public TupleValueImpl(Object[] values, TupleType type) {
         this.refValues = values;
-        this.tupleType = type;
+        this.type = this.tupleType = type;
         this.hasRestElement = this.tupleType.getRestType() != null;
 
         List<Type> memTypes = type.getTupleTypes();
@@ -104,11 +106,10 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
         this.minSize = memTypes.size();
         this.size = refValues.length;
-        this.typedesc = getTypedescValue(tupleType, this);
     }
 
     public TupleValueImpl(TupleType type) {
-        this.tupleType = type;
+        this.type = this.tupleType = type;
 
         List<Type> memTypes = this.tupleType.getTupleTypes();
         int memTypeCount = memTypes.size();
@@ -130,20 +131,20 @@ public class TupleValueImpl extends AbstractArrayValue {
             }
             this.refValues[i] = memType.getZeroValue();
         }
-        this.typedesc = getTypedescValue(tupleType, this);
     }
 
     public TupleValueImpl(TupleType type, long size, BListInitialValueEntry[] initialValues) {
         this(type, initialValues);
     }
 
-    public TupleValueImpl(TupleType type, BListInitialValueEntry[] initialValues) {
-        this.tupleType = type;
+    public TupleValueImpl(Type type, BListInitialValueEntry[] initialValues) {
+        this.type = type;
+        this.tupleType = (TupleType) TypeUtils.getReferredType(type);
 
-        List<Type> memTypes = this.tupleType.getTupleTypes();
+                List<Type> memTypes = this.tupleType.getTupleTypes();
         int memCount = memTypes.size();
 
-        if (type.getRestType() != null) {
+        if (tupleType.getRestType() != null) {
             int valueCount = 0;
             for (BListInitialValueEntry listEntry : initialValues) {
                 if (listEntry instanceof ListInitialValueEntry.ExpressionEntry) {
@@ -161,7 +162,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         this.minSize = memCount;
         this.hasRestElement = this.tupleType.getRestType() != null;
 
-        if (type.getRestType() == null) {
+        if (tupleType.getRestType() == null) {
             this.maxSize = this.size;
             this.refValues = new Object[this.size];
         } else {
@@ -182,7 +183,6 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         if (index >= memCount) {
-            this.typedesc = getTypedescValue(tupleType, this);
             return;
         }
 
@@ -194,11 +194,22 @@ public class TupleValueImpl extends AbstractArrayValue {
 
             this.refValues[i] = memType.getZeroValue();
         }
-        this.typedesc = getTypedescValue(tupleType, this);
+    }
+
+    public TupleValueImpl(Type type, BListInitialValueEntry[] initialValues, TypedescValueImpl inherentType) {
+        this(type, initialValues);
+        this.inherentType = inherentType;
     }
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            if (inherentType != null) {
+                this.typedesc = getTypedescValue(type.isReadOnly(), this, inherentType);
+            } else {
+                this.typedesc = getTypedescValue(tupleType, this);
+            }
+        }
         return typedesc;
     }
 
@@ -463,7 +474,7 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     @Override
     public Type getType() {
-        return this.tupleType;
+        return this.type;
     }
 
     @Override
@@ -579,14 +590,15 @@ public class TupleValueImpl extends AbstractArrayValue {
             return;
         }
 
-        this.tupleType = (TupleType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.tupleType);
+        this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
+        this.tupleType = (TupleType) TypeUtils.getReferredType(type);
         for (int i = 0; i < this.size; i++) {
             Object value = this.get(i);
             if (value instanceof RefValue) {
                 ((RefValue) value).freezeDirect();
             }
         }
-        this.typedesc = createSingletonTypedesc(this);
+        this.typedesc = null;
     }
 
     /**

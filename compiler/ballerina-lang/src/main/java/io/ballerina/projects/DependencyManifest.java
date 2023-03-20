@@ -35,14 +35,17 @@ import java.util.Optional;
 public class DependencyManifest {
 
     private final String dependenciesTomlVersion;
+    private final SemanticVersion distributionVersion;
     private final List<Package> packages;
     private final DiagnosticResult diagnostics;
     private final PackageContainer<Package> pkgContainer;
 
     private DependencyManifest(String dependenciesTomlVersion,
+                               SemanticVersion distributionVersion,
                                List<Package> packages,
                                DiagnosticResult diagnostics) {
         this.dependenciesTomlVersion = dependenciesTomlVersion;
+        this.distributionVersion = distributionVersion;
         this.packages = Collections.unmodifiableList(packages);
         this.diagnostics = diagnostics;
 
@@ -54,19 +57,25 @@ public class DependencyManifest {
     }
 
     public static DependencyManifest from(String dependenciesTomlVersion,
+                                          SemanticVersion distributionVersion,
                                           List<Package> dependencies,
                                           DiagnosticResult diagnostics) {
-        return new DependencyManifest(dependenciesTomlVersion, dependencies, diagnostics);
+        return new DependencyManifest(dependenciesTomlVersion, distributionVersion, dependencies, diagnostics);
     }
 
     public static DependencyManifest from(String dependenciesTomlVersion,
+                                            SemanticVersion distributionVersion,
                                           List<Package> dependencies) {
-        return new DependencyManifest(dependenciesTomlVersion, dependencies,
+        return new DependencyManifest(dependenciesTomlVersion, distributionVersion, dependencies,
                                       new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public String dependenciesTomlVersion() {
         return dependenciesTomlVersion;
+    }
+
+    public SemanticVersion distributionVersion() {
+        return distributionVersion;
     }
 
     public Collection<Package> packages() {

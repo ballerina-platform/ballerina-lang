@@ -39,14 +39,15 @@ public class RuntimeAPITest {
     @DataProvider
     public Object[] packageNameProvider() {
         return new String[]{
-                "async",
                 "values",
                 "errors",
                 "types",
                 "invalid_values",
+                "async",
                 "utils",
                 "stop_handler",
-                "identifier_utils"
+                "identifier_utils",
+                "environment"
         };
     }
 }

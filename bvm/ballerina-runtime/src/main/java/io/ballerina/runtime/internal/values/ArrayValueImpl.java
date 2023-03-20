@@ -52,7 +52,6 @@ import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
@@ -71,6 +70,7 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 public class ArrayValueImpl extends AbstractArrayValue {
 
     private Type elementReferredType;
+    protected Type type;
     protected ArrayType arrayType;
     protected Type elementType;
     private TypedescValue elementTypedescValue = null;
@@ -86,39 +86,34 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     public ArrayValueImpl(Object[] values, ArrayType type) {
         this.refValues = values;
-        this.arrayType = type;
+        this.type = this.arrayType = type;
         this.size = values.length;
         this.elementType = type.getElementType();
         this.elementReferredType = TypeUtils.getReferredType(this.elementType);
-        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     public ArrayValueImpl(long[] values, boolean readonly) {
         this.intValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_INT, readonly);
-        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     public ArrayValueImpl(boolean[] values, boolean readonly) {
         this.booleanValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_BOOLEAN, readonly);
-        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     public ArrayValueImpl(byte[] values, boolean readonly) {
         this.byteValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_BYTE, readonly);
-        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     public ArrayValueImpl(double[] values, boolean readonly) {
         this.floatValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_FLOAT, readonly);
-        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     public ArrayValueImpl(String[] values, boolean readonly) {
@@ -128,14 +123,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
             bStringValues[i] = StringUtils.fromString(values[i]);
         }
         setArrayType(PredefinedTypes.TYPE_STRING, readonly);
-        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     public ArrayValueImpl(BString[] values, boolean readonly) {
         this.bStringValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_STRING, readonly);
-        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     public ArrayValueImpl(ArrayType type) {
@@ -180,6 +173,9 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = getTypedescValue(arrayType, this);
+        }
         return typedesc;
     }
 
@@ -239,32 +235,36 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     public ArrayValueImpl(ArrayType type, long size) {
-        this.arrayType = type;
+        this.type = this.arrayType = type;
         this.elementType = type.getElementType();
         this.elementReferredType = TypeUtils.getReferredType(this.elementType);
         initArrayValues();
         if (size != -1) {
             this.size = this.maxSize = (int) size;
         }
-        this.typedesc = getTypedescValue(arrayType, this);
     }
 
-    public ArrayValueImpl(ArrayType type, BListInitialValueEntry[] initialValues) {
-        this(type, type.getSize(), initialValues, null);
+    // Used when the array value is created from a type reference type
+    public ArrayValueImpl(Type type, long size, BListInitialValueEntry[] initialValues) {
+        this(type, size, initialValues, null);
+    }
+
+    public ArrayValueImpl(Type type, BListInitialValueEntry[] initialValues) {
+        this(type, ((ArrayType) TypeUtils.getReferredType(type)).getSize(), initialValues, null);
     }
 
     public ArrayValueImpl(ArrayType type, long size, BListInitialValueEntry[] initialValues) {
         this(type, size, initialValues, null);
     }
 
-    public ArrayValueImpl(ArrayType type, BListInitialValueEntry[] initialValues, TypedescValue typedescValue) {
-        this(type, type.getSize(), initialValues, typedescValue);
+    public ArrayValueImpl(Type type, BListInitialValueEntry[] initialValues, TypedescValue typedescValue) {
+        this(type, ((ArrayType) TypeUtils.getReferredType(type)).getSize(), initialValues, typedescValue);
     }
 
-    public ArrayValueImpl(ArrayType type, long size, BListInitialValueEntry[] initialValues,
-                          TypedescValue typedescValue) {
-        this.arrayType = type;
-        this.elementType = type.getElementType();
+    public ArrayValueImpl(Type type, long size, BListInitialValueEntry[] initialValues, TypedescValue typedescValue) {
+        this.type = type;
+        this.arrayType = (ArrayType) TypeUtils.getReferredType(type);
+        this.elementType = arrayType.getElementType();
         this.elementReferredType = TypeUtils.getReferredType(this.elementType);
         this.elementTypedescValue = typedescValue;
         initArrayValues();
@@ -284,8 +284,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 }
             }
         }
-
-        this.typedesc = getTypedescValue(arrayType, this);
     }
 
     // ----------------------- get methods ----------------------------------------------------
@@ -760,7 +758,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     public Type getType() {
-        return this.arrayType;
+        return this.type;
     }
 
     @Override
@@ -974,7 +972,9 @@ public class ArrayValueImpl extends AbstractArrayValue {
             return;
         }
 
-        this.arrayType = (ArrayType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.arrayType);
+        this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
+        this.arrayType = (ArrayType) TypeUtils.getReferredType(type);
+
         if (this.elementType == null || this.elementReferredType.getTag() > TypeTags.BOOLEAN_TAG) {
             for (int i = 0; i < this.size; i++) {
                 Object value = this.getRefValue(i);
@@ -983,7 +983,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 }
             }
         }
-        this.typedesc = createSingletonTypedesc(this);
+        this.typedesc = null;
     }
 
     /**
@@ -1209,7 +1209,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     private void setArrayType(Type elementType, boolean readonly) {
-        this.arrayType = new BArrayType(elementType, -1, readonly, 6);
+        this.type = this.arrayType = new BArrayType(elementType, -1, readonly, 6);
         this.elementType = elementType;
         this.elementReferredType = TypeUtils.getReferredType(this.elementType);
     }
@@ -1292,7 +1292,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(arrayType, elementType);
+        int result = Objects.hash(type, elementType);
         result = 31 * result + Arrays.hashCode(refValues);
         result = 31 * result + Arrays.hashCode(intValues);
         result = 31 * result + Arrays.hashCode(booleanValues);

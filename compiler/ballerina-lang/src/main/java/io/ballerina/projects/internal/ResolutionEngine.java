@@ -40,9 +40,11 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -60,6 +62,7 @@ public class ResolutionEngine {
     private final List<Diagnostic> diagnostics;
     private String dependencyGraphDump;
     private DiagnosticResult diagnosticResult;
+    private Set<DependencyNode> unresolvedDeps = null;
 
     public ResolutionEngine(PackageDescriptor rootPkgDesc,
                             BlendedManifest blendedManifest,
@@ -74,7 +77,7 @@ public class ResolutionEngine {
 
         this.graphBuilder = new PackageDependencyGraphBuilder(rootPkgDesc, resolutionOptions);
         this.diagnostics = new ArrayList<>();
-        dependencyGraphDump = "";
+        this.dependencyGraphDump = "";
     }
 
     public DiagnosticResult diagnosticResult() {
@@ -168,9 +171,20 @@ public class ResolutionEngine {
         directDependencies.removeAll(errorNodes);
 
         Collection<PackageMetadataResponse> pkgMetadataResponses = resolveDirectDependencies(directDependencies);
+        this.unresolvedDeps = new HashSet<>();
+        Set<DependencyNode> resolvedDeps = new HashSet<>();
         for (PackageMetadataResponse resolutionResp : pkgMetadataResponses) {
             if (resolutionResp.resolutionStatus() == ResolutionResponse.ResolutionStatus.UNRESOLVED) {
                 // TODO Report diagnostics
+                if (resolutionOptions.dumpRawGraphs() || resolutionOptions.dumpGraph()) {
+                    ResolutionRequest resolutionRequest = resolutionResp.packageLoadRequest();
+                    DependencyNode dependencyNode = new DependencyNode(
+                            resolutionRequest.packageDescriptor(),
+                            resolutionRequest.scope(),
+                            resolutionRequest.resolutionType());
+                    unresolvedDeps.add(dependencyNode);
+                    graphBuilder.addUnresolvedDirectDepToRawGraph(dependencyNode);
+                }
                 continue;
             }
             ResolutionRequest resolutionReq = resolutionResp.packageLoadRequest();
@@ -188,15 +202,20 @@ public class ResolutionEngine {
                                         resolvedPkgDesc.toString())),
                         scope, resolutionType);
             }
+            resolvedDeps.add(new DependencyNode(resolvedPkgDesc, scope, resolutionType));
         }
-
+        if (resolutionOptions.dumpRawGraphs() || resolutionOptions.dumpGraph()) {
+            HashSet<DependencyNode> unresolvedNodes = new HashSet<>(graphBuilder.getAllDependencies());
+            unresolvedNodes.removeAll(resolvedDeps);
+            unresolvedDeps.addAll(unresolvedNodes);
+        }
         dumpInitialGraph();
     }
 
     private Collection<PackageMetadataResponse> resolveDirectDependencies(Collection<DependencyNode> directDeps) {
         // Set the default locking mode based on the sticky build option.
         PackageLockingMode defaultLockingMode = resolutionOptions.sticky() ?
-                PackageLockingMode.HARD : PackageLockingMode.MEDIUM;
+                PackageLockingMode.HARD : resolutionOptions.packageLockingMode();
         List<ResolutionRequest> resolutionRequests = new ArrayList<>();
 
         for (DependencyNode directDependency : directDeps) {
@@ -309,6 +328,9 @@ public class ResolutionEngine {
     private void addErrorNodesToGraph(List<DependencyNode> errorNodes) {
         for (DependencyNode errorNode : errorNodes) {
             graphBuilder.addErrorNode(errorNode.pkgDesc, errorNode.scope, errorNode.resolutionType);
+            if (resolutionOptions.dumpGraph() || resolutionOptions.dumpRawGraphs()) {
+                unresolvedDeps.remove(errorNode);
+            }
         }
     }
 
@@ -324,7 +346,7 @@ public class ResolutionEngine {
                                                           BlendedManifest.Dependency blendedDep) {
         if (blendedDep == null) {
             return ResolutionRequest.from(unresolvedNode.pkgDesc(), unresolvedNode.scope(),
-                    unresolvedNode.resolutionType(), PackageLockingMode.MEDIUM);
+                    unresolvedNode.resolutionType(), resolutionOptions.packageLockingMode());
         }
 
         if (blendedDep.isError()) {
@@ -339,14 +361,14 @@ public class ResolutionEngine {
         if (versionCompResult == VersionCompatibilityResult.GREATER_THAN ||
                 versionCompResult == VersionCompatibilityResult.EQUAL) {
             PackageLockingMode lockingMode = resolutionOptions.sticky() ?
-                    PackageLockingMode.HARD : PackageLockingMode.MEDIUM;
+                    PackageLockingMode.HARD : resolutionOptions.packageLockingMode();
             PackageDescriptor blendedDepPkgDesc = PackageDescriptor.from(blendedDep.org(), blendedDep.name(),
                     blendedDep.version(), blendedDep.repository());
             return ResolutionRequest.from(blendedDepPkgDesc, unresolvedNode.scope(),
                     unresolvedNode.resolutionType(), lockingMode);
         } else if (versionCompResult == VersionCompatibilityResult.LESS_THAN) {
             return ResolutionRequest.from(unresolvedNode.pkgDesc(), unresolvedNode.scope(),
-                    unresolvedNode.resolutionType(), PackageLockingMode.MEDIUM);
+                    unresolvedNode.resolutionType(), resolutionOptions.packageLockingMode());
         } else {
             // Blended Dep version is incompatible with the unresolved node.
             // We report a diagnostic and return null.
@@ -360,7 +382,7 @@ public class ResolutionEngine {
                             "Version specified in " + sourceFile + ": " + blendedDep.version() +
                             " and the version resolved from other dependencies: " + unresolvedNode.pkgDesc.version(),
                     DiagnosticSeverity.ERROR);
-            PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(
+            PackageDiagnostic diagnostic = new PackageDiagnostic(
                     diagnosticInfo, this.rootPkgDesc.name().toString());
             diagnostics.add(diagnostic);
             return null;
@@ -433,6 +455,11 @@ public class ResolutionEngine {
                             pkgDesc.toString())),
                     scope, resolvedType);
         }
+
+        // Remove from the unresolved nodes list for dumping the raw graph
+        if (resolutionOptions.dumpGraph() || resolutionOptions.dumpRawGraphs()) {
+            unresolvedDeps.remove(new DependencyNode(pkgDesc, scope, resolvedType));
+        }
     }
 
     private DependencyGraph<DependencyNode> buildFinalDependencyGraph() {
@@ -446,7 +473,6 @@ public class ResolutionEngine {
         if (!resolutionOptions.dumpRawGraphs()) {
             return;
         }
-
         String serializedGraph = serializeRawGraph("Initial");
         dependencyGraphDump += "\n";
         dependencyGraphDump += (serializedGraph + "\n");
@@ -467,11 +493,19 @@ public class ResolutionEngine {
             return;
         }
 
+        List<DependencyNode> unresolvedDirectDeps = new ArrayList<>(
+                graphBuilder.rawGraph().getDirectDependencies(dependencyGraph.getRoot()));
+        Collection<DependencyNode> resolvedDirectDeps =
+                dependencyGraph.getDirectDependencies(dependencyGraph.getRoot());
+        unresolvedDirectDeps.removeAll(resolvedDirectDeps);
+
         String serializedGraph;
         if (resolutionOptions.dumpRawGraphs()) {
-            serializedGraph = DotGraphs.serializeDependencyNodeGraph(dependencyGraph, "Final");
+            serializedGraph = DotGraphs.serializeDependencyNodeGraph(
+                    dependencyGraph, "Final", this.unresolvedDeps, unresolvedDirectDeps);
         } else {
-            serializedGraph = DotGraphs.serializeDependencyNodeGraph(dependencyGraph);
+            serializedGraph = DotGraphs.serializeDependencyNodeGraph(
+                    dependencyGraph, this.unresolvedDeps, unresolvedDirectDeps);
         }
         dependencyGraphDump += "\n";
         dependencyGraphDump += (serializedGraph + "\n");
@@ -479,7 +513,7 @@ public class ResolutionEngine {
 
     private String serializeRawGraph(String graphName) {
         DependencyGraph<DependencyNode> initialGraph = graphBuilder.rawGraph();
-        return DotGraphs.serializeDependencyNodeGraph(initialGraph, graphName);
+        return DotGraphs.serializeDependencyNodeGraph(initialGraph, graphName, this.unresolvedDeps);
     }
 
     public String dumpGraphs() {

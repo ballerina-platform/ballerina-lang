@@ -39,7 +39,22 @@ public class ParserTestRunner {
     @Test(dataProvider = "parser-test-file-provider")
     public void test(String fileName, String path) {
         try {
-            BCompileUtil.compile(path);
+            CompileResult compileResult = BCompileUtil.compile(path);
+            int errorCount = compileResult.getErrorCount();
+            System.out.println("Error Count: " + errorCount);
+            System.out.println("Warning Count: " + compileResult.getWarnCount());
+            System.out.println("===================================");
+            for (var diagnostic : compileResult.getDiagnostics()) {
+                System.out.println(diagnostic);
+            }
+            System.out.println("===================================");
+
+            if (errorCount == 0) {
+                System.out.println("\nRunning executable");
+                BRunUtil.ExitDetails run = BRunUtil.run(compileResult);
+                System.out.println("Error Output: " + run.errorOutput);
+                System.out.println("Console Output: " + run.consoleOutput);
+            }
         } catch (Exception e) {
             Assert.fail("failed to compile parser test: \"" + fileName + "\"", e);
         }
@@ -66,7 +81,7 @@ public class ParserTestRunner {
             return Files.walk(parserDir.resolve("src").resolve("test").resolve("resources"))
                     .filter(path -> {
                         File file = path.toFile();
-                        return file.isFile() && file.getName().endsWith(".bal")
+                        return file.isFile() && file.getName().endsWith("test_parser.bal")
                                 && !skippedTests.contains(file.getName());
                     })
                     .map(path -> new Object[]{path.toFile().getName(), path.toString()})

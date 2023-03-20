@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
@@ -76,11 +77,9 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
         Node node = positionDetails.matchedCodeActionNode();
         SyntaxKind parentKind = node.parent().kind();
-        return  context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent() 
-                && parentKind != SyntaxKind.CONST_DECLARATION 
+        return context.currentSyntaxTree().isPresent() && context.currentSemanticModel().isPresent()
+                && parentKind != SyntaxKind.CONST_DECLARATION
                 && parentKind != SyntaxKind.INVALID_EXPRESSION_STATEMENT
-                && parentKind != SyntaxKind.CLIENT_DECLARATION 
-                && parentKind != SyntaxKind.MODULE_CLIENT_DECLARATION
                 && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
@@ -89,48 +88,77 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
      */
     @Override
     public List<CodeAction> getCodeActions(CodeActionContext context,
-                                                    RangeBasedPositionDetails posDetails) {
-        
+                                           RangeBasedPositionDetails posDetails) {
+
         Node node = posDetails.matchedCodeActionNode();
         BasicLiteralNodeValidator nodeValidator = new BasicLiteralNodeValidator();
         node.accept(nodeValidator);
         if (nodeValidator.getInvalidNode()) {
             return Collections.emptyList();
         }
-        
+
         String constName = getConstantName(context);
         Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(node);
         if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
             return Collections.emptyList();
         }
-        Position constDeclPosition = getPosition(context);
-        
+        ConstantData constantData = getConstantData(context);
+        Position constDeclPosition = constantData.getPosition();
+        boolean addNewLineAtStart = constantData.isAddNewLineAtStart();
+
+        List<TextEdit> textEdits = getTextEdits(node, typeSymbol.get(), constName, constDeclPosition,
+                addNewLineAtStart);
+
         // Check if the selection is a range or a position, and whether quick picks are supported by the client
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (isRange(context.range()) || !lsClientCapabilities.getInitializationOptions().isQuickPickSupported()) {
-            
+
             // Selection is a range
-            List<TextEdit> textEdits = getTextEdits(node, typeSymbol.get(), constName, constDeclPosition);
-            return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
-                    textEdits, context.fileUri(), CodeActionKind.RefactorExtract));
+            CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                    textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
+            CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_CONSTANT,
+                    getRenamePosition(textEdits.get(1).getRange().getStart(), addNewLineAtStart));
+            return Collections.singletonList(codeAction);
         }
-        
+
         // Selection is a position
         List<Node> nodeList = getPossibleExpressionNodes(node, nodeValidator);
+        if (nodeList.size() == 1) {
+            CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                    textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
+            CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_CONSTANT,
+                    getRenamePosition(textEdits.get(1).getRange().getStart(), addNewLineAtStart));
+            return Collections.singletonList(codeAction);
+        }
+
         LinkedHashMap<String, List<TextEdit>> textEditMap = new LinkedHashMap<>();
-        
-        nodeList.forEach(extractableNode -> textEditMap.put(extractableNode.toSourceCode().strip(), 
-                getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition)));
-        
+        nodeList.forEach(extractableNode -> {
+            textEditMap.put(extractableNode.toSourceCode().strip(),
+                    getTextEdits(extractableNode, typeSymbol.get(), constName, constDeclPosition, addNewLineAtStart));
+        });
+
+        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
+            LinkedHashMap<String, Position> renamePositionMap = new LinkedHashMap<>();
+            nodeList.forEach(extractableNode ->
+                    renamePositionMap.put(extractableNode.toSourceCode().strip(),
+                            getRenamePosition(PositionUtil.toRange(extractableNode.lineRange()).getStart(),
+                                    addNewLineAtStart)));
+            return Collections.singletonList(
+                    CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
+                            new Command(NAME, EXTRACT_COMMAND,
+                                    List.of(NAME, context.filePath().toString(), textEditMap, renamePositionMap)),
+                            CodeActionKind.RefactorExtract));
+        }
+
         return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_CONSTANT,
-                    new Command(NAME, EXTRACT_COMMAND, List.of(NAME, context.filePath().toString(), 
-                            textEditMap)), CodeActionKind.RefactorExtract));
+                new Command(NAME, EXTRACT_COMMAND, List.of(NAME, context.filePath().toString(),
+                        textEditMap)), CodeActionKind.RefactorExtract));
     }
 
     private List<Node> getPossibleExpressionNodes(Node node, BasicLiteralNodeValidator nodeValidator) {
         // Identify the sub-expressions to be extracted
         List<Node> nodeList = new ArrayList<>();
-        while (node != null && !isExpressionNode(node) && node.kind() != SyntaxKind.OBJECT_FIELD 
+        while (node != null && !isExpressionNode(node) && node.kind() != SyntaxKind.OBJECT_FIELD
                 && !nodeValidator.getInvalidNode()) {
             nodeList.add(node);
             node = node.parent();
@@ -143,15 +171,30 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         return node instanceof StatementNode || node instanceof ModuleMemberDeclarationNode;
     }
 
+    private Position getRenamePosition(Position replacePosition, boolean addNewLineAtStart) {
+        // line position will increment by one due to const declaration statement
+        int line = replacePosition.getLine() + 1;
+        if (addNewLineAtStart) {
+            line += 1;
+        }
+        return new Position(line, replacePosition.getCharacter());
+    }
+
     @Override
     public String getName() {
         return NAME;
     }
 
-    private List<TextEdit> getTextEdits(Node node, TypeSymbol typeSymbol, String constName, Position constDeclPos) {
+    private List<TextEdit> getTextEdits(Node node, TypeSymbol typeSymbol, String constName, Position constDeclPos,
+                                        boolean newLineAtStart) {
         String value = node.toSourceCode().strip();
         LineRange replaceRange = node.lineRange();
-        String constDeclStr = String.format("const %s %s = %s;%n", typeSymbol.signature(), constName, value);
+        String constDeclStr = "";
+        if (newLineAtStart) {
+            constDeclStr += String.format("%n");
+        }
+        constDeclStr = String.format(constDeclStr + "const %s %s = %s;%n", typeSymbol.signature(), constName, value);
+
         TextEdit constDeclEdit = new TextEdit(new Range(constDeclPos, constDeclPos), constDeclStr);
         TextEdit replaceEdit = new TextEdit(new Range(PositionUtil.toPosition(replaceRange.startLine()),
                 PositionUtil.toPosition(replaceRange.endLine())), constName);
@@ -173,15 +216,29 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
         return NameUtil.generateTypeName(CONSTANT_NAME_PREFIX, allNames);
     }
 
-    private Position getPosition(CodeActionContext context) {
+    private ConstantData getConstantData(CodeActionContext context) {
         ModulePartNode modulePartNode = context.currentSyntaxTree().get().rootNode();
         NodeList<ImportDeclarationNode> importsList = modulePartNode.imports();
-        
-        if (importsList.isEmpty()) {
-            return PositionUtil.toPosition(modulePartNode.lineRange().startLine());
+
+        ConstantDeclarationNode declarationNode = null;
+        for (Node node : modulePartNode.children()) {
+            if (node.kind() == SyntaxKind.CONST_DECLARATION) {
+                declarationNode = (ConstantDeclarationNode) node;
+                break;
+            }
         }
-        ImportDeclarationNode lastImport = importsList.get(importsList.size() - 1);
-        return new Position(lastImport.lineRange().endLine().line() + 2, 0);
+
+        if (importsList.isEmpty()) {
+            return new ConstantData(
+                    PositionUtil.toPosition(modulePartNode.lineRange().startLine()), false);
+        } else if (declarationNode == null) {
+            ImportDeclarationNode lastImport = importsList.get(importsList.size() - 1);
+            return new ConstantData(
+                    new Position(lastImport.lineRange().endLine().line() + 1, 0), true);
+        } else {
+            return new ConstantData(new Position(declarationNode.lineRange().startLine().line(), 0),
+                    !declarationNode.toString().startsWith(System.lineSeparator()));
+        }
     }
 
     /**
@@ -212,6 +269,25 @@ public class ExtractToConstantCodeAction implements RangeBasedCodeActionProvider
 
         public Boolean getInvalidNode() {
             return invalidNode;
+        }
+    }
+
+    private static class ConstantData {
+
+        Position position;
+        boolean addNewLineAtStart;
+
+        public ConstantData(Position position, boolean addNewLineAtStart) {
+            this.position = position;
+            this.addNewLineAtStart = addNewLineAtStart;
+        }
+
+        public Position getPosition() {
+            return position;
+        }
+
+        public boolean isAddNewLineAtStart() {
+            return addNewLineAtStart;
         }
     }
 }

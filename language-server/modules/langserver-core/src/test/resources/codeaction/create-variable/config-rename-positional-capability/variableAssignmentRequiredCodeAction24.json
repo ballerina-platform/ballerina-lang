@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 8,
+    "character": 4
+  },
+  "source": "createVariable4.bal",
+  "expected": [
+    {
+      "title": "Create variable with 'Tuple'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 4
+            },
+            "end": {
+              "line": 8,
+              "character": 4
+            }
+          },
+          "newText": "[[int, string, int], [int, string, int], [int, string, int]] listResult = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariable4.bal",
+          {
+            "line": 8,
+            "character": 65
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

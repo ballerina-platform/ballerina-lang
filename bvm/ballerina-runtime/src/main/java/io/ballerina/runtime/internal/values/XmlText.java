@@ -40,7 +40,6 @@ public class XmlText extends XmlNonElementItem {
         // data is the content of xml comment or text node
         this.data = data;
         this.type = data.isEmpty() ? PredefinedTypes.TYPE_XML_NEVER : PredefinedTypes.TYPE_TEXT;
-        setTypedescValue(type);
     }
 
     @Override

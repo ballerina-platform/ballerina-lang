@@ -117,8 +117,6 @@ public class SyntaxErrors {
             case OBJECT_METHOD_THIRD_QUALIFIER:
             case OBJECT_METHOD_FOURTH_QUALIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
-            case IMPORT_SUB_VERSION:
-                return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case SINGLE_KEYWORD_ATTACH_POINT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_ATTACH_POINT_NAME;
             case SIMPLE_TYPE_DESCRIPTOR:
@@ -178,16 +176,10 @@ public class SyntaxErrors {
             case MODULE_VAR_SECOND_QUAL:
             case MODULE_VAR_THIRD_QUAL:
             case OBJECT_MEMBER_VISIBILITY_QUAL:
-            case CLIENT_DECL_PREFIX:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case EXPRESSION:
             case TERMINAL_EXPRESSION:
                 return DiagnosticErrorCode.ERROR_MISSING_EXPRESSION;
-            case VERSION_NUMBER:
-            case MAJOR_VERSION:
-            case MINOR_VERSION:
-            case PATCH_VERSION:
-                return DiagnosticErrorCode.ERROR_MISSING_DECIMAL_INTEGER_LITERAL;
             case STRING_LITERAL_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_STRING_LITERAL;
             case DECIMAL_INTEGER_LITERAL_TOKEN:
@@ -382,8 +374,6 @@ public class SyntaxErrors {
             case FIRST_OBJECT_TYPE_QUALIFIER:
             case SECOND_OBJECT_TYPE_QUALIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_OBJECT_KEYWORD;
-            case VERSION_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_VERSION_KEYWORD;
             case AS_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_AS_KEYWORD;
             case ON_KEYWORD:
@@ -573,6 +563,12 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_COLON_TOKEN;
             case RE_UNICODE_PROPERTY_VALUE:
                 return DiagnosticErrorCode.ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE;
+            case DIGIT:
+                return DiagnosticErrorCode.ERROR_MISSING_RE_QUANTIFIER_DIGIT;
+            case BITWISE_XOR_TOKEN:
+                return DiagnosticErrorCode.ERROR_INVALID_RE_SYNTAX_CHAR;
+            case BACK_SLASH_TOKEN:
+                return DiagnosticErrorCode.ERROR_MISSING_BACKSLASH;
             default:
                 return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }

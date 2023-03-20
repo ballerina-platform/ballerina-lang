@@ -112,7 +112,11 @@ public class FunctionMock {
         String version;
 
         if (Thread.currentThread().getStackTrace().length >= 5) {
-            String[] projectInfo = Thread.currentThread().getStackTrace()[4].getClassName().split(Pattern.quote("."));
+            String classname = Thread.currentThread().getStackTrace()[4].getClassName();
+            if (classname.contains("/")) {
+                classname = classname.replaceAll("/", ".");
+            }
+            String[] projectInfo = classname.split(Pattern.quote("."));
             // Set project info
             try {
                 orgName = projectInfo[0];
@@ -170,7 +174,7 @@ public class FunctionMock {
 
         return mockMethod;
     }
-
+    //Identify the class with the mockMethod(method within call)
     private static String resolveMockClass(String mockMethodName, String[] mockFunctionClasses, String orgName,
                                            String packageName, String version, ClassLoader classLoader)
             throws ClassNotFoundException {
@@ -203,7 +207,7 @@ public class FunctionMock {
                         MockConstants.TEST_PACKAGE_ID,
                         MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
                         StringUtils.fromString("Return type of function " + mockMethod.getName() +
-                                " does not match function" + originalMethod.getName()),
+                                " does not match function " + originalMethod.getName()),
                         null,
                         new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
             }
@@ -215,7 +219,7 @@ public class FunctionMock {
                         MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
                         StringUtils.fromString(
                                 "Parameter types of function " + mockMethod.getName() +
-                                        " does not match function" + originalMethod.getName()),
+                                        " does not match function " + originalMethod.getName()),
                         null,
                         new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
             }
@@ -228,7 +232,7 @@ public class FunctionMock {
                             MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
                             StringUtils.fromString(
                                     "Parameter types of function " + mockMethod.getName() +
-                                            "does not match function" + originalMethod.getName()), null,
+                                            "does not match function " + originalMethod.getName()), null,
                             new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
                 }
             }

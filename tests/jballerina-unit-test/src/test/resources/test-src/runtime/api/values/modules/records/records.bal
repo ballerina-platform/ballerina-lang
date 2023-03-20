@@ -44,6 +44,8 @@ public type Bar readonly & record {|
     int[] x;
 |};
 
+type DetailsInUnion Details|map<anydata>|table<map<json>>;
+
 public function validateAPI() {
     anydata recordVal1 = getRecordValue();
     test:assertTrue(recordVal1 is Student);
@@ -56,6 +58,10 @@ public function validateAPI() {
     anydata recordVal3 = getRecordValueFromJson(jsonValue, Details);
     test:assertEquals(recordVal3, {"name": "Jane", "id": 234});
     test:assertTrue(recordVal3 is Details);
+
+    Details|map<anydata>|anydata recordVal4 = getRecordValueFromJson(jsonValue, DetailsInUnion);
+    test:assertEquals(recordVal4, {"name": "Jane", "id": 234});
+    test:assertTrue(recordVal4 is Details);
 
     Address addressRec1 = getRecordWithInitialValues();
     addressRec1.postalCode += 1;
@@ -80,7 +86,7 @@ public function validateAPI() {
     if (studentRec2 is error) {
         test:assertEquals("{ballerina/lang.map}KeyNotFound", studentRec2.message());
         test:assertEquals("invalid field access: field 'postalCode' not found in record type " +
-        "'runtime_api.records:Student'", <string> checkpanic studentRec2.detail()["message"]);
+        "'values.records:Student'", <string> checkpanic studentRec2.detail()["message"]);
     }
 }
 
@@ -108,7 +114,7 @@ function getRecordValueWithInitialValues() returns Details = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
 
-function getRecordValueFromJson(json value, typedesc<Details> recType) returns anydata = @java:Method {
+function getRecordValueFromJson(json value, typedesc<anydata> recType) returns anydata = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
 

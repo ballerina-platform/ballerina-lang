@@ -171,7 +171,7 @@ public class StringUtils {
             return "";
         }
 
-        Type type = TypeChecker.getType(value);
+        Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
 
         if (type.getTag() == TypeTags.STRING_TAG) {
             return ((BString) value).getValue();
@@ -203,7 +203,7 @@ public class StringUtils {
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             BObject objectValue = (BObject) value;
-            ObjectType objectType = objectValue.getType();
+            ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
             for (MethodType func : objectType.getMethods()) {
                 if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
@@ -228,7 +228,7 @@ public class StringUtils {
             return "()";
         }
 
-        Type type = TypeChecker.getType(value);
+        Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
 
         if (type.getTag() == TypeTags.STRING_TAG) {
             return "\"" + ((BString) value).getValue() + "\"";
@@ -274,7 +274,7 @@ public class StringUtils {
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
-            ObjectType objectType = objectValue.getType();
+            ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
             for (MethodType func : objectType.getMethods()) {
                 if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
@@ -335,7 +335,7 @@ public class StringUtils {
         if (exprValue.startsWith("xml")) {
             String xml = exprValue.substring(exprValue.indexOf('`') + 1,
                     exprValue.lastIndexOf('`')).trim();
-            return BalStringUtils.parseXmlExpressionStringValue(xml, parent);
+            return BalStringUtils.parseXmlExpressionStringValue(xml);
         }
         if (exprValue.startsWith("re")) {
             String regexp = exprValue.substring(exprValue.indexOf('`') + 1,
@@ -357,7 +357,7 @@ public class StringUtils {
     public static String getJsonString(Object value) {
         Object jsonValue = JsonUtils.convertToJson(value, new ArrayList<>());
 
-        Type type = TypeChecker.getType(jsonValue);
+        Type type = TypeUtils.getReferredType(TypeChecker.getType(jsonValue));
         switch (type.getTag()) {
             case TypeTags.NULL_TAG:
                 return "null";

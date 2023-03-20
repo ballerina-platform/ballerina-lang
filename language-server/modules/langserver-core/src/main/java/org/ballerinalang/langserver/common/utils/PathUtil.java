@@ -26,6 +26,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.environment.PackageCache;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -37,9 +38,11 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -157,7 +160,7 @@ public class PathUtil {
         Collection<ResolvedPackageDependency> dependencies = 
                 project.currentPackage().getResolution().dependencyGraph().getNodes();
         // Symbol location has only the name of the file
-        String sourceFile = symbol.getLocation().get().lineRange().filePath();
+        String sourceFile = symbol.getLocation().get().lineRange().fileName();
         for (ResolvedPackageDependency depNode : dependencies) {
             // Check for matching dependency
             Package depPackage = depNode.packageInstance();
@@ -193,9 +196,15 @@ public class PathUtil {
         }
         String orgName = symbol.getModule().get().id().orgName();
         String moduleName = symbol.getModule().get().id().moduleName();
-        Package langLibPackage = project.projectEnvironmentContext().environment().getService(PackageCache.class)
-                .getPackages(PackageOrg.from(orgName), PackageName.from(moduleName)).get(0);
-        String sourceFile = symbol.getLocation().get().lineRange().filePath();
+        List<Package> langLibPackages = project.projectEnvironmentContext().environment().getService(PackageCache.class)
+                .getPackages(PackageOrg.from(orgName), PackageName.from(moduleName));
+        // Ideally this list cannot be empty. But due to concurrent issues, it can be. 
+        // Checking if it's empty for safety.
+        if (langLibPackages.isEmpty()) {
+            return Optional.empty();
+        }
+        Package langLibPackage = langLibPackages.get(0);
+        String sourceFile = symbol.getLocation().get().lineRange().fileName();
 
         Optional<Path> filepath = Optional.empty();
         for (ModuleId moduleId : langLibPackage.moduleIds()) {
@@ -248,7 +257,7 @@ public class PathUtil {
      * @return file path
      */
     public static Path getPathFromLocation(Module module, Location location) {
-        String filePath = location.lineRange().filePath();
+        String filePath = location.lineRange().fileName();
 
         if (module.project().kind() == ProjectKind.SINGLE_FILE_PROJECT) {
             return module.project().sourceRoot();
@@ -260,12 +269,20 @@ public class PathUtil {
                     .resolve(module.moduleName().toString())
                     .resolve(filePath);
         }
-
+        Path sourceRoot = module.project().sourceRoot();
         if (module.isDefaultModule()) {
-            return module.project().sourceRoot().resolve(filePath);
+            if (Files.exists(sourceRoot.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve(filePath))) {
+                return sourceRoot.resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve(filePath);
+            }
+            return sourceRoot.resolve(filePath);
         } else {
-            return module.project().sourceRoot()
-                    .resolve("modules")
+            if (Files.exists(sourceRoot.resolve(ProjectConstants.GENERATED_MODULES_ROOT).
+                    resolve(module.moduleName().moduleNamePart()).resolve(filePath))) {
+                return sourceRoot.resolve(ProjectConstants.GENERATED_MODULES_ROOT).
+                        resolve(module.moduleName().moduleNamePart()).resolve(filePath);
+            }
+            return sourceRoot
+                    .resolve(ProjectConstants.MODULES_ROOT)
                     .resolve(module.moduleName().moduleNamePart())
                     .resolve(filePath);
         }

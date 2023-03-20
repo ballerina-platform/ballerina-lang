@@ -210,12 +210,13 @@ public class VarDeclaredAssignmentStmtTest {
                         "\n\t\tmissing required field 'a' of type 'anydata' in record 'Person'" +
                         "\n\t\tmissing required field 'score' of type 'float' in record 'Person'" +
                         "\n\t\tmissing required field 'alive' of type 'boolean' in record 'Person'" +
-                        "\n\t\tmissing required field 'parent.a' of type 'anydata' in record 'Person'" +
-                        "\n\t\tmissing required field 'parent.score' of type 'float' in record 'Person'" +
-                        "\n\t\tmissing required field 'parent.alive' of type 'boolean' in record 'Person'" +
-                        "\n\t\tfield 'parent.parent' in record 'Person' should be of type 'Person?', found " +
-                        "'\"Parent\"'\n\t\tfield 'parent.marks' in record 'Person' should be of type 'int[]', found '" +
-                        "()'");
+                        "\n\t\t{" +
+                        "\n\t\t  missing required field 'parent.a' of type 'anydata' in record 'Person'" +
+                        "\n\t\t  missing required field 'parent.score' of type 'float' in record 'Person'" +
+                        "\n\t\t  missing required field 'parent.alive' of type 'boolean' in record 'Person'" +
+                        "\n\t\t  field 'parent.parent' in record 'Person' should be of type 'Person?', found " +
+                        "'\"Parent\"'\n\t\t  field 'parent.marks' in record 'Person' should be of type 'int[]'," +
+                        " found '()'\n\t\t}");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")

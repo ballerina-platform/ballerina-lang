@@ -63,7 +63,9 @@ import org.eclipse.lsp4j.TextDocumentRegistrationOptions;
 import org.eclipse.lsp4j.TextDocumentSyncKind;
 import org.eclipse.lsp4j.WatchKind;
 import org.eclipse.lsp4j.WorkspaceClientCapabilities;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.LanguageClient;
+import org.eclipse.lsp4j.services.NotebookDocumentService;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
@@ -89,9 +91,9 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private ExtendedLanguageClient client = null;
     private final TextDocumentService textService;
     private final WorkspaceService workspaceService;
+    private final NotebookDocumentService notebookService;
     private int shutdown = 1;
 
-    private static final String LS_INIT_MODE_PROPERTY = "enableLightWeightMode";
     private static final String LS_ENABLE_SEMANTIC_HIGHLIGHTING = "enableSemanticHighlighting";
 
     public BallerinaLanguageServer() {
@@ -102,6 +104,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         super(serverContext);
         this.textService = new BallerinaTextDocumentService(this, workspaceManagerProxy, this.serverContext);
         this.workspaceService = new BallerinaWorkspaceService(this, workspaceManagerProxy, this.serverContext);
+        this.notebookService = new BallerinaNotebookDocumentService(this.serverContext);
     }
 
     public ExtendedLanguageClient getClient() {
@@ -112,8 +115,27 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
 
+        Map experimentalClientCapabilities = null;
+        if (params.getCapabilities().getExperimental() != null) {
+            experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
+                    HashMap.class);
+        }
+
+        Map initializationOptions = null;
+        if (params.getInitializationOptions() != null) {
+            initializationOptions = new Gson().fromJson(params.getInitializationOptions().toString(), HashMap.class);
+        }
+
+        TextDocumentClientCapabilities textDocClientCapabilities = params.getCapabilities().getTextDocument();
+        WorkspaceClientCapabilities workspaceClientCapabilities = params.getCapabilities().getWorkspace();
+        LSClientCapabilities capabilities = new LSClientCapabilitiesImpl(textDocClientCapabilities,
+                workspaceClientCapabilities,
+                experimentalClientCapabilities,
+                initializationOptions);
+        this.serverContext.put(LSClientCapabilities.class, capabilities);
+
         //Checks for instances in which the LS needs to be initiated in lightweight mode
-        if (isLightWeightMode(params)) {
+        if (capabilities.getInitializationOptions().isEnableLightWeightMode()) {
             return CompletableFuture.supplyAsync(() -> res);
         }
 
@@ -128,7 +150,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setFoldingRangeProvider(true);
         res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
 
-        CodeActionOptions codeActionOptions = new CodeActionOptions(List.of(CodeActionKind.Refactor, 
+        CodeActionOptions codeActionOptions = new CodeActionOptions(List.of(CodeActionKind.Refactor,
                 CodeActionKind.QuickFix, CodeActionKind.Source));
         codeActionOptions.setResolveProvider(true);
         res.getCapabilities().setCodeActionProvider(codeActionOptions);
@@ -165,17 +187,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandsList);
         res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
 
-        Map initializationOptions = null;
-        if (params.getInitializationOptions() != null) {
-            initializationOptions = new Gson().fromJson(params.getInitializationOptions().toString(), HashMap.class);
-        }
-
-        Map experimentalClientCapabilities = null;
-        if (params.getCapabilities().getExperimental() != null) {
-            experimentalClientCapabilities = new Gson().fromJson(params.getCapabilities().getExperimental().toString(),
-                    HashMap.class);
-        }
-
         // Set AST provider and examples provider capabilities
         HashMap<String, Object> experimentalServerCapabilities = new HashMap<>();
         experimentalServerCapabilities.put(AST_PROVIDER.getValue(), true);
@@ -183,13 +194,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         experimentalServerCapabilities.put(API_EDITOR_PROVIDER.getValue(), true);
         res.getCapabilities().setExperimental(experimentalServerCapabilities);
 
-        TextDocumentClientCapabilities textDocClientCapabilities = params.getCapabilities().getTextDocument();
-        WorkspaceClientCapabilities workspaceClientCapabilities = params.getCapabilities().getWorkspace();
-        LSClientCapabilities capabilities = new LSClientCapabilitiesImpl(textDocClientCapabilities,
-                workspaceClientCapabilities,
-                experimentalClientCapabilities,
-                initializationOptions);
-        this.serverContext.put(LSClientCapabilities.class, capabilities);
         this.serverContext.put(ServerCapabilities.class, res.getCapabilities());
         ((BallerinaTextDocumentService) textService).setClientCapabilities(capabilities);
         ((BallerinaWorkspaceService) workspaceService).setClientCapabilities(capabilities);
@@ -356,6 +360,11 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         return this.textService;
     }
 
+    @Override
+    public NotebookDocumentService getNotebookDocumentService() {
+        return this.notebookService;
+    }
+
     public WorkspaceService getWorkspaceService() {
         return this.workspaceService;
     }
@@ -401,29 +410,23 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private void startListeningFileChanges() {
         ExtendedLanguageClient languageClient = serverContext.get(ExtendedLanguageClient.class);
         List<FileSystemWatcher> watchers = new ArrayList<>();
-        watchers.add(new FileSystemWatcher("/**/*.bal", WatchKind.Create + WatchKind.Delete + WatchKind.Change));
-        watchers.add(new FileSystemWatcher("/**/modules/*", WatchKind.Create + WatchKind.Delete));
-        watchers.add(new FileSystemWatcher("/**/modules", WatchKind.Delete));
-        watchers.add(new FileSystemWatcher("/**/" + ProjectConstants.BALLERINA_TOML,
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/*.bal"),
+                WatchKind.Create + WatchKind.Delete + WatchKind.Change));
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/modules/*"), WatchKind.Create + WatchKind.Delete));
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/modules"), WatchKind.Delete));
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/generated/*"),
                 WatchKind.Create + WatchKind.Delete));
-        watchers.add(new FileSystemWatcher("/**/" + ProjectConstants.CLOUD_TOML,
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/generated"), WatchKind.Delete));
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/" + ProjectConstants.BALLERINA_TOML),
                 WatchKind.Create + WatchKind.Delete));
-        watchers.add(new FileSystemWatcher("/**/" + ProjectConstants.DEPENDENCIES_TOML,
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/" + ProjectConstants.CLOUD_TOML),
+                WatchKind.Create + WatchKind.Delete));
+        watchers.add(new FileSystemWatcher(Either.forLeft("/**/" + ProjectConstants.DEPENDENCIES_TOML),
                 WatchKind.Create + WatchKind.Delete));
         DidChangeWatchedFilesRegistrationOptions opts = new DidChangeWatchedFilesRegistrationOptions(watchers);
         Registration registration = new Registration(UUID.randomUUID().toString(),
                 "workspace/didChangeWatchedFiles", opts);
         languageClient.registerCapability(new RegistrationParams(Collections.singletonList(registration)));
-    }
-
-    private Boolean isLightWeightMode(InitializeParams params) {
-        if (params.getInitializationOptions() != null) {
-            JsonObject initOptions = (JsonObject) params.getInitializationOptions();
-            if (initOptions.has(LS_INIT_MODE_PROPERTY)) {
-                return initOptions.get(LS_INIT_MODE_PROPERTY).getAsBoolean();
-            }
-        }
-        return false;
     }
 
     private boolean enableBallerinaSemanticTokens(InitializeParams params) {
@@ -438,6 +441,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     }
 
     private List<String> getCompletionTriggerCharacters() {
-        return Arrays.asList(":", ".", ">", "@", "/");
+        return Arrays.asList(":", ".", ">", "@", "/", "\\", "?");
     }
 }

@@ -249,15 +249,25 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "kind": "MEMBER_TYPE_DESC",
                                           "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "isMissing": true,
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "SIMPLE_NAME_REFERENCE",
                                               "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_TYPE_DESC"
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "isMissing": true,
+                                                  "hasDiagnostics": true,
+                                                  "diagnostics": [
+                                                    "ERROR_MISSING_TYPE_DESC"
+                                                  ]
+                                                }
                                               ]
                                             }
                                           ]
@@ -272,14 +282,23 @@
                                           ]
                                         },
                                         {
-                                          "kind": "SINGLETON_TYPE_DESC",
+                                          "kind": "MEMBER_TYPE_DESC",
                                           "children": [
                                             {
-                                              "kind": "NUMERIC_LITERAL",
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "SINGLETON_TYPE_DESC",
                                               "children": [
                                                 {
-                                                  "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                                                  "value": "3"
+                                                  "kind": "NUMERIC_LITERAL",
+                                                  "children": [
+                                                    {
+                                                      "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
+                                                      "value": "3"
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             }

@@ -17,8 +17,9 @@
  */
 package org.ballerinalang.langserver.completions.providers;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
-import io.ballerina.compiler.api.symbols.ClientDeclSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -65,7 +66,6 @@ import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
-import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.ballerinalang.langserver.completions.builder.ConstantCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.FieldCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
@@ -91,6 +91,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -272,7 +273,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
         completionItems.addAll(Arrays.asList(
-                new TypeCompletionItem(context, null, TypeCompletionItemBuilder.build(null, "service")),
+                new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()),
                 new SnippetCompletionItem(context, Snippet.KW_RECORD.get()),
                 new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),
@@ -321,27 +322,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getModuleCompletionItems(context));
-        completionItems.addAll(this.getClientDeclarationCompletionItems(context));
 
-        return completionItems;
-    }
-
-    /**
-     * Get the completion item for a client declaration both statement level and module level.
-     *
-     * @param context Ballerina Completion context
-     * @return {@link List}     List of client declaration completion items
-     */
-    private List<LSCompletionItem> getClientDeclarationCompletionItems(BallerinaCompletionContext context) {
-        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        visibleSymbols.stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.CLIENT_DECLARATION && symbol.getName().isPresent())
-                .forEach(symbol -> {
-                    String prefix = symbol.getName().get();
-                    CompletionItem item = this.getModuleCompletionItem(prefix, prefix, new ArrayList<>(), prefix);
-                    completionItems.add(new SymbolCompletionItem(context, symbol, item));
-                });
         return completionItems;
     }
 
@@ -544,7 +525,10 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE16_LITERAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE64_LITERAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
-
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REG_EXP.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_STRING.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_XML.get()));
+        
         Predicate<Symbol> symbolFilter = getExpressionContextSymbolFilter();
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbolFilter)
@@ -579,11 +563,26 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
     private List<LSCompletionItem> getBasicAndOtherTypeCompletions(BallerinaCompletionContext context) {
         // Types in the predeclared langlibs are handled and extracted via #getPredeclaredLangLibCompletions
-        List<String> types = Arrays.asList("readonly", "handle", "never", "json", "anydata", "any", "byte");
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Types types = semanticModel.get().types();
+
+        //"readonly", "handle", "never", "json", "anydata", "any", "byte");
+        List<TypeSymbol> typeSymbols = new ArrayList<>();
+        typeSymbols.add(types.READONLY);
+        typeSymbols.add(types.HANDLE);
+        typeSymbols.add(types.NEVER);
+        typeSymbols.add(types.JSON);
+        typeSymbols.add(types.ANYDATA);
+        typeSymbols.add(types.ANY);
+        typeSymbols.add(types.BYTE);
+
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        types.forEach(type -> {
-            CompletionItem cItem = TypeCompletionItemBuilder.build(null, type);
-            completionItems.add(new SymbolCompletionItem(context, null, cItem));
+        typeSymbols.forEach(type -> {
+            CompletionItem cItem = TypeCompletionItemBuilder.build(type, type.signature());
+            completionItems.add(new SymbolCompletionItem(context, type, cItem));
         });
 
         return completionItems;
@@ -596,6 +595,61 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
      * @return {@link List}
      */
     protected List<LSCompletionItem> getPredeclaredLangLibCompletions(BallerinaCompletionContext context) {
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        Optional<Types> types = context.currentSemanticModel().map(SemanticModel::types);
+        visibleSymbols.stream()
+                .filter(symbol -> symbol.getName().isPresent() && symbol.kind() == MODULE)
+                .map(symbol -> (ModuleSymbol) symbol)
+                .filter(moduleSymbol -> CommonUtil.PRE_DECLARED_LANG_LIBS.contains(moduleSymbol.id().moduleName()))
+                .forEach(moduleSymbol -> {
+                    //Some lang libs are essentially types. So,type symbols are specifically created for them.
+                    TypeSymbol typeSymbol = null;
+                    if (types.isPresent()) {
+                        switch (moduleSymbol.id().moduleName()) {
+                            case "lang.boolean":
+                                typeSymbol = types.get().BOOLEAN;
+                                break;
+                            case "lang.int":
+                                typeSymbol = types.get().INT;
+                                break;
+                            case "lang.error":
+                                typeSymbol = types.get().ERROR;
+                                break;
+                            case "lang.decimal":
+                                typeSymbol = types.get().DECIMAL;
+                                break;
+                            case "lang.float":
+                                typeSymbol = types.get().FLOAT;
+                                break;
+                            case "lang.function":
+                                typeSymbol = types.get().FUNCTION;
+                                break;
+                            case "lang.future":
+                                typeSymbol = types.get().FUTURE;
+                                break;
+                            case "lang.typedesc":
+                                typeSymbol = types.get().TYPEDESC;
+                                break;
+                            case "lang.string":
+                                typeSymbol = types.get().STRING;
+                                break;
+                            case "lang.xml":
+                                typeSymbol = types.get().XML;
+                                break;
+                            default:
+                                //ignore
+                        }
+                    }
+                    CompletionItem cItem = TypeCompletionItemBuilder.build(
+                            typeSymbol, moduleSymbol.id().modulePrefix());
+                    completionItems.add(new SymbolCompletionItem(context, 
+                            Objects.requireNonNullElse(typeSymbol, moduleSymbol), cItem));
+                });
+        return completionItems;
+    }
+
+    protected List<LSCompletionItem> getBuiltInTypes(BallerinaCompletionContext context) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.stream()
@@ -807,37 +861,5 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         sortText += SortingUtil.genSortText(rank);
 
         completionItem.getCompletionItem().setSortText(sortText);
-    }
-
-    /**
-     * Get the completion item list for client declaration module prefix reference, when the node is within the 
-     * qualified name reference node.
-     * 
-     * @param context   Ballerina Completion Context
-     * @param qNameRef  Qualified Name Reference Node
-     * @param predicate Predicate to filter symbols
-     * @return  Client Declaration Completion Item List
-     */
-    protected List<LSCompletionItem> getClientDeclCompletionItemList(BallerinaCompletionContext context, 
-                                                                     QualifiedNameReferenceNode qNameRef, 
-                                                                     Predicate<Symbol> predicate) {
-        Optional<ClientDeclSymbol> clientDeclSymbol = ModuleUtil.searchClientDeclarationForAlias(context,
-                QNameRefCompletionUtil.getAlias(qNameRef));
-        List<Symbol> clientDeclContent = clientDeclSymbol.map(symbol -> symbol.moduleSymbol().allSymbols().stream()
-                        .filter(predicate)
-                        .collect(Collectors.toList()))
-                .orElseGet(ArrayList::new);
-
-        List<LSCompletionItem> completionItemList = this.getCompletionItemList(clientDeclContent, context);
-        String clientKW = ItemResolverConstants.CLIENT;
-        for (LSCompletionItem item: completionItemList) {
-            CompletionItem cItem = item.getCompletionItem();
-            if (cItem.getLabel().equals(CommonUtil.escapeReservedKeyword(clientKW))) {
-                cItem.setLabel(clientKW);
-                cItem.setInsertText(clientKW);
-            }
-        }
-        
-        return completionItemList;
     }
 }

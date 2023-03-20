@@ -76,6 +76,14 @@ public class ArgumentParserPositiveTest {
         Assert.assertEquals(output, expectedInt, "string arg parsed as invalid int");
     }
 
+    @Test(dataProvider = "floatValues")
+    public void testFloatArg(String specifiedFloat, String expectedFloat) {
+        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
+                "test_main_with_float_param.bal");
+        String output = runMain(compileResult, new String[]{specifiedFloat});
+        Assert.assertEquals(output, expectedFloat, "string arg parsed as invalid float");
+    }
+
     @Test(dataProvider = "decimalValues")
     public void testDecimalArg(String specifiedDecimal, String expectedDecimal) {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
@@ -84,13 +92,23 @@ public class ArgumentParserPositiveTest {
         Assert.assertEquals(output, expectedDecimal, "string arg parsed as invalid decimal");
     }
 
-    @Test(enabled = false)
-    public void testNoNamedArg() {
+    @Test()
+    public void testDefaultableNamedArgs() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                 "test_main_with_defaultable_param.bal");
-        String output = runMain(compileResult, new String[]{"1", "true"});
-        Assert.assertEquals(output, "1 true world: default",
-                            "string args with no named args parsed as invalid args");
+        String output = runMain(compileResult, new String[] {"1"});
+        Assert.assertEquals(output, "value : 1, string arg : default, int arg : 1, float arg : 2.0, " +
+                        "decimal arg : 1E+100, byte arg : 34",
+                "string args with no named args parsed as invalid args");
+    }
+
+    @Test()
+    public void testDefaultableNamedArgsWithFunctions() {
+        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
+                "test_main_with_defaultable_param_func.bal");
+        String output = runMain(compileResult, new String[] {"1"});
+        Assert.assertEquals(output, "1, a: 6, b: 11, c: 22",
+                "string args with no named args parsed as invalid args");
     }
 
     @Test
@@ -135,6 +153,20 @@ public class ArgumentParserPositiveTest {
         Assert.assertEquals(output, "string value: s is nil", "evaluated to invalid value");
     }
 
+    @Test(dataProvider = "intSubtypeFiles")
+    public void testIntSubtypeArgs(String balFileName) {
+        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + balFileName);
+        String output = runMain(compileResult, new String[]{"10"});
+        Assert.assertEquals(output, "10", "string arg parsed as invalid int");
+    }
+
+    @Test
+    public void testCharSubtypeArg() {
+        compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_char_param.bal");
+        String output = runMain(compileResult, new String[]{"A"});
+        Assert.assertEquals(output, "A", "string arg parsed as invalid char");
+    }
+
     @DataProvider(name = "mainFunctionArgsAndResult")
     public Object[][] mainFunctionArgsAndResult() {
         return new Object[][]{
@@ -147,18 +179,48 @@ public class ArgumentParserPositiveTest {
     public Object[][] intValues() {
         return new Object[][]{
                 {"10", "10"},
-                {"0x1efa2", "126882"},
-                {"0XFAF1", "64241"}
+                {"-10", "-10"}
         };
     }
 
-    //Todo: commented tests to be fixed with #30394
+    @DataProvider(name = "floatValues")
+    public Object[][] floatValues() {
+        return new Object[][]{
+                {"10.5", "10.5"},
+                {"-10", "-10.0"},
+                {"-216.538", "-216.538"},
+                {"0x1efa2p0", "126882.0"},
+                {"-0x1efa2p1", "-253764.0"},
+                {"0XFAF1P2", "256964.0"},
+                {"-0XFAF1P2", "-256964.0"},
+                {"0XFAf1p-25", "0.0019145309925079346"},
+                {"-0XFaF1P-25", "-0.0019145309925079346"},
+                {"0x1ef.a2p5", "15860.25"},
+                {"-0x1ef.a2p5", "-15860.25"},
+                {"-0X1EF.A2P-2", "-123.908203125"}
+        };
+    }
+
     @DataProvider(name = "decimalValues")
     public Object[][] decimalValues() {
         return new Object[][]{
                 {"10", "10"},
-//                {"-10.123", "-10.123"},
-                {"10.123e1423", "1.0123E+1424"}
+                {"-10.123", "-10.123"},
+                {"10.123e1423", "1.0123E+1424"},
+                {"-10.123e1423", "-1.0123E+1424"}
+        };
+    }
+
+    @DataProvider(name = "intSubtypeFiles")
+    public Object[] intSubtypeFiles() {
+        return new String[] {
+                "test_main_with_byte_param.bal",
+                "test_main_with_int8_param.bal",
+                "test_main_with_int16_param.bal",
+                "test_main_with_int32_param.bal",
+                "test_main_with_uint8_param.bal",
+                "test_main_with_uint16_param.bal",
+                "test_main_with_uint32_param.bal"
         };
     }
 

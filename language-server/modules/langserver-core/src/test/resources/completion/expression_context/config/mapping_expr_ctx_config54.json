@@ -15,7 +15,7 @@
           "value": ""
         }
       },
-      "sortText": "F",
+      "sortText": "AB",
       "insertText": "CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -39,7 +39,7 @@
       "label": "b",
       "kind": "Variable",
       "detail": "map<any>",
-      "sortText": "F",
+      "sortText": "AB",
       "insertText": "b",
       "insertTextFormat": "Snippet"
     }

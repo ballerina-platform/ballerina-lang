@@ -63,6 +63,7 @@ import static io.ballerina.runtime.api.utils.StringUtils.fromString;
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 import static io.ballerina.runtime.test.TestUtils.getIntersectionType;
 import static io.ballerina.runtime.test.TestUtils.getSimpleVariableKeys;
+import static io.ballerina.runtime.test.config.ConfigTest.AMBIGUOUS_UNION;
 import static io.ballerina.runtime.test.config.ConfigTest.COLOR_ENUM_UNION;
 
 /**
@@ -651,9 +652,15 @@ public class TomlProviderTest {
                                                 })},
                 // Enum value given with toml
                 {"color", COLOR_ENUM_UNION, StringUtils.fromString("RED")},
+                // union with multiple matching types
+                {"ambiguousUnionVar", AMBIGUOUS_UNION, ValueCreator
+                        .createMapValue(TypeCreator.createMapType(TYPE_STRING),
+                        new BMapInitialValueEntry[]
+                                {
+                                        ValueCreator.createKeyFieldEntry(fromString("name"), fromString("Waruna"))
+                                })},
         };
     }
-
 
     @Test(dataProvider = "finite-data-provider")
     public void testTomlProviderFiniteType(String variableName, Type type, Object expectedValues) {
