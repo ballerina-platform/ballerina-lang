@@ -119,7 +119,7 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
         if (queryExpr == null && lhsMemberType.typeKind() == TypeDescKind.RECORD) {
             Optional<String> defaultVal = DefaultValueGenerationUtil.getDefaultValueForType(lhsMemberType);
             if (defaultVal.isPresent()) {
-                queryExpr = String.format("from var item in %s select %s", 
+                queryExpr = String.format("from var item in %s select %s",
                         symbolInfo.rhsNode.toSourceCode().strip(), defaultVal.get());
             }
         }
@@ -226,7 +226,7 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
                 break;
             }
             matchedNode = matchedNode.parent();
-        } while (matchedNode.kind() != SyntaxKind.LOCAL_VAR_DECL ||
+        } while (matchedNode != null && matchedNode.kind() != SyntaxKind.LOCAL_VAR_DECL ||
                 matchedNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT
                 || matchedNode.kind() != SyntaxKind.SPECIFIC_FIELD);
 
