@@ -41,7 +41,6 @@ public enum SyntaxKind {
     TYPE_KEYWORD(107, "type"),
     RECORD_KEYWORD(108, "record"),
     OBJECT_KEYWORD(109, "object"),
-    VERSION_KEYWORD(110, "version"),
     AS_KEYWORD(111, "as"),
     ON_KEYWORD(112, "on"),
     RESOURCE_KEYWORD(113, "resource"),

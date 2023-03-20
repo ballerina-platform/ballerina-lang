@@ -38,8 +38,8 @@ function functionWithErrorNamedDefaultArgument(error 'error = getError()) {
     assertEquality('error.message(), "Generated Error");
 }
 
-function functionWithErrorNamedIncludedParam(*ErrorDataWithErrorField 'error) {
-    assertEquality('error.'error.message(), "Generated Error");
+function functionWithErrorNamedIncludedParam(*ErrorDataWithErrorField errorData) {
+    assertEquality(errorData.'error.message(), "Generated Error");
 }
 
 function functionWithErrorNamedRequiredParam(ErrorDataWithErrorField 'error) {

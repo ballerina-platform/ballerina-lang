@@ -33,13 +33,14 @@ import org.testng.annotations.Test;
  */
 public class ErrorTypeTest {
 
-    private CompileResult result;
-    private CompileResult negativeResult;
+    private CompileResult result, errorConstructorResult, negativeResult;
 
     @BeforeClass
     public void setup() {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_errors");
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_error_constructor");
         result = BCompileUtil.compile("test-src/bala/test_bala/types/error_type_test.bal");
+        errorConstructorResult = BCompileUtil.compile("test-src/bala/test_bala/types/error_constructor_test.bal");
         negativeResult = BCompileUtil.compile("test-src/bala/test_bala/types/error_type_negative_test.bal");
     }
 
@@ -113,6 +114,11 @@ public class ErrorTypeTest {
                 "incompatible types: expected 'testorg/errors:1.0.0:NewPostDefinedError', " +
                         "found 'testorg/errors:1.0.0:PostDefinedError'", 28, 32);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @Test
+    public void testErrorConstructor() {
+        BRunUtil.invoke(errorConstructorResult, "testErrorConstructor");
     }
 
     @AfterClass

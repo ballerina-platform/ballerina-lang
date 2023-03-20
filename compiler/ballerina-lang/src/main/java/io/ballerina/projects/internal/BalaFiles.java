@@ -470,8 +470,7 @@ public class BalaFiles {
                                                modules);
             packages.add(pkg);
         }
-
-        return DependencyManifest.from(null, packages);
+        return DependencyManifest.from(null, null, packages);
     }
 
     private static PackageJson readPackageJson(Path balaPath, Path packageJsonPath) {

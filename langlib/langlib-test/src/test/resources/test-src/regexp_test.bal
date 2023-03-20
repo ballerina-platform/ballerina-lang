@@ -1993,6 +1993,11 @@ public function testRegexpFromString() returns error? {
     //assertTrue(res2 is regexp:Span);
 }
 
+function testRuntimeRegexpParser() {
+    string:RegExp _ = re `${"(?-:)"}`;
+    anydata|error result = regexp:fromString("(?-:)");
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

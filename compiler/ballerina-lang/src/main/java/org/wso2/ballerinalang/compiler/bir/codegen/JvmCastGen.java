@@ -1297,7 +1297,7 @@ public class JvmCastGen {
         }
     }
 
-    private void generateCheckCastToAnyData(MethodVisitor mv, BType type) {
+    public void generateCheckCastToAnyData(MethodVisitor mv, BType type) {
         BType sourceType = JvmCodeGenUtil.getReferredType(type);
         if (sourceType.tag == TypeTags.UNION || sourceType.tag == TypeTags.INTERSECTION ||
                 (types.isAssignable(sourceType, symbolTable.anyType) &&

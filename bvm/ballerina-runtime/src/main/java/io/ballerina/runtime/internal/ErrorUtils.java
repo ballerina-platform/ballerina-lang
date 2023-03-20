@@ -32,7 +32,6 @@ import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FLOAT_LANG_LIB;
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
@@ -46,10 +45,11 @@ public class ErrorUtils {
 
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
     private static final BString ERROR_CAUSE_FIELD = StringUtils.fromString("cause");
-    private static final BString NULL_REF_EXCEPTION = StringUtils.fromString("NullReferenceException");
+
+    private ErrorUtils() {}
 
     /**
-     * Create balleria error using java exception for interop.
+     * Create Ballerina error using java exception for interop.
      *
      * @param e java exception
      * @return ballerina error
@@ -165,13 +165,14 @@ public class ErrorUtils {
     }
 
     public static BError createConversionError(Object inputValue, Type targetType) {
-        return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
+        return createError(BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
                 BLangExceptionHelper.getErrorDetails(INCOMPATIBLE_CONVERT_OPERATION,
                         TypeChecker.getType(inputValue), targetType));
     }
 
     public static BError createConversionError(Object inputValue, Type targetType, String detailMessage) {
-        return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
+        return createError(BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
+                BLangExceptionHelper.getErrorMessage(
                 INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
                 .concat(StringUtils.fromString(": " + detailMessage)));
     }
