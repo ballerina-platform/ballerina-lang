@@ -11122,6 +11122,7 @@ public class BallerinaParser extends AbstractParser {
         // Separate out the interpolated expressions to a queue. Then merge the string content using '${}'.
         // These '${}' are used to represent the interpolated locations. Regular expression parser will replace '${}'
         // with the actual interpolated expression, while building the regular expression tree.
+        this.tokenReader.startMode(ParserMode.REGEXP);
         ArrayDeque<STNode> expressions = new ArrayDeque<>();
         StringBuilder regExpStringBuilder = new StringBuilder();
         STToken nextToken = peek();
@@ -11135,7 +11136,7 @@ public class BallerinaParser extends AbstractParser {
             }
             nextToken = peek();
         }
-
+        this.tokenReader.endMode();
         CharReader charReader = CharReader.from(regExpStringBuilder.toString());
         AbstractTokenReader tokenReader = new TokenReader(new RegExpLexer(charReader));
         RegExpParser regExpParser = new RegExpParser(tokenReader, expressions);
