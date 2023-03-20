@@ -146,11 +146,10 @@ public class LangLibRegexpTest {
         return new Object[][] {
                 {"testInvalidRegexpPatternSyntax1", "Unclosed character class near index 24" + NEW_LINE_CHAR +
                         "(?i-s:[[A\\\\sB\\WC\\Dd\\\\]\\])" + NEW_LINE_CHAR + "                        ^"},
-                {"testInvalidRegexpPatternSyntax2", "Unclosed character class near index 23" + NEW_LINE_CHAR +
-                        "(?xsmi:[]\\P{sc=Braille})" + NEW_LINE_CHAR +
-                        "                       ^"},
-                {"testInvalidRegexpPatternSyntax3", "Unclosed character class near index 23" + NEW_LINE_CHAR +
-                        "(?xsmi:[]\\P{sc=Braille})" + NEW_LINE_CHAR + "                       ^"},
+                {"testInvalidRegexpPatternSyntax2", "Unclosed character class near index 27" + NEW_LINE_CHAR +
+                        "(?xsmi:[[ABC]\\P{sc=Braille})" + NEW_LINE_CHAR + "                           ^"},
+                {"testInvalidRegexpPatternSyntax3", "Unclosed character class near index 27" + NEW_LINE_CHAR +
+                        "(?xsmi:[[ABC]\\P{sc=Braille})" + NEW_LINE_CHAR + "                           ^"},
         };
     }
 
@@ -203,6 +202,19 @@ public class LangLibRegexpTest {
                 {"testNegativeInvalidFlags2"},
                 {"testNegativeInvalidFlags3"},
                 {"testNegativeInvalidFlags4"},
+        };
+    }
+    
+    @Test(dataProvider = "negativeRegexpEmptyCharClassInterpolationProvider")
+    public void negativeTestRegexpEmptyCharClassInsertion(String functionName) {
+        BRunUtil.invoke(negativeTests, functionName);
+    }
+
+    @DataProvider(name = "negativeRegexpEmptyCharClassInterpolationProvider")
+    private Object[][] negativeRegexpEmptyCharClassInsertion() {
+        return new Object[][] {
+                {"testNegativeEmptyCharClass1"},
+                {"testNegativeEmptyCharClass2"}
         };
     }
 }

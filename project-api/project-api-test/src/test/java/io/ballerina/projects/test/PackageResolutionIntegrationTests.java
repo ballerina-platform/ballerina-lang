@@ -37,7 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static io.ballerina.projects.test.TestUtils.readFileAsString;
+import static io.ballerina.projects.test.TestUtils.assertTomlFilesEquals;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
@@ -77,8 +77,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         failIfDiagnosticsExists(buildProject);
         // Compare Dependencies.toml file
         // package_a ---> 1.0.0
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-1.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-1.toml"));
 
         // Cache package_a patch version 1.0.2 to central
         cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_a_1_0_2"));
@@ -91,8 +91,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         failIfDiagnosticsExists(buildProjectAgain);
         // Compare Dependencies.toml file
         // package_a ---> 1.0.0
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-1.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-1.toml"));
 
         // 3. Build package_c w/o deleting Dependencies.toml, after deleting build file and setting sticky == false
         deleteBuildFile(projectDirPath);
@@ -102,8 +102,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         failIfDiagnosticsExists(buildProject3);
         // Compare Dependencies.toml file
         // package_a ---> 1.0.2
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-2.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-2.toml"));
 
         // 4. Build package_c again after deleting Dependencies.toml and build file
         deleteDependenciesTomlAndBuildFile(projectDirPath);
@@ -112,19 +112,18 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         failIfDiagnosticsExists(buildProject4);
         // Compare Dependencies.toml file
         // package_a ---> 1.0.2 patch version
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-2.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-2.toml"));
 
         // 5. Build package_c again after deleting Dependencies.toml and build file, and setting sticky == false
         deleteDependenciesTomlAndBuildFile(projectDirPath);
         BuildProject buildProject5 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
                 BuildOptions.builder().setSticky(false).build());
         buildProject5.save();
-        failIfDiagnosticsExists(buildProject5);
         // Compare Dependencies.toml file
-        // package_a ---> 1.0.2 patch version
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-2.toml")));
+        // package_a ---> 1.1.0 minor version
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0001-3.toml"));
     }
 
     @Test(description = "Adding of a new import which is already there as a transitive in the graph " +
@@ -147,8 +146,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         failIfDiagnosticsExists(buildProject);
         // Compare Dependencies.toml file
         // package_a ---> 1.1.0
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0002.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0002.toml"));
     }
 
     @Test(description = "Remove existing import which is also a transitive dependency from another " +
@@ -168,8 +167,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         failIfDiagnosticsExists(buildProject);
         // Compare Dependencies.toml file
         // package_a ---> 1.1.0
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0003-1.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0003-1.toml"));
 
         // 2. Build package_c w/o deleting Dependencies.toml, after deleting build file and setting sticky == false
         deleteBuildFile(projectDirPath);
@@ -179,8 +178,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         failIfDiagnosticsExists(buildProject3);
         // Compare Dependencies.toml file
         // package_a ---> 1.1.0
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0003-1.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0003-1.toml"));
 
         // 3. Build package_c again after deleting Dependencies.toml and build file
         deleteDependenciesTomlAndBuildFile(projectDirPath);
@@ -188,20 +187,19 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         buildProject4.save();
         failIfDiagnosticsExists(buildProject4);
         // Compare Dependencies.toml file
-        // package_a ---> 1.0.2 patch version
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0003-2.toml")));
+        // package_a ---> 1.0.2 version
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0003-2.toml"));
 
         // 4. Build package_c again after deleting Dependencies.toml and build file, and setting sticky == false
         deleteDependenciesTomlAndBuildFile(projectDirPath);
         BuildProject buildProject5 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
                 BuildOptions.builder().setSticky(false).build());
         buildProject5.save();
-        failIfDiagnosticsExists(buildProject5);
         // Compare Dependencies.toml file
-        // package_a ---> 1.0.2 patch version
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0003-2.toml")));
+        // package_a ---> 1.1.0 patch version
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0003-1.toml"));
     }
 
     @Test(description = "Package contains a built-in transitive dependency with a non-zero version")
@@ -222,8 +220,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // Compare Dependencies.toml file
         // package_h ---> 1.0.0
         // package_g ---> 0.0.0
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0004-1.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0004-1.toml"));
     }
 
     @Test(description = "Package contains a built-in transitive dependency which has " +
@@ -256,8 +254,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // package_e            ---> 2.0.0
         // ballerinai/package_j ---> 0.0.0
         // package_k            ---> 1.0.0
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0005-1.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0005-1.toml"));
 
         // 2. Build package_l after releasing new version of ballerinai/package_j
         // ballerinai/package_j --> package_dd 2.0.0, package_e 2.0.0
@@ -276,8 +274,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // package_e            ---> 2.0.0
         // ballerinai/package_j ---> 0.0.0
         // package_k            ---> 1.0.0
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0005-2.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0005-2.toml"));
     }
 
     @Test(description = "Remove existing import which also is a dependency of a newer patch version " +
@@ -294,8 +292,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // Compare Dependencies.toml file
         // package_d ---> 1.0.0
         // package_e ---> 2.0.0
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0006-1.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                        projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0006-1.toml"));
 
         // 2. Publish new patch version of package_e which has dependency on package_d to central
         cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_e_2_0_2"), projectEnvironmentBuilder);
@@ -313,8 +311,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         failIfDiagnosticsExists(buildProject2);
         // Compare Dependencies.toml file
         // package_e ---> 2.0.0
-        Assert.assertEquals(readFileAsString(projectDirPath2.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath2.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0006-2.toml")));
+        assertTomlFilesEquals(projectDirPath2.resolve(DEPENDENCIES_TOML),
+                projectDirPath2.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0006-2.toml"));
 
         // 3. Build package_f after deleting build file and Dependencies.toml
         deleteDependenciesTomlAndBuildFile(projectDirPath2);
@@ -323,8 +321,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         failIfDiagnosticsExists(buildProject3);
         // Compare Dependencies.toml file
         // package_e ---> 2.0.2
-        Assert.assertEquals(readFileAsString(projectDirPath2.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath2.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0006-3.toml")));
+        assertTomlFilesEquals(projectDirPath2.resolve(DEPENDENCIES_TOML),
+                projectDirPath2.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0006-3.toml"));
 
         // clean up project
         deleteDependenciesTomlAndBuildFile(projectDirPath2);
@@ -345,8 +343,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         buildProject1.save();
         failIfDiagnosticsExists(buildProject1);
 
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0007-1.toml"));
 
         // project --> package_protobuf:0.7.0
         BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_r_0_6_1",
@@ -357,8 +355,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         buildProject2.save();
         failIfDiagnosticsExists(buildProject2);
 
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies-0007-1.toml"));
 
         // No Sticky
         deleteBuildFile(projectDirPath);
@@ -367,8 +365,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         buildProject3.save();
         failIfDiagnosticsExists(buildProject3);
 
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies_NoSticky.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies_NoSticky.toml"));
     }
 
     @Test(description = "Test package with similar name to module of another package")
@@ -383,8 +381,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         buildProject1.save();
         failIfDiagnosticsExists(buildProject1);
 
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml"));
 
         // project --> package_protobuf.types.timestamp
         BCompileUtil.compileAndCacheBala("projects_for_resolution_integration_tests/package_r.types.timestamp_0_6_0",
@@ -394,8 +392,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         buildProject2.save();
         failIfDiagnosticsExists(buildProject2);
 
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml"));
     }
 
     @Test(description = "A newer pre-release version of a dependency has been released to central")
@@ -419,8 +417,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         failIfDiagnosticsExists(buildProject1);
 
         // Compare dependencies.toml
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml"));
 
         // User caches package_m:1_3_0-beta.1
         cacheDependencyToCentralRepository(RESOURCE_DIRECTORY.resolve("package_m_1_3_0_beta"));
@@ -436,8 +434,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         buildProject2.save();
         failIfDiagnosticsExists(buildProject2);
 
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml"));
 
         //3. Build project_o with sticky == false
         deleteBuildFile(projectDirPath);
@@ -446,8 +444,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         buildProject3.save();
         failIfDiagnosticsExists(buildProject3);
 
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml"));
 
         //4. Directly import package_m
         projectDirPath = RESOURCE_DIRECTORY.resolve("project_o_with_import");
@@ -455,10 +453,9 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         BuildProject buildProject4 = BuildProject.load(projectEnvironmentBuilder, projectDirPath,
                 BuildOptions.builder().setSticky(false).build());
         buildProject4.save();
-        failIfDiagnosticsExists(buildProject4);
 
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml"));
     }
 
     @Test(description = "A newer pre-release version of a dependency is being used from the local repo")
@@ -480,8 +477,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         buildProject2.save();
         failIfDiagnosticsExists(buildProject2);
 
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml"));
 
         // 3. Check sticky false
         deleteBuildFile(projectDirPath);
@@ -489,8 +486,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
                 BuildOptions.builder().setSticky(false).build());
         buildProject3.save();
         failIfDiagnosticsExists(buildProject3);
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml"));
     }
 
     @Test(description = "A dependency has only pre-release versions released to central")
@@ -507,8 +504,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         failIfDiagnosticsExists(buildProject1);
 
         // Compare dependencies.toml
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml"));
 
         // The following versions have been releasing to central
         //      - package_p:1.0.0-beta.1
@@ -521,8 +518,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         buildProject2.save();
         failIfDiagnosticsExists(buildProject2);
 
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies.toml"));
 
         //3. User deletes the project_q build file
         deleteBuildFile(projectDirPath);
@@ -532,8 +529,8 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         buildProject3.save();
         failIfDiagnosticsExists(buildProject3);
 
-        Assert.assertEquals(readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies_NoSticky.toml")));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("Dependencies_NoSticky.toml"));
     }
 
     @AfterMethod
