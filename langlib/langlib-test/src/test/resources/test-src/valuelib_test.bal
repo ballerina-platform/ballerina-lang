@@ -3381,6 +3381,10 @@ type GraphQLQueries4 record {|
     GraphQLQuery a;
 |};
 
+type GraphQLQueries5 table<GraphQLQuery>;
+
+type GraphQLQueries6 GraphQLQueries5;
+
 function testCloneWithTypeToJson() {
     GraphQLQueries0 payload0 = [1, 4, 2];
     GraphQLQueries1 payload1 = [{query: "abc"}, {query: "xyz"}];
@@ -3409,6 +3413,9 @@ function testCloneWithTypeToJson() {
     GraphQLQueries2 payload6 = [1, {query: "abc"}, {query: "xyz", variables: {"nonJson": xml `<a>abc</a>`}}];
     GraphQLQueries3 payload7 = {"a": {query: "abc"}, "b": {query: "xyz", variables: {"nonJson": xml `<a>abc</a>`}}};
     GraphQLQueries4 payload8 = {a: {query: "abc", variables: {"nonJson": xml `<a>abc</a>`}}};
+    table<GraphQLQuery> payload9 = table [{query: "abc"}, {query: "xyz"}];
+    GraphQLQueries5 payload10 = table [{query: "abc"}, {query: "xyz"}];
+    GraphQLQueries6 payload11 = table [{query: "abc"}, {query: "xyz"}];
 
     json|error stdJson5 = payload5.cloneWithType();
     assertEquality(stdJson5 is error, true);
@@ -3439,6 +3446,24 @@ function testCloneWithTypeToJson() {
     if (stdJson8 is error) {
         assertEquality("'GraphQLQueries4' value cannot be converted to 'json'",
         <string>checkpanic stdJson8.detail()["message"]);
+    }
+    json|error stdJson9 = payload9.cloneWithType();
+    assertEquality(stdJson9 is error, true);
+    if (stdJson9 is error) {
+        assertEquality("'table<GraphQLQuery>' value cannot be converted to 'json'",
+        <string>checkpanic stdJson9.detail()["message"]);
+    }
+    json|error stdJson10 = payload10.cloneWithType();
+    assertEquality(stdJson10 is error, true);
+    if (stdJson10 is error) {
+        assertEquality("'GraphQLQueries5' value cannot be converted to 'json'",
+        <string>checkpanic stdJson10.detail()["message"]);
+    }
+    json|error stdJson11 = payload11.cloneWithType();
+    assertEquality(stdJson11 is error, true);
+    if (stdJson11 is error) {
+        assertEquality("'GraphQLQueries6' value cannot be converted to 'json'",
+        <string>checkpanic stdJson11.detail()["message"]);
     }
 }
 
