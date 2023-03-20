@@ -226,11 +226,11 @@ public class ConvertToQueryExpressionCodeAction implements RangeBasedCodeActionP
                 break;
             }
             matchedNode = matchedNode.parent();
-        } while (matchedNode != null && matchedNode.kind() != SyntaxKind.LOCAL_VAR_DECL ||
-                matchedNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT
-                || matchedNode.kind() != SyntaxKind.SPECIFIC_FIELD);
+        } while (matchedNode != null && (matchedNode.kind() == SyntaxKind.LOCAL_VAR_DECL 
+                || matchedNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT
+                || matchedNode.kind() == SyntaxKind.SPECIFIC_FIELD));
 
-        if (rhsNode == null || lhsNode == null) {
+        if (matchedNode == null || rhsNode == null || lhsNode == null) {
             return Optional.empty();
         }
 
