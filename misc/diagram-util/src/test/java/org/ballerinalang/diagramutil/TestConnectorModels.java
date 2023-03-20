@@ -6,13 +6,12 @@ import org.ballerinalang.diagramutil.connector.models.connector.Connector;
 import org.ballerinalang.diagramutil.connector.models.connector.Function;
 import org.ballerinalang.diagramutil.connector.models.connector.Type;
 import org.ballerinalang.diagramutil.connector.models.connector.TypeInfo;
+import org.ballerinalang.diagramutil.connector.models.connector.VisitedType;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Connector models test case.
@@ -34,6 +33,7 @@ public class TestConnectorModels {
     private Connector connector;
     private BalaFile balaFile;
     private Error error;
+    private VisitedType visitedType;
 
     @BeforeClass
     public void initConnectorModels() {
@@ -44,10 +44,10 @@ public class TestConnectorModels {
         type.optional = false;
         type.typeInfo = this.typeInfo;
 
-        List<Type> parameters = Arrays.asList(type);
-        function = new Function(initFunc, parameters, Optional.of(type), null, false, documentation);
+        List<Type> parameters = List.of(type);
+        function = new Function(initFunc, parameters, type, null, null, documentation);
 
-        List<Function> functions = Arrays.asList(function);
+        List<Function> functions = List.of(function);
         connector = new Connector(orgName, moduleName, packageName, version, connectorName,
                 documentation, null, functions);
 
@@ -55,6 +55,9 @@ public class TestConnectorModels {
         balaFile.setPath(path);
 
         error = new Error(errorMsg);
+
+        visitedType = new VisitedType();
+        visitedType.setTypeNode(type);
     }
 
 
@@ -69,7 +72,7 @@ public class TestConnectorModels {
     @Test(description = "Test ballerina type object")
     public void getType() {
         Assert.assertEquals(type.typeName, recordType);
-        Assert.assertEquals(type.optional, false);
+        Assert.assertFalse(type.optional);
         Assert.assertEquals(type.typeInfo.packageName, packageName);
     }
 
@@ -78,7 +81,7 @@ public class TestConnectorModels {
         Assert.assertEquals(function.name, initFunc);
         Assert.assertEquals(function.parameters.size(), 1);
         Assert.assertEquals(function.parameters.get(0).typeName, recordType);
-        Assert.assertEquals(function.returnType.optional, false);
+        Assert.assertFalse(function.returnType.optional);
         Assert.assertEquals(function.documentation, documentation);
     }
 
@@ -91,6 +94,16 @@ public class TestConnectorModels {
         Assert.assertEquals(connector.functions.get(0).name, initFunc);
     }
 
+    @Test(description = "Test ballerina connector default construct")
+    public void setConnector() {
+        Connector conn = new Connector();
+        conn.name = connectorName;
+        conn.moduleName = moduleName;
+
+        Assert.assertEquals(conn.name, connectorName);
+        Assert.assertEquals(conn.moduleName, moduleName);
+    }
+
     @Test(description = "Test bala file object")
     public void getBalaFile() {
         Assert.assertEquals(balaFile.getPath(), path);
@@ -99,5 +112,13 @@ public class TestConnectorModels {
     @Test(description = "Test connector generator error object")
     public void getError() {
         Assert.assertEquals(error.getMessage(), errorMsg);
+        String newMsg = "new message";
+        error.setMessage(newMsg);
+        Assert.assertEquals(error.getMessage(), newMsg);
+    }
+
+    @Test(description = "Test visited type object")
+    public void getVisitedType() {
+        Assert.assertEquals(visitedType.getTypeNode(), type);
     }
 }
