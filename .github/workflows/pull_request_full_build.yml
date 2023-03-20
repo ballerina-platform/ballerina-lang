@@ -70,7 +70,7 @@ jobs:
       - name: Download Module Data
         run: |
           wget https://raw.githubusercontent.com/ballerina-platform/ballerina-release/master/dependabot/resources/extensions.json
-          wget https://raw.githubusercontent.com/ballerina-platform/ballerina-distribution/2201.0.x/gradle.properties
+          wget https://raw.githubusercontent.com/ballerina-platform/ballerina-distribution/2201.4.x/gradle.properties
 
       - name: Clone Modules
         run: |
@@ -78,15 +78,28 @@ jobs:
           do git clone https://github.com/ballerina-platform/${module_name}.git; \
           done
 
-#       - name: Checkout non-default branch
-#         run: |
-#           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); \
-#           do 
-#             cd $module_name
-#             git fetch origin
-#             git checkout -t origin/update4 || :
-#             cd ..
-#           done
+      - name: Get Module Version
+        id: set-version
+        run: |
+          MODULE_NAME=${{ matrix.module }}
+          MODULE_NAME=$(echo $MODULE_NAME | xargs)
+          MODULE_DATA_FILE="extensions.json"
+          PROPERTIES_FILE="gradle.properties"
+          VERSION_KEY=$(jq -r ".standard_library | .[] | select(.name==\"$MODULE_NAME\") | .version_key" $MODULE_DATA_FILE)
+          VERSION=$((grep -w $VERSION_KEY | cut -d= -f2) < $PROPERTIES_FILE)
+          echo "::set-output name=version::$VERSION"
+
+      - name: Checkout to Branch
+        working-directory: ./${{ matrix.module }}
+        run: |
+          version_split=($(echo ${{ steps.set-version.outputs.version }} | tr "-" "\n"))
+          length=${#version_split[@]}
+          if [ $(($length)) -gt 1 ]; \
+          then git checkout -b full-build ${version_split[@]:(-1)} || echo "Could not found commit ${version_split[@]:(-1)}"; \
+          elif [ "${{ steps.set-version.outputs.version }}" != "" ]; \
+          then git checkout v${{ steps.set-version.outputs.version }} || "Could not found branch v${{ steps.set-version.outputs.version }}"; \
+          else echo "${{ matrix.module }} is not packed with distribution."; \
+          fi
 
       - name: Update Lang Version in Module
         run: |
