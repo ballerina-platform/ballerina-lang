@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 15,
+    "character": 32
+  },
+  "source": "fill_record_fields_source14.bal",
+  "description": "Fill record fields inside select clause",
+  "expected": [
+    {
+      "title": "Fill 'Result' required fields",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 15,
+              "character": 32
+            },
+            "end": {
+              "line": 15,
+              "character": 32
+            }
+          },
+          "newText": "college: \"\", grade: 0, name: \"\""
+        }
+      ]
+    }
+  ]
+}

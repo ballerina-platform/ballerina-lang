@@ -25,6 +25,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -582,8 +583,8 @@ public class BIRGen extends BLangNodeVisitor {
         this.currentScope = new BirScope(0, null);
         if (astFunc.receiver != null) {
             BIRFunctionParameter birVarDcl = new BIRFunctionParameter(astFunc.pos, astFunc.receiver.getBType(),
-                                                                      this.env.nextLocalVarId(names), VarScope.FUNCTION,
-                                                                      VarKind.ARG, astFunc.receiver.name.value, false);
+                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, astFunc.receiver.name.value,
+                    false, false);
             this.env.symbolVarMap.put(astFunc.receiver.symbol, birVarDcl);
             birFunc.receiver = getSelf(astFunc.receiver.symbol);
         }
@@ -870,9 +871,11 @@ public class BIRGen extends BLangNodeVisitor {
 
     private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, BLangExpression defaultValExpr,
                           Location pos, List<? extends AnnotationAttachmentSymbol> annots) {
+        boolean isPathParam = paramSymbol.kind == SymbolKind.PATH_PARAMETER ||
+                paramSymbol.kind == SymbolKind.PATH_REST_PARAMETER;
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG,
-                paramSymbol.name.value, defaultValExpr != null);
+                paramSymbol.name.value, defaultValExpr != null, isPathParam);
 
         birFunc.localVars.add(birVarDcl);
 
@@ -888,7 +891,8 @@ public class BIRGen extends BLangNodeVisitor {
 
     private void addRestParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false,
+                paramSymbol.kind == SymbolKind.PATH_REST_PARAMETER);
         birFunc.parameters.add(birVarDcl);
         birFunc.localVars.add(birVarDcl);
 
@@ -902,8 +906,11 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private void addRequiredParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
+        boolean isPathParam = paramSymbol.kind == SymbolKind.PATH_PARAMETER ||
+                paramSymbol.kind == SymbolKind.PATH_REST_PARAMETER;
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value,
+                false, isPathParam);
         birFunc.parameters.add(birVarDcl);
         birFunc.localVars.add(birVarDcl);
 
@@ -1274,7 +1281,6 @@ public class BIRGen extends BLangNodeVisitor {
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
         List<BLangExpression> restArgs = invocationExpr.restArgs;
         List<BIROperand> args = new ArrayList<>(requiredArgs.size() + restArgs.size());
-        boolean transactional = Symbols.isFlagOn(invocationExpr.symbol.flags, Flags.TRANSACTIONAL);
 
         for (BLangExpression requiredArg : requiredArgs) {
             if (requiredArg.getKind() != NodeKind.IGNORE_EXPR) {
@@ -1317,7 +1323,7 @@ public class BIRGen extends BLangNodeVisitor {
         if (invocationExpr.functionPointerInvocation) {
             boolean workerDerivative = Symbols.isFlagOn(invocationExpr.symbol.flags, Flags.WORKER);
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
-                    fp, args, lhsOp, invocationExpr.async, transactional, thenBB, this.currentScope, workerDerivative);
+                    fp, args, lhsOp, invocationExpr.async, thenBB, this.currentScope, workerDerivative);
         } else if (invocationExpr.async) {
             BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             List<BIRAnnotationAttachment> calleeAnnots = getBIRAnnotAttachments(bInvokableSymbol.getAnnotations());
@@ -1382,7 +1388,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
         LineRange lineRange = this.env.enclFunc.pos.lineRange();
         LinePosition endLine = lineRange.endLine();
-        return new BLangDiagnosticLocation(lineRange.filePath(), endLine.line(), endLine.line(), endLine.offset(),
+        return new BLangDiagnosticLocation(lineRange.fileName(), endLine.line(), endLine.line(), endLine.offset(),
                 endLine.offset(), 0, 0);
     }
 

@@ -88,7 +88,7 @@ public class XmlFactory {
     }
 
     /**
-     * Create a XML sequence from string inputstream.
+     * Create a XML sequence from string input stream.
      *
      * @param xmlStream XML input stream
      * @return XML Sequence
@@ -105,9 +105,9 @@ public class XmlFactory {
     }
 
     /**
-     * Create a XML sequence from string inputstream with a given charset.
+     * Create a XML sequence from string input stream with a given charset.
      *
-     * @param xmlStream XML imput stream
+     * @param xmlStream XML input stream
      * @param charset Charset to be used for parsing
      * @return XML Sequence
      */
@@ -396,24 +396,24 @@ public class XmlFactory {
     /**
      * Create a processing instruction type XMLValue.
      *
-     * @param tartget PI target
+     * @param target PI target
      * @param data    PI data
      * @return XMLValue Processing instruction type XMLValue
      */
     @Deprecated
-    public static XmlValue createXMLProcessingInstruction(String tartget, String data) {
-        return new XmlPi(data, tartget);
+    public static XmlValue createXMLProcessingInstruction(String target, String data) {
+        return new XmlPi(data, target);
     }
 
     /**
      * Create a processing instruction type XMLValue.
      *
-     * @param tartget PI target
+     * @param target PI target
      * @param data    PI data
      * @return XMLValue Processing instruction type XMLValue
      */
-    public static XmlValue createXMLProcessingInstruction(BString tartget, BString data) {
-        return createXMLProcessingInstruction(tartget.getValue(), data.getValue());
+    public static XmlValue createXMLProcessingInstruction(BString target, BString data) {
+        return createXMLProcessingInstruction(target.getValue(), data.getValue());
     }
 
     /**

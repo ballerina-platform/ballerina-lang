@@ -19,6 +19,8 @@ boolean shouldAfterSuiteSkip = false;
 int exitCode = 0;
 
 public function startSuite() {
+    // exit if setTestOptions has failed
+    exitOnError();
     if listGroups {
         string[] groupsList = groupStatusRegistry.getGroupsList();
         if groupsList.length() == 0 {
@@ -44,8 +46,12 @@ public function startSuite() {
             reportGenerators.forEach(reportGen => reportGen(reportData));
         }
     }
-    if (exitCode > 0) {
-        panic(error(""));
+    exitOnError();
+}
+
+function exitOnError() {
+    if exitCode > 0 {
+        panic (error(""));
     }
 }
 
@@ -298,15 +304,15 @@ function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType t
                     continue;
                 }
             }
-            string|error decodedSubFilter = decode(updatedSubFilter, UTF8_ENC);
-            updatedSubFilter = decodedSubFilter is string? decodedSubFilter : updatedSubFilter;
-            string|error decodedSuffix = decode(suffix, UTF8_ENC);
-            string updatedSuffix = decodedSuffix is string? decodedSuffix : suffix;
-            
+            string|error decodedSubFilter = escapeSpecialCharacters(updatedSubFilter);
+            updatedSubFilter = decodedSubFilter is string ? decodedSubFilter : updatedSubFilter;
+            string|error decodedSuffix = escapeSpecialCharacters(suffix);
+            string updatedSuffix = decodedSuffix is string ? decodedSuffix : suffix;
+
             boolean wildCardMatchBoolean = false;
             if (updatedSubFilter.includes(WILDCARD)) {
-                    boolean|error wildCardMatch = matchWildcard(updatedSuffix, updatedSubFilter);
-                    wildCardMatchBoolean = wildCardMatch is boolean && wildCardMatch;
+                boolean|error wildCardMatch = matchWildcard(updatedSuffix, updatedSubFilter);
+                wildCardMatchBoolean = wildCardMatch is boolean && wildCardMatch;
             }
             if ((updatedSubFilter == updatedSuffix) || wildCardMatchBoolean) {
                 suffixMatch = true;
@@ -384,7 +390,7 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
             + string `but it is either disabled or not included.`;
             return error(errMsg);
         }
-        
+
         dependsOnTestFunction.dependents.push(testFunction);
 
         // Contains cyclic dependencies 
@@ -419,7 +425,7 @@ function nestedEnabledDependentsAvailable(TestFunction[] dependents) returns boo
     }
     TestFunction[] queue = [];
     foreach TestFunction dependent in dependents {
-        if(dependent.enabled) {
+        if (dependent.enabled) {
             return true;
         }
         dependent.dependents.forEach((superDependent) => queue.push(superDependent));

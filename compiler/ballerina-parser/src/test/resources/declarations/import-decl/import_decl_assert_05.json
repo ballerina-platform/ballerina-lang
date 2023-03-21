@@ -53,70 +53,35 @@
       ]
     },
     {
-      "kind": "SEMICOLON_TOKEN",
+      "kind": "IMPORT_PREFIX",
       "hasDiagnostics": true,
-      "leadingMinutiae": [
+      "children": [
         {
-          "kind": "INVALID_NODE_MINUTIAE",
-          "invalidNode": {
-            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-            "hasDiagnostics": true,
-            "children": [
-              {
-                "kind": "VERSION_KEYWORD",
-                "hasDiagnostics": true,
-                "diagnostics": [
-                  "ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED"
-                ]
-              }
-            ]
-          }
+          "kind": "AS_KEYWORD",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_AS_KEYWORD"
+          ]
         },
         {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
-        },
-        {
-          "kind": "INVALID_NODE_MINUTIAE",
-          "invalidNode": {
-            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-            "children": [
-              {
-                "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                "value": "2"
-              }
-            ]
-          }
-        },
-        {
-          "kind": "INVALID_NODE_MINUTIAE",
-          "invalidNode": {
-            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-            "children": [
-              {
-                "kind": "DOT_TOKEN"
-              }
-            ]
-          }
-        },
-        {
-          "kind": "INVALID_NODE_MINUTIAE",
-          "invalidNode": {
-            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-            "children": [
-              {
-                "kind": "DECIMAL_INTEGER_LITERAL_TOKEN",
-                "value": "4"
-              }
-            ]
-          }
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "version",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
-      ],
-      "trailingMinutiae": [
-        {
-          "kind": "END_OF_LINE_MINUTIAE",
-          "value": "\n"
-        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_SEMICOLON_TOKEN"
       ]
     }
   ]

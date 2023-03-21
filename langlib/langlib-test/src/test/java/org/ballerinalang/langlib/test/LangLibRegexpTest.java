@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.test;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -26,6 +27,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+import org.testng.internal.collections.Pair;
+
+import java.util.List;
 
 /**
  * Test cases for the lang.regexp library.
@@ -35,6 +39,7 @@ import org.testng.annotations.Test;
 public class LangLibRegexpTest {
 
     private CompileResult compileResult, negativeTests;
+    private static final String NEW_LINE_CHAR = System.lineSeparator();
 
     @BeforeClass
     public void setup() {
@@ -69,7 +74,10 @@ public class LangLibRegexpTest {
                 "testFromString",
                 "testFromStringNegative",
                 "testLangLibFuncWithNamedArgExpr",
-                "testSplit"
+                "testSplit",
+                "testEmptyRegexpFind",
+                "testRegexpFromString",
+                "testEmptyRegexpMatch",
         };
     }
 
@@ -123,6 +131,90 @@ public class LangLibRegexpTest {
                 {"testLongIndexFindAll", 137438953408L},
                 {"testLongIndexFindGroups", 274877906816L},
                 {"testLongIndexFindAllGroups", 549755813632L},
+        };
+    }
+
+    @Test(dataProvider = "invalidRegexpPatternSyntaxProvider")
+    public void testInvalidRegexpPatternSyntax(String functionName, String message) {
+        Object returns = BRunUtil.invoke(negativeTests, functionName);
+        Assert.assertEquals(returns.toString(), "error(\"{ballerina}RegularExpressionParsingError\",message=\"invalid" +
+                " regexp pattern: " + message + "\")");
+    }
+
+    @DataProvider(name = "invalidRegexpPatternSyntaxProvider")
+    private Object[][] getInvalidRegexpPatternSyntax() {
+        return new Object[][] {
+                {"testInvalidRegexpPatternSyntax1", "Unclosed character class near index 24" + NEW_LINE_CHAR +
+                        "(?i-s:[[A\\\\sB\\WC\\Dd\\\\]\\])" + NEW_LINE_CHAR + "                        ^"},
+                {"testInvalidRegexpPatternSyntax2", "Unclosed character class near index 27" + NEW_LINE_CHAR +
+                        "(?xsmi:[[ABC]\\P{sc=Braille})" + NEW_LINE_CHAR + "                           ^"},
+                {"testInvalidRegexpPatternSyntax3", "Unclosed character class near index 27" + NEW_LINE_CHAR +
+                        "(?xsmi:[[ABC]\\P{sc=Braille})" + NEW_LINE_CHAR + "                           ^"},
+        };
+    }
+
+    @Test
+    public void testEmptyRegexpCompilationError() {
+        CompileResult errResult = BCompileUtil.compile("test-src/regexp_empty_test_negative.bal");
+        List<Pair<Integer, Integer>> errorIndexes = getErrorIndexes();
+        int errCount = errorIndexes.size();
+        Assert.assertEquals(errResult.getErrorCount(), errCount);
+        for (int i = 0; i < errCount; i++) {
+            BAssertUtil.validateError(errResult, i, "regular expression is not allowed: empty RegExp",
+                    errorIndexes.get(i).first(), errorIndexes.get(i).second());
+        }
+    }
+
+    private List<Pair<Integer, Integer>> getErrorIndexes() {
+        return List.of(
+                Pair.of(20, 12),
+                Pair.of(21, 29),
+                Pair.of(22, 29),
+                Pair.of(23, 27),
+                Pair.of(24, 27),
+                Pair.of(25, 30),
+                Pair.of(26, 30),
+                Pair.of(27, 33),
+                Pair.of(28, 33),
+                Pair.of(29, 40),
+                Pair.of(30, 40),
+                Pair.of(31, 32),
+                Pair.of(32, 32),
+                Pair.of(33, 12),
+                Pair.of(34, 12)
+        );
+    }
+    
+    @Test(dataProvider = "negativeRegexpNonCapturingGroupProvider")
+    public void negativeTestRegexpEmptyCharClass(String functionName) {
+        BRunUtil.invoke(negativeTests, functionName);
+    }
+
+    @DataProvider(name = "negativeRegexpNonCapturingGroupProvider")
+    private Object[][] negativeRegexpEmptyCharClass() {
+        return new Object[][]{
+                {"testNegativeDuplicateFlags1"},
+                {"testNegativeDuplicateFlags2"},
+                {"testNegativeDuplicateFlags3"},
+                {"testNegativeDuplicateFlags4"},
+                {"testNegativeDuplicateFlags5"},
+                {"testNegativeInvalidFlags1"},
+                {"testNegativeInvalidFlags2"},
+                {"testNegativeInvalidFlags3"},
+                {"testNegativeInvalidFlags4"},
+        };
+    }
+    
+    @Test(dataProvider = "negativeRegexpEmptyCharClassInterpolationProvider")
+    public void negativeTestRegexpEmptyCharClassInsertion(String functionName) {
+        BRunUtil.invoke(negativeTests, functionName);
+    }
+
+    @DataProvider(name = "negativeRegexpEmptyCharClassInterpolationProvider")
+    private Object[][] negativeRegexpEmptyCharClassInsertion() {
+        return new Object[][] {
+                {"testNegativeEmptyCharClass1"},
+                {"testNegativeEmptyCharClass2"}
         };
     }
 }

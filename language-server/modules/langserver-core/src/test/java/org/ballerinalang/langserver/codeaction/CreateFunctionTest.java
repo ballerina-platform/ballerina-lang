@@ -148,6 +148,8 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"create_function_in_var_decl3.json"},
                 // TODO Blocked by #34448
                 // {"create_function_in_var_decl4.json"},
+                {"create_function_in_var_decl5.json"},
+                {"create_function_in_var_decl6.json"},
 
                 {"create_function_which_returns_error1.json"},
                 {"create_function_in_fail1.json"},
@@ -170,7 +172,8 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"create_function_in_nil_conditional_expression.json"},
 
                 {"create_function_in_local_var1.json"},
-                {"create_function_in_local_var2.json"}
+                {"create_function_in_local_var2.json"},
+                {"create_function_in_start_action1.json"},
         };
     }
 

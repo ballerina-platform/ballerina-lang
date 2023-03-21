@@ -407,7 +407,7 @@ public class BIRPackageSymbolEnter {
                 Symbols.createFunctionSymbol(flags, names.fromString(funcName), names.fromString(funcOrigName),
                                              this.env.pkgSymbol.pkgID, funcType, this.env.pkgSymbol,
                                              Symbols.isFlagOn(flags, Flags.NATIVE), pos, toOrigin(origin));
-        invokableSymbol.source = pos.lineRange().filePath();
+        invokableSymbol.source = pos.lineRange().fileName();
         invokableSymbol.retType = funcType.retType;
 
         Scope scopeToDefine = this.env.pkgSymbol.scope;
