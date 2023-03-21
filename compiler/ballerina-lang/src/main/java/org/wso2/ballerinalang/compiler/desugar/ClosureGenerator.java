@@ -369,6 +369,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
         for (BLangSimpleVariable bLangSimpleVariable : classDefinition.fields) {
             bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, classEnv);
+            bLangSimpleVariable.expr = rewrite(bLangSimpleVariable.expr, classEnv);
         }
         result = classDefinition;
     }
