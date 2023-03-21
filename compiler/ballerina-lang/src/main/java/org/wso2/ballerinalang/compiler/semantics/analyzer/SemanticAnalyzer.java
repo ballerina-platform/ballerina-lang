@@ -1784,8 +1784,14 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             variable.setBType(symTable.semanticError);
             dlog.error(variable.pos, DiagnosticErrorCode.VARIABLE_DECL_WITH_VAR_WITHOUT_INITIALIZER);
         } else {
-            rhsType = typeChecker.checkExpr(varRefExpr, currentEnv, data.expType, data.prevEnvs,
-                    data.commonAnalyzerData);
+            // If the expression resides within query, then use query type checker.
+            if (!data.commonAnalyzerData.queryEnvs.empty()) {
+                rhsType = typeChecker.queryTypeChecker.checkExpr(varRefExpr, currentEnv, data.expType, data.prevEnvs,
+                        data.commonAnalyzerData);
+            } else {
+                rhsType = typeChecker.checkExpr(varRefExpr, currentEnv, data.expType, data.prevEnvs,
+                        data.commonAnalyzerData);
+            }
         }
 
         switch (variable.getKind()) {

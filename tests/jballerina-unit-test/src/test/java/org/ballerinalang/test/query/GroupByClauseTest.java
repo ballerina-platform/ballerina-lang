@@ -104,7 +104,17 @@ public class GroupByClauseTest {
                 "testGroupByVarDefsAndSelectWithGroupingKeysWithLimitClause",
                 "testGroupByVarDefsAndSelectWithGroupingKeysWithTableResult",
                 "testGroupByVarDefsAndSelectWithGroupingKeysWithMapResult",
-                "testGroupByVarDefsAndSelectWithGroupingKeysWithFromClause"
+                "testGroupByVarDefsAndSelectWithGroupingKeysWithFromClause",
+
+                "testGroupByExpressionAndSelectWithNonGroupingKeys2",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys3",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys4",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys5",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys6",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys7",
+                "testGroupByVarDefsAndSelectWithNonGroupingKeys1",
+                "testGroupByVarDefsAndSelectWithNonGroupingKeys2",
+                "testGroupByVarDefsAndSelectWithNonGroupingKeys3"
         };
     }
 }
