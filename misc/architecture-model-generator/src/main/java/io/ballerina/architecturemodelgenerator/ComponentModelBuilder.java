@@ -20,7 +20,9 @@ package io.ballerina.architecturemodelgenerator;
 
 import io.ballerina.architecturemodelgenerator.ComponentModel.PackageId;
 import io.ballerina.architecturemodelgenerator.generators.entity.EntityModelGenerator;
+import io.ballerina.architecturemodelgenerator.generators.entrypoint.EntryPointModelGenerator;
 import io.ballerina.architecturemodelgenerator.generators.service.ServiceModelGenerator;
+import io.ballerina.architecturemodelgenerator.model.EntryPoint;
 import io.ballerina.architecturemodelgenerator.model.entity.Entity;
 import io.ballerina.architecturemodelgenerator.model.service.Service;
 import io.ballerina.projects.Package;
@@ -29,6 +31,7 @@ import io.ballerina.projects.PackageCompilation;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Construct component model fpr project with multiple service.
@@ -45,6 +48,7 @@ public class ComponentModelBuilder {
         Map<String, Service> services = new HashMap<>();
         // todo: Change to TypeDefinition
         Map<String, Entity> entities = new HashMap<>();
+        AtomicReference<EntryPoint> entryPoint = new AtomicReference<>();
         PackageId packageId = new PackageId(currentPackage);
         AtomicBoolean hasDiagnosticErrors = new AtomicBoolean(false);
 
@@ -57,6 +61,10 @@ public class ComponentModelBuilder {
             // todo : Check project diagnostics
             ServiceModelGenerator serviceModelGenerator = new ServiceModelGenerator(currentPackageCompilation, module);
             EntityModelGenerator entityModelGenerator = new EntityModelGenerator(currentPackageCompilation, module);
+            EntryPointModelGenerator entryPointModelGenerator = new EntryPointModelGenerator(currentPackageCompilation,
+                    module);
+
+            entryPoint.set(entryPointModelGenerator.generate());
             try {
                 services.putAll(serviceModelGenerator.generate());
                 entities.putAll(entityModelGenerator.generate());
@@ -66,6 +74,6 @@ public class ComponentModelBuilder {
             }
         });
 
-        return new ComponentModel(packageId, services, entities, hasDiagnosticErrors.get());
+        return new ComponentModel(packageId, services, entities, entryPoint.get(), hasDiagnosticErrors.get());
     }
 }
