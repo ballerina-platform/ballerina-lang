@@ -1420,8 +1420,13 @@ public class BIRPackageSymbolEnter {
                     return bMapType;
                 case TypeTags.INVOKABLE:
                     BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
+                    bInvokableType.tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
+                            env.pkgSymbol.pkgID, bInvokableType,
+                            env.pkgSymbol.owner, symTable.builtinPos,
+                            COMPILED_SOURCE);
                     bInvokableType.flags = flags;
                     if (inputStream.readBoolean()) {
+                        // Return if an any function
                         return bInvokableType;
                     }
                     int paramCount = inputStream.readInt();
