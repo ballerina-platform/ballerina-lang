@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSequenceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -39,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSequenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
@@ -66,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -762,8 +765,9 @@ public class QueryTypeChecker extends TypeChecker {
 
     @Override
     public void visit(BLangGroupByClause groupByClause, TypeChecker.AnalyzerData data) {
-        groupByClause.env = data.commonAnalyzerData.queryEnvs.peek();
-        Set<String> nonGroupingKeys = new HashSet<>(data.queryVariables);
+        SymbolEnv groupByEnv = SymbolEnv.createTypeNarrowedEnv(groupByClause, data.commonAnalyzerData.queryEnvs.pop());
+        groupByClause.env = groupByEnv;
+        data.commonAnalyzerData.queryEnvs.push(groupByEnv);
         for (BLangGroupingKey groupingKey : groupByClause.groupingKeyList) {
             String variable;
             if (groupingKey.variableRef != null) {
@@ -773,11 +777,17 @@ public class QueryTypeChecker extends TypeChecker {
                 semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env,
                         data.commonAnalyzerData);
                 variable = groupingKey.variableDef.var.name.value;
-                data.queryVariables.add(variable);
             }
-            nonGroupingKeys.remove(variable);
+            data.queryVariables.remove(variable);
         }
-        groupByClause.nonGroupingKeys = nonGroupingKeys;
+        groupByClause.nonGroupingKeys = new HashSet<>(data.queryVariables);
+        for (String var : groupByClause.nonGroupingKeys) {
+            Name name = new Name(var);
+            BSymbol originalSymbol = symResolver.lookupSymbolInMainSpace(groupByEnv, name);
+            BSequenceSymbol sequenceSymbol = new BSequenceSymbol(originalSymbol.flags, name, originalSymbol.pkgID,
+                    new BSequenceType(originalSymbol.getType()), originalSymbol.owner, originalSymbol.pos);
+            groupByEnv.scope.define(name, sequenceSymbol);
+        }
     }
 
     @Override
@@ -797,6 +807,34 @@ public class QueryTypeChecker extends TypeChecker {
         visitCheckAndCheckPanicExpr(checkedExpr, data);
         if (checkedExpr.equivalentErrorTypeList != null) {
             data.commonAnalyzerData.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
+        }
+    }
+
+    @Override
+    public void visit(BLangListConstructorExpr listConstructor, TypeChecker.AnalyzerData data) {
+        BType expType = data.expType;
+        if (expType.tag == TypeTags.NONE || expType.tag == TypeTags.READONLY) {
+            BType inferredType = getInferredTupleType(listConstructor, expType, data);
+            checkTupleWithSequence(inferredType);
+            data.resultType = inferredType == symTable.semanticError ?
+                    symTable.semanticError : types.checkType(listConstructor, inferredType, expType);
+            return;
+        }
+        data.resultType = checkListConstructorCompatibility(expType, listConstructor, data);
+    }
+
+    private void checkTupleWithSequence(BType type) {
+        if (type.tag != TypeTags.TUPLE) {
+            return;
+        }
+        BTupleType tupleType = (BTupleType) type;
+        if (tupleType.getMembers().size() != 1) {
+            return;
+        }
+        BTupleMember memberType = tupleType.getMembers().get(0);
+        if (memberType.type.tag == TypeTags.SEQUENCE) {
+            tupleType.restType = ((BSequenceType) memberType.type).elementType;
+            tupleType.getMembers().clear();
         }
     }
 

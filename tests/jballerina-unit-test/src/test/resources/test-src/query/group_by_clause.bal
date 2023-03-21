@@ -14,58 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// public function main() {
-//     testGroupByExpressionAndSelectWithGroupingKeysAndWhereClause1();
-//     testGroupByExpressionAndSelectWithGroupingKeysAndWhereClause2();
-//     testGroupByExpressionAndSelectWithGroupingKeysAndWhereClause3();
-//     testGroupByExpressionAndSelectWithGroupingKeysAndWhereClause4();
-//     testGroupByExpressionAndSelectWithGroupingKeysAndWhereClause5();
-//     testGroupByExpressionAndSelectWithGroupingKeysAndWhereClause6();
-//     testGroupByExpressionAndSelectWithGroupingKeysAndWhereClause7();
-//     testGroupByExpressionAndSelectWithGroupingKeysAndWhereClause8();
-//     testGroupByExpressionAndSelectWithGroupingKeysAndWhereClause9();
-//     testGroupByExpressionAndSelectWithGroupingKeysFromClause1();
-//     testGroupByExpressionAndSelectWithGroupingKeysWithJoinClause1();
-//     testGroupByExpressionAndSelectWithGroupingKeysWithJoinClause2();
-//     testGroupByExpressionAndSelectWithGroupingKeysWithJoinClause3();
-//     testGroupByExpressionAndSelectWithGroupingKeysWithJoinClause4();
-//     testGroupByExpressionAndSelectWithGroupingKeysWithJoinClause5();
-//     testGroupByExpressionAndSelectWithGroupingKeysWithOrderbyClause1();
-//     testGroupByExpressionAndSelectWithGroupingKeysWithOrderbyClause2();
-//     testGroupByExpressionAndSelectWithGroupingKeysWithOrderbyClause3();
-//     testGroupByExpressionAndSelectWithGroupingKeysWithLimitClause();
-//     testGroupByExpressionAndSelectWithGroupingKeysWithTableResult();
-//     testGroupByExpressionAndSelectWithGroupingKeysWithMapResult();
-//     testGroupByExpressionAndSelectWithGroupingKeysWithFromClause();
-//     testGroupByVarDefsAndSelectWithGroupingKeys1();
-//     testGroupByVarDefsAndSelectWithGroupingKeys2();
-//     testGroupByVarDefsAndSelectWithGroupingKeys3();
-//     testGroupByVarDefsAndSelectWithGroupingKeys4();
-//     testGroupByVarDefsAndSelectWithGroupingKeys5();
-//     testGroupByVarDefsAndSelectWithGroupingKeys6();
-//     testGroupByVarDefsAndSelectWithGroupingKeys7();
-//     testGroupByVarDefsAndSelectWithGroupingKeys8();
-//     testGroupByVarDefsAndSelectWithGroupingKeys9();
-//     testGroupByVarDefsAndSelectWithGroupingKeys10();
-//     testGroupByVarDefsAndSelectWithGroupingKeysAndWhereClause1();
-//     testGroupByVarDefsAndSelectWithGroupingKeysAndWhereClause2();
-//     testGroupByVarDefsAndSelectWithGroupingKeysAndWhereClause3();
-//     testGroupByVarDefsAndSelectWithGroupingKeysAndWhereClause4();
-//     testGroupByVarDefsAndSelectWithGroupingKeysAndWhereClause5();
-//     testGroupByVarDefsAndSelectWithGroupingKeysAndWhereClause6();
-//     testGroupByVarDefsAndSelectWithGroupingKeysAndWhereClause7();
-//     testGroupByVarDefsAndSelectWithGroupingKeysWithJoinClause3();
-//     testGroupByVarDefsAndSelectWithGroupingKeysWithJoinClause4();
-//     testGroupByVarDefsAndSelectWithGroupingKeysWithJoinClause5();
-//     testGroupByVarDefsAndSelectWithGroupingKeysWithOrderbyClause1();
-//     testGroupByVarDefsAndSelectWithGroupingKeysWithOrderbyClause2();
-//     testGroupByVarDefsAndSelectWithGroupingKeysWithOrderbyClause3();
-//     testGroupByVarDefsAndSelectWithGroupingKeysWithLimitClause();
-//     testGroupByVarDefsAndSelectWithGroupingKeysWithTableResult();
-//     testGroupByVarDefsAndSelectWithGroupingKeysWithMapResult();
-//     testGroupByVarDefsAndSelectWithGroupingKeysWithFromClause();
-// }
-
 // group by <expression>, select <expr with grouping keys>, lhs has the type
 function testGroupByExpressionAndSelectWithGroupingKeys1() {
     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
@@ -1013,7 +961,7 @@ function testGroupByVarDefsAndSelectWithGroupingKeysWithFromClause() {
     assertEquality(["Alex", "Ranjan"], res);
 }
 
-// // // group by <expression>, select <expr with non grouping keys>, lhs has the type
+// group by <expression>, select <expr with non grouping keys>, lhs has the type
 // function testGroupByExpressionAndSelectWithNonGroupingKeys1() {
 //     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
 //     int[][] prices = from var {name, price} in input
@@ -1023,18 +971,18 @@ function testGroupByVarDefsAndSelectWithGroupingKeysWithFromClause() {
 //     assertEquality([[11, 12], [11]], prices);
 // }
 
-// function testGroupByExpressionAndSelectWithNonGroupingKeys2() {
-//     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
-//     var prices = from var {name, price} in input
-//                         group by name
-//                         let var p = [price]
-//                         select p; // @output [[11, 12], [11]]
-//     assertEquality([[11, 12], [11]], prices);
-// }
+function testGroupByExpressionAndSelectWithNonGroupingKeys2() {
+    var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
+    var prices = from var {name, price} in input
+                        group by name
+                        let var p = [price]
+                        select p; // @output [[11, 12], [11]]
+    assertEquality([[11, 12], [11]], prices);
+}
 
 // // TODO: check unused varialbe check
-// function testGroupByExpressionAndSelectWithNonGroupingKeys3() {
-//     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
+function testGroupByExpressionAndSelectWithNonGroupingKeys3() {
+    var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
 //     int[][][] prices1 = from var {name, price} in input
 //                             group by name
 //                             let var p = [[price]]
@@ -1047,53 +995,53 @@ function testGroupByVarDefsAndSelectWithGroupingKeysWithFromClause() {
 //                             select p; // @output [[[11, 12]], [[11]]]
 //     assertEquality([[[11, 12]], [[11]]], prices2);
 
-//     var prices3 = from var {name, price} in input
-//                     group by name
-//                     select [[price]]; // @output [[[11, 12]], [[11]]]
-//     assertEquality([[[11, 12]], [[11]]], prices3);
-// }
+    var prices3 = from var {name, price} in input
+                    group by name
+                    select [[price]]; // @output [[[11, 12]], [[11]]]
+    assertEquality([[[11, 12]], [[11]]], prices3);
+}
 
-// function testGroupByExpressionAndSelectWithNonGroupingKeys4() {
-//     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
-//     var prices = from var {name, price} in input
-//                     group by name
-//                     select {price: [price]}; // @output [{price: [11, 12]}, {price: [11]}]
-//     assertEquality([{price: [11, 12]}, {price: [11]}], prices);
-// }
+function testGroupByExpressionAndSelectWithNonGroupingKeys4() {
+    var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
+    var prices = from var {name, price} in input
+                    group by name
+                    select {price: [price]}; // @output [{price: [11, 12]}, {price: [11]}]
+    assertEquality([{price: [11, 12]}, {price: [11]}], prices);
+}
 
-// function testGroupByExpressionAndSelectWithNonGroupingKeys5() {
-//     var input = [{name: "Saman", price1: 11, price2: 23},
-//                     {name: "Saman", price1: 12, price2: 24},
-//                     {name: "Kamal", price1: 13, price2: 25},
-//                     {name: "Amal", price1: 14, price2: 26}];
-//     var res = from var {name, price1, price2} in input
-//                         group by name
-//                         select [[price1], [price2]]; // @output [[11, 12, 23, 24], [13, 25], [14, 26]]
-//     assertEquality([[[11, 12], [23, 24]], [[13], [25]], [[14], [26]]], res);
-// }
+function testGroupByExpressionAndSelectWithNonGroupingKeys5() {
+    var input = [{name: "Saman", price1: 11, price2: 23},
+                    {name: "Saman", price1: 12, price2: 24},
+                    {name: "Kamal", price1: 13, price2: 25},
+                    {name: "Amal", price1: 14, price2: 26}];
+    var res = from var {name, price1, price2} in input
+                        group by name
+                        select [[price1], [price2]]; // @output [[11, 12, 23, 24], [13, 25], [14, 26]]
+    assertEquality([[[11, 12], [23, 24]], [[13], [25]], [[14], [26]]], res);
+}
 
-// function testGroupByExpressionAndSelectWithNonGroupingKeys6() {
-//     var input = [{name: "Saman", price1: 11, price2: 23},
-//                     {name: "Saman", price1: 12, price2: 24},
-//                     {name: "Kamal", price1: 13, price2: 25},
-//                     {name: "Amal", price1: 14, price2: 26}];
-//     var res = from var {name, price1, price2} in input
-//                 group by name
-//                 select [[price1], 34]; // @output [[11, 12, 34], [13, 34], [14, 34]]
-//     assertEquality([[[11, 12], 34], [[13], 34], [[14], 34]], res);
-// }
+function testGroupByExpressionAndSelectWithNonGroupingKeys6() {
+    var input = [{name: "Saman", price1: 11, price2: 23},
+                    {name: "Saman", price1: 12, price2: 24},
+                    {name: "Kamal", price1: 13, price2: 25},
+                    {name: "Amal", price1: 14, price2: 26}];
+    var res = from var {name, price1, price2} in input
+                group by name
+                select [[price1], 34]; // @output [[11, 12, 34], [13, 34], [14, 34]]
+    assertEquality([[[11, 12], 34], [[13], 34], [[14], 34]], res);
+}
 
-// function testGroupByExpressionAndSelectWithNonGroupingKeys7() {
-//     var input = [{name: "Saman", price1: 11, price2: 23},
-//                     {name: "Saman", price1: 12, price2: 24},
-//                     {name: "Kamal", price1: 13, price2: 25},
-//                     {name: "Amal", price1: 14, price2: 26}];
-//     var res = from var {name, price1, price2} in input
-//                 group by var _ = true
-//                 select [[name], [price1], [price2]];
-//                 // @output [["Saman", "Saman", "Kamal", "Amal", 11, 12, 13, 14, 23, 24, 25, 26]]
-//     assertEquality([[["Saman", "Saman", "Kamal", "Amal"], [11, 12, 13, 14], [23, 24, 25, 26]]], res);
-// }
+function testGroupByExpressionAndSelectWithNonGroupingKeys7() {
+    var input = [{name: "Saman", price1: 11, price2: 23},
+                    {name: "Saman", price1: 12, price2: 24},
+                    {name: "Kamal", price1: 13, price2: 25},
+                    {name: "Amal", price1: 14, price2: 26}];
+    var res = from var {name, price1, price2} in input
+                group by var _ = true
+                select [[name], [price1], [price2]];
+                // @output [["Saman", "Saman", "Kamal", "Amal", 11, 12, 13, 14, 23, 24, 25, 26]]
+    assertEquality([[["Saman", "Saman", "Kamal", "Amal"], [11, 12, 13, 14], [23, 24, 25, 26]]], res);
+}
 
 // function testGroupByExpressionAndSelectWithNonGroupingKeys8() {
 //     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
@@ -1244,42 +1192,42 @@ function testGroupByVarDefsAndSelectWithGroupingKeysWithFromClause() {
 // TODO: Add tests with from var item in input_record_array -> no destructure
 
 // group by <var def>, select <expr with non grouping keys>, lhs has the type
-// function testGroupByVarDefsAndSelectWithNonGroupingKeys1() {
-//     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
-//     var prices = from var {name, price} in input
-//                         group by string n = name
-//                         select [price]; // @output [[11, 12], [11]]
-//     assertEquality([[11, 12], [11]], prices);
-// }
+function testGroupByVarDefsAndSelectWithNonGroupingKeys1() {
+    var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
+    var prices = from var {name, price} in input
+                        group by string n = name
+                        select [price]; // @output [[11, 12], [11]]
+    assertEquality([[11, 12], [11]], prices);
+}
 
-// function testGroupByVarDefsAndSelectWithNonGroupingKeys2() {
-//     var input = [{name: "Saman", price1: 11, price2: 11},
-//                     {name: "Saman", price1: 11, price2: 12},
-//                     {name: "Kamal", price1: 10, price2: 13},
-//                     {name: "Kamal", price1: 10, price2: 12},
-//                     {name: "Kamal", price1: 10, price2: 9}];
-//     var names = from var {name, price1, price2} in input
-//                     group by int n = price1 + price2
-//                     select [name]; // @output [["Saman", "Kamal"], ["Saman", "Kamal"], ["Kamal"]]
-//     assertEquality([["Saman", "Kamal"], ["Saman", "Kamal"], ["Kamal"]], names);
-// }
+function testGroupByVarDefsAndSelectWithNonGroupingKeys2() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 9}];
+    var names = from var {name, price1, price2} in input
+                    group by int n = price1 + price2
+                    select [name]; // @output [["Saman", "Kamal"], ["Saman", "Kamal"], ["Kamal"]]
+    assertEquality([["Saman", "Kamal"], ["Saman", "Kamal"], ["Kamal"]], names);
+}
 
-// function testGroupByVarDefsAndSelectWithNonGroupingKeys3() {
-//     var input = [{name: "Saman", price1: 11, price2: 11},
-//                     {name: "Saman", price1: 11, price2: 12},
-//                     {name: "Kamal", price1: 10, price2: 13},
-//                     {name: "Kamal", price1: 10, price2: 12},
-//                     {name: "Kamal", price1: 10, price2: 9}];
-//     var res = from var {name, price1, price2} in input
-//                 group by int n = price1 + price2
-//                 select {name: [name], price1: [price1], price2: [price2]};
-//                 // @output [{name: [Saman, Kamal], price1: [11, 10], price2: [11, 12]},
-//                 //          {name: [Saman, Kamal], price1: [11, 10], price2: [12, 13]},
-//                 //          {name: [Kamal], price1: [10], price2: [9]}]
-//     assertEquality([{name: ["Saman", "Kamal"], price1: [11, 10], price2: [11, 12]},
-//                     {name: ["Saman", "Kamal"], price1: [11, 10], price2: [12, 13]},
-//                     {name: ["Kamal"], price1: [10], price2: [9]}], res);
-// }
+function testGroupByVarDefsAndSelectWithNonGroupingKeys3() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 9}];
+    var res = from var {name, price1, price2} in input
+                group by int n = price1 + price2
+                select {name: [name], price1: [price1], price2: [price2]};
+                // @output [{name: [Saman, Kamal], price1: [11, 10], price2: [11, 12]},
+                //          {name: [Saman, Kamal], price1: [11, 10], price2: [12, 13]},
+                //          {name: [Kamal], price1: [10], price2: [9]}]
+    assertEquality([{name: ["Saman", "Kamal"], price1: [11, 10], price2: [11, 12]},
+                    {name: ["Saman", "Kamal"], price1: [11, 10], price2: [12, 13]},
+                    {name: ["Kamal"], price1: [10], price2: [9]}], res);
+}
 
 // function testGroupByVarDefsAndSelectWithNonGroupingKeys4() {
 //     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
@@ -1446,3 +1394,4 @@ function assertEquality(anydata expected, anydata actual) {
 }
 
 // TODO: Add test cases for use defined types and readonly types
+// TODO: query expression in group by variable definition expression
