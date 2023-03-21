@@ -97,8 +97,8 @@ public class FunctionNodeVisitor extends NodeVisitor {
                     new ActionNodeVisitor(packageCompilation, semanticModel, currentPackage, filePath.toString());
             functionDefinitionNode.accept(actionNodeVisitor);
 
-            entryPoint = new EntryPoint(annotation == null ? null : annotation.getId(), funcParamList,
-                    returnTypes, actionNodeVisitor.getInteractionList(), annotation, elementLocation);
+            entryPoint = new EntryPoint(funcParamList, returnTypes, actionNodeVisitor.getInteractionList(), annotation,
+                    elementLocation);
         }
     }
 

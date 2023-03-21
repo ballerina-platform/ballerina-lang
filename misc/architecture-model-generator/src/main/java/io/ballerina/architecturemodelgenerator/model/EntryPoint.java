@@ -31,24 +31,18 @@ import java.util.List;
  */
 public class EntryPoint extends ModelElement {
 
-    private final String id;
     private final List<FunctionParameter> parameters;
     private final List<String> returns;
     private final List<Interaction> interactions;
     private final DisplayAnnotation annotation;
 
-    public EntryPoint(String id, List<FunctionParameter> parameters, List<String> returns,
+    public EntryPoint(List<FunctionParameter> parameters, List<String> returns,
                       List<Interaction> interactions, DisplayAnnotation annotation, ElementLocation elementLocation) {
         super(elementLocation);
-        this.id = id;
         this.parameters = parameters;
         this.returns = returns;
         this.annotation = annotation;
         this.interactions = interactions;
-    }
-
-    public String getId() {
-        return id;
     }
 
     public List<FunctionParameter> getParameters() {
