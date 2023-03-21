@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
+import io.ballerina.runtime.internal.types.BAnnotatableType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
@@ -54,6 +55,8 @@ public class TypedescValueImpl implements  TypedescValue {
     final Type type;
     final Type describingType; // Type of the value describe by this typedesc.
     public MapValue[] closures;
+    public MapValue annotations;
+    private BTypedesc typedesc;
 
     @Deprecated
     public TypedescValueImpl(Type describingType) {
@@ -68,6 +71,11 @@ public class TypedescValueImpl implements  TypedescValue {
         this.closures = closures;
     }
 
+    public TypedescValueImpl(Type describingType, MapValue[] closures, MapValue annotations) {
+        this(describingType, closures);
+        this.annotations = annotations;
+        ((BAnnotatableType) describingType).setAnnotations(annotations);
+    }
 
     /**
      * Returns the {@code BType} of the value describe by this type descriptor.
@@ -86,13 +94,17 @@ public class TypedescValueImpl implements  TypedescValue {
         return instantiate(s, new BInitialValueEntry[0]);
     }
 
+    public MapValue getAnnotations() {
+        return annotations;
+    }
+
     @Override
     public Object instantiate(Strand s, BInitialValueEntry[] initialValues) {
         Type referredType = getReferredType(this.describingType);
         if (referredType.getTag() == TypeTags.MAP_TAG) {
             return new MapValueImpl(this.describingType, (BMapInitialValueEntry[]) initialValues);
         } else if (referredType.getTag() == TypeTags.TUPLE_TAG) {
-            return new TupleValueImpl(this.describingType, (BListInitialValueEntry[]) initialValues);
+            return new TupleValueImpl(this.describingType, (BListInitialValueEntry[]) initialValues, this);
         }
         Type effectiveType = getEffectiveType(referredType);
         if (effectiveType.getTag() == TypeTags.TUPLE_TAG) {
@@ -135,7 +147,10 @@ public class TypedescValueImpl implements  TypedescValue {
 
     @Override
     public BTypedesc getTypedesc() {
-        return new TypedescValueImpl(this.type);
+        if (this.typedesc == null) {
+            this.typedesc = new TypedescValueImpl(this.type);
+        }
+        return typedesc;
     }
 
     /**

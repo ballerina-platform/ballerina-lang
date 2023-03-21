@@ -71,6 +71,16 @@ public class AnnotationTests {
         birTestResult = BCompileUtil.compile("test-src/bala/test_bala/annotations/annot_attachments_bala_test.bal");
     }
 
+    @Test
+    public void testAnnotationsOnRecordFields() {
+        BRunUtil.invoke(result, "testAnnotOnRecordFields");
+    }
+
+    @Test
+    public void testAnnotationsOnTupleFields() {
+        BRunUtil.invoke(result, "testAnnotOnTupleFields");
+    }
+
     @Test(description = "Test the deprecated construct from external module")
     public void testDeprecation() {
         CompileResult result = BCompileUtil.compile("test-src/bala/test_bala/annotations/deprecation_annotation.bal");
@@ -363,7 +373,7 @@ public class AnnotationTests {
         BTypeDefinitionSymbol symbol =
                 ((BTypeDefinitionSymbol) importedModuleEntries.get(Names.fromString("Tup")).symbol);
         Assert.assertEquals(symbol.getAnnotations().size(), 1);
-        List<BTupleMember> members = ((BTupleType) symbol.type).members;
+        List<BTupleMember> members = ((BTupleType) symbol.type).getMembers();
         List<? extends AnnotationAttachmentSymbol> m1 = members.get(0).symbol.getAnnotations();
 
         BAnnotationAttachmentSymbol m1a1 = ((BAnnotationAttachmentSymbol) m1.get(0));
@@ -380,7 +390,7 @@ public class AnnotationTests {
 
         symbol = ((BTypeDefinitionSymbol) importedModuleEntries.get(Names.fromString("T1")).symbol);
         Assert.assertEquals(symbol.getAnnotations().size(), 0);
-        members = ((BTupleType) symbol.type).members;
+        members = ((BTupleType) symbol.type).getMembers();
         m1 = members.get(1).symbol.getAnnotations();
 
         m1a1 = ((BAnnotationAttachmentSymbol) m1.get(0));
@@ -392,7 +402,7 @@ public class AnnotationTests {
 
         symbol = ((BTypeDefinitionSymbol) importedModuleEntries.get(Names.fromString("T2")).symbol);
         Assert.assertEquals(symbol.getAnnotations().size(), 0);
-        members = ((BTupleType) symbol.type).members;
+        members = ((BTupleType) symbol.type).getMembers();
         m1 = members.get(1).symbol.getAnnotations();
 
         m1a1 = ((BAnnotationAttachmentSymbol) m1.get(0));
@@ -453,7 +463,7 @@ public class AnnotationTests {
     }
 
     @Test
-    public void testAnnotsWithConstLists() {
+    public void testSourceAnnotsWithConstLists() {
         BLangPackage bLangPackage = (BLangPackage) birTestResult.getAST();
         Map<Name, Scope.ScopeEntry> importedModuleEntries = bLangPackage.getImports().get(0).symbol.scope.entries;
         BClassSymbol classSymbol =
@@ -513,6 +523,39 @@ public class AnnotationTests {
         Assert.assertEquals(f2.get(1).value, "test");
     }
 
+    @Test
+    public void testNonSourceAnnotsWithConstLists() {
+        BLangPackage bLangPackage = (BLangPackage) birTestResult.getAST();
+        Map<Name, Scope.ScopeEntry> importedModuleEntries = bLangPackage.getImports().get(0).symbol.scope.entries;
+        BTypeDefinitionSymbol classSymbol =
+                (BTypeDefinitionSymbol) importedModuleEntries.get(Names.fromString("TypeWithListInAnnots")).symbol;
+        List<? extends AnnotationAttachmentSymbol> attachments = classSymbol.getAnnotations();
+        Assert.assertEquals(attachments.size(), 1);
+
+        BAnnotationAttachmentSymbol annotationAttachmentSymbol = (BAnnotationAttachmentSymbol) attachments.get(0);
+        PackageID pkgID = annotationAttachmentSymbol.annotPkgID;
+        Assert.assertEquals(pkgID.orgName.value, "annots");
+        Assert.assertEquals(pkgID.pkgName.value, "usage");
+        Assert.assertEquals(pkgID.version.value, "0.2.0");
+        Assert.assertEquals(annotationAttachmentSymbol.annotTag.value, "AnnotWithList");
+        Assert.assertTrue(annotationAttachmentSymbol.isConstAnnotation());
+
+        Object constValue =
+                ((BAnnotationAttachmentSymbol.BConstAnnotationAttachmentSymbol) annotationAttachmentSymbol)
+                        .attachmentValueSymbol.value.value;
+        Assert.assertTrue(constValue instanceof Map);
+
+        Map<String, BLangConstantValue> annotMapValue = (Map<String, BLangConstantValue>) constValue;
+        Assert.assertEquals(annotMapValue.size(), 1);
+
+        Assert.assertTrue(annotMapValue.containsKey("arr"));
+        Object arr = annotMapValue.get("arr").value;
+        Assert.assertTrue(arr instanceof List);
+        List<BLangConstantValue> arrConst = (List<BLangConstantValue>) arr;
+        Assert.assertEquals(arrConst.get(0).value, 1L);
+        Assert.assertEquals(arrConst.get(1).value, 2L);
+        Assert.assertEquals(arrConst.get(2).value, 3L);
+    }
 
     @Test
     public void testFunctionAnnotAttachmentsViaBir() {

@@ -470,7 +470,7 @@
       "label": "host = ...",
       "kind": "Snippet",
       "detail": "host = \"\"",
-      "sortText": "AR",
+      "sortText": "AA",
       "filterText": "host",
       "insertText": "host = ${1:\"\"}",
       "insertTextFormat": "Snippet"
@@ -479,7 +479,7 @@
       "label": "port = ...",
       "kind": "Snippet",
       "detail": "port = 0",
-      "sortText": "AR",
+      "sortText": "AA",
       "filterText": "port",
       "insertText": "port = ${1:0}",
       "insertTextFormat": "Snippet"
@@ -747,6 +747,24 @@
       "detail": "Byte",
       "sortText": "R",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "string ``",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "T",
+      "filterText": "string ``",
+      "insertText": "string `${1}`",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xml ``",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "T",
+      "filterText": "xml ``",
+      "insertText": "xml `${1}`",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -56,7 +56,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
 
 /**
@@ -74,6 +73,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String MOCK_FN_DELIMITER = "#";
     private static final String MOCK_LEGACY_DELIMITER = "~";
     private static final String MODULE_DELIMITER = "§";
+    private static final String SINGLE_FILE_PACKAGE_NAME = ".";
 
     private CompilerContext compilerContext;
     private DiagnosticLog diagnosticLog;
@@ -112,10 +112,10 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
         // Iterate through all the annotations
         for (AnnotationAttachmentNode attachmentNode : annotations) {
             // Check if the package belongs to a single file project
-            if (packageName.equals(DOT)) {
+            if (SINGLE_FILE_PACKAGE_NAME.equals(packageName)) {
                 diagnosticLog.logDiagnostic(
                         DiagnosticSeverity.ERROR, (ModuleDescriptor) null, attachmentNode.getPosition(),
-                        "function mocking is not supported for single file projects");
+                        "function mocking is not supported with standalone Ballerina files");
                 return;
             }
             String annotationName = attachmentNode.getAnnotationName().getValue();
@@ -130,7 +130,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                     if (null == attachmentNode.getExpression()
                             || attachmentNode.getExpression().getKind() != NodeKind.RECORD_LITERAL_EXPR) {
                         diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                                "annotation should be a record with 'functionName' and 'moduleName'(optional) fields");
+                                "missing required 'functionName' field");
                         continue;
                     }
                     // Get list of attributes in the Mock annotation
@@ -179,6 +179,13 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
             String functionName = functionNode.getName().getValue();
 
             if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
+                // Check if the package belongs to a single file project
+                if (SINGLE_FILE_PACKAGE_NAME.equals(packageName)) {
+                    diagnosticLog.logDiagnostic(
+                            DiagnosticSeverity.ERROR, (ModuleDescriptor) null, attachmentNode.getPosition(),
+                            "function mocking is not supported with standalone Ballerina files");
+                    return;
+                }
                 String[] vals = new String[2];
                 // TODO: when default values are supported in annotation struct we can remove this
                 vals[0] = packageName;
@@ -247,7 +254,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
 
                     //Creating a bLangTestablePackage to add a mock function
                     BLangTestablePackage bLangTestablePackage =
-                            (BLangTestablePackage) ((BLangFunction) functionNode).parent;
+                            (BLangTestablePackage) ((BLangFunction) functionNode).parent; // parent -> BLangPackage
                     bLangTestablePackage.addMockFunction(functionToMockID + MOCK_LEGACY_DELIMITER + vals[1],
                             functionName);
 
@@ -259,7 +266,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                                     + MODULE_DELIMITER + className + MOCK_LEGACY_DELIMITER + vals[1], functionName);
                 } else {
                     diagnosticLog.logDiagnostic(DiagnosticSeverity.ERROR, attachmentNode.getPosition(),
-                            "annotation should be a record with 'functionName' and 'moduleName'(optional) fields");
+                            "missing required 'functionName' field");
                 }
             }
         }
@@ -446,7 +453,7 @@ public class MockAnnotationProcessor extends AbstractCompilerPlugin {
                 bPackageSymbol.pkgID.orgName.getValue(),
                 bPackageSymbol.pkgID.name.getValue(),
                 bPackageSymbol.pkgID.version.getValue(),
-                pos.lineRange().filePath()
+                pos.lineRange().fileName()
                         .replace(ProjectConstants.BLANG_SOURCE_EXT, "")
                         .replace(ProjectConstants.DOT, FILE_NAME_PERIOD_SEPARATOR)
                         .replace("/", ProjectConstants.DOT));

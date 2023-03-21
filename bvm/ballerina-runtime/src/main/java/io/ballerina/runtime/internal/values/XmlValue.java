@@ -55,7 +55,7 @@ import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 public abstract class XmlValue implements RefValue, BXml, CollectionValue {
 
     Type type = PredefinedTypes.TYPE_XML;
-    protected BTypedesc typedesc = new TypedescValueImpl(type);
+    protected BTypedesc typedesc;
 
     protected Type iteratorNextReturnType;
 
@@ -248,11 +248,10 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = getTypedescValue(type, this);
+        }
         return typedesc;
-    }
-
-    protected void setTypedescValue(Type type) {
-        this.typedesc = getTypedescValue(type, this);
     }
 
     @Override

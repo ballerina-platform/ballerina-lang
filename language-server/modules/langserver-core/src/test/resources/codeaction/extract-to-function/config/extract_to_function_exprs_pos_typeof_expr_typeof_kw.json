@@ -4,6 +4,7 @@
     "character": 38
   },
   "source": "extract_to_function_exprs_typeof_expr.bal",
+  "description": "Extract to function for expressions, cursor inside typeof keyword inside typeof expression",
   "expected": [
     {
       "title": "Extract to function",
@@ -35,8 +36,19 @@
           },
           "newText": "extracted(localVar)"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_typeof_expr.bal",
+          {
+            "line": 2,
+            "character": 35
+          }
+        ]
+      },
+      "resolvable": false
     }
-  ],
-  "description": "Extract to function for expressions, cursor inside typeof keyword inside typeof expression"
+  ]
 }

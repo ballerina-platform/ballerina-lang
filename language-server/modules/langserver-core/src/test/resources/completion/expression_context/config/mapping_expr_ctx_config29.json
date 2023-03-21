@@ -4,6 +4,7 @@
     "character": 79
   },
   "source": "expression_context/source/mapping_expr_ctx_source29.bal",
+  "description": "",
   "items": [
     {
       "label": "readonly",
@@ -31,11 +32,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "'version",
+      "label": "version",
       "kind": "Field",
       "detail": "Application.version",
       "sortText": "K",
-      "insertText": "'version: ${1:0}",
+      "insertText": "version: ${1:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -44,7 +45,7 @@
       "detail": "Application",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "'version: ${1:0},\nname: ${2:\"\"},\nid: ${3:\"\"}",
+      "insertText": "name: ${1:\"\"},\nid: ${2:\"\"},\nversion: ${3:0}",
       "insertTextFormat": "Snippet"
     }
   ]

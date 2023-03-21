@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
@@ -31,12 +32,15 @@ import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.StreamTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.MapTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
@@ -44,19 +48,23 @@ import io.ballerina.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import org.ballerinalang.diagramutil.connector.models.connector.types.ArrayType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.EnumType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.ErrorType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.InclusionType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.IntersectionType;
+import org.ballerinalang.diagramutil.connector.models.connector.types.MapType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.ObjectType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.PrimitiveType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.RecordType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.StreamType;
+import org.ballerinalang.diagramutil.connector.models.connector.types.TableType;
 import org.ballerinalang.diagramutil.connector.models.connector.types.UnionType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -66,7 +74,8 @@ import java.util.Optional;
  */
 public class Type {
 
-    static ArrayList<Integer> parentSymbols = new ArrayList<Integer>();
+    private static final Map<String, VisitedType> visitedTypeMap = new HashMap<>();
+
     @Expose
     public String name;
     @Expose
@@ -83,6 +92,27 @@ public class Type {
     public Map<String, String> displayAnnotation;
     @Expose
     public String documentation;
+    @Expose
+    public boolean isRestType;
+
+    public Type() {
+    }
+
+    public Type(String name, String typeName, boolean optional, TypeInfo typeInfo, boolean defaultable,
+                String defaultValue, Map<String, String> displayAnnotation, String documentation) {
+        this.name = name;
+        this.typeName = typeName;
+        this.optional = optional;
+        this.typeInfo = typeInfo;
+        this.defaultable = defaultable;
+        this.defaultValue = defaultValue;
+        this.displayAnnotation = displayAnnotation;
+        this.documentation = documentation;
+    }
+
+    public static void clearVisitedTypeMap() {
+        visitedTypeMap.clear();
+    }
 
     public static Optional<Type> fromSyntaxNode(Node node, SemanticModel semanticModel) {
         Optional<Type> type = Optional.empty();
@@ -90,7 +120,7 @@ public class Type {
         switch (node.kind()) {
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
-                Optional<Symbol> optSymbol = null;
+                Optional<Symbol> optSymbol = Optional.empty();
                 try {
                     optSymbol = semanticModel.symbol(node);
                 } catch (NullPointerException ignored) {
@@ -98,7 +128,7 @@ public class Type {
                 if (optSymbol != null && optSymbol.isPresent()) {
                     Symbol symbol = optSymbol.get();
                     type = Optional.of(fromSemanticSymbol(symbol));
-                    parentSymbols.clear();
+                    clearVisitedTypeMap();
                 }
                 break;
             case OPTIONAL_TYPE_DESC:
@@ -146,9 +176,7 @@ public class Type {
                 List<Type> fields = new ArrayList<>();
                 recordNode.fields().forEach(node1 -> {
                     Optional<Type> optionalType = fromSyntaxNode(node1, semanticModel);
-                    if (optionalType.isPresent()) {
-                        fields.add(optionalType.get());
-                    }
+                    optionalType.ifPresent(fields::add);
                 });
 
                 Optional<Type> restType = recordNode.recordRestDescriptor().isPresent() ?
@@ -165,11 +193,38 @@ public class Type {
                     type = Optional.of(recordType);
                 }
                 break;
-            // TODO: Check syntax tree compatible version for ErrorTypeDescriptorNode.
-//            case ERROR_TYPE_DESC:
-//                ErrorTypeDescriptorNode errorType = (ErrorTypeDescriptorNode) node;
-//                type = new PrimitiveType(errorType.errorKeywordToken().text());
-//                break;
+            case MAP_TYPE_DESC:
+                MapTypeDescriptorNode mapNode = (MapTypeDescriptorNode) node;
+                Optional<Type> mapStNode = fromSyntaxNode(mapNode.mapTypeParamsNode().typeNode(), semanticModel);
+                if (mapStNode.isPresent()) {
+                    type = Optional.of(new MapType(mapStNode.get()));
+                }
+                break;
+            case TABLE_TYPE_DESC:
+                TableTypeDescriptorNode tableTypeNode = (TableTypeDescriptorNode) node;
+                Optional<Symbol> optTableTypeSymbol = Optional.empty();
+                TableTypeSymbol tableTypeSymbol = null;
+                List<String> keySpecifiers = null;
+                try {
+                    optTableTypeSymbol = semanticModel.symbol(tableTypeNode);
+                } catch (NullPointerException ignored) {
+                }
+                if (optTableTypeSymbol != null && optTableTypeSymbol.isPresent()) {
+                    tableTypeSymbol = (TableTypeSymbol) optTableTypeSymbol.get();
+                }
+                if (tableTypeSymbol != null) {
+                    keySpecifiers = tableTypeSymbol.keySpecifiers();
+                }
+                if (tableTypeNode.keyConstraintNode().isEmpty()) {
+                    break;
+                }
+                Node keyConstraint = tableTypeNode.keyConstraintNode().get();
+                Optional<Type> tableStNode = fromSyntaxNode(tableTypeNode.rowTypeParameterNode(), semanticModel);
+                Optional<Type> constraintStNode = fromSyntaxNode(keyConstraint, semanticModel);
+                if (tableStNode.isPresent() && constraintStNode.isPresent()) {
+                    type = Optional.of(new TableType(tableStNode.get(), keySpecifiers, constraintStNode.get()));
+                }
+                break;
             default:
                 if (node instanceof BuiltinSimpleNameReferenceNode) {
                     BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode =
@@ -192,9 +247,7 @@ public class Type {
             return;
         }
         Optional<Type> optionalType = fromSyntaxNode(node, semanticModel);
-        if (optionalType.isPresent()) {
-            fields.add(optionalType.get());
-        }
+        optionalType.ifPresent(fields::add);
     }
 
     public static void flattenIntersectionNode(Node node, SemanticModel semanticModel, List<Type> fields) {
@@ -205,77 +258,66 @@ public class Type {
             return;
         }
         Optional<Type> optionalType = fromSyntaxNode(node, semanticModel);
-        if (optionalType.isPresent()) {
-            fields.add(optionalType.get());
+        optionalType.ifPresent(fields::add);
+    }
+
+    public static VisitedType getVisitedType(String typeName) {
+        if (visitedTypeMap.containsKey(typeName)) {
+            return visitedTypeMap.get(typeName);
         }
+        return null;
+    }
+
+    public static void completeVisitedTypeEntry(String typeName, Type typeNode) {
+        VisitedType visitedType = visitedTypeMap.get(typeName);
+        visitedType.setCompleted(true);
+        visitedType.setTypeNode(typeNode);
     }
 
     public static Type fromSemanticSymbol(Symbol symbol) {
         Type type = null;
-
         if (symbol instanceof TypeReferenceTypeSymbol) {
             TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) symbol;
-            if (typeReferenceTypeSymbol.definition().kind().equals(SymbolKind.ENUM)) {
-                List<Type> fields = new ArrayList<>();
-                ((UnionTypeSymbol) typeReferenceTypeSymbol.typeDescriptor()).memberTypeDescriptors()
-                        .forEach(typeSymbol -> {
-                            Type semanticSymbol = fromSemanticSymbol(typeSymbol);
-                            if (semanticSymbol != null) {
-                                fields.add(semanticSymbol);
-                            }
-                        });
-                type = new EnumType(fields);
-            } else {
-                type = fromSemanticSymbol(typeReferenceTypeSymbol.typeDescriptor());
-            }
-            if (type != null && symbol.getName().isPresent() && symbol.getModule().isPresent()) {
-                ModuleID moduleID = symbol.getModule().get().id();
-                type.typeInfo = new TypeInfo(symbol.getName().get(), moduleID.orgName(), moduleID.moduleName(),
-                        null, moduleID.version());
-                type.name = typeReferenceTypeSymbol.getName().isPresent() ? typeReferenceTypeSymbol.getName().get()
-                        : null;
-            }
+            type = getEnumType(typeReferenceTypeSymbol, symbol);
         } else if (symbol instanceof RecordTypeSymbol) {
             RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) symbol;
-            int signature = recordTypeSymbol.hashCode();
-            if (parentSymbols.contains(signature)) {
-                return null;
-            }
-            parentSymbols.add(signature);
-
-            List<Type> fields = new ArrayList<>();
-            recordTypeSymbol.fieldDescriptors().forEach((name, field) -> {
-                Type subType = fromSemanticSymbol(field.typeDescriptor());
-                if (subType != null) {
-                    subType.name = name;
-                    subType.optional = field.isOptional();
-                    subType.defaultable = field.hasDefaultValue();
-                    fields.add(subType);
+            String typeName = String.valueOf(recordTypeSymbol.hashCode());
+            VisitedType visitedType = getVisitedType(typeName);
+            if (visitedType != null) {
+                return getAlreadyVisitedType(symbol, typeName, visitedType, false);
+            } else {
+                if (typeName.contains("record {")) {
+                    type = getRecordType(recordTypeSymbol);
+                } else {
+                    visitedTypeMap.put(typeName, new VisitedType());
+                    type = getRecordType(recordTypeSymbol);
+                    completeVisitedTypeEntry(typeName, type);
                 }
-            });
-            Type restType = recordTypeSymbol.restTypeDescriptor().isPresent() ?
-                    fromSemanticSymbol(recordTypeSymbol.restTypeDescriptor().get()) : null;
-            type = new RecordType(fields, restType);
-            parentSymbols.remove(parentSymbols.size() - 1);
+            }
         } else if (symbol instanceof ArrayTypeSymbol) {
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) symbol;
             type = new ArrayType(fromSemanticSymbol(arrayTypeSymbol.memberTypeDescriptor()));
+        } else if (symbol instanceof MapTypeSymbol) {
+            MapTypeSymbol mapTypeSymbol = (MapTypeSymbol) symbol;
+            type = new MapType(fromSemanticSymbol(mapTypeSymbol.typeParam()));
+        } else if (symbol instanceof TableTypeSymbol) {
+            TableTypeSymbol tableTypeSymbol = (TableTypeSymbol) symbol;
+            TypeSymbol keyConstraint = null;
+            if (tableTypeSymbol.keyConstraintTypeParameter().isPresent()) {
+                keyConstraint = tableTypeSymbol.keyConstraintTypeParameter().get();
+            }
+            type = new TableType(fromSemanticSymbol(tableTypeSymbol.rowTypeParameter()),
+                    tableTypeSymbol.keySpecifiers(), fromSemanticSymbol(keyConstraint));
         } else if (symbol instanceof UnionTypeSymbol) {
             UnionTypeSymbol unionSymbol = (UnionTypeSymbol) symbol;
-            UnionType unionType = new UnionType();
-            unionSymbol.memberTypeDescriptors().forEach(typeSymbol -> {
-                Type semanticSymbol = fromSemanticSymbol(typeSymbol);
-                if (semanticSymbol != null) {
-                    unionType.members.add(semanticSymbol);
-                }
-            });
-            if (unionType.members.stream().allMatch(type1 -> type1 instanceof ErrorType)) {
-                ErrorType errType = new ErrorType();
-                errType.isErrorUnion = true;
-                errType.errorUnion = unionType;
-                type = errType;
+            String typeName = String.valueOf(unionSymbol.hashCode());
+            VisitedType visitedType = getVisitedType(typeName);
+            if (visitedType != null) {
+                return getAlreadyVisitedType(symbol, typeName, visitedType, true);
             } else {
-                type = unionType;
+                visitedTypeMap.put(typeName, new VisitedType());
+                type = getUnionType(unionSymbol);
+                completeVisitedTypeEntry(typeName, type);
             }
         } else if (symbol instanceof ErrorTypeSymbol) {
             ErrorTypeSymbol errSymbol = (ErrorTypeSymbol) symbol;
@@ -286,17 +328,18 @@ public class Type {
             type = errType;
         } else if (symbol instanceof IntersectionTypeSymbol) {
             IntersectionTypeSymbol intersectionTypeSymbol = (IntersectionTypeSymbol) symbol;
-            IntersectionType intersectionType = new IntersectionType();
-            intersectionTypeSymbol.memberTypeDescriptors().forEach(typeSymbol -> {
-                Type semanticSymbol = fromSemanticSymbol(typeSymbol);
-                if (semanticSymbol != null) {
-                    intersectionType.members.add(semanticSymbol);
-                }
-            });
-            type = intersectionType;
+            String typeName = String.valueOf(intersectionTypeSymbol.hashCode());
+            VisitedType visitedType = getVisitedType(typeName);
+            if (visitedType != null) {
+                return getAlreadyVisitedType(symbol, typeName, visitedType, false);
+            } else {
+                visitedTypeMap.put(typeName, new VisitedType());
+                type = getIntersectionType(intersectionTypeSymbol);
+                completeVisitedTypeEntry(typeName, type);
+            }
         } else if (symbol instanceof StreamTypeSymbol) {
             StreamTypeSymbol streamTypeSymbol = (StreamTypeSymbol) symbol;
-            type = fromSemanticSymbol(streamTypeSymbol.typeParameter());
+            type = getStreamType(streamTypeSymbol);
         } else if (symbol instanceof ObjectTypeSymbol) {
             ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) symbol;
             ObjectType objectType = new ObjectType();
@@ -322,14 +365,180 @@ public class Type {
             if (type != null) {
                 type.defaultable = parameterSymbol.paramKind() == ParameterKind.DEFAULTABLE;
             }
+        } else if (symbol instanceof VariableSymbol) {
+            VariableSymbol variableSymbol = (VariableSymbol) symbol;
+            type = fromSemanticSymbol(variableSymbol.typeDescriptor());
         } else if (symbol instanceof TypeSymbol) {
-            type = new PrimitiveType(((TypeSymbol) symbol).signature());
+            String typeName = ((TypeSymbol) symbol).signature();
+            if (typeName.startsWith("\"") && typeName.endsWith("\"")) {
+                typeName = typeName.substring(1, typeName.length() - 1);
+            }
+            type = new PrimitiveType(typeName);
         }
         return type;
     }
 
-    public static void clearParentSymbols() {
-        parentSymbols.clear();
+    private static Type getAlreadyVisitedType(Symbol symbol, String typeName, VisitedType visitedType,
+                                              boolean getClone) {
+        if (visitedType.isCompleted()) {
+            Type existingType = visitedType.getTypeNode();
+            if (getClone) {
+                return new Type(existingType.getName(), existingType.getTypeName(), existingType.isOptional(),
+                        existingType.getTypeInfo(), existingType.isDefaultable(), existingType.getDefaultValue(),
+                        existingType.getDisplayAnnotation(), existingType.getDocumentation());
+            }
+            return existingType;
+        } else {
+            Type type = new Type();
+            setTypeInfo(typeName, symbol, type);
+            return type;
+        }
     }
 
+    private static Type getIntersectionType(IntersectionTypeSymbol intersectionTypeSymbol) {
+        Type type;
+        IntersectionType intersectionType = new IntersectionType();
+        intersectionTypeSymbol.memberTypeDescriptors().forEach(typeSymbol -> {
+            Type semanticSymbol = fromSemanticSymbol(typeSymbol);
+            if (semanticSymbol != null) {
+                intersectionType.members.add(semanticSymbol);
+            }
+        });
+
+        type = intersectionType;
+        return type;
+    }
+
+    private static Type getUnionType(UnionTypeSymbol unionSymbol) {
+        Type type;
+        UnionType unionType = new UnionType();
+        unionSymbol.memberTypeDescriptors().forEach(typeSymbol -> {
+            Type semanticSymbol = fromSemanticSymbol(typeSymbol);
+            if (semanticSymbol != null) {
+                unionType.members.add(semanticSymbol);
+            }
+        });
+        if (unionType.members.stream().allMatch(type1 -> type1 instanceof ErrorType)) {
+            ErrorType errType = new ErrorType();
+            errType.isErrorUnion = true;
+            errType.errorUnion = unionType;
+            type = errType;
+        } else {
+            type = unionType;
+        }
+        return type;
+    }
+
+    private static Type getRecordType(RecordTypeSymbol recordTypeSymbol) {
+        Type type;
+        List<Type> fields = new ArrayList<>();
+        recordTypeSymbol.fieldDescriptors().forEach((name, field) -> {
+            Type subType = fromSemanticSymbol(field.typeDescriptor());
+            if (subType != null) {
+                subType.setName(name);
+                subType.setOptional(field.isOptional());
+                subType.setDefaultable(field.hasDefaultValue());
+                fields.add(subType);
+            }
+        });
+        Type restType = recordTypeSymbol.restTypeDescriptor().isPresent() ?
+                fromSemanticSymbol(recordTypeSymbol.restTypeDescriptor().get()) : null;
+        type = new RecordType(fields, restType);
+        return type;
+    }
+
+    private static Type getEnumType(TypeReferenceTypeSymbol typeReferenceTypeSymbol, Symbol symbol) {
+        Type type;
+        if (typeReferenceTypeSymbol.definition().kind().equals(SymbolKind.ENUM)) {
+            List<Type> fields = new ArrayList<>();
+            ((UnionTypeSymbol) typeReferenceTypeSymbol.typeDescriptor()).memberTypeDescriptors()
+                    .forEach(typeSymbol -> {
+                        Type semanticSymbol = fromSemanticSymbol(typeSymbol);
+                        if (semanticSymbol != null) {
+                            fields.add(semanticSymbol);
+                        }
+                    });
+            type = new EnumType(fields);
+        } else {
+            type = fromSemanticSymbol(typeReferenceTypeSymbol.typeDescriptor());
+        }
+        setTypeInfo(typeReferenceTypeSymbol.getName().isPresent() ? typeReferenceTypeSymbol.getName().get()
+                : null, symbol, type);
+        return type;
+    }
+
+    private static Type getStreamType(StreamTypeSymbol streamSymbol) {
+        Type leftType = fromSemanticSymbol(streamSymbol.typeParameter());
+        Type rightType = fromSemanticSymbol(streamSymbol.completionValueTypeParameter());
+        return new StreamType(leftType, rightType);
+    }
+
+    public static void clearParentSymbols() {
+        clearVisitedTypeMap();
+    }
+
+    private static void setTypeInfo(String typeName, Symbol symbol, Type type) {
+        if (type != null && symbol.getName().isPresent() && symbol.getModule().isPresent()) {
+            ModuleID moduleID = symbol.getModule().get().id();
+            type.typeInfo = new TypeInfo(symbol.getName().get(), moduleID.orgName(), moduleID.moduleName(),
+                    null, moduleID.version());
+            type.name = typeName;
+        }
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getTypeName() {
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
+    public boolean isOptional() {
+        return optional;
+    }
+
+    public void setOptional(boolean optional) {
+        this.optional = optional;
+    }
+
+    public TypeInfo getTypeInfo() {
+        return typeInfo;
+    }
+
+    public boolean isDefaultable() {
+        return defaultable;
+    }
+
+    public void setDefaultable(boolean defaultable) {
+        this.defaultable = defaultable;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public Map<String, String> getDisplayAnnotation() {
+        return displayAnnotation;
+    }
+
+    public String getDocumentation() {
+        return documentation;
+    }
+
+    public void setDocumentation(String documentation) {
+        this.documentation = documentation;
+    }
+
+    public void setRestType(boolean restType) {
+        isRestType = restType;
+    }
 }

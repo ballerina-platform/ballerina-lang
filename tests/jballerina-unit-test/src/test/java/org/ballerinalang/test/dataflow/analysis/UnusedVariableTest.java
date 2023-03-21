@@ -108,6 +108,8 @@ public class UnusedVariableTest {
         validateWarning(result, i++, getUnusedVariableWarning("i"), 388, 5);
         validateWarning(result, i++, getUnusedVariableWarning("j"), 397, 9);
         validateWarning(result, i++, getUnusedVariableWarning("k"), 405, 9);
+        validateWarning(result, i++, getUnusedVariableWarning("k1"), 418, 5);
+        validateWarning(result, i++, getUnusedVariableWarning("k2"), 421, 5);
         Assert.assertEquals(result.getWarnCount(), i);
         Assert.assertEquals(result.getErrorCount(), 0);
     }

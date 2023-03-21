@@ -18,7 +18,7 @@
       "label": "name",
       "kind": "Field",
       "detail": "Person.name",
-      "sortText": "K",
+      "sortText": "AG",
       "insertText": "name: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +26,7 @@
       "label": "age",
       "kind": "Field",
       "detail": "Person.age",
-      "sortText": "K",
+      "sortText": "AG",
       "insertText": "age: ${1:0}",
       "insertTextFormat": "Snippet"
     },

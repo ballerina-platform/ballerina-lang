@@ -215,7 +215,7 @@ public class ResolutionEngine {
     private Collection<PackageMetadataResponse> resolveDirectDependencies(Collection<DependencyNode> directDeps) {
         // Set the default locking mode based on the sticky build option.
         PackageLockingMode defaultLockingMode = resolutionOptions.sticky() ?
-                PackageLockingMode.HARD : PackageLockingMode.MEDIUM;
+                PackageLockingMode.HARD : resolutionOptions.packageLockingMode();
         List<ResolutionRequest> resolutionRequests = new ArrayList<>();
 
         for (DependencyNode directDependency : directDeps) {
@@ -346,7 +346,7 @@ public class ResolutionEngine {
                                                           BlendedManifest.Dependency blendedDep) {
         if (blendedDep == null) {
             return ResolutionRequest.from(unresolvedNode.pkgDesc(), unresolvedNode.scope(),
-                    unresolvedNode.resolutionType(), PackageLockingMode.MEDIUM);
+                    unresolvedNode.resolutionType(), resolutionOptions.packageLockingMode());
         }
 
         if (blendedDep.isError()) {
@@ -361,14 +361,14 @@ public class ResolutionEngine {
         if (versionCompResult == VersionCompatibilityResult.GREATER_THAN ||
                 versionCompResult == VersionCompatibilityResult.EQUAL) {
             PackageLockingMode lockingMode = resolutionOptions.sticky() ?
-                    PackageLockingMode.HARD : PackageLockingMode.MEDIUM;
+                    PackageLockingMode.HARD : resolutionOptions.packageLockingMode();
             PackageDescriptor blendedDepPkgDesc = PackageDescriptor.from(blendedDep.org(), blendedDep.name(),
                     blendedDep.version(), blendedDep.repository());
             return ResolutionRequest.from(blendedDepPkgDesc, unresolvedNode.scope(),
                     unresolvedNode.resolutionType(), lockingMode);
         } else if (versionCompResult == VersionCompatibilityResult.LESS_THAN) {
             return ResolutionRequest.from(unresolvedNode.pkgDesc(), unresolvedNode.scope(),
-                    unresolvedNode.resolutionType(), PackageLockingMode.MEDIUM);
+                    unresolvedNode.resolutionType(), resolutionOptions.packageLockingMode());
         } else {
             // Blended Dep version is incompatible with the unresolved node.
             // We report a diagnostic and return null.
@@ -382,7 +382,7 @@ public class ResolutionEngine {
                             "Version specified in " + sourceFile + ": " + blendedDep.version() +
                             " and the version resolved from other dependencies: " + unresolvedNode.pkgDesc.version(),
                     DiagnosticSeverity.ERROR);
-            PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(
+            PackageDiagnostic diagnostic = new PackageDiagnostic(
                     diagnosticInfo, this.rootPkgDesc.name().toString());
             diagnostics.add(diagnostic);
             return null;

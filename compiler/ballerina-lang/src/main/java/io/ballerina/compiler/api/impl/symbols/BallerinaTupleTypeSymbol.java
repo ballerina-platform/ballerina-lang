@@ -18,9 +18,12 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
+import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.MemberTypeSymbol;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -39,6 +42,7 @@ import java.util.StringJoiner;
 public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements TupleTypeSymbol {
 
     private List<TypeSymbol> memberTypes;
+    private List<MemberTypeSymbol> tupleMembers;
     private TypeSymbol restTypeDesc;
 
     public BallerinaTupleTypeSymbol(CompilerContext context, BTupleType tupleType) {
@@ -59,6 +63,21 @@ public class BallerinaTupleTypeSymbol extends AbstractTypeSymbol implements Tupl
         }
 
         return this.memberTypes;
+    }
+
+    @Override
+    public List<MemberTypeSymbol> members() {
+        if (this.tupleMembers != null) {
+            return this.tupleMembers;
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        this.tupleMembers = new ArrayList<>();
+        for (BTupleMember tupMember : ((BTupleType) this.getBType()).getMembers()) {
+            this.tupleMembers.add(symbolFactory.createTupleMember(tupMember.symbol));
+        }
+
+        return this.tupleMembers;
     }
 
     @Override

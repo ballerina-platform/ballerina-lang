@@ -36,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
 
@@ -54,6 +55,10 @@ public class PackageDiagnostic extends Diagnostic {
     protected PackageDiagnostic(DiagnosticInfo diagnosticInfo, Location location) {
         this.diagnostic = DiagnosticFactory.createDiagnostic(diagnosticInfo, location);
         this.location = location;
+    }
+
+    public PackageDiagnostic(DiagnosticInfo diagnosticInfo, String filePath) {
+        this(diagnosticInfo, new NullLocation(filePath));
     }
 
     public PackageDiagnostic(Diagnostic diagnostic, ModuleDescriptor moduleDescriptor, Project project) {
@@ -112,14 +117,18 @@ public class PackageDiagnostic extends Diagnostic {
 
     @Override
     public String toString() {
-        String filePath = this.diagnostic.location().lineRange().filePath();
+        String filePath = this.location.lineRange().filePath();
         // add package info if it is a dependency
-        if (this.project.kind().equals(ProjectKind.BALA_PROJECT)) {
+        if (this.project != null && ProjectKind.BALA_PROJECT.equals(this.project.kind())) {
             filePath = moduleDescriptor.org() + "/" +
                     moduleDescriptor.name().toString() + "/" +
-                    moduleDescriptor.version() + "::" + filePath;
+                    moduleDescriptor.version() + "::" + Optional.of(Paths.get(filePath).getFileName()).get();
         }
-
+        // Handle null location based diagnostics
+        if (this.diagnostic.location() instanceof NullLocation) {
+            return diagnosticInfo().severity().toString() + " ["
+                    + filePath + "] " + this.diagnosticInfo().messageFormat();
+        }
         LineRange lineRange = diagnostic.location().lineRange();
         LineRange oneBasedLineRange = LineRange.from(
                 filePath,
@@ -166,6 +175,25 @@ public class PackageDiagnostic extends Diagnostic {
         @Override
         public String toString() {
             return lineRange.toString() + textRange.toString();
+        }
+    }
+
+    private static class NullLocation implements Location {
+        private final String filepath;
+
+        NullLocation(String filePath) {
+            this.filepath = filePath;
+        }
+
+        @Override
+        public LineRange lineRange() {
+            LinePosition from = LinePosition.from(0, 0);
+            return LineRange.from(filepath, from, from);
+        }
+
+        @Override
+        public TextRange textRange() {
+            return TextRange.from(0, 0);
         }
     }
 }

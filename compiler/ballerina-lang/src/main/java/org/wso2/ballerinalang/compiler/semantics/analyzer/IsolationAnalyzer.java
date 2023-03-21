@@ -1272,7 +1272,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             BLangArrowFunction bLangArrowFunction = (BLangArrowFunction) enclEnv.node;
 
             for (BLangSimpleVariable param : bLangArrowFunction.params) {
-                if (param.symbol == symbol) {
+                if (param.symbol == getOriginalSymbol(symbol)) {
                     return;
                 }
             }
@@ -1914,12 +1914,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        for (BLangSimpleVariable memberTypeNode : tupleTypeNode.memberTypeNodes) {
-            analyzeNode(memberTypeNode.typeNode, env);
+        for (BLangType memberType : tupleTypeNode.getMemberTypeNodes()) {
+            analyzeNode(memberType, env);
         }
 
         analyzeNode(tupleTypeNode.restParamType, env);
     }
+
     @Override
     public void visit(BLangErrorType errorTypeNode) {
         analyzeNode(errorTypeNode.detailType, env);
@@ -2278,8 +2279,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
             if (reqArgCount < paramsCount) {
                 // Part of the non-rest params are provided via the vararg.
-                BTupleType tupleType = (BTupleType) varArgType;
-                List<BTupleMember> memberTypes = tupleType.members;
+                BTupleType tupleType = varArgType.tag == TypeTags.ARRAY ?
+                    getRepresentativeTupleTypeForRemainingArgs(paramsCount, reqArgCount, (BArrayType) varArgType) :
+                    (BTupleType) varArgType;
+
+                List<BType> memberTypes = tupleType.getTupleTypes();
 
                 BLangExpression varArgExpr = varArg.expr;
                 boolean listConstrVarArg =  varArgExpr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR;
@@ -2300,7 +2304,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                         continue;
                     }
 
-                    BType type = memberTypes.get(tupleIndex).type;
+                    BType type = memberTypes.get(tupleIndex);
 
                     BLangExpression arg = null;
                     if (listConstrVarArg) {
@@ -2335,7 +2339,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 int memberTypeCount = memberTypes.size();
                 if (tupleIndex < memberTypeCount) {
                     for (int i = tupleIndex; i < memberTypeCount; i++) {
-                        BType type = memberTypes.get(i).type;
+                        BType type = memberTypes.get(i);
                         BLangExpression arg = null;
                         if (listConstrVarArg) {
                             arg = listConstructorExpr.exprs.get(i);
@@ -2381,6 +2385,22 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         // Args for rest param provided as both individual args and vararg.
         analyzeRestArgsForRestParam(invocationExpr, restArgs, symbol, expectsIsolation);
+    }
+
+    private BTupleType getRepresentativeTupleTypeForRemainingArgs(int paramCount, int reqArgCount,
+                                                                  BArrayType arrayType) {
+        int remReqArgCount = paramCount - reqArgCount;
+        List<BTupleMember> members = new ArrayList<>(remReqArgCount);
+        BType eType = arrayType.eType;
+        for (int i = 0; i < remReqArgCount; i++) {
+            members.add(new BTupleMember(eType, Symbols.createVarSymbolForTupleMember(eType)));
+        }
+
+        if (arrayType.size > remReqArgCount) {
+            return new BTupleType(null, members, eType, 0);
+        }
+
+        return new BTupleType(members);
     }
 
     private void analyzeRestArgsForRestParam(BLangInvocation invocationExpr, List<BLangExpression> restArgs,
@@ -2434,9 +2454,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         BTupleType tupleType = (BTupleType) varArgType;
 
-        for (BTupleMember type : tupleType.members) {
+        for (BType type : tupleType.getTupleTypes()) {
             handleNonExplicitlyIsolatedArgForIsolatedParam(invocationExpr, null, expectsIsolation,
-                                                           type.type, pos);
+                                                           type, pos);
         }
 
         BType restType = tupleType.restType;
@@ -3119,7 +3139,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return false;
     }
 
-    private boolean isDefinedOutsideLock(Name name, int symTag, SymbolEnv currentEnv) {
+    private boolean isDefinedOutsideLock(Name name, long symTag, SymbolEnv currentEnv) {
         if (Names.IGNORE == name ||
                 symResolver.lookupSymbolInGivenScope(currentEnv, name, symTag) != symTable.notFoundSymbol) {
             return false;
@@ -3160,7 +3180,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                                currentEnv);
     }
 
-    private boolean isInvalidCopyIn(BLangSimpleVarRef varRefExpr, Name name, int symTag, SymbolEnv currentEnv) {
+    private boolean isInvalidCopyIn(BLangSimpleVarRef varRefExpr, Name name, long symTag, SymbolEnv currentEnv) {
         BSymbol symbol = symResolver.lookupSymbolInGivenScope(currentEnv, name, symTag);
         if (symbol != symTable.notFoundSymbol &&
                 (!(symbol instanceof BVarSymbol) || ((BVarSymbol) symbol).originalSymbol == null)) {
@@ -3946,7 +3966,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         LinePosition linePosition = lineRange.startLine();
         int startLine = linePosition.line();
         int startColumn = linePosition.offset();
-        return new BLangDiagnosticLocation(lineRange.filePath(), startLine, startLine, startColumn, startColumn);
+        return new BLangDiagnosticLocation(lineRange.fileName(), startLine, startLine, startColumn, startColumn);
     }
 
     private DiagnosticHintCode getHintCode(boolean isolatedService, boolean isolatedMethod) {
@@ -4161,8 +4181,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         @Override
         public void visit(BTupleType bTupleType) {
-            for (BTupleMember memType : bTupleType.members) {
-                visitType(memType.type);
+            for (BType memType : bTupleType.getTupleTypes()) {
+                visitType(memType);
             }
 
             visitType(bTupleType.restType);

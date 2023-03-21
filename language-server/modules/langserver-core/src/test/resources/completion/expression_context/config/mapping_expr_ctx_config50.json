@@ -21,6 +21,15 @@
       "sortText": "F",
       "insertText": "recMap",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...recMap",
+      "kind": "Variable",
+      "detail": "map<map<RecordName>>",
+      "sortText": "F",
+      "filterText": "recMap",
+      "insertText": "...recMap",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

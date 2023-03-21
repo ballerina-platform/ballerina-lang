@@ -70,7 +70,7 @@ class PositionUtil {
         int enclStartOffset = enclRange.startLine().offset();
         int enclEndOffset = enclRange.endLine().offset();
 
-        return enclRange.filePath().equals(range.filePath())
+        return enclRange.fileName().equals(range.fileName())
                 && (startLine == enclStartLine && startOffset >= enclStartOffset || startLine > enclStartLine)
                 && (endLine == enclEndLine && endOffset <= enclEndOffset || endLine < enclEndLine);
     }
@@ -93,5 +93,32 @@ class PositionUtil {
                 || ((startLine == cursorLine && endLine > cursorLine)
                 || (startLine == endLine && startLine == cursorLine)
                 && startColumn <= cursorColumn);
+    }
+
+    static boolean isPosWithinRange(LinePosition position, LineRange enclRange) {
+        int posLine = position.line();
+        int posOffset = position.offset();
+
+        int enclStartLine = enclRange.startLine().line();
+        int enclEndLine = enclRange.endLine().line();
+        int enclStartOffset = enclRange.startLine().offset();
+        int enclEndOffset = enclRange.endLine().offset();
+
+        return (posLine == enclStartLine && posOffset  >= enclStartOffset || posLine > enclStartLine)
+                && (posLine == enclEndLine && posOffset <= enclEndOffset || posLine < enclEndLine);
+    }
+
+    static boolean isPosWithinOpenCloseLineRanges(LinePosition linePosition, LineRange openParenLineRange,
+                                                  LineRange closeParenLineRange) {
+
+        int posLine = linePosition.line();
+        int posOffset = linePosition.offset();
+        int openLine = openParenLineRange.startLine().line();
+        int openOffset = openParenLineRange.startLine().offset();
+        int closeLine = closeParenLineRange.startLine().line();
+        int closeOffset = closeParenLineRange.endLine().offset();
+
+        return ((posLine == openLine && posOffset >= openOffset || posLine > openLine)
+                && (closeLine == posLine && posOffset <= closeOffset || posLine < closeLine));
     }
 }

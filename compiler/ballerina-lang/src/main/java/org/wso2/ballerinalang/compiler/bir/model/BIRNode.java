@@ -24,7 +24,6 @@ import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -255,11 +254,18 @@ public abstract class BIRNode {
      */
     public static class BIRFunctionParameter extends BIRVariableDcl {
         public final boolean hasDefaultExpr;
+        public boolean isPathParameter;
 
         public BIRFunctionParameter(Location pos, BType type, Name name,
                                     VarScope scope, VarKind kind, String metaVarName, boolean hasDefaultExpr) {
             super(pos, type, name, scope, kind, metaVarName);
             this.hasDefaultExpr = hasDefaultExpr;
+        }
+
+        public BIRFunctionParameter(Location pos, BType type, Name name, VarScope scope, VarKind kind,
+                                    String metaVarName, boolean hasDefaultExpr, boolean isPathParameter) {
+            this(pos, type, name, scope, kind, metaVarName, hasDefaultExpr);
+            this.isPathParameter = isPathParameter;
         }
 
         @Override
@@ -371,9 +377,11 @@ public abstract class BIRNode {
         
         public List<Name> resourcePath;
         
+        public List<Location> resourcePathSegmentPosList;
+        
         public Name accessor;
         
-        public BTupleType resourcePathType;
+        public List<BType> pathSegmentTypeList;
 
         public BIRFunction(Location pos, Name name, Name originalName, long flags, SymbolOrigin origin,
                            BInvokableType type, List<BIRParameter> requiredParams, BIRVariableDcl receiver,

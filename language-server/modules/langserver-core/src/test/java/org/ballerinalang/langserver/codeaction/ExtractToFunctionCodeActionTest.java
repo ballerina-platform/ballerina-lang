@@ -15,7 +15,9 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import org.ballerinalang.langserver.commons.capability.InitializationOptions;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.util.TestUtil;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -27,6 +29,11 @@ import java.io.IOException;
  * @since 2201.2.1
  */
 public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
+
+    @Override
+    protected void setupLanguageServer(TestUtil.LanguageServerBuilder builder) {
+        builder.withInitOption(InitializationOptions.KEY_POSITIONAL_RENAME_SUPPORT, true);
+    }
 
     @Test(dataProvider = "codeaction-data-provider")
     @Override
@@ -242,7 +249,7 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
 
                 {"negative_extract_to_function_stmts_within_class_object_fields.json"},
 
-                 // expressions
+                // expressions
 
                 {"negative_extract_to_function_exprs_function_call.json"},
                 {"negative_extract_to_function_exprs_field_access_expr_with_self.json"},
@@ -260,7 +267,8 @@ public class ExtractToFunctionCodeActionTest extends AbstractCodeActionTest {
                 {"neg_extract_to_function_exprs_pos_in_type_definition.json"},
                 {"neg_extract_to_function_exprs_pos_in_function_call_with_qualNameRef.json"},
                 {"neg_extract_to_function_exprs_pos_mapping_cons_cur_inside_fields.json"},
-                {"negative_extract_to_function_exprs_pos_function_call_in_let_expr.json"}
+                {"negative_extract_to_function_exprs_pos_function_call_in_let_expr.json"},
+                {"negative_extract_to_function_exprs_match_clause.json"}
         };
     }
 

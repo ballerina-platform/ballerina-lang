@@ -25,6 +25,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -68,6 +69,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
@@ -615,8 +617,8 @@ public class BIRGen extends BLangNodeVisitor {
         this.currentScope = new BirScope(0, null);
         if (astFunc.receiver != null) {
             BIRFunctionParameter birVarDcl = new BIRFunctionParameter(astFunc.pos, astFunc.receiver.getBType(),
-                                                                      this.env.nextLocalVarId(names), VarScope.FUNCTION,
-                                                                      VarKind.ARG, astFunc.receiver.name.value, false);
+                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, astFunc.receiver.name.value,
+                    false, false);
             this.env.symbolVarMap.put(astFunc.receiver.symbol, birVarDcl);
             birFunc.receiver = getSelf(astFunc.receiver.symbol);
         }
@@ -690,9 +692,21 @@ public class BIRGen extends BLangNodeVisitor {
                         birFunc.restPathParam = createBIRVarDeclForPathParam(restPathParamSym);
                     }
 
-                    birFunc.resourcePath = resourceFunction.resourcePath;
+                    List<BResourcePathSegmentSymbol> pathSegmentSymbols = resourceFunction.pathSegmentSymbols;
+                    int pathSegmentSize = pathSegmentSymbols.size();
+                    List<Name> pathSegmentNameList = new ArrayList<>(pathSegmentSize);
+                    List<Location> pathSegmentPosList = new ArrayList<>(pathSegmentSize);
+                    List<BType> pathSegmentTypeList = new ArrayList<>(pathSegmentSize);
+                    for (BSymbol pathSegmentSym : pathSegmentSymbols) {
+                        pathSegmentNameList.add(pathSegmentSym.name);
+                        pathSegmentPosList.add(pathSegmentSym.pos);
+                        pathSegmentTypeList.add(pathSegmentSym.type);
+                    }
+
+                    birFunc.resourcePathSegmentPosList = pathSegmentPosList;
+                    birFunc.resourcePath = pathSegmentNameList;
                     birFunc.accessor = resourceFunction.accessor;
-                    birFunc.resourcePathType = resourceFunction.resourcePathType;
+                    birFunc.pathSegmentTypeList = pathSegmentTypeList;
                     break;
                 }
             }
@@ -910,9 +924,11 @@ public class BIRGen extends BLangNodeVisitor {
 
     private void addParam(BIRFunction birFunc, BVarSymbol paramSymbol, BLangExpression defaultValExpr,
                           Location pos, List<? extends AnnotationAttachmentSymbol> annots) {
+        boolean isPathParam = paramSymbol.kind == SymbolKind.PATH_PARAMETER ||
+                paramSymbol.kind == SymbolKind.PATH_REST_PARAMETER;
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
                 this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG,
-                paramSymbol.name.value, defaultValExpr != null);
+                paramSymbol.name.value, defaultValExpr != null, isPathParam);
 
         birFunc.localVars.add(birVarDcl);
 
@@ -928,7 +944,8 @@ public class BIRGen extends BLangNodeVisitor {
 
     private void addRestParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false,
+                paramSymbol.kind == SymbolKind.PATH_REST_PARAMETER);
         birFunc.parameters.add(birVarDcl);
         birFunc.localVars.add(birVarDcl);
 
@@ -942,8 +959,11 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private void addRequiredParam(BIRFunction birFunc, BVarSymbol paramSymbol, Location pos) {
+        boolean isPathParam = paramSymbol.kind == SymbolKind.PATH_PARAMETER ||
+                paramSymbol.kind == SymbolKind.PATH_REST_PARAMETER;
         BIRFunctionParameter birVarDcl = new BIRFunctionParameter(pos, paramSymbol.type,
-                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value, false);
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.ARG, paramSymbol.name.value,
+                false, isPathParam);
         birFunc.parameters.add(birVarDcl);
         birFunc.localVars.add(birVarDcl);
 
@@ -983,12 +1003,6 @@ public class BIRGen extends BLangNodeVisitor {
         if (astBlockStmt.failureBreakMode != BLangBlockStmt.FailureBreakMode.NOT_BREAKABLE) {
             blockEndBB = beginBreakableBlock(astBlockStmt.failureBreakMode);
         }
-        if (astBlockStmt.isFromFailNode) {
-            breakIntoNewBasicBlock(astBlockStmt);
-            if (this.env.failStartBBAlreadyAvailable) {
-                return;
-            }
-        }
         for (BLangStatement astStmt : astBlockStmt.stmts) {
             astStmt.accept(this);
         }
@@ -1011,25 +1025,6 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclBB.terminator = new BIRTerminator.GOTO(pos, letExprEndBB, this.currentScope);
         this.env.enclBasicBlocks.add(letExprEndBB);
         this.env.enclBB = letExprEndBB;
-    }
-
-    private void breakIntoNewBasicBlock(BLangBlockStmt bLangBlockStmt) {
-        BIRBasicBlock blockBB = this.env.failStartBasicBlockMap.get(bLangBlockStmt);
-        if (blockBB == null) {
-            this.env.failStartBBAlreadyAvailable = false;
-            blockBB = new BIRBasicBlock(this.env.nextBBId(names));
-            this.env.enclBasicBlocks.add(blockBB);
-            // Insert a GOTO instruction as the terminal instruction into current basic block.
-            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, blockBB, this.currentScope);
-            this.env.enclBB = blockBB;
-
-            this.env.failStartBasicBlockMap.put(bLangBlockStmt, blockBB);
-            return;
-        }
-        this.env.failStartBBAlreadyAvailable = true;
-        // Insert a GOTO instruction as the terminal instruction into current basic block.
-        this.env.enclBB.terminator = new BIRTerminator.GOTO(null, blockBB, this.currentScope);
-        this.env.enclBB = blockBB;
     }
 
     @Override
@@ -1061,70 +1056,51 @@ public class BIRGen extends BLangNodeVisitor {
             numLocks--;
         }
 
-        BIRBasicBlock onFailBB = this.env.onFailStartBlockByFailNode.get(failNode);
-        if (onFailBB == null) {
-            // Create a basic block for the on fail clause.
-            onFailBB = new BIRBasicBlock(this.env.nextBBId(names));
-            addToTrapStack(onFailBB);
-            this.env.enclBasicBlocks.add(onFailBB);
+        // Create a basic block for the on fail clause.
+        BIRBasicBlock onFailBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(onFailBB);
+        this.env.enclBasicBlocks.add(onFailBB);
 
-            // Insert a GOTO instruction as the terminal instruction into current basic block.
-            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, onFailBB, this.currentScope);
-
-            // Visit condition expression
-            this.env.enclBB = onFailBB;
-            failNode.exprStmt.accept(this);
-            if (this.env.enclBB.terminator == null) {
-                this.env.enclBB.terminator = new BIRTerminator.GOTO(null, this.env.enclOnFailEndBB,
-                        this.currentScope);
-            }
-
-            // Statements after fail expression are unreachable, hence ignored
-            BIRBasicBlock ignoreBlock = new BIRBasicBlock(this.env.nextBBId(names));
-            addToTrapStack(ignoreBlock);
-            ignoreBlock.terminator = new BIRTerminator.GOTO(null, this.env.enclOnFailEndBB, this.currentScope);
-            this.env.enclBasicBlocks.add(ignoreBlock);
-            this.env.enclBB = ignoreBlock;
-
-            this.env.onFailStartBlockByFailNode.put(failNode, onFailBB);
-            return;
-        }
+        // Insert a GOTO instruction as the terminal instruction into current basic block.
         this.env.enclBB.terminator = new BIRTerminator.GOTO(null, onFailBB, this.currentScope);
+
+        // Visit condition expression
         this.env.enclBB = onFailBB;
+        failNode.exprStmt.accept(this);
+        if (this.env.enclBB.terminator == null) {
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(null, this.env.enclOnFailEndBB,
+                    this.currentScope);
+        }
+
+        // Statements after fail expression are unreachable, hence ignored
+        BIRBasicBlock ignoreBlock = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(ignoreBlock);
+        ignoreBlock.terminator = new BIRTerminator.GOTO(null, this.env.enclOnFailEndBB, this.currentScope);
+        this.env.enclBasicBlocks.add(ignoreBlock);
+        this.env.enclBB = ignoreBlock;
     }
 
 
     @Override
     public void visit(BLangSimpleVariableDef astVarDefStmt) {
-        BIRVariableDcl birVarDcl;
-        BVarSymbol varSymbol = astVarDefStmt.var.symbol;
-        boolean isExistingVarDef = true;
-        if (varSymbol.origin == SymbolOrigin.VIRTUAL) {
-            birVarDcl = this.env.syntheticErrorVarDclMap.get(varSymbol);
-            if (birVarDcl == null) {
-                birVarDcl = new BIRVariableDcl(astVarDefStmt.pos, varSymbol.type,
-                        this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.SYNTHETIC,
-                        astVarDefStmt.var.name.value);
-                this.env.syntheticErrorVarDclMap.put(varSymbol, birVarDcl);
-                isExistingVarDef = false;
-            }
+        VarKind kind;
+        if (astVarDefStmt.var.symbol.origin == SymbolOrigin.VIRTUAL) {
+            kind = VarKind.SYNTHETIC;
         } else {
-            birVarDcl = new BIRVariableDcl(astVarDefStmt.pos, varSymbol.type, this.env.nextLocalVarId(names),
-                    VarScope.FUNCTION, VarKind.LOCAL, astVarDefStmt.var.name.value);
-            isExistingVarDef = false;
+            kind = VarKind.LOCAL;
         }
-        if (!isExistingVarDef) {
-            birVarDcl.startBB = this.env.enclBB;
-            this.env.varDclsByBlock.get(this.currentBlock).add(birVarDcl);
-            this.env.enclFunc.localVars.add(birVarDcl);
-            // We maintain a mapping from variable symbol to the bir_variable declaration.
-            // This is required to pull the correct bir_variable declaration for variable references.
-            this.env.symbolVarMap.put(varSymbol, birVarDcl);
+        BIRVariableDcl birVarDcl = new BIRVariableDcl(astVarDefStmt.pos, astVarDefStmt.var.symbol.type,
+                this.env.nextLocalVarId(names), VarScope.FUNCTION, kind, astVarDefStmt.var.name.value);
+        birVarDcl.startBB = this.env.enclBB;
+        this.env.varDclsByBlock.get(this.currentBlock).add(birVarDcl);
+        this.env.enclFunc.localVars.add(birVarDcl);
+        // We maintain a mapping from variable symbol to the bir_variable declaration.
+        // This is required to pull the correct bir_variable declaration for variable references.
+        this.env.symbolVarMap.put(astVarDefStmt.var.symbol, birVarDcl);
 
-            BirScope newScope = new BirScope(this.currentScope.id + 1, this.currentScope);
-            birVarDcl.insScope = newScope;
-            this.currentScope = newScope;
-        }
+        BirScope newScope = new BirScope(this.currentScope.id + 1, this.currentScope);
+        birVarDcl.insScope = newScope;
+        this.currentScope = newScope;
 
         BLangSimpleVariable simpleVariable = astVarDefStmt.var;
         BLangType typeNode = simpleVariable.typeNode;
@@ -1487,7 +1463,6 @@ public class BIRGen extends BLangNodeVisitor {
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
         List<BLangExpression> restArgs = invocationExpr.restArgs;
         List<BIROperand> args = new ArrayList<>(requiredArgs.size() + restArgs.size());
-        boolean transactional = Symbols.isFlagOn(invocationExpr.symbol.flags, Flags.TRANSACTIONAL);
 
         for (BLangExpression requiredArg : requiredArgs) {
             if (requiredArg.getKind() != NodeKind.IGNORE_EXPR) {
@@ -1530,7 +1505,7 @@ public class BIRGen extends BLangNodeVisitor {
         if (invocationExpr.functionPointerInvocation) {
             boolean workerDerivative = Symbols.isFlagOn(invocationExpr.symbol.flags, Flags.WORKER);
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
-                    fp, args, lhsOp, invocationExpr.async, transactional, thenBB, this.currentScope, workerDerivative);
+                    fp, args, lhsOp, invocationExpr.async, thenBB, this.currentScope, workerDerivative);
         } else if (invocationExpr.async) {
             BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
             List<BIRAnnotationAttachment> calleeAnnots = getBIRAnnotAttachments(bInvokableSymbol.getAnnotations());
@@ -1595,7 +1570,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
         LineRange lineRange = this.env.enclFunc.pos.lineRange();
         LinePosition endLine = lineRange.endLine();
-        return new BLangDiagnosticLocation(lineRange.filePath(), endLine.line(), endLine.line(), endLine.offset(),
+        return new BLangDiagnosticLocation(lineRange.fileName(), endLine.line(), endLine.line(), endLine.offset(),
                 endLine.offset(), 0, 0);
     }
 
@@ -2365,7 +2340,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
         setScopeAndEmit(new BIRNonTerminator.NewTypeDesc(accessExpr.pos, toVarRef, accessExpr.resolvedType,
-                                              Collections.emptyList()));
+                                                         Collections.emptyList()));
         this.env.targetOperand = toVarRef;
     }
 
@@ -2429,7 +2404,7 @@ public class BIRGen extends BLangNodeVisitor {
                 return;
             }
             tempVarDcl = new BIRGlobalVariableDcl(symTable.typeDesc, this.env.nextTypedescId(names), VarScope.GLOBAL,
-                                                  VarKind.GLOBAL, 0, typeSymbol.pkgID, SymbolOrigin.VIRTUAL);
+                    VarKind.GLOBAL, 0, typeSymbol.pkgID, SymbolOrigin.VIRTUAL);
             this.env.enclPkg.globalVars.add((BIRGlobalVariableDcl) tempVarDcl);
             toVarRef = new BIROperand(tempVarDcl);
             globalTypedescMap.put(type, toVarRef);
@@ -2437,7 +2412,7 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclPkg.typedescs.add(newTypeDesc);
         } else {
             tempVarDcl = new BIRVariableDcl(symTable.typeDesc, this.env.nextLocalVarId(names), VarScope.FUNCTION,
-                                            VarKind.TEMP);
+                    VarKind.TEMP);
             this.env.enclFunc.localVars.add(tempVarDcl);
             toVarRef = new BIROperand(tempVarDcl);
             newTypeDesc = new BIRNonTerminator.NewTypeDesc(position, toVarRef, type, varDcls);
@@ -3070,7 +3045,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // global-level, object-level, record-level namespace declarations will not have
         // any interpolated content. hence the namespace URI is statically known.
-        int ownerTag = nsSymbol.owner.tag;
+        long ownerTag = nsSymbol.owner.tag;
         if ((ownerTag & SymTag.PACKAGE) == SymTag.PACKAGE ||
                 (ownerTag & SymTag.OBJECT) == SymTag.OBJECT ||
                 (ownerTag & SymTag.RECORD) == SymTag.RECORD) {

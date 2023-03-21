@@ -10,7 +10,7 @@
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "`int` GLOBAL_VAR  \n  \n---  \n  \n[View API Docs](https://lib.ballerina.io/ballerina\\/module1\\/0.1.0\\/variables#GLOBAL_VAR)"
+        "value": "`int` GLOBAL_VAR  \n  \n---  \n  \n[View API Docs](https://lib.ballerina.io/ballerina/module1/0.1.0#GLOBAL_VAR)"
       }
     },
     "id": {
