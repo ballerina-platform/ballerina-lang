@@ -78,6 +78,22 @@ public client class Client {
         'class: "org.ballerinalang.langserver.stdlib.ClientAction",
         name: "get"
     } external;
+    
+    # Sample resource function with rest path praram with multiple target types with java interoperability
+    #
+    # + path - Request path
+    # + message - An HTTP outbound request or any allowed payload
+    # + headers - The entity headers
+    # + mediaType - The MIME type header of the request entity
+    # + targetType - HTTP response or `anydata`, which is expected to be returned after data binding
+    # + params - The query parameters
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    # establish the communication with the upstream server or a data binding failure
+    isolated resource function post [string ...path](RequestMessage message, map<string|string[]>? headers = (), string?
+            mediaType = (), TargetType targetType = <>, *QueryParams params) returns targetType|ClientError = @java:Method {
+        'class: "org.ballerinalang.langserver.stdlib.ClientAction",
+        name: "postResource"
+    } external;
 }
 
 # Represents a response.
@@ -103,3 +119,22 @@ public type ClientError distinct error<map<anydata>>;
 
 # The super type of all the types.
 public type TargetType2 typedesc<any>;
+
+# Defines the possible simple query parameter types.
+public type SimpleQueryParamType boolean|int|float|decimal|string;
+
+# Defines the query parameter type supported with client resource methods.
+public type QueryParamType SimpleQueryParamType[]|SimpleQueryParamType;
+
+# Defines the record type of query parameters supported with client resource methods.
+# + headers - headers which cannot be used as a query field
+# + targetType - targetType which cannot be used as a query field
+# + message - message which cannot be used as a query field
+# + mediaType - mediaType which cannot be used as a query field
+public type QueryParams record {|
+    never headers?;
+    never targetType?;
+    never message?;
+    never mediaType?;
+    QueryParamType...;
+|};
