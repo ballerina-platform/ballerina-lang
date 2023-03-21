@@ -29,8 +29,8 @@ public class Listener extends BClass {
     public List<Function> lifeCycleMethods;
 
     public Listener(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
-            List<Function> methods, boolean isReadOnly, boolean isIsolated) {
-        super(name, description, isDeprecated, fields, methods, isReadOnly, isIsolated);
+            List<Function> methods, boolean isReadOnly, boolean isIsolated, boolean isService) {
+        super(name, description, isDeprecated, fields, methods, isReadOnly, isIsolated, isService);
         this.lifeCycleMethods = getLCMethods(methods);
         this.otherMethods = getOtherMethods(methods);
     }

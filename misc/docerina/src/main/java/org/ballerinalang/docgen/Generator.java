@@ -438,6 +438,7 @@ public class Generator {
         boolean isDeprecated = isDeprecated(classDefinitionNode.metadata());
         boolean isReadOnly = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.READONLY_KEYWORD);
         boolean isIsolated = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.ISOLATED_KEYWORD);
+        boolean isService = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD);
 
         List<DefaultableVariable> fields = getDefaultableVariableList(classDefinitionNode.members(),
                 classDefinitionNode.metadata(), semanticModel);
@@ -467,12 +468,12 @@ public class Generator {
         functions.addAll(classFunctions);
 
         if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
-            return new Client(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
+            return new Client(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         } else if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.LISTENER_KEYWORD)
                 || name.equals("Listener")) {
-            return new Listener(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
+            return new Listener(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         } else {
-            return new BClass(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
+            return new BClass(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         }
     }
 
