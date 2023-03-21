@@ -110,21 +110,27 @@ public class ResourcePathCompletionUtil {
                 isStringPathParamsAvailable = true;
                 signatureWithNamedSegments.append("/").append(resourceAccessPart.namedPathSignature);
                 insertTextWithNamedSegments.append("/").append(resourceAccessPart.namedPathInsertText);
+                placeHolderIndex +=1;
                 continue;
             }
             signatureWithNamedSegments.append("/").append(resourceAccessPart.computedPathSignature);
             insertTextWithNamedSegments.append("/").append(resourceAccessPart.computedPathInsertText);
+            if (pathSegment.pathSegmentKind() != PathSegment.Kind.NAMED_SEGMENT) {
+                placeHolderIndex += 1;
+            }
         }
 
         List<Pair<String, String>> resourceAccessInfo = new ArrayList<>();
         addResourceMethodCallSignature(resourceMethodSymbol, ctx, escapedFunctionName,
                 signatureWithComputedResourceSegments, insertTextWithComputedResourceSegments, placeHolderIndex);
+        insertTextWithComputedResourceSegments.append(";");
         resourceAccessInfo.add(new ImmutablePair<>(insertTextWithComputedResourceSegments.toString(),
                 signatureWithComputedResourceSegments.toString()));
  
         if (isStringPathParamsAvailable) {
             addResourceMethodCallSignature(resourceMethodSymbol, ctx, escapedFunctionName,
                     signatureWithNamedSegments, insertTextWithNamedSegments, placeHolderIndex);
+            insertTextWithNamedSegments.append(";");
             resourceAccessInfo.add(new ImmutablePair<>(insertTextWithNamedSegments.toString(),
                     signatureWithNamedSegments.toString()));
         }

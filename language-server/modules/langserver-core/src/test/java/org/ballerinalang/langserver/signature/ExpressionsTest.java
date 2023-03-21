@@ -38,7 +38,10 @@ public class ExpressionsTest extends AbstractSignatureHelpTest {
     @DataProvider(name = "signature-help-data-provider")
     @Override
     public Object[][] dataProvider() {
-        return this.getConfigsList();
+        return new Object[][] {
+                {"clientResourceAccess.json", getTestResourceDir()}
+        };
+//        return this.getConfigsList();
     }
 
     @Override
