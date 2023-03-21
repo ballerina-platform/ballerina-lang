@@ -89,11 +89,13 @@ public class LValueTest {
                 79, 5);
         validateError(semanticsNegativeResult, i++, "incompatible types: expected 'int', found 'string'", 85, 12);
         validateError(semanticsNegativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 88, 12);
-        // https://github.com/ballerina-platform/ballerina-lang/issues/35442
-        // validateError(semanticsNegativeResult, i++, "incompatible types: expected 'int:Signed8', found 'int'",
-        //              98, 12);
-        validateError(semanticsNegativeResult, i++, "incompatible types: expected 'int:Signed8?', found 'int'",
+        validateError(semanticsNegativeResult, i++, "incompatible types: expected 'int:Signed8', found 'int'",
                       98, 12);
+        validateError(semanticsNegativeResult, i++, "incompatible types: expected 'int', found '()'", 107, 14);
+        validateError(semanticsNegativeResult, i++, "cannot update 'readonly' value of type 'record {| |} & " +
+                "readonly'", 110, 5);
+        // https://github.com/ballerina-platform/ballerina-lang/issues/39933
+        validateError(semanticsNegativeResult, i++, "incompatible types: expected 'never', found '()'", 113, 14);
         Assert.assertEquals(semanticsNegativeResult.getErrorCount(), i);
     }
 
@@ -238,6 +240,11 @@ public class LValueTest {
     @Test
     public void testRecordMemberAccessLvExprWithStringCharKeyExpr() {
         BRunUtil.invoke(result, "testRecordMemberAccessLvExprWithStringCharKeyExpr");
+    }
+
+    @Test
+    public void testNilAssignmentToRecordFieldWithMemberAccessLvExprWithVariableRefKey() {
+        BRunUtil.invoke(result, "testNilAssignmentToRecordFieldWithMemberAccessLvExprWithVariableRefKey");
     }
 
     @AfterClass
