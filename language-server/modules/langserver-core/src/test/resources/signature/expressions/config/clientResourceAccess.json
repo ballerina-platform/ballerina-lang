@@ -1,0 +1,23 @@
+{
+  "position": {
+    "line": 36,
+    "character": 32
+  },
+  "source": "expressions/clientSource.bal",
+  "expected": {
+    "result": {
+      "signatures": [
+        {
+          "label": "testFunctionCall()",
+          "parameters": []
+        }
+      ],
+      "activeSignature": 0,
+      "activeParameter": 0
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}
