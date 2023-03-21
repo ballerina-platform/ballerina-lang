@@ -28,16 +28,23 @@ import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.internal.PackageDiagnostic;
+import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.central.client.CentralClientConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 
 /**
  * Task for compiling a package.
@@ -86,6 +93,7 @@ public class CompileTask implements Task {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
         try {
+            printWarningForHigherDistribution(project);
             List<Diagnostic> diagnostics = new ArrayList<>();
             long start = 0;
 
@@ -192,7 +200,10 @@ public class CompileTask implements Task {
                 if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
                     hasErrors = true;
                 }
-                err.println(d);
+                if (d.diagnosticInfo().code() == null || !d.diagnosticInfo().code().equals(
+                        ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId())) {
+                    err.println(d);
+                }
             }
             if (hasErrors) {
                 throw createLauncherException("compilation contains errors");
@@ -205,5 +216,40 @@ public class CompileTask implements Task {
 
     private boolean isPackCmdForATemplatePkg(Project project) {
         return compileForBalPack && project.currentPackage().manifest().template();
+    }
+
+    private void printWarningForHigherDistribution(Project project) {
+        SemanticVersion prevDistributionVersion = project.currentPackage().dependencyManifest().distributionVersion();
+        SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+        if (!project.buildOptions().sticky() && (null == prevDistributionVersion
+                || ProjectUtils.isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion))) {
+
+            if (project.currentPackage().dependencyManifest().dependenciesTomlVersion() != null) {
+                String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
+                if (currentDistributionVersion.patch() != 0) {
+                    currentVersionForDiagnostic += DOT + currentDistributionVersion.patch();
+                }
+                String prevVersionForDiagnostic;
+                if (null != prevDistributionVersion) {
+                    prevVersionForDiagnostic = String.valueOf(prevDistributionVersion.minor());
+                    if (prevDistributionVersion.patch() != 0) {
+                        prevVersionForDiagnostic += DOT + prevDistributionVersion.patch();
+                    }
+                } else {
+                    prevVersionForDiagnostic = "4 or an older Update";
+                }
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                        ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId(),
+                        "Detected an attempt to build this package using Swan Lake Update "
+                                + currentVersionForDiagnostic +
+                                ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
+                                ". To ensure compatibility, the Dependencies.toml file will be updated with the " +
+                                "latest versions that are compatible with Update " + currentVersionForDiagnostic + ".",
+                        DiagnosticSeverity.WARNING);
+                PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
+                        project.currentPackage().descriptor().name().toString());
+                err.println(diagnostic);
+            }
+        }
     }
 }

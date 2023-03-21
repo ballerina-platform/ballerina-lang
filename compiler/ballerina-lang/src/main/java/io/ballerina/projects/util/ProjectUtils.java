@@ -1097,6 +1097,12 @@ public class ProjectUtils {
         return allMatchingPaths;
     }
 
+    public static boolean isNewUpdateDistribution(SemanticVersion prevDistributionVersion,
+                                            SemanticVersion currentDistributionVersion) {
+        return currentDistributionVersion.major() == prevDistributionVersion.major()
+                && currentDistributionVersion.minor() > prevDistributionVersion.minor();
+    }
+
     private static void removeNegatedIncludePaths(String pattern, List<Path> allMatchingPaths) {
         String combinedPattern = getGlobFormatPattern(pattern);
         Stream<Path> pathStream = allMatchingPaths.stream();
