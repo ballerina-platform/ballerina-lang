@@ -9,14 +9,16 @@ DESCRIPTION
 
        Initializing the package for persistence is the first step toward achieving
        data persistence in a Ballerina package. This step creates the required
-       directories and configuration files. For example:
+       directories and configuration files.
+       For example:
 
            $ bal persist init
 
        Define the application's data model as the next step. Use the generated
        definition file in the "persist" directory to define the data model
        with the domain-specific entities. Use the standard Ballerina record type
-       definitions to represent entities and their relationships. For example:
+       definitions to represent entities and their relationships.
+       For example:
 
            type Department record {|
                readonly string deptNo;
