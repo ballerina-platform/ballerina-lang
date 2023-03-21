@@ -1153,11 +1153,7 @@ public class BIRPackageSymbolEnter {
 
         private BInvokableType setTSymbolForInvokableType(BInvokableType bInvokableType,
                                                           BType retType) throws IOException {
-            BInvokableTypeSymbol tSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, bInvokableType.flags,
-                                                                             env.pkgSymbol.pkgID, null,
-                                                                             env.pkgSymbol.owner, symTable.builtinPos,
-                                                                             COMPILED_SOURCE);
-            bInvokableType.tsymbol = tSymbol;
+            BInvokableTypeSymbol tSymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
             boolean hasTSymbol = inputStream.readBoolean();
             if (!hasTSymbol) {
                 return bInvokableType;
