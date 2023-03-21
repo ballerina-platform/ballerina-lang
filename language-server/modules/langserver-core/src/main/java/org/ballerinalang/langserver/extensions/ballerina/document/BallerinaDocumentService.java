@@ -563,7 +563,6 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                 reply.setSyntaxTree(subSyntaxTreeJSON);
                 reply.setParseSuccess(reply.getSyntaxTree() != null);
                 reply.setDefFilePath(fileUri);
-                return reply;
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/syntaxTreeNodeByPosition' failed!";
                 this.clientLogger.logError(DocumentContext.DC_NODE_DEFINITION_BY_POSITION,
