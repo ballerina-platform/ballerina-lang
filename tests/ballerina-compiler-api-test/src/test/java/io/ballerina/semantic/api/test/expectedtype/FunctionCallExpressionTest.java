@@ -85,6 +85,7 @@ public class FunctionCallExpressionTest {
                 {123, 20, TypeDescKind.INT},
                 {124, 22, TypeDescKind.INT},
                 {136, 32, TypeDescKind.STRING},
+                {144, 39, TypeDescKind.FUNCTION}
         };
     }
 }
