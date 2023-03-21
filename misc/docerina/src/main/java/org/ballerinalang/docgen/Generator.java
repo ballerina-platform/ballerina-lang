@@ -174,8 +174,15 @@ public class Generator {
             module.records.add(getRecordTypeModel((RecordTypeDescriptorNode) typeDefinition.typeDescriptor(),
                     typeName, metaDataNode, semanticModel));
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
-            module.objectTypes.add(getObjectTypeModel((ObjectTypeDescriptorNode) typeDefinition.typeDescriptor(),
-                    typeName, metaDataNode, semanticModel));
+            ObjectTypeDescriptorNode objectTypeDescriptorNode =
+                    (ObjectTypeDescriptorNode) typeDefinition.typeDescriptor();
+            if (containsToken(objectTypeDescriptorNode.objectTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD)) {
+                module.serviceTypes.add(getObjectTypeModel((ObjectTypeDescriptorNode) typeDefinition.typeDescriptor(),
+                        typeName, metaDataNode, semanticModel));
+            } else {
+                module.objectTypes.add(getObjectTypeModel((ObjectTypeDescriptorNode) typeDefinition.typeDescriptor(),
+                        typeName, metaDataNode, semanticModel));
+            }
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
             Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
             if (unionType.memberTypes.stream().allMatch(type ->
