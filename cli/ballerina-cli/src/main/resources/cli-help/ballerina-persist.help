@@ -31,8 +31,9 @@ DESCRIPTION
                Department department;
            |};
 
-       Then, generate the client API based on the data model. Use the generated
-       API to query and manipulate the persistent data in the application.
+       Then, generate the client API and SQL script based on the data model. Use the generated
+       API to query and manipulate the persistent data in the application and use the generated
+       SQL script to create the database tables.
        For example:
 
        $ bal persist generate
@@ -45,6 +46,6 @@ BALLERINA COMMANDS
        The below is a list of available subcommands:
 
        init            Initialize the package for persistence
-       generate        Generate the client API based on the data model defined in the "persist" directory
+       generate        Generate the client API and SQL script based on the data model defined in the "persist" directory
 
 Use 'bal persist <command> --help' for more information on a specific command.
