@@ -21,91 +21,95 @@ distinct class JIOException {
     # The function to retrieve the string representation of the Ballerina class mapping the `java.io.IOException` Java class.
     #
     # + return - The `string` form of the Java object instance.
-    function toString() returns string {
-        return java:toString(self.jObj) ?: "";
+    function toString() returns string? {
+        return java:toString(self.jObj);
     }
     # The function that maps to the `addSuppressed` method of `java.io.IOException`.
     #
-    # + arg0 - The `Throwable` value required to map with the Java method parameter.
-    function addSuppressed(Throwable arg0) {
-        java_io_IOException_addSuppressed(self.jObj, arg0.jObj);
+    # + arg0 - The `Throwable?` value required to map with the Java method parameter.
+    function addSuppressed(Throwable? arg0) {
+        java_io_IOException_addSuppressed(self.jObj, arg0 is () ? java:createNull() : arg0.jObj);
     }
 
     # The function that maps to the `equals` method of `java.io.IOException`.
     #
-    # + arg0 - The `Object` value required to map with the Java method parameter.
+    # + arg0 - The `Object?` value required to map with the Java method parameter.
     # + return - The `boolean` value returning from the Java mapping.
-    function 'equals(Object arg0) returns boolean {
-        return java_io_IOException_equals(self.jObj, arg0.jObj);
+    function 'equals(Object? arg0) returns boolean {
+        return java_io_IOException_equals(self.jObj, arg0 is () ? java:createNull() : arg0.jObj);
     }
 
     # The function that maps to the `fillInStackTrace` method of `java.io.IOException`.
     #
-    # + return - The `Throwable` value returning from the Java mapping.
-    function fillInStackTrace() returns Throwable {
+    # + return - The `Throwable?` value returning from the Java mapping.
+    function fillInStackTrace() returns Throwable? {
         handle externalObj = java_io_IOException_fillInStackTrace(self.jObj);
         Throwable newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `getCause` method of `java.io.IOException`.
     #
-    # + return - The `Throwable` value returning from the Java mapping.
-    function getCause() returns Throwable {
+    # + return - The `Throwable?` value returning from the Java mapping.
+    function getCause() returns Throwable? {
         handle externalObj = java_io_IOException_getCause(self.jObj);
         Throwable newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `getClass` method of `java.io.IOException`.
     #
-    # + return - The `Class` value returning from the Java mapping.
-    function getClass() returns Class {
+    # + return - The `Class?` value returning from the Java mapping.
+    function getClass() returns Class? {
         handle externalObj = java_io_IOException_getClass(self.jObj);
         Class newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `getLocalizedMessage` method of `java.io.IOException`.
     #
-    # + return - The `string` value returning from the Java mapping.
-    function getLocalizedMessage() returns string {
-        return java:toString(java_io_IOException_getLocalizedMessage(self.jObj)) ?: "";
+    # + return - The `string?` value returning from the Java mapping.
+    function getLocalizedMessage() returns string? {
+        return java:toString(java_io_IOException_getLocalizedMessage(self.jObj));
     }
 
     # The function that maps to the `getMessage` method of `java.io.IOException`.
     #
-    # + return - The `string` value returning from the Java mapping.
-    function getMessage() returns string {
-        return java:toString(java_io_IOException_getMessage(self.jObj)) ?: "";
+    # + return - The `string?` value returning from the Java mapping.
+    function getMessage() returns string? {
+        return java:toString(java_io_IOException_getMessage(self.jObj));
     }
 
     # The function that maps to the `getStackTrace` method of `java.io.IOException`.
     #
-    # + return - The `StackTraceElement[]` value returning from the Java mapping.
-    function getStackTrace() returns StackTraceElement[]|error {
+    # + return - The `StackTraceElement?[]?` value returning from the Java mapping.
+    function getStackTrace() returns StackTraceElement?[]?|error {
         handle externalObj = java_io_IOException_getStackTrace(self.jObj);
-        StackTraceElement[] newObj = [];
+        StackTraceElement?[]? newObj = [];
         handle[] anyObj = <handle[]>check jarrays:fromHandle(externalObj, "handle");
         int count = anyObj.length();
         foreach int i in 0 ... count - 1 {
-            StackTraceElement element = new (anyObj[i]);
-            newObj[i] = element;
+            StackTraceElement? element = new (anyObj[i]);
+            if (newObj is StackTraceElement?[]) {
+                newObj[i] = element;
+            }
         }
         return newObj;
     }
 
     # The function that maps to the `getSuppressed` method of `java.io.IOException`.
     #
-    # + return - The `Throwable[]` value returning from the Java mapping.
-    function getSuppressed() returns Throwable[]|error {
+    # + return - The `Throwable?[]?` value returning from the Java mapping.
+    function getSuppressed() returns Throwable?[]?|error {
         handle externalObj = java_io_IOException_getSuppressed(self.jObj);
-        Throwable[] newObj = [];
+        Throwable?[]? newObj = [];
         handle[] anyObj = <handle[]>check jarrays:fromHandle(externalObj, "handle");
         int count = anyObj.length();
         foreach int i in 0 ... count - 1 {
-            Throwable element = new (anyObj[i]);
-            newObj[i] = element;
+            Throwable? element = new (anyObj[i]);
+            if (newObj is Throwable?[]) {
+                newObj[i] = element;
+            }
         }
         return newObj;
     }
@@ -119,12 +123,12 @@ distinct class JIOException {
 
     # The function that maps to the `initCause` method of `java.io.IOException`.
     #
-    # + arg0 - The `Throwable` value required to map with the Java method parameter.
-    # + return - The `Throwable` value returning from the Java mapping.
-    function initCause(Throwable arg0) returns Throwable {
-        handle externalObj = java_io_IOException_initCause(self.jObj, arg0.jObj);
+    # + arg0 - The `Throwable?` value required to map with the Java method parameter.
+    # + return - The `Throwable?` value returning from the Java mapping.
+    function initCause(Throwable? arg0) returns Throwable? {
+        handle externalObj = java_io_IOException_initCause(self.jObj, arg0 is () ? java:createNull() : arg0.jObj);
         Throwable newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `notify` method of `java.io.IOException`.
@@ -144,24 +148,24 @@ distinct class JIOException {
 
     # The function that maps to the `printStackTrace` method of `java.io.IOException`.
     #
-    # + arg0 - The `PrintStream` value required to map with the Java method parameter.
-    function printStackTrace2(PrintStream arg0) {
-        java_io_IOException_printStackTrace2(self.jObj, arg0.jObj);
+    # + arg0 - The `PrintStream?` value required to map with the Java method parameter.
+    function printStackTrace2(PrintStream? arg0) {
+        java_io_IOException_printStackTrace2(self.jObj, arg0 is () ? java:createNull() : arg0.jObj);
     }
 
     # The function that maps to the `printStackTrace` method of `java.io.IOException`.
     #
-    # + arg0 - The `PrintWriter` value required to map with the Java method parameter.
-    function printStackTrace3(PrintWriter arg0) {
-        java_io_IOException_printStackTrace3(self.jObj, arg0.jObj);
+    # + arg0 - The `PrintWriter?` value required to map with the Java method parameter.
+    function printStackTrace3(PrintWriter? arg0) {
+        java_io_IOException_printStackTrace3(self.jObj, arg0 is () ? java:createNull() : arg0.jObj);
     }
 
     # The function that maps to the `setStackTrace` method of `java.io.IOException`.
     #
-    # + arg0 - The `StackTraceElement[]` value required to map with the Java method parameter.
+    # + arg0 - The `StackTraceElement?[]?` value required to map with the Java method parameter.
     # + return - The `error?` value returning from the Java mapping.
-    function setStackTrace(StackTraceElement[] arg0) returns error? {
-        java_io_IOException_setStackTrace(self.jObj, check jarrays:toHandle(arg0, "java.lang.StackTraceElement"));
+    function setStackTrace(StackTraceElement?[]? arg0) returns error? {
+        java_io_IOException_setStackTrace(self.jObj, check jarrays:toHandle(arg0 ?: [], "java.lang.StackTraceElement"));
     }
 
     # The function that maps to the `wait` method of `java.io.IOException`.
@@ -213,31 +217,31 @@ function newJIOException1() returns JIOException {
 
 # The constructor function to generate an object of `java.io.IOException`.
 #
-# + arg0 - The `string` value required to map with the Java constructor parameter.
+# + arg0 - The `string?` value required to map with the Java constructor parameter.
 # + return - The new `JIOException` class generated.
-function newJIOException2(string arg0) returns JIOException {
-    handle externalObj = java_io_IOException_newJIOException2(java:fromString(arg0));
+function newJIOException2(string? arg0) returns JIOException {
+    handle externalObj = java_io_IOException_newJIOException2(arg0 is () ? java:createNull() : java:fromString(arg0));
     JIOException newObj = new (externalObj);
     return newObj;
 }
 
 # The constructor function to generate an object of `java.io.IOException`.
 #
-# + arg0 - The `string` value required to map with the Java constructor parameter.
-# + arg1 - The `Throwable` value required to map with the Java constructor parameter.
+# + arg0 - The `string?` value required to map with the Java constructor parameter.
+# + arg1 - The `Throwable?` value required to map with the Java constructor parameter.
 # + return - The new `JIOException` class generated.
-function newJIOException3(string arg0, Throwable arg1) returns JIOException {
-    handle externalObj = java_io_IOException_newJIOException3(java:fromString(arg0), arg1.jObj);
+function newJIOException3(string? arg0, Throwable? arg1) returns JIOException {
+    handle externalObj = java_io_IOException_newJIOException3(arg0 is () ? java:createNull() : java:fromString(arg0), arg1 is () ? java:createNull() : arg1.jObj);
     JIOException newObj = new (externalObj);
     return newObj;
 }
 
 # The constructor function to generate an object of `java.io.IOException`.
 #
-# + arg0 - The `Throwable` value required to map with the Java constructor parameter.
+# + arg0 - The `Throwable?` value required to map with the Java constructor parameter.
 # + return - The new `JIOException` class generated.
-function newJIOException4(Throwable arg0) returns JIOException {
-    handle externalObj = java_io_IOException_newJIOException4(arg0.jObj);
+function newJIOException4(Throwable? arg0) returns JIOException {
+    handle externalObj = java_io_IOException_newJIOException4(arg0 is () ? java:createNull() : arg0.jObj);
     JIOException newObj = new (externalObj);
     return newObj;
 }

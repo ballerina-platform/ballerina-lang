@@ -21,8 +21,8 @@ distinct class JIOException {
     # The function to retrieve the string representation of the Ballerina class mapping the `java.io.IOException` Java class.
     #
     # + return - The `string` form of the Java object instance.
-    function toString() returns string {
-        return java:toString(self.jObj) ?: "";
+    function toString() returns string? {
+        return java:toString(self.jObj);
     }
     # The function that maps to the `addSuppressed` method of `java.io.IOException`.
     #
@@ -41,71 +41,75 @@ distinct class JIOException {
 
     # The function that maps to the `fillInStackTrace` method of `java.io.IOException`.
     #
-    # + return - The `Throwable` value returning from the Java mapping.
-    function fillInStackTrace() returns Throwable {
+    # + return - The `Throwable?` value returning from the Java mapping.
+    function fillInStackTrace() returns Throwable? {
         handle externalObj = java_io_IOException_fillInStackTrace(self.jObj);
         Throwable newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `getCause` method of `java.io.IOException`.
     #
-    # + return - The `Throwable` value returning from the Java mapping.
-    function getCause() returns Throwable {
+    # + return - The `Throwable?` value returning from the Java mapping.
+    function getCause() returns Throwable? {
         handle externalObj = java_io_IOException_getCause(self.jObj);
         Throwable newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `getClass` method of `java.io.IOException`.
     #
-    # + return - The `Class` value returning from the Java mapping.
-    function getClass() returns Class {
+    # + return - The `Class?` value returning from the Java mapping.
+    function getClass() returns Class? {
         handle externalObj = java_io_IOException_getClass(self.jObj);
         Class newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `getLocalizedMessage` method of `java.io.IOException`.
     #
-    # + return - The `string` value returning from the Java mapping.
-    function getLocalizedMessage() returns string {
-        return java:toString(java_io_IOException_getLocalizedMessage(self.jObj)) ?: "";
+    # + return - The `string?` value returning from the Java mapping.
+    function getLocalizedMessage() returns string? {
+        return java:toString(java_io_IOException_getLocalizedMessage(self.jObj));
     }
 
     # The function that maps to the `getMessage` method of `java.io.IOException`.
     #
-    # + return - The `string` value returning from the Java mapping.
-    function getMessage() returns string {
-        return java:toString(java_io_IOException_getMessage(self.jObj)) ?: "";
+    # + return - The `string?` value returning from the Java mapping.
+    function getMessage() returns string? {
+        return java:toString(java_io_IOException_getMessage(self.jObj));
     }
 
     # The function that maps to the `getStackTrace` method of `java.io.IOException`.
     #
-    # + return - The `StackTraceElement[]` value returning from the Java mapping.
-    function getStackTrace() returns StackTraceElement[]|error {
+    # + return - The `StackTraceElement?[]?` value returning from the Java mapping.
+    function getStackTrace() returns StackTraceElement?[]?|error {
         handle externalObj = java_io_IOException_getStackTrace(self.jObj);
-        StackTraceElement[] newObj = [];
+        StackTraceElement?[]? newObj = [];
         handle[] anyObj = <handle[]>check jarrays:fromHandle(externalObj, "handle");
         int count = anyObj.length();
         foreach int i in 0 ... count - 1 {
-            StackTraceElement element = new (anyObj[i]);
-            newObj[i] = element;
+            StackTraceElement? element = new (anyObj[i]);
+            if (newObj is StackTraceElement?[]) {
+                newObj[i] = element;
+            }
         }
         return newObj;
     }
 
     # The function that maps to the `getSuppressed` method of `java.io.IOException`.
     #
-    # + return - The `Throwable[]` value returning from the Java mapping.
-    function getSuppressed() returns Throwable[]|error {
+    # + return - The `Throwable?[]?` value returning from the Java mapping.
+    function getSuppressed() returns Throwable?[]?|error {
         handle externalObj = java_io_IOException_getSuppressed(self.jObj);
-        Throwable[] newObj = [];
+        Throwable?[]? newObj = [];
         handle[] anyObj = <handle[]>check jarrays:fromHandle(externalObj, "handle");
         int count = anyObj.length();
         foreach int i in 0 ... count - 1 {
-            Throwable element = new (anyObj[i]);
-            newObj[i] = element;
+            Throwable? element = new (anyObj[i]);
+            if (newObj is Throwable?[]) {
+                newObj[i] = element;
+            }
         }
         return newObj;
     }
@@ -120,11 +124,11 @@ distinct class JIOException {
     # The function that maps to the `initCause` method of `java.io.IOException`.
     #
     # + arg0 - The `Throwable` value required to map with the Java method parameter.
-    # + return - The `Throwable` value returning from the Java mapping.
-    function initCause(Throwable arg0) returns Throwable {
+    # + return - The `Throwable?` value returning from the Java mapping.
+    function initCause(Throwable arg0) returns Throwable? {
         handle externalObj = java_io_IOException_initCause(self.jObj, arg0.jObj);
         Throwable newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `notify` method of `java.io.IOException`.

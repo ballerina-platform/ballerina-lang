@@ -45,9 +45,10 @@ public class BindgenFileGenerator {
     private SyntaxTree syntaxTree;
 
     private final BindgenEnv env;
-    private final Path jClassTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "jclass.bal");
-    private final Path jEmptyClassTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "empty_jclass.bal");
-    private final Path jErrorTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "jerror.bal");
+    private final Path classTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "class.bal");
+    private final Path emptyClassTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "empty_class.bal");
+    private final Path errorTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "error.bal");
+    private final Path toStringFunctionTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "tostring_function.bal");
     private static final CharSequence UNIX_FS = "/";
 
     public BindgenFileGenerator(BindgenEnv env) {
@@ -56,7 +57,7 @@ public class BindgenFileGenerator {
 
     public SyntaxTree generate(JError jError) throws BindgenException {
         this.currentClass = jError.getCurrentClass();
-        return generateFromTemplate(jErrorTemplatePath, jError.getShortExceptionName());
+        return generateFromTemplate(errorTemplatePath, jError.getShortExceptionName());
     }
 
     public SyntaxTree generate(JClass jClass) throws BindgenException {
@@ -65,10 +66,10 @@ public class BindgenFileGenerator {
         setClassNameAlias();
         if (!env.isDirectJavaClass()) {
             // Generate Ballerina empty class bindings for dependent Java classes.
-            return generateFromTemplate(jEmptyClassTemplatePath);
+            return generateFromTemplate(emptyClassTemplatePath);
         } else {
             // Generate Ballerina class bindings for Java classes.
-            syntaxTree = generateFromTemplate(jClassTemplatePath);
+            syntaxTree = generateFromTemplate(classTemplatePath);
             return generateSyntaxTree();
         }
     }
@@ -87,18 +88,34 @@ public class BindgenFileGenerator {
     }
 
     private SyntaxTree generateFromTemplate(Path filePath, String alias) throws BindgenException {
+        String toStringFunction = readTemplateFile(toStringFunctionTemplatePath);
+        toStringFunction = replacePlaceholders(toStringFunction, alias, "");
+        toStringFunction = applyOptionalTypeModifications(toStringFunction);
+
         String content = readTemplateFile(filePath);
-        return replacePlaceholders(content, alias);
+        content = replacePlaceholders(content, alias, toStringFunction);
+        return SyntaxTree.from(TextDocuments.from(content));
     }
 
-    private SyntaxTree replacePlaceholders(String content, String alias) {
-        String modifiedContent = content.replace("FULL_CLASS_NAME", currentClass.getName())
+    private String replacePlaceholders(String content, String alias, String toStringFunction) {
+        return content
+                .replace("FULL_CLASS_NAME", currentClass.getName())
                 .replace("CLASS_TYPE", currentClass.isInterface() ? "interface" : "class")
                 .replace("INS_CLASS_NAME", currentClass.getName().replace("$", "\\$"))
                 .replace("SIMPLE_CLASS_NAME_CAPS", alias.toUpperCase(Locale.getDefault()))
                 .replace("SIMPLE_CLASS_NAME", alias)
-                .replace("ACCESS_MODIFIER", env.hasPublicFlag() ? "public " : "");
-        return SyntaxTree.from(TextDocuments.from(modifiedContent));
+                .replace("ACCESS_MODIFIER", env.hasPublicFlag() ? "public " : "")
+                .replace("TO_STRING_FUNCTION", toStringFunction);
+    }
+
+    private String applyOptionalTypeModifications(String toStringFunction) {
+        if (env.isOptionalTypes() || env.isOptionalReturnTypes()) {
+            toStringFunction = toStringFunction
+                    .replace("returns string", "returns string?")
+                    .replace("java:toString(self.jObj) ?: \"\"", "java:toString(self.jObj)");
+        }
+
+        return toStringFunction;
     }
 
     /*

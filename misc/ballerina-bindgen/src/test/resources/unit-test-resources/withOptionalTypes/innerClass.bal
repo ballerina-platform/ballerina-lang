@@ -20,24 +20,24 @@ distinct class Subset {
     # The function to retrieve the string representation of the Ballerina class mapping the `java.lang.Character$Subset` Java class.
     #
     # + return - The `string` form of the Java object instance.
-    function toString() returns string {
-        return java:toString(self.jObj) ?: "";
+    function toString() returns string? {
+        return java:toString(self.jObj);
     }
     # The function that maps to the `equals` method of `java.lang.Character$Subset`.
     #
-    # + arg0 - The `Object` value required to map with the Java method parameter.
+    # + arg0 - The `Object?` value required to map with the Java method parameter.
     # + return - The `boolean` value returning from the Java mapping.
-    function 'equals(Object arg0) returns boolean {
-        return java_lang_Character_Subset_equals(self.jObj, arg0.jObj);
+    function 'equals(Object? arg0) returns boolean {
+        return java_lang_Character_Subset_equals(self.jObj, arg0 is () ? java:createNull() : arg0.jObj);
     }
 
     # The function that maps to the `getClass` method of `java.lang.Character$Subset`.
     #
-    # + return - The `Class` value returning from the Java mapping.
-    function getClass() returns Class {
+    # + return - The `Class?` value returning from the Java mapping.
+    function getClass() returns Class? {
         handle externalObj = java_lang_Character_Subset_getClass(self.jObj);
         Class newObj = new (externalObj);
-        return newObj;
+        return java:isNull(newObj.jObj) ? () : newObj;
     }
 
     # The function that maps to the `hashCode` method of `java.lang.Character$Subset`.

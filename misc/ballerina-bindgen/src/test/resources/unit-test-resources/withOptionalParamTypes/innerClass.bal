@@ -25,10 +25,10 @@ distinct class Subset {
     }
     # The function that maps to the `equals` method of `java.lang.Character$Subset`.
     #
-    # + arg0 - The `Object` value required to map with the Java method parameter.
+    # + arg0 - The `Object?` value required to map with the Java method parameter.
     # + return - The `boolean` value returning from the Java mapping.
-    function 'equals(Object arg0) returns boolean {
-        return java_lang_Character_Subset_equals(self.jObj, arg0.jObj);
+    function 'equals(Object? arg0) returns boolean {
+        return java_lang_Character_Subset_equals(self.jObj, arg0 is () ? java:createNull() : arg0.jObj);
     }
 
     # The function that maps to the `getClass` method of `java.lang.Character$Subset`.
