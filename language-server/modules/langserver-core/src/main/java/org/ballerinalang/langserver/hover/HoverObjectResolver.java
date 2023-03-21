@@ -166,7 +166,7 @@ public class HoverObjectResolver {
                             .getModifiedTypeName(context, param.typeDescriptor()));
                 }
                 String paramName = param.getName().get();
-                String desc = paramsMap.get(paramName);
+                String desc = paramsMap.getOrDefault(paramName, "");
                 String defaultValueEdit = "";
                 if (param.paramKind() == ParameterKind.DEFAULTABLE) {
                     Optional<String> defaultValueForParam = DefaultValueGenerationUtil
@@ -176,8 +176,7 @@ public class HoverObjectResolver {
                                 .quotedString(String.format("(default: %s)", defaultValueForParam.get()));
                     }
                 }
-                return MarkupUtils.quotedString(NameUtil.getModifiedTypeName(context,
-                        param.typeDescriptor())) + " "
+                return MarkupUtils.quotedString(NameUtil.getModifiedTypeName(context, param.typeDescriptor())) + " "
                         + MarkupUtils.italicString(MarkupUtils.boldString(paramName)) + " : " + desc + defaultValueEdit;
             }).collect(Collectors.toList()));
 
