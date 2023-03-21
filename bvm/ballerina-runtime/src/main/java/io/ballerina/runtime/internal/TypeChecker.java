@@ -360,6 +360,8 @@ public class TypeChecker {
             return TYPE_STRING;
         } else if (value instanceof Boolean) {
             return TYPE_BOOLEAN;
+        } else if (value instanceof BObject) {
+            return ((BObject) value).getOriginalType();
         }
 
         return ((BValue) value).getType();

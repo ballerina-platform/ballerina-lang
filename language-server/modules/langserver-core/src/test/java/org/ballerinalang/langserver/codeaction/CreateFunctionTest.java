@@ -172,7 +172,8 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"create_function_in_nil_conditional_expression.json"},
 
                 {"create_function_in_local_var1.json"},
-                {"create_function_in_local_var2.json"}
+                {"create_function_in_local_var2.json"},
+                {"create_function_in_start_action1.json"},
         };
     }
 
