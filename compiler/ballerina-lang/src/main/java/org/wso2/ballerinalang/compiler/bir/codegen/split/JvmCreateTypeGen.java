@@ -383,7 +383,7 @@ public class JvmCreateTypeGen {
             }
             switch (getEffectiveType(bType).tag) {
                 case TypeTags.RECORD:
-                    jvmRecordTypeGen.createRecordType(mv, (BRecordType) bType);
+                    jvmRecordTypeGen.createRecordType(mv, (BRecordType) bType, name);
                     break;
                 case TypeTags.OBJECT:
                     jvmObjectTypeGen.createObjectType(mv, (BObjectType) bType);

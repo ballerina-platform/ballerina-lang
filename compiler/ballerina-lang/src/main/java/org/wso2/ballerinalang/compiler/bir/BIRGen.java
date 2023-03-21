@@ -1154,7 +1154,7 @@ public class BIRGen extends BLangNodeVisitor {
         BType type = tupleTypeNode.getBType();
         createNewTypedescInst(type, tupleTypeNode.pos);
         BLangType typeNode;
-        for (BLangSimpleVariable member : tupleTypeNode.memberTypeNodes) {
+        for (BLangSimpleVariable member : tupleTypeNode.members) {
             typeNode = member.typeNode;
             if (member.typeNode != null) {
                 typeNode.accept(this);

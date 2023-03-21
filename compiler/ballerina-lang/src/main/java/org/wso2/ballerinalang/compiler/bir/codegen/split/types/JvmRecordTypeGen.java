@@ -137,7 +137,7 @@ public class JvmRecordTypeGen {
      * @param mv             method visitor
      * @param recordType     record type
      */
-    public void createRecordType(MethodVisitor mv, BRecordType recordType) {
+    public void createRecordType(MethodVisitor mv, BRecordType recordType, String internalName) {
         // Create the record type
         mv.visitTypeInsn(NEW, RECORD_TYPE_IMPL);
         mv.visitInsn(DUP);
