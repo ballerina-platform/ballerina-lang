@@ -98,6 +98,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
 import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
@@ -535,7 +536,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REG_EXP.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_STRING.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_XML.get()));
-
+        
         Predicate<Symbol> symbolFilter = getExpressionContextSymbolFilter();
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbolFilter)
@@ -650,7 +651,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                     }
                     CompletionItem cItem = TypeCompletionItemBuilder.build(
                             typeSymbol, moduleSymbol.id().modulePrefix());
-                    completionItems.add(new SymbolCompletionItem(context,
+                    completionItems.add(new SymbolCompletionItem(context, 
                             Objects.requireNonNullElse(typeSymbol, moduleSymbol), cItem));
                 });
         return completionItems;

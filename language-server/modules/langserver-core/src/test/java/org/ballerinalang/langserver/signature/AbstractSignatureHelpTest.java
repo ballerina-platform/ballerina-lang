@@ -74,12 +74,12 @@ public abstract class AbstractSignatureHelpTest {
         boolean result = expected.equals(responseJson);
         if (!result) {
             // Fix test cases replacing expected using responses
-            JsonObject obj = new JsonObject();
-            obj.add("position", configJsonObject.get("position"));
-            obj.add("source", configJsonObject.get("source"));
-            obj.add("expected", responseJson);
-            java.nio.file.Files.write(org.ballerinalang.langserver.util.FileUtils.RES_DIR.resolve(configJsonPath),
-                                      obj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+//            JsonObject obj = new JsonObject();
+//            obj.add("position", configJsonObject.get("position"));
+//            obj.add("source", configJsonObject.get("source"));
+//            obj.add("expected", responseJson);
+//            java.nio.file.Files.write(org.ballerinalang.langserver.util.FileUtils.RES_DIR.resolve(configJsonPath),
+//                                      obj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
             Assert.fail("Failed Test for: " + configJsonPath);
         }

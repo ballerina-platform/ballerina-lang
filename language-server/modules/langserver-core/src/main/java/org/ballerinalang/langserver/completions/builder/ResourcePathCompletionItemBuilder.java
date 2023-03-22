@@ -78,15 +78,15 @@ public class ResourcePathCompletionItemBuilder {
                 .getResourceAccessInfo(resourceMethodSymbol, context, segments);
         return resourceAccessInfo.stream().map(info -> {
             CompletionItem item = buildCompletionItem(resourceMethodSymbol, info, context);
-            item.setFilterText(ResourcePathCompletionUtil.getFilterTextForClientResourceAccessAction(resourceMethodSymbol, segments));
+            item.setFilterText(ResourcePathCompletionUtil
+                    .getFilterTextForClientResourceAccessAction(resourceMethodSymbol, segments));
             return item;
         }).collect(Collectors.toList());
     }
 
-    private static CompletionItem buildCompletionItem(ResourceMethodSymbol resourceMethodSymbol,
+    private static CompletionItem buildCompletionItem(ResourceMethodSymbol resourceMethodSymbol, 
                                                       Pair<String, String> functionSignature,
                                                       BallerinaCompletionContext context) {
-        
         CompletionItem item = new CompletionItem();
         FunctionCompletionItemBuilder.setMeta(item, resourceMethodSymbol, context);
         item.setLabel(functionSignature.getRight());
@@ -112,7 +112,7 @@ public class ResourcePathCompletionItemBuilder {
         String escapedFunctionName = CommonUtil.escapeEscapeCharsInIdentifier(functionName);
         StringBuilder signature = new StringBuilder();
         StringBuilder insertText = new StringBuilder();
-        ResourcePathCompletionUtil.addResourceMethodCallSignature(resourceMethodSymbol, context,
+        ResourcePathCompletionUtil.addResourceMethodCallSignature(resourceMethodSymbol, context, 
                 escapedFunctionName, signature, insertText, 1);
         item.setLabel(signature.toString());
         item.setInsertText(insertText.toString());
@@ -125,7 +125,7 @@ public class ResourcePathCompletionItemBuilder {
                                                        BallerinaCompletionContext context) {
         //Check and replace preceding slash token and dot
         Token token = null;
-        Optional<ClientResourceAccessActionNode> node =
+        Optional<ClientResourceAccessActionNode> node = 
                 ResourcePathCompletionUtil.findClientResourceAccessActionNode(context);
         if (node.isPresent()) {
             if (ResourcePathCompletionUtil.isInMethodCallContext(node.get(), context)) {
