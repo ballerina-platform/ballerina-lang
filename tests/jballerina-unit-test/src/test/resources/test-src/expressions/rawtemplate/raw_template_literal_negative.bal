@@ -163,3 +163,34 @@ function testReadonlyFieldMismatch() {
 function testAmbiguousTypes() {
     ob:RawTemplate|Template1 rt = `Count: ${10}, ${20}`;
 }
+
+type RawTemplateType object:RawTemplate;
+
+final object:RawTemplate & readonly tmp1 = `Count: ${10}, ${20}`;
+
+final Template1 & readonly tmp2 = `Count: ${10}, ${20}`;
+
+final RawTemplateType & readonly tmp3 = `Count: ${10}, ${20}`;
+
+function testRawTemplateWithIntersectionType() {
+    tmp1.insertions[0] = 10;
+    tmp1.insertions.push(30);
+
+    tmp2.insertions[0] = 10;
+    tmp2.insertions.push(30);
+
+    tmp3.insertions[0] = 10;
+    tmp3.insertions.push(30);
+
+    final object:RawTemplate & readonly tmp4 = `Count: ${10}, ${20}`;
+    tmp4.insertions[0] = 10;
+    tmp4.insertions.push(30);
+
+    final Template1 & readonly tmp5 = `Count: ${10}, ${20}`;
+    tmp5.insertions[0] = 10;
+    tmp5.insertions.push(30);
+
+    final RawTemplateType & readonly tmp6 = `Count: ${10}, ${20}`;
+    tmp6.insertions[0] = 10;
+    tmp6.insertions.push(30);
+}
