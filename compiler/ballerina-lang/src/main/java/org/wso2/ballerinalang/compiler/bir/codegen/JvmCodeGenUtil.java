@@ -78,7 +78,9 @@ import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.ISTORE;
 import static org.objectweb.asm.Opcodes.NEW;
+import static org.objectweb.asm.Opcodes.SIPUSH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
@@ -644,18 +646,27 @@ public class JvmCodeGenUtil {
         return lastScope;
     }
 
-    public static void genYieldCheck(MethodVisitor mv, LabelGenerator labelGen, BIRNode.BIRBasicBlock thenBB,
+    public static void genYieldCheck(MethodVisitor mv, LabelGenerator labelGen,
+                                     BIRNode.BIRBasicBlock currentBB, BIRNode.BIRBasicBlock thenBB,
                                      String funcName, int localVarOffset, int yieldLocationVarIndex,
-                                     Location terminatorPos, String fullyQualifiedFuncName,
-                                     String yieldStatus, int yieldStatusVarIndex) {
+                                     Location terminatorPos, String fullyQualifiedFuncName, String yieldStatus,
+                                     int stateVarIndex, int yieldStatusVarIndex, Label loopLabel, int loopVarIndex) {
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "isYielded", "()Z", false);
         generateSetYieldedStatus(mv, labelGen, funcName, yieldLocationVarIndex, terminatorPos,
                 fullyQualifiedFuncName, yieldStatus, yieldStatusVarIndex);
-
-        // goto thenBB
-        Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
-        mv.visitJumpInsn(GOTO, gotoLabel);
+        int gotoBBNumber = thenBB.number;
+        int currentBBNumber = currentBB.number;
+        if (currentBBNumber <= gotoBBNumber) {
+            Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
+            mv.visitJumpInsn(GOTO, gotoLabel);
+            return;
+        }
+        mv.visitInsn(ICONST_1);
+        mv.visitVarInsn(ISTORE, loopVarIndex);
+        mv.visitIntInsn(SIPUSH, gotoBBNumber);
+        mv.visitVarInsn(ISTORE, stateVarIndex);
+        mv.visitJumpInsn(GOTO, loopLabel);
     }
 
     protected static void generateSetYieldedStatus(MethodVisitor mv, LabelGenerator labelGen, String funcName,

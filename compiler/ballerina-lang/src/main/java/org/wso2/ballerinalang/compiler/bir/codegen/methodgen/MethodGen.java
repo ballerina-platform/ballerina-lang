@@ -150,6 +150,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
 public class MethodGen {
 
     protected static final String STATE = "state";
+    protected static final String LOOP_VAR = "loopVar";
     protected static final String FUNCTION_INVOCATION = "functionInvocation";
     private static final String INVOCATION_COUNT = "%invocationCount";
     private static final String RESUME_INDEX = "resumeIndex";
@@ -220,10 +221,11 @@ public class MethodGen {
         genLocalVars(indexMap, mv, func.localVars);
 
         int returnVarRefIndex = getReturnVarRefIndex(func, indexMap, retType, mv);
-        int stateVarIndex = getIntVarIndex(STATE, indexMap, mv);
+        int stateVarIndex = getIntVarIndex(STATE, indexMap, mv, ICONST_0);
+        int loopVarIndex = getIntVarIndex(LOOP_VAR, indexMap, mv, ICONST_1);
         int yieldLocationVarIndex = getFrameStringVarIndex(indexMap, mv, YIELD_LOCATION);
         int yieldStatusVarIndex = getFrameStringVarIndex(indexMap, mv, YIELD_STATUS);
-        int invocationVarIndex = getIntVarIndex(FUNCTION_INVOCATION, indexMap, mv);
+        int invocationVarIndex = getIntVarIndex(FUNCTION_INVOCATION, indexMap, mv, ICONST_0);
 
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, RESUME_INDEX, "I");
@@ -243,6 +245,15 @@ public class MethodGen {
         // panic if this strand is cancelled
         checkStrandCancelled(mv, localVarOffset);
 
+        // handle loops reducible way
+        Label loopLabel = new Label();
+        mv.visitLabel(loopLabel);
+        mv.visitVarInsn(ILOAD, loopVarIndex);
+        Label loopConditionLabel = new Label();
+        mv.visitJumpInsn(IFEQ, loopConditionLabel);
+        mv.visitInsn(ICONST_0);
+        mv.visitVarInsn(ISTORE, loopVarIndex);
+
         // process basic blocks
         List<Label> labels = new ArrayList<>();
         List<Integer> states = new ArrayList<>();
@@ -261,8 +272,8 @@ public class MethodGen {
         mv.visitLookupSwitchInsn(yieldLabel, toIntArray(states), labels.toArray(new Label[0]));
 
         generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
-                yieldLocationVarIndex, yieldStatusVarIndex, localVarOffset, invocationVarIndex, module, attachedType,
-                moduleClassName);
+                yieldLocationVarIndex, yieldStatusVarIndex, loopVarIndex, invocationVarIndex, localVarOffset, module,
+                attachedType, moduleClassName, loopLabel);
         mv.visitLabel(resumeLabel);
         String frameName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(module.packageID), funcName,
                 attachedType);
@@ -293,6 +304,8 @@ public class MethodGen {
         generateFrameStringFieldSet(mv, frameName, yieldStatusVarIndex, YIELD_STATUS);
 
         generateGetFrame(indexMap, localVarOffset, mv);
+        mv.visitJumpInsn(GOTO, loopLabel);
+        mv.visitLabel(loopConditionLabel);
 
         Label methodEndLabel = new Label();
         mv.visitLabel(methodEndLabel);
@@ -481,9 +494,9 @@ public class MethodGen {
         }
     }
 
-    private int getIntVarIndex(String intVarName, BIRVarToJVMIndexMap indexMap, MethodVisitor mv) {
+    private int getIntVarIndex(String intVarName, BIRVarToJVMIndexMap indexMap, MethodVisitor mv, int initialValue) {
         int varIndex = indexMap.addIfNotExists(intVarName, symbolTable.stringType);
-        mv.visitInsn(ICONST_0);
+        mv.visitInsn(initialValue);
         mv.visitVarInsn(ISTORE, varIndex);
         return varIndex;
     }
@@ -521,8 +534,9 @@ public class MethodGen {
 
     void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen, JvmInstructionGen instGen,
                              JvmTerminatorGen termGen, BIRFunction func, int returnVarRefIndex, int stateVarIndex,
-                             int yieldLocationVarIndex, int yieldStatusVarIndex, int localVarOffset,
-                             int invocationVarIndex, BIRPackage module, BType attachedType, String moduleClassName) {
+                             int yieldLocationVarIndex, int yieldStatusVarIndex, int loopVarIndex,
+                             int invocationVarIndex, int localVarOffset, BIRPackage module, BType attachedType,
+                             String moduleClassName, Label loopLabel) {
 
         String funcName = func.name.value;
         BirScope lastScope = null;
@@ -553,9 +567,9 @@ public class MethodGen {
             caseIndex += 1;
 
             processTerminator(mv, func, module, funcName, terminator);
-            termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
-                    attachedType, yieldLocationVarIndex, yieldStatusVarIndex, invocationVarIndex,
-                    fullyQualifiedFuncName);
+            termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, stateVarIndex,
+                    returnVarRefIndex, attachedType, yieldLocationVarIndex, yieldStatusVarIndex, invocationVarIndex,
+                    loopVarIndex, fullyQualifiedFuncName, bb, loopLabel);
 
             lastScope = JvmCodeGenUtil
                     .getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope, visitedScopesSet);
@@ -566,9 +580,9 @@ public class MethodGen {
 
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {
-                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, localVarOffset,
-                        yieldLocationVarIndex, terminator.pos, fullyQualifiedFuncName,
-                        yieldStatus, yieldStatusVarIndex);
+                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), bb, thenBB, funcName, localVarOffset,
+                        yieldLocationVarIndex, terminator.pos, fullyQualifiedFuncName, yieldStatus, stateVarIndex,
+                        yieldStatusVarIndex, loopLabel, loopVarIndex);
             }
         }
     }
