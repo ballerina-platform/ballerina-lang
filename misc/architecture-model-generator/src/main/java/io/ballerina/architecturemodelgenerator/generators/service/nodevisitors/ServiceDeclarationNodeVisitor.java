@@ -20,6 +20,7 @@ package io.ballerina.architecturemodelgenerator.generators.service.nodevisitors;
 
 import io.ballerina.architecturemodelgenerator.diagnostics.ComponentModelingDiagnostics;
 import io.ballerina.architecturemodelgenerator.diagnostics.DiagnosticMessage;
+import io.ballerina.architecturemodelgenerator.diagnostics.DiagnosticNode;
 import io.ballerina.architecturemodelgenerator.generators.GeneratorUtils;
 import io.ballerina.architecturemodelgenerator.model.service.Service;
 import io.ballerina.architecturemodelgenerator.model.service.ServiceAnnotation;
@@ -114,7 +115,7 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
         try {
             serviceDeclarationNode.accept(serviceMemberFunctionNodeVisitor);
         } catch (Exception e) {
-            DiagnosticMessage message = DiagnosticMessage.failedToGenerateService(e.getMessage());
+            DiagnosticMessage message = DiagnosticMessage.failedToGenerate(DiagnosticNode.SERVICE, e.getMessage());
             ComponentModelingDiagnostics diagnostic = new ComponentModelingDiagnostics(
                     message.getCode(), message.getDescription(), message.getSeverity(), null, null
             );

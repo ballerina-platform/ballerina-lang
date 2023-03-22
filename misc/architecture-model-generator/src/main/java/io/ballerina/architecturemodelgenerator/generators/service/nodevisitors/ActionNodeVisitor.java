@@ -20,6 +20,7 @@ package io.ballerina.architecturemodelgenerator.generators.service.nodevisitors;
 
 import io.ballerina.architecturemodelgenerator.diagnostics.ComponentModelingDiagnostics;
 import io.ballerina.architecturemodelgenerator.diagnostics.DiagnosticMessage;
+import io.ballerina.architecturemodelgenerator.diagnostics.DiagnosticNode;
 import io.ballerina.architecturemodelgenerator.model.service.Interaction;
 import io.ballerina.architecturemodelgenerator.model.service.ResourceId;
 import io.ballerina.compiler.api.ModuleID;
@@ -139,7 +140,7 @@ public class ActionNodeVisitor extends NodeVisitor {
                 serviceId = getServiceAnnotation(annotatableSymbol, filePath).getId();
             }
         } catch (Exception e) {
-            DiagnosticMessage message = DiagnosticMessage.failedToGenerateInteraction(e.getMessage());
+            DiagnosticMessage message = DiagnosticMessage.failedToGenerate(DiagnosticNode.INTERACTION, e.getMessage());
             ComponentModelingDiagnostics diagnostic = new ComponentModelingDiagnostics(
                     message.getCode(), message.getDescription(), message.getSeverity(), null, null
             );
@@ -185,7 +186,7 @@ public class ActionNodeVisitor extends NodeVisitor {
                 }
             }
         } catch (Exception e) {
-            DiagnosticMessage message = DiagnosticMessage.failedToGenerateInteraction(e.getMessage());
+            DiagnosticMessage message = DiagnosticMessage.failedToGenerate(DiagnosticNode.INTERACTION, e.getMessage());
             ComponentModelingDiagnostics diagnostic = new ComponentModelingDiagnostics(
                     message.getCode(), message.getDescription(), message.getSeverity(), null, null
             );

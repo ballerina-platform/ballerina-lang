@@ -21,6 +21,7 @@ package io.ballerina.architecturemodelgenerator;
 import io.ballerina.architecturemodelgenerator.ComponentModel.PackageId;
 import io.ballerina.architecturemodelgenerator.diagnostics.ComponentModelingDiagnostics;
 import io.ballerina.architecturemodelgenerator.diagnostics.DiagnosticMessage;
+import io.ballerina.architecturemodelgenerator.diagnostics.DiagnosticNode;
 import io.ballerina.architecturemodelgenerator.generators.entity.EntityModelGenerator;
 import io.ballerina.architecturemodelgenerator.generators.service.ServiceModelGenerator;
 import io.ballerina.architecturemodelgenerator.model.entity.Entity;
@@ -63,8 +64,11 @@ public class ComponentModelBuilder {
             ServiceModelGenerator serviceModelGenerator = new ServiceModelGenerator(currentPackageCompilation, module);
             try {
                 services.putAll(serviceModelGenerator.generate());
-            } catch (Exception e) {
-                DiagnosticMessage message = DiagnosticMessage.failedToGenerateServices(e.getMessage());
+            } catch (Throwable e) {
+                // Even though catching Throwable is not recommended,
+                // we are doing it here to avoid any unexpected errors as this is critical.
+                DiagnosticMessage message =
+                        DiagnosticMessage.failedToGenerate(DiagnosticNode.SERVICES, e.getMessage());
                 ComponentModelingDiagnostics diagnostic = new ComponentModelingDiagnostics(
                         message.getCode(), message.getDescription(), message.getSeverity(), null, null
                 );
@@ -74,8 +78,9 @@ public class ComponentModelBuilder {
             EntityModelGenerator entityModelGenerator = new EntityModelGenerator(currentPackageCompilation, module);
             try {
                 entities.putAll(entityModelGenerator.generate());
-            } catch (Exception e) {
-                DiagnosticMessage message = DiagnosticMessage.failedToGenerateEntities(e.getMessage());
+            } catch (Throwable e) {
+                DiagnosticMessage message =
+                        DiagnosticMessage.failedToGenerate(DiagnosticNode.ENTITIES, e.getMessage());
                 ComponentModelingDiagnostics diagnostic = new ComponentModelingDiagnostics(
                         message.getCode(), message.getDescription(), message.getSeverity(), null, null
                 );

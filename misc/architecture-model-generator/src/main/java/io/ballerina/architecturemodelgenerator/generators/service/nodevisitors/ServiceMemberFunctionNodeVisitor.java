@@ -22,6 +22,7 @@ import io.ballerina.architecturemodelgenerator.ComponentModel.PackageId;
 import io.ballerina.architecturemodelgenerator.ProjectDesignConstants.ParameterIn;
 import io.ballerina.architecturemodelgenerator.diagnostics.ComponentModelingDiagnostics;
 import io.ballerina.architecturemodelgenerator.diagnostics.DiagnosticMessage;
+import io.ballerina.architecturemodelgenerator.diagnostics.DiagnosticNode;
 import io.ballerina.architecturemodelgenerator.model.ElementLocation;
 import io.ballerina.architecturemodelgenerator.model.service.Dependency;
 import io.ballerina.architecturemodelgenerator.model.service.FunctionParameter;
@@ -153,7 +154,8 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
                 try {
                     functionDefinitionNode.accept(actionNodeVisitor);
                 } catch (Exception e) {
-                    DiagnosticMessage message = DiagnosticMessage.failedToGenerateResource(e.getMessage());
+                    DiagnosticMessage message =
+                            DiagnosticMessage.failedToGenerate(DiagnosticNode.RESOURCE, e.getMessage());
                     ComponentModelingDiagnostics diagnostic = new ComponentModelingDiagnostics(
                             message.getCode(), message.getDescription(), message.getSeverity(), null, null
                     );
@@ -183,7 +185,8 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
                     try {
                         functionDefinitionNode.accept(actionNodeVisitor);
                     } catch (Exception e) {
-                        DiagnosticMessage message = DiagnosticMessage.failedToGenerateRemoteFunction(e.getMessage());
+                        DiagnosticMessage message =
+                                DiagnosticMessage.failedToGenerate(DiagnosticNode.REMOTE_FUNCTION, e.getMessage());
                         ComponentModelingDiagnostics diagnostic = new ComponentModelingDiagnostics(
                                 message.getCode(), message.getDescription(), message.getSeverity(), null, null
                         );
