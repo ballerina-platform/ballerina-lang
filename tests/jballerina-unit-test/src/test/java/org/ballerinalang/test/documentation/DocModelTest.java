@@ -313,8 +313,8 @@ public class DocModelTest {
                 "First field in Human Record should be controller");
         Assert.assertEquals(humanRec.get().fields.get(0).type.name, "MainController",
                 "Type name of first field in Human Record should be MainController");
-        Assert.assertEquals(humanRec.get().fields.get(0).type.category, "classes",
-                "Category of first field in Human Record should be classes");
+        Assert.assertEquals(humanRec.get().fields.get(0).type.category, "reference",
+                "Category of first field in Human Record should be reference");
         Assert.assertEquals(humanRec.get().fields.get(0).description, "A MainController to control the human" +
                         System.lineSeparator(),
                 "Description of first field in Human Record should be: A MainController to control the human" +
@@ -346,8 +346,8 @@ public class DocModelTest {
                 "Fourth field in Human Record should be listnr");
         Assert.assertEquals(humanRec.get().fields.get(3).type.name, "Listener",
                 "Type name of fourth field in Human Record should be Listener");
-        Assert.assertEquals(humanRec.get().fields.get(3).type.category, "listeners",
-                "Category of fourth field in Human Record should be listeners");
+        Assert.assertEquals(humanRec.get().fields.get(3).type.category, "reference",
+                "Category of fourth field in Human Record should be reference");
         Assert.assertTrue(humanRec.get().fields.get(3).type.isNullable,
                 "Fourth field in Human Record should be optional");
 
@@ -355,8 +355,8 @@ public class DocModelTest {
                 "Fifth field in Human Record should be caller");
         Assert.assertEquals(humanRec.get().fields.get(4).type.name, "Caller",
                 "Type name of fifth field in Human Record should be Caller");
-        Assert.assertEquals(humanRec.get().fields.get(4).type.category, "clients",
-                "Category of fifth field in Human Record should be clients");
+        Assert.assertEquals(humanRec.get().fields.get(4).type.category, "reference",
+                "Category of fifth field in Human Record should be reference");
 
         Assert.assertEquals(humanRec.get().fields.get(5).name, "userID",
                 "Sixth field in Human Record should be userID");

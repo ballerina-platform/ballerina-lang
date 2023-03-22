@@ -55,42 +55,24 @@ public class ObjectTypeReferenceTest {
                 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 48, 6);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid cyclic type reference in '[Foo, Foo]'", 52, 1);
+                "no implementation found for the method 'getName' of class 'Manager2'", 73, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid cyclic type reference in '[A, B, C, D, A]'", 57, 1);
-        BAssertUtil.validateError(negativeResult, i++,
-                "invalid cyclic type reference in '[C, E, C]'", 57, 1);
-        BAssertUtil.validateError(negativeResult, i++,
-                "invalid cyclic type reference in '[B, C, D, A, B]'", 61, 1);
-        BAssertUtil.validateError(negativeResult, i++,
-                "invalid cyclic type reference in '[C, E, C]'", 61, 1);
-        BAssertUtil.validateError(negativeResult, i++,
-                "invalid cyclic type reference in '[C, D, A, B, C]'", 65, 1);
-        BAssertUtil.validateError(negativeResult, i++,
-                "invalid cyclic type reference in '[C, E, C]'", 65, 1);
-        BAssertUtil.validateError(negativeResult, i++,
-                "invalid cyclic type reference in '[C, E, C]'", 70, 1);
-        BAssertUtil.validateError(negativeResult, i++,
-                "invalid cyclic type reference in '[D, A, B, C, D]'", 70, 1);
-        BAssertUtil.validateError(negativeResult, i++,
-                "invalid cyclic type reference in '[C, D, A, B, C]'", 74, 1);
-        BAssertUtil.validateError(negativeResult, i++,
-                "invalid cyclic type reference in '[E, C, E]'", 74, 1);
-        BAssertUtil.validateError(negativeResult, i++,
-                "no implementation found for the method 'getName' of class 'Manager2'", 95, 1);
-        BAssertUtil.validateError(negativeResult, i++,
-                "no implementation found for the method 'getSalary' of class 'Manager2'", 95, 1);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an object", 101, 6);
-        BAssertUtil.validateError(negativeResult, i++, "redeclared type reference 'Person1'", 111, 6);
-        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 119, 6);
-        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Tar'", 123, 6);
-        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'xyz'", 144, 6);
-        BAssertUtil.validateError(negativeResult, i++, "unknown type 'O2'", 171, 5);
+                "no implementation found for the method 'getSalary' of class 'Manager2'", 73, 1);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an object", 79, 6);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared type reference 'Person1'", 89, 6);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Baz' is not an object", 97, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 97, 6);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Tar' is not an object", 101, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Tar'", 101, 6);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'xyz'", 122, 6);
+        BAssertUtil.validateError(negativeResult, i++, "included field 'body' of type 'object { string a; }' cannot" +
+                " be overridden by a field of type 'other': expected a subtype of 'object { string a; }'", 149, 5);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'O2'", 149, 5);
         BAssertUtil.validateError(negativeResult, i++, "included field 'body' of type 'object { byte[] a; }' cannot " +
-                "be overridden by a field of type 'O5': expected a subtype of 'object { byte[] a; }'", 186, 5);
+                "be overridden by a field of type 'O5': expected a subtype of 'object { byte[] a; }'", 164, 5);
         BAssertUtil.validateError(negativeResult, i++, "included field 'body' of type 'object { int:Unsigned8 i; }' " +
                 "cannot be overridden by a field of type 'O8': expected a subtype of 'object { int:Unsigned8 i; }'",
-                                  205, 5);
+                                  183, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -123,34 +105,15 @@ public class ObjectTypeReferenceTest {
     }
 
     @Test
-    public void testCyclicDependencyReferencesObjectTypeReferenceNegative() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-cyclic-dependency" +
-                "-negative.bal");
-        int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[Foo, Foo]'", 18, 1);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[A, B, C, D, A]'", 23, 1);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, E, C]'", 23, 1);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[B, C, D, A, B]'", 27, 1);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, E, C]'", 27, 1);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, D, A, B, C]'", 31, 1);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, E, C]'", 31, 1);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, E, C]'", 36, 1);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[D, A, B, C, D]'", 36, 1);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, D, A, B, C]'", 40, 1);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[E, C, E]'", 40, 1);
-        Assert.assertEquals(negativeResult.getErrorCount(), i);
-    }
-
-    @Test
     public void testSimpleObjectTypeReferenceSemanticsNegative_2() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-semantics" +
                 "-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 3);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "only type references are allowed as type inclusions",
                 18, 6);
         BAssertUtil.validateError(negativeResult, i++, "only type references are allowed as type inclusions", 20, 6);
-        BAssertUtil.validateError(negativeResult, i, "unknown type 'YYY'", 29, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'YYY'", 29, 6);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test

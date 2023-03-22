@@ -86,10 +86,10 @@ public class ImmutabilityBalaTest {
         validateError(result, index++, "incompatible types: expected '(ABAny & readonly)', found 'Obj'", 57, 26);
 
         // Updates.
-        validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0" +
-                ".0:ReadOnlyStudent'", 62, 5);
-        validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0" +
-                ".0:ReadOnlyStudent'", 66, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type " +
+                "'testorg/selectively_immutable:1.0.0:(testorg/selectively_immutable:1:Student & readonly)'", 62, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type " +
+                "'testorg/selectively_immutable:1.0.0:(testorg/selectively_immutable:1:Student & readonly)'", 66, 5);
         validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1" +
                 ":Details & readonly)'", 76, 5);
         validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1" +
