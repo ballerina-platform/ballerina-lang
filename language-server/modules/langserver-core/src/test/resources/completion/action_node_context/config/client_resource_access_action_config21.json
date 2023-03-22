@@ -3,7 +3,7 @@
     "line": 5,
     "character": 23
   },
-  "source": "action_node_context/source/client_resource_access_action_bir_source.bal",
+  "source": "action_node_context/source/client_resource_access_action_source21.bal",
   "description": "",
   "items": [
     {
@@ -18,7 +18,7 @@
       },
       "sortText": "C",
       "filterText": "path1|path2|post",
-      "insertText": "/path1/[${1:\"path\"}]/path2/[${1:\"path\"}].post(${1})",
+      "insertText": "/path1/[${1:\"path\"}]/path2/[${2:\"path\"}].post(${3});",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -52,7 +52,7 @@
       },
       "sortText": "C",
       "filterText": "path1|path2|post",
-      "insertText": "/path1/${1:path}/path2/${1:path}.post(${1})",
+      "insertText": "/path1/${1:path}/path2/${2:path}.post(${3});",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -86,7 +86,7 @@
       },
       "sortText": "C",
       "filterText": "path3|get",
-      "insertText": "/path3(${1})",
+      "insertText": "/path3(${1});",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -120,7 +120,7 @@
       },
       "sortText": "C",
       "filterText": "path4|get",
-      "insertText": "/path4/[${1:\"path\"}](${1})",
+      "insertText": "/path4/[${1:\"path\"}](${2});",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -154,7 +154,7 @@
       },
       "sortText": "C",
       "filterText": "path4|get",
-      "insertText": "/path4/${1:path}(${1})",
+      "insertText": "/path4/${1:path}(${2});",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -177,18 +177,18 @@
       }
     },
     {
-      "label": "/[string... path].post(module1:RequestMessage message, map<string|string[]>? headers, string? mediaType, module1:TargetType targetType, module1:QueryParams params)",
+      "label": "/[string... path].post(module1:RequestMessage message, map<string|string[]>? headers, string? mediaType, module1:TargetType targetType)",
       "kind": "Function",
       "detail": "targetType|module1:ClientError",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource function with rest path praram with multiple target types with java interoperability\n  \n**Params**  \n- `string[]` path: Request path  \n- `module1:RequestMessage` message: An HTTP outbound request or any allowed payload  \n- `map<string|string[]>?` headers: The entity headers(Defaultable)  \n- `string?` mediaType: The MIME type header of the request entity(Defaultable)  \n- `module1:TargetType` targetType: HTTP response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n- `module1:QueryParams` params: The query parameters  \n  \n**Return** `targetType|module1:ClientError`   \n- The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to  \nestablish the communication with the upstream server or a data binding failure  \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource function with rest path praram with multiple target types with java interoperability\n  \n**Params**  \n- `string[]` path: Request path  \n- `module1:RequestMessage` message: An HTTP outbound request or any allowed payload  \n- `map<string|string[]>?` headers: The entity headers(Defaultable)  \n- `string?` mediaType: The MIME type header of the request entity(Defaultable)  \n- `module1:TargetType` targetType: HTTP response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `targetType|module1:ClientError`   \n- The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to  \nestablish the communication with the upstream server or a data binding failure  \n  \n"
         }
       },
       "sortText": "C",
       "filterText": "post",
-      "insertText": "/[${1:\"path\"}].post(${1})",
+      "insertText": "/[${1:\"path\"}].post(${2});",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -211,18 +211,18 @@
       }
     },
     {
-      "label": "/<path>.post(module1:RequestMessage message, map<string|string[]>? headers, string? mediaType, module1:TargetType targetType, module1:QueryParams params)",
+      "label": "/<path>.post(module1:RequestMessage message, map<string|string[]>? headers, string? mediaType, module1:TargetType targetType)",
       "kind": "Function",
       "detail": "targetType|module1:ClientError",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource function with rest path praram with multiple target types with java interoperability\n  \n**Params**  \n- `string[]` path: Request path  \n- `module1:RequestMessage` message: An HTTP outbound request or any allowed payload  \n- `map<string|string[]>?` headers: The entity headers(Defaultable)  \n- `string?` mediaType: The MIME type header of the request entity(Defaultable)  \n- `module1:TargetType` targetType: HTTP response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n- `module1:QueryParams` params: The query parameters  \n  \n**Return** `targetType|module1:ClientError`   \n- The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to  \nestablish the communication with the upstream server or a data binding failure  \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource function with rest path praram with multiple target types with java interoperability\n  \n**Params**  \n- `string[]` path: Request path  \n- `module1:RequestMessage` message: An HTTP outbound request or any allowed payload  \n- `map<string|string[]>?` headers: The entity headers(Defaultable)  \n- `string?` mediaType: The MIME type header of the request entity(Defaultable)  \n- `module1:TargetType` targetType: HTTP response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `targetType|module1:ClientError`   \n- The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to  \nestablish the communication with the upstream server or a data binding failure  \n  \n"
         }
       },
       "sortText": "C",
       "filterText": "post",
-      "insertText": "/${1:path}.post(${1})",
+      "insertText": "/${1:path}.post(${2});",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

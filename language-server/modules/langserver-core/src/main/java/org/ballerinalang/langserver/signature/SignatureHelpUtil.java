@@ -42,6 +42,7 @@ import io.ballerina.compiler.syntax.tree.ComputedResourceAccessSegmentNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
@@ -53,6 +54,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
@@ -127,18 +129,18 @@ public class SignatureHelpUtil {
             // Could not find a valid invocation node.
             return null;
         }
-
-        ChildNodeList childrenInParen = null;
+        
+        int activeParamIndex = 0;
         switch (sKind) {
             case IMPLICIT_NEW_EXPRESSION:
                 Optional<ParenthesizedArgList> implicitArgList =
                         ((ImplicitNewExpressionNode) evalNode).parenthesizedArgList();
                 if (implicitArgList.isPresent()) {
-                    childrenInParen = implicitArgList.get().children();
+                    activeParamIndex = getActiveParamIndex(context, implicitArgList.get().children());
                 }
                 break;
             case EXPLICIT_NEW_EXPRESSION:
-                childrenInParen = ((ExplicitNewExpressionNode) evalNode).parenthesizedArgList().children();
+                activeParamIndex = getActiveParamIndex(context, ((ExplicitNewExpressionNode) evalNode).parenthesizedArgList().children());
                 break;
             case CLIENT_RESOURCE_ACCESS_ACTION:
                 Optional<ParenthesizedArgList> parenthesizedArgList =
@@ -146,12 +148,36 @@ public class SignatureHelpUtil {
                 if (parenthesizedArgList.isEmpty()) {
                     break;
                 }
-                childrenInParen = parenthesizedArgList.get().children();
+                activeParamIndex = getActiveParamIndex(context, parenthesizedArgList.get().children());
                 break;
+            case REMOTE_METHOD_CALL_ACTION:
+                SeparatedNodeList<FunctionArgumentNode> arguments = ((RemoteMethodCallActionNode) evalNode).arguments();
+                int cursorPosition = context.getCursorPositionInTree();
+                for (Node child : arguments) {
+                    int childPosition = child.textRange().endOffset();
+                    if (cursorPosition < childPosition) {
+                        break;
+                    }
+                    if (child.kind() == SyntaxKind.COMMA_TOKEN) {
+                        activeParamIndex++;
+                    }
+                }
             default:
-                childrenInParen = evalNode.children();
+                activeParamIndex = getActiveParamIndex(context, evalNode.children());
+                break;
         }
 
+        // Get signature information
+        List<SignatureInformation> signatureInformation = SignatureHelpUtil.getSignatureInformation(context);
+        List<SignatureInformation> signatures = new ArrayList<>(signatureInformation);
+        SignatureHelp signatureHelp = new SignatureHelp();
+        signatureHelp.setActiveParameter(activeParamIndex);
+        signatureHelp.setActiveSignature(0);
+        signatureHelp.setSignatures(signatures);
+        return signatureHelp;
+    }
+
+    private static int getActiveParamIndex(SignatureContext context, ChildNodeList childrenInParen) {
         // Find parameter index
         int activeParamIndex = 0;
         int cursorPosition = context.getCursorPositionInTree();
@@ -167,15 +193,7 @@ public class SignatureHelpUtil {
                 }
             }
         }
-
-        // Get signature information
-        List<SignatureInformation> signatureInformation = SignatureHelpUtil.getSignatureInformation(context);
-        List<SignatureInformation> signatures = new ArrayList<>(signatureInformation);
-        SignatureHelp signatureHelp = new SignatureHelp();
-        signatureHelp.setActiveParameter(activeParamIndex);
-        signatureHelp.setActiveSignature(0);
-        signatureHelp.setSignatures(signatures);
-        return signatureHelp;
+        return activeParamIndex;
     }
 
     /**

@@ -1,6 +1,6 @@
 client class MyClient {
 
-    remote function remote1(string id) {
+    remote function remote1(string id, int age, string name) {
 
     }
 
@@ -34,5 +34,8 @@ client class MyClient {
 
 public function test() {
     MyClient cl = new ();
-    cl -> /users/abc/alias.post()
+    cl -> /users/abc/alias.post();
+    cl -> /users/path1/names/path1.post("hello", "world", );
+    cl-> remote1();
+    cl-> remote1("hello",);
 }
