@@ -1433,6 +1433,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
+        typeTestExpr.typeNode = rewrite(typeTestExpr.typeNode, env);
         typeTestExpr.expr = rewriteExpr(typeTestExpr.expr);
         result = typeTestExpr;
     }
