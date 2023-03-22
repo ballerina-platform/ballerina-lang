@@ -13,3 +13,6 @@ age = 14
 [anyDataStructuredTypeVar]
 name = "Riyafa"
 age = 10
+
+[ambiguousUnionVar]
+name = "Waruna"

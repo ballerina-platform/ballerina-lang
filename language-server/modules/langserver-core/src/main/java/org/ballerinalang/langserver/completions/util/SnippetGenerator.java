@@ -237,16 +237,6 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get version Keyword Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getVersionKeywordSnippet() {
-        return new SnippetBlock(ItemResolverConstants.VERSION_KEYWORD, ItemResolverConstants.VERSION_KEYWORD,
-                "version", ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
-    }
-
-    /**
      * Get From Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1312,6 +1302,28 @@ public class SnippetGenerator {
     public static SnippetBlock getRegularExpressionSnippet() {
         String snippet = "re `${1}`";
         return new SnippetBlock(ItemResolverConstants.REG_EXP, ItemResolverConstants.REG_EXP, snippet, 
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get string Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getStringSnippet() {
+        String snippet = "string `${1}`";
+        return new SnippetBlock(ItemResolverConstants.STRING_TEMP, ItemResolverConstants.STRING_TEMP, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get xml Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getXmlSnippet() {
+        String snippet = "xml `${1}`";
+        return new SnippetBlock(ItemResolverConstants.XML_TEMP, ItemResolverConstants.XML_TEMP, snippet,
                 ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
 

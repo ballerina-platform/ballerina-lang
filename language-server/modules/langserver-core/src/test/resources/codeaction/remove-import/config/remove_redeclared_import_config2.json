@@ -1,0 +1,49 @@
+{
+  "position": {
+    "line": 1,
+    "character": 24
+  },
+  "source": "testproject/main.bal",
+  "expected": [
+    {
+      "title": "Remove all unused imports",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import testproject.module1;\nimport testproject.module1;\n"
+        }
+      ],
+      "resolvable": false
+    },
+    {
+      "title": "Remove re-declared import 'testproject.module1'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": ""
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

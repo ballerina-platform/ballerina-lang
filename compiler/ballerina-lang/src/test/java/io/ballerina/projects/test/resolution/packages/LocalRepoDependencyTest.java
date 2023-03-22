@@ -63,11 +63,11 @@ public class LocalRepoDependencyTest extends AbstractPackageResolutionTest {
     public static Object[][] patchedExistingPackagesTestCaseProvider() {
         return new Object[][]{
                 {"suite-local_deps", "case-0101", true},
-                {"suite-local_deps", "case-0101", true},
+                {"suite-local_deps", "case-0101", false},
                 {"suite-local_deps", "case-0102", true},
-                {"suite-local_deps", "case-0102", true},
+                {"suite-local_deps", "case-0102", false},
                 {"suite-local_deps", "case-0103", true},
-                {"suite-local_deps", "case-0103", true},
+                {"suite-local_deps", "case-0103", false},
         };
     }
 }

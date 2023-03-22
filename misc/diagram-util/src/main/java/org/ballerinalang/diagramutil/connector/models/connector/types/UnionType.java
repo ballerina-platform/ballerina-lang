@@ -34,4 +34,9 @@ public class UnionType extends Type {
         this.typeName = "union";
         this.members = new ArrayList<>();
     }
+
+    public UnionType(List<Type> members) {
+        this.typeName = "union";
+        this.members = members;
+    }
 }

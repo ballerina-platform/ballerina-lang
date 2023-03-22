@@ -332,3 +332,17 @@ function testInvalidTypeInVariableBinding() {
 
     }
 }
+
+function testInvalidTupleVarRefWithMismatchingTypesInForeach() {
+    [[int, int]] a = [[10, 20]];
+    foreach var [a1, a2, ...a3] in a {
+    }
+
+    [[[int, string], int[]]] b = [[[10, "a"], [20, 30, 40, 50]]];
+    foreach var [b1, b2, ...b3] in b {
+    }
+
+    [[[int, string], int[]]] c = [[[10, "a"], [20, 30, 40, 50]]];
+    foreach var [[c1, c2, ...c3], c4] in c {
+    }
+}

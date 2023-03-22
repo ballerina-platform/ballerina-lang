@@ -292,4 +292,25 @@ public class FieldAccessTest {
     public void testAccessOptionalFieldWithFieldAccess2() {
         Object returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess2");
     }
+
+    @Test
+    public void testAccessingMethodOnUnionObjectType() {
+        BRunUtil.invoke(result, "testAccessingMethodOnUnionObjectType");
+    }
+
+    @Test(dataProvider = "fieldAccessOnJsonTypedRecordFields")
+    public void testFieldAccessOnJsonTypedRecordFields(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "fieldAccessOnJsonTypedRecordFields")
+    public Object[][] fieldAccessOnJsonTypedRecordFields() {
+        return new Object[][] {
+                { "testFieldAccessOnJsonTypedRecordFields" },
+                { "testFieldAccessOnJsonTypedRecordFieldsResultingInError" },
+                { "testFieldAccessOnJsonTypedRecordFieldsResultingInErrorWithCheckExpr" },
+                { "testOptionalFieldAccessOnOptionalJsonTypedRecordFields" },
+                { "testOptionalFieldAccessOnOptionalJsonTypedRecordFieldsResultingInError" }
+        };
+    }
 }

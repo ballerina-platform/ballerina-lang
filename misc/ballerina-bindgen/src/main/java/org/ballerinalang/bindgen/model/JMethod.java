@@ -34,10 +34,11 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVE
 import static org.ballerinalang.bindgen.utils.BindgenConstants.EXCEPTION_CLASS_PREFIX;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING_ARRAY;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.QUESTION_MARK;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getBalReturnType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.getJavaType;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaReturnType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticMethod;
 
 /**
@@ -58,6 +59,7 @@ public class JMethod extends BFunction {
     private boolean isStringReturn = false;
     private boolean isStringArrayReturn = false;
     private boolean javaArraysModule = false;
+    private boolean isOptionalReturnTypes;
     private String parentPrefix;
 
     private Class parentClass;
@@ -71,9 +73,9 @@ public class JMethod extends BFunction {
     private String exceptionConstName;
     private String returnComponentType;
 
-    private List<JParameter> parameters = new ArrayList<>();
-    private StringBuilder paramTypes = new StringBuilder();
-    private Set<String> importedPackages = new HashSet<>();
+    private final List<JParameter> parameters = new ArrayList<>();
+    private final StringBuilder paramTypes = new StringBuilder();
+    private final Set<String> importedPackages = new HashSet<>();
 
     JMethod(Method m, BindgenEnv env, String parentPrefix, Class jClass, int overloaded) {
         super(BFunctionKind.METHOD, env);
@@ -90,6 +92,8 @@ public class JMethod extends BFunction {
         super.setStatic(isStatic);
         this.parentClass = jClass;
         setDeclaringClass(parentClass);
+
+        this.isOptionalReturnTypes = env.isOptionalTypes() || env.isOptionalReturnTypes();
 
         // Set the attributes required to identify different return types.
         Class returnTypeClass = m.getReturnType();
@@ -152,9 +156,9 @@ public class JMethod extends BFunction {
         hasReturn = true;
         BindgenUtils.addImportedPackage(returnTypeClass, importedPackages);
 
-        returnTypeJava = getJavaType(returnTypeClass);
-        setExternalReturnType(getBallerinaHandleType(returnTypeClass));
-        returnType = getBallerinaParamType(returnTypeClass, env.getAliases());
+        returnTypeJava = getBalReturnType(env, returnTypeClass);
+        setExternalReturnType(getBallerinaHandleType(env, returnTypeClass));
+        returnType = getBallerinaReturnType(env, returnTypeClass);
         returnType = getExceptionName(returnTypeClass, returnType);
         if (returnTypeClass.isArray()) {
             javaArraysModule = true;
@@ -168,8 +172,12 @@ public class JMethod extends BFunction {
                 isStringArrayReturn = true;
             } else {
                 returnComponentType = getAlias(returnTypeClass.getComponentType(), env.getAliases());
+                returnComponentType = isOptionalReturnTypes ? returnComponentType + QUESTION_MARK : returnComponentType;
+
                 returnComponentType = getExceptionName(returnTypeClass.getComponentType(), returnComponentType);
                 returnType = returnComponentType + ARRAY_BRACKETS;
+                returnType = isOptionalReturnTypes ? returnType + QUESTION_MARK : returnType;
+
                 if (env.getModulesFlag()) {
                     returnType = getPackageAlias(returnType, returnTypeClass.getComponentType());
                     returnComponentType = getPackageAlias(returnComponentType, returnTypeClass.getComponentType());
@@ -240,10 +248,6 @@ public class JMethod extends BFunction {
         return hasException;
     }
 
-    public boolean getIsStringReturn() {
-        return isStringReturn;
-    }
-
     public String getReturnType() {
         return returnType;
     }
@@ -300,9 +304,6 @@ public class JMethod extends BFunction {
         StringBuilder returnString = new StringBuilder();
         if (getHasReturn()) {
             returnString.append(this.returnType);
-            if (getIsStringReturn() || isStringArrayReturn()) {
-                returnString.append("?");
-            }
             if (getHasException()) {
                 if (isHandleException()) {
                     returnString.append("|").append(getExceptionName());
@@ -315,7 +316,7 @@ public class JMethod extends BFunction {
             }
         } else if (getHasException()) {
             if (isHandleException()) {
-                returnString.append(getExceptionName()).append("?");
+                returnString.append(getExceptionName()).append(QUESTION_MARK);
                 if (isReturnError()) {
                     returnString.append("|error?");
                 }
