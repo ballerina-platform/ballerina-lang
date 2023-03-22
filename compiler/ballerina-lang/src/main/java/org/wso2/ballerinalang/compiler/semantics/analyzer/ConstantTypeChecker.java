@@ -123,7 +123,21 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         data.isTypeChecked = true;
         expr.expectedType = expType;
 
-        expr.accept(this, data);
+        switch (expr.getKind()) {
+            case LITERAL:
+            case NUMERIC_LITERAL:
+            case RECORD_LITERAL_EXPR:
+            case LIST_CONSTRUCTOR_EXPR:
+            case SIMPLE_VARIABLE_REF:
+            case BINARY_EXPR:
+            case GROUP_EXPR:
+            case UNARY_EXPR:
+                expr.accept(this, data);
+                break;
+            default:
+                dlog.error(expr.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+                data.resultType = symTable.semanticError;
+        }
 
         expr.setTypeCheckedType(data.resultType);
         expr.typeChecked = data.isTypeChecked;
@@ -362,7 +376,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 resultType, binaryExpr.pos);
         if (resolvedValue == null) {
             data.resultType = symTable.semanticError;
-            dlog.error(pos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION);
+//            dlog.error(pos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION);
             return;
         }
         BType finiteType = getFiniteType(resolvedValue, constantSymbol, pos, resultType);
@@ -499,7 +513,21 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             case TypeTags.READONLY:
                 return checkConstExpr(mappingConstructor, possibleType, data);
         }
+        reportIncompatibleMappingConstructorError(mappingConstructor, expType, data);
         return symTable.semanticError;
+    }
+
+    private void reportIncompatibleMappingConstructorError(BLangRecordLiteral mappingConstructorExpr, BType expType,
+                                                           TypeChecker.AnalyzerData data) {
+        if (expType == symTable.semanticError) {
+            return;
+        }
+
+        if (expType.tag != TypeTags.UNION) {
+            dlog.error(mappingConstructorExpr.pos,
+                    DiagnosticErrorCode.MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, expType);
+            return;
+        }
     }
 
     private BType getMappingConstructorCompatibleNonUnionType(BType type, AnalyzerData data) {
@@ -1308,13 +1336,13 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         try {
             switch (kind) {
                 case ADD:
-                    return calculateAddition(lhsValue, rhsValue, type);
+                    return calculateAddition(lhsValue, rhsValue, type, currentPos);
                 case SUB:
-                    return calculateSubtract(lhsValue, rhsValue, type);
+                    return calculateSubtract(lhsValue, rhsValue, type, currentPos);
                 case MUL:
-                    return calculateMultiplication(lhsValue, rhsValue, type);
+                    return calculateMultiplication(lhsValue, rhsValue, type, currentPos);
                 case DIV:
-                    return calculateDivision(lhsValue, rhsValue, type);
+                    return calculateDivision(lhsValue, rhsValue, type, currentPos);
                 case MOD:
                     return calculateMod(lhsValue, rhsValue, type);
                 case BITWISE_AND:
@@ -1335,7 +1363,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         } catch (NumberFormatException nfe) {
             // Ignore. This will be handled as a compiler error.
         } catch (ArithmeticException ae) {
-//            dlog.error(currentPos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION, ae.getMessage());
+            dlog.error(currentPos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION, ae.getMessage());
         }
         // This is a compilation error already logged.
         // This is to avoid NPE exceptions in sub-sequent validations.
@@ -1393,7 +1421,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 //        return new BLangConstantValue(null, type);
     }
 
-    private Object calculateAddition(Object lhs, Object rhs, BType type) {
+    private Object calculateAddition(Object lhs, Object rhs, BType type, Location currentPos) {
         Object result = null;
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
@@ -1401,6 +1429,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 try {
                     result = Math.addExact((Long) lhs, (Long) rhs);
                 } catch (ArithmeticException ae) {
+                    dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
                     return null;
                 }
                 break;
@@ -1422,7 +1451,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return result;
     }
 
-    private Object calculateSubtract(Object lhs, Object rhs, BType type) {
+    private Object calculateSubtract(Object lhs, Object rhs, BType type, Location currentPos) {
         Object result = null;
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
@@ -1430,6 +1459,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 try {
                     result = Math.subtractExact((Long) lhs, (Long) rhs);
                 } catch (ArithmeticException ae) {
+                    dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
                     return null;
                 }
                 break;
@@ -1448,7 +1478,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return result;
     }
 
-    private Object calculateMultiplication(Object lhs, Object rhs, BType type) {
+    private Object calculateMultiplication(Object lhs, Object rhs, BType type, Location currentPos) {
         Object result = null;
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
@@ -1456,6 +1486,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 try {
                     result = Math.multiplyExact((Long) lhs, (Long) rhs);
                 } catch (ArithmeticException ae) {
+                    dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
                     return null;
                 }
                 break;
@@ -1474,12 +1505,13 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return result;
     }
 
-    private Object calculateDivision(Object lhs, Object rhs, BType type) {
+    private Object calculateDivision(Object lhs, Object rhs, BType type, Location currentPos) {
         Object result = null;
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 if ((Long) lhs == Long.MIN_VALUE && (Long) rhs == -1) {
+                    dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
                     return null;
                 }
                 result = (Long) ((Long) lhs / (Long) rhs);
