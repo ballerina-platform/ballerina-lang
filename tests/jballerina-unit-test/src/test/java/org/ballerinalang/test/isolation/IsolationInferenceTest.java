@@ -182,7 +182,8 @@ public class IsolationInferenceTest {
     private Object[] testIsolatedInferenceWithVariablesFiles() {
         return new String[]{
                 "isolation_inference_with_variables_1.bal",
-                "isolation_inference_with_variables_2.bal"
+                "isolation_inference_with_variables_2.bal",
+                "isolation_inference_with_variables_3.bal"
         };
     }
 

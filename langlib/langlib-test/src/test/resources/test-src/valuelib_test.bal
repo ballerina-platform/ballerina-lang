@@ -3359,6 +3359,114 @@ function testCloneWithTypeToTableNegative() {
     }
 }
 
+type GraphQLQuery record {|
+    string operationName?;
+    string query?;
+    record {} variables?;
+|};
+
+type PositiveIntegersUpto5 1|2|3|4|5;
+
+type GraphQLQueries0 PositiveIntegersUpto5[];
+
+type GraphQLQueries1 GraphQLQuery[];
+
+type GraphQLQueries1Further GraphQLQueries1;
+
+type GraphQLQueries2 [int, GraphQLQuery...];
+
+type GraphQLQueries3 map<GraphQLQuery>;
+
+type GraphQLQueries4 record {|
+    GraphQLQuery a;
+|};
+
+type GraphQLQueries5 table<GraphQLQuery>;
+
+type GraphQLQueries6 GraphQLQueries5;
+
+function testCloneWithTypeToJson() {
+    GraphQLQueries0 payload0 = [1, 4, 2];
+    GraphQLQueries1 payload1 = [{query: "abc"}, {query: "xyz"}];
+    GraphQLQueries1Further payload1Further = [{query: "abc"}, {query: "xyz"}];
+    GraphQLQueries2 payload2 = [1, {query: "abc"}, {query: "xyz"}];
+    GraphQLQueries3 payload3 = {"a": {query: "abc"}, "b": {query: "xyz"}};
+    GraphQLQueries4 payload4 = {a: {query: "abc"}};
+    json stdJson0 = checkpanic payload0.cloneWithType();
+    json & readonly stdJson00 = checkpanic payload0.cloneWithType();
+    json stdJson1 = checkpanic payload1.cloneWithType();
+    json stdJson1Further = checkpanic payload1Further.cloneWithType();
+    json stdJson2 = checkpanic payload2.cloneWithType();
+    json stdJson3 = checkpanic payload3.cloneWithType();
+    json stdJson4 = checkpanic payload4.cloneWithType();
+
+    assertEquality(stdJson0, <json>[1, 4, 2]);
+    assertEquality(stdJson00, <json>[1, 4, 2]);
+    assertEquality(stdJson1, <json>[{query: "abc"}, {query: "xyz"}]);
+    assertEquality(stdJson1Further, <json>[{query: "abc"}, {query: "xyz"}]);
+    assertEquality(stdJson2, <json>[1, {query: "abc"}, {query: "xyz"}]);
+    assertEquality(stdJson3, <json>{"a": {query: "abc"}, "b": {query: "xyz"}});
+    assertEquality(stdJson4, <json>{a: {query: "abc"}});
+
+    GraphQLQueries1 payload5 = [{query: "abc"}, {query: "xyz", variables: {"nonJson": xml `<a>abc</a>`}}];
+    GraphQLQueries1Further payload5Further = [{query: "abc"}, {query: "xyz", variables: {"nonJson": xml `<a>abc</a>`}}];
+    GraphQLQueries2 payload6 = [1, {query: "abc"}, {query: "xyz", variables: {"nonJson": xml `<a>abc</a>`}}];
+    GraphQLQueries3 payload7 = {"a": {query: "abc"}, "b": {query: "xyz", variables: {"nonJson": xml `<a>abc</a>`}}};
+    GraphQLQueries4 payload8 = {a: {query: "abc", variables: {"nonJson": xml `<a>abc</a>`}}};
+    table<GraphQLQuery> payload9 = table [{query: "abc"}, {query: "xyz"}];
+    GraphQLQueries5 payload10 = table [{query: "abc"}, {query: "xyz"}];
+    GraphQLQueries6 payload11 = table [{query: "abc"}, {query: "xyz"}];
+
+    json|error stdJson5 = payload5.cloneWithType();
+    assertEquality(stdJson5 is error, true);
+    if (stdJson5 is error) {
+        assertEquality("'GraphQLQueries1' value cannot be converted to 'json'",
+        <string>checkpanic stdJson5.detail()["message"]);
+    }
+    json|error stdJson5Further = payload5Further.cloneWithType();
+    assertEquality(stdJson5Further is error, true);
+    if (stdJson5Further is error) {
+        assertEquality("'GraphQLQueries1Further' value cannot be converted to 'json'",
+        <string>checkpanic stdJson5Further.detail()["message"]);
+    }
+    json|error stdJson6 = payload6.cloneWithType();
+    assertEquality(stdJson6 is error, true);
+    if (stdJson6 is error) {
+        assertEquality("'GraphQLQueries2' value cannot be converted to 'json'",
+        <string>checkpanic stdJson6.detail()["message"]);
+    }
+    json|error stdJson7 = payload7.cloneWithType();
+    assertEquality(stdJson7 is error, true);
+    if (stdJson7 is error) {
+        assertEquality("'GraphQLQueries3' value cannot be converted to 'json'",
+        <string>checkpanic stdJson7.detail()["message"]);
+    }
+    json|error stdJson8 = payload8.cloneWithType();
+    assertEquality(stdJson8 is error, true);
+    if (stdJson8 is error) {
+        assertEquality("'GraphQLQueries4' value cannot be converted to 'json'",
+        <string>checkpanic stdJson8.detail()["message"]);
+    }
+    json|error stdJson9 = payload9.cloneWithType();
+    assertEquality(stdJson9 is error, true);
+    if (stdJson9 is error) {
+        assertEquality("'table<GraphQLQuery>' value cannot be converted to 'json'",
+        <string>checkpanic stdJson9.detail()["message"]);
+    }
+    json|error stdJson10 = payload10.cloneWithType();
+    assertEquality(stdJson10 is error, true);
+    if (stdJson10 is error) {
+        assertEquality("'GraphQLQueries5' value cannot be converted to 'json'",
+        <string>checkpanic stdJson10.detail()["message"]);
+    }
+    json|error stdJson11 = payload11.cloneWithType();
+    assertEquality(stdJson11 is error, true);
+    if (stdJson11 is error) {
+        assertEquality("'GraphQLQueries6' value cannot be converted to 'json'",
+        <string>checkpanic stdJson11.detail()["message"]);
+    }
+}
+
 /////////////////////////// Tests for `toJson()` ///////////////////////////
 
 type Student2 record {

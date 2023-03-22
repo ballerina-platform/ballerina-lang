@@ -27,6 +27,7 @@ import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
 import io.ballerina.compiler.syntax.tree.ElseBlockNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -93,10 +94,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createToken;
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.CLOSE_PAREN_TOKEN;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.ARRAY_BRACKETS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CLASS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.HANDLE;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.PARAM_TYPES;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.QUESTION_MARK;
 
 /**
  * Class for generating the Ballerina syntax tree util nodes and tokens.
@@ -105,17 +110,35 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.PARAM_TYPES;
  */
 class BindgenNodeFactory {
 
+    private static final Token OPEN_PAREN_TOKEN = createToken(SyntaxKind.OPEN_PAREN_TOKEN);
+    private static final Token CLOSED_PAREN_TOKEN = createToken(CLOSE_PAREN_TOKEN);
+    private static final Token SEMICOLON_TOKEN = createToken(SyntaxKind.SEMICOLON_TOKEN);
+    private static final Token COLON_TOKEN = createToken(SyntaxKind.COLON_TOKEN);
+    private static final MinutiaeList EMPTY_WHITE_SPACE = NodeFactory.createEmptyMinutiaeList();
+
+    private static final MinutiaeList SINGLE_SPACE_WHITE_SPACE = NodeFactory.createMinutiaeList(
+            NodeFactory.createWhitespaceMinutiae(" ")
+    );
+
+    private static final ExpressionNode NIL_TOKEN_EXPRESSION = NodeFactory.createNilLiteralNode(
+            createToken(SyntaxKind.OPEN_PAREN_TOKEN),
+            createToken(CLOSE_PAREN_TOKEN));
+
+    private static final ExpressionNode ARRAY_TOKEN_EXPRESSION = NodeFactory.createNilLiteralNode(
+            createToken(SyntaxKind.OPEN_BRACKET_TOKEN),
+            createToken(SyntaxKind.CLOSE_BRACKET_TOKEN));
+
     /**
      * Create an import declaration name node while providing the organization name, optional prefix, and module names.
      *
      * @param orgNameValue - the organization name
-     * @param prefixValue - an optional prefix value
-     * @param moduleNames - list of module names with separators
+     * @param prefixValue  - an optional prefix value
+     * @param moduleNames  - list of module names with separators
      * @return the import declaration node created
      */
     static ImportDeclarationNode createImportDeclarationNode(String orgNameValue, String prefixValue,
                                                              List<String> moduleNames) {
-        Token importKeyword = AbstractNodeFactory.createToken(SyntaxKind.IMPORT_KEYWORD, emptyML(), singleWSML());
+        Token importKeyword = createToken(SyntaxKind.IMPORT_KEYWORD, emptyML(), singleWSML());
         ImportOrgNameNode orgName = null;
         if (orgNameValue != null) {
             orgName = createImportOrgNameNode(orgNameValue);
@@ -127,7 +150,7 @@ class BindgenNodeFactory {
         if (prefixValue != null) {
             prefix = createImportPrefixNode(prefixValue);
         }
-        Token semicolon = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
+        Token semicolon = createToken(SyntaxKind.SEMICOLON_TOKEN);
 
         return NodeFactory.createImportDeclarationNode(importKeyword, orgName, moduleName, prefix, semicolon);
     }
@@ -137,7 +160,7 @@ class BindgenNodeFactory {
      */
     private static ImportOrgNameNode createImportOrgNameNode(String orgNameValue) {
         Token orgName = AbstractNodeFactory.createIdentifierToken(orgNameValue);
-        Token slashToken = AbstractNodeFactory.createToken(SyntaxKind.SLASH_TOKEN);
+        Token slashToken = createToken(SyntaxKind.SLASH_TOKEN);
 
         return NodeFactory.createImportOrgNameNode(orgName, slashToken);
     }
@@ -146,7 +169,7 @@ class BindgenNodeFactory {
      * Create an import prefix node while providing the prefix.
      */
     private static ImportPrefixNode createImportPrefixNode(String prefixValue) {
-        Token asKeyword = AbstractNodeFactory.createToken(SyntaxKind.AS_KEYWORD, singleWSML(), singleWSML());
+        Token asKeyword = createToken(SyntaxKind.AS_KEYWORD, singleWSML(), singleWSML());
         Token prefix = AbstractNodeFactory.createIdentifierToken(prefixValue);
 
         return NodeFactory.createImportPrefixNode(asKeyword, prefix);
@@ -159,9 +182,9 @@ class BindgenNodeFactory {
      * @return the type reference node created
      */
     static TypeReferenceNode createTypeReferenceNode(String type) {
-        Token asteriskToken = AbstractNodeFactory.createToken(SyntaxKind.ASTERISK_TOKEN);
+        Token asteriskToken = createToken(SyntaxKind.ASTERISK_TOKEN);
         Node typeName = createSimpleNameReferenceNode(type);
-        Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN, emptyML(), singleNLML());
+        Token semicolonToken = createToken(SyntaxKind.SEMICOLON_TOKEN, emptyML(), singleNLML());
 
         return NodeFactory.createTypeReferenceNode(asteriskToken, typeName, semicolonToken);
     }
@@ -169,7 +192,7 @@ class BindgenNodeFactory {
     /**
      * Create a function definition node for a specific java method.
      *
-     * @param bFunction - Java method for which the Ballerina function definition node is to be created.
+     * @param bFunction  - Java method for which the Ballerina function definition node is to be created.
      * @param isExternal - Specifies if the external function needs to be created instead of the mapping function.
      * @return the function definition node created
      */
@@ -183,13 +206,13 @@ class BindgenNodeFactory {
 
         NodeList<Token> qualifierList;
         if (bFunction.getEnv().hasPublicFlag() && !isExternal) {
-            Token accessModifier = AbstractNodeFactory.createToken(SyntaxKind.PUBLIC_KEYWORD, emptyML(), singleWSML());
+            Token accessModifier = createToken(SyntaxKind.PUBLIC_KEYWORD, emptyML(), singleWSML());
             qualifierList = AbstractNodeFactory.createNodeList(accessModifier);
         } else {
             qualifierList = AbstractNodeFactory.createNodeList();
         }
 
-        Token functionKeyword = AbstractNodeFactory.createToken(SyntaxKind.FUNCTION_KEYWORD, emptyML(), singleWSML());
+        Token functionKeyword = createToken(SyntaxKind.FUNCTION_KEYWORD, emptyML(), singleWSML());
         NodeList<Node> relativeResourcePath = AbstractNodeFactory.createNodeList();
         FunctionSignatureNode functionSignature = createFunctionSignatureNode(bFunction, isExternal);
 
@@ -307,13 +330,13 @@ class BindgenNodeFactory {
      * */
     private static FunctionSignatureNode createFunctionSignatureNode(BFunction bFunction, boolean isExternal)
             throws BindgenException {
-        Token openParenToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
-        Token closeParenToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+        Token openParenToken = createToken(SyntaxKind.OPEN_PAREN_TOKEN);
+        Token closeParenToken = createToken(CLOSE_PAREN_TOKEN);
         List<Node> parameterNodes = new LinkedList<>();
         if (isExternal && !bFunction.isStatic()) {
             parameterNodes.add(createRequiredParameterNode(HANDLE, "receiver"));
             if (!bFunction.getParameters().isEmpty()) {
-                parameterNodes.add(AbstractNodeFactory.createToken(SyntaxKind.COMMA_TOKEN));
+                parameterNodes.add(createToken(SyntaxKind.COMMA_TOKEN));
             }
         }
         for (JParameter jParameter : bFunction.getParameters()) {
@@ -328,7 +351,7 @@ class BindgenNodeFactory {
                         + " ", jParameter.getFieldName()));
             }
 
-            parameterNodes.add(AbstractNodeFactory.createToken(SyntaxKind.COMMA_TOKEN));
+            parameterNodes.add(createToken(SyntaxKind.COMMA_TOKEN));
         }
         if (parameterNodes.size() > 1) {
             parameterNodes.remove(parameterNodes.size() - 1);
@@ -345,7 +368,6 @@ class BindgenNodeFactory {
         return NodeFactory.createFunctionSignatureNode(openParenToken, parameters, closeParenToken,
                 returnTypeDescriptor);
     }
-
 
     private static ReturnTypeDescriptorNode getFunctionSignatureReturnType(BFunction bFunction)
             throws BindgenException {
@@ -408,17 +430,17 @@ class BindgenNodeFactory {
             fields.put(CLASS, Collections.singletonList(jField.getDeclaringClass().getName()));
         }
 
-        Token equalsToken = AbstractNodeFactory.createToken(SyntaxKind.EQUAL_TOKEN);
+        Token equalsToken = createToken(SyntaxKind.EQUAL_TOKEN);
         NodeList<AnnotationNode> annotations = AbstractNodeFactory.createNodeList(createAnnotationNode(
                 bFunction.getKind().value(), fields));
-        Token externalToken = AbstractNodeFactory.createToken(SyntaxKind.EXTERNAL_KEYWORD);
-        Token semiColonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
+        Token externalToken = createToken(SyntaxKind.EXTERNAL_KEYWORD);
+        Token semiColonToken = createToken(SyntaxKind.SEMICOLON_TOKEN);
 
         return NodeFactory.createExternalFunctionBodyNode(equalsToken, annotations, externalToken, semiColonToken);
     }
 
     private static FunctionBodyBlockNode createFunctionBodyBlockNode(BFunction bFunction) {
-        Token openBraceToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN);
+        Token openBraceToken = createToken(SyntaxKind.OPEN_BRACE_TOKEN);
 
         List<StatementNode> statementNodes;
         if (bFunction.getKind() == BFunction.BFunctionKind.METHOD) {
@@ -433,7 +455,7 @@ class BindgenNodeFactory {
         }
 
         NodeList<StatementNode> statements = AbstractNodeFactory.createNodeList(statementNodes);
-        Token closeBraceToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN, emptyML(), doubleNLML());
+        Token closeBraceToken = createToken(SyntaxKind.CLOSE_BRACE_TOKEN, emptyML(), doubleNLML());
 
         return NodeFactory.createFunctionBodyBlockNode(openBraceToken, null, statements, closeBraceToken, null);
     }
@@ -537,7 +559,7 @@ class BindgenNodeFactory {
         statementNodes.add(createVariableDeclarationNode(
                 createTypedBindingPatternNode("int", "count"),
                 createMethodCallExpressionNode(createSimpleNameReferenceNode("anyObj"), "length", new LinkedList<>())));
-        statementNodes.add(getObjectArrayPopulation(jField.getReturnShortName()));
+        statementNodes.add(getObjectArrayPopulation(jField.getEnv(), jField.getReturnShortName()));
         statementNodes.add(createReturnStatementNode(createSimpleNameReferenceNode("newObj")));
         return statementNodes;
     }
@@ -550,7 +572,7 @@ class BindgenNodeFactory {
             //   if java:isNull(externalObj) {
             //       return null;
             //   }
-            createReturnIfHandleIsNullStatement("externalObj"),
+            createReturnIfHandleIsNullStatement(jField.getEnv(), "externalObj"),
             //   return <string[]> check jarrays:fromHandle(externalObj, "string");
             createReturnStatementNode(
                 createTypeCastExpressionNode("string[]",
@@ -588,8 +610,8 @@ class BindgenNodeFactory {
         List<StatementNode> statementNodes = new LinkedList<>();
         FunctionCallExpressionNode innerFunctionCall = createFunctionCallExpressionNode(
                 jField.getExternalFunctionName(), getParameterArgumentList(jField));
-        statementNodes.add(createReturnStatementNode(createFunctionCallExpressionNode("java:toString",
-                Collections.singletonList(innerFunctionCall.toSourceCode()))));
+        statementNodes.add(createReturnToStringStatement(jField.getEnv(),
+                Collections.singletonList(innerFunctionCall.toSourceCode())));
 
         return statementNodes;
     }
@@ -675,10 +697,9 @@ class BindgenNodeFactory {
         FunctionCallExpressionNode innerFunctionCall = createFunctionCallExpressionNode(
                 jMethod.getExternalFunctionName(), getParameterArgumentList(jMethod));
         PositionalArgumentNode positionalArgNode = createPositionalArgumentNode(innerFunctionCall.toSourceCode());
-        FunctionCallExpressionNode outerFunctionCall = createFunctionCallExpressionNode("java:toString",
-                Collections.singletonList(positionalArgNode.toSourceCode()));
 
-        return createReturnStatementNode(outerFunctionCall);
+        return createReturnToStringStatement(jMethod.getEnv(),
+                Collections.singletonList(positionalArgNode.toSourceCode()));
     }
 
     private static ExpressionStatementNode getNoReturnNoExceptionStatement(JMethod jMethod) {
@@ -724,7 +745,7 @@ class BindgenNodeFactory {
                                 createTypedBindingPatternNode("int", "count"),
                                 createMethodCallExpressionNode(createSimpleNameReferenceNode("anyObj"),
                                         "length", new LinkedList<>())),
-                        getObjectArrayPopulation(jMethod.getReturnComponentType()))))));
+                        getObjectArrayPopulation(jMethod.getEnv(), jMethod.getReturnComponentType()))))));
         statementNodes.add(createReturnStatementNode(createSimpleNameReferenceNode("newObj")));
 
         return statementNodes;
@@ -737,7 +758,7 @@ class BindgenNodeFactory {
                 //   if java:isNull(externalObj) {
                 //       return null;
                 //   }
-                createReturnIfHandleIsNullStatement("externalObj"),
+                createReturnIfHandleIsNullStatement(jMethod.getEnv(), "externalObj"),
                 //  if (externalObj is error) {
                 //      InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj,
                 //           message = externalObj.message());
@@ -768,7 +789,7 @@ class BindgenNodeFactory {
                         )
                     )
                 )
-            );
+        );
     }
 
     private static List<StatementNode> getPrimitiveReturnWithException(JMethod jMethod) {
@@ -819,10 +840,20 @@ class BindgenNodeFactory {
         List<StatementNode> statementNodes = new LinkedList<>();
 
         statementNodes.add(getExternalFunctionCallStatement(HANDLE, jMethod));
-        statementNodes.add(createVariableDeclarationNode(createTypedBindingPatternNode(
-                jMethod.getReturnType(), "newObj"),
+        String returnType = jMethod.getReturnType().replace(QUESTION_MARK, "");
+        statementNodes.add(createVariableDeclarationNode(createTypedBindingPatternNode(returnType, "newObj"),
                 createImplicitNewExpressionNode(Collections.singletonList("externalObj"))));
-        statementNodes.add(createReturnStatementNode(createSimpleNameReferenceNode("newObj")));
+
+        // return java:isNull(newObj.jObj) ? () : newObj
+        if (jMethod.getEnv().isOptionalTypes() || jMethod.getEnv().isOptionalReturnTypes()) {
+            ConditionalExpressionNode returnExpr = createConditionalExpressionNode(
+                    createFunctionCallExpressionNode("java:isNull", Collections.singletonList("newObj.jObj")),
+                    NIL_TOKEN_EXPRESSION,
+                    createSimpleNameReferenceNode("newObj"));
+            statementNodes.add(createReturnStatementNode(returnExpr));
+        } else {
+            statementNodes.add(createReturnStatementNode(createSimpleNameReferenceNode("newObj")));
+        }
 
         return statementNodes;
     }
@@ -842,33 +873,18 @@ class BindgenNodeFactory {
         statementNodes.add(createVariableDeclarationNode(
                 createTypedBindingPatternNode("int", "count"),
                 createMethodCallExpressionNode(createSimpleNameReferenceNode("anyObj"), "length", new LinkedList<>())));
-        statementNodes.add(getObjectArrayPopulation(jMethod.getReturnComponentType()));
+        statementNodes.add(getObjectArrayPopulation(jMethod.getEnv(), jMethod.getReturnComponentType()));
         statementNodes.add(createReturnStatementNode(createSimpleNameReferenceNode("newObj")));
 
         return statementNodes;
     }
-
-
-    private static final Token OPEN_PAREN_TOKEN = NodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
-    private static final Token CLOSED_PAREN_TOKEN = NodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
-    private static final Token SEMICOLON_TOKEN = NodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
-    private static final Token COLON_TOKEN = NodeFactory.createToken(SyntaxKind.COLON_TOKEN);
-    private static final MinutiaeList EMPTY_WHITE_SPACE = NodeFactory.createEmptyMinutiaeList();
-    private static final MinutiaeList SINGLE_SPACE_WHITE_SPACE = NodeFactory.createMinutiaeList(
-        NodeFactory.createWhitespaceMinutiae(" ")
-    );
-    private static final ExpressionNode NULL_TOKEN_EXPRESSION = NodeFactory.createSimpleNameReferenceNode(
-        NodeFactory.createToken(SyntaxKind.NULL_KEYWORD)
-    );
 
     private static NameReferenceNode createNameReferenceNode(String namespace, String name) {
         if (name == null || "".equals(name.trim())) {
             throw new IllegalArgumentException("name must not be null, blank, or empty");
         }
         if (namespace == null) {
-            return NodeFactory.createSimpleNameReferenceNode(
-                NodeFactory.createIdentifierToken(name)
-            );
+            return NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(name));
         } else {
             if (namespace.isBlank()) {
                 throw new IllegalArgumentException("namespace must not be blank or empty");
@@ -889,13 +905,14 @@ class BindgenNodeFactory {
      * Creates a {@link StatementNode} for the following ballerina block.
      * <code>
      *     if java:isNull(<handleName>) {
-     *         return null;
+     *         return ();
      *     }
      * </code>
+     *
      * @param handleName the variable name of the handle
      * @return the ballerina block as statement node
      */
-    private static StatementNode createReturnIfHandleIsNullStatement(final String handleName) {
+    private static StatementNode createReturnIfHandleIsNullStatement(BindgenEnv env, String handleName) {
 
         // builds the code fragment 'java:isNull(<handleName>)'
         final FunctionCallExpressionNode checkIsNullExpression = NodeFactory.createFunctionCallExpressionNode(
@@ -909,56 +926,81 @@ class BindgenNodeFactory {
             CLOSED_PAREN_TOKEN
         );
 
-        // builds the code fragment 'return null;'
-        final ReturnStatementNode returnStatement = NodeFactory.createReturnStatementNode(
-            NodeFactory.createToken(
-                SyntaxKind.RETURN_KEYWORD,
-                EMPTY_WHITE_SPACE,       // no leading whitespace
-                SINGLE_SPACE_WHITE_SPACE // one blank as trailing whitespace
-            ),
-            NULL_TOKEN_EXPRESSION,
-            SEMICOLON_TOKEN
-        );
+        // if optional returns are allowed, then return nil, else return an empty array.
+        final ReturnStatementNode returnStatement;
+        if (env.isOptionalTypes() || env.isOptionalReturnTypes()) {
+            // builds the code fragment 'return ();'
+            returnStatement = NodeFactory.createReturnStatementNode(
+                    createToken(
+                            SyntaxKind.RETURN_KEYWORD,
+                            EMPTY_WHITE_SPACE,       // no leading whitespace
+                            SINGLE_SPACE_WHITE_SPACE // one blank as trailing whitespace
+                    ),
+                    NIL_TOKEN_EXPRESSION,
+                    SEMICOLON_TOKEN
+            );
+        } else {
+            // builds the code fragment 'return [];'
+            returnStatement = NodeFactory.createReturnStatementNode(
+                    createToken(
+                            SyntaxKind.RETURN_KEYWORD,
+                            EMPTY_WHITE_SPACE,       // no leading whitespace
+                            SINGLE_SPACE_WHITE_SPACE // one blank as trailing whitespace
+                    ),
+                    ARRAY_TOKEN_EXPRESSION,
+                    SEMICOLON_TOKEN
+            );
+        }
 
         // builds the code fragment
         //   if java:isNull(<handleName>) {
-        //       return null;
+        //       return <() / []>;
         //   }
         return NodeFactory.createIfElseStatementNode(
-            NodeFactory.createToken(
-                SyntaxKind.IF_KEYWORD,
-                EMPTY_WHITE_SPACE,       // no leading whitespace
-                SINGLE_SPACE_WHITE_SPACE // one blank as trailing whitespace
-            ),
-            // the expression
-            checkIsNullExpression,
-            // the if block
-            createBlockStatementNode(
-                NodeFactory.createNodeList(returnStatement)
-            ),
-            null // no else block
+                createToken(
+                        SyntaxKind.IF_KEYWORD,
+                        EMPTY_WHITE_SPACE,       // no leading whitespace
+                        SINGLE_SPACE_WHITE_SPACE // one blank as trailing whitespace
+                ),
+                // the expression
+                checkIsNullExpression,
+                // the if block
+                createBlockStatementNode(NodeFactory.createNodeList(returnStatement)),
+                null // no else block
         );
     }
 
     @SuppressWarnings("SpellCheckingInspection")
     private static List<StatementNode> getStringArrayReturnStatements(JMethod jMethod) {
         return List.of(
-            //   handle externalObj = <call external method>;
-            getExternalFunctionCallStatement(HANDLE, jMethod),
-            //   if java:isNull(externalObj) {
-            //       return null;
-            //   }
-            createReturnIfHandleIsNullStatement("externalObj"),
-            //   return <string[]> check jarrays:fromHandle(externalObj, "string");
-            createReturnStatementNode(createTypeCastExpressionNode("string[]",
-                createCheckExpressionNode(
-                    createFunctionCallExpressionNode(
-                        "jarrays:fromHandle",
-                        new LinkedList<>(Arrays.asList("externalObj", "\"string\""))
-                    )
-                )
-            ))
+                //   handle externalObj = <call external method>;
+                getExternalFunctionCallStatement(HANDLE, jMethod),
+                //   if java:isNull(externalObj) {
+                //       return null;
+                //   }
+                createReturnIfHandleIsNullStatement(jMethod.getEnv(), "externalObj"),
+                //   return <string[]> check jarrays:fromHandle(externalObj, "string");
+                createReturnStatementNode(createTypeCastExpressionNode("string[]",
+                        createCheckExpressionNode(createFunctionCallExpressionNode("jarrays:fromHandle",
+                                        new LinkedList<>(Arrays.asList("externalObj", "\"string\""))
+                                )
+                        )
+                ))
         );
+    }
+
+    private static ReturnStatementNode createReturnToStringStatement(BindgenEnv env, List<String> argNodes) {
+        FunctionCallExpressionNode funcCallExprNode = createFunctionCallExpressionNode("java:toString", argNodes);
+
+        if (env.isOptionalTypes() || env.isOptionalReturnTypes()) {
+            // return java:toString(<args>);
+            return createReturnStatementNode(funcCallExprNode);
+        } else {
+            // return java:toString(<args>) ?: "";
+            BinaryExpressionNode conditionalExprNode = createElvisExpressionNode(funcCallExprNode,
+                    createBasicLiteralNode(""));
+            return createReturnStatementNode(conditionalExprNode);
+        }
     }
 
     private static List<StatementNode> getPrimitiveArrayReturnStatements(JMethod jMethod) {
@@ -983,19 +1025,29 @@ class BindgenNodeFactory {
         return statementNodes;
     }
 
-    private static ForEachStatementNode getObjectArrayPopulation(String returnShortName) {
-        return createForEachStatementNode(
-                createTypedBindingPatternNode("int", "i"),
-                createBinaryExpressionNode("0", AbstractNodeFactory.createToken(SyntaxKind.ELLIPSIS_TOKEN),
-                        "count - 1"),
+    private static ForEachStatementNode getObjectArrayPopulation(BindgenEnv env, String elementType) {
+
+        StatementNode assignmentStatementNode = createAssignmentStatementNode(
+                createSimpleNameReferenceNode("newObj[i]"),
+                createSimpleNameReferenceNode("element"));
+        if (env.isOptionalTypes() || env.isOptionalReturnTypes()) {
+            assignmentStatementNode = createIfElseStatementNode(
+                    createBracedExpressionNode(createSimpleNameReferenceNode(String.format("newObj is %s",
+                            elementType.replace(QUESTION_MARK, QUESTION_MARK + ARRAY_BRACKETS)))),
+                    createBlockStatementNode(AbstractNodeFactory.createNodeList(assignmentStatementNode)), null);
+            createAssignmentStatementNode(
+                    createSimpleNameReferenceNode("newObj[i]"),
+                    createSimpleNameReferenceNode("element"));
+        }
+
+        return createForEachStatementNode(createTypedBindingPatternNode("int", "i"),
+                createBinaryExpressionNode("0", createToken(SyntaxKind.ELLIPSIS_TOKEN), "count - 1"),
                 createBlockStatementNode(AbstractNodeFactory.createNodeList(
                         createVariableDeclarationNode(
-                                createTypedBindingPatternNode(returnShortName, "element"),
+                                createTypedBindingPatternNode(elementType, "element"),
                                 createImplicitNewExpressionNode(Collections.singletonList("anyObj[i]"))),
-                        createAssignmentStatementNode(
-                                createSimpleNameReferenceNode("newObj[i]"),
-                                createSimpleNameReferenceNode("element"))
-                )));
+                        assignmentStatementNode))
+        );
     }
 
     private static BlockStatementNode getCheckExceptionBlock(String exceptionName, String exceptionConstName) {
@@ -1024,13 +1076,24 @@ class BindgenNodeFactory {
             argValues.add("self.jObj");
         }
         for (JParameter jParameter : bFunction.getParameters()) {
-            if (jParameter.getIsString()) {
-                argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
+            if (jParameter.getIsString() && jParameter.isOptional()) {
+                argValues.add(String.format("%s is () ? java:createNull() : java:fromString(%s)",
+                        jParameter.getFieldName(), jParameter.getFieldName()));
+            } else if (jParameter.getIsString()) {
+                argValues.add(String.format("java:fromString(%s)", jParameter.getFieldName()));
+            } else if (jParameter.isArray() && jParameter.isOptional()) {
+                argValues.add(String.format("check jarrays:toHandle(%s ?: [], \"%s\")",
+                        jParameter.getFieldName(), jParameter.getComponentType()));
             } else if (jParameter.isArray()) {
-                argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
-                        jParameter.getComponentType() + "\")");
+                argValues.add(String.format("check jarrays:toHandle(%s, \"%s\")",
+                        jParameter.getFieldName(), jParameter.getComponentType()));
             } else if (jParameter.getIsObj()) {
-                argValues.add(jParameter.getFieldName() + ".jObj");
+                if (jParameter.isOptional()) {
+                    argValues.add(String.format("%s is () ? java:createNull() : %s.jObj",
+                            jParameter.getFieldName(), jParameter.getFieldName()));
+                } else {
+                    argValues.add(jParameter.getFieldName() + ".jObj");
+                }
             } else {
                 argValues.add(jParameter.getFieldName());
             }
@@ -1043,13 +1106,13 @@ class BindgenNodeFactory {
      */
     private static MarkdownParameterDocumentationLineNode createMarkdownParameterDocumentationLineNode(
             String paramName, String content) {
-        Token hashToken = AbstractNodeFactory.createToken(SyntaxKind.HASH_TOKEN, emptyML(), emptyML());
-        Token plusToken = AbstractNodeFactory.createToken(SyntaxKind.PLUS_TOKEN);
+        Token hashToken = createToken(SyntaxKind.HASH_TOKEN, emptyML(), emptyML());
+        Token plusToken = createToken(SyntaxKind.PLUS_TOKEN);
         Token parameterName = AbstractNodeFactory.createLiteralValueToken(SyntaxKind.PARAMETER_NAME, paramName,
                 singleWSML(), singleWSML());
         LiteralValueToken documentElements = AbstractNodeFactory.createLiteralValueToken(
                 SyntaxKind.DOCUMENTATION_DESCRIPTION, content, emptyML(), singleNLML());
-        Token minusToken = AbstractNodeFactory.createToken(SyntaxKind.MINUS_TOKEN);
+        Token minusToken = createToken(SyntaxKind.MINUS_TOKEN);
 
         return NodeFactory.createMarkdownParameterDocumentationLineNode(null, hashToken, plusToken,
                 parameterName, minusToken, AbstractNodeFactory.createNodeList(documentElements));
@@ -1059,7 +1122,7 @@ class BindgenNodeFactory {
      * Creates a markdown documentation line node using the documentation elements provided.
      */
     private static MarkdownDocumentationLineNode createMarkdownDocumentationLineNode(String content) {
-        Token hashToken = AbstractNodeFactory.createToken(SyntaxKind.HASH_TOKEN, emptyML(), singleWSML());
+        Token hashToken = createToken(SyntaxKind.HASH_TOKEN, emptyML(), singleWSML());
         LiteralValueToken documentElements = AbstractNodeFactory.createLiteralValueToken(
                 SyntaxKind.DOCUMENTATION_DESCRIPTION, content, emptyML(), singleNLML());
 
@@ -1086,18 +1149,18 @@ class BindgenNodeFactory {
      */
     private static ErrorConstructorExpressionNode createErrorConstructorExpressionNode(TypeDescriptorNode typeReference,
                                                                                        List<String> argList) {
-        Token errorKeyword = AbstractNodeFactory.createToken(SyntaxKind.ERROR_KEYWORD, emptyML(), singleWSML());
-        Token openParenToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
+        Token errorKeyword = createToken(SyntaxKind.ERROR_KEYWORD, emptyML(), singleWSML());
+        Token openParenToken = createToken(SyntaxKind.OPEN_PAREN_TOKEN);
         List<Node> argumentNodes = new LinkedList<>();
         for (String arg : argList) {
             argumentNodes.add(createPositionalArgumentNode(arg));
-            argumentNodes.add(AbstractNodeFactory.createToken(SyntaxKind.COMMA_TOKEN));
+            argumentNodes.add(createToken(SyntaxKind.COMMA_TOKEN));
         }
         if (argumentNodes.size() > 1) {
             argumentNodes.remove(argumentNodes.size() - 1);
         }
         SeparatedNodeList<FunctionArgumentNode> arguments = AbstractNodeFactory.createSeparatedNodeList(argumentNodes);
-        Token closeParenToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+        Token closeParenToken = createToken(CLOSE_PAREN_TOKEN);
 
         return NodeFactory.createErrorConstructorExpressionNode(errorKeyword, typeReference,
                 openParenToken, arguments, closeParenToken);
@@ -1107,8 +1170,8 @@ class BindgenNodeFactory {
      * Creates a assignment statement node using the details provided.
      */
     private static AssignmentStatementNode createAssignmentStatementNode(Node varRef, ExpressionNode expression) {
-        Token equalsToken = AbstractNodeFactory.createToken(SyntaxKind.EQUAL_TOKEN, singleWSML(), singleWSML());
-        Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
+        Token equalsToken = createToken(SyntaxKind.EQUAL_TOKEN, singleWSML(), singleWSML());
+        Token semicolonToken = createToken(SyntaxKind.SEMICOLON_TOKEN);
 
         return NodeFactory.createAssignmentStatementNode(varRef, equalsToken, expression, semicolonToken);
     }
@@ -1121,7 +1184,7 @@ class BindgenNodeFactory {
         Node rhsExpr = createSimpleNameReferenceNode(rhs);
 
         return NodeFactory.createBinaryExpressionNode(null, lhsExpr, operator, rhsExpr);
-    }
+}
 
     /**
      * Creates a foreach statement node using the details provided.
@@ -1129,8 +1192,8 @@ class BindgenNodeFactory {
     private static ForEachStatementNode createForEachStatementNode(TypedBindingPatternNode typedBindingPattern,
                                                                    Node actionOrExpressionNode,
                                                                    BlockStatementNode blockStatement) {
-        Token forEachKeyword = AbstractNodeFactory.createToken(SyntaxKind.FOREACH_KEYWORD, emptyML(), singleWSML());
-        Token inKeyword = AbstractNodeFactory.createToken(SyntaxKind.IN_KEYWORD, singleWSML(), singleWSML());
+        Token forEachKeyword = createToken(SyntaxKind.FOREACH_KEYWORD, emptyML(), singleWSML());
+        Token inKeyword = createToken(SyntaxKind.IN_KEYWORD, singleWSML(), singleWSML());
 
         return NodeFactory.createForEachStatementNode(forEachKeyword, typedBindingPattern, inKeyword,
                 actionOrExpressionNode, blockStatement, null);
@@ -1142,9 +1205,9 @@ class BindgenNodeFactory {
     private static MethodCallExpressionNode createMethodCallExpressionNode(ExpressionNode expression,
                                                                            String methodNameValue,
                                                                            List<String> argList) {
-        Token dotToken = AbstractNodeFactory.createToken(SyntaxKind.DOT_TOKEN);
+        Token dotToken = createToken(SyntaxKind.DOT_TOKEN);
         NameReferenceNode methodName = createSimpleNameReferenceNode(methodNameValue);
-        Token openParenToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
+        Token openParenToken = createToken(SyntaxKind.OPEN_PAREN_TOKEN);
         List<Node> argListNode = new LinkedList<>();
         for (String arg : argList) {
             argListNode.add(createPositionalArgumentNode(arg));
@@ -1154,7 +1217,7 @@ class BindgenNodeFactory {
             argListNode.remove(argListNode.size() - 1);
         }
         SeparatedNodeList<FunctionArgumentNode> arguments = AbstractNodeFactory.createSeparatedNodeList(argListNode);
-        Token closeParenToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+        Token closeParenToken = createToken(CLOSE_PAREN_TOKEN);
 
         return NodeFactory.createMethodCallExpressionNode(expression, dotToken, methodName, openParenToken,
                 arguments, closeParenToken);
@@ -1164,8 +1227,8 @@ class BindgenNodeFactory {
      * Creates a return statement node using the expression node provided.
      */
     private static ReturnStatementNode createReturnStatementNode(ExpressionNode expression) {
-        Token returnKeyword = AbstractNodeFactory.createToken(SyntaxKind.RETURN_KEYWORD, emptyML(), singleWSML());
-        Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
+        Token returnKeyword = createToken(SyntaxKind.RETURN_KEYWORD, emptyML(), singleWSML());
+        Token semicolonToken = createToken(SyntaxKind.SEMICOLON_TOKEN);
 
         return NodeFactory.createReturnStatementNode(returnKeyword, expression, semicolonToken);
     }
@@ -1176,8 +1239,8 @@ class BindgenNodeFactory {
     private static VariableDeclarationNode createVariableDeclarationNode(TypedBindingPatternNode typedBindingPattern,
                                                                          ExpressionNode initializer) {
         NodeList<AnnotationNode> annotations = AbstractNodeFactory.createNodeList();
-        Token equalsToken = AbstractNodeFactory.createToken(SyntaxKind.EQUAL_TOKEN);
-        Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
+        Token equalsToken = createToken(SyntaxKind.EQUAL_TOKEN);
+        Token semicolonToken = createToken(SyntaxKind.SEMICOLON_TOKEN);
 
         return NodeFactory.createVariableDeclarationNode(annotations, null, typedBindingPattern,
                 equalsToken, initializer, semicolonToken);
@@ -1187,9 +1250,9 @@ class BindgenNodeFactory {
      * Creates a type cast expression node using the string type and the expression node provided.
      */
     private static TypeCastExpressionNode createTypeCastExpressionNode(String type, ExpressionNode expression) {
-        Token ltToken = AbstractNodeFactory.createToken(SyntaxKind.LT_TOKEN);
+        Token ltToken = createToken(SyntaxKind.LT_TOKEN);
         TypeCastParamNode typeCastParam = createTypeCastParamNode(type);
-        Token gtToken = AbstractNodeFactory.createToken(SyntaxKind.GT_TOKEN);
+        Token gtToken = createToken(SyntaxKind.GT_TOKEN);
 
         return NodeFactory.createTypeCastExpressionNode(ltToken, typeCastParam, gtToken, expression);
     }
@@ -1208,7 +1271,7 @@ class BindgenNodeFactory {
      * Creates an implicit new expression node using the string argument list provided.
      */
     private static ImplicitNewExpressionNode createImplicitNewExpressionNode(List<String> argList) {
-        Token newToken = AbstractNodeFactory.createToken(SyntaxKind.NEW_KEYWORD);
+        Token newToken = createToken(SyntaxKind.NEW_KEYWORD);
         ParenthesizedArgList parenthesizedArgList = createParenthesizedArgList(argList);
 
         return NodeFactory.createImplicitNewExpressionNode(newToken, parenthesizedArgList);
@@ -1218,7 +1281,7 @@ class BindgenNodeFactory {
      * Creates a check expression node using the expression node provided.
      */
     private static CheckExpressionNode createCheckExpressionNode(ExpressionNode expressionNode) {
-        Token checkKeyword = AbstractNodeFactory.createToken(SyntaxKind.CHECK_KEYWORD, emptyML(), singleWSML());
+        Token checkKeyword = createToken(SyntaxKind.CHECK_KEYWORD, emptyML(), singleWSML());
 
         return NodeFactory.createCheckExpressionNode(null, checkKeyword, expressionNode);
     }
@@ -1227,7 +1290,7 @@ class BindgenNodeFactory {
      * Creates an else block node using the else body statement node provided.
      */
     private static ElseBlockNode createElseBlockNode(StatementNode elseBody) {
-        Token elseKeyword = AbstractNodeFactory.createToken(SyntaxKind.ELSE_KEYWORD, emptyML(), singleWSML());
+        Token elseKeyword = createToken(SyntaxKind.ELSE_KEYWORD, emptyML(), singleWSML());
 
         return NodeFactory.createElseBlockNode(elseKeyword, elseBody);
     }
@@ -1237,7 +1300,7 @@ class BindgenNodeFactory {
      */
     private static IfElseStatementNode createIfElseStatementNode(ExpressionNode condition, BlockStatementNode ifBody,
                                                                  Node elseBody) {
-        Token ifKeyword = AbstractNodeFactory.createToken(SyntaxKind.IF_KEYWORD, emptyML(), singleWSML());
+        Token ifKeyword = createToken(SyntaxKind.IF_KEYWORD, emptyML(), singleWSML());
         return NodeFactory.createIfElseStatementNode(ifKeyword, condition, ifBody, elseBody);
     }
 
@@ -1245,8 +1308,8 @@ class BindgenNodeFactory {
      * Creates a block statement node using the statement nodes provided.
      */
     private static BlockStatementNode createBlockStatementNode(NodeList<StatementNode> statementNodes) {
-        Token openBraceToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN);
-        Token closeBraceToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
+        Token openBraceToken = createToken(SyntaxKind.OPEN_BRACE_TOKEN);
+        Token closeBraceToken = createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
 
         return NodeFactory.createBlockStatementNode(openBraceToken, statementNodes, closeBraceToken);
     }
@@ -1255,8 +1318,8 @@ class BindgenNodeFactory {
      * Creates a braced expression node using the expression node provided.
      */
     private static BracedExpressionNode createBracedExpressionNode(ExpressionNode expressionNode) {
-        Token openParenToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
-        Token closeParenToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+        Token openParenToken = createToken(SyntaxKind.OPEN_PAREN_TOKEN);
+        Token closeParenToken = createToken(CLOSE_PAREN_TOKEN);
 
         return NodeFactory.createBracedExpressionNode(null, openParenToken, expressionNode, closeParenToken);
     }
@@ -1265,20 +1328,39 @@ class BindgenNodeFactory {
      * Creates a parenthesized argument list using the argument list provided.
      */
     private static ParenthesizedArgList createParenthesizedArgList(List<String> argList) {
-        Token openParenToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
+        Token openParenToken = createToken(SyntaxKind.OPEN_PAREN_TOKEN);
         List<Node> argumentNodeList = new LinkedList<>();
         for (String arg : argList) {
             argumentNodeList.add(createPositionalArgumentNode(arg));
-            argumentNodeList.add(AbstractNodeFactory.createToken(SyntaxKind.COMMA_TOKEN));
+            argumentNodeList.add(createToken(SyntaxKind.COMMA_TOKEN));
         }
         if (argumentNodeList.size() > 1) {
             argumentNodeList.remove(argumentNodeList.size() - 1);
         }
         SeparatedNodeList<FunctionArgumentNode> arguments = AbstractNodeFactory
                 .createSeparatedNodeList(argumentNodeList);
-        Token closeParenToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+        Token closeParenToken = createToken(CLOSE_PAREN_TOKEN);
 
         return NodeFactory.createParenthesizedArgList(openParenToken, arguments, closeParenToken);
+    }
+
+    /**
+     * Creates a conditional expression node (e.g: lhsExpression ? middleExpression : endExpression)
+     */
+    private static ConditionalExpressionNode createConditionalExpressionNode(ExpressionNode lhsExpr,
+                                                                             ExpressionNode middleExpr,
+                                                                             ExpressionNode endExpr) {
+        Token questionMark = createToken(SyntaxKind.QUESTION_MARK_TOKEN);
+        Token colon = createToken(SyntaxKind.COLON_TOKEN);
+        return NodeFactory.createConditionalExpressionNode(lhsExpr, questionMark, middleExpr, colon, endExpr);
+    }
+
+    /**
+     * Creates a elvis expression node (e.g: lhsExpression ?: rhsExpression).
+     */
+    private static BinaryExpressionNode createElvisExpressionNode(Node lhs, Node rhs) {
+        Token elvisToken = createToken(SyntaxKind.ELVIS_TOKEN);
+        return NodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, lhs, elvisToken, rhs);
     }
 
     /**
@@ -1286,19 +1368,19 @@ class BindgenNodeFactory {
      */
     private static FunctionCallExpressionNode createFunctionCallExpressionNode(String functionNameValue,
                                                                                List<String> argValues) {
-        Token openParenToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_PAREN_TOKEN);
+        Token openParenToken = createToken(SyntaxKind.OPEN_PAREN_TOKEN);
         NameReferenceNode functionName = createSimpleNameReferenceNode(functionNameValue);
         SeparatedNodeList<FunctionArgumentNode> argumentNodeList;
         List<Node> argList = new LinkedList<>();
         for (String arg : argValues) {
             argList.add(createPositionalArgumentNode(arg));
-            argList.add(AbstractNodeFactory.createToken(SyntaxKind.COMMA_TOKEN));
+            argList.add(createToken(SyntaxKind.COMMA_TOKEN));
         }
         if (argList.size() > 1) {
             argList.remove(argList.size() - 1);
         }
         argumentNodeList = AbstractNodeFactory.createSeparatedNodeList(argList);
-        Token closeParenToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+        Token closeParenToken = createToken(CLOSE_PAREN_TOKEN);
 
         return NodeFactory.createFunctionCallExpressionNode(functionName, openParenToken,
                 argumentNodeList, closeParenToken);
@@ -1345,7 +1427,7 @@ class BindgenNodeFactory {
      * Creates an annotation node using the string annotation name and the field map provided.
      */
     private static AnnotationNode createAnnotationNode(String annotation, Map<String, List<String>> fields) {
-        Token atToken = AbstractNodeFactory.createToken(SyntaxKind.AT_TOKEN);
+        Token atToken = createToken(SyntaxKind.AT_TOKEN);
         SimpleNameReferenceNode nameReference = createSimpleNameReferenceNode(annotation);
         MappingConstructorExpressionNode mappingConstructor = createMappingConstructorExpressionNode(fields);
 
@@ -1357,13 +1439,13 @@ class BindgenNodeFactory {
      */
     private static MappingConstructorExpressionNode createMappingConstructorExpressionNode(
             Map<String, List<String>> fields) {
-        Token openBraceToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN, emptyML(), singleNLML());
-        Token closeBraceToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
+        Token openBraceToken = createToken(SyntaxKind.OPEN_BRACE_TOKEN, emptyML(), singleNLML());
+        Token closeBraceToken = createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
         List<Node> mappingFields = new LinkedList<>();
         for (Map.Entry<String, List<String>> entry : fields.entrySet()) {
             List<String> fieldValues = entry.getValue();
             mappingFields.add(createSpecificFieldNode(entry.getKey(), fieldValues));
-            mappingFields.add(AbstractNodeFactory.createToken(SyntaxKind.COMMA_TOKEN));
+            mappingFields.add(createToken(SyntaxKind.COMMA_TOKEN));
         }
         if (mappingFields.size() > 1) {
             mappingFields.remove(mappingFields.size() - 1);
@@ -1378,7 +1460,7 @@ class BindgenNodeFactory {
      */
     private static SpecificFieldNode createSpecificFieldNode(String name, List<String> value) {
         IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(name);
-        Token colonToken = AbstractNodeFactory.createToken(SyntaxKind.COLON_TOKEN);
+        Token colonToken = createToken(SyntaxKind.COLON_TOKEN);
         ExpressionNode expressionNode = null;
         if (value.size() > 1 || name.equals("paramTypes")) {
             expressionNode = createListConstructorExpressionNode(value);
@@ -1393,12 +1475,12 @@ class BindgenNodeFactory {
      * Creates a list constructor expression node using the list of strings provided.
      */
     private static ListConstructorExpressionNode createListConstructorExpressionNode(List<String> list) {
-        Token openBracketToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
-        Token closeBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
+        Token openBracketToken = createToken(SyntaxKind.OPEN_BRACKET_TOKEN);
+        Token closeBracketToken = createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
         List<Node> listElements = new LinkedList<>();
         for (String element : list) {
             listElements.add(createBasicLiteralNode(element));
-            listElements.add(AbstractNodeFactory.createToken(SyntaxKind.COMMA_TOKEN));
+            listElements.add(createToken(SyntaxKind.COMMA_TOKEN));
         }
         if (listElements.size() > 1) {
             listElements.remove(listElements.size() - 1);
@@ -1412,7 +1494,7 @@ class BindgenNodeFactory {
      * Creates an expression statement node using the expression node provided.
      */
     private static ExpressionStatementNode createExpressionStatementNode(ExpressionNode expression) {
-        Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
+        Token semicolonToken = createToken(SyntaxKind.SEMICOLON_TOKEN);
 
         return NodeFactory.createExpressionStatementNode(null, expression, semicolonToken);
     }
@@ -1442,7 +1524,7 @@ class BindgenNodeFactory {
      */
     private static ReturnTypeDescriptorNode createReturnTypeDescriptorNode(
             TypeDescriptorNode returnTypeDescriptorNode) {
-        Token returnsKeyword = AbstractNodeFactory.createToken(SyntaxKind.RETURNS_KEYWORD, emptyML(), singleWSML());
+        Token returnsKeyword = createToken(SyntaxKind.RETURNS_KEYWORD, emptyML(), singleWSML());
         NodeList<AnnotationNode> annotations = AbstractNodeFactory.createNodeList();
 
         return NodeFactory.createReturnTypeDescriptorNode(returnsKeyword, annotations, returnTypeDescriptorNode);
@@ -1472,8 +1554,8 @@ class BindgenNodeFactory {
     }
 
     /**
-    * Retrieve an empty minutiae list.
-    */
+     * Retrieve an empty minutiae list.
+     */
     private static MinutiaeList emptyML() {
         return AbstractNodeFactory.createEmptyMinutiaeList();
     }

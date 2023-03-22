@@ -73,5 +73,13 @@ digraph central {
     subgraph "ballerinax/github:1.0.0" {
         "ballerinax/github:1.0.0" -> "samjs/c:0.5.1"
     }
+
+    subgraph "ballerinax/github:1.0.2" {
+    "ballerinax/github:1.0.2" -> "samjs/c:0.5.1"
+    }
+
+    subgraph "ballerinax/github:1.1.0" {
+    "ballerinax/github:1.1.0" -> "samjs/c:0.5.1"
+    }
 }
 

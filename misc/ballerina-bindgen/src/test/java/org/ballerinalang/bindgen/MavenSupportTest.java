@@ -43,7 +43,7 @@ import java.util.Objects;
  *
  * @since 1.2.5
  */
-public class MavenSupportTest extends CommandTest {
+public class MavenSupportTest extends BindgenCommandBaseTest {
 
     private Path testResources;
 

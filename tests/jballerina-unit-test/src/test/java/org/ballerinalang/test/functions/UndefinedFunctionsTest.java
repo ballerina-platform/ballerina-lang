@@ -42,12 +42,17 @@ public class UndefinedFunctionsTest {
 
     @Test
     public void testUndefinedFunctions() {
-        Assert.assertEquals(result.getErrorCount(), 4);
         int i = 0;
         BAssertUtil.validateError(result, i++, "undefined function 'index' in type 'string'", 3, 17);
         BAssertUtil.validateError(result, i++, "undefined function 'add' in type 'string'", 4, 16);
         BAssertUtil.validateError(result, i++, "undefined function 'length' in type 'string?'", 17, 30);
         BAssertUtil.validateError(result, i++, "undefined function 'delete' in type 'map<string>'", 26, 13);
+        BAssertUtil.validateError(result, i++, "undefined function 'func' in type '(ManagerR|CompanyR)'", 43, 13);
+        BAssertUtil.validateError(result, i++, "undefined function 'func1'", 46, 9);
+        BAssertUtil.validateError(result, i++, "undefined function 'func2'", 49, 9);
+        BAssertUtil.validateError(result, i++, "undefined function 'func' in type '(ManagerR|EmployeeR)'", 52, 13);
+        BAssertUtil.validateError(result, i++, "undefined function 'func3'", 55, 9);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @AfterClass
