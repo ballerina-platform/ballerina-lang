@@ -59,7 +59,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -2714,46 +2713,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         }
     }
 
-    private boolean checkIfFiniteTypeHasNullMembers(BType bType) {
-        if (bType.tag != TypeTags.FINITE) {
-            return false;
-        }
-        Set<BLangExpression> finiteMembers = ((BFiniteType) bType).getValueSpace();
-        for (BLangExpression finiteMemberType : finiteMembers) {
-            if (finiteMemberType.getBType().tag != TypeTags.NIL) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean checkIfUnionTypeHasNullMembers(BType bType) {
-        if (bType.tag != TypeTags.UNION) {
-            return false;
-        }
-        BUnionType unionType = (BUnionType) bType;
-        LinkedHashSet<BType> members = unionType.getMemberTypes();
-        if (members.size() >= 1) {
-            for (BType memberType : members) {
-                if (memberType.tag != TypeTags.NIL) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        LinkedHashSet<BType> originalMembers = unionType.getOriginalMemberTypes();
-        // Special cased to handle return types like never|never` as they are not correctly handled at the moment.
-        // https://github.com/ballerina-platform/ballerina-lang/issues/39797
-        if (members.size() == 0 && originalMembers.size() == 1) {
-            return originalMembers.iterator().next().tag == TypeTags.NEVER;
-        }
-        return false;
-    }
-
-    private boolean isSubTypeOfNil(BType bType) {
-        return !checkIfUnionTypeHasNullMembers(bType) && !checkIfFiniteTypeHasNullMembers(bType);
-    }
-
     @Override
     public void visit(BLangExpressionStmt exprStmtNode, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
@@ -2764,7 +2723,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         BType bType = typeChecker.checkExpr(expr, stmtEnv, data.prevEnvs, data.commonAnalyzerData);
         if (bType != symTable.nilType && bType != symTable.semanticError &&
                 expr.getKind() != NodeKind.FAIL &&
-                !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(bType) && isSubTypeOfNil(bType)) {
+                !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(bType)
+                && !types.isAssignable(bType, symTable.nilType)) {
             dlog.error(exprStmtNode.pos, DiagnosticErrorCode.ASSIGNMENT_REQUIRED, bType);
         } else if (expr.getKind() == NodeKind.INVOCATION &&
                 types.isNeverTypeOrStructureTypeWithARequiredNeverMember(expr.getBType())) {

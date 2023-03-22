@@ -363,6 +363,8 @@ function testFuncWithNilReturnTypeWithoutVariableAssignment() {
     f5();
     f6();
     f8();
+    f9();
+    f10();
 }
 
 function testFuncWithNeverReturnTypeWithoutVariableAssignment() {
@@ -370,6 +372,9 @@ function testFuncWithNeverReturnTypeWithoutVariableAssignment() {
     assertValueEquality("Invalid", err.message());
 
     err = <error>trap intermediateFunction2();
+    assertValueEquality("Invalid", err.message());
+
+    err = <error>trap intermediateFunction3();
     assertValueEquality("Invalid", err.message());
 }
 
@@ -379,6 +384,10 @@ function intermediateFunction1() returns error? {
 
 function intermediateFunction2() returns error? {
     f7();
+}
+
+function intermediateFunction3() returns error? {
+    f11();
 }
 
 function f1() returns ()|() => ();
@@ -404,6 +413,17 @@ function f7() returns never {
 }
 
 function f8() returns null|null => null;
+
+type FuncReturnType1 ()|();
+function f9() returns FuncReturnType1 => ();
+
+type FuncReturnType2 null;
+function f10() returns FuncReturnType2 => null;
+
+type FuncReturnType3 never;
+function f11() returns FuncReturnType3 {
+    panic error("Invalid");
+}
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
