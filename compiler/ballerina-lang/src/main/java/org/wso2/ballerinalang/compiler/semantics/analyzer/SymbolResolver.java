@@ -1748,7 +1748,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return type;
         }
 
-        type = typeResolver.validateModuleLevelDef(name, env);
+        type = typeResolver.validateModuleLevelDef(name, pkgAlias, typeName, userDefinedTypeNode.pos);
         return type != null ? type : symbol.type;
     }
 

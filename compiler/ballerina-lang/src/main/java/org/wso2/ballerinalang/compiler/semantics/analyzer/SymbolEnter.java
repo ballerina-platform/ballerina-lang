@@ -222,7 +222,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<SymbolEnter> SYMBOL_ENTER_KEY =
             new CompilerContext.Key<>();
-    private final NodeCloner nodeCloner;
     private final SymbolTable symTable;
     private final Names names;
     private final SymbolResolver symResolver;
@@ -276,7 +275,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
         this.intersectionTypes = new ArrayList<>();
-        this.nodeCloner = NodeCloner.getInstance(context);
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         projectAPIInitiatedCompilation = Boolean.parseBoolean(
@@ -2089,6 +2087,32 @@ public class SymbolEnter extends BLangNodeVisitor {
             throw new IllegalStateException("Not supported annotation attachment at:" + attachment.pos);
         }
         defineSymbol(typeDefinition.name.pos, typeDefinition.symbol);
+    }
+
+    public void handleLangLibTypes(BLangTypeDefinition typeDefinition, SymbolEnv env) {
+
+        // As per spec 2020R3 built-in types are limited only within lang.* modules.
+        for (BLangAnnotationAttachment attachment : typeDefinition.annAttachments) {
+            if (attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value)) {
+                BSymbol typeDefSymbol = typeDefinition.symbol;
+                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol);
+                typeDefSymbol.flags |= Flags.TYPE_PARAM;
+                break;
+            } else if (attachment.annotationName.value.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.value)) {
+                // Type is pre-defined in symbol Table.
+                BType type = symTable.getLangLibSubType(typeDefinition.name.value);
+                typeDefinition.symbol.type = type;
+                typeDefinition.symbol.flags |= type.tsymbol.flags;
+                ((BTypeDefinitionSymbol) typeDefinition.symbol).referenceType.tsymbol.flags |= type.tsymbol.flags;
+                ((BTypeDefinitionSymbol) typeDefinition.symbol).referenceType.referredType = type;
+                typeDefinition.setBType(type);
+                typeDefinition.typeNode.setBType(type);
+                typeDefinition.isBuiltinTypeDef = true;
+                break;
+            }
+            throw new IllegalStateException("Not supported annotation attachment at:" + attachment.pos);
+        }
+        defineSymbol(typeDefinition.name.pos, typeDefinition.symbol, env);
     }
 
     // If this type is defined to a public type or this is a anonymous type, return int with all bits set to 1,
