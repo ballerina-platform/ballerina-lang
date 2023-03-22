@@ -44,7 +44,7 @@ import java.util.Objects;
  *
  * @since 1.2
  */
-public class BindgenCommandTest extends CommandTest {
+public class BindgenCommandTest extends BindgenCommandBaseTest {
 
     private Path testResources;
     private String newLine = System.lineSeparator();
