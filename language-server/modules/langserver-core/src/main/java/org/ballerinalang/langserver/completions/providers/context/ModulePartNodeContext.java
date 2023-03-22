@@ -35,7 +35,6 @@ import org.ballerinalang.langserver.completions.providers.context.util.ServiceTe
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
-import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
@@ -139,7 +138,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
             case ISOLATED_KEYWORD:
                 if (qualKinds.contains(SyntaxKind.TRANSACTIONAL_KEYWORD)) {
                     completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
-                    completionItems.add(new SnippetCompletionItem(context, 
+                    completionItems.add(new SnippetCompletionItem(context,
                             Snippet.DEF_EXPRESSION_BODIED_FUNCTION.get()));
                     break;
                 }
@@ -186,7 +185,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
         if (qualifiers.isEmpty()) {
             return false;
         }
-        
+
         // If cursor is after the last qualifier, no problem
         Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
         return lastQualifier.textRange().endOffset() < cursor;
