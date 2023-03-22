@@ -7,6 +7,66 @@
   "description": "",
   "items": [
     {
+      "label": "/[string... ids]",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
+        }
+      },
+      "sortText": "C",
+      "filterText": "get",
+      "insertText": "/[${1:\"path\"}];",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 38,
+              "character": 26
+            },
+            "end": {
+              "line": 38,
+              "character": 27
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/<path>",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
+        }
+      },
+      "sortText": "C",
+      "filterText": "get",
+      "insertText": "/${1:path};",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 38,
+              "character": 26
+            },
+            "end": {
+              "line": 38,
+              "character": 27
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
       "label": "/path3.post(string b, string... ids2)",
       "kind": "Function",
       "detail": "()",
@@ -18,7 +78,7 @@
       },
       "sortText": "C",
       "filterText": "path3|post",
-      "insertText": "/path3.post(${1})",
+      "insertText": "/path3.post(${1});",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -39,36 +99,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "/[string... ids]",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
-        }
-      },
-      "sortText": "C",
-      "filterText": "get",
-      "insertText": "/[${1:\"\"}]",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 38,
-              "character": 26
-            },
-            "end": {
-              "line": 38,
-              "character": 27
-            }
-          },
-          "newText": ""
-        }
-      ]
     }
   ]
 }

@@ -18,7 +18,67 @@
       },
       "sortText": "C",
       "filterText": "path1|get",
-      "insertText": "/path1",
+      "insertText": "/path1;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 35,
+              "character": 10
+            },
+            "end": {
+              "line": 35,
+              "character": 11
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/[string... ids]",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
+        }
+      },
+      "sortText": "C",
+      "filterText": "get",
+      "insertText": "/[${1:\"path\"}];",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 35,
+              "character": 10
+            },
+            "end": {
+              "line": 35,
+              "character": 11
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/<path>",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
+        }
+      },
+      "sortText": "C",
+      "filterText": "get",
+      "insertText": "/${1:path};",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -48,7 +108,37 @@
       },
       "sortText": "C",
       "filterText": "path1|get",
-      "insertText": "/path1/[${1:\"\"}]",
+      "insertText": "/path1/[${1:\"path\"}];",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 35,
+              "character": 10
+            },
+            "end": {
+              "line": 35,
+              "character": 11
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/path1/<path>",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1"
+        }
+      },
+      "sortText": "C",
+      "filterText": "path1|get",
+      "insertText": "/path1/${1:path};",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -78,7 +168,37 @@
       },
       "sortText": "C",
       "filterText": "path1|path2|get",
-      "insertText": "/path1/[${1:\"\"}]/path2",
+      "insertText": "/path1/[${1:\"path\"}]/path2;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 35,
+              "character": 10
+            },
+            "end": {
+              "line": 35,
+              "character": 11
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "/path1/<path>/path2",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "path1|path2|get",
+      "insertText": "/path1/${1:path}/path2;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -108,7 +228,7 @@
       },
       "sortText": "C",
       "filterText": "path1|path2|post",
-      "insertText": "/path1/[${1:\"\"}]/path2/[${2:\"\"}].post(${3})",
+      "insertText": "/path1/[${1:\"path\"}]/path2/[${2:\"path\"}].post(${3});",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -131,18 +251,18 @@
       }
     },
     {
-      "label": "/[string... ids]",
+      "label": "/path1/<path>/path2/<path>.post(string b, string... ids2)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string[]` ids  \n- `string` b  \n- `string[]` ids2"
         }
       },
       "sortText": "C",
-      "filterText": "get",
-      "insertText": "/[${1:\"\"}]",
+      "filterText": "path1|path2|post",
+      "insertText": "/path1/${1:path}/path2/${2:path}.post(${3});",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -158,7 +278,11 @@
           },
           "newText": ""
         }
-      ]
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

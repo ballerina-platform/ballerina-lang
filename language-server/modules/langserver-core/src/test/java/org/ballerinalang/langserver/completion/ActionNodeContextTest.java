@@ -36,10 +36,7 @@ public class ActionNodeContextTest extends CompletionTest {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
-        return new Object[][] {
-                {"client_resource_access_action_bir_config.json", getTestResourceDir()}
-        };
-//        return this.getConfigsList();
+        return this.getConfigsList();
     }
 
     @Override

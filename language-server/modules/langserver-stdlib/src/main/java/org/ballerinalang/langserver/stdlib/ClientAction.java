@@ -44,7 +44,7 @@ public class ClientAction {
     }
 
     public static Object postResource(BArray path, Object message, Object headers,
-                                      Object mediaType, BTypedesc targetType, BMap params) {
+                                      Object mediaType, BTypedesc targetType) {
         return new Object();
     }
 }
