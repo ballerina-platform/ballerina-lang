@@ -21,7 +21,7 @@ package io.ballerina.architecturemodelgenerator.diagnostics;
 /**
  * Diagnostic node which represents the node at which diagnostics is generated.
  *
- * @since 2201.2.2
+ * @since 2201.3.5
  */
 public enum DiagnosticNode {
     SERVICES("services"),
