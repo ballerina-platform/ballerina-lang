@@ -353,6 +353,39 @@ function testFieldAccessOnMapConstruct() returns boolean {
     return "Sanjiva" == name;
 }
 
+class EmployeeR {
+    function func(int i) returns int => i;
+}
+
+class ManagerR {
+    function func(int i) returns int => i + 1;
+}
+
+class CompanyR {
+    function func(int i) returns string => (i + 2).toString();
+}
+
+function testAccessingMethodOnUnionObjectType() {
+    EmployeeR|ManagerR ob1 = new ManagerR();
+    function (int i) returns int func1 = ob1.func;
+    assertEquals(func1(1), 2);
+
+    ManagerR ob2 = new EmployeeR();
+    EmployeeR|ManagerR ob3 = ob2;
+    function (int i) returns int func2 = ob3.func;
+    assertEquals(func2(1), 1);
+
+    CompanyR|ManagerR ob4 = new ManagerR();
+    (function (int i) returns string)|function (int i) returns int func3 = ob4.func;
+    function (int i) returns int func4 = <function (int i) returns int> func3;
+    assertEquals(func4(1), 2);
+
+    CompanyR|ManagerR ob5 = new ManagerR();
+    var func5 = ob5.func;
+    var func6 = <function (int i) returns int> func5;
+    assertEquals(func6(1), 2);
+}
+
 type FooRec1 record {
     json j;
 };
