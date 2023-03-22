@@ -198,7 +198,7 @@ public class ValueConverter {
                 for (Field field : recordType.getFields().values()) {
                     targetTypeField.put(field.getFieldName(), field.getFieldType());
                 }
-                return convertToRecord(map, unresolvedValues, recordType, restFieldType,
+                return convertToRecord(map, unresolvedValues, targetRefType, restFieldType,
                         targetTypeField);
             default:
                 break;
@@ -208,14 +208,14 @@ public class ValueConverter {
     }
 
     private static BMap<BString, Object> convertToRecord(BMap<?, ?> map, Set<TypeValuePair> unresolvedValues,
-                                                         RecordType recordType,
-                                                         Type restFieldType, Map<String, Type> targetTypeField) {
+                                                         Type recordRefType, Type restFieldType,
+                                                         Map<String, Type> targetTypeField) {
         Map<String, Object> valueMap = new HashMap<>();
         for (Map.Entry<?, ?> entry : map.entrySet()) {
             Object newValue = convertRecordEntry(unresolvedValues, restFieldType, targetTypeField, entry);
             valueMap.put(entry.getKey().toString(), newValue);
         }
-        return ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName(), valueMap);
+        return ValueCreator.createRecordValue(recordRefType.getPackage(), recordRefType.getName(), valueMap);
     }
 
     private static Object convertRecordEntry(Set<TypeValuePair> unresolvedValues,
