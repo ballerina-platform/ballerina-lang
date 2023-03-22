@@ -22,13 +22,11 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BRegexpValue;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.regex.Matcher;
 
 import static org.ballerinalang.langlib.regexp.RegexUtil.GROUPS_AS_SPAN_ARRAY_TYPE;
+import static org.ballerinalang.langlib.regexp.RegexUtil.checkIndexWithinRange;
 
 /**
  * Native implementation of lang.regexp:find(string).
@@ -96,23 +94,5 @@ public class Find {
             return null;
         }
         return groupArray;
-    }
-
-    private static void checkIndexWithinRange(BString str, long startIndex) {
-        if (startIndex != (int) startIndex) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REGEXP_OPERATION_ERROR,
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
-        }
-
-        if (startIndex < 0) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
-                    RuntimeErrors.NEGATIVE_REGEXP_FIND_INDEX);
-        }
-
-        int strLength = str.length();
-        if (strLength != 0 && strLength <= startIndex) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
-                    RuntimeErrors.INVALID_REGEXP_FIND_INDEX, startIndex, strLength);
-        }
     }
 }
