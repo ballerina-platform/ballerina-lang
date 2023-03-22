@@ -107,6 +107,84 @@ public function testFuncParams5() {
     assertEquality(expected, foo5("George"));
 }
 
+type Person2 record {
+    string name;
+    string[] houses;
+};
+
+public function testFunc6() {
+    Person2[] people = [{name: "John", houses: ["House 1", "House 2"]},
+                              {name: "Jane", houses: ["House 3"]},
+                              {name: "Doe", houses: []}];
+
+    string[] result = from var person in people
+        let string[] ownedHouses = from var house in person.houses
+            select house
+        where ownedHouses.length() > 0
+        select person.name;
+
+    assertEquality(2, result.length());
+    assertEquality("John", result[0]);
+    assertEquality("Jane", result[1]);
+}
+
+public function testFunc7() {
+    Person2[] people = [];
+
+    string[] result = from var person in people
+        let string[] ownedHouses = from var house in person.houses
+            select house
+        where ownedHouses.length() > 0
+        select person.name;
+    assertEquality(0, result.length());
+}
+
+type House record {|
+    string address;
+    boolean owner;
+|};
+
+type Person3 record {
+    string name;
+    int age;
+    House[] houses;
+};
+
+type HomeOwner record {|
+    string name;
+    string primaryAddress;
+|};
+
+isolated function selectHomeOwners(Person3[] people)
+    returns HomeOwner[] => (
+    from var person in people
+        where person.age >= 18
+
+        let string[] ownedHouses = from var house in person.houses
+            where house.owner
+            select house.address
+        where ownedHouses.length() > 0
+
+        select {
+            name: person.name,
+            primaryAddress: ownedHouses[0]
+        }
+);
+
+public function testFunc8() {
+    Person3[] people = [
+        {name:"Mark", age:14, houses:[]},
+        {name:"Watson", age:40, houses:[{address:"221B Baker Street", owner:false}]},
+        {name:"Walter", age:23, houses:[{address:"308 Negra Arroyo Lane", owner: true}]}
+    ];
+
+    HomeOwner[] homeOwners = selectHomeOwners(people);
+
+    assertEquality(1, homeOwners.length());
+    assertEquality("Walter", homeOwners[0].name);
+
+}
+
 //---------------------------------------------------------------------------------------------------------
 const ASSERTION_ERROR_REASON = "AssertionError";
 

@@ -534,6 +534,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     onConflictExpr = onConflict.expression;
                     break;
             }
+            this.env = env;
         }
         return addGetStreamFromPipeline(block, initPipeline);
     }
