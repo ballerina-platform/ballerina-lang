@@ -127,8 +127,8 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                 );
                 snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));
                 if (ModulePartNodeContextUtil.isMainFunctionUnavailable(context)) {
-                    CompletionItem mainCompletionItem = FunctionCompletionItemBuilder.buildMainFunction(context);
-                    completionItems.add(new FunctionCompletionItem(context, mainCompletionItem));
+                    LSCompletionItem mainCompletionItem = FunctionCompletionItemBuilder.buildMainFunction(context);
+                    completionItems.add(mainCompletionItem);
                 }
                 return completionItems;
             case SERVICE_KEYWORD:

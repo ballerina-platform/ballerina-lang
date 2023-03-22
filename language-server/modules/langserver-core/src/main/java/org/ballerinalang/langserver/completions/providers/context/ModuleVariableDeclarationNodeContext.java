@@ -175,8 +175,8 @@ public class ModuleVariableDeclarationNodeContext extends
                         Snippet.DEF_STREAM, Snippet.DEF_SERVICE_COMMON
                 );
                 snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));
-                CompletionItem mainCompletionItem = FunctionCompletionItemBuilder.buildMainFunction(context);
-                completionItems.add(new FunctionCompletionItem(context, mainCompletionItem));
+                LSCompletionItem mainCompletionItem = FunctionCompletionItemBuilder.buildMainFunction(context);
+                completionItems.add(mainCompletionItem);
                 return completionItems;
             case SERVICE_KEYWORD:
             case CLIENT_KEYWORD:

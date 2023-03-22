@@ -45,6 +45,8 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
@@ -385,7 +387,7 @@ public final class FunctionCompletionItemBuilder {
      * @param context   Ballerina completion context
      * @return {@link CompletionItem} generated main function completion item.
      */
-    public static CompletionItem buildMainFunction(BallerinaCompletionContext context) {
+    public static LSCompletionItem buildMainFunction(BallerinaCompletionContext context) {
         NonTerminalNode node = context.getNodeAtCursor();
         Optional<Token> lastQualifier = Optional.empty();
         while (node != null) {
@@ -410,7 +412,7 @@ public final class FunctionCompletionItemBuilder {
                 (Arrays.asList(ItemResolverConstants.PUBLIC_KEYWORD, ItemResolverConstants.FUNCTION, "main")));
         completionItem.setKind(CompletionItemKind.Snippet);
         completionItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);
-        return completionItem;
+        return new StaticCompletionItem(context, completionItem, StaticCompletionItem.Kind.MAIN_FUNCTION);
     }
 
     /**

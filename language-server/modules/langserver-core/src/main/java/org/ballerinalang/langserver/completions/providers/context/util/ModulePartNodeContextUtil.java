@@ -35,7 +35,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
-import org.ballerinalang.langserver.completions.providers.context.FunctionCompletionItem;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SnippetBlock;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -85,8 +84,8 @@ public class ModulePartNodeContextUtil {
         snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));
 
         if (isMainFunctionUnavailable(context)) {
-            CompletionItem mainCompletionItem = FunctionCompletionItemBuilder.buildMainFunction(context);
-            completionItems.add(new FunctionCompletionItem(context, mainCompletionItem));
+            LSCompletionItem mainCompletionItem = FunctionCompletionItemBuilder.buildMainFunction(context);
+            completionItems.add(mainCompletionItem);
         }
 
         return completionItems;
@@ -122,10 +121,6 @@ public class ModulePartNodeContextUtil {
      */
     public static void sort(List<LSCompletionItem> items) {
         for (LSCompletionItem item : items) {
-            if (item instanceof FunctionCompletionItem) {
-                item.getCompletionItem().setSortText(genSortText(1) + genSortText(1));
-                continue;
-            }
             CompletionItem cItem = item.getCompletionItem();
             if (isSnippetBlock(item)) {
                 SnippetCompletionItem snippetCompletionItem = (SnippetCompletionItem) item;
@@ -176,6 +171,11 @@ public class ModulePartNodeContextUtil {
             }
             if (SortingUtil.isModuleCompletionItem(item)) {
                 cItem.setSortText(genSortText(6));
+                continue;
+            }
+            if (item instanceof StaticCompletionItem &&
+                    (((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.MAIN_FUNCTION)) {
+                cItem.setSortText(genSortText(1) + genSortText(1));
                 continue;
             }
             cItem.setSortText(genSortText(7));
