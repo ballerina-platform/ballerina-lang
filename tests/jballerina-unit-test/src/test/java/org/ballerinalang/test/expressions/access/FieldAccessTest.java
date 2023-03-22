@@ -140,6 +140,12 @@ public class FieldAccessTest {
                 "expression", 377, 15);
         validateError(negativeResult, i++, "invalid operation: type 'map<xml>' does not support field access"
                 , 382, 19);
+        validateError(negativeResult, i++, "invalid operation: type 'map<xml>' does not support field access"
+                , 387, 19);
+        validateError(negativeResult, i++, "invalid operation: type 'map<xml>' does not support field access"
+                , 393, 19);
+        validateError(negativeResult, i++, "invalid operation: type 'map<(xml|json)>' does not support field access"
+                , 399, 24);
 
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }

@@ -6080,7 +6080,7 @@ public class Desugar extends BLangNodeVisitor {
                 targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                         (BVarSymbol) fieldAccessExpr.symbol, false, fieldAccessExpr.isStoreOnCreation);
             }
-        } else if (types.isLax(refType)) {
+        } else if (types.isLaxFieldAccessAllowed(refType)) {
             if (!(refType.tag == TypeTags.XML || refType.tag == TypeTags.XML_ELEMENT)) {
                 if (refType.tag == TypeTags.MAP && TypeTags.isXMLTypeTag(((BMapType) refType).constraint.tag)) {
                     result = rewriteExpr(rewriteLaxMapAccess(fieldAccessExpr));

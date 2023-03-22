@@ -6797,7 +6797,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             rhsType = getCandidateType(checkedExpr, rhsType, data);
         }
         BType candidateLaxType = getCandidateLaxType(checkedExpr.expr, rhsType);
-        if (!types.isLax(candidateLaxType)) {
+        if (!types.isLaxFieldAccessAllowed(candidateLaxType)) {
             return;
         }
         ArrayList<BLangExpression> argExprs = new ArrayList<>();
@@ -8834,7 +8834,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         fieldName,
                         varRefType.getKind() == TypeKind.UNION ? "union" : varRefType.getKind().typeName(), varRefType);
             }
-        } else if (types.isLax(varRefType)) {
+        } else if (types.isLaxFieldAccessAllowed(varRefType)) {
             if (fieldAccessExpr.isLValue) {
                 dlog.error(fieldAccessExpr.pos,
                         DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_ASSIGNMENT,
@@ -8892,7 +8892,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private boolean hasLaxOriginalType(BLangFieldBasedAccess fieldBasedAccess) {
-        return fieldBasedAccess.originalType != null && types.isLax(fieldBasedAccess.originalType);
+        return fieldBasedAccess.originalType != null && types.isLaxFieldAccessAllowed(fieldBasedAccess.originalType);
     }
 
     private BType getLaxFieldAccessType(BType exprType) {
@@ -8956,7 +8956,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             fieldAccessExpr.nilSafeNavigation = nillableExprType;
             fieldAccessExpr.originalType = fieldAccessExpr.leafNode || !nillableExprType ? actualType :
                     types.getTypeWithoutNil(actualType);
-        } else if (types.isLax(effectiveType)) {
+        } else if (types.isLaxFieldAccessAllowed(effectiveType)) {
             BType laxFieldAccessType = getLaxFieldAccessType(effectiveType);
             actualType = accessCouldResultInError(effectiveType) ?
                     BUnionType.create(null, laxFieldAccessType, symTable.errorType) : laxFieldAccessType;
