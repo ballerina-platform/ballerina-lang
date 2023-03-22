@@ -300,9 +300,9 @@ public class BalaFiles {
                 throw new ProjectException("unable to read content from the file '" + DEPRECATED_META_FILE_NAME +
                         "'", e);
             }
-            // Remove the last new line character and pass it to the package manifest
+            // pass the deprecation message to the package manifest
             return getPackageManifest(packageJson, Optional.empty(), fileContents.substring(0, fileContents
-                    .length() - 2));
+                    .length() - 1));
         }
         return getPackageManifest(packageJson, Optional.empty(), null);
     }
