@@ -30,7 +30,6 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.symbols.resourcepath.PathRestParam;
 import io.ballerina.compiler.api.symbols.resourcepath.PathSegmentList;
 import io.ballerina.compiler.api.symbols.resourcepath.ResourcePath;
@@ -61,7 +60,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextRange;
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.SignatureContext;
@@ -140,7 +138,8 @@ public class SignatureHelpUtil {
                 }
                 break;
             case EXPLICIT_NEW_EXPRESSION:
-                activeParamIndex = getActiveParamIndex(context, ((ExplicitNewExpressionNode) evalNode).parenthesizedArgList().children());
+                activeParamIndex = getActiveParamIndex(context, 
+                        ((ExplicitNewExpressionNode) evalNode).parenthesizedArgList().children());
                 break;
             case CLIENT_RESOURCE_ACCESS_ACTION:
                 Optional<ParenthesizedArgList> parenthesizedArgList =
@@ -162,6 +161,7 @@ public class SignatureHelpUtil {
                         activeParamIndex++;
                     }
                 }
+                break;
             default:
                 activeParamIndex = getActiveParamIndex(context, evalNode.children());
                 break;
@@ -343,18 +343,21 @@ public class SignatureHelpUtil {
                 (1) functionName()
                  */
                 return getTypeDescForFunctionCall(ctx, (FunctionCallExpressionNode) expr);
-            case METHOD_CALL: 
+            case METHOD_CALL: {
                 /*
                 Address the following
                 (1) test.testMethod()
                  */
                 return getTypeDescForMethodCall(ctx, (MethodCallExpressionNode) expr);
-            case FIELD_ACCESS: 
+            }
+            case FIELD_ACCESS: {
                 /*
                 Address the following
                 (1) test1.test2
                  */
                 return getTypeDescForFieldAccess(ctx, (FieldAccessExpressionNode) expr);
+            }
+
             default:
                 return Optional.empty();
         }
@@ -455,7 +458,7 @@ public class SignatureHelpUtil {
             ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
                     .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.OBJECT)
                     .findFirst().ifPresent(objectMember ->
-                            functionSymbols.addAll(getFunctionSymbolsForTypeDesc(objectMember)));
+                    functionSymbols.addAll(getFunctionSymbolsForTypeDesc(objectMember)));
         }
         functionSymbols.addAll(typeDescriptor.langLibMethods());
 

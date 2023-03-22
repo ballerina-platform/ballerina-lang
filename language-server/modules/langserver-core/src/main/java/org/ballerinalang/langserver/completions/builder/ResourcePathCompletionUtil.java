@@ -106,11 +106,11 @@ public class ResourcePathCompletionUtil {
             signatureWithComputedResourceSegments.append("/").append(resourceAccessPart.computedPathSignature);
             insertTextWithComputedResourceSegments.append("/").append(resourceAccessPart.computedPathInsertText);
 
-            if(resourceAccessPart.isStringPathPram) {
+            if (resourceAccessPart.isStringPathPram) {
                 isStringPathParamsAvailable = true;
                 signatureWithNamedSegments.append("/").append(resourceAccessPart.namedPathSignature);
                 insertTextWithNamedSegments.append("/").append(resourceAccessPart.namedPathInsertText);
-                placeHolderIndex +=1;
+                placeHolderIndex += 1;
                 continue;
             }
             signatureWithNamedSegments.append("/").append(resourceAccessPart.computedPathSignature);
@@ -212,7 +212,8 @@ public class ResourcePathCompletionUtil {
                 .getFunctionParameterSyntax(pathParameterSymbol, context).orElse("");
         String computedSignature = "[" + paramType + "]";
         String computedInsertText = "[${" + placeHolderIndex + ":" + defaultValue.orElse("") + "}]";
-        ResourceAccessPathPart resourceAccessPathPart = new ResourceAccessPathPart(computedInsertText,computedSignature);
+        ResourceAccessPathPart resourceAccessPathPart =
+                new ResourceAccessPathPart(computedInsertText, computedSignature);
         if (typeSymbol.typeKind() == TypeDescKind.STRING) {
             resourceAccessPathPart.namedPathSignature = "<path>";
             resourceAccessPathPart.namedPathInsertText = "${" + placeHolderIndex + ":" + "path" + "}";
@@ -237,4 +238,5 @@ public class ResourcePathCompletionUtil {
             this.computedPathSignature = computedPathSignature;
         }
     }
+
 }

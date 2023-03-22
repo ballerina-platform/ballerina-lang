@@ -287,13 +287,13 @@ public class ClientResourceAccessActionNodeContext
                     if (exprType.isEmpty() || !exprType.get().subtypeOf(typeSymbol)) {
                         return Pair.of(Collections.emptyList(), false);
                     }
-                    if(segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
+                    if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
                         completableSegmentStartIndex -= 1;
                     }
                     continue;
                 } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN 
                         && typeSymbol.typeKind() == TypeDescKind.STRING) {
-                    if(segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
+                    if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
                         completableSegmentStartIndex -= 1;
                     }
                     continue;
