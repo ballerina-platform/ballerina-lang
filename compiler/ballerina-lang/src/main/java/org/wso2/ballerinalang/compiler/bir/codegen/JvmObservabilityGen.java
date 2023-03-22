@@ -890,7 +890,7 @@ class JvmObservabilityGen {
      * @return The injected new BB
      */
     private BIRBasicBlock insertBasicBlock(BIRFunction func, int insertIndex) {
-        BIRBasicBlock newBB = new BIRBasicBlock(new Name(NEW_BB_PREFIX + desugaredBBIndex++));
+        BIRBasicBlock newBB = new BIRBasicBlock(NEW_BB_PREFIX , desugaredBBIndex++);
         func.basicBlocks.add(insertIndex, newBB);
         return newBB;
     }
