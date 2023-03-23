@@ -96,6 +96,7 @@ public class LValueTest {
                 "readonly'", 110, 5);
         // https://github.com/ballerina-platform/ballerina-lang/issues/39933
         validateError(semanticsNegativeResult, i++, "incompatible types: expected 'never', found '()'", 113, 14);
+        validateError(semanticsNegativeResult, i++, "incompatible types: expected 'int', found '()'", 116, 15);
         Assert.assertEquals(semanticsNegativeResult.getErrorCount(), i);
     }
 

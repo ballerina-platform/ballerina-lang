@@ -532,6 +532,32 @@ function testNilAssignmentToRecordFieldWithMemberAccessLvExprWithVariableRefKey(
 
     c[sb] = ();
     assertEquality({a: 2, b: (), c: 1.0}, c);
+
+    "a"|"b" ab = "b";
+    a = {a: 12, b: false};
+    a[ab] = ();
+    assertEquality({a: 12, b: ()}, a);
+
+    ab = "a";
+    a = {a: 122, b: false};
+    a[ab] = 124;
+    assertEquality({a: 124, b: false}, a);
+
+    a = {a: 123, b: false};
+    "b" bStr = "b";
+    a[bStr] = ();
+    assertEquality({a: 123, b: ()}, a);
+
+    fn = function () {
+        ab = "a";
+        a[ab] = ();
+    };
+    res = trap fn();
+    assertTrue(res is error);
+    err = <error> res;
+    assertEquality("{ballerina/lang.map}InherentTypeViolation", err.message());
+    assertEquality("invalid value for record field 'a': expected value of type 'int', found '()'",
+                   <string> checkpanic err.detail()["message"]);
 }
 
 function assertTrue(anydata actual) {

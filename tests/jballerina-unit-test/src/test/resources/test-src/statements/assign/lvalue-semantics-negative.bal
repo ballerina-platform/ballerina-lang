@@ -111,4 +111,7 @@ function testNilAssignmentToRecordFieldWithMemberAccessLvExprWithVariableRefKeyN
 
     record {| never a?; never b?; |} c = {};
     c[str] = ();
+
+    "a" aStr = "a";
+    a[aStr] = ();
 }

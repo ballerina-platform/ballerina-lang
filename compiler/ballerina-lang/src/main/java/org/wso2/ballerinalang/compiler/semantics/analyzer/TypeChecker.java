@@ -8841,7 +8841,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     return symTable.semanticError;
                 }
 
-                if (possibleTypes.stream().noneMatch(BType::isNullable)) {
+                if (!accessExpr.isLValue && possibleTypes.stream().noneMatch(BType::isNullable)) {
                     possibleTypes.add(symTable.nilType);
                 }
 
