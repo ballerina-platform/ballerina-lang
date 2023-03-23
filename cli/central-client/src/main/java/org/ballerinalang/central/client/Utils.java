@@ -126,6 +126,19 @@ public class Utils {
 
         try {
             if (Files.isDirectory(balaCacheWithPkgPath) && Files.list(balaCacheWithPkgPath).findAny().isPresent()) {
+                // update the existing deprecation details
+                Path deprecatedFilePath = balaCacheWithPkgPath.resolve(DEPRECATED_META_FILE_NAME);
+                if (deprecatedFilePath.toFile().exists() && deprecationMsg == null) {
+                    // delete deprecated file if it exists
+                    Files.delete(deprecatedFilePath);
+                } else if (deprecationMsg != null) {
+                    // write deprecation details to the file
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(deprecatedFilePath.toFile(),
+                            Charset.defaultCharset()))) {
+                        writer.write(deprecationMsg);
+                    }
+                }
+
                 downloadBody.ifPresent(ResponseBody::close);
                 throw new PackageAlreadyExistsException(
                         logFormatter.formatLog("package already exists in the home repository: " +
