@@ -658,7 +658,7 @@ public class LargeMethodOptimizer {
             if (terminator.kind == InstructionKind.GOTO &&
                     ((BIRTerminator.GOTO) terminator).targetBB.number == lastBBIdNum) {
                 ((BIRTerminator.GOTO) terminator).targetBB = lastBB;
-            } else if(terminator.thenBB != null && terminator.thenBB.number == lastBBIdNum) {
+            } else if (terminator.thenBB != null && terminator.thenBB.number == lastBBIdNum) {
                 terminator.thenBB = lastBB;
             }
         }
