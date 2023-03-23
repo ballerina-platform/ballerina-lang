@@ -27,11 +27,15 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.RegExpValue;
 
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * Util class used by lang.regexp.
@@ -46,7 +50,12 @@ public class RegexUtil {
 
     static final BArrayType GROUPS_ARRAY_TYPE = new BArrayType(GROUPS_AS_SPAN_ARRAY_TYPE);
     static Matcher getMatcher(BRegexpValue regexpVal, BString inputStr) {
-        return getMatcher(regexpVal, inputStr.getValue());
+        try {
+            return getMatcher(regexpVal, inputStr.getValue());
+        } catch (PatternSyntaxException e) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
+                    RuntimeErrors.REGEXP_INVALID_PATTERN, e.getMessage());
+        }
     }
 
     static Matcher getMatcher(BRegexpValue regexpVal, String inputStr) {
@@ -67,9 +76,9 @@ public class RegexUtil {
 
     static BArray getMatcherGroupsAsSpanArr(Matcher matcher) {
         BArray group = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
+        BArray span = getGroupZeroAsSpan(matcher);
+        group.append(span);
         if (matcher.groupCount() == 0) {
-            BArray span = getGroupZeroAsSpan(matcher);
-            group.append(span);
             return group;
         }
         for (int i = 1; i <= matcher.groupCount(); i++) {
@@ -92,5 +101,23 @@ public class RegexUtil {
 
     public static long length(BString value) {
         return value.length();
+    }
+
+    protected static void checkIndexWithinRange(BString str, long startIndex) {
+        if (startIndex != (int) startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REGEXP_OPERATION_ERROR,
+                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
+        }
+
+        if (startIndex < 0) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                    RuntimeErrors.NEGATIVE_REGEXP_FIND_INDEX);
+        }
+
+        int strLength = str.length();
+        if (strLength != 0 && strLength <= startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                    RuntimeErrors.INVALID_REGEXP_FIND_INDEX, startIndex, strLength);
+        }
     }
 }

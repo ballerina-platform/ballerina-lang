@@ -22,7 +22,7 @@ distinct class JIOException {
     #
     # + return - The `string` form of the Java object instance.
     function toString() returns string {
-        return java:toString(self.jObj) ?: "null";
+        return java:toString(self.jObj) ?: "";
     }
     # The function that maps to the `addSuppressed` method of `java.io.IOException`.
     #
@@ -69,15 +69,15 @@ distinct class JIOException {
     # The function that maps to the `getLocalizedMessage` method of `java.io.IOException`.
     #
     # + return - The `string` value returning from the Java mapping.
-    function getLocalizedMessage() returns string? {
-        return java:toString(java_io_IOException_getLocalizedMessage(self.jObj));
+    function getLocalizedMessage() returns string {
+        return java:toString(java_io_IOException_getLocalizedMessage(self.jObj)) ?: "";
     }
 
     # The function that maps to the `getMessage` method of `java.io.IOException`.
     #
     # + return - The `string` value returning from the Java mapping.
-    function getMessage() returns string? {
-        return java:toString(java_io_IOException_getMessage(self.jObj));
+    function getMessage() returns string {
+        return java:toString(java_io_IOException_getMessage(self.jObj)) ?: "";
     }
 
     # The function that maps to the `getStackTrace` method of `java.io.IOException`.

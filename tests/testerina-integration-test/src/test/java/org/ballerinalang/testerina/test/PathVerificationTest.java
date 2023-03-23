@@ -40,7 +40,7 @@ public class PathVerificationTest extends BaseTestCase {
         projectPath = projectBasedTestsPath.toString();
     }
 
-    @Test(enabled = false) // Enable once https://github.com/ballerina-platform/ballerina-lang/issues/39663 completed
+    @Test
     public void verifyTestsOutsidePath() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"path-verification"});
         String output = balClient.runMainAndReadStdOut("test", args,

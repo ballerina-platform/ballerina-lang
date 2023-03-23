@@ -353,10 +353,204 @@ function testFieldAccessOnMapConstruct() returns boolean {
     return "Sanjiva" == name;
 }
 
+class EmployeeR {
+    function func(int i) returns int => i;
+}
+
+class ManagerR {
+    function func(int i) returns int => i + 1;
+}
+
+class CompanyR {
+    function func(int i) returns string => (i + 2).toString();
+}
+
+function testAccessingMethodOnUnionObjectType() {
+    EmployeeR|ManagerR ob1 = new ManagerR();
+    function (int i) returns int func1 = ob1.func;
+    assertEquals(func1(1), 2);
+
+    ManagerR ob2 = new EmployeeR();
+    EmployeeR|ManagerR ob3 = ob2;
+    function (int i) returns int func2 = ob3.func;
+    assertEquals(func2(1), 1);
+
+    CompanyR|ManagerR ob4 = new ManagerR();
+    (function (int i) returns string)|function (int i) returns int func3 = ob4.func;
+    function (int i) returns int func4 = <function (int i) returns int> func3;
+    assertEquals(func4(1), 2);
+
+    CompanyR|ManagerR ob5 = new ManagerR();
+    var func5 = ob5.func;
+    var func6 = <function (int i) returns int> func5;
+    assertEquals(func6(1), 2);
+}
+
+type FooRec1 record {
+    json j;
+};
+
+type FooRec2 record {
+    json j;
+    FooRec1 fooRec;
+};
+
+type FooRec3 record {
+    json j?;
+    FooRec1 fooRec?;
+};
+
+function testFieldAccessOnJsonTypedRecordFields() returns error? {
+    FooRec1 rec1 = {j: "1"};
+    string val = check rec1.j;
+    assertEquals(val, "1");
+
+    rec1 = {j: {k: "2"}};
+    val = check rec1.j.k;
+    assertEquals(val, "2");
+
+    rec1 = {j: {k: {l: "1", m: "3"}}};
+    val = check rec1.j.k.m;
+    assertEquals(val, "3");
+
+    FooRec2 rec2 = {j: "1", fooRec: {j: "2"}};
+    val = check rec2.j;
+    assertEquals(val, "1");
+    val = check rec2.fooRec.j;
+    assertEquals(val, "2");
+
+    rec2 = {j: "1", fooRec: {j: {k: "3", l: {m: "4"}}}};
+    val = check rec2.fooRec.j.k;
+    assertEquals(val, "3");
+    val = check rec2.fooRec.j.l.m;
+    assertEquals(val, "4");
+}
+
+function testOptionalFieldAccessOnOptionalJsonTypedRecordFields() returns error? {
+    FooRec3 rec1 = {j: "1"};
+    json val = check rec1?.j;
+    assertEquals(val, "1");
+
+    rec1 = {j: {k: "2"}};
+    val = check rec1?.j.k;
+    assertEquals(val, "2");
+
+    rec1 = {j: {k: {l: "1", m: "3"}}};
+    val = check rec1?.j.k.m;
+    assertEquals(val, "3");
+
+    FooRec3 rec2 = {j: "1", fooRec: {j: "2"}};
+    val = check rec2?.j;
+    assertEquals(val, "1");
+    val = check rec2?.fooRec?.j;
+    assertEquals(val, "2");
+}
+
+function testFieldAccessOnJsonTypedRecordFieldsResultingInError() {
+    FooRec1 rec1 = {j: "1"};
+    json|error val = rec1.j.k;
+    validateJSONOperationErrorMsg(val);
+
+    rec1 = {j: "1"};
+    val = rec1.j.k.l;
+    validateJSONOperationErrorMsg(val);
+
+    rec1 = {j: "1"};
+    val = rec1.j.k.l.m;
+    validateJSONOperationErrorMsg(val);
+
+    rec1 = {j: {k: {l: "1", m: "3"}}};
+    val = rec1.j.k.m.n;
+    validateJSONOperationErrorMsg(val);
+
+    FooRec2 rec2 = {j: "1", fooRec: {j: "2"}};
+    val = rec2.j.l;
+    validateJSONOperationErrorMsg(val);
+
+    val = rec2.fooRec.j.m.n;
+    validateJSONOperationErrorMsg(val);
+
+    rec2 = {j: "1", fooRec: {j: {k: "3", l: {m: "4"}}}};
+    val = rec2.fooRec.j.l.m.n.o;
+    validateJSONOperationErrorMsg(val);
+}
+
+function testFieldAccessOnJsonTypedRecordFieldsResultingInErrorWithCheckExpr() {
+    var getJsonField1 = function() returns json|error {
+        FooRec1 rec1 = {j: "1"};
+        json val = check rec1.j.k;
+        return val;
+    };
+    validateJSONOperationErrorMsg(getJsonField1());
+
+    var getJsonField2 = function() returns json|error {
+        FooRec1 rec1 = {j: "1"};
+        json val = check rec1.j.k.l.m.n;
+        return val;
+    };
+    validateJSONOperationErrorMsg(getJsonField2());
+
+    var getJsonField3 = function() returns json|error {
+        json rec2 = {j: "1", fooRec: {j: {k: "3", l: {m: "4"}}}};
+        string val = check rec2.fooRec.j.l.m.n.o;
+        return val;
+    };
+    validateJSONOperationErrorMsg(getJsonField3());
+
+    var getJsonField4 = function() returns json|error {
+        FooRec2 rec2 = {j: "1", fooRec: {j: {k: "3", l: {m: "4"}}}};
+        json val = check rec2.j.l.m.n.o;
+        return val;
+    };
+    validateJSONOperationErrorMsg(getJsonField4());
+}
+
+function testOptionalFieldAccessOnOptionalJsonTypedRecordFieldsResultingInError() {
+    var getJsonField1 = function() returns json|error {
+        FooRec3 rec1 = {};
+        json val = check rec1?.j.k.l.m.n;
+        return val;
+    };
+    validateJSONOperationErrorMsg(getJsonField1());
+
+    var getJsonField2 = function() returns json|error {
+        FooRec3 rec2 = {fooRec: {j: {k: "3", l: {m: "4"}}}};
+        json val = check rec2?.j.l.m.n.o;
+        return val;
+    };
+    validateJSONOperationErrorMsg(getJsonField2());
+
+    FooRec3 rec1 = {};
+    json|error val = rec1?.j.k.l.m.n;
+    validateJSONOperationErrorMsg(val);
+
+    FooRec3 rec2 = {fooRec: {j: {k: "3", l: {m: "4"}}}};
+    val = rec2?.j.l.m.n.o;
+    validateJSONOperationErrorMsg(val);
+}
+
+function validateJSONOperationErrorMsg(json|error val) {
+    assertTrue(val is error);
+    error err = <error>val;
+    assertEquals(err.message(), "{ballerina}JSONOperationError");
+    assertEquals(<anydata> checkpanic err.detail()["message"], "JSON value is not a mapping");
+}
+
 isolated function isEqual(anydata|error val1, anydata|error val2) returns boolean {
     if (val1 is anydata && val2 is anydata) {
         return (val1 == val2);
     } else {
         return (val1 === val2);
     }
+}
+
+function assertTrue(boolean actual) {
+    assertEquals(actual, true);
+}
+
+function assertEquals(anydata actual, anydata expected) {
+    if expected == actual {
+        return;
+    }
+    panic error(string `expected '${expected.toString()}', found '${actual.toString()}'`);
 }

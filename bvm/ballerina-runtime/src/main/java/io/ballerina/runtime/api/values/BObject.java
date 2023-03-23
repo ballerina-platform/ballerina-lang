@@ -17,7 +17,9 @@
  */
 package io.ballerina.runtime.api.values;
 
+import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.RefValue;
 
@@ -36,7 +38,19 @@ public interface BObject extends RefValue {
 
     BFuture start(Strand strand, String funcName, Object... args);
 
-    Type getType();
+    /**
+     * Gets the type of ballerina object.
+     *
+     * @return Ballerina object type.
+     * @deprecated use {@link BObject#getOriginalType()} ()} instead.
+     * The API {@link BValue#getType()} should be used after fixing the issue #39850.
+     */
+    @Deprecated
+    ObjectType getType();
+
+    default Type getOriginalType() {
+        return TypeUtils.getType(this);
+    }
 
     Object get(BString fieldName);
 

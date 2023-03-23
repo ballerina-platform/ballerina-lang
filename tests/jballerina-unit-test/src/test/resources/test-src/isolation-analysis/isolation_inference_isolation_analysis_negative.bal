@@ -19,3 +19,14 @@ function hello() returns string => "hello";
 isolated function testFunctionCall() {
     string _ = hello();
 }
+
+isolated function testInferAnonFuncWithParamTypeNarrowingForIsolatedParamNegative() {
+    (int|string)[] a = [];
+    int|string b = 1;
+    string[] _ = a.map(n => b is int ? "int" : n.toString());
+
+    (int|string|boolean)[] c = [];
+    (int|string|boolean)[] d = [0];
+    string[] _ = c.map(n => d[0] is int|boolean ? (d[0] is int ? d[0].toString() : n.toString()) : n.toBalString());
+    string[] _ = c.map(n => n is int|boolean ? (d[0] is int ? d[0].toString() : n.toString()) : n.toBalString());
+}

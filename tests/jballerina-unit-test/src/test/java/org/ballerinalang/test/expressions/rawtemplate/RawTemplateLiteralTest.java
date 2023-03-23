@@ -111,6 +111,27 @@ public class RawTemplateLiteralTest {
                 "'ballerina/lang.object:0.0.0:RawTemplate' in '(ballerina/lang.object:0.0" +
                 ".0:RawTemplate|Template1)'", 164, 35);
 
+        validateError(errors, indx++, "cannot update 'readonly' value of type " +
+                "'(ballerina/lang.object:0:RawTemplate & readonly)'", 176, 5);
+        validateError(errors, indx++, "cannot update 'readonly' value of type " +
+                "'((any|error) & readonly)[] & readonly'", 177, 5);
+        validateError(errors, indx++, "cannot update 'readonly' value of type '(Template1 & readonly)'", 179, 5);
+        validateError(errors, indx++, "cannot update 'readonly' value of type 'int[] & readonly'", 180, 5);
+        validateError(errors, indx++, "cannot update 'readonly' value of type " +
+                "'(ballerina/lang.object:0:RawTemplate & readonly)'", 182, 5);
+        validateError(errors, indx++, "cannot update 'readonly' value of type " +
+                "'((any|error) & readonly)[] & readonly'", 183, 5);
+        validateError(errors, indx++, "cannot update 'readonly' value of type " +
+                "'(ballerina/lang.object:0:RawTemplate & readonly)'", 186, 5);
+        validateError(errors, indx++, "cannot update 'readonly' value of type " +
+                "'((any|error) & readonly)[] & readonly'", 187, 5);
+        validateError(errors, indx++, "cannot update 'readonly' value of type '(Template1 & readonly)'", 190, 5);
+        validateError(errors, indx++, "cannot update 'readonly' value of type 'int[] & readonly'", 191, 5);
+        validateError(errors, indx++, "cannot update 'readonly' value of type " +
+                "'(ballerina/lang.object:0:RawTemplate & readonly)'", 194, 5);
+        validateError(errors, indx++, "cannot update 'readonly' value of type " +
+                "'((any|error) & readonly)[] & readonly'", 195, 5);
+
         assertEquals(errors.getErrorCount(), indx);
     }
 
@@ -146,7 +167,8 @@ public class RawTemplateLiteralTest {
                 {"testAnyInUnion"},
                 {"testAssignmentToUnion"},
                 {"testIndirectAssignmentToConcreteType"},
-                {"testModifyStringsField"}
+                {"testModifyStringsField"},
+                {"testRawTemplateWithIntersectionType"},
         };
     }
 

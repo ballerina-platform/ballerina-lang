@@ -138,7 +138,6 @@ public class FieldAccessTest {
                 "expression", 375, 15);
         validateError(negativeResult, i++, "'remote' methods of an object cannot be accessed using the field access " +
                 "expression", 377, 15);
-
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -283,5 +282,26 @@ public class FieldAccessTest {
     @Test
     public void testAccessOptionalFieldWithFieldAccess2() {
         Object returns = BRunUtil.invoke(result, "testAccessOptionalFieldWithFieldAccess2");
+    }
+
+    @Test
+    public void testAccessingMethodOnUnionObjectType() {
+        BRunUtil.invoke(result, "testAccessingMethodOnUnionObjectType");
+    }
+
+    @Test(dataProvider = "fieldAccessOnJsonTypedRecordFields")
+    public void testFieldAccessOnJsonTypedRecordFields(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "fieldAccessOnJsonTypedRecordFields")
+    public Object[][] fieldAccessOnJsonTypedRecordFields() {
+        return new Object[][] {
+                { "testFieldAccessOnJsonTypedRecordFields" },
+                { "testFieldAccessOnJsonTypedRecordFieldsResultingInError" },
+                { "testFieldAccessOnJsonTypedRecordFieldsResultingInErrorWithCheckExpr" },
+                { "testOptionalFieldAccessOnOptionalJsonTypedRecordFields" },
+                { "testOptionalFieldAccessOnOptionalJsonTypedRecordFieldsResultingInError" }
+        };
     }
 }

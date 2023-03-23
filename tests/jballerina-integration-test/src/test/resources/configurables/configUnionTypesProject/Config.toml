@@ -198,6 +198,71 @@ unionVar3 = 24
 versions = ["HTTP_1_1", "HTTP_1_1", "HTTP_2"]
 countryCodes = ["United States", "Sri Lanka"]
 numbers = [1, 2.5, "three"]
+city = {name = "Jack", city = "Colombo"}
+pet = {nickname = "Fido", pet_type = "Dog", age = 4}
+arrayUnionVal = [1, 2, 3]
+arrTupleUnionVal = [23.1, 24]
+unionVal1 = 23.0
+
+[[configUnionTypes.union_ambiguity.movies]]
+title = "Inception"
+year = [2010, 2011]
+
+[[configUnionTypes.union_ambiguity.movies]]
+title = "Alice in wonderland"
+year = [2010, 2016]
+
+[[configUnionTypes.union_ambiguity.movies]]
+title = "Coco"
+year = [2017, 2018]
+
+[[configUnionTypes.union_ambiguity.events]]
+title = "Inception"
+year = [2010.0, 2011.0]
+
+[[configUnionTypes.union_ambiguity.events]]
+title = "Alice in wonderland"
+year = [2010.0, 2016.0]
+
+[[configUnionTypes.union_ambiguity.events]]
+title = "Coco"
+year = [2017.0, 2018.0]
+
+[[configUnionTypes.union_ambiguity.scenarios]]
+title = "Inception"
+year = [2010.0, 2011.0]
+
+[[configUnionTypes.union_ambiguity.scenarios]]
+title = "Alice in wonderland"
+year = [2010.0, 2016.0]
+
+[[configUnionTypes.union_ambiguity.scenarios]]
+title = "Coco"
+year = [2017.0, 2018.0]
+
+[[configUnionTypes.union_ambiguity.videos]]
+title = "Inception"
+year = [2010, 2011]
+
+[[configUnionTypes.union_ambiguity.videos]]
+title = "Alice in wonderland"
+year = [2010, 2016]
+
+[[configUnionTypes.union_ambiguity.videos]]
+title = "Coco"
+year = [2017, 2018]
+
+[[configUnionTypes.union_ambiguity.blogs]]
+title = "Inception"
+year = [2010, 2011]
+
+[[configUnionTypes.union_ambiguity.blogs]]
+title = "Alice in wonderland"
+year = [2010, 2016]
+
+[[configUnionTypes.union_ambiguity.blogs]]
+title = "Coco"
+year = [2017, 2018]
 
 [[configUnionTypes.union_ambiguity.mapArrayVar]]
 a = "test string"
