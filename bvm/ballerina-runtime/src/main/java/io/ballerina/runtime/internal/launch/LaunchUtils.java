@@ -46,9 +46,13 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILES_ENV_VARIABLE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILE_NAME;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.DEFAULT_CONFIG_PATH;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.MODULES_ROOT;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.TEST_DIR_NAME;
 
 /**
  * Util methods to be used during starting and ending a ballerina program.
@@ -141,5 +145,20 @@ public class LaunchUtils {
             }
         }
         return null;
+    }
+
+    public static TomlDetails getTestConfigPaths(Module module) {
+        String moduleName = module.getName();
+        Path testConfigPath = Paths.get(RuntimeUtils.USER_DIR);
+        if (moduleName.contains(DOT)) {
+            testConfigPath = testConfigPath.resolve(MODULES_ROOT)
+                    .resolve(moduleName.substring(moduleName.indexOf(DOT) + 1));
+        }
+        testConfigPath = testConfigPath.resolve(TEST_DIR_NAME).resolve(CONFIG_FILE_NAME);
+        if (!Files.exists(testConfigPath)) {
+            return new TomlDetails(new Path[]{}, null);
+        } else {
+            return new TomlDetails(new Path[]{testConfigPath}, null);
+        }
     }
 }
