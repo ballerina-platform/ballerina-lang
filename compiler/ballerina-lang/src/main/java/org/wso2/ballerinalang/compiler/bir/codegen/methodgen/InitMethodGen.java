@@ -103,8 +103,8 @@ public class InitMethodGen {
 
     private final SymbolTable symbolTable;
     private final BUnionType errorOrNilType;
-    private int nextId = -1;
-    private int nextVarId = -1;
+    private int nextId = 0;
+    private int nextVarId = 0;
 
     public InitMethodGen(SymbolTable symbolTable) {
         this.symbolTable = symbolTable;
@@ -365,8 +365,8 @@ public class InitMethodGen {
 
     private BIRNode.BIRFunction generateDefaultFunction(List<PackageID> imprtMods, BIRNode.BIRPackage pkg,
                                                         String funcName, String initName) {
-        nextId = -1;
-        nextVarId = -1;
+        nextId = 0;
+        nextVarId = 0;
 
         BIRNode.BIRVariableDcl retVar = new BIRNode.BIRVariableDcl(null, errorOrNilType, new Name("%ret"),
                                                                    VarScope.FUNCTION, VarKind.RETURN, "");
@@ -476,20 +476,14 @@ public class InitMethodGen {
     }
 
     private BIRNode.BIRBasicBlock addAndGetNextBasicBlock(BIRNode.BIRFunction func) {
-        BIRNode.BIRBasicBlock nextbb = new BIRNode.BIRBasicBlock(getNextBBId());
+        BIRNode.BIRBasicBlock nextbb = new BIRNode.BIRBasicBlock(incrementAndGetNextId());
         func.basicBlocks.add(nextbb);
         return nextbb;
     }
 
-    private Name getNextBBId() {
-        String bbIdPrefix = "genBB";
-        nextId += 1;
-        return new Name(bbIdPrefix + nextId);
-    }
-
     public void resetIds() {
-        nextId = -1;
-        nextVarId = -1;
+        nextId = 0;
+        nextVarId = 0;
     }
 
     public int incrementAndGetNextId() {

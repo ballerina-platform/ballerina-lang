@@ -46,7 +46,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_GEN_BB_ID_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrichWithDefaultableParamInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
@@ -119,8 +118,8 @@ public class ExternalMethodGen {
 
         initMethodGen.resetIds();
 
-        BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, WRAPPER_GEN_BB_ID_NAME, initMethodGen);
-        BIRBasicBlock retBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, WRAPPER_GEN_BB_ID_NAME, initMethodGen);
+        BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, initMethodGen);
+        BIRBasicBlock retBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, initMethodGen);
 
         List<BIROperand> args = new ArrayList<>();
 

@@ -82,15 +82,14 @@ public class JvmDesugarPhase {
     }
 
     public static BIRBasicBlock insertAndGetNextBasicBlock(List<BIRBasicBlock> basicBlocks,
-                                                           String prefix, InitMethodGen initMethodGen) {
-        BIRBasicBlock nextbb = new BIRBasicBlock(getNextDesugarBBId(prefix, initMethodGen));
+                                                           InitMethodGen initMethodGen) {
+        BIRBasicBlock nextbb = new BIRBasicBlock(getNextDesugarBBId(initMethodGen));
         basicBlocks.add(nextbb);
         return nextbb;
     }
 
-    public static Name getNextDesugarBBId(String prefix, InitMethodGen initMethodGen) {
-        int nextId = initMethodGen.incrementAndGetNextId();
-        return new Name(prefix + nextId);
+    public static int getNextDesugarBBId(InitMethodGen initMethodGen) {
+        return initMethodGen.incrementAndGetNextId();
     }
 
     private static List<BType> updateParamTypesWithDefaultableBooleanVar(List<BType> funcParams, BType restType,
