@@ -215,10 +215,9 @@ public class FuncInvocationExprTest {
                 "missing required parameter 's' in call to 'fromString()'", 106, 16);
         validateError(funcInvocationNegative, i++,
                 "undefined defaultable parameter 'ss'", 106, 31);
-
-        validateError(funcInvocationNegative, i++, "variable assignment is required", 100, 5);
-        validateError(funcInvocationNegative, i++, "variable assignment is required", 101, 5);
-        validateError(funcInvocationNegative, i++, "variable assignment is required", 102, 5);
+        validateError(funcInvocationNegative, i++, "variable assignment is required", 110, 5);
+        validateError(funcInvocationNegative, i++, "variable assignment is required", 111, 5);
+        validateError(funcInvocationNegative, i++, "variable assignment is required", 112, 5);
         Assert.assertEquals(i, funcInvocationNegative.getErrorCount());
     }
 
