@@ -48,6 +48,7 @@ import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFNULL;
@@ -62,6 +63,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CLI_SPEC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBILITY_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_ALL_THROWABLE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_RETURNED_ERROR_METHOD;
@@ -71,6 +73,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPERAND;
@@ -90,11 +93,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TOML_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_SHUTDOWN_HOOK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAIN_ARGS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME_REGISTRY_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TEST_CONFIG_PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_THROWABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TOML_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_ERROR_RETURN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_CLI_SPEC;
@@ -215,7 +221,15 @@ public class MainMethodGen {
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
         String configClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, CONFIGURATION_CLASS_NAME);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getConfigurationDetails", "()L" + TOML_DETAILS + ";", false);
+        if (!packageID.isTestPkg) {
+            mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getConfigurationDetails", GET_TOML_DETAILS,
+                    false);
+        } else {
+            String initClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
+            mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
+            mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getTestConfigPaths", GET_TEST_CONFIG_PATH,
+                    false);
+        }
         int configDetailsIndex = indexMap.addIfNotExists(CONFIG_VAR, symbolTable.anyType);
 
         mv.visitVarInsn(ASTORE, configDetailsIndex);
