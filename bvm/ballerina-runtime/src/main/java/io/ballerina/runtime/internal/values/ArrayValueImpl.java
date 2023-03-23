@@ -52,7 +52,6 @@ import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
@@ -91,35 +90,30 @@ public class ArrayValueImpl extends AbstractArrayValue {
         this.size = values.length;
         this.elementType = type.getElementType();
         this.elementReferredType = TypeUtils.getReferredType(this.elementType);
-        this.typedesc = getTypedescValue(type, this);
     }
 
     public ArrayValueImpl(long[] values, boolean readonly) {
         this.intValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_INT, readonly);
-        this.typedesc = getTypedescValue(type, this);
     }
 
     public ArrayValueImpl(boolean[] values, boolean readonly) {
         this.booleanValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_BOOLEAN, readonly);
-        this.typedesc = getTypedescValue(type, this);
     }
 
     public ArrayValueImpl(byte[] values, boolean readonly) {
         this.byteValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_BYTE, readonly);
-        this.typedesc = getTypedescValue(type, this);
     }
 
     public ArrayValueImpl(double[] values, boolean readonly) {
         this.floatValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_FLOAT, readonly);
-        this.typedesc = getTypedescValue(type, this);
     }
 
     public ArrayValueImpl(String[] values, boolean readonly) {
@@ -129,14 +123,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
             bStringValues[i] = StringUtils.fromString(values[i]);
         }
         setArrayType(PredefinedTypes.TYPE_STRING, readonly);
-        this.typedesc = getTypedescValue(type, this);
     }
 
     public ArrayValueImpl(BString[] values, boolean readonly) {
         this.bStringValues = values;
         this.size = values.length;
         setArrayType(PredefinedTypes.TYPE_STRING, readonly);
-        this.typedesc = getTypedescValue(type, this);
     }
 
     public ArrayValueImpl(ArrayType type) {
@@ -181,6 +173,9 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = getTypedescValue(arrayType, this);
+        }
         return typedesc;
     }
 
@@ -247,7 +242,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (size != -1) {
             this.size = this.maxSize = (int) size;
         }
-        this.typedesc = getTypedescValue(type, this);
     }
 
     // Used when the array value is created from a type reference type
@@ -290,8 +284,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 }
             }
         }
-
-        this.typedesc = getTypedescValue(type, this);
     }
 
     // ----------------------- get methods ----------------------------------------------------
@@ -991,7 +983,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 }
             }
         }
-        this.typedesc = createSingletonTypedesc(this);
+        this.typedesc = null;
     }
 
     /**
