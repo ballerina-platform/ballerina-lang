@@ -83,7 +83,25 @@ function testXMLSequence() {
     test:assertEquals(x15.toString(), "<root> text1<foo>100</foo><foo>200</foo></root> text1");
     'xml:Text x16 = xml `text ${v1}`;
     test:assertEquals(x16.toString(), "text interpolation1");
+    
+    any x30 = xml `foo<e></e>`; 
+    test:assertEquals(x30.toString(), "foo<e></e>");
+    anydata x31 = xml `bar<e></e>`; 
+    test:assertEquals(x31.toString(), "bar<e></e>");
+    any|Template x32 = xml `foo<elem></elem>`;
+    test:assertEquals(x32.toString(), "foo<elem></elem>");
+    Template|any x33 = xml `bar<elem></elem>`; 
+    test:assertEquals(x33.toString(), "bar<elem></elem>");
+    xml|error x34 = xml `world<elem></elem>`;
+    if (x34 is xml) {
+        test:assertEquals(x34.toString(), "world<elem></elem>");
+    }
 }
+
+public type Template object {
+    public string[] & readonly strings;
+    public anydata[] insertions;
+};
 
 function testXMLTextLiteral() returns [xml, xml, xml, xml, xml, xml] {
     string v1 = "11";
