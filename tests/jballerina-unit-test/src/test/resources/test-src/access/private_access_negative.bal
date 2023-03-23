@@ -24,7 +24,7 @@ public class ParentFoo {
     public Foo f = new; // :24:5:: 'Foo'
     public Baz z = 1; // :25:5:: 'Baz'
 
-    public function init(int i, ChildFoo c) { // :28:5:: 'ChildFoo'
+    public function init(int i, ChildFoo c) { // :27:5:: 'ChildFoo'
         self.i = i;
         self.c = c;
     }
@@ -39,13 +39,13 @@ class ChildFoo {
     }
 }
 
-// :44:1:: 'Bar', :44:55:: 'Foo', :44:76:: 'Foo'
+// :43:1:: 'Bar', :43:54:: 'Foo', :43:75:: 'Foo'
 public function fooFunc2(string s, Bar r, int i = 4, Foo... fArg) returns Foo {
     Foo f = new ();
     return f;
 }
 
-// :49:1:: 'Bar', :49:55:: 'Foo', :49:76:: 'Foo'
+// :49:1:: 'Bar', :49:54:: 'Foo', :49:75:: 'Foo'
 public function fooFunc3(string s, Bar r, int i = 4, Foo... fArg) returns [Foo, string] {
     Foo f = new ();
     return [f, "G"];
@@ -55,7 +55,7 @@ public function fooFunc1(Foo fArg) { // :54:1:: 'Foo'
     Foo _ = fArg;
 }
 
-public function BazFunc(Foo... fArg) returns (Baz) { // :59:26:: 'Foo', :59:48:: 'Baz'
+public function BazFunc(Foo... fArg) returns (Baz) { // :58:25:: 'Foo', :59:48:: 'Baz'
     Baz z = 1;
     return z;
 }
@@ -96,7 +96,7 @@ public function test2() returns object {
     return m;
 }
 
-// TODO: Fix me. This is a bug.
+
 function test3() returns string {
     var m = object {
 
@@ -109,7 +109,7 @@ function test3() returns string {
     return m.s;
 }
 
-// TODO: Fix me. This is a bug.
+
 function test4() returns string {
     var m = object {
 
@@ -140,10 +140,10 @@ record {
 
 public type ParentRecord record {
     int i = 0;
-    ChildFoo c = new (""); // :133:5:: 'ChildFoo'
-    ChildRecord r = {}; // :134:5:: 'ChildRecord'
-    Foo f = new; // :135:5:: 'Foo'
-    Baz z = 1; // :136:5:: 'Baz'
+    ChildFoo c = new (""); // :143:5:: 'ChildFoo'
+    ChildRecord r = {}; // :144:5:: 'ChildRecord'
+    Foo f = new; // :145:5:: 'Foo'
+    Baz z = 1; // :146:5:: 'Baz'
 };
 
 type ChildRecord record {
@@ -161,7 +161,7 @@ function test5() returns string {
     return m.s;
 }
 
-// :154:1:: 'Baz', :154:1:: 'Foo', :154:1:: 'BarRecord'
+// :165:1:: 'Baz', :165:1:: 'Foo', :165:1:: 'BarRecord'
 public function test6(record {
             string s = "";
             Baz z = 1;
@@ -171,7 +171,7 @@ public function test6(record {
     return "K";
 }
 
-// 163:33:: 'Baz', :163:33:: 'Foo', :163:33:: 'BarRecord'
+// 175:33:: 'Baz', :175:33:: 'Foo', :175:33:: 'BarRecord'
 public function test7() returns record {
     string s = "";
     Baz z = 1;
