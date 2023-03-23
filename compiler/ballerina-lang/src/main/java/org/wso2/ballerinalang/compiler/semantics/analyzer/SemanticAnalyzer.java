@@ -4387,7 +4387,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 ((BLangListConstructorExpr) expression).exprs.forEach(this::checkAnnotConstantExpression);
                 break;
             default:
-                dlog.error(expression.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
+                dlog.error(expression.pos, DiagnosticErrorCode.ANNOTATION_ELEMENT_SHOULD_BE_LITERAL);
                 break;
         }
     }
