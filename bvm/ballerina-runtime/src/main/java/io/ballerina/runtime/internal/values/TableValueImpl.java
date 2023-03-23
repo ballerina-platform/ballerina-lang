@@ -64,7 +64,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
@@ -133,9 +132,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         addData(data);
-        if (tableType.isReadOnly()) {
-            this.typedesc = createSingletonTypedesc(this);
-        }
     }
 
     // TODO: Might be unnecessary after fixing issue lang/#36721
@@ -215,6 +211,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = getTypedescValue(type, this);
+        }
         return typedesc;
     }
 
@@ -376,7 +375,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         //we know that values are always RefValues
         this.values().forEach(val -> ((RefValue) val).freezeDirect());
-        this.typedesc = createSingletonTypedesc(this);
+        this.typedesc = null;
     }
 
     public String stringValue(BLink parent) {

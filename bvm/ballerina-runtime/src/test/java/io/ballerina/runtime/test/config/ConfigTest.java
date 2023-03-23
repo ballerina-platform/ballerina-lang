@@ -52,6 +52,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
 
@@ -69,6 +71,8 @@ public class ConfigTest {
     public static final Type COLOR_ENUM_UNION = new BUnionType(COLOR_ENUM_MEMBERS, "Colors", ROOT_MODULE,
             0, false, SymbolFlags.ENUM);
     public static final Type COLOR_ENUM = new BIntersectionType(module, new Type[]{}, COLOR_ENUM_UNION, 0, true);
+    public static final Type AMBIGUOUS_UNION = new BUnionType(Arrays.asList(TypeCreator.createMapType(TYPE_ANYDATA),
+            TypeCreator.createMapType(TYPE_STRING)), true);
     private final Set<Module> moduleSet = Set.of(module);
 
     @Test(dataProvider = "simple-type-values-data-provider")

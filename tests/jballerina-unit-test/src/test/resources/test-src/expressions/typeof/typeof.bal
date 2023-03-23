@@ -321,7 +321,7 @@ function typeOfWithEnsureTypeOnSameValue() returns error? {
     anydata val = check clonableXml.ensureType(typeof xmlValue);
     test:assertTrue(val is xml:ProcessingInstruction);
     test:assertTrue(val == xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`);
-    test:assertEquals((typeof val).toString(), "typedesc '<?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>'");
+    test:assertEquals((typeof val).toString(), "typedesc <?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>");
 
     // Structural types - Array, Tuple
     byte[] & readonly arr = [1, 2, 3];

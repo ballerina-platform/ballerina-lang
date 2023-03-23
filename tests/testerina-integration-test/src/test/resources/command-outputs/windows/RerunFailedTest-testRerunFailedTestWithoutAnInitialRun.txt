@@ -1,0 +1,8 @@
+Compiling source
+	intg_tests/rerun_failed:0.0.0
+
+Running Tests
+
+	rerun_failed
+error: error while running failed tests : No previous test executions found.
+error: there are test failures

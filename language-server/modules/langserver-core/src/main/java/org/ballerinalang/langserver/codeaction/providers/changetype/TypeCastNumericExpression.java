@@ -21,8 +21,8 @@ import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.CodeActionContextTypeResolver;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
@@ -82,8 +82,12 @@ public class TypeCastNumericExpression extends TypeCastCodeAction {
         //Check if the binary expression is used for an assignment. 
         // If so, check if the type of the variable and any of the types of lhs and rhs operands is a 
         // match and select the operand to cast accordingly.
-        CodeActionContextTypeResolver contextTypeResolver = new CodeActionContextTypeResolver(context);
-        Optional<TypeSymbol> contextType = binaryExpressionNode.apply(contextTypeResolver);
+
+        LinePosition position = binaryExpressionNode.lineRange().startLine();
+        Optional<TypeSymbol> contextType = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            contextType = context.currentSemanticModel().get().expectedType(context.currentDocument().get(), position);
+        }
 
         String typeName;
         Node castExprNode;

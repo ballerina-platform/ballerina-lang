@@ -850,7 +850,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 return symbolTable.noType;
             }
 
-            BType paramType = requiredParam.getBType();
+            BType paramType = Types.getReferredType(requiredParam.getBType());
             if (paramType.tag != TypeTags.TYPEDESC) {
                 return symbolTable.noType;
             }

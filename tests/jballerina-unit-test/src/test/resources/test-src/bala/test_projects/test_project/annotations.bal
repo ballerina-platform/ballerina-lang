@@ -45,3 +45,7 @@ public function testAnnotationsOnLocalTupleFields() returns [@annotOne {value: "
     [@annotOne {value: "10"} string] r = [""];
     return r;
 }
+
+public string gVar = "chiranS";
+
+public [@annotOne {value: gVar} int, @annotOne {value: "k"} int, string...] g1 =  [1, 2, "hello", "world"];

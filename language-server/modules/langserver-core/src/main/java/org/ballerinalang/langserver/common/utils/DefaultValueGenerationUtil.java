@@ -203,7 +203,8 @@ public class DefaultValueGenerationUtil {
                 for (RecordFieldSymbol mandatoryField : mandatoryFieldSymbols) {
                     String value = getDefaultValueForTypeDescKind(CommonUtil.getRawType(mandatoryField
                             .typeDescriptor())).orElse("");
-                    fieldInsertText.add(mandatoryField.getName().get() + ": " + (isSnippet ?
+                    String fieldName = CommonUtil.escapeReservedKeyword(mandatoryField.getName().get());
+                    fieldInsertText.add(fieldName + ": " + (isSnippet ?
                             generateSnippetEntry(value, context.incrementAndGetPlaceholderCount()) : value));
                 }
                 valueString += String.join(", ", fieldInsertText);

@@ -417,7 +417,7 @@ public class TypeCreator {
      * Create a {@code Table} which represents the table type.
      *
      * @param constraint constraint type
-     * @param fieldNames filed names
+     * @param fieldNames field names
      * @param readonly   whether immutable
      * @return new table type
      */

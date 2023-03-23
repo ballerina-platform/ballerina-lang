@@ -95,3 +95,13 @@ function intRestParam(int... i) returns int {
 }
 
 function intParam(int i) returns int => i;
+
+function invalidNamedArg1() returns error {
+     int[] y = [5,6];
+     string x = "5";
+     _ = int:sum(ns=y);
+     _ = int:sum(ss=y);
+     _ = check int:fromString(s=x); // no error
+     _ = check int:fromString(s=y);
+     _ = check int:fromString(ss=x);
+}
