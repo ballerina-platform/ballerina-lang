@@ -39,6 +39,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -113,7 +114,12 @@ public class ImplicitNewExpressionNodeContext extends InvocationNodeContextProvi
             return this.getCompletionItemList(QNameRefCompletionUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
         }
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.expressionCompletions(ctx));
+        List<Node> arguments = node.parenthesizedArgList().isPresent() ?
+                node.parenthesizedArgList().get().arguments().stream().collect(Collectors.toList())
+                : Collections.emptyList();
+        if (!isInNamedArgOnlyContext(ctx, arguments)) {
+            completionItems.addAll(this.expressionCompletions(ctx));
+        }
         completionItems.addAll(getNamedArgExpressionCompletionItems(ctx, node));
 
         return completionItems;

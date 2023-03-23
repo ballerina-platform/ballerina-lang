@@ -111,8 +111,13 @@ public class ClientResourceAccessActionNodeContext
                 List<LSCompletionItem> items = this.getCompletionItemList(exprEntries, context);
                 completionItems.addAll(items);
             } else {
-                completionItems.addAll(this.actionKWCompletions(context));
-                completionItems.addAll(this.expressionCompletions(context));
+                List<Node> arguments = new ArrayList<>();
+                node.arguments().ifPresent(argList -> 
+                        arguments.addAll(argList.arguments().stream().collect(Collectors.toList())));
+                if (!isInNamedArgOnlyContext(context, arguments)) {
+                    completionItems.addAll(this.actionKWCompletions(context));
+                    completionItems.addAll(this.expressionCompletions(context));
+                }
                 completionItems.addAll(this.getNamedArgExpressionCompletionItems(context, node));
             }
         } else {
@@ -370,7 +375,7 @@ public class ClientResourceAccessActionNodeContext
             return completionItems;
         }
         Optional<Symbol> symbol = semanticModel.get().symbol(node);
-        if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.METHOD) {
+        if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.RESOURCE_METHOD) {
             return completionItems;
         }
         FunctionSymbol functionSymbol = (FunctionSymbol) symbol.get();
