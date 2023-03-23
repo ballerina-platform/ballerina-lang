@@ -48,7 +48,7 @@ public function baz() {
     E1? res = wait w2;
 }
 
-type LhsErr distinct error;
+public type LhsErr distinct error;
 type LhsErrTwo distinct error;
 
 public function fooBar() returns LhsErr? {

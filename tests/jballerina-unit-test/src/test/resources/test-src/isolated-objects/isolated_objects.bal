@@ -748,7 +748,7 @@ service / on new Listener() {
    }
 }
 
-type Response record {|
+public type Response record {|
    string message;
    int id;
 |};

@@ -1686,7 +1686,15 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 symbolType = Types.getReferredType(symbolType);
                 checkForExportableType(symbolType.tsymbol, pos, visitedSymbols);
                 return;
-            // TODO : Add support for other types. such as union and objects
+            case TypeTags.UNION:
+                ((BUnionType) symbolType).getMemberTypes().forEach(t -> checkForExportableType(t.tsymbol, pos,
+                        visitedSymbols));
+                return;
+            case TypeTags.OBJECT:
+                BObjectType objectType = (BObjectType) symbolType;
+                objectType.fields.values().forEach(f -> checkForExportableType(f.type.tsymbol, pos,
+                        visitedSymbols));
+                break;
         }
         if (!Symbols.isPublic(symbol)) {
             dlog.warning(pos, DiagnosticWarningCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);
