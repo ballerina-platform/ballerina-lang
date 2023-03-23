@@ -368,26 +368,17 @@ function testFuncWithNilReturnTypeWithoutVariableAssignment() {
 }
 
 function testFuncWithNeverReturnTypeWithoutVariableAssignment() {
-    error err = <error>trap intermediateFunction1();
-    assertValueEquality("Invalid", err.message());
+    var intermediateFunction = function() returns error? {f3();};
+    error err = <error>trap intermediateFunction();
+    assertValueEquality("Invalid return from f3", err.message());
 
-    err = <error>trap intermediateFunction2();
-    assertValueEquality("Invalid", err.message());
+    intermediateFunction = function() returns error? {f7();};
+    err = <error>trap intermediateFunction();
+    assertValueEquality("Invalid return from f7", err.message());
 
-    err = <error>trap intermediateFunction3();
-    assertValueEquality("Invalid", err.message());
-}
-
-function intermediateFunction1() returns error? {
-    f3();
-}
-
-function intermediateFunction2() returns error? {
-    f7();
-}
-
-function intermediateFunction3() returns error? {
-    f11();
+    intermediateFunction = function() returns error? {f11();};
+    err = <error>trap intermediateFunction();
+    assertValueEquality("Invalid return from f11", err.message());
 }
 
 function f1() returns ()|() => ();
@@ -395,7 +386,7 @@ function f1() returns ()|() => ();
 function f2() returns never? => ();
 
 function f3() returns never|never {
-    panic error("Invalid");
+    panic error("Invalid return from f3");
 }
 
 function f4() returns null {
@@ -409,7 +400,7 @@ function f5() returns () {
 function f6() {}
 
 function f7() returns never {
-    panic error("Invalid");
+    panic error("Invalid return from f7");
 }
 
 function f8() returns null|null => null;
@@ -422,7 +413,7 @@ function f10() returns FuncReturnType2 => null;
 
 type FuncReturnType3 never;
 function f11() returns FuncReturnType3 {
-    panic error("Invalid");
+    panic error("Invalid return from f11");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
