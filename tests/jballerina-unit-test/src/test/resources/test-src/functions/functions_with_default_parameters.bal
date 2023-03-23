@@ -270,10 +270,17 @@ public function sleep(int millis) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
 
-function testFuncWithComputedNameFieldInRecordLiteralForDefaultValue() {
+function testFuncWithSpecificFieldInRecordLiteralForDefaultValue() {
     int a = 10;
     function (record {| int a;|} x = {a}) returns int y = value1;
     assertEquality(y(), 10);
+}
+
+function testFuncWithComputedNameFieldInRecordLiteralForDefaultValue() {
+    int a = 100;
+    string b = "a";
+    function (record {| int a;|} x = {a: 10, [b]: a}) returns int y = value1;
+    assertEquality(y(), 100);
 }
 
 function value1(record {| int a;|} x) returns int {

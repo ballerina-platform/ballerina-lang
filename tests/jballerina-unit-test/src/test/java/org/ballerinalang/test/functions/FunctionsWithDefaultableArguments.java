@@ -256,6 +256,11 @@ public class FunctionsWithDefaultableArguments {
     }
 
     @Test
+    public void testFuncWithSpecificFieldInRecordLiteralForDefaultValue() {
+        BRunUtil.invoke(result, "testFuncWithSpecificFieldInRecordLiteralForDefaultValue");
+    }
+
+    @Test
     public void testFuncWithSpreadFieldInRecordLiteralForDefaultValue() {
         BRunUtil.invoke(result, "testFuncWithSpreadFieldInRecordLiteralForDefaultValue");
     }
