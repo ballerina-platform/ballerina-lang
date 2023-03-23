@@ -364,3 +364,32 @@ function typeOfWithEnsureTypeOnSameValue() returns error? {
     test:assertTrue(val == table [{s: "test"}]);
     test:assertEquals((typeof val).toString(), "typedesc [{\"s\":\"test\"}]");
 }
+
+type Array int[];
+
+type Tuple [int, string];
+
+type Table table<map<anydata>>;
+
+type Map map<anydata>;
+
+type Person record {
+    string name;
+};
+
+type Employee Person;
+function typeOfTypeReferenceTypeValues() returns error? {
+    Array a = [1, 2, 3];
+    Tuple t = [1, "hello"];
+    Table tb = table [
+        {id: 1, name: "Gabilan"},
+        {id: 2, name: "Nadesshan"}
+    ];
+    Map m = {name: "Waruna"};
+    Employee e = {name: "Hinduja"};
+    test:assertEquals((typeof a).toString(), "typedesc Array");
+    test:assertEquals((typeof t).toString(), "typedesc Tuple");
+    test:assertEquals((typeof tb).toString(), "typedesc Table");
+    test:assertEquals((typeof m).toString(), "typedesc Map");
+    test:assertEquals((typeof e).toString(), "typedesc Employee");
+}
