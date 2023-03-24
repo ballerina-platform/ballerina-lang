@@ -209,8 +209,8 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             case OBJECT_FIELD:
                 return Optional.of(((ObjectFieldNode) matchedNode).typeName());
             case LET_VAR_DECL:
-                LetVariableDeclarationNode variableDecl = (LetVariableDeclarationNode) matchedNode;
-                return Optional.ofNullable(variableDecl.typedBindingPattern().typeDescriptor());
+                return Optional.ofNullable(((LetVariableDeclarationNode) matchedNode)
+                        .typedBindingPattern().typeDescriptor());
             default:
                 return Optional.empty();
         }
