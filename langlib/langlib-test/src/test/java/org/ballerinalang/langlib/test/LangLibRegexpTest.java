@@ -81,56 +81,60 @@ public class LangLibRegexpTest {
         };
     }
 
-    @Test(dataProvider = "negativeRegexpFindIndexProvider")
+    @Test(dataProvider = "negativeRegexpIndexProvider")
     public void testNegativeRegexp(String functionName) {
-        Object returns = BRunUtil.invoke(negativeTests, functionName);
-        Assert.assertEquals(returns.toString(),
-                "error(\"IndexOutOfRange\",message=\"start index cannot be less than 0\")");
+        BRunUtil.invoke(negativeTests, functionName);
     }
 
-    @DataProvider(name = "negativeRegexpFindIndexProvider")
-    private Object[][] negativeRegexpFindIndexes() {
+    @DataProvider(name = "negativeRegexpIndexProvider")
+    private Object[][] negativeRegexpIndexes() {
         return new Object[][] {
                 {"testNegativeIndexFind"},
                 {"testNegativeIndexFindAll"},
                 {"testNegativeIndexFindGroups"},
                 {"testNegativeIndexFindAllGroups"},
+                {"testNegativeIndexMatchAt"},
+                {"testNegativeIndexMatchGroupsAt"},
+                {"testNegativeIndexReplace"},
+                {"testNegativeIndexReplaceAll"}
         };
     }
 
-    @Test(dataProvider = "invalidRegexpFindIndexProvider")
-    public void testInvalidRegexp(String functionName, int startIndex, int length) {
-        Object returns = BRunUtil.invoke(negativeTests, functionName);
-        Assert.assertEquals(returns.toString(),
-                "error(\"IndexOutOfRange\",message=\"start index '" + startIndex + "' cannot be greater than input " +
-                        "string length '" + length + "'\")");
+    @Test(dataProvider = "invalidRegexpIndexProvider")
+    public void testInvalidRegexp(String functionName) {
+        BRunUtil.invoke(negativeTests, functionName);
     }
 
-    @DataProvider(name = "invalidRegexpFindIndexProvider")
-    private Object[][] invalidRegexpFindIndexes() {
+    @DataProvider(name = "invalidRegexpIndexProvider")
+    private Object[][] invalidRegexpIndexes() {
         return new Object[][] {
-                {"testInvalidIndexFind", 12, 5},
-                {"testInvalidIndexFindAll", 112, 63},
-                {"testInvalidIndexFindGroups", 97, 52},
-                {"testInvalidIndexFindAllGroups", 123, 31},
+                {"testInvalidIndexFind"},
+                {"testInvalidIndexFindAll"},
+                {"testInvalidIndexFindGroups"},
+                {"testInvalidIndexFindAllGroups"},
+                {"testInvalidIndexMatchAt"},
+                {"testInvalidIndexMatchGroupsAt"},
+                {"testInvalidIndexReplace"},
+                {"testInvalidIndexReplaceAll"}
         };
     }
 
-    @Test(dataProvider = "longRegexpFindIndexProvider")
-    public void testLongIndexRegexp(String functionName, long startIndex) {
-        Object returns = BRunUtil.invoke(negativeTests, functionName);
-        Assert.assertEquals(returns.toString(),
-                String.format("error(\"{ballerina/lang.regexp}RegularExpressionOperationError\",message=\"index " +
-                        "number too large: %,d\")", startIndex));
+    @Test(dataProvider = "longRegexpIndexProvider")
+    public void testLongIndexRegexp(String functionName) {
+        BRunUtil.invoke(negativeTests, functionName);
     }
 
-    @DataProvider(name = "longRegexpFindIndexProvider")
-    private Object[][] longRegexpFindIndexes() {
+    @DataProvider(name = "longRegexpIndexProvider")
+    private Object[][] longRegexpIndexes() {
         return new Object[][] {
-                {"testLongIndexFind", 68719476704L},
-                {"testLongIndexFindAll", 137438953408L},
-                {"testLongIndexFindGroups", 274877906816L},
-                {"testLongIndexFindAllGroups", 549755813632L},
+                {"testLongIndexFind"},
+                {"testLongIndexFindAll"},
+                {"testLongIndexFindGroups"},
+                {"testLongIndexFindAllGroups"},
+                {"testLongIndexMatchAt"},
+                {"testLongIndexMatchGroupsAt"},
+                {"testLongIndexReplace"},
+                {"testLongIndexReplaceAll"}
         };
     }
 
@@ -144,17 +148,12 @@ public class LangLibRegexpTest {
     @DataProvider(name = "invalidRegexpPatternSyntaxProvider")
     private Object[][] getInvalidRegexpPatternSyntax() {
         return new Object[][] {
-                {"testInvalidRegexpPatternSyntax1", "Illegal character range near index 9" + NEW_LINE_CHAR +
-                        "([(a{1})-(z)])" + NEW_LINE_CHAR + "         ^"},
-                {"testInvalidRegexpPatternSyntax2", "Unclosed character class near index 24" + NEW_LINE_CHAR +
+                {"testInvalidRegexpPatternSyntax1", "Unclosed character class near index 24" + NEW_LINE_CHAR +
                         "(?i-s:[[A\\\\sB\\WC\\Dd\\\\]\\])" + NEW_LINE_CHAR + "                        ^"},
-                {"testInvalidRegexpPatternSyntax3", "Unclosed character class near index 23" + NEW_LINE_CHAR +
-                        "(?xsmi:[]\\P{sc=Braille})" + NEW_LINE_CHAR +
-                        "                       ^"},
-                {"testInvalidRegexpPatternSyntax4", "Illegal character range near index 9" + NEW_LINE_CHAR
-                        + "([(a{1})-(z)])" + NEW_LINE_CHAR + "         ^"},
-                {"testInvalidRegexpPatternSyntax5", "Unclosed character class near index 23" + NEW_LINE_CHAR +
-                        "(?xsmi:[]\\P{sc=Braille})" + NEW_LINE_CHAR + "                       ^"},
+                {"testInvalidRegexpPatternSyntax2", "Unclosed character class near index 27" + NEW_LINE_CHAR +
+                        "(?xsmi:[[ABC]\\P{sc=Braille})" + NEW_LINE_CHAR + "                           ^"},
+                {"testInvalidRegexpPatternSyntax3", "Unclosed character class near index 27" + NEW_LINE_CHAR +
+                        "(?xsmi:[[ABC]\\P{sc=Braille})" + NEW_LINE_CHAR + "                           ^"},
         };
     }
 
@@ -188,5 +187,39 @@ public class LangLibRegexpTest {
                 Pair.of(33, 12),
                 Pair.of(34, 12)
         );
+    }
+    
+    @Test(dataProvider = "negativeRegexpNonCapturingGroupProvider")
+    public void negativeTestRegexpEmptyCharClass(String functionName) {
+        BRunUtil.invoke(negativeTests, functionName);
+    }
+
+    @DataProvider(name = "negativeRegexpNonCapturingGroupProvider")
+    private Object[][] negativeRegexpEmptyCharClass() {
+        return new Object[][]{
+                {"testNegativeDuplicateFlags1"},
+                {"testNegativeDuplicateFlags2"},
+                {"testNegativeDuplicateFlags3"},
+                {"testNegativeDuplicateFlags4"},
+                {"testNegativeDuplicateFlags5"},
+                {"testNegativeInvalidFlags1"},
+                {"testNegativeInvalidFlags2"},
+                {"testNegativeInvalidFlags3"},
+                {"testNegativeInvalidFlags4"},
+        };
+    }
+    
+    @Test(dataProvider = "negativeRegexpEmptyCharClassInterpolationProvider")
+    public void negativeTestRegexpEmptyCharClassInsertion(String functionName) {
+        BRunUtil.invoke(negativeTests, functionName);
+    }
+
+    @DataProvider(name = "negativeRegexpEmptyCharClassInterpolationProvider")
+    private Object[][] negativeRegexpEmptyCharClassInsertion() {
+        return new Object[][] {
+                {"testNegativeEmptyCharClass1"},
+                {"testNegativeEmptyCharClass2"},
+                {"testNegativeEmptyCharClass3"}
+        };
     }
 }

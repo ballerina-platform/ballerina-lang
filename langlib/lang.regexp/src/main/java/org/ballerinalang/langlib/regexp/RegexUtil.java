@@ -76,9 +76,9 @@ public class RegexUtil {
 
     static BArray getMatcherGroupsAsSpanArr(Matcher matcher) {
         BArray group = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
+        BArray span = getGroupZeroAsSpan(matcher);
+        group.append(span);
         if (matcher.groupCount() == 0) {
-            BArray span = getGroupZeroAsSpan(matcher);
-            group.append(span);
             return group;
         }
         for (int i = 1; i <= matcher.groupCount(); i++) {
@@ -101,5 +101,23 @@ public class RegexUtil {
 
     public static long length(BString value) {
         return value.length();
+    }
+
+    protected static void checkIndexWithinRange(BString str, long startIndex) {
+        if (startIndex != (int) startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REGEXP_OPERATION_ERROR,
+                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
+        }
+
+        if (startIndex < 0) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                    RuntimeErrors.NEGATIVE_REGEXP_FIND_INDEX);
+        }
+
+        int strLength = str.length();
+        if (strLength != 0 && strLength <= startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                    RuntimeErrors.INVALID_REGEXP_FIND_INDEX, startIndex, strLength);
+        }
     }
 }

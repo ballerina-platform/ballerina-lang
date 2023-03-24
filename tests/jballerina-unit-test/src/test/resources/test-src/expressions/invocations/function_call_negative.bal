@@ -105,3 +105,13 @@ function invalidNamedArg1() returns error {
      _ = check int:fromString(s=y);
      _ = check int:fromString(ss=x);
 }
+
+function testFuncWithNilReturnTypeWithoutVariableAssignment() {
+    f1();
+    f2();
+    f3();
+}
+
+function f1() returns ()|int|() => ();
+function f2() returns 1|null => null;
+function f3() returns null|1|null => null;

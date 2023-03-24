@@ -44,6 +44,7 @@ import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.utils.ValueUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -58,7 +59,6 @@ import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTupleType;
-import org.ballerinalang.langlib.value.FromJsonWithType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -131,7 +131,7 @@ public class Values {
     }
 
     public static BArray getParameters(BObject object, BString methodName) {
-        ObjectType objectType = (ObjectType) object.getType();
+        ObjectType objectType = object.getType();
         Optional<MethodType> funcType = Arrays.stream(objectType.getMethods())
                 .filter(r -> r.getName().equals(methodName.getValue())).findAny();
         TupleType tupleType = TypeCreator.createTupleType(List.of(PredefinedTypes.TYPE_STRING,
@@ -156,7 +156,7 @@ public class Values {
     }
 
     public static BString getFunctionString(BObject object, BString methodName) {
-        ObjectType objectType = (ObjectType) object.getType();
+        ObjectType objectType = object.getType();
         Optional<MethodType> funcType = Arrays.stream(objectType.getMethods())
                 .filter(r -> r.getName().equals(methodName.getValue())).findAny();
         if (funcType.isPresent()) {
@@ -248,7 +248,7 @@ public class Values {
     }
 
     public static Object getRecordValueFromJson(Object jsonValue, BTypedesc type) {
-        return FromJsonWithType.convert(jsonValue, type.getDescribingType());
+        return ValueUtils.convert(jsonValue, type.getDescribingType());
     }
 
     public static BObject getInvalidObject(BString objectName) {
@@ -406,7 +406,7 @@ public class Values {
     }
 
     public static Object validateFunctionParameterFromObject(BObject object) {
-        ObjectType type = (ObjectType) object.getType();
+        ObjectType type = object.getType();
         for (MethodType methodType : type.getMethods()) {
             if (methodType.getName() == "testFunction") {
                 return validateFunctionType(methodType.getType());

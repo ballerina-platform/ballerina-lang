@@ -288,10 +288,58 @@ public class RegExpConstructorExprTest extends AbstractExpressionsTest {
     }
 
     @Test
-    public void testInvalidRegExpWithBacktick() {
+    public void testInvalid1() {
         testFile("regexp-constructor-expr/regexp_constructor_source_44.bal",
                 "regexp-constructor-expr/regexp_constructor_assert_44.json");
+    }
+
+    @Test
+    public void testBasicInvalid() {
         testFile("regexp-constructor-expr/regexp_constructor_source_45.bal",
                 "regexp-constructor-expr/regexp_constructor_assert_45.json");
+    }
+
+    @Test
+    public void testLookBehindAssertionInvalid1() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_46.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_46.json");
+    }
+
+    @Test
+    public void testLookBehindAssertionInvalid2() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_47.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_47.json");
+    }
+
+    @Test
+    public void testNamedCapturingGroupsInvalid() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_48.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_48.json");
+    }
+
+    @Test
+    public void testUnicodeGroupNamesInvalid() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_49.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_49.json");
+    }
+
+    @Test
+    public void testUnicodePropertyEscapeInvalid() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_50.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_50.json");
+    }
+
+    @Test
+    public void testBasicInvalid2() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_51.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_51.json");
+    }
+
+    @Test
+    public void testInvalidRegExpWithBacktick() {
+        testFile("regexp-constructor-expr/regexp_constructor_source_52.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_52.json");
+        testFile("regexp-constructor-expr/regexp_constructor_source_53.bal",
+                "regexp-constructor-expr/regexp_constructor_assert_53.json");
     }
 }

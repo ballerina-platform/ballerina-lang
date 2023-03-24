@@ -377,30 +377,12 @@ public class SyntaxTreeGenTest {
 
         // Verify main function visible endpoints
         JsonObject exEp0 = mainFunctionVEp.get(0).getAsJsonObject();
-        Assert.assertEquals(exEp0.get("name").getAsString(), "exEp0");
-        Assert.assertEquals(exEp0.get("typeName").getAsString(), "ExternalClient");
-        Assert.assertEquals(exEp0.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(exEp0.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(exEp0.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(exEp0.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(exEp0.get("isModuleVar").getAsBoolean(), true);
-        Assert.assertEquals(exEp0.get("isExternal").getAsBoolean(), true);
-        JsonObject exEp0Position = exEp0.get("position").getAsJsonObject();
-        Assert.assertEquals(exEp0Position.get("startLine").getAsInt(), 14);
-        Assert.assertEquals(exEp0Position.get("endLine").getAsInt(), 14);
+        checkClientVisibleEndpoints(exEp0, "exEp0", "ExternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 14, 14, true,  true);
 
         JsonObject exEp1 = mainFunctionVEp.get(1).getAsJsonObject();
-        Assert.assertEquals(exEp1.get("name").getAsString(), "exEp1");
-        Assert.assertEquals(exEp1.get("typeName").getAsString(), "ExternalClient");
-        Assert.assertEquals(exEp1.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(exEp1.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(exEp1.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(exEp1.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(exEp1.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(exEp1.get("isExternal").getAsBoolean(), false);
-        JsonObject exEp1Position = exEp1.get("position").getAsJsonObject();
-        Assert.assertEquals(exEp1Position.get("startLine").getAsInt(), 17);
-        Assert.assertEquals(exEp1Position.get("endLine").getAsInt(), 17);
+        checkClientVisibleEndpoints(exEp1, "exEp1", "ExternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 17, 17, false,  false);
 
         // Verify main function if block
         Assert.assertEquals(mainFunctionBody.get("statements").getAsJsonArray().get(3).getAsJsonObject().get("ifBody")
@@ -416,17 +398,8 @@ public class SyntaxTreeGenTest {
         Assert.assertEquals(mainFunctionIfBodyVEp.get(1).getAsJsonObject().get("name").getAsString(), "exEp1");
 
         JsonObject exEp2 = mainFunctionIfBodyVEp.get(2).getAsJsonObject();
-        Assert.assertEquals(exEp2.get("name").getAsString(), "exEp2");
-        Assert.assertEquals(exEp2.get("typeName").getAsString(), "ExternalClient");
-        Assert.assertEquals(exEp2.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(exEp2.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(exEp2.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(exEp2.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(exEp2.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(exEp2.get("isExternal").getAsBoolean(), false);
-        JsonObject exEp2Position = exEp2.get("position").getAsJsonObject();
-        Assert.assertEquals(exEp2Position.get("startLine").getAsInt(), 22);
-        Assert.assertEquals(exEp2Position.get("endLine").getAsInt(), 22);
+        checkClientVisibleEndpoints(exEp2, "exEp2", "ExternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 22, 22, false,  false);
 
         // Verify main function anonymous function block
         Assert.assertEquals(mainFunctionBody.get("statements").getAsJsonArray().get(4).getAsJsonObject()
@@ -443,17 +416,8 @@ public class SyntaxTreeGenTest {
         Assert.assertEquals(mainFunctionAnonVEp.get(1).getAsJsonObject().get("name").getAsString(), "exEp1");
 
         JsonObject exEp3 = mainFunctionAnonVEp.get(2).getAsJsonObject();
-        Assert.assertEquals(exEp3.get("name").getAsString(), "exEp3");
-        Assert.assertEquals(exEp3.get("typeName").getAsString(), "ExternalClient");
-        Assert.assertEquals(exEp3.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(exEp3.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(exEp3.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(exEp3.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(exEp3.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(exEp3.get("isExternal").getAsBoolean(), false);
-        JsonObject exEp3Position = exEp3.get("position").getAsJsonObject();
-        Assert.assertEquals(exEp3Position.get("startLine").getAsInt(), 26);
-        Assert.assertEquals(exEp3Position.get("endLine").getAsInt(), 26);
+        checkClientVisibleEndpoints(exEp3, "exEp3", "ExternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 26, 26, false,  false);
 
         // Verify secondFunc function
         Assert.assertEquals(members.get(3).getAsJsonObject().get("kind").getAsString(), "FunctionDefinition");
@@ -468,31 +432,12 @@ public class SyntaxTreeGenTest {
         Assert.assertEquals(secondFunctionVEp.get(0).getAsJsonObject().get("name").getAsString(), "exEp0");
 
         JsonObject exEpP1 = secondFunctionVEp.get(1).getAsJsonObject();
-        Assert.assertEquals(exEpP1.get("name").getAsString(), "exEpP1");
-        Assert.assertEquals(exEpP1.get("typeName").getAsString(), "ExternalClient");
-        Assert.assertEquals(exEpP1.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(exEpP1.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(exEpP1.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(exEpP1.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(exEpP1.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(exEpP1.get("isExternal").getAsBoolean(), true);
-        Assert.assertEquals(exEpP1.get("isParameter").getAsBoolean(), true);
-        JsonObject exEpP1Position = exEpP1.get("position").getAsJsonObject();
-        Assert.assertEquals(exEpP1Position.get("startLine").getAsInt(), 31);
-        Assert.assertEquals(exEpP1Position.get("endLine").getAsInt(), 31);
+        checkClientVisibleEndpoints(exEpP1, "exEpP1", "ExternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 31, 31, false,  true);
 
         JsonObject exEp6 = secondFunctionVEp.get(2).getAsJsonObject();
-        Assert.assertEquals(exEp6.get("name").getAsString(), "exEp6");
-        Assert.assertEquals(exEp6.get("typeName").getAsString(), "ExternalClient");
-        Assert.assertEquals(exEp6.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(exEp6.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(exEp6.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(exEp6.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(exEp6.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(exEp6.get("isExternal").getAsBoolean(), false);
-        JsonObject exEp6Position = exEp6.get("position").getAsJsonObject();
-        Assert.assertEquals(exEp6Position.get("startLine").getAsInt(), 41);
-        Assert.assertEquals(exEp6Position.get("endLine").getAsInt(), 41);
+        checkClientVisibleEndpoints(exEp6, "exEp6", "ExternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 41, 41, false,  false);
 
         // Verify secondFunc function while block
         Assert.assertEquals(secondFunctionBody.get("statements").getAsJsonArray().get(1).getAsJsonObject()
@@ -508,17 +453,8 @@ public class SyntaxTreeGenTest {
         Assert.assertEquals(secondFunctionWhileBodyVEp.get(1).getAsJsonObject().get("name").getAsString(), "exEpP1");
 
         JsonObject exEp4 = secondFunctionWhileBodyVEp.get(2).getAsJsonObject();
-        Assert.assertEquals(exEp4.get("name").getAsString(), "exEp4");
-        Assert.assertEquals(exEp4.get("typeName").getAsString(), "ExternalClient");
-        Assert.assertEquals(exEp4.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(exEp4.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(exEp4.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(exEp4.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(exEp4.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(exEp4.get("isExternal").getAsBoolean(), false);
-        JsonObject exEp4Position = exEp4.get("position").getAsJsonObject();
-        Assert.assertEquals(exEp4Position.get("startLine").getAsInt(), 34);
-        Assert.assertEquals(exEp4Position.get("endLine").getAsInt(), 34);
+        checkClientVisibleEndpoints(exEp4, "exEp4", "ExternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 34, 34, false,  false);
 
         // Verify secondFunc function do block
         Assert.assertEquals(secondFunctionBody.get("statements").getAsJsonArray().get(2).getAsJsonObject()
@@ -534,17 +470,8 @@ public class SyntaxTreeGenTest {
         Assert.assertEquals(secondFunctionDoBodyVEp.get(1).getAsJsonObject().get("name").getAsString(), "exEpP1");
 
         JsonObject exEp5 = secondFunctionDoBodyVEp.get(2).getAsJsonObject();
-        Assert.assertEquals(exEp5.get("name").getAsString(), "exEp5");
-        Assert.assertEquals(exEp5.get("typeName").getAsString(), "ExternalClient");
-        Assert.assertEquals(exEp5.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(exEp5.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(exEp5.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(exEp5.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(exEp5.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(exEp5.get("isExternal").getAsBoolean(), false);
-        JsonObject exEp5Position = exEp5.get("position").getAsJsonObject();
-        Assert.assertEquals(exEp5Position.get("startLine").getAsInt(), 38);
-        Assert.assertEquals(exEp5Position.get("endLine").getAsInt(), 38);
+        checkClientVisibleEndpoints(exEp5, "exEp5", "ExternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 38, 38, false,  false);
 
         // Verify secondFunc function else block
         Assert.assertEquals(secondFunctionBody.get("statements").getAsJsonArray().get(4).getAsJsonObject()
@@ -563,17 +490,8 @@ public class SyntaxTreeGenTest {
         Assert.assertEquals(secondFunctionElseBodyVEp.get(2).getAsJsonObject().get("name").getAsString(), "exEp6");
 
         JsonObject exEp7 = secondFunctionElseBodyVEp.get(3).getAsJsonObject();
-        Assert.assertEquals(exEp7.get("name").getAsString(), "exEp7");
-        Assert.assertEquals(exEp7.get("typeName").getAsString(), "ExternalClient");
-        Assert.assertEquals(exEp7.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(exEp7.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(exEp7.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(exEp7.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(exEp7.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(exEp7.get("isExternal").getAsBoolean(), false);
-        JsonObject exEp7Position = exEp7.get("position").getAsJsonObject();
-        Assert.assertEquals(exEp7Position.get("startLine").getAsInt(), 46);
-        Assert.assertEquals(exEp7Position.get("endLine").getAsInt(), 46);
+        checkClientVisibleEndpoints(exEp7, "exEp7", "ExternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 46, 46, false,  false);
 
         // Verify thirdFunc function
         Assert.assertEquals(members.get(4).getAsJsonObject().get("kind").getAsString(), "FunctionDefinition");
@@ -588,30 +506,12 @@ public class SyntaxTreeGenTest {
         Assert.assertEquals(thirdFunctionVEp.get(0).getAsJsonObject().get("name").getAsString(), "exEp0");
 
         JsonObject exEp8 = thirdFunctionVEp.get(1).getAsJsonObject();
-        Assert.assertEquals(exEp8.get("name").getAsString(), "exEp8");
-        Assert.assertEquals(exEp8.get("typeName").getAsString(), "ExternalClient");
-        Assert.assertEquals(exEp8.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(exEp8.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(exEp8.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(exEp8.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(exEp8.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(exEp8.get("isExternal").getAsBoolean(), false);
-        JsonObject exEp8Position = exEp8.get("position").getAsJsonObject();
-        Assert.assertEquals(exEp8Position.get("startLine").getAsInt(), 53);
-        Assert.assertEquals(exEp8Position.get("endLine").getAsInt(), 53);
+        checkClientVisibleEndpoints(exEp8, "exEp8", "ExternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 53, 53, false,  false);
 
-        JsonObject exEp6Copy = thirdFunctionVEp.get(2).getAsJsonObject();
-        Assert.assertEquals(exEp6Copy.get("name").getAsString(), "exEp6");
-        Assert.assertEquals(exEp6Copy.get("typeName").getAsString(), "ExternalClient");
-        Assert.assertEquals(exEp6Copy.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(exEp6Copy.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(exEp6Copy.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(exEp6Copy.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(exEp6Copy.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(exEp6Copy.get("isExternal").getAsBoolean(), false);
-        JsonObject exEp6CopyPosition = exEp6Copy.get("position").getAsJsonObject();
-        Assert.assertEquals(exEp6CopyPosition.get("startLine").getAsInt(), 57);
-        Assert.assertEquals(exEp6CopyPosition.get("endLine").getAsInt(), 57);
+        JsonObject exEp62 = thirdFunctionVEp.get(2).getAsJsonObject();
+        checkClientVisibleEndpoints(exEp62, "exEp6", "ExternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 57, 57, false,  false);
 
         // Verify fourthFunc function
         Assert.assertEquals(members.get(5).getAsJsonObject().get("kind").getAsString(), "FunctionDefinition");
@@ -626,70 +526,25 @@ public class SyntaxTreeGenTest {
         Assert.assertEquals(fourthFunctionVEp.get(0).getAsJsonObject().get("name").getAsString(), "exEp0");
 
         JsonObject exEpOut = fourthFunctionVEp.get(1).getAsJsonObject();
-        Assert.assertEquals(exEpOut.get("name").getAsString(), "exEpOut");
-        Assert.assertEquals(exEpOut.get("typeName").getAsString(), "ExternalClient");
-        Assert.assertEquals(exEpOut.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(exEpOut.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(exEpOut.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(exEpOut.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(exEpOut.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(exEpOut.get("isExternal").getAsBoolean(), true);
-        JsonObject exEpOutPosition = exEpOut.get("position").getAsJsonObject();
-        Assert.assertEquals(exEpOutPosition.get("startLine").getAsInt(), 72);
-        Assert.assertEquals(exEpOutPosition.get("endLine").getAsInt(), 72);
+        checkClientVisibleEndpoints(exEpOut, "exEpOut", "ExternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 72, 72, false,  true);
 
         JsonObject exEpP2 = fourthFunctionVEp.get(2).getAsJsonObject();
-        Assert.assertEquals(exEpP2.get("name").getAsString(), "exEpP2");
-        Assert.assertEquals(exEpP2.get("typeName").getAsString(), "ExternalClient");
-        Assert.assertEquals(exEpP2.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(exEpP2.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(exEpP2.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(exEpP2.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(exEpP2.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(exEpP2.get("isExternal").getAsBoolean(), true);
-        Assert.assertEquals(exEpP2.get("isParameter").getAsBoolean(), true);
-        JsonObject exEpP2Position = exEpP2.get("position").getAsJsonObject();
-        Assert.assertEquals(exEpP2Position.get("startLine").getAsInt(), 62);
-        Assert.assertEquals(exEpP2Position.get("endLine").getAsInt(), 62);
+        checkClientVisibleEndpoints(exEpP2, "exEpP2", "ExternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 62, 62, false,  true, false, true);
 
         JsonObject tempVar = fourthFunctionVEp.get(3).getAsJsonObject();
-        Assert.assertEquals(tempVar.get("name").getAsString(), "temp");
-        Assert.assertEquals(tempVar.get("typeName").getAsString(), "ExternalClient");
-        Assert.assertEquals(tempVar.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(tempVar.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(tempVar.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(tempVar.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(tempVar.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(tempVar.get("isExternal").getAsBoolean(), false);
-        JsonObject tempVarPosition = tempVar.get("position").getAsJsonObject();
-        Assert.assertEquals(tempVarPosition.get("startLine").getAsInt(), 63);
-        Assert.assertEquals(tempVarPosition.get("endLine").getAsInt(), 63);
+        checkClientVisibleEndpoints(tempVar, "temp", "ExternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 63, 63, false,  false);
+
 
         JsonObject exEp10 = fourthFunctionVEp.get(4).getAsJsonObject();
-        Assert.assertEquals(exEp10.get("name").getAsString(), "exEp10");
-        Assert.assertEquals(exEp10.get("typeName").getAsString(), "ExternalClient");
-        Assert.assertEquals(exEp10.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(exEp10.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(exEp10.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(exEp10.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(exEp10.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(exEp10.get("isExternal").getAsBoolean(), false);
-        JsonObject exEp10Position = exEp10.get("position").getAsJsonObject();
-        Assert.assertEquals(exEp10Position.get("startLine").getAsInt(), 64);
-        Assert.assertEquals(exEp10Position.get("endLine").getAsInt(), 64);
+        checkClientVisibleEndpoints(exEp10, "exEp10", "ExternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 64, 64, false,  false);
 
         JsonObject inEp1 = fourthFunctionVEp.get(5).getAsJsonObject();
-        Assert.assertEquals(inEp1.get("name").getAsString(), "inEp1");
-        Assert.assertEquals(inEp1.get("typeName").getAsString(), "InternalClient");
-        Assert.assertEquals(inEp1.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(inEp1.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(inEp1.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(inEp1.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(inEp1.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(inEp1.get("isExternal").getAsBoolean(), false);
-        JsonObject inEp1Position = inEp1.get("position").getAsJsonObject();
-        Assert.assertEquals(inEp1Position.get("startLine").getAsInt(), 70);
-        Assert.assertEquals(inEp1Position.get("endLine").getAsInt(), 70);
+        checkClientVisibleEndpoints(inEp1, "inEp1", "InternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 70, 70, false,  false);
 
         // Verify service declaration
         Assert.assertEquals(members.get(6).getAsJsonObject().get("kind").getAsString(), "ServiceDeclaration");
@@ -705,18 +560,8 @@ public class SyntaxTreeGenTest {
         Assert.assertEquals(serviceVEp.get(1).getAsJsonObject().get("name").getAsString(), "exEpOut");
 
         JsonObject inEp2 = serviceVEp.get(2).getAsJsonObject();
-        Assert.assertEquals(inEp2.get("name").getAsString(), "inEp2");
-        Assert.assertEquals(inEp2.get("typeName").getAsString(), "InternalClient");
-        Assert.assertEquals(inEp2.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(inEp2.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(inEp2.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(inEp2.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(inEp2.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(inEp2.get("isExternal").getAsBoolean(), true);
-        Assert.assertEquals(inEp2.get("isClassField").getAsBoolean(), true);
-        JsonObject inEp2Position = inEp2.get("position").getAsJsonObject();
-        Assert.assertEquals(inEp2Position.get("startLine").getAsInt(), 78);
-        Assert.assertEquals(inEp2Position.get("endLine").getAsInt(), 78);
+        checkClientVisibleEndpoints(inEp2, "inEp2", "InternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 78, 78, false, true, true, false);
 
         // Verify resource definitions
         JsonArray getResourceVEps = serviceMembers.get(2).getAsJsonObject().get("functionBody").getAsJsonObject()
@@ -736,17 +581,8 @@ public class SyntaxTreeGenTest {
         Assert.assertEquals(postResourceVEps.get(2).getAsJsonObject().get("name").getAsString(), "inEp2");
 
         JsonObject exEp11 = postResourceVEps.get(3).getAsJsonObject();
-        Assert.assertEquals(exEp11.get("name").getAsString(), "exEp11");
-        Assert.assertEquals(exEp11.get("typeName").getAsString(), "ExternalClient");
-        Assert.assertEquals(exEp11.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(exEp11.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(exEp11.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(exEp11.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(exEp11.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(exEp11.get("isExternal").getAsBoolean(), false);
-        JsonObject exEp11Position = exEp11.get("position").getAsJsonObject();
-        Assert.assertEquals(exEp11Position.get("startLine").getAsInt(), 90);
-        Assert.assertEquals(exEp11Position.get("endLine").getAsInt(), 90);
+        checkClientVisibleEndpoints(exEp11, "exEp11", "ExternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 90, 90, false,  false);
 
         // Verify /abc service declaration
         Assert.assertEquals(members.get(9).getAsJsonObject().get("kind").getAsString(), "ServiceDeclaration");
@@ -767,17 +603,43 @@ public class SyntaxTreeGenTest {
         Assert.assertEquals(abcGetResourceVEps.get(1).getAsJsonObject().get("name").getAsString(), "exEpOut");
 
         JsonObject inEp3 = abcGetResourceVEps.get(2).getAsJsonObject();
-        Assert.assertEquals(inEp3.get("name").getAsString(), "inEp3");
-        Assert.assertEquals(inEp3.get("typeName").getAsString(), "InternalClient");
-        Assert.assertEquals(inEp3.get("orgName").getAsString(), "gayanOrg");
-        Assert.assertEquals(inEp3.get("packageName").getAsString(), "testEps");
-        Assert.assertEquals(inEp3.get("moduleName").getAsString(), "testEps");
-        Assert.assertEquals(inEp3.get("version").getAsString(), "0.1.0");
-        Assert.assertEquals(inEp3.get("isModuleVar").getAsBoolean(), false);
-        Assert.assertEquals(inEp3.get("isExternal").getAsBoolean(), true);
-        Assert.assertEquals(inEp3.get("isClassField").getAsBoolean(), true);
-        JsonObject inEp3Position = inEp3.get("position").getAsJsonObject();
-        Assert.assertEquals(inEp3Position.get("startLine").getAsInt(), 110);
-        Assert.assertEquals(inEp3Position.get("endLine").getAsInt(), 114);
+        checkClientVisibleEndpoints(inEp3, "inEp3", "InternalClient", "gayanOrg", "testEps",
+                "testEps", "0.1.0", 110, 114, false, true, true, false);
+    }
+
+    private void checkClientVisibleEndpoints(JsonObject ep, String varName, String typeName, String orgName,
+                                             String packageName, String moduleName, String version, int startLine,
+                                             int endLine, boolean isModuleVar, boolean isExternal, boolean isClassField,
+                                             boolean isParameter) {
+
+        Assert.assertEquals(ep.get("name").getAsString(), varName);
+        Assert.assertEquals(ep.get("typeName").getAsString(), typeName);
+
+        Assert.assertEquals(ep.get("orgName").getAsString(), orgName);
+        Assert.assertEquals(ep.get("packageName").getAsString(), packageName);
+        Assert.assertEquals(ep.get("moduleName").getAsString(), moduleName);
+        Assert.assertEquals(ep.get("version").getAsString(), version);
+
+        Assert.assertEquals(ep.get("isModuleVar").getAsBoolean(), isModuleVar);
+        Assert.assertEquals(ep.get("isExternal").getAsBoolean(), isExternal);
+        Assert.assertFalse(ep.get("isCaller").getAsBoolean()); // TODO: Update test cases to check this field
+        if (isClassField) {
+            Assert.assertTrue(ep.get("isClassField").getAsBoolean());
+        }
+        if (isParameter) {
+            Assert.assertTrue(ep.get("isParameter").getAsBoolean());
+        }
+
+        JsonObject epPosition = ep.get("position").getAsJsonObject();
+        Assert.assertEquals(epPosition.get("startLine").getAsInt(), startLine);
+        Assert.assertEquals(epPosition.get("endLine").getAsInt(), endLine);
+    }
+
+    private void checkClientVisibleEndpoints(JsonObject ep, String varName, String typeName, String orgName,
+                                             String packageName, String moduleName, String version, int startLine,
+                                             int endLine, boolean isModuleVar, boolean isExternal) {
+
+        checkClientVisibleEndpoints(ep, varName, typeName, orgName, packageName,
+                moduleName, version, startLine, endLine, isModuleVar, isExternal, false, false);
     }
 }
