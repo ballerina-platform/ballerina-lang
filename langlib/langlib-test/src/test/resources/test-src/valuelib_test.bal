@@ -2922,6 +2922,12 @@ type xml3 xml:Element;
 
 type xml4 xml3;
 
+type xml5 xml<xml:ProcessingInstruction|xml:Text|xml:Comment>;
+
+type xml6 xml<xml:Element|(xml:ProcessingInstruction & readonly)|(xml:Comment & readonly)>;
+
+type xml7 xml<xml5|xml6> & readonly;
+
 type BigXml xml<xml1|xml2|xml4>;
 
 type ReadOnlyXmlElement xml:Element & readonly;
@@ -2938,6 +2944,11 @@ function testCloneWithTypeXmlToUnion() {
     any result = z0;
     test:assertValueEqual(result is readonly, false);
     test:assertValueEqual(z0, xml `<a>1</a>`);
+
+    xml7 z00 = checkpanic z.cloneWithType();
+    result = z00;
+    test:assertValueEqual(result is readonly, true);
+    test:assertValueEqual(z00, xml `<a>1</a>`);
 
     xml|json z1 = checkpanic z.cloneWithType();
     result = z1;
