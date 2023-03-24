@@ -30,6 +30,8 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmValueCreatorGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,9 +66,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RECORD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RECORD_WITH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_INIT_WRAPPER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 
 /**
@@ -157,20 +161,30 @@ public class JvmRecordCreatorGen {
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
+
             BTypeSymbol referredTypeSymbol = JvmCodeGenUtil.getReferredType(optionalTypeDef.type).tsymbol;
             String typeName;
             PackageID pkgID;
+            String className;
             if (referredTypeSymbol != null) {
                 typeName = referredTypeSymbol.name.getValue();
                 pkgID = referredTypeSymbol.pkgID;
+                className = getTypeValueClassName(pkgID, typeName);
+                mv.visitTypeInsn(NEW, className);
+                mv.visitInsn(DUP);
+                BType typeDefType = optionalTypeDef.type;
+                if (typeDefType.tag == TypeTags.TYPEREFDESC) {
+                    this.jvmTypeGen.loadType(mv, optionalTypeDef.referenceType);
+                } else {
+                    this.jvmTypeGen.loadType(mv, optionalTypeDef.type);
+                }
             } else {
-                typeName = optionalTypeDef.internalName.value;
-                pkgID = moduleId;
+                String fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
+                className = getTypeValueClassName(moduleId, optionalTypeDef.internalName.value);
+                mv.visitTypeInsn(NEW, className);
+                mv.visitInsn(DUP);
+                mv.visitFieldInsn(GETSTATIC, moduleInitClass, fieldName, GET_TYPE);
             }
-            String className = getTypeValueClassName(pkgID, typeName);
-            mv.visitTypeInsn(NEW, className);
-            mv.visitInsn(DUP);
-            this.jvmTypeGen.loadType(mv, optionalTypeDef.referenceType);
             mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_PARAMETER, false);
 
             mv.visitInsn(DUP);
