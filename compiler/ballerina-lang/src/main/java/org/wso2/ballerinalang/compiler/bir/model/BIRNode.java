@@ -66,14 +66,14 @@ public abstract class BIRNode {
         public boolean isListenerAvailable;
 
         public BIRPackage(Location pos, Name org, Name pkgName, Name name, Name version,
-                          Name sourceFileName, boolean skipTest) {
-            this(pos, org, pkgName, name, version, sourceFileName, false, skipTest);
+                          Name sourceFileName, String sourceRoot, boolean skipTest) {
+            this(pos, org, pkgName, name, version, sourceFileName, sourceRoot, skipTest, false);
         }
 
         public BIRPackage(Location pos, Name org, Name pkgName, Name name, Name version, Name sourceFileName,
-                          boolean isTestPkg, boolean skipTest) {
+                          String sourceRoot, boolean skipTest, boolean isTestPkg) {
             super(pos);
-            packageID = new PackageID(org, pkgName, name, version, sourceFileName, isTestPkg, skipTest);
+            packageID = new PackageID(org, pkgName, name, version, sourceFileName, sourceRoot, isTestPkg, skipTest);
             this.importModules = new ArrayList<>();
             this.typeDefs = new ArrayList<>();
             this.globalVars = new ArrayList<>();

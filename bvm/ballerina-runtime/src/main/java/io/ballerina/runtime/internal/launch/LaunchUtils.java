@@ -147,10 +147,10 @@ public class LaunchUtils {
         return null;
     }
 
-    public static TomlDetails getTestConfigPaths(Module module) {
+    public static TomlDetails getTestConfigPaths(Module module, String PkgName, String sourceRoot) {
         String moduleName = module.getName();
-        Path testConfigPath = Paths.get(RuntimeUtils.USER_DIR);
-        if (moduleName.contains(DOT)) {
+        Path testConfigPath = Paths.get(sourceRoot);
+        if (!moduleName.equals(PkgName)) {
             testConfigPath = testConfigPath.resolve(MODULES_ROOT)
                     .resolve(moduleName.substring(moduleName.indexOf(DOT) + 1));
         }
