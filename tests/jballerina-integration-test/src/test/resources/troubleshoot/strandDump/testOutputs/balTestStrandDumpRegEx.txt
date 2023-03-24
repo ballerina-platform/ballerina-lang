@@ -7,7 +7,7 @@ Active strand group count\t:\t5
 Active strand count      \t:\t8
 
 group \d* \[QUEUED\]: \[4\]
-\tstrand \d* \[N/A\] \[BLOCKED\]:
+\tstrand \d* "main" \[testOrg.testPackageWithModules.0:main\] \[BLOCKED\]:
 \t\tat\tballerina.lang.function.\d*.\d*.\d*:call\(function.bal:\d*\)
 \t\t  \tballerina.test.\d*.\d*.\d*:executeTestFunction\(execute.bal:\d*\)
 \t\t  \tballerina.test.\d*.\d*.\d*:executeNonDataDrivenTest\(execute.bal:\d*\)
