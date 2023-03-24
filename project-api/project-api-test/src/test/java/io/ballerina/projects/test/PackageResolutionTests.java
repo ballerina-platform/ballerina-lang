@@ -61,7 +61,6 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.SkipException;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -101,21 +100,27 @@ import static org.mockito.Mockito.when;
 public class PackageResolutionTests extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get(
             "src/test/resources/projects_for_resolution_tests").toAbsolutePath();
+    private static Path tempResourceDir;
     private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath();
 
     @BeforeTest
     public void setup() throws IOException {
+        // create temp dir and copy resources
+        tempResourceDir = Files.createTempDirectory("project-api-test");
+        FileUtils.copyDirectory(RESOURCE_DIRECTORY.toFile(), tempResourceDir.toFile());
+
         // Compile and cache dependency for custom repo tests
-        cacheDependencyToLocalRepo(RESOURCE_DIRECTORY.resolve("package_c_with_pkg_private_function"));
-        replaceDependenciesTomlVersion(RESOURCE_DIRECTORY.resolve("package_n"));
-        replaceDependenciesTomlVersion(RESOURCE_DIRECTORY.resolve("package_p_withDep"));
-        replaceDependenciesTomlVersion(RESOURCE_DIRECTORY.resolve("package_p_withoutDep"));
+        cacheDependencyToLocalRepo(tempResourceDir.resolve("package_c_with_pkg_private_function"));
+
+        replaceDependenciesTomlVersion(tempResourceDir.resolve("package_n"));
+        replaceDependenciesTomlVersion(tempResourceDir.resolve("package_p_withDep"));
+        replaceDependenciesTomlVersion(tempResourceDir.resolve("package_p_withoutDep"));
     }
 
     @Test(description = "tests resolution with zero direct dependencies")
     public void testProjectWithZeroDependencies() {
         // package_c --> {}
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_c");
+        Path projectDirPath = tempResourceDir.resolve("package_c");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
@@ -132,7 +137,7 @@ public class PackageResolutionTests extends BaseTest {
     @Test(description = "tests resolution with one direct dependency")
     public void testProjectWithOneDependency() {
         // package_b --> package_c
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_b");
+        Path projectDirPath = tempResourceDir.resolve("package_b");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
@@ -149,12 +154,12 @@ public class PackageResolutionTests extends BaseTest {
     @Test(description = "tests resolution with invalid build file")
     public void testProjectWithInvalidBuildFile() throws IOException {
         // Package path
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Path projectDirPath = tempResourceDir.resolve("package_n");
 
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_0");
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_2");
 
-        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder().setExperimental(true);
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder.setSticky(false);
         buildOptionsBuilder.targetDir(String.valueOf(projectDirPath.resolve(ProjectConstants.TARGET_DIR_NAME)));
         BuildOptions buildOptions = buildOptionsBuilder.build();
@@ -177,12 +182,12 @@ public class PackageResolutionTests extends BaseTest {
     @Test(description = "tests validation of invalid build file", dependsOnMethods = "testProjectWithInvalidBuildFile")
     public void testDependencyGraphWithInvalidBuildFile() {
         // Package path
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Path projectDirPath = tempResourceDir.resolve("package_n");
 
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_0");
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_0_2");
 
-        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder().setExperimental(true);
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder.setSticky(false);
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
@@ -207,9 +212,9 @@ public class PackageResolutionTests extends BaseTest {
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_o_1_1_0");
 
         // Stage 1 : Package P without dep in Ballerina toml
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_p_withoutDep");
+        Path projectDirPath = tempResourceDir.resolve("package_p_withoutDep");
 
-        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder().setExperimental(true);
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder.setSticky(false);
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
@@ -224,8 +229,8 @@ public class PackageResolutionTests extends BaseTest {
         Assert.assertEquals(packageO.packageInstance().manifest().version().toString(), "1.0.2");
 
         // Stage 2 : Package P with deps
-        projectDirPath = RESOURCE_DIRECTORY.resolve("package_p_withDep");
-        buildOptionsBuilder = BuildOptions.builder().setExperimental(true);
+        projectDirPath = tempResourceDir.resolve("package_p_withDep");
+        buildOptionsBuilder = BuildOptions.builder();
         buildOptionsBuilder.setSticky(false);
         buildOptions = buildOptionsBuilder.build();
 
@@ -241,7 +246,7 @@ public class PackageResolutionTests extends BaseTest {
 
     @Test(dependsOnMethods = "testProjectWithInvalidBuildFile", description = "tests project with empty build file")
     public void testProjectSaveWithEmptyBuildFile() throws IOException {
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Path projectDirPath = tempResourceDir.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
         Path buildPath = loadProject.targetDir().resolve(ProjectConstants.BUILD_FILE);
 
@@ -257,7 +262,7 @@ public class PackageResolutionTests extends BaseTest {
 
     @Test(dependsOnMethods = "testProjectSaveWithEmptyBuildFile", description = "tests project with empty build file")
     public void testProjectSaveWithNewlineBuildFile() throws IOException {
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Path projectDirPath = tempResourceDir.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
         Path buildPath = loadProject.targetDir().resolve(ProjectConstants.BUILD_FILE);
 
@@ -279,7 +284,7 @@ public class PackageResolutionTests extends BaseTest {
         if (isWindows()) {
             throw new SkipException("Skipping tests on Windows");
         }
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Path projectDirPath = tempResourceDir.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
         Path buildPath = loadProject.targetDir().resolve(ProjectConstants.BUILD_FILE);
 
@@ -301,7 +306,7 @@ public class PackageResolutionTests extends BaseTest {
         if (isWindows()) {
             throw new SkipException("Skipping tests on Windows");
         }
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Path projectDirPath = tempResourceDir.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
         Path buildPath = loadProject.targetDir().resolve(ProjectConstants.BUILD_FILE);
         boolean readable = buildPath.toFile().setReadable(false, false);
@@ -329,7 +334,7 @@ public class PackageResolutionTests extends BaseTest {
         if (isWindows()) {
             throw new SkipException("Skipping tests on Windows");
         }
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_n");
+        Path projectDirPath = tempResourceDir.resolve("package_n");
         Project loadProject = TestUtils.loadBuildProject(projectDirPath);
         Path buildPath = loadProject.targetDir().resolve(ProjectConstants.BUILD_FILE);
         boolean writable = buildPath.toFile().setWritable(false, false);
@@ -366,7 +371,7 @@ public class PackageResolutionTests extends BaseTest {
 
 
         // Step 2 : Build ProjectA with ProjectB as an import
-        Path projectA = RESOURCE_DIRECTORY.resolve("projectA");
+        Path projectA = tempResourceDir.resolve("projectA");
         Project loadProjectA = TestUtils.loadBuildProject(projectA);
 
 
@@ -456,7 +461,7 @@ public class PackageResolutionTests extends BaseTest {
     @Test(description = "tests resolution with one transitive dependency")
     public void testProjectWithOneTransitiveDependency() {
         // package_a --> package_b --> package_c
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_a");
+        Path projectDirPath = tempResourceDir.resolve("package_a");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
@@ -474,7 +479,7 @@ public class PackageResolutionTests extends BaseTest {
     public void testProjectWithTwoDirectDependencies() {
         // package_d --> package_b --> package_c
         // package_d --> package_e
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_d");
+        Path projectDirPath = tempResourceDir.resolve("package_d");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
@@ -495,11 +500,11 @@ public class PackageResolutionTests extends BaseTest {
     public void testProjectWithMissingTransitiveDependency() throws IOException {
         // package_missing_transitive_dep --> package_b --> package_c
         // package_missing_transitive_dep --> package_k --> package_z (this is missing)
-        Path balaPath = RESOURCE_DIRECTORY.resolve("balas").resolve("missing_transitive_deps")
+        Path balaPath = tempResourceDir.resolve("balas").resolve("missing_transitive_deps")
                 .resolve("samjs-package_kk-any-1.0.0.bala");
         BCompileUtil.copyBalaToDistRepository(balaPath, "samjs", "package_kk", "1.0.0");
 
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_missing_transitive_dep");
+        Path projectDirPath = tempResourceDir.resolve("package_missing_transitive_dep");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         buildProject.currentPackage().getResolution();
     }
@@ -507,7 +512,7 @@ public class PackageResolutionTests extends BaseTest {
     @Test(description = "Test dependencies should not be stored in bala archive")
     public void testProjectWithTransitiveTestDependencies() throws IOException {
         // package_with_test_dependency --> package_c
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_with_test_dependency");
+        Path projectDirPath = tempResourceDir.resolve("package_with_test_dependency");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
@@ -615,7 +620,7 @@ public class PackageResolutionTests extends BaseTest {
     // For this to be enabled, #31026 should be fixed.
     @Test(enabled = false, dependsOnMethods = "testResolveDependencyFromUnsupportedCustomRepo")
     public void testResolveDependencyFromCustomRepo() {
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_b");
+        Path projectDirPath = tempResourceDir.resolve("package_b");
         String dependencyContent = "[[dependency]]\n" +
                 "org = \"samjs\"\n" +
                 "name = \"package_c\"\n" +
@@ -641,7 +646,7 @@ public class PackageResolutionTests extends BaseTest {
     // For this to be enabled, #31026 should be fixed.
     @Test (enabled = false)
     public void testResolveDependencyFromUnsupportedCustomRepo() {
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_b");
+        Path projectDirPath = tempResourceDir.resolve("package_b");
         String dependencyContent = "[[dependency]]\n" +
                 "org = \"samjs\"\n" +
                 "name = \"package_c\"\n" +
@@ -668,11 +673,11 @@ public class PackageResolutionTests extends BaseTest {
     @Test(description = "tests resolution with invalid bala dependency", enabled = false)
     public void testProjectWithInvalidBalaDependency() throws IOException {
         // package_x --> package_bash/soap
-        Path balaPath = RESOURCE_DIRECTORY.resolve("balas").resolve("invalid")
+        Path balaPath = tempResourceDir.resolve("balas").resolve("invalid")
                 .resolve("bash-soap-any-0.1.0.bala");
         BCompileUtil.copyBalaToDistRepository(balaPath, "bash", "soap", "0.1.0");
 
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_x_with_invalid_bala_dep");
+        Path projectDirPath = tempResourceDir.resolve("package_x_with_invalid_bala_dep");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
@@ -704,14 +709,14 @@ public class PackageResolutionTests extends BaseTest {
     public void testProjectWithInvalidTransitiveBalaDependency() throws IOException {
         // package_hello --> package_zip
         // package_xx    --> package_hello
-        Path zipBalaPath = RESOURCE_DIRECTORY.resolve("balas").resolve("invalid")
+        Path zipBalaPath = tempResourceDir.resolve("balas").resolve("invalid")
                 .resolve("zip-2020r1-java8-1.0.4.balo");
         BCompileUtil.copyBalaToDistRepository(zipBalaPath, "hemikak", "zip", "1.0.4");
-        Path helloBalaPath = RESOURCE_DIRECTORY.resolve("balas").resolve("invalid")
+        Path helloBalaPath = tempResourceDir.resolve("balas").resolve("invalid")
                 .resolve("hello-2020r1-any-0.1.0.balo");
         BCompileUtil.copyBalaToDistRepository(helloBalaPath, "bache", "hello", "0.1.0");
 
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_xx_with_invalid_transitive_bala_dep");
+        Path projectDirPath = tempResourceDir.resolve("package_xx_with_invalid_transitive_bala_dep");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
@@ -758,7 +763,7 @@ public class PackageResolutionTests extends BaseTest {
 
     @Test(description = "tests resolution for dependency given in Ballerina.toml invalid repository")
     public void testPackageResolutionOfDependencyInvalidRepository() {
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_y_having_dependency_missing_repo");
+        Path projectDirPath = tempResourceDir.resolve("package_y_having_dependency_missing_repo");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
@@ -798,7 +803,7 @@ public class PackageResolutionTests extends BaseTest {
         changeBallerinaVersionInPackageJson("package_b", "slbeta6");
         changeBallerinaVersionInPackageJson("package_c", "slbeta4");
 
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("packages_for_various_dist_test/package_d");
+        Path projectDirPath = tempResourceDir.resolve("packages_for_various_dist_test/package_d");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
@@ -821,7 +826,7 @@ public class PackageResolutionTests extends BaseTest {
         changeBallerinaVersionInPackageJson("package_b", "2301.89.0");
         changeBallerinaVersionInPackageJson("package_c", "slbeta6");
 
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("packages_for_various_dist_test/package_d");
+        Path projectDirPath = tempResourceDir.resolve("packages_for_various_dist_test/package_d");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
         // Check whether there are any diagnostics
@@ -847,7 +852,7 @@ public class PackageResolutionTests extends BaseTest {
                 "projects_for_resolution_tests/packages_for_various_dist_test/package_c");
         // Cache package_c to central
         cacheDependencyToCentralRepository(
-                RESOURCE_DIRECTORY.resolve("packages_for_various_dist_test/package_c"));
+                tempResourceDir.resolve("packages_for_various_dist_test/package_c"));
         // Change `ballerina_version` of `package_c` in the central to a higher dist version --> package_c_two
         Path packageJsonInProjectBalaPath = testBuildDirectory.resolve("user-home").resolve("repositories")
                 .resolve("central.ballerina.io").resolve("bala").resolve("various_dist_test")
@@ -862,20 +867,13 @@ public class PackageResolutionTests extends BaseTest {
         // Change `ballerina_version` of package.json in /repo/bala
         changeBallerinaVersionInPackageJson("package_b", "slbeta6");
 
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("packages_for_various_dist_test/package_d");
+        Path projectDirPath = tempResourceDir.resolve("packages_for_various_dist_test/package_d");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.errors().forEach(OUT::println);
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
-    }
-
-    @AfterClass
-    public void cleanUp() throws IOException {
-        deleteDependenciesToml(RESOURCE_DIRECTORY.resolve("package_n"));
-        deleteDependenciesToml(RESOURCE_DIRECTORY.resolve("package_p_withDep"));
-        deleteDependenciesToml(RESOURCE_DIRECTORY.resolve("package_p_withoutDep"));
     }
 
     private void replaceDependenciesTomlVersion(Path projectPath) throws IOException {
@@ -894,10 +892,6 @@ public class PackageResolutionTests extends BaseTest {
                 writer.newLine();
             }
         }
-    }
-
-    private void deleteDependenciesToml(Path projectPath) throws IOException {
-        Files.deleteIfExists(projectPath.resolve("Dependencies.toml"));
     }
 
     private void changeBallerinaVersionInPackageJson(String packageName, String balVersion) {
