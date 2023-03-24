@@ -378,6 +378,7 @@ type Person record {
 };
 
 type Employee Person;
+
 function typeOfTypeReferenceTypeValues() returns error? {
     Array a = [1, 2, 3];
     Tuple t = [1, "hello"];
