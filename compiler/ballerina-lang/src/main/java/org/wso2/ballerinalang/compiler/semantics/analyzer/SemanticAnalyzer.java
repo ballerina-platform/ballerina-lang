@@ -4368,7 +4368,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 BSymbol symbol = ((BLangSimpleVarRef) expression).symbol;
                 // Symbol can be null in some invalid scenarios. Eg - const string m = { name: "Ballerina" };
                 if (symbol != null && (symbol.tag & SymTag.CONSTANT) != SymTag.CONSTANT) {
-                    dlog.error(expression.pos, DiagnosticErrorCode.ANNOTATION_ELEMENT_SHOULD_BE_LITERAL);
+                    dlog.error(expression.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
                 }
                 break;
             case RECORD_LITERAL_EXPR:
