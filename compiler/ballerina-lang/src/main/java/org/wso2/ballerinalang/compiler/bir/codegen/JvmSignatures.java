@@ -493,7 +493,8 @@ public class JvmSignatures {
             + REG_EXP_QUANTIFIER + ";";
     public static final String GRACEFUL_EXIT_METHOD = "(L" + STRAND_CLASS + ";)V";
     public static final String GET_TOML_DETAILS = "()L" + TOML_DETAILS + ";";
-    public static final String GET_TEST_CONFIG_PATH = "(L" + MODULE + ";)L" + TOML_DETAILS + ";";
+    public static final String GET_TEST_CONFIG_PATH = "(L" + MODULE + ";L" + STRING_VALUE + ";L" + STRING_VALUE +
+            ";)L" + TOML_DETAILS + ";";
 
     private JvmSignatures() {
     }

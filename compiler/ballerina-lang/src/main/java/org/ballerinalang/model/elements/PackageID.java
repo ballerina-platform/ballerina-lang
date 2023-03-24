@@ -106,6 +106,7 @@ public class PackageID {
     public final boolean isTestPkg;
     public final boolean skipTests;
     public final Name sourceFileName;
+    public final String sourceRoot;
 
     public final List<Name> nameComps;
 
@@ -121,6 +122,7 @@ public class PackageID {
         this.version = version;
         isUnnamed = false;
         sourceFileName = null;
+        sourceRoot = null;
         this.isTestPkg = false;
         this.skipTests = true;
     }
@@ -133,6 +135,7 @@ public class PackageID {
         this.nameComps = createNameComps(name);
         isUnnamed = false;
         this.sourceFileName = sourceFileName;
+        sourceRoot = null;
         this.isTestPkg = false;
         this.skipTests = true;
     }
@@ -146,6 +149,7 @@ public class PackageID {
         this.nameComps = createNameComps(name);
         isUnnamed = false;
         sourceFileName = null;
+        sourceRoot = null;
         this.isTestPkg = false;
         this.skipTests = true;
     }
@@ -159,6 +163,7 @@ public class PackageID {
         this.nameComps = createNameComps(name);
         isUnnamed = false;
         this.sourceFileName = sourceFileName;
+        sourceRoot = null;
         this.isTestPkg = false;
         this.skipTests = true;
     }
@@ -172,6 +177,21 @@ public class PackageID {
         this.nameComps = createNameComps(name);
         isUnnamed = false;
         this.sourceFileName = sourceFileName;
+        sourceRoot = null;
+        this.isTestPkg = isTestPkg;
+        this.skipTests = skipTest;
+    }
+
+    public PackageID(Name orgName, Name pkgName, Name name, Name version, Name sourceFileName, String sourceRoot,
+                     boolean isTestPkg, boolean skipTest) {
+        this.orgName = orgName;
+        this.name = name;
+        this.pkgName = pkgName;
+        this.version = version;
+        this.nameComps = createNameComps(name);
+        isUnnamed = false;
+        this.sourceFileName = sourceFileName;
+        this.sourceRoot = sourceRoot;
         this.isTestPkg = isTestPkg;
         this.skipTests = skipTest;
     }
@@ -199,6 +219,7 @@ public class PackageID {
         this.nameComps = Lists.of(Names.DEFAULT_PACKAGE);
         this.isUnnamed = true;
         this.sourceFileName = new Name(sourceFileName);
+        this.sourceRoot = null;
         this.isTestPkg = false;
         this.skipTests = true;
     }
@@ -217,6 +238,7 @@ public class PackageID {
         nameComps.add(name);
         this.isUnnamed = true;
         this.sourceFileName = new Name(sourceFileName);
+        this.sourceRoot = null;
         this.version = DEFAULT_VERSION;
         this.isTestPkg = false;
         this.skipTests = true;

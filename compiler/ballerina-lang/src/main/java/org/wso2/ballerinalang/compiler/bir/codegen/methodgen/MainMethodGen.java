@@ -227,6 +227,8 @@ public class MainMethodGen {
         } else {
             String initClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
             mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
+            mv.visitLdcInsn(packageID.pkgName.toString());
+            mv.visitLdcInsn(packageID.sourceRoot);
             mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getTestConfigPaths", GET_TEST_CONFIG_PATH,
                     false);
         }
