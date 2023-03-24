@@ -111,6 +111,15 @@ public class DeprecateCommand implements BLauncherCmd {
             return;
         }
 
+        // validate deprecation message
+        if (!validateDeprecationMsg(deprecationMsg)) {
+            CommandUtil.printError(errStream, "invalid deprecation message. The message can only contain" +
+                            " alphanumerics, underscores, hyphens, commas and periods.",
+                    USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         // Skip --message flag if it is set with undo option
         if (deprecationMsg != null && undoFlag) {
             this.outStream.println("warning: ignoring --message flag since this is an undo request");
@@ -120,6 +129,13 @@ public class DeprecateCommand implements BLauncherCmd {
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
+    }
+
+    private boolean validateDeprecationMsg(String deprecationMsg) {
+        if (deprecationMsg != null) {
+            return deprecationMsg.matches("^[a-zA-Z0-9\\s,.'\\-_]*$");
+        }
+        return true;
     }
 
     @Override
