@@ -163,13 +163,9 @@ public class JvmRecordCreatorGen {
             mv.visitVarInsn(ALOAD, 0);
 
             BTypeSymbol referredTypeSymbol = JvmCodeGenUtil.getReferredType(optionalTypeDef.type).tsymbol;
-            String typeName;
-            PackageID pkgID;
             String className;
             if (referredTypeSymbol != null) {
-                typeName = referredTypeSymbol.name.getValue();
-                pkgID = referredTypeSymbol.pkgID;
-                className = getTypeValueClassName(pkgID, typeName);
+                className = getTypeValueClassName(referredTypeSymbol.pkgID, referredTypeSymbol.name.getValue());
                 mv.visitTypeInsn(NEW, className);
                 mv.visitInsn(DUP);
                 BType typeDefType = optionalTypeDef.type;
@@ -179,10 +175,10 @@ public class JvmRecordCreatorGen {
                     this.jvmTypeGen.loadType(mv, optionalTypeDef.type);
                 }
             } else {
-                String fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
                 className = getTypeValueClassName(moduleId, optionalTypeDef.internalName.value);
                 mv.visitTypeInsn(NEW, className);
                 mv.visitInsn(DUP);
+                String fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
                 mv.visitFieldInsn(GETSTATIC, moduleInitClass, fieldName, GET_TYPE);
             }
             mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_PARAMETER, false);
