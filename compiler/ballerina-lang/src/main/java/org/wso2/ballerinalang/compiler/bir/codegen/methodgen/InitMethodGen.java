@@ -452,7 +452,6 @@ public class InitMethodGen {
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
 
         lastBB.terminator = getExitMethodCall(nextBB, typeOwnerClass);
-
         BIRNonTerminator.TypeTest typeTest = new BIRNonTerminator.TypeTest(null, symbolTable.errorType, boolRef,
                 retVar);
         nextBB.instructions.add(typeTest);

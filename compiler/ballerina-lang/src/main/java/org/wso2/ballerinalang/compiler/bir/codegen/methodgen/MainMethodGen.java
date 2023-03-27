@@ -109,6 +109,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_OPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUNTIME_REGISTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TEST_ARGS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.MAIN_METHOD_SIGNATURE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_STRING_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
@@ -146,8 +147,8 @@ public class MainMethodGen {
                                    ClassWriter cw, BIRNode.BIRPackage pkg, String initClass,
                                    boolean serviceEPAvailable) {
 
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, MAIN_METHOD,
-                "([Ljava/lang/String;)V", null, null);
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, MAIN_METHOD, MAIN_METHOD_SIGNATURE,
+                null, null);
         mv.visitCode();
         Label tryCatchStart = new Label();
         Label tryCatchEnd = new Label();
