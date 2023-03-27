@@ -776,6 +776,15 @@ public class CentralAPIClient {
      */
     public void deprecatePackage(String packageInfo, String deprecationMsg, String supportedPlatform,
                                  String ballerinaVersion, Boolean isUndo) throws CentralClientException {
+        // Get existing package details
+        // PackageInfo is already validated to support the format org-name/package-name:version
+        Package existingPackage = getPackage(packageInfo.split("/")[0], packageInfo.split("/")[1].split(":")[0],
+                packageInfo.split("/")[1].split(":")[1], supportedPlatform, ballerinaVersion);
+        if (isUndo && !existingPackage.getDeprecated()) {
+            this.outStream.println("package " + packageInfo + " is not marked as deprecated in central");
+            return;
+        }
+
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
         try {
@@ -809,9 +818,15 @@ public class CentralAPIClient {
                     if (deprecationResponse.code() == HTTP_OK) {
                         Package packageResponse = new Gson().fromJson(body.get().string(), Package.class);
                         if (packageResponse.getDeprecated()) {
-                            this.outStream.println(packageInfo + " marked as deprecated in central successfully");
+                            if (existingPackage.getDeprecated()) {
+                                this.outStream.println("deprecation message is successfully updated for the package "
+                                        + packageInfo + " in central");
+                            } else {
+                                this.outStream.println("package " + packageInfo
+                                        + " marked as deprecated in central successfully");
+                            }
                         } else {
-                            this.outStream.println("deprecation of " + packageInfo +
+                            this.outStream.println("deprecation of the package " + packageInfo +
                                     " is successfully undone in central");
                         }
                     }
