@@ -356,7 +356,6 @@ public class InitMethodGen {
                                 new BIRNonTerminator.TypeTest(null, symbolTable.nilType, boolRef, argOperand);
                         lastBB.instructions.add(typeTest);
                 }
-
                 BIRNode.BIRBasicBlock trueBB = addAndGetNextBasicBlock(modExecFunc);
                 BIRNode.BIRBasicBlock falseBB = addAndGetNextBasicBlock(modExecFunc);
                 lastBB.terminator = new BIRTerminator.Branch(null, boolRef, trueBB, falseBB);

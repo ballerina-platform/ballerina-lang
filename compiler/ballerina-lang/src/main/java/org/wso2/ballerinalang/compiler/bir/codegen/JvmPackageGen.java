@@ -118,6 +118,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ST
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SERVICE_EP_AVAILABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
@@ -841,7 +842,7 @@ public class JvmPackageGen {
         BIRFunction testExecuteFunction = null;
         if (!module.packageID.skipTests) {
             for (BIRFunction func : module.functions) {
-                if (func != null && func.name.value.equals("__execute__")) {
+                if (func != null && func.name.value.equals(TEST_EXECUTE_METHOD)) {
                     testExecuteFunction = func;
                     break;
                 }

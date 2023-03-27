@@ -24,7 +24,7 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 /**
  * Parameters for testable main.
  *
- * @since 2201.5.0
+ * @since 2201.6.0
  */
 public class TestArguments {
 
