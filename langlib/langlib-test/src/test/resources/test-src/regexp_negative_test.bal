@@ -243,7 +243,7 @@ public function testNegativeDuplicateFlags5() returns error? {
 }
 
 public function testNegativeInvalidFlags1() returns error? {
-    anydata|error result = trap re `${"(?i-mk:ABC))"}`;
+    anydata|error result = trap re `${"(?i-mk:ABC)"}`;
     check assertEqualMessage(result, "Invalid insertion in regular expression: invalid flag in regular expression");
 }
 
