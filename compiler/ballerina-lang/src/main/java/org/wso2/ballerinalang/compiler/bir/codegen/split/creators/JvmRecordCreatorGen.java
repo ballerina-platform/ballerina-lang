@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmValueCreatorGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,9 +39,12 @@ import static org.objectweb.asm.Opcodes.ACC_PRIVATE;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACC_SUPER;
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ARETURN;
+import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.GETFIELD;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
@@ -49,15 +53,22 @@ import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getReferredType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_RECORD_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_TYPES_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORDS_CREATOR_CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ZERO_VALUE_RECORDS__CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RECORD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RECORD_WITH_MAP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
@@ -148,12 +159,33 @@ public class JvmRecordCreatorGen {
             String fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
-            mv.visitVarInsn(ALOAD, 0);
             String className = getTypeValueClassName(moduleId, optionalTypeDef.internalName.value);
-            mv.visitTypeInsn(NEW, className);
-            mv.visitInsn(DUP);
-            mv.visitFieldInsn(GETSTATIC, moduleInitClass, fieldName, GET_TYPE);
-            mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_PARAMETER, false);
+            if (JvmCodeGenUtil.containsDefaultableField((BRecordType) getReferredType(optionalTypeDef.type))) {
+                mv.visitMethodInsn(INVOKESTATIC, "io/ballerina/runtime/internal/scheduling/Scheduler", "getStrand", "()Lio/ballerina/runtime/internal/scheduling/Strand;", false);
+                mv.visitVarInsn(ASTORE, 3);
+                mv.visitTypeInsn(NEW, STRAND_CLASS);
+                mv.visitInsn(DUP);
+                mv.visitLdcInsn("$init_" + optionalTypeDef.internalName.value);
+                mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metadataVarName, GET_STRAND_METADATA);
+
+                mv.visitVarInsn(ALOAD, 3);
+                mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "scheduler", "L" + SCHEDULER + ";");
+                mv.visitVarInsn(ALOAD, 3);
+                mv.visitInsn(ACONST_NULL);
+                mv.visitInsn(ACONST_NULL);
+                mv.visitMethodInsn(INVOKESPECIAL, STRAND_CLASS, JVM_INIT_METHOD, INIT_STRAND, false);
+
+
+                String zeroValueClass = getModuleLevelClassName(moduleId, MODULE_ZERO_VALUE_RECORDS__CLASS_NAME);
+                mv.visitMethodInsn(INVOKESTATIC, zeroValueClass, "$init_" + optionalTypeDef.internalName.value,
+                        "(L" + STRAND_CLASS + ";)L" + MAP_VALUE + ";", false);
+            } else {
+                mv.visitVarInsn(ALOAD, 0);
+                mv.visitTypeInsn(NEW, className);
+                mv.visitInsn(DUP);
+                mv.visitFieldInsn(GETSTATIC, moduleInitClass, fieldName, GET_TYPE);
+                mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_PARAMETER, false);
+            }
 
             mv.visitInsn(ARETURN);
             i += 1;

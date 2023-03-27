@@ -71,7 +71,7 @@ isolated function getAsyncInt(int x) returns int {
     return x;
 }
 
-isolated function git getAsyncString(string x) returns string {
+isolated function getAsyncString(string x) returns string {
     runtime:sleep(0.1);
     return x;
 }

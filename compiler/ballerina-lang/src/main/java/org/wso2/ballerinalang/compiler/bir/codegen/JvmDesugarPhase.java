@@ -21,6 +21,9 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import io.ballerina.identifier.Utils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -28,27 +31,42 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunctionParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
+import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
+import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.containsDefaultableField;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getReferredType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ZERO_VALUE_RECORDS__CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
 
 /**
  * BIR desugar phase related methods at JVM code generation.
@@ -110,17 +128,115 @@ public class JvmDesugarPhase {
         return paramTypes;
     }
 
-    static void rewriteRecordInits(List<BIRTypeDefinition> typeDefs) {
-        for (BIRTypeDefinition typeDef : typeDefs) {
-            BType recordType = JvmCodeGenUtil.getReferredType(typeDef.type);
+    static void rewriteRecordInits(BIRNode.BIRPackage module, InitMethodGen initMethodGen, SymbolTable symbolTable,
+                                   Map<String, BIRFunctionWrapper> birFunctionMap, String initClass,
+                                   Map<String, JavaClass> jvmClassMapping) {
+        for (BIRTypeDefinition typeDef : module.typeDefs) {
+            BType recordType = getReferredType(typeDef.type);
             if (recordType.tag != TypeTags.RECORD) {
                 continue;
             }
-            List<BIRFunction> attachFuncs = typeDef.attachedFuncs;
-            for (BIRFunction func : attachFuncs) {
-                rewriteRecordInitFunction(func, (BRecordType) recordType);
+            if (containsDefaultableField((BRecordType) recordType)) {
+                BIRFunction zeroValueFunction =
+                        getRecordInitFunction((BRecordType) recordType, module, symbolTable, initMethodGen);
+                module.functions.add(zeroValueFunction);
+                String pkgName = JvmCodeGenUtil.getPackageName(module.packageID);
+                String className = JvmCodeGenUtil.getModuleLevelClassName(module.packageID, MODULE_ZERO_VALUE_RECORDS__CLASS_NAME);
+                birFunctionMap.put(pkgName + zeroValueFunction.name.value,
+                        getFunctionWrapper(zeroValueFunction, module.packageID, className));
+                JavaClass javaClass = jvmClassMapping.get(className);
+                if (javaClass != null) {
+                    javaClass.functions.add(zeroValueFunction);
+                } else {
+                    javaClass = new JavaClass(className);
+                    javaClass.functions.add(zeroValueFunction);
+                    jvmClassMapping.put(className, javaClass);
+                }
             }
         }
+    }
+
+    private static BIRFunction getRecordInitFunction(BRecordType recordType, BIRNode.BIRPackage module,
+                                                     SymbolTable symbolTable, InitMethodGen initMethodGen) {
+
+        BIRNode.BIRVariableDcl retVar =
+                new BIRNode.BIRVariableDcl(null, recordType, new Name("%returnVar"), VarScope.FUNCTION, VarKind.RETURN,
+                        "");
+        BIROperand retVarRef = new BIROperand(retVar);
+        BIRNode.BIRVariableDcl recVar =
+                new BIRNode.BIRVariableDcl(null, recordType, new Name("%recVar"), VarScope.FUNCTION, VarKind.LOCAL,
+                        "");
+        BIROperand recVarRef = new BIROperand(recVar);
+
+        BTypedescType typedescType =
+                new BTypedescType(BUnionType.create(null, symbolTable.anyType, symbolTable.errorType), null);
+        BIRNode.BIRVariableDcl typeDescVar =
+                new BIRNode.BIRVariableDcl(null, typedescType, new Name("%typeDescVar"), VarScope.FUNCTION,
+                        VarKind.TEMP, "");
+        BIROperand typeDescVarRef = new BIROperand(recVar);
+
+        BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, recordType, null);
+        BIRNode.BIRFunction zeroValueFunc =
+                new BIRNode.BIRFunction(null, new Name("$init_" + recordType.tsymbol.name.getValue()), 0,
+                        funcType, null, 0, SymbolOrigin.VIRTUAL);
+        zeroValueFunc.localVars.add(retVar);
+        zeroValueFunc.localVars.add(recVar);
+        zeroValueFunc.localVars.add(typeDescVar);
+        BIRNode.BIRBasicBlock prevBB = initMethodGen.addAndGetNextBasicBlock(zeroValueFunc);
+        prevBB.instructions.add(
+                new BIRNonTerminator.NewTypeDesc(null, typeDescVarRef, recordType, Collections.emptyList()));
+        Map<String, BInvokableSymbol> defaultValues = ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
+        List<BIRNode.BIRMappingConstructorEntry> initialValues = new ArrayList<>();
+        for (BField field : recordType.fields.values()) {
+            if (field.symbol.isDefaultable) {
+                BIRNode.BIRVariableDcl keyVar =
+                        new BIRNode.BIRVariableDcl(null, symbolTable.stringType, new Name("%name_" + field.name),
+                                VarScope.FUNCTION, VarKind.TEMP, "");
+                BIROperand keyVarRef = new BIROperand(keyVar);
+                prevBB.instructions.add(
+                        new BIRNonTerminator.ConstantLoad(null, field.name.value, symbolTable.stringType,
+                                keyVarRef));
+                BIRNode.BIRVariableDcl fieldVar =
+                        new BIRNode.BIRVariableDcl(null, field.type, new Name("%field_" + field.name),
+                                VarScope.FUNCTION,
+                                VarKind.TEMP, "");
+                BIROperand fieldVarRef = new BIROperand(fieldVar);
+                zeroValueFunc.localVars.add(keyVar);
+                zeroValueFunc.localVars.add(fieldVar);
+
+                BIRNode.BIRMappingConstructorKeyValueEntry initialValue =
+                        new BIRNode.BIRMappingConstructorKeyValueEntry(keyVarRef, fieldVarRef);
+                initialValues.add(initialValue);
+                BInvokableSymbol defaultFunc = defaultValues.get(field.symbol.name.value);
+//                BIRNode.BIRGlobalVariableDcl defaultFuncVar = getDefaultFuncFPGlobalVar(defaultFunc.name, module.globalVars);
+//                BIROperand defaultFP = new BIROperand(defaultFuncVar);
+//                boolean workerDerivative = Symbols.isFlagOn(defaultFunc.flags, Flags.WORKER);
+                BIRNode.BIRBasicBlock nextBB = initMethodGen.addAndGetNextBasicBlock(zeroValueFunc);
+                prevBB.terminator =
+                        new BIRTerminator.Call(null, InstructionKind.CALL, false, module.packageID, defaultFunc.name,
+                                Collections.emptyList(), fieldVarRef, nextBB, Collections.emptyList(),
+                                defaultFunc.getFlags());
+
+                prevBB = nextBB;
+            }
+        }
+        BIRNonTerminator.NewStructure newStructure =
+                new BIRNonTerminator.NewStructure(null, recVarRef, typeDescVarRef, initialValues);
+
+        prevBB.instructions.add(newStructure);
+        prevBB.instructions.add(new BIRNonTerminator.Move(null, recVarRef, retVarRef));
+        prevBB.terminator = new BIRTerminator.Return(null);
+        return zeroValueFunc;
+    }
+
+    private static BIRNode.BIRGlobalVariableDcl getDefaultFuncFPGlobalVar(Name name,
+                                                                          List<BIRNode.BIRGlobalVariableDcl> globalVars) {
+        for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
+            if (globalVar.name.value.equals(name.value)) {
+                return globalVar;
+            }
+        }
+        throw new BLangCompilerException("Cannot find global var for default value function: " + name);
     }
 
     private static void rewriteRecordInitFunction(BIRFunction func, BRecordType recordType) {
@@ -216,6 +332,11 @@ public class JvmDesugarPhase {
                 for (BField field : recordType.fields.values()) {
                     field.name = Names.fromString(encodeNonFunctionIdentifier(field.name.value, encodedVsInitialIds));
                 }
+                Map<String, BInvokableSymbol> defaultValues = ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
+                for (BInvokableSymbol methodSymbol : defaultValues.values()) {
+                    methodSymbol.name =
+                            Names.fromString(encodeFunctionIdentifier(methodSymbol.name.value, encodedVsInitialIds));
+                }
             }
         }
     }
@@ -309,7 +430,7 @@ public class JvmDesugarPhase {
                     encodedVsInitialIds);
             typeDefinition.internalName = getInitialIdString(typeDefinition.internalName, encodedVsInitialIds);
             replaceEncodedFunctionIdentifiers(typeDefinition.attachedFuncs, encodedVsInitialIds);
-            BType bType = JvmCodeGenUtil.getReferredType(typeDefinition.type);
+            BType bType = getReferredType(typeDefinition.type);
             if (bType.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) bType;
                 BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;
@@ -325,6 +446,11 @@ public class JvmDesugarPhase {
                 for (BField field : recordType.fields.values()) {
                     field.name = getInitialIdString(field.name, encodedVsInitialIds);
                 }
+                Map<String, BInvokableSymbol> defaultValues = ((BRecordTypeSymbol) recordType.tsymbol).defaultValues;
+                for (BInvokableSymbol methodSymbol : defaultValues.values()) {
+                    methodSymbol.name = getInitialIdString(methodSymbol.name, encodedVsInitialIds);
+                }
+
             }
         }
     }

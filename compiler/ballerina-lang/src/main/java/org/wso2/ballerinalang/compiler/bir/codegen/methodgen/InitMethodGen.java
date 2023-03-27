@@ -475,7 +475,7 @@ public class InitMethodGen {
                 Collections.emptyList());
     }
 
-    private BIRNode.BIRBasicBlock addAndGetNextBasicBlock(BIRNode.BIRFunction func) {
+    public BIRNode.BIRBasicBlock addAndGetNextBasicBlock(BIRNode.BIRFunction func) {
         BIRNode.BIRBasicBlock nextbb = new BIRNode.BIRBasicBlock(getNextBBId());
         func.basicBlocks.add(nextbb);
         return nextbb;

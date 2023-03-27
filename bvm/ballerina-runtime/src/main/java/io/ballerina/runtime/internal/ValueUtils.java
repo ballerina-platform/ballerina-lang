@@ -74,7 +74,6 @@ public class ValueUtils {
                 throw e;
             }
         }
-        AsyncUtils.invokeDefaultValueFunctions(valueCreator, recordValue, new HashSet<>());
         return recordValue;
     }
 
@@ -104,7 +103,6 @@ public class ValueUtils {
                 throw e;
             }
         }
-        AsyncUtils.invokeDefaultValueFunctions(valueCreator, recordValue, valueMap.keySet());
         for (Map.Entry<String, Object> fieldEntry : valueMap.entrySet()) {
             Object val = fieldEntry.getValue();
             // TODO: Remove the following String to BString conversion.

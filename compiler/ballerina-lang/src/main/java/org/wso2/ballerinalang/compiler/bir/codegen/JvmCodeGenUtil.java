@@ -44,6 +44,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -843,4 +845,14 @@ public class JvmCodeGenUtil {
                             Utils.decodeIdentifier(className) + "'", e);
         }
     }
+
+    public static boolean containsDefaultableField(BRecordType recordType) {
+        for (BField field : recordType.fields.values()) {
+            if (field.symbol.isDefaultable) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

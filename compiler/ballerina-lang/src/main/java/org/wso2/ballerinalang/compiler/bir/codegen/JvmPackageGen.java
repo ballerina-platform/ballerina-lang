@@ -780,7 +780,7 @@ public class JvmPackageGen {
         new ShutDownListenerGen().generateShutdownSignalListener(moduleInitClass, jarEntries);
 
         // desugar the record init function
-        rewriteRecordInits(module.typeDefs);
+        rewriteRecordInits(module, initMethodGen, symbolTable, birFunctionMap, moduleInitClass, jvmClassMapping);
 
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types);
