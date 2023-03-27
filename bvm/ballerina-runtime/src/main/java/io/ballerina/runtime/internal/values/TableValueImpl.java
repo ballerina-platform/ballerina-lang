@@ -117,7 +117,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         } else {
             this.valueHolder = new ValueHolder();
         }
-        this.typedesc = getTypedescValue(tableType, this);
     }
 
     public TableValueImpl(Type type, ArrayValue data, ArrayValue fieldNames) {
