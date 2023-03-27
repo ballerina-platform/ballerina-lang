@@ -53,7 +53,7 @@ public class TypeCompletionItemBuilder {
     public static CompletionItem build(Symbol bSymbol, String label) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
-        String insertText = CommonUtil.escapeEscapeCharsInIdentifier(label);
+        String insertText = CommonUtil.escapeSpecialCharsInInsertText(label);
         item.setInsertText(insertText);
         setMeta(item, bSymbol);
         return item;
