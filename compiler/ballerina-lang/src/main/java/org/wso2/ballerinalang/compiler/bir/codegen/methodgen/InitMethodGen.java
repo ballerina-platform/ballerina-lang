@@ -358,7 +358,6 @@ public class InitMethodGen {
                                 new BIRNonTerminator.TypeTest(null, symbolTable.nilType, boolRef, argOperand);
                         lastBB.instructions.add(typeTest);
                 }
-
                 BIRNode.BIRBasicBlock trueBB = addAndGetNextBasicBlock(modExecFunc);
                 BIRNode.BIRBasicBlock falseBB = addAndGetNextBasicBlock(modExecFunc);
                 lastBB.terminator = new BIRTerminator.Branch(null, boolRef, trueBB, falseBB);
@@ -455,7 +454,6 @@ public class InitMethodGen {
         BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
         lastBB.terminator = getExitMethodCall(nextBB, typeOwnerClass);
-
         BIRNonTerminator.TypeTest typeTest = new BIRNonTerminator.TypeTest(null, symbolTable.errorType, boolRef,
                 retVar);
         nextBB.instructions.add(typeTest);

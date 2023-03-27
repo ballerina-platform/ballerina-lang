@@ -148,6 +148,7 @@ public class JvmSignatures {
             ";ZL" + VALUE_CREATOR + ";)V";
     public static final String ANNOTATION_GET_STRAND =
             "(L" + FUNCTION_POINTER + ";L" + STRING_VALUE + ";)L" + STRING_VALUE + ";";
+    public static final String MAIN_METHOD_SIGNATURE = "([L" + STRING_VALUE + ";)V";
     public static final String ANY_TO_BYTE = "(L" + OBJECT + ";)I";
     public static final String ANY_TO_DECIMAL = "(L" + OBJECT + ";)L" + DECIMAL_VALUE + ";";
     public static final String ANY_TO_JBOOLEAN = "(L" + OBJECT + ";)Z";
