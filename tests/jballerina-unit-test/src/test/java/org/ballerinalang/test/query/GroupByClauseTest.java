@@ -30,21 +30,23 @@ import org.testng.annotations.Test;
  * @since 2201.5.0
  */
 public class GroupByClauseTest {
-    private CompileResult result;
+    private CompileResult resultWithListCtr;
+    private CompileResult resultWithInvocation;
     private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/query/group_by_clause.bal");
+        resultWithListCtr = BCompileUtil.compile("test-src/query/group_by_clause_with_list_ctr.bal");
+        resultWithInvocation = BCompileUtil.compile("test-src/query/group_by_clause_with_invocation.bal");
     }
 
-    @Test(dataProvider = "dataToTestGroupByClause")
-    public void testGroupByClause(String functionName) {
-        BRunUtil.invoke(result, functionName);
+    @Test(dataProvider = "dataToTestGroupByClauseWithListCtr")
+    public void testGroupByClauseWithListCtr(String functionName) {
+        BRunUtil.invoke(resultWithListCtr, functionName);
     }
 
     @DataProvider
-    public Object[] dataToTestGroupByClause() {
+    public Object[] dataToTestGroupByClauseWithListCtr() {
         return new Object[] {
                 "testGroupByExpressionAndSelectWithGroupingKeys1",
                 "testGroupByExpressionAndSelectWithGroupingKeys2",
@@ -115,6 +117,19 @@ public class GroupByClauseTest {
                 "testGroupByVarDefsAndSelectWithNonGroupingKeys1",
                 "testGroupByVarDefsAndSelectWithNonGroupingKeys2",
                 "testGroupByVarDefsAndSelectWithNonGroupingKeys3"
+        };
+    }
+
+    @Test(dataProvider = "dataToTestGroupByClauseWithInvocation")
+    public void testGroupByClauseWithInvocation(String functionName) {
+        BRunUtil.invoke(resultWithInvocation, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestGroupByClauseWithInvocation() {
+        return new Object[]{
+            "testGroupByExpressionAndSelectWithNonGroupingKeys1",
+            "testGroupByExpressionAndSelectWithNonGroupingKeys2"
         };
     }
 }

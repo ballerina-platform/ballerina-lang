@@ -1651,8 +1651,35 @@ public class QueryDesugar extends BLangNodeVisitor {
             requiredArgs = requiredArgs.subList(1, requiredArgs.size());
         }
         requiredArgs.forEach(this::acceptNode);
-        invocationExpr.restArgs.forEach(this::acceptNode);
+        visitRestArgs(invocationExpr);
         this.acceptNode(invocationExpr.expr);
+    }
+
+    private void visitRestArgs(BLangInvocation invocation) {
+        List<BLangExpression> restArgs = invocation.restArgs;
+        for (int i = 0; i < restArgs.size(); i++) {
+            BLangExpression arg = restArgs.get(i);
+            if (arg.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) arg;
+                BSymbol symbol = varRef.symbol;
+                if (symbol != null && (symbol.tag & SymTag.SEQUENCE) == SymTag.SEQUENCE) {
+                    BType elementType = ((BSequenceType) symbol.type).elementType;
+                    BType type = symbol.type = new BTupleType(null, new ArrayList<>(0), elementType, 0);
+                    varRef.setBType(type);
+                    restArgs.set(i, createRestArgsExpression(varRef, type));
+                }
+            }
+            this.acceptNode(restArgs.get(i));
+        }
+    }
+
+    private BLangRestArgsExpression createRestArgsExpression(BLangSimpleVarRef expr, BType type) {
+        BLangRestArgsExpression bLangRestArgsExpression = new BLangRestArgsExpression();
+        bLangRestArgsExpression.expr = expr;
+        bLangRestArgsExpression.pos = expr.pos;
+        bLangRestArgsExpression.setBType(type);
+        bLangRestArgsExpression.expectedType = type;
+        return bLangRestArgsExpression;
     }
 
     @Override
