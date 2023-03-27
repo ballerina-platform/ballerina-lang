@@ -90,8 +90,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ZERO_VALUE_RECORDS__CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ZERO_VALUE_RECORDS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_INITIAL_VALUES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_INIT_WRAPPER_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
@@ -268,7 +267,8 @@ public class JvmValueGen {
         mv.visitCode();
 
         mv.visitVarInsn(ALOAD, 1);
-        String zeroValueClass = JvmCodeGenUtil.getModuleLevelClassName(module.packageID, MODULE_ZERO_VALUE_RECORDS__CLASS_NAME);
+        String zeroValueClass =
+                JvmCodeGenUtil.getModuleLevelClassName(module.packageID, MODULE_ZERO_VALUE_RECORDS_CLASS_NAME);
         mv.visitMethodInsn(INVOKESTATIC, zeroValueClass, "$init_" + typeDef.internalName.value,
                 "(L" + STRAND_CLASS + ";)L" + MAP_VALUE + ";", false);
         mv.visitInsn(ARETURN);

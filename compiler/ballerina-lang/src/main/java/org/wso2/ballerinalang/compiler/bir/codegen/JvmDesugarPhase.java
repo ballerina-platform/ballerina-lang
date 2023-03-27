@@ -65,7 +65,7 @@ import java.util.Set;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.containsDefaultableField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getReferredType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ZERO_VALUE_RECORDS__CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ZERO_VALUE_RECORDS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
 
 /**
@@ -141,7 +141,8 @@ public class JvmDesugarPhase {
                         getRecordInitFunction((BRecordType) recordType, module, symbolTable, initMethodGen);
                 module.functions.add(zeroValueFunction);
                 String pkgName = JvmCodeGenUtil.getPackageName(module.packageID);
-                String className = JvmCodeGenUtil.getModuleLevelClassName(module.packageID, MODULE_ZERO_VALUE_RECORDS__CLASS_NAME);
+                String className =
+                        JvmCodeGenUtil.getModuleLevelClassName(module.packageID, MODULE_ZERO_VALUE_RECORDS_CLASS_NAME);
                 birFunctionMap.put(pkgName + zeroValueFunction.name.value,
                         getFunctionWrapper(zeroValueFunction, module.packageID, className));
                 JavaClass javaClass = jvmClassMapping.get(className);
@@ -208,9 +209,6 @@ public class JvmDesugarPhase {
                         new BIRNode.BIRMappingConstructorKeyValueEntry(keyVarRef, fieldVarRef);
                 initialValues.add(initialValue);
                 BInvokableSymbol defaultFunc = defaultValues.get(field.symbol.name.value);
-//                BIRNode.BIRGlobalVariableDcl defaultFuncVar = getDefaultFuncFPGlobalVar(defaultFunc.name, module.globalVars);
-//                BIROperand defaultFP = new BIROperand(defaultFuncVar);
-//                boolean workerDerivative = Symbols.isFlagOn(defaultFunc.flags, Flags.WORKER);
                 BIRNode.BIRBasicBlock nextBB = initMethodGen.addAndGetNextBasicBlock(zeroValueFunc);
                 prevBB.terminator =
                         new BIRTerminator.Call(null, InstructionKind.CALL, false, module.packageID, defaultFunc.name,
@@ -227,16 +225,6 @@ public class JvmDesugarPhase {
         prevBB.instructions.add(new BIRNonTerminator.Move(null, recVarRef, retVarRef));
         prevBB.terminator = new BIRTerminator.Return(null);
         return zeroValueFunc;
-    }
-
-    private static BIRNode.BIRGlobalVariableDcl getDefaultFuncFPGlobalVar(Name name,
-                                                                          List<BIRNode.BIRGlobalVariableDcl> globalVars) {
-        for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
-            if (globalVar.name.value.equals(name.value)) {
-                return globalVar;
-            }
-        }
-        throw new BLangCompilerException("Cannot find global var for default value function: " + name);
     }
 
     private static void rewriteRecordInitFunction(BIRFunction func, BRecordType recordType) {

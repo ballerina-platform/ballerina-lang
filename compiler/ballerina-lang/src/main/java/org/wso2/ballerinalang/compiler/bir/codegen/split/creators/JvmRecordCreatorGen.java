@@ -59,7 +59,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAX_TYPES_PER_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RECORDS_CREATOR_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ZERO_VALUE_RECORDS__CLASS_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ZERO_VALUE_RECORDS_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
@@ -161,7 +161,8 @@ public class JvmRecordCreatorGen {
             mv.visitLabel(targetLabel);
             String className = getTypeValueClassName(moduleId, optionalTypeDef.internalName.value);
             if (JvmCodeGenUtil.containsDefaultableField((BRecordType) getReferredType(optionalTypeDef.type))) {
-                mv.visitMethodInsn(INVOKESTATIC, "io/ballerina/runtime/internal/scheduling/Scheduler", "getStrand", "()Lio/ballerina/runtime/internal/scheduling/Strand;", false);
+                mv.visitMethodInsn(INVOKESTATIC, SCHEDULER, "getStrand",
+                        "()Lio/ballerina/runtime/internal/scheduling/Strand;", false);
                 mv.visitVarInsn(ASTORE, 3);
                 mv.visitTypeInsn(NEW, STRAND_CLASS);
                 mv.visitInsn(DUP);
@@ -176,7 +177,7 @@ public class JvmRecordCreatorGen {
                 mv.visitMethodInsn(INVOKESPECIAL, STRAND_CLASS, JVM_INIT_METHOD, INIT_STRAND, false);
 
 
-                String zeroValueClass = getModuleLevelClassName(moduleId, MODULE_ZERO_VALUE_RECORDS__CLASS_NAME);
+                String zeroValueClass = getModuleLevelClassName(moduleId, MODULE_ZERO_VALUE_RECORDS_CLASS_NAME);
                 mv.visitMethodInsn(INVOKESTATIC, zeroValueClass, "$init_" + optionalTypeDef.internalName.value,
                         "(L" + STRAND_CLASS + ";)L" + MAP_VALUE + ";", false);
             } else {

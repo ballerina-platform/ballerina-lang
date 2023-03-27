@@ -309,7 +309,7 @@ public class JvmConstants {
     public static final String MODULE_TUPLE_TYPES_CLASS_NAME = "types/$_tuple_types";
     public static final String MODULE_ANON_TYPES_CLASS_NAME = "types/$_anon_types";
     public static final String MODULE_RECORDS_CREATOR_CLASS_NAME = "creators/$_records";
-    public static final String MODULE_ZERO_VALUE_RECORDS__CLASS_NAME = "creators/$_zero_value_records";
+    public static final String MODULE_ZERO_VALUE_RECORDS_CLASS_NAME = "creators/$_zero_value_records";
     public static final String MODULE_OBJECTS_CREATOR_CLASS_NAME = "creators/$_objects";
     public static final String MODULE_FUNCTION_CALLS_CLASS_NAME = "creators/$_function_calls";
     public static final String MODULE_ERRORS_CREATOR_CLASS_NAME = "creators/$_errors";
