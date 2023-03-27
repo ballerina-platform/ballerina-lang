@@ -89,6 +89,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIONS_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_OPTIONAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INSTANTIATE_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_STATIC_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
@@ -120,6 +121,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DES
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VALUE_CLASS_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.desugarOldExternFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.desugarInteropFuncs;
@@ -255,19 +257,17 @@ public class JvmValueGen {
         FieldVisitor fv = cw.visitField(0, ANNOTATIONS_FIELD, GET_MAP_VALUE, null, null);
         fv.visitEnd();
 
-        this.createTypeDescConstructor(cw);
+        this.createTypeDescConstructor(cw, className);
         this.createTypeDescConstructorWithAnnotations(cw, className);
-        this.createInstantiateMethod(cw, recordType, typeDef);
+        this.createInstantiateMethod(cw, recordType, typeDef, className);
 
         cw.visitEnd();
         return jvmPackageGen.getBytes(cw, typeDef);
     }
 
     private void createInstantiateMethod(ClassWriter cw, BRecordType recordType,
-                                         BIRNode.BIRTypeDefinition typeDef) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "instantiate",
-                                          INSTANTIATE,
-                                          null, null);
+                                         BIRNode.BIRTypeDefinition typeDef, String typeClass) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, INSTANTIATE_FUNCTION, INSTANTIATE, null, null);
         mv.visitCode();
 
         String className = getTypeValueClassName(recordType.tsymbol.pkgID, toNameString(recordType));
@@ -339,7 +339,7 @@ public class JvmValueGen {
                            POPULATE_INITIAL_VALUES, false);
 
         mv.visitInsn(ARETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, INSTANTIATE_FUNCTION, typeClass);
         mv.visitEnd();
     }
 
@@ -387,15 +387,15 @@ public class JvmValueGen {
         jvmRecordGen.createAndSplitContainsKeyMethod(cw, fields, className);
         jvmRecordGen.createAndSplitGetValuesMethod(cw, fields, className, jvmCastGen);
         this.createGetSizeMethod(cw, fields, className);
-        this.createRecordClearMethod(cw);
+        this.createRecordClearMethod(cw, typeDef.name.value);
         jvmRecordGen.createAndSplitRemoveMethod(cw, fields, className, jvmCastGen);
         jvmRecordGen.createAndSplitGetKeysMethod(cw, fields, className);
-        this.createRecordPopulateInitialValuesMethod(cw);
+        this.createRecordPopulateInitialValuesMethod(cw, className);
 
-        this.createRecordConstructor(cw, INIT_TYPEDESC);
-        this.createRecordConstructor(cw, TYPE_PARAMETER);
+        this.createRecordConstructor(cw, INIT_TYPEDESC, className);
+        this.createRecordConstructor(cw, TYPE_PARAMETER, className);
         this.createRecordInitWrapper(cw, className, typeDef);
-        this.createLambdas(cw, asyncDataCollector, lambdaGen);
+        this.createLambdas(cw, asyncDataCollector, lambdaGen, className);
         JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
         this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
         cw.visitEnd();
@@ -416,7 +416,7 @@ public class JvmValueGen {
         }
     }
 
-    private void createTypeDescConstructor(ClassWriter cw) {
+    private void createTypeDescConstructor(ClassWriter cw, String className) {
 
         String descriptor = TYPE_DESC_CONSTRUCTOR;
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, descriptor, null, null);
@@ -432,7 +432,7 @@ public class JvmValueGen {
         mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE_IMPL, JVM_INIT_METHOD, descriptor, false);
 
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_INIT_METHOD, className);
         mv.visitEnd();
     }
 
@@ -458,11 +458,11 @@ public class JvmValueGen {
                            false);
 
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_INIT_METHOD, name);
         mv.visitEnd();
     }
 
-    private void createRecordConstructor(ClassWriter cw, String argumentClass) {
+    private void createRecordConstructor(ClassWriter cw, String argumentClass, String className) {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, argumentClass, null, null);
         mv.visitCode();
 
@@ -474,7 +474,7 @@ public class JvmValueGen {
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, JVM_INIT_METHOD, argumentClass, false);
 
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_INIT_METHOD, className);
         mv.visitEnd();
     }
 
@@ -523,7 +523,7 @@ public class JvmValueGen {
         mv.visitInsn(POP);
 
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, RECORD_INIT_WRAPPER_NAME, className);
         mv.visitEnd();
     }
 
@@ -575,11 +575,11 @@ public class JvmValueGen {
         mv.visitVarInsn(ILOAD, sizeVarIndex);
         mv.visitInsn(IRETURN);
 
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "size", className);
         mv.visitEnd();
     }
 
-    private void createRecordPopulateInitialValuesMethod(ClassWriter cw) {
+    private void createRecordPopulateInitialValuesMethod(ClassWriter cw, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, POPULATE_INITIAL_VALUES_METHOD,
                                           POPULATE_INITIAL_VALUES, null, null);
@@ -591,7 +591,7 @@ public class JvmValueGen {
                            POPULATE_INITIAL_VALUES, false);
 
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, POPULATE_INITIAL_VALUES_METHOD, className);
         mv.visitEnd();
     }
 
@@ -620,7 +620,7 @@ public class JvmValueGen {
         jvmObjectGen.createAndSplitGetMethod(cw, fields, className, jvmCastGen);
         jvmObjectGen.createAndSplitSetMethod(cw, fields, className, jvmCastGen);
         jvmObjectGen.createAndSplitSetOnInitializationMethod(cw, fields, className);
-        this.createLambdas(cw, asyncDataCollector, lambdaGen);
+        this.createLambdas(cw, asyncDataCollector, lambdaGen, className);
         JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
         this.generateStaticInitializer(cw, className, module.packageID, asyncDataCollector);
 
@@ -680,7 +680,7 @@ public class JvmValueGen {
             mv.visitVarInsn(ALOAD, 0);
             mv.visitTypeInsn(NEW, LOCK_VALUE);
             mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, JVM_INIT_METHOD, "()V", false);
+            mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
             mv.visitFieldInsn(PUTFIELD, className, computeLockNameFromString(field.name.value), lockClass);
         }
 
@@ -690,9 +690,9 @@ public class JvmValueGen {
     }
 
     private void createLambdas(ClassWriter cw, AsyncDataCollector asyncDataCollector,
-                               LambdaGen lambdaGen) {
+                               LambdaGen lambdaGen, String className) {
         for (Map.Entry<String, BIRInstruction> entry : asyncDataCollector.getLambdas().entrySet()) {
-            lambdaGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey());
+            lambdaGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey(), className);
         }
     }
 
@@ -702,22 +702,22 @@ public class JvmValueGen {
         if (asyncDataCollector.getStrandMetadata().isEmpty()) {
             return;
         }
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
         JvmCodeGenUtil.generateStrandMetadata(mv, moduleClass, module, asyncDataCollector);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_STATIC_INIT_METHOD, moduleClass);
         mv.visitEnd();
     }
 
-    private void createRecordClearMethod(ClassWriter cw) {
+    private void createRecordClearMethod(ClassWriter cw, String className) {
         // throw an UnsupportedOperationException, since clear is not supported by for records.
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "clear", "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "clear", VOID_METHOD_DESC, null, null);
         mv.visitCode();
         mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitInsn(ATHROW);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "clear", className);
         mv.visitEnd();
     }
 }

@@ -113,6 +113,8 @@ public class CreateVariableWithPositionalRenameSupportCapabilityTest extends Abs
                 {"variableAssignmentRequiredCodeAction43.json"},
                 {"variableAssignmentRequiredCodeAction44.json"},
                 {"variableAssignmentRequiredCodeAction45.json"},
+                {"variableAssignmentRequiredCodeAction46.json"},
+                {"variableAssignmentRequiredCodeAction47.json"},
                 {"ignoreReturnValueCodeAction.json"},
                 {"projectVariableAssignmentRequiredCodeAction1.json"},
                 {"projectVariableAssignmentRequiredCodeAction2.json"},

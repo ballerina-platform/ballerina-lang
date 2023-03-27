@@ -173,7 +173,7 @@ public class SymbolTable {
     public final BXMLSubType xmlPIType = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI);
     public final BXMLSubType xmlCommentType = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT);
     public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY);
-    public final BRegexpType regExpType = new BRegexpType(TypeTags.REGEXP, Names.REGEXP);
+    public final BRegexpType regExpType = new BRegexpType(TypeTags.REGEXP, Names.REGEXP_TYPE);
     public final BType xmlNeverType = new BXMLType(neverType,  null);
     public final BType xmlElementSeqType = new BXMLType(xmlElementType, null);
 
@@ -284,7 +284,7 @@ public class SymbolTable {
         initializeTSymbol(xmlPIType, Names.XML_PI, PackageID.XML);
         initializeTSymbol(xmlCommentType, Names.XML_COMMENT, PackageID.XML);
         initializeTSymbol(xmlTextType, Names.XML_TEXT, PackageID.XML);
-        initializeTSymbol(regExpType, Names.REGEXP, PackageID.REGEXP);
+        initializeTSymbol(regExpType, Names.REGEXP_TYPE, PackageID.REGEXP);
 
         BLangLiteral trueLiteral = new BLangLiteral();
         trueLiteral.setBType(this.booleanType);
@@ -460,6 +460,7 @@ public class SymbolTable {
 
     public void updateBuiltinSubtypeOwners() {
         updateIntSubtypeOwners();
+        updateRegExpTypeOwners();
         updateStringSubtypeOwners();
         updateXMLSubtypeOwners();
     }
@@ -482,6 +483,10 @@ public class SymbolTable {
         this.xmlCommentType.tsymbol.owner = this.langXmlModuleSymbol;
         this.xmlPIType.tsymbol.owner = this.langXmlModuleSymbol;
         this.xmlTextType.tsymbol.owner = this.langXmlModuleSymbol;
+    }
+    
+    public void updateRegExpTypeOwners() {
+        this.regExpType.tsymbol.owner = this.langRegexpModuleSymbol;
     }
 
     public void defineOperators() {

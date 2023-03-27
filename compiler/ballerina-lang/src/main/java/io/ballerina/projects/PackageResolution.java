@@ -21,6 +21,7 @@ import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageCache;
+import io.ballerina.projects.environment.PackageLockingMode;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.environment.ResolutionOptions;
@@ -33,6 +34,7 @@ import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.ModuleResolver;
 import io.ballerina.projects.internal.PackageContainer;
 import io.ballerina.projects.internal.PackageDiagnostic;
+import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.internal.ResolutionEngine;
 import io.ballerina.projects.internal.ResolutionEngine.DependencyNode;
 import io.ballerina.projects.internal.model.BuildJson;
@@ -59,6 +61,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectUtils.readBuildJson;
 
 /**
@@ -71,6 +74,7 @@ public class PackageResolution {
     private final BlendedManifest blendedManifest;
     private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
     private final CompilationOptions compilationOptions;
+    private final ResolutionOptions resolutionOptions;
     private final PackageResolver packageResolver;
     private final ModuleResolver moduleResolver;
     private final List<Diagnostic> diagnosticList;
@@ -85,15 +89,14 @@ public class PackageResolution {
         this.rootPackageContext = rootPackageContext;
         this.diagnosticList = new ArrayList<>();
         this.compilationOptions = compilationOptions;
-        ResolutionOptions resolutionOptions = getResolutionOptions(rootPackageContext, compilationOptions);
+        this.resolutionOptions = getResolutionOptions(rootPackageContext, compilationOptions);
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.packageResolver = projectEnvContext.getService(PackageResolver.class);
         this.blendedManifest = createBlendedManifest(rootPackageContext, projectEnvContext);
         diagnosticList.addAll(this.blendedManifest.diagnosticResult().allDiagnostics);
 
-        this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext, resolutionOptions);
-
-        this.dependencyGraph = buildDependencyGraph(resolutionOptions);
+        this.moduleResolver = createModuleResolver(rootPackageContext, projectEnvContext);
+        this.dependencyGraph = buildDependencyGraph();
         DependencyResolution dependencyResolution = new DependencyResolution(
                 projectEnvContext.getService(PackageCache.class), moduleResolver, dependencyGraph);
         resolveDependencies(dependencyResolution);
@@ -217,12 +220,12 @@ public class PackageResolution {
      *
      * @return package dependency graph of this package
      */
-    private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph(ResolutionOptions resolutionOptions) {
+    private DependencyGraph<ResolvedPackageDependency> buildDependencyGraph() {
         // TODO We should get diagnostics as well. Need to design that contract
         if (rootPackageContext.project().kind() == ProjectKind.BALA_PROJECT) {
-            return resolveBALADependencies(resolutionOptions);
+            return resolveBALADependencies();
         } else {
-            return resolveSourceDependencies(resolutionOptions);
+            return resolveSourceDependencies();
         }
     }
 
@@ -262,17 +265,17 @@ public class PackageResolution {
         return allModuleLoadRequests;
     }
 
-    private DependencyGraph<ResolvedPackageDependency> resolveBALADependencies(ResolutionOptions resolutionOptions) {
+    private DependencyGraph<ResolvedPackageDependency> resolveBALADependencies() {
         // 1) Convert package descriptor graph to DependencyNode graph
         DependencyGraph<DependencyNode> dependencyNodeGraph = createDependencyNodeGraph(
                 rootPackageContext.dependencyGraph());
 
         //2 ) Create the package dependency graph by downloading packages if necessary.
         return buildPackageGraph(dependencyNodeGraph, rootPackageContext.project().currentPackage(),
-                packageResolver, resolutionOptions);
+                packageResolver);
     }
 
-    private DependencyGraph<ResolvedPackageDependency> resolveSourceDependencies(ResolutionOptions resolutionOptions) {
+    private DependencyGraph<ResolvedPackageDependency> resolveSourceDependencies() {
         // 1) Get PackageLoadRequests for all the direct dependencies of this package
         LinkedHashSet<ModuleLoadRequest> moduleLoadRequests = getModuleLoadRequestsOfDirectDependencies();
 
@@ -287,7 +290,7 @@ public class PackageResolution {
 
         //3 ) Create the package dependency graph by downloading packages if necessary.
         return buildPackageGraph(dependencyNodeGraph, rootPackageContext.project().currentPackage(),
-                packageResolver, resolutionOptions);
+                packageResolver);
     }
 
     static Optional<ModuleContext> findModuleInPackage(PackageContext resolvedPackage, String moduleNameStr) {
@@ -313,8 +316,7 @@ public class PackageResolution {
 
     private DependencyGraph<ResolvedPackageDependency> buildPackageGraph(DependencyGraph<DependencyNode> depGraph,
                                                                          Package rootPackage,
-                                                                         PackageResolver packageResolver,
-                                                                         ResolutionOptions resolutionOptions) {
+                                                                         PackageResolver packageResolver) {
         PackageContainer<ResolvedPackageDependency> resolvedPkgContainer = new PackageContainer<>();
 
         // Add root node to the container
@@ -335,7 +337,11 @@ public class PackageResolution {
         // Add resolved packages to the container
         for (ResolutionResponse resolutionResp : resolutionResponses) {
             if (resolutionResp.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
-                PackageDescriptor pkgDesc = resolutionResp.responseDescriptor();
+                PackageDescriptor pkgDesc = resolutionResp.resolvedPackage().packageContext().
+                        packageManifest().descriptor();
+                if (Optional.ofNullable(pkgDesc.getDeprecated()).orElse(false)) {
+                    addDeprecationDiagnostic(pkgDesc);
+                }
                 ResolutionRequest resolutionReq = resolutionResp.resolutionRequest();
                 ResolvedPackageDependency resolvedPkg = new ResolvedPackageDependency(
                         resolutionResp.resolvedPackage(),
@@ -368,8 +374,19 @@ public class PackageResolution {
         return depGraphBuilder.build();
     }
 
+    private void addDeprecationDiagnostic(PackageDescriptor pkgDesc) {
+        String deprecationMsg = Optional.ofNullable(pkgDesc.getDeprecationMsg()).orElse("");
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                ProjectDiagnosticErrorCode.DEPRECATED_PACKAGE.diagnosticId(), pkgDesc.toString() +
+                " is deprecated due to : " + deprecationMsg, DiagnosticSeverity.WARNING);
+        PackageDiagnostic diagnostic = new PackageDiagnostic(
+                diagnosticInfo, this.rootPackageContext.descriptor().name().toString());
+        this.diagnosticList.add(diagnostic);
+    }
+
     private ResolutionRequest createFromDepNode(DependencyNode depNode) {
-        return ResolutionRequest.from(depNode.pkgDesc(), depNode.scope(), depNode.resolutionType());
+        return ResolutionRequest.from(depNode.pkgDesc(), depNode.scope(), depNode.resolutionType(),
+                resolutionOptions.packageLockingMode());
     }
 
     private DependencyGraph<DependencyNode> createDependencyNodeGraph(
@@ -451,8 +468,7 @@ public class PackageResolution {
     }
 
     private ModuleResolver createModuleResolver(PackageContext rootPackageContext,
-                                                ProjectEnvironment projectEnvContext,
-                                                ResolutionOptions resolutionOptions) {
+                                                ProjectEnvironment projectEnvContext) {
         List<ModuleName> moduleNames = rootPackageContext.moduleIds().stream()
                 .map(rootPackageContext::moduleContext)
                 .map(ModuleContext::moduleName)
@@ -470,12 +486,59 @@ public class PackageResolution {
 
     private ResolutionOptions getResolutionOptions(PackageContext rootPackageContext,
                                                    CompilationOptions compilationOptions) {
+        boolean sticky = getSticky(rootPackageContext);
+        PackageLockingMode packageLockingMode;
+        SemanticVersion prevDistributionVersion = rootPackageContext.dependencyManifest().distributionVersion();
+        SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+        if (!sticky && (null == prevDistributionVersion
+                || isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion))) {
+            packageLockingMode = PackageLockingMode.SOFT;
+            if (rootPackageContext.dependenciesTomlContext().isPresent()) {
+                addOlderSLUpdateDistributionDiagnostic(prevDistributionVersion, currentDistributionVersion);
+            }
+        } else {
+            packageLockingMode = PackageLockingMode.MEDIUM;
+        }
         return ResolutionOptions.builder()
                 .setOffline(compilationOptions.offlineBuild())
-                .setSticky(getSticky(rootPackageContext))
+                .setSticky(sticky)
                 .setDumpGraph(compilationOptions.dumpGraph())
                 .setDumpRawGraphs(compilationOptions.dumpRawGraphs())
+                .setPackageLockingMode(packageLockingMode)
                 .build();
+    }
+
+    private boolean isNewUpdateDistribution(SemanticVersion prevDistributionVersion,
+                                                  SemanticVersion currentDistributionVersion) {
+        return currentDistributionVersion.major() == prevDistributionVersion.major()
+                && currentDistributionVersion.minor() > prevDistributionVersion.minor();
+    }
+
+    private void addOlderSLUpdateDistributionDiagnostic(SemanticVersion prevDistributionVersion,
+                                                        SemanticVersion currentDistributionVersion) {
+        String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
+        if (currentDistributionVersion.patch() != 0) {
+            currentVersionForDiagnostic += DOT + currentDistributionVersion.patch();
+        }
+        String prevVersionForDiagnostic;
+        if (null != prevDistributionVersion) {
+            prevVersionForDiagnostic = String.valueOf(prevDistributionVersion.minor());
+            if (prevDistributionVersion.patch() != 0) {
+                prevVersionForDiagnostic += DOT + prevDistributionVersion.patch();
+            }
+        } else {
+            prevVersionForDiagnostic = "4 or an older Update";
+        }
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId(),
+                "Detected an attempt to build this package using Swan Lake Update " + currentVersionForDiagnostic +
+                        ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
+                        ". To ensure compatibility, the Dependencies.toml file will be updated with the " +
+                        "latest versions that are compatible with Update " + currentVersionForDiagnostic + ".",
+                DiagnosticSeverity.WARNING);
+        PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
+                rootPackageContext.descriptor().name().toString());
+        diagnosticList.add(diagnostic);
     }
 
     /**

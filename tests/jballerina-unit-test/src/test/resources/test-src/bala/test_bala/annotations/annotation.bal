@@ -37,10 +37,14 @@ function testAnnotOnRecordFields() {
 }
 
 function testAnnotOnTupleFields() {
-    map<any> m = getLocalTupleAnnotations(typeof foo:testAnnotationsOnLocalTupleFields(), "$field$.0");
+    map<any> m = getAnonymousTupleAnnotations(typeof foo:testAnnotationsOnLocalTupleFields(), "$field$.0");
     assertEquality({value : "10"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
-    m = getLocalTupleAnnotations(typeof foo:testTupleFieldAnnotationsOnReturnType(), "$field$.0");
+    m = getAnonymousTupleAnnotations(typeof foo:testTupleFieldAnnotationsOnReturnType(), "$field$.0");
     assertEquality({value : "100"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
+    m = getAnonymousTupleAnnotations(typeof foo:g1, "$field$.0");
+    assertEquality({value : "chiranS"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
+    m = getAnonymousTupleAnnotations(typeof foo:g1, "$field$.1");
+    assertEquality({value : "k"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
 }
 
 function getLocalRecordAnnotations(typedesc<any> obj, string annotName) returns map<any> =
@@ -49,10 +53,10 @@ function getLocalRecordAnnotations(typedesc<any> obj, string annotName) returns 
     name: "getLocalRecordAnnotations"
 } external;
 
-function getLocalTupleAnnotations(typedesc<any> obj, string annotName) returns map<any> =
+function getAnonymousTupleAnnotations(typedesc<any> obj, string annotName) returns map<any> =
 @java:Method {
-    'class: "org/ballerinalang/test/annotations/LocalTupleAnnotationTest",
-    name: "getLocalTupleAnnotations"
+    'class: "org/ballerinalang/test/annotations/AnonymousTupleAnnotationTest",
+    name: "getAnonymousTupleAnnotations"
 } external;
 
 function assertEquality(anydata expected, anydata actual) {

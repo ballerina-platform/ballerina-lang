@@ -73,6 +73,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.METHOD_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_OBJECT_TYPES_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REMOTE_METHOD_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_METHOD_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RESOURCE_METHOD_TYPE_IMPL;
@@ -93,6 +94,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_METHODS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_RESOURCE_METHOD_TYPE_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ID_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
  * BIR object type to JVM byte code generation class.
@@ -198,7 +200,7 @@ public class JvmObjectTypeGen {
         mv.visitLdcInsn((long) attachedFunctions.size() - resourceFunctionCount(attachedFunctions));
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, METHOD_TYPE_IMPL);
-        String methodName = "$populate" + fieldName + "$attachedFunctions";
+        String methodName = POPULATE_METHOD_PREFIX + fieldName + "$attachedFunctions";
         int methodCount = splitObjectAttachedFunctions(cw, methodName, attachedFunctions, objType, symbolTable);
         if (methodCount > 0) {
             mv.visitVarInsn(ASTORE, 0);
@@ -300,7 +302,7 @@ public class JvmObjectTypeGen {
         mv.visitLdcInsn(resourceFunctionCount(attachedFunctions));
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, RESOURCE_METHOD_TYPE);
-        String methodName = "$populate" + fieldName + "$resourceFunctions";
+        String methodName = POPULATE_METHOD_PREFIX + fieldName + "$resourceFunctions";
         int methodCount = splitResourceMethods(cw, methodName, attachedFunctions, objType, symbolTable);
         if (methodCount > 0) {
             mv.visitVarInsn(ASTORE, 0);
@@ -515,7 +517,7 @@ public class JvmObjectTypeGen {
         // Create the fields map
         mv.visitTypeInsn(NEW, LINKED_HASH_MAP);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         if (!fields.isEmpty()) {
             mv.visitInsn(DUP);
             mv.visitMethodInsn(INVOKESTATIC, objectTypesClass, methodName + "$addField$", SET_LINKED_HASH_MAP, false);

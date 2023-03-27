@@ -37,7 +37,7 @@ import java.util.Optional;
  */
 public class TestFunctionVisitor extends NodeVisitor {
 
-    private static final List<String> TEST_STATIC_ANNOTATION_NAMES = List.of(
+    static final List<String> TEST_STATIC_ANNOTATION_NAMES = List.of(
             "Config", "BeforeSuite", "AfterSuite", "BeforeGroups", "AfterGroups", "BeforeEach", "AfterEach");
     private static final String TEST_DYNAMIC_ANNOTATION_NAME = "Factory";
     private static final String TEST_MODULE_NAME = "test";
@@ -57,6 +57,9 @@ public class TestFunctionVisitor extends NodeVisitor {
 
     @Override
     public void visit(FunctionDefinitionNode functionDefinitionNode) {
+        if (functionDefinitionNode.parent().kind() == SyntaxKind.CLASS_DEFINITION) {
+            return;
+        }
         Optional<MetadataNode> metadataNodeOptional = functionDefinitionNode.metadata();
         if (metadataNodeOptional.isPresent()) {
             MetadataNode metadataNode = metadataNodeOptional.get();

@@ -1,0 +1,13 @@
+{
+  "position": {
+    "line": 2,
+    "character": 9
+  },
+  "source": "extract_to_function_exprs_match_clause.bal",
+  "expected": [
+    {
+      "title": "Extract to function"
+    }
+  ],
+  "description": "Extract to function when selected a match clause"
+}
