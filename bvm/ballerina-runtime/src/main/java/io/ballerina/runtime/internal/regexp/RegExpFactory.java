@@ -111,11 +111,10 @@ public class RegExpFactory {
             TreeBuilder treeBuilder = new TreeBuilder(tokenReader);
             return treeBuilder.parse();
         } catch (BallerinaException e) {
-            throw ErrorCreator.createError(StringUtils.fromString("Failed to parse regular expression: " +
-                    e.getMessage()));
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()));
         }
     }
-
+    
     public static void parseInsertion(String regExpStr) {
         try {
             CharReader charReader = CharReader.from(regExpStr);
