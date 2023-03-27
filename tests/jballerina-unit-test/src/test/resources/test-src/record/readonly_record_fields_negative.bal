@@ -294,7 +294,7 @@ type neverRecordWithNotReadonly record {|
     string y;
 |};
 
-function testNeverFieldRecord() {
+function testNeverFieldRecordReadonly() {
     openNeverRecord r1 = {};
     neverRecordWithNotReadonly r2 = {y: "hello"};
 
