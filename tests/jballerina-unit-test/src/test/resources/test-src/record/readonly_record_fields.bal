@@ -924,6 +924,43 @@ function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }
 
+type neverRecord record {|
+    never x?;
+|};
+
+type openNeverRecord record {
+    never x?;
+};
+
+type neverRecordWithReadonly record {|
+    never x?;
+    readonly int y;
+|};
+
+type neverRecordWithNotReadonly record {|
+    never x?;
+    string y;
+|};
+
+function testNeverFieldRecord() {
+    record {|
+            never x?;
+            never y?;
+    |} c = {};
+
+    readonly d = c;
+    neverRecord e = {};
+    openNeverRecord f = {};
+    neverRecordWithReadonly g = { y: 1 };
+    neverRecordWithNotReadonly h = { y: "abc" };
+
+    assertTrue(d is record {|never x?; never y?;|} & readonly);
+    assertTrue(e is record {|never x?;|} & readonly);
+    assertTrue(f is record {|never x?; anydata...;|});
+    assertTrue(g is record {|never x?; int y;|} & readonly);
+    assertTrue(h is record {|never x?; string y;|});
+}
+
 function assertFalse(any|error actual) {
     assertEquality(false, actual);
 }

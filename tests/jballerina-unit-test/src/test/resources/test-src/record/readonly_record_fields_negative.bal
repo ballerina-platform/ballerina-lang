@@ -284,3 +284,20 @@ type RecordWithReadOnlyFields record {|
 
 RecordWithReadOnlyFields & readonly r1 = {x: []};
 readonly & RecordWithReadOnlyFields & readonly r2 = 1;
+
+type openNeverRecord record {
+    never x?;
+};
+
+type neverRecordWithNotReadonly record {|
+    never x?;
+    string y;
+|};
+
+function testNeverFieldRecord() {
+    openNeverRecord r1 = {};
+    neverRecordWithNotReadonly r2 = {y: "hello"};
+
+    readonly x = r1;
+    readonly y = r2;
+}
