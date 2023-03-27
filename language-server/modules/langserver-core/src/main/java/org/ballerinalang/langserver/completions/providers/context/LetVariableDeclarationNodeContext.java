@@ -20,11 +20,11 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -58,38 +58,37 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, LetVariableDeclarationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         int cursor = context.getCursorPositionInTree();
-        if (node.typedBindingPattern().typeDescriptor().textRange().endOffset() >= cursor) {
-            /*
-            Covers the following context
-            eg: let va<cursor>
-                let int a = b, f<cursor>
-             */
-            completionItems.addAll(this.getTypeDescContextItems(context));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
-            for (LSCompletionItem lsCItem : completionItems) {
-                CompletionItem completionItem = lsCItem.getCompletionItem();
-                completionItem.setSortText(SortingUtil.genSortTextForTypeDescContext(context, lsCItem));
+        TypeDescriptorNode typeDescriptor = node.typedBindingPattern().typeDescriptor();
+        if (typeDescriptor.textRange().endOffset() >= cursor) {
+            if (typeDescriptor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                /*
+                Covers the following context
+                eg: let var x = <cursor>
+                    let var x = h<cursor>
+                    let var x = mod1:<cursor>
+                */
+                QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) typeDescriptor;
+                List<Symbol> exprEntries = QNameRefCompletionUtil.getExpressionContextEntries(context, qNameRef);
+
+                completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+                this.sort(context, node, completionItems);
+            } else {
+                /*
+                Covers the following context
+                eg: let va<cursor>
+                    let int a = b, f<cursor>
+                 */
+                completionItems.addAll(this.getTypeDescContextItems(context));
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
+                for (LSCompletionItem lsCItem : completionItems) {
+                    CompletionItem completionItem = lsCItem.getCompletionItem();
+                    completionItem.setSortText(SortingUtil.genSortTextForTypeDescContext(context, lsCItem));
+                }
             }
             return completionItems;
         }
-        
-        /*
-        Covers the following context
-        eg: let var x = <cursor>
-            let var x = h<cursor>
-            let var x = mod1:<cursor>
-         */
-        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            /*
-            Covers the cases where the cursor is within the expression context
-             */
-            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> exprEntries = QNameRefCompletionUtil.getExpressionContextEntries(context, qNameRef);
-
-            completionItems.addAll(this.getCompletionItemList(exprEntries, context));
-        } else if (cursorAtTheEndOfExpression(context, node)) {
+        if (cursorAtTheEndOfExpression(context, node)) {
             completionItems.addAll(QueryExpressionUtil.getCommonKeywordCompletions(context));
         } else {
             completionItems.addAll(this.expressionCompletions(context));
