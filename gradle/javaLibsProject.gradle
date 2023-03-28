@@ -95,7 +95,7 @@ dependencies {
     dist 'org.apache.ws.commons.axiom:axiom-api:1.2.22'
     dist 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
     dist 'commons-codec:commons-codec:1.15'
-//    dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
+//    dist 'org.fasterxml.woodstox:woodstox-core:6.5.0'
 //    dist 'org.codehaus.woodstox:stax2-api:3.1.1'
 
     dist project(':ballerina-auth')

@@ -53,7 +53,7 @@ ballerina-rabbitmq-1.1.0.jar                                                    
 ballerina-socket-1.1.0.jar                                                                          jar            apache2
 typedesc-1.1.0.jar                                                                                  jar            apache2
 jwt.jar                                                                                             jar            apache2
-woodstox-core-asl-4.2.0.jar                                                                         bundle         apache2
+woodstox-core-6.5.0.jar                                                                         bundle         apache2
 bcprov-jdk15on-1.61.jar                                                                             bundle         bouncy
 broker-rest-runner-0.970.0.jar                                                                      bundle         apache2
 ballerina-jaeger-extension-1.1.0.jar                                                                jar            apache2
