@@ -71,22 +71,23 @@ public class XMLParserNegativeTest {
             Assert.fail("Negative test failed for: `" + xmlValue + "'. Expected exception with message: " +
                     expectedErrorMessage);
         } catch (Exception e) {
-            Assert.assertEquals(e.getMessage(), "failed to parse xml: ParseError at [row,col]:" + expectedErrorMessage);
+            Assert.assertEquals(e.getMessage(), "failed to parse xml: " + expectedErrorMessage);
         }
     }
 
     @DataProvider(name = "xmlValues")
     public Object[][] xmlValues() {
         return new Object[][]{
-                {"<book name=\"irshad<\"></book>" , "[1,19]\nMessage: The value of attribute \"name\" associated " +
-                        "with an element type \"book\" must not contain the '<' character."},
-                {"<!-- comments cannot have -- in it -->" , "[1,29]\nMessage: The string \"--\" is not permitted " +
-                        "within comments."},
-                {"<-note>irshad</-note>", "[1,2]\nMessage: The markup in the document preceding the root element " +
-                        "must be well-formed."},
-                {"<note><.b>irshad</.b></note>", "[1,8]\nMessage: The content of elements must consist of " +
-                        "well-formed character data or markup."},
-                {"<?pi cannot contain ?> in it?><book></book>", "[1,24]\nMessage: Content is not allowed in prolog."}
+                {"<book name=\"irshad<\"></book>" , "Unexpected character '<' (code 60) in attribute value\n" +
+                        " at [row,col {unknown-source}]: [1,19]"},
+                {"<!-- comments cannot have -- in it -->" , "[com.ctc.wstx.exc.WstxLazyException] String '--' not " +
+                        "allowed in comment (missing '>'?)\n at [row,col {unknown-source}]: [1,4]"},
+                {"<-note>irshad</-note>", "Unexpected character '-' (code 45) in prolog, after '<'.\n" +
+                        " at [row,col {unknown-source}]: [1,2]"},
+                {"<note><.b>irshad</.b></note>", "Unexpected character '.' (code 46) in content after '<' " +
+                        "(malformed start element?).\n at [row,col {unknown-source}]: [1,8]"},
+                {"<?pi cannot contain ?> in it?><book></book>", "Unexpected character 'i' (code 105) in prolog; " +
+                        "expected '<'\n at [row,col {unknown-source}]: [1,24]"}
         };
     }
 }
