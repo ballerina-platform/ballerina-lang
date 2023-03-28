@@ -168,7 +168,6 @@ public class InitMethodGen {
                 paramTypes = testExecuteFunc.type.paramTypes;
                 returnType = testExecuteFunc.type.retType;
             }
-
             int paramIndex = 1;
             for (BType paramType : paramTypes) {
                 mv.visitVarInsn(ALOAD, 0);
