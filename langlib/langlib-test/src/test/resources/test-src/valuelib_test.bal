@@ -2842,6 +2842,42 @@ type SecondXML xml;
 
 type ThirdXML FirstXML;
 
+type FirstJSON json;
+
+type SecondJSON json;
+
+type ThirdJSON FirstJSON;
+
+type FirstAnydata anydata;
+
+type SecondAnydata anydata;
+
+type ThirdAnydata FirstAnydata;
+
+type FirstArrayUnion ThirdArr|SecondArr|FirstArr;
+
+type SecondArrayUnion ThirdArr|SecondArr|FirstArr;
+
+type ThirdArrayUnion FirstArrayUnion;
+
+type FourthArrayUnion FirstArrayUnion|SecondArrayUnion;
+
+type FifthArrayUnion FourthArrayUnion;
+
+type SixthArrayUnion FifthArrayUnion|FourthArrayUnion;
+
+type FirstNumberUnion int|float|decimal;
+
+type SecondNumberUnion FirstInt|FirstFloat|FirstDecimal;
+
+type ThirdNumberUnion FirstNumberUnion;
+
+type FourthNumberUnion ThirdNumberUnion|SecondNumberUnion;
+
+type FifthNumberUnion FourthNumberUnion;
+
+type SixthNumberUnion FifthNumberUnion|FourthNumberUnion;
+
 function testConvertingToReferenceTypes() {
     int[] val0 = [1, 2, 3];
     FirstArr val1 = [1, 2, 3];
@@ -2962,6 +2998,38 @@ function testConvertingToReferenceTypes() {
         "typedesc xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>");
     test:assertValueEqual((typeof val64).toString(),
         "typedesc xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>");
+
+    json val65 = {a: 1};
+    FirstJSON val66 = {a: 1};
+    SecondJSON val67 = checkpanic val66.cloneWithType();
+    ThirdJSON val68 = checkpanic val67.cloneWithType();
+    ThirdJSON val69 = checkpanic val65.cloneWithType();
+    test:assertValueEqual((typeof val67).toString(), "typedesc map<json>");
+    test:assertValueEqual((typeof val68).toString(), "typedesc map<json>");
+    test:assertValueEqual((typeof val69).toString(), "typedesc map<json>");
+
+    anydata val70 = 1;
+    FirstAnydata val71 = 1;
+    SecondAnydata val72 = checkpanic val71.cloneWithType();
+    ThirdAnydata val73 = checkpanic val72.cloneWithType();
+    ThirdAnydata val74 = checkpanic val70.cloneWithType();
+    test:assertValueEqual((typeof val72).toString(), "typedesc 1");
+    test:assertValueEqual((typeof val73).toString(), "typedesc 1");
+    test:assertValueEqual((typeof val74).toString(), "typedesc 1");
+
+    int[] val75 = [1, 2, 3];
+    FirstFloat[] val76 = [1.0, 2.0, 3.0];
+    SixthArrayUnion val77 = checkpanic val75.cloneWithType();
+    SixthArrayUnion val78 = checkpanic val76.cloneWithType();
+    test:assertValueEqual((typeof val77).toString(), "typedesc ThirdArr");
+    test:assertValueEqual((typeof val78).toString(), "typedesc ThirdArr");
+
+    decimal val79 = 1.0d;
+    FirstDecimal val80 = 1.0d;
+    SixthNumberUnion|decimal val81 = checkpanic val79.cloneWithType();
+    SixthNumberUnion val82 = checkpanic val80.cloneWithType();
+    test:assertValueEqual((typeof val81).toString(), "typedesc 1.0");
+    test:assertValueEqual((typeof val82).toString(), "typedesc 1.0");
 }
 
 type union_with_int string|float|byte|int:Unsigned8|int:Signed8|int;
