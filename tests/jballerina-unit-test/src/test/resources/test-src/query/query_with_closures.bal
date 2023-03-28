@@ -172,6 +172,113 @@ function testClosureInQueryActionInDo2() {
     assertEquality([6, 7, 8, 7, 8, 9, 8, 9, 10, 9, 10, 11, 10, 11, 12], arr);
 }
 
+class EvenNumberGenerator {
+    int i = 0;
+    public isolated function next() returns record {|int value;|}|error? {
+        self.i += 2;
+        if (self.i >= 10) {
+            return error("Error");
+        }
+        return {value: self.i};
+    }
+}
+
+string str1 = "string-1";
+
+function testClosureInQueryActionInDo3() returns error? {
+  string str2 = "string-2";
+  EvenNumberGenerator evenGen = new ();
+  stream<int, error?> evenNumberStream = new (evenGen);
+  int|string str3 = "string-3";
+
+  if (str3 is int) {
+  } else {
+    check from var _ in evenNumberStream
+    do {
+        string _ = str1;
+        string _ = str2;
+        string _ = str3;
+        int length1 = str1.length();
+        int length2 = str2.length();
+        int length3 = str3.length();
+
+        assertEquality(str1, "string-1");
+        assertEquality(str2, "string-2");
+        assertEquality(str3, "string-3");
+        assertEquality(length1, 8);
+        assertEquality(length2, 8);
+        assertEquality(length3, 8);
+    };
+  }
+}
+
+class A {
+    public string name;
+
+    public function init(string name) {
+        self.name = name;
+    }
+
+    public function getName() returns string {
+        return self.name;
+    }
+}
+
+A object1 = new ("John");
+
+function testClosureInQueryActionInDo4() returns error? {
+  A object2 = new ("Jane");
+  EvenNumberGenerator evenGen = new ();
+  stream<int, error?> evenNumberStream = new (evenGen);
+  A|error object3 = new ("Anne");
+
+  if (object3 is error) {
+  } else {
+    check from var _ in evenNumberStream
+    do {
+        A _ = object1;
+        A _ = object2;
+        A _ = object3;
+
+        string objectName1 = object1.getName();
+        string objectName2 = object2.getName();
+        string objectName3 = object3.getName();
+
+        assertEquality("John", objectName1);
+        assertEquality("Jane", objectName2);
+        assertEquality("Anne", objectName3);
+    };
+  }
+}
+
+function testClosureInQueryActionInDo5() returns error? {
+  A object2 = new ("Jane");
+  EvenNumberGenerator evenGen = new ();
+  stream<int, error?> evenNumberStream = new (evenGen);
+  A|error object3 = new ("Anne");
+
+  if (object3 is error) {
+  } else {
+    check from var _ in evenNumberStream
+    do {
+        check from var _ in evenNumberStream
+        do {
+            A _ = object1;
+            A _ = object2;
+            A _ = object3;
+
+            string objectName1 = object1.getName();
+            string objectName2 = object2.getName();
+            string objectName3 = object3.getName();
+
+            assertEquality("John", objectName1);
+            assertEquality("Jane", objectName2);
+            assertEquality("Anne", objectName3);
+        };
+    };
+  }
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(anydata expected, anydata actual) {
