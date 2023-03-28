@@ -62,7 +62,6 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY
 public class NativeUtils {
     private static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String MODULE_CONFIGURATION_MAPPER = "$configurationMapper";
-    private static final String MODULE_EXECUTE_GENERATED = "tests.test_execute-generated_";
     private static final String TEST_EXEC_FUNCTION = "__execute__";
 
     //Add dynamically loading classes and methods to reflection config
@@ -87,54 +86,18 @@ public class NativeUtils {
 
             testInitRefConfClz.addReflectConfigClassMethod(
                     new ReflectConfigClassMethod(
-                            "$moduleInit",
-                            new String[]{"io.ballerina.runtime.internal.scheduling.Strand"}
+                            "main",
+                            new String[]{"java.lang.String[]"}
                     )
             );
 
             testInitRefConfClz.addReflectConfigClassMethod(
                     new ReflectConfigClassMethod(
-                            "$moduleStart",
-                            new String[]{"io.ballerina.runtime.internal.scheduling.Strand"}
+                            "$getTestExecutionState",
+                            new String[]{}
                     )
             );
 
-            testInitRefConfClz.addReflectConfigClassMethod(
-                    new ReflectConfigClassMethod(
-                            "$moduleStop",
-                            new String[]{"io.ballerina.runtime.internal.scheduling.RuntimeRegistry"}
-                    )
-            );
-            //Add configuration mapper
-            ReflectConfigClass testConfigurationMapperRefConfClz = new ReflectConfigClass(
-                    getQualifiedClassName(org, name, version, MODULE_CONFIGURATION_MAPPER));
-
-            testConfigurationMapperRefConfClz.addReflectConfigClassMethod(
-                    new ReflectConfigClassMethod(
-                            "$configureInit",
-                            new String[]{"java.lang.String[]", "java.nio.file.Path[]", "java.lang.String"}
-                    )
-            );
-            ReflectConfigClass testTestExecuteGeneratedRefConfClz = new ReflectConfigClass(
-                    testSuiteMap.get(moduleName).getTestUtilityFunctions().get(TEST_EXEC_FUNCTION));
-            testTestExecuteGeneratedRefConfClz.addReflectConfigClassMethod(
-                    new ReflectConfigClassMethod(
-                            TEST_EXEC_FUNCTION,
-                            new String[]{
-                                    "io.ballerina.runtime.internal.scheduling.Strand",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString"
-                            }
-                    )
-            );
             //Add classes with $MOCK_function methods (mock function case)
             if (!testSuiteMap.get(moduleName).getMockFunctionNamesMap().isEmpty()) {
                 ReflectConfigClass functionMockingEntryClz = new ReflectConfigClass(getQualifiedClassName(
@@ -147,8 +110,6 @@ public class NativeUtils {
 
             //Add all class values to the array
             classList.add(testInitRefConfClz);
-            classList.add(testConfigurationMapperRefConfClz);
-            classList.add(testTestExecuteGeneratedRefConfClz);
 
             //Add classes corresponding to test documents
             Path mockedFunctionClassPath = nativeConfigPath.resolve("mocked-func-class-map.json");
