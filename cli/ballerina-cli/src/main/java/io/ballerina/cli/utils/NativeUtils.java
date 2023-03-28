@@ -98,13 +98,6 @@ public class NativeUtils {
                     )
             );
 
-            //Add configuration mapper
-            ReflectConfigClass testConfigurationMapperRefConfClz = new ReflectConfigClass(
-                    getQualifiedClassName(org, name, version, MODULE_CONFIGURATION_MAPPER));
-
-            ReflectConfigClass testTestExecuteGeneratedRefConfClz = new ReflectConfigClass(
-                    testSuiteMap.get(moduleName).getTestUtilityFunctions().get(TEST_EXEC_FUNCTION));
-
             //Add classes with $MOCK_function methods (mock function case)
             if (!testSuiteMap.get(moduleName).getMockFunctionNamesMap().isEmpty()) {
                 ReflectConfigClass functionMockingEntryClz = new ReflectConfigClass(getQualifiedClassName(
@@ -117,8 +110,6 @@ public class NativeUtils {
 
             //Add all class values to the array
             classList.add(testInitRefConfClz);
-            classList.add(testConfigurationMapperRefConfClz);
-            classList.add(testTestExecuteGeneratedRefConfClz);
 
             //Add classes corresponding to test documents
             Path mockedFunctionClassPath = nativeConfigPath.resolve("mocked-func-class-map.json");
