@@ -200,7 +200,7 @@ public class TreeBuilder {
     /**
      * Read open brace.
      *
-     * @return '\' character
+     * @return '{' character
      */
     private String readOpenBrace() {
         Token token = peek();
@@ -265,9 +265,12 @@ public class TreeBuilder {
      * @return '}' character
      */
     private String readCloseBrace() {
-        Token nextToken = peek();
-        if (nextToken.kind == TokenKind.CLOSE_BRACE_TOKEN) {
-            return consume().value;
+        try {
+            Token nextToken = peek();
+            if (nextToken.kind == TokenKind.CLOSE_BRACE_TOKEN) {
+                return consume().value;
+            }
+        } catch (BallerinaException ignored) {
         }
         throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
                 RuntimeErrors.REGEXP_MISSING_CLOSE_BRACE.messageKey()));

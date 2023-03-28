@@ -80,7 +80,7 @@ public class LangLibRegexpTest {
                 "testEmptyRegexpMatch",
                 "testTranslatingDiffNodesInCharClass",
                 "testRegexpInterpolation",
-                "testMe"
+                "testRegexpInterpolationNegative"
         };
     }
 

@@ -111,7 +111,8 @@ public class RegExpFactory {
             TreeBuilder treeBuilder = new TreeBuilder(tokenReader);
             return treeBuilder.parse();
         } catch (BallerinaException e) {
-            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()));
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage() 
+                    + " in '" + regExpStr + "' RegExp pattern"));
         }
     }
     
@@ -123,7 +124,8 @@ public class RegExpFactory {
             treeBuilder.parseInsertion();
         } catch (BallerinaException e) {
             throw ErrorCreator.createError(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
-                    StringUtils.fromString("Invalid insertion in regular expression: " + e.getMessage()));
+                    StringUtils.fromString(e.getMessage() + " in insertion substring '" 
+                            + regExpStr.substring(3, regExpStr.length() - 1) + "'"));
         }
     }
 
