@@ -503,7 +503,7 @@ public class RunNativeImageTestTask implements Task {
 
         // native-image configs
         nativeArgs.add("-H:ReflectionConfigurationFiles=" + convertWinPathToUnixFormat(addQuotationMarkToString(
-                    nativeConfigPath.resolve("reflect-config.json").toString())));
+                nativeConfigPath.resolve("reflect-config.json").toString())));
         nativeArgs.add("--no-fallback");
 
         try (FileWriter nativeArgumentWriter = new FileWriter(nativeConfigPath.resolve("native-image-args.txt")
@@ -601,7 +601,7 @@ public class RunNativeImageTestTask implements Task {
         }
         dependencies = dependencies.stream().distinct().collect(Collectors.toList());
         dependencies = dependencies.stream().map((x) -> convertWinPathToUnixFormat(addQuotationMarkToString(x)))
-                        .collect(Collectors.toList());
+                .collect(Collectors.toList());
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
         dependencies.stream().forEach(classPath::add);

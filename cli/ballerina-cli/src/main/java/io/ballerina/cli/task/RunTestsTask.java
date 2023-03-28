@@ -252,7 +252,7 @@ public class RunTestsTask implements Task {
     }
 
     private int runTestSuite(Target target, Package currentPackage, JBallerinaBackend jBallerinaBackend,
-                            List<String> mockClassNames) throws IOException, InterruptedException,
+                             List<String> mockClassNames) throws IOException, InterruptedException,
             ClassNotFoundException {
         String packageName = currentPackage.packageName().toString();
         String orgName = currentPackage.packageOrg().toString();
