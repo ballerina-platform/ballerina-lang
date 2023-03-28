@@ -170,7 +170,6 @@ public class JvmPackageGen {
     }
 
     private static String getBvmAlias(String orgName, String moduleName) {
-
         if (Names.ANON_ORG.value.equals(orgName)) {
             return moduleName;
         }
@@ -229,7 +228,6 @@ public class JvmPackageGen {
     }
 
     private static void generatePackageVariable(BIRGlobalVariableDcl globalVar, ClassWriter cw) {
-
         String varName = globalVar.name.value;
         BType bType = globalVar.type;
         String descriptor = JvmCodeGenUtil.getFieldTypeSignature(bType);
@@ -238,7 +236,6 @@ public class JvmPackageGen {
     }
 
     private static void generateLockForVariable(ClassWriter cw) {
-
         String lockStoreClass = "L" + LOCK_STORE + ";";
         FieldVisitor fv;
         fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, LOCK_STORE_VAR_NAME, lockStoreClass, null, null);
@@ -300,7 +297,6 @@ public class JvmPackageGen {
     }
 
     private static void setModuleStatusField(ClassWriter cw, MethodVisitor mv, String initClass) {
-
         FieldVisitor fv = cw.visitField(ACC_PUBLIC + ACC_STATIC, MODULE_START_ATTEMPTED, "Z", null, null);
         fv.visitEnd();
 
@@ -326,12 +322,10 @@ public class JvmPackageGen {
     }
 
     static String computeLockNameFromString(String varName) {
-
         return "$lock" + varName;
     }
 
     public static String cleanupPackageName(String pkgName) {
-
         int index = pkgName.lastIndexOf("/");
         if (index > 0) {
             return pkgName.substring(0, index);
@@ -342,7 +336,6 @@ public class JvmPackageGen {
 
     public static BIRFunctionWrapper getFunctionWrapper(BIRFunction currentFunc, PackageID packageID,
                                                         String moduleClass) {
-
         BInvokableType functionTypeDesc = currentFunc.type;
         BIRVariableDcl receiver = currentFunc.receiver;
 
@@ -362,7 +355,6 @@ public class JvmPackageGen {
     }
 
     private static BIRFunction findFunction(BIRNode parentNode, String funcName) {
-
         BIRFunction func;
         if (parentNode instanceof BIRTypeDefinition) {
             BIRTypeDefinition typeDef = (BIRTypeDefinition) parentNode;
@@ -393,9 +385,7 @@ public class JvmPackageGen {
                                        JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen, JvmConstantsGen jvmConstantsGen,
                                        Map<String, JavaClass> jvmClassMapping, List<PackageID> moduleImports,
                                        boolean serviceEPAvailable, BIRFunction mainFunc, BIRFunction testExecuteFunc) {
-        jvmClassMapping.entrySet().forEach(entry -> {
-            String moduleClass = entry.getKey();
-            JavaClass javaClass = entry.getValue();
+        jvmClassMapping.forEach((moduleClass, javaClass) -> {
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
@@ -650,7 +640,6 @@ public class JvmPackageGen {
     }
 
     public String lookupExternClassName(String pkgName, String functionName) {
-
         return externClassMap.get(pkgName + "/" + functionName);
     }
 
@@ -693,7 +682,6 @@ public class JvmPackageGen {
     }
 
     void addExternClassMapping(String key, String value) {
-
         this.externClassMap.put(key, value);
     }
 
