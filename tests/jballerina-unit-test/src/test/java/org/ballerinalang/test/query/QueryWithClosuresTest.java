@@ -52,6 +52,9 @@ public class QueryWithClosuresTest {
                 "testClosuresInNestedQueryInSelect",
                 "testClosuresInNestedQueryInSelect2",
 //                "testClosureInQueryActionInDo2" #39760
+                "testClosureInQueryActionInDo3",
+                "testClosureInQueryActionInDo4",
+                "testClosureInQueryActionInDo5"
         };
     }
 }
