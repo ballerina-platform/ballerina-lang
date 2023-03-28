@@ -201,8 +201,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
             for (int j = 0, documentNamesLength = documentKeys.length; j < documentNamesLength; j++) {
                 String documentKey = documentKeys[j];
                 DocumentHolder documentHolder = moduleHolder.getDocuments().get(documentKey);
-                String syntaxTreeDataString = JsonCanonicalizer
-                        .getEncodedString(documentHolder.getSyntaxTree().toString());
+                String syntaxTreeDataString = documentHolder.getSyntaxTree().toString();
 
                 if (j != 0) {
                     jsonStringBuilder.append(",");
