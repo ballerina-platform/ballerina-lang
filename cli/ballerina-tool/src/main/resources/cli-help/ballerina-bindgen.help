@@ -47,8 +47,8 @@ EXAMPLES
            $ ballerina bindgen java.utils.ArrayDeque
 
        Generating Ballerina bridge code for library Java classes.
-           $ ballerina bindgen -cp ./libs/snakeyaml-1.25.jar,./libs/pdfbox-1.8.10.jar -o ./src/sample
+           $ ballerina bindgen -cp ./libs/snakeyaml-2.0.jar,./libs/pdfbox-1.8.10.jar -o ./src/sample
            org.yaml.snakeyaml.Yaml org.apache.pdfbox.pdmodel.PDDocument java.io.File
 
        Generating Ballerina bridge code using a Maven dependency.
-           $ ballerina bindgen -mvn org.yaml:snakeyaml:1.25 -o ./src/sample org.yaml.snakeyaml.Yaml
+           $ ballerina bindgen -mvn org.yaml:snakeyaml:2.0 -o ./src/sample org.yaml.snakeyaml.Yaml
