@@ -42,6 +42,8 @@ class CompilerPluginManager {
     private CodeModifierManager codeModifierManager;
     private CompilerLifecycleManager compilerLifecycleListenerManager;
     private CodeActionManager codeActionManager;
+    
+    private CompletionManager completionManager;
 
     private CompilerPluginManager(PackageCompilation compilation,
                                   List<CompilerPluginContextIml> compilerPluginContexts) {
@@ -137,6 +139,15 @@ class CompilerPluginManager {
             count += compilerPluginContext.codeModifiers().size();
         }
         return count;
+    }
+    
+    CompletionManager getCompletionManager() {
+        if (completionManager != null) {
+            return completionManager;
+        }
+        
+        completionManager = CompletionManager.from(compilerPluginContexts);
+        return completionManager;
     }
 
     private static List<CompilerPluginInfo> loadEngagedCompilerPlugins(List<Package> dependencies) {
