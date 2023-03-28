@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.clauses.OrderKeyNode;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -68,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
@@ -100,6 +103,7 @@ public class QueryTypeChecker extends TypeChecker {
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private final SemanticAnalyzer semanticAnalyzer;
+    private final TypeParamAnalyzer typeParamAnalyzer;
     private final TypeNarrower typeNarrower;
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private final Names names;
@@ -126,6 +130,7 @@ public class QueryTypeChecker extends TypeChecker {
         this.typeNarrower = TypeNarrower.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
+        this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.nodeCloner = NodeCloner.getInstance(context);
     }
 
@@ -137,6 +142,8 @@ public class QueryTypeChecker extends TypeChecker {
     public void checkQueryType(BLangQueryExpr queryExpr, TypeChecker.AnalyzerData data) {
         AnalyzerData prevData = data.queryData;
         data.queryData = new AnalyzerData();
+        data.queryData.foundSequenceVariable = prevData.foundSequenceVariable;
+        data.queryData.afterGroupBy = prevData.afterGroupBy;
 
         Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
 
@@ -571,6 +578,10 @@ public class QueryTypeChecker extends TypeChecker {
         return true;
     }
 
+    private BType checkExpr(BLangExpression expr, TypeChecker.AnalyzerData data) {
+        return checkExpr(expr, data.env, symTable.noType, data);
+    }
+
     private BType checkExpr(BLangExpression expr, SymbolEnv env, TypeChecker.AnalyzerData data) {
         return checkExpr(expr, env, symTable.noType, data);
     }
@@ -788,6 +799,7 @@ public class QueryTypeChecker extends TypeChecker {
                     new BSequenceType(originalSymbol.getType()), originalSymbol.owner, originalSymbol.pos);
             groupByEnv.scope.define(name, sequenceSymbol);
         }
+        data.queryData.afterGroupBy = true;
     }
 
     @Override
@@ -810,6 +822,90 @@ public class QueryTypeChecker extends TypeChecker {
         }
     }
 
+    public void visit(BLangInvocation iExpr, TypeChecker.AnalyzerData data) {
+        // Check whether the invocation happens after group by and arguments contain sequence variables
+         if (checkInvocationAfterGroupBy(iExpr, data)) {
+            // Do complete type checking for the invocation
+            Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
+            if (pkgAlias.value.isEmpty()) {
+                if (iExpr.expr != null) {
+                    BType exprType = checkExpr(iExpr.expr, data);
+                    pkgAlias = exprType.tsymbol.name;
+                    iExpr.argExprs.add(0, iExpr.expr);
+                } else {
+                    BType firstArgType = silentTypeCheckExpr(iExpr.argExprs.get(0), symTable.noType, data);
+                    if (firstArgType.tag == TypeTags.SEQUENCE) {
+                        pkgAlias = ((BSequenceType) firstArgType).elementType.tsymbol.name;
+                    }
+                }
+            }
+            BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(data.env, pkgAlias, getCurrentCompUnit(iExpr));
+            if (pkgSymbol == symTable.notFoundSymbol) {
+                dlog.error(iExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias);
+                // visit args
+                // return;
+            } else {
+                Name funcName = names.fromIdNode(iExpr.name);
+                BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(iExpr.pos, data.env, pkgAlias, funcName);
+                if (symbol == symTable.notFoundSymbol) {
+                    dlog.error(iExpr.pos, DiagnosticErrorCode.UNDEFINED_FUNCTION, funcName);
+                    // visit args
+                    // return;
+                } else if (!Symbols.isFlagOn(symbol.flags, Flags.LANG_LIB)) {
+                    dlog.error(iExpr.pos,
+                            DiagnosticErrorCode.USER_DEFINED_FUNCTIONS_ARE_DISALLOWED_WITH_AGGREGATED_VARIABLES);
+                    // visit args
+                    // return;
+                } else {
+                    // TODO: check why this is useful
+                    boolean langLibPackageID = PackageID.isLangLibPackageID(pkgSymbol.pkgID);
+                    if (langLibPackageID) {
+                        data.env = SymbolEnv.createInvocationEnv(iExpr, data.env);
+                    }
+                    BInvokableSymbol functionSymbol = (BInvokableSymbol) symbol;
+                    iExpr.symbol = functionSymbol;
+                    // match between params and args
+                    // make sure all params are divided between required and rest
+                    int argCount = 0;
+                    for (BVarSymbol params : functionSymbol.params) {
+                        // Update argCount
+                    }
+                    for (int i = argCount; i < iExpr.argExprs.size(); i++) {
+                        if (functionSymbol.restParam != null) {
+                            BLangExpression argExpr = iExpr.argExprs.get(i);
+                            BType restParamType = functionSymbol.restParam.type;
+                            if (argExpr.getKind() == NodeKind.REST_ARGS_EXPR) {
+                                checkTypeParamExpr(argExpr, restParamType, data);
+                                iExpr.restArgs.add(argExpr);
+                            } else {
+                                // Special case for sequence variables
+                                if (silentTypeCheckExpr(argExpr, symTable.noType, data).tag == TypeTags.SEQUENCE) {
+                                    checkTypeParamExpr(argExpr, restParamType, data);
+                                    iExpr.restArgs.add(argExpr);
+                                } else {
+                                    if (restParamType.tag == TypeTags.ARRAY) {
+                                        checkTypeParamExpr(argExpr, ((BArrayType) restParamType).eType, data);
+                                    }
+                                    iExpr.restArgs.add(argExpr);
+                                }
+                            }
+                        }
+                    }
+                    BInvokableType bInvokableType = (BInvokableType) Types.getReferredType(functionSymbol.type);
+                    BType retType = typeParamAnalyzer.getReturnTypeParams(data.env, bInvokableType.getReturnType());
+                    data.resultType = types.checkType(iExpr, retType, data.expType);
+                }
+            }
+         } else {
+            super.visit(iExpr, data);
+         }
+    }
+
+    private boolean checkInvocationAfterGroupBy(BLangInvocation invocation, TypeChecker.AnalyzerData data) {
+        invocation.argExprs.forEach(arg -> silentTypeCheckExpr(arg, symTable.noType, data));
+        return data.queryData.afterGroupBy && data.queryData.foundSequenceVariable;
+    }
+
     @Override
     public void visit(BLangListConstructorExpr listConstructor, TypeChecker.AnalyzerData data) {
         BType expType = data.expType;
@@ -819,6 +915,18 @@ public class QueryTypeChecker extends TypeChecker {
             data.resultType = inferredType == symTable.semanticError ?
                     symTable.semanticError : types.checkType(listConstructor, inferredType, expType);
             return;
+        }
+        if (listConstructor.exprs.size() == 1) {
+            BLangExpression expr = listConstructor.exprs.get(0);
+            if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BType type = silentTypeCheckExpr(expr, symTable.noType, data);
+                if (type.tag == TypeTags.SEQUENCE) {
+                    checkExpr(expr, data.env, expType, data);
+                    data.resultType = new BTupleType(null, new ArrayList<>(0), ((BSequenceType) type).elementType, 0);
+                    listConstructor.setBType(data.resultType);
+                    return;
+                }
+            }
         }
         data.resultType = checkListConstructorCompatibility(expType, listConstructor, data);
     }
@@ -873,5 +981,7 @@ public class QueryTypeChecker extends TypeChecker {
     public static class AnalyzerData {
         boolean queryCompletesEarly = false;
         HashSet<BType> completeEarlyErrorList = new HashSet<>();
+        boolean afterGroupBy = false;
+        boolean foundSequenceVariable = false;
     }
 }

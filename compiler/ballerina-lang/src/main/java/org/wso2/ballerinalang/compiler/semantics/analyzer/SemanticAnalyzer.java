@@ -1194,8 +1194,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             validateListenerCompatibility(varNode, rhsType);
         } else {
             // let int _ = check getDistinctErrorOrInt()
-            typeChecker.queryTypeChecker.checkExpr(rhsExpr, varInitEnv, lhsType, data.prevEnvs,
-                    data.commonAnalyzerData);
+            if (data.commonAnalyzerData.queryEnvs.empty()) {
+                typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType, data.prevEnvs, data.commonAnalyzerData);
+            } else {
+                typeChecker.queryTypeChecker.checkExpr(rhsExpr, varInitEnv, lhsType, data.prevEnvs,
+                        data.commonAnalyzerData);
+            }
         }
 
         checkSelfReferencesInVarNode(varNode, rhsExpr, data);

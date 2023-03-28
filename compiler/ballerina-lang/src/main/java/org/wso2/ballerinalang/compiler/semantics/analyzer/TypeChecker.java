@@ -2891,6 +2891,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             } else if ((symbol.tag & SymTag.SEQUENCE) == SymTag.SEQUENCE) {
                 varRefExpr.symbol = symbol;
                 actualType = symbol.type;
+                data.queryData.foundSequenceVariable = true;
             } else if ((symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
                 actualType = symbol.type.tag == TypeTags.TYPEDESC ? symbol.type : new BTypedescType(symbol.type, null);
                 varRefExpr.symbol = symbol;
@@ -7108,12 +7109,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 checkTypeParamExpr(vararg, actualType, iExpr.langLibInvocation, data);
             } else {
                 checkTypeParamExpr(vararg, listTypeRestArg, iExpr.langLibInvocation, data);
-            }
+            } // int[] : seq int
             restType = data.resultType;
         } else if (!iExpr.restArgs.isEmpty()) {
             if (listTypeRestArg.tag == TypeTags.ARRAY) {
-                BType elementType = ((BArrayType) listTypeRestArg).eType;
-                for (BLangExpression restArg : iExpr.restArgs) {
+                BType elementType = ((BArrayType) listTypeRestArg).eType; // int
+                for (BLangExpression restArg : iExpr.restArgs) { // seq int
                     checkTypeParamExpr(restArg, elementType, true, data);
                     if (restType != symTable.semanticError && data.resultType == symTable.semanticError) {
                         restType = data.resultType;
@@ -7291,6 +7292,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BFutureType generateFutureType(BInvokableSymbol invocableSymbol, BType retType) {
         boolean isWorkerStart = Symbols.isFlagOn(invocableSymbol.flags, Flags.WORKER);
         return new BFutureType(TypeTags.FUTURE, retType, null, isWorkerStart);
+    }
+
+    protected void checkTypeParamExpr(BLangExpression arg, BType expectedType, AnalyzerData data) {
+        checkTypeParamExpr(arg, expectedType, true, data);
     }
 
     private void checkTypeParamExpr(BLangExpression arg, BType expectedType,
@@ -8900,7 +8905,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    private Name getCurrentCompUnit(BLangNode node) {
+    protected Name getCurrentCompUnit(BLangNode node) {
         return names.fromString(node.pos.lineRange().fileName());
     }
 
@@ -9464,7 +9469,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType expType;
         BType resultType;
         boolean isResourceAccessPathSegments = false;
-        QueryTypeChecker.AnalyzerData queryData;
+        QueryTypeChecker.AnalyzerData queryData = new QueryTypeChecker.AnalyzerData();
         Set<String> queryVariables;
     }
 }

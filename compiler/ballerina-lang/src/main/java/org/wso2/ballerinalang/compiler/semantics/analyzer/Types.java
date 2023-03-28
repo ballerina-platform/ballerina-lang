@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSequenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
@@ -848,6 +849,11 @@ public class Types {
 
         if (isNeverTypeOrStructureTypeWithARequiredNeverMember(source)) {
             return true;
+        }
+
+        if (sourceTag == TypeTags.SEQUENCE && targetTag == TypeTags.ARRAY) {
+            return isAssignable(((BSequenceType) source).elementType, ((BArrayType) target).eType,
+                    unresolvedTypes);
         }
 
         if (!Symbols.isFlagOn(source.flags, Flags.PARAMETERIZED) &&
