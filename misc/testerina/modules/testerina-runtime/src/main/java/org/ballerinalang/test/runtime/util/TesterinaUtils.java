@@ -45,8 +45,10 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.GET_TEST_EXEC_STATE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.IDENTIFIER_END_INDEX;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.IDENTIFIER_START_INDEX;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTERINA_MAIN_METHOD;
 
 /**
  * Utility methods.
@@ -120,8 +122,7 @@ public class TesterinaUtils {
 
     private static void startSuite(Class<?> initClazz, String[] args) {
         // Call test module main
-        String funcName = "main";
-        Object response = runTestModuleMain(initClazz, funcName, args, String[].class);
+        Object response = runTestModuleMain(initClazz, TESTERINA_MAIN_METHOD, args, String[].class);
         if (response instanceof Throwable) {
             throw new BallerinaTestException("dependant module execution for test suite failed due to " +
                     formatErrorMessage((Throwable) response), (Throwable) response);
@@ -146,12 +147,11 @@ public class TesterinaUtils {
     }
 
     private static int getTestExecutionState(Class<?> initClazz) {
-        String funcName = "$getTestExecutionState";
         try {
-            final Method method = initClazz.getDeclaredMethod(funcName);
+            final Method method = initClazz.getDeclaredMethod(GET_TEST_EXEC_STATE);
             return (int) method.invoke(null);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new BallerinaTestException("Failed to invoke the function '" + funcName + " due to " +
+            throw new BallerinaTestException("Failed to invoke the function '" + GET_TEST_EXEC_STATE + " due to " +
                     e.getMessage(), e);
         }
     }
