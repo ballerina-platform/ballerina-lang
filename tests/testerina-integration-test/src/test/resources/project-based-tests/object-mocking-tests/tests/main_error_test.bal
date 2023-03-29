@@ -82,3 +82,10 @@ function testMockInvalidStream() {
     TestHttpClient:AttributeDAO|error result = getAttribute();
     test:assertEquals(result, mockAttributeDAO);
 }
+
+// when the mocked member field is not public
+@test:Config {}
+function testNonPublicMemberFieldMock() {
+    TestHttpClient:HttpClient mockHttpClient = test:mock(TestHttpClient:HttpClient);
+    test:prepare(mockHttpClient).getMember("path").thenReturn("tmp");
+}

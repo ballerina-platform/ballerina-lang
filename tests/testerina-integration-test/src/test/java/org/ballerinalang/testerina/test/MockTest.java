@@ -181,7 +181,10 @@ public class MockTest extends BaseTestCase {
                         "MockTest-testObjectMocking_NegativeCases6.txt"},
                 {"return value provided does not match the return type of function 'get_stream()'",
                         "object_mocking:testMockInvalidStream",
-                        "MockTest-testObjectMocking_NegativeCases7.txt"}
+                        "MockTest-testObjectMocking_NegativeCases7.txt"},
+                {"member field should be public to be mocked. The provided field 'path' is not public",
+                        "object_mocking:testNonPublicMemberFieldMock",
+                        "MockTest-testObjectMocking_NegativeCases8.txt"}
         };
     }
 

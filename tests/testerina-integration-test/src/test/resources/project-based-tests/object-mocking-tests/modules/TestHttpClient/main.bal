@@ -19,6 +19,7 @@ public type Error distinct error;
 public client class HttpClient {
 
     public string url;
+    string path = "";
 
     public function init(string url) {
         self.url = url;
