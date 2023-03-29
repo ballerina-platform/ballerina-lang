@@ -73,4 +73,15 @@ public class TypeOfRegressionTest {
         assertEquals(type.get().kind(), SymbolKind.TYPE);
         assertEquals(type.get().typeKind(), TypeDescKind.INT);
     }
+
+    @Test
+    public void testResourcePathAccess() {
+        model =SemanticAPITestUtils.getDefaultModulesSemanticModel(
+                "test-src/regression-tests/typeof_resource_path_action.bal");
+
+        Optional<TypeSymbol> type = model.typeOf(LineRange.from("typeof_resource_path_action.bal",
+                LinePosition.from(4, 23), LinePosition.from(4, 30)));
+
+        assertTrue(type.isEmpty());
+    }
 }
