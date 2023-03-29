@@ -96,7 +96,6 @@ public function test2() returns object {
     return m;
 }
 
-
 function test3() returns string {
     var m = object {
 
@@ -108,7 +107,6 @@ function test3() returns string {
 
     return m.s;
 }
-
 
 function test4() returns string {
     var m = object {
@@ -140,10 +138,10 @@ record {
 
 public type ParentRecord record {
     int i = 0;
-    ChildFoo c = new (""); // :143:5:: 'ChildFoo'
-    ChildRecord r = {}; // :144:5:: 'ChildRecord'
-    Foo f = new; // :145:5:: 'Foo'
-    Baz z = 1; // :146:5:: 'Baz'
+    ChildFoo c = new (""); // :141:5:: 'ChildFoo'
+    ChildRecord r = {}; // :142:5:: 'ChildRecord'
+    Foo f = new; // :143:5:: 'Foo'
+    Baz z = 1; // :144:5:: 'Baz'
 };
 
 type ChildRecord record {
@@ -161,7 +159,7 @@ function test5() returns string {
     return m.s;
 }
 
-// :165:1:: 'Baz', :165:1:: 'Foo', :165:1:: 'BarRecord'
+// :163:1:: 'Baz', :163:1:: 'Foo', :163:1:: 'BarRecord'
 public function test6(record {
             string s = "";
             Baz z = 1;
@@ -171,7 +169,7 @@ public function test6(record {
     return "K";
 }
 
-// 175:33:: 'Baz', :175:33:: 'Foo', :175:33:: 'BarRecord'
+// 173:33:: 'Baz', :173:33:: 'Foo', :173:33:: 'BarRecord'
 public function test7() returns record {
     string s = "";
     Baz z = 1;

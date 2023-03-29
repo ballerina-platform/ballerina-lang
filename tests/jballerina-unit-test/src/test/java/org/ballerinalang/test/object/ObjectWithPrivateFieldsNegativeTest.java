@@ -67,8 +67,6 @@ public class ObjectWithPrivateFieldsNegativeTest {
     public void testPrivateObjAccess1SemanticsNegative() {
         CompileResult compileResult
                 = BCompileUtil.compile("test-src/object/PrivateObjAccess1SemanticsNegativeProject");
-        
-        Assert.assertEquals(compileResult.getWarnCount(), 10);
         Assert.assertEquals(compileResult.getErrorCount(), 2);
         
         String expectedErrMsg = "attempt to refer to non-accessible symbol ";
@@ -85,6 +83,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
         BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 16, 5);
         BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 59, 38);
         BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 66, 44);
+        Assert.assertEquals(compileResult.getWarnCount(), i);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'PrivatePerson'", 20, 5);
         BAssertUtil.validateError(compileResult, i, "unknown type 'PrivatePerson'", 20, 5);
     }
@@ -106,7 +105,6 @@ public class ObjectWithPrivateFieldsNegativeTest {
         CompileResult compileResult
                 = BCompileUtil.compile("test-src/object/PrivateObjAccess2SemanticsNegativeProject");
 
-        Assert.assertEquals(compileResult.getWarnCount(), 10);
         Assert.assertEquals(compileResult.getErrorCount(), 2);
         
         String expectedErrMsg = "attempt to refer to non-accessible symbol ";
@@ -122,6 +120,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
         BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 16, 5);
         BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 59, 38);
         BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 66, 44);
+        Assert.assertEquals(compileResult.getWarnCount(), i);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'address'", 10, 13);
         BAssertUtil.validateError(compileResult, i,
                 "undefined field 'address' in object 'test/pkg.org_foo_baz_sn:1.0.0:FooEmployee'", 10, 18);

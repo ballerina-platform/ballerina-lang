@@ -1691,8 +1691,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                         visitedSymbols));
                 return;
             case TypeTags.OBJECT:
-                BObjectType objectType = (BObjectType) symbolType;
-                objectType.fields.values().forEach(f -> checkForExportableType(f.type.tsymbol, pos,
+                ((BObjectType) symbolType).fields.values().forEach(f -> checkForExportableType(f.type.tsymbol, pos,
                         visitedSymbols));
                 break;
         }
