@@ -1108,8 +1108,6 @@ public class ParserTestUtils {
                 return SyntaxKind.PANIC_KEYWORD;
             case "IMPORT_KEYWORD":
                 return SyntaxKind.IMPORT_KEYWORD;
-            case "VERSION_KEYWORD":
-                return SyntaxKind.VERSION_KEYWORD;
             case "AS_KEYWORD":
                 return SyntaxKind.AS_KEYWORD;
             case "CONTINUE_KEYWORD":

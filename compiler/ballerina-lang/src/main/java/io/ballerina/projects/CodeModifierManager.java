@@ -129,7 +129,8 @@ class CodeModifierManager {
 
             if (codeModifyTaskResult.containsSourceFile() || codeModifyTaskResult.containsTestSourceFile()) {
                 currentPackage = new PackageModifier().modifyPackage(currentPackage, codeModifyTaskResult);
-                compilation = currentPackage.getCompilation();
+                CompilationOptions compOptions = CompilationOptions.builder().withCodeModifiers(true).build();
+                compilation = currentPackage.getCompilation(compOptions);
             }
         }
     }

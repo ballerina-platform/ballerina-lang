@@ -27,12 +27,15 @@ public class ResolutionOptions {
     private final boolean sticky;
     private final boolean dumpGraph;
     private final boolean dumpRawGraphs;
+    private final PackageLockingMode packageLockingMode;
 
-    private ResolutionOptions(boolean offline, boolean sticky, boolean dumpGraph, boolean dumpRawGraphs) {
+    private ResolutionOptions(boolean offline, boolean sticky, boolean dumpGraph, boolean dumpRawGraphs,
+                              PackageLockingMode packageLockingMode) {
         this.offline = offline;
         this.sticky = sticky;
         this.dumpGraph = dumpGraph;
         this.dumpRawGraphs = dumpRawGraphs;
+        this.packageLockingMode = packageLockingMode;
     }
 
     /**
@@ -68,6 +71,10 @@ public class ResolutionOptions {
         return dumpRawGraphs;
     }
 
+    public PackageLockingMode packageLockingMode() {
+        return packageLockingMode;
+    }
+
     public static ResolutionOptionBuilder builder() {
         return new ResolutionOptionBuilder();
     }
@@ -82,6 +89,7 @@ public class ResolutionOptions {
         private boolean sticky = true;
         private boolean dumpGraph = false;
         private boolean dumpRawGraphs = false;
+        private PackageLockingMode packageLockingMode = PackageLockingMode.MEDIUM;
 
         public ResolutionOptionBuilder setOffline(boolean value) {
             offline = value;
@@ -103,8 +111,13 @@ public class ResolutionOptions {
             return this;
         }
 
+        public ResolutionOptionBuilder setPackageLockingMode(PackageLockingMode value) {
+            packageLockingMode = value;
+            return this;
+        }
+
         public ResolutionOptions build() {
-            return new ResolutionOptions(offline, sticky, dumpGraph, dumpRawGraphs);
+            return new ResolutionOptions(offline, sticky, dumpGraph, dumpRawGraphs, packageLockingMode);
         }
     }
 }

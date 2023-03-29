@@ -26,12 +26,12 @@ Running Tests with Coverage
 
 		[fail] call_Test4:
 
-		    Return type of function mockIntAdd3 does not match functionintAdd
+		    Return type of function mockIntAdd3 does not match function intAdd
 			
 
 		[fail] call_Test5:
 
-		    Parameter types of function mockIntAdd4 does not match functionintAdd
+		    Parameter types of function mockIntAdd4 does not match function intAdd
 			
 
 

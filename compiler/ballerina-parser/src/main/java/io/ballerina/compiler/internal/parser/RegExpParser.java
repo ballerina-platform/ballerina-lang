@@ -739,7 +739,7 @@ public class RegExpParser extends AbstractParser {
      * @return Interpolation node
      */
     private STNode parseInterpolation() {
-        // Consume the injected interpolation start and end. i.e: &{}.
+        // Consume the injected interpolation start and end. i.e: ${}.
         consume();
         consume();
         return this.interpolationExprs.remove();

@@ -23,7 +23,7 @@ public distinct class ModuleMappingTest {
     #
     # + return - The `string` form of the Java object instance.
     public function toString() returns string {
-        return java:toString(self.jObj) ?: "null";
+        return java:toString(self.jObj) ?: "";
     }
     # The function that maps to the `equals` method of `org.ballerinalang.bindgen.ModuleMappingTest`.
     #

@@ -23,9 +23,16 @@ import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -40,11 +47,14 @@ import java.util.Objects;
  */
 public class GraphCommandTest extends BaseCommandTest {
     private Path testResources;
+    private Path projectsWithDependencyConflicts;
 
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
         this.testResources = super.tmpDir.resolve("build-test-resources");
+        projectsWithDependencyConflicts = this.testResources.resolve("projectsWithDependencyConflicts")
+                .resolve("package_p");
         try {
             copyTestResourcesToTmpDir();
         } catch (URISyntaxException e) {
@@ -52,6 +62,7 @@ public class GraphCommandTest extends BaseCommandTest {
             return;
         }
         compileAndCacheTestDependencies();
+        replaceDependenciesTomlVersion(projectsWithDependencyConflicts);
     }
 
     @Test(description = "Print the dependency graph of a valid single ballerina file with no dependencies")
@@ -348,5 +359,23 @@ public class GraphCommandTest extends BaseCommandTest {
 
     private String readFormattedOutput() throws IOException {
         return readOutput(true).replaceAll("\n\t\n", "\n\n").replaceAll("\r", "").strip();
+    }
+
+    private void replaceDependenciesTomlVersion(Path projectPath) throws IOException {
+        String currentDistrVersion = RepoUtils.getBallerinaShortVersion();
+        Path dependenciesTomlTemplatePath = projectPath.resolve("Dependencies-template.toml");
+        Path dependenciesTomlPath = projectPath.resolve("Dependencies.toml");
+
+        try (FileInputStream input = new FileInputStream(dependenciesTomlTemplatePath.toString());
+            FileOutputStream output = new FileOutputStream(dependenciesTomlPath.toString());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                line = line.replace("**INSERT_DISTRIBUTION_VERSION_HERE**", currentDistrVersion);
+                writer.write(line);
+                writer.newLine();
+            }
+        }
     }
 }

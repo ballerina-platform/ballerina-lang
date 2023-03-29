@@ -30,6 +30,7 @@ public class TesterinaCompilerPlugin extends CompilerPlugin {
 
     @Override
     public void init(CompilerPluginContext pluginContext) {
+        pluginContext.addCodeAnalyzer(new TesterinaCodeAnalyzer());
         pluginContext.addCodeGenerator(new TesterinaCodeGenerator());
         pluginContext.addCodeModifier(new TesterinaCodeModifier());
     }

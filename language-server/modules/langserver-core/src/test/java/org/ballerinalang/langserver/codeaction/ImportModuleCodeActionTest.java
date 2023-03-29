@@ -63,7 +63,9 @@ public class ImportModuleCodeActionTest extends AbstractCodeActionTest {
                 {"importModuleWithModAlias1.json"},
                 {"importModuleWithModAlias2.json"},
                 {"importModuleWithMultipleModAliases1.json"},
-                {"importModuleWithMultipleModAliases2.json"}
+                {"importModuleWithMultipleModAliases2.json"},
+                {"importModuleWithLicenceHeader1.json"},
+                {"importModuleWithLicenceHeader2.json"}
         };
     }
 

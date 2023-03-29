@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
@@ -140,7 +141,12 @@ public class StackTrace {
         }
 
         @Override
-        public Type getType() {
+        public ObjectType getType() {
+            return (ObjectType) TypeUtils.getReferredType(type);
+        }
+
+        @Override
+        public Type getOriginalType() {
             return type;
         }
 

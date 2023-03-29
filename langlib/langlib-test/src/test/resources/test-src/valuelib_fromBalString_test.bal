@@ -306,6 +306,18 @@ function testXmlFromBalString() {
         assert(result4, x4);
         assert(result5, x5);
     }
+
+    xml xmlVal = xml `<movie>
+                        <title>Some</title>
+                        <writer>Writer</writer>
+                      </movie>`;
+
+    string xmlString = xmlVal.toBalString();
+    string expectedXmlString = "xml`<movie>\n                        <title>Some</title>"
+    + "\n                        <writer>Writer</writer>\n                      </movie>`";
+    assert(xmlString, expectedXmlString);
+    anydata xmlValBack = checkpanic xmlString.fromBalString();
+    assert(xmlValBack, xmlVal);
 }
 
 function testObjectFromString() {
@@ -497,11 +509,6 @@ function testFromStringOnRegExp() {
     s = "re `\\\\u123`";
     x1 = checkpanic s.fromBalString();
     assert(re `\\u123` == x1, true);
-    assert(x1 is string:RegExp, true);
-
-    s = "re ``";
-    x1 = checkpanic s.fromBalString();
-    assert(re `` == x1, true);
     assert(x1 is string:RegExp, true);
 }
 
