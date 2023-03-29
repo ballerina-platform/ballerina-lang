@@ -283,7 +283,7 @@ public class ObjectMock {
 
             // register return value for member field
             String fieldName = caseObj.getStringValue(StringUtils.fromString("fieldName")).toString();
-            if (!validateFieldAccess(objectType, fieldName)) {
+            if (!validateFieldAccessIsPublic(objectType, fieldName)) {
                 String detail = "member field should be public to be mocked. " +
                         "The provided field '" + fieldName + "' is not public";
                 return ErrorCreator.createError(StringUtils.fromString(MockConstants.NON_PUBLIC_MEMBER_FIELD_ERROR),
@@ -303,7 +303,7 @@ public class ObjectMock {
         return null;
     }
 
-    private static boolean validateFieldAccess(ObjectType objectType, String fieldName) {
+    private static boolean validateFieldAccessIsPublic(ObjectType objectType, String fieldName) {
         return SymbolFlags.isFlagOn(objectType.getFields().get(fieldName).getFlags(), SymbolFlags.PUBLIC);
     }
 
