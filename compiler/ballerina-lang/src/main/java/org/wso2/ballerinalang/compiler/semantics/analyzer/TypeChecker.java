@@ -8568,8 +8568,21 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 actualType = arrayType.eType;
                 break;
             case TypeTags.UNION:
+                LinkedHashSet<BType> indexUnionExprTypeMembers = ((BUnionType) indexExprType).getMemberTypes();
+                boolean allMembersValid = true;
+                for (BType memberType : indexUnionExprTypeMembers) {
+                    if (checkArrayIndexBasedAccess(indexBasedAccess, memberType, arrayType) ==
+                            symTable.semanticError) {
+                        allMembersValid = false;
+                        break;
+                    }
+                }
+                if (allMembersValid) {
+                    return arrayType.eType;
+                }
+
                 // address the case where we have a union of finite types
-                List<BFiniteType> finiteTypes = ((BUnionType) indexExprType).getMemberTypes().stream()
+                List<BFiniteType> finiteTypes = indexUnionExprTypeMembers.stream()
                         .filter(memType -> Types.getReferredType(memType).tag == TypeTags.FINITE)
                         .map(matchedType -> (BFiniteType) Types.getReferredType(matchedType))
                         .collect(Collectors.toList());
@@ -8661,9 +8674,22 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 break;
 
             case TypeTags.UNION:
+                LinkedHashSet<BType> currentTypeMembers = ((BUnionType) currentType).getMemberTypes();
+                boolean allMembersValid = true;
+                for (BType memberType : currentTypeMembers) {
+                    actualType = checkTupleIndexBasedAccess(accessExpr, tuple, memberType);
+                    if (actualType == symTable.semanticError) {
+                        allMembersValid = false;
+                        break;
+                    }
+                }
+                if (allMembersValid) {
+                    return actualType;
+                }
+
                 LinkedHashSet<BType> possibleTypesByMember = new LinkedHashSet<>();
                 List<BFiniteType> finiteTypes = new ArrayList<>();
-                ((BUnionType) currentType).getMemberTypes().forEach(memType -> {
+                currentTypeMembers.forEach(memType -> {
                     memType = Types.getReferredType(memType);
                     if (memType.tag == TypeTags.FINITE) {
                         finiteTypes.add((BFiniteType) memType);
@@ -8848,6 +8874,19 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         BUnionType.create(null, possibleTypes);
                 break;
             case TypeTags.UNION:
+                LinkedHashSet<BType> currentTypeMembers = ((BUnionType) currentType).getMemberTypes();
+                boolean allMembersValid = true;
+                for (BType memberType : currentTypeMembers) {
+                    actualType = checkRecordIndexBasedAccess(accessExpr, record, memberType, data);
+                    if (actualType == symTable.semanticError) {
+                        allMembersValid = false;
+                        break;
+                    }
+                }
+                if (allMembersValid) {
+                    return actualType;
+                }
+
                 LinkedHashSet<BType> possibleTypesByMember = new LinkedHashSet<>();
                 List<BFiniteType> finiteTypes = new ArrayList<>();
                 types.getAllTypes(currentType, true).forEach(memType -> {

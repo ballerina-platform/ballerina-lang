@@ -1178,6 +1178,64 @@ function testUnspecifiedFieldRecordMemberAccessWithStringCharKeyExpr() {
     assertTrue(v is ());
 }
 
+type INT int;
+type INT2 int|int:Signed16;
+type STR2 string|string:Char;
+
+function testUnionTypeExprMemberAccess() {
+    record {|
+        int a;
+    |} r = {a: 1};
+    string|string s = "a";
+    r[s] = 2;
+    assertEquality(2, r.a);
+
+    int[] arr = [1, 2, 3];
+    int|int|int x = 1;
+    arr[x] = 4;
+    assertEquality(4, arr[1]);
+
+    [string, int] t = ["a", 1];
+    int|int y = 0;
+    t[y] = "b";
+    assertEquality("b", t[0]);
+
+    record {|
+        int a;
+    |} r1 = {a: 1};
+    string|string:Char s1 = "a";
+    r1[s1] = 2;
+    assertEquality(2, r1.a);
+
+    string[] arr1 = ["a", "b", "c"];
+    int|int:Signed32 x1 = 1;
+    arr1[x1] = "d";
+    assertEquality("d", arr1[1]);
+
+    [string, int] t1 = ["a", 1];
+    int|INT|int y1 = 0;
+    t1[y1] = "b";
+    assertEquality("b", t1[0]);
+
+    [string, int, int] t2 = ["abc", 0, 1];
+    int:Signed16|int y2 = 0;
+    t2[y2] = "b";
+    assertEquality("b", t2[0]);
+
+    record {|
+        string a;
+        int b;
+    |} r2 = {a: "a", b: 1};
+    string|STR2 s2 = "b";
+    r2[s2] = 2;
+    assertEquality(2, r2.b);
+
+    float[] arr2 = [0.1, 1.2, 2.3];
+    INT2|int:Signed8 x2 = 0;
+    arr2[x2] = 4.5;
+    assertEquality(4.5, arr2[0]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
