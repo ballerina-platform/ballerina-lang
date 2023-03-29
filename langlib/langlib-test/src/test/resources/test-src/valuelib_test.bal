@@ -2866,9 +2866,9 @@ type FifthArrayUnion FourthArrayUnion;
 
 type SixthArrayUnion FifthArrayUnion|FourthArrayUnion;
 
-type FirstNumberUnion int|float|decimal;
+type FirstNumberUnion int|int:Unsigned8|int:Signed16;
 
-type SecondNumberUnion FirstInt|FirstFloat|FirstDecimal;
+type SecondNumberUnion FirstInt|FirstByte;
 
 type ThirdNumberUnion FirstNumberUnion;
 
@@ -3029,7 +3029,7 @@ function testConvertingToReferenceTypes() {
     SixthNumberUnion|decimal val81 = checkpanic val79.cloneWithType();
     SixthNumberUnion val82 = checkpanic val80.cloneWithType();
     test:assertValueEqual((typeof val81).toString(), "typedesc 1.0");
-    test:assertValueEqual((typeof val82).toString(), "typedesc 1.0");
+    test:assertValueEqual((typeof val82).toString(), "typedesc 1");
 }
 
 type union_with_int string|float|byte|int:Unsigned8|int:Signed8|int;
