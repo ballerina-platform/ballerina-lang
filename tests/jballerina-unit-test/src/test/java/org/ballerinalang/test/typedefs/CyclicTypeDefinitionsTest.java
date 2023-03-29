@@ -115,6 +115,7 @@ public class CyclicTypeDefinitionsTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'I'", 34, 12);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'v'", 37, 19);
         BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'P'", 39, 1);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'XListRef'", 39, 26);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'XListRef'", 44, 18);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'J'", 47, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'K'", 50, 6);

@@ -190,7 +190,6 @@ public class TypeResolver {
         classDefinition.typeDefEnv = typeDefEnv;
 
         for (BLangSimpleVariable field : classDefinition.fields) {
-//            resolveTypeDesc(env, mod, null, 1, field.typeNode);
             symEnter.defineNode(field, typeDefEnv);
             if (field.expr != null) {
                 field.symbol.isDefaultable = true;
@@ -619,10 +618,6 @@ public class TypeResolver {
 
         BType type = resolveTypeDesc(symEnv, mod, defn, depth + 1, td.type);
         BType constraintType = resolveTypeDesc(symEnv, mod, defn, depth + 1, td.constraint);
-        // If the constrained type is undefined, return noType as the type.
-        if (constraintType == symTable.noType) {
-            return symTable.noType;
-        }
 
         BType constrainedType;
         switch (typeKind) {
@@ -664,10 +659,6 @@ public class TypeResolver {
 
         BType constraintType = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.constraint);
 
-        if (constraintType == symTable.noType) {
-            return symTable.noType;
-        }
-
         if (constraintType.tag == TypeTags.PARAMETERIZED_TYPE) {
             BType typedescType = ((BParameterizedType) constraintType).paramSymbol.type;
             BType typedescConstraint = ((BTypedescType) typedescType).constraint;
@@ -699,14 +690,6 @@ public class TypeResolver {
         tSymbol.type = type;
 
         BType constraintType = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.constraint);
-        // If the constrained type is undefined, return noType as the type.
-        if (constraintType == symTable.noType || constraintType == symTable.semanticError) {
-            return constraintType;
-        }
-
-//        if (constraintType == null || constraintType.tag == TypeTags.SEMANTIC_ERROR) {
-//            return symTable.semanticError;
-//        }
 
         ((BMapType) constrainedType).constraint = constraintType;
         symResolver.markParameterizedType(constrainedType, constraintType);
@@ -819,9 +802,6 @@ public class TypeResolver {
 
         firstDimArrType.eType = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.elemtype);
         symResolver.markParameterizedType(firstDimArrType, firstDimArrType.eType);
-        if (resultType == symTable.noType) {
-            return resultType;
-        }
 
         return resultType;
     }
@@ -1029,9 +1009,6 @@ public class TypeResolver {
                 }
             }
             BType type = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, param.getTypeNode());
-            if (type == symTable.noType) {
-                return symTable.noType;
-            }
             paramNode.setBType(type);
             paramTypes.add(type);
 
@@ -1051,24 +1028,19 @@ public class TypeResolver {
             params.add(symbol);
         }
 
-        BType retType = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, retTypeVar);//resolveTypeNode(retTypeVar, data, env);
-        if (retType == symTable.noType) {
-            return symTable.noType;
-        }
+        BType retType = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, retTypeVar);
 
         BVarSymbol restParam = null;
         BType restType = null;
 
         if (restVariable != null) {
-            restType = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, restVariable.typeNode);//resolveTypeNode(restVariable.typeNode, data, env);
-            if (restType == symTable.noType) {
-                return symTable.noType;
-            }
+            restType = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, restVariable.typeNode);
             BLangIdentifier id = ((BLangSimpleVariable) restVariable).name;
             restVariable.setBType(restType);
             restParam = new BVarSymbol(Flags.asMask(restVariable.flagSet),
                     names.fromIdNode(id), names.originalNameFromIdNode(id),
                     env.enclPkg.symbol.pkgID, restType, env.scope.owner, restVariable.pos, BUILTIN);
+            restVariable.symbol = restParam;
         }
 
         BInvokableType bInvokableType = new BInvokableType(paramTypes, restType, retType, null);
@@ -1165,20 +1137,22 @@ public class TypeResolver {
         td.defn = defn;
         td.setBType(unionType);
 
-//        if (symEnter.lookupTypeSymbol(symEnv, typeDefinition.name) == symTable.notFoundSymbol) {
-//            symEnter.defineSymbol(typeDefinition.name.pos, typeDefSymbol);
-//        }
-
+        boolean errored = false;
         for (BLangType langType : td.memberTypeNodes) {
             BType resolvedType = resolveTypeDesc(symEnv, mod, typeDefinition, depth, langType);
-            if (resolvedType == symTable.semanticError || resolvedType == symTable.noType) {
-                return resolvedType;
+            if (resolvedType == symTable.semanticError) {
+                errored = true;
+                continue;
             }
 
             if (resolvedType.isNullable()) {
                 unionType.setNullable(true);
             }
             memberTypes.add(resolvedType);
+        }
+
+        if (errored) {
+            return symTable.semanticError;
         }
 
         updateReadOnlyAndNullableFlag(unionType);
@@ -1251,6 +1225,9 @@ public class TypeResolver {
         Set<BType> errorTypes = new HashSet<>();
         for (BLangType typeNode : constituentTypeNodes) {
             BType constituentType = resolveTypeDesc(symEnv, mod, typeDefinition, depth, typeNode);
+            if (constituentType.tag == TypeTags.READONLY) {
+                intersectionType.flags |= Flags.READONLY;
+            }
             constituentTypes.add(constituentType);
             if (Types.getReferredType(constituentType).tag == TypeTags.ERROR) {
                 errorTypes.add(constituentType);
@@ -1387,7 +1364,7 @@ public class TypeResolver {
             if (unknownTypeRefs.add(locationData)) {
                 dlog.error(td.pos, DiagnosticErrorCode.UNKNOWN_TYPE, td.typeName);
             }
-            return symbol.type;
+            return symTable.semanticError;
         }
 
         if (moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
@@ -1499,10 +1476,6 @@ public class TypeResolver {
         BType type = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.type);//resolveTypeNode(td.type, data, data.env);
         BType constraintType =
                 resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.constraint);// resolveTypeNode(td.constraint, data, data.env);
-        // If the constrained type is undefined, return noType as the type.
-        if (constraintType == symTable.noType) {
-            return symTable.noType;
-        }
 
         BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         BTypeSymbol typeSymbol = type.tsymbol;
@@ -1547,10 +1520,6 @@ public class TypeResolver {
         BType constraintType = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.constraint);
         BType error = td.error != null ?
                 resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.error) : symTable.nilType;
-        // If the constrained type is undefined, return noType as the type.
-        if (constraintType == symTable.noType) {
-            return symTable.noType;
-        }
 
         BType streamType = new BStreamType(TypeTags.STREAM, constraintType, error, null);
         BTypeSymbol typeSymbol = type.tsymbol;

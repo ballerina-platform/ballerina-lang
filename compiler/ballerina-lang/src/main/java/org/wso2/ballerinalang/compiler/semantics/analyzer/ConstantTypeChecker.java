@@ -53,6 +53,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     private final TypeResolver typeResolver;
     private final ConstantTypeChecker.FillMembers fillMembers;
     private BLangAnonymousModelHelper anonymousModelHelper;
+    private Location currentPos;
 
     public ConstantTypeChecker(CompilerContext context) {
         context.put(CONSTANT_TYPE_CHECKER_KEY, this);
@@ -132,7 +133,10 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             case BINARY_EXPR:
             case GROUP_EXPR:
             case UNARY_EXPR:
+                Location prevPos = this.currentPos;
+                this.currentPos = expr.pos;
                 expr.accept(this, data);
+                this.currentPos = prevPos;
                 break;
             default:
                 dlog.error(expr.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
@@ -373,10 +377,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         BConstantSymbol constantSymbol = data.constantSymbol;
 
         Object resolvedValue = calculateSingletonValue((BFiniteType) lhsType, (BFiniteType) rhsType, binaryExpr.opKind,
-                resultType, binaryExpr.pos);
+                resultType);
         if (resolvedValue == null) {
             data.resultType = symTable.semanticError;
-//            dlog.error(pos, DiagnosticErrorCode.INVALID_CONST_EXPRESSION);
             return;
         }
         BType finiteType = getFiniteType(resolvedValue, constantSymbol, pos, resultType);
@@ -407,6 +410,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         resultType = getBroadType(data.resultType);
 
         if (opSymbol == symTable.notFoundSymbol) {
+            dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,
+                        unaryExpr.operator, actualType);
             data.resultType = symTable.semanticError;
             return;
         }
@@ -670,7 +675,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     continue;
                 }
             }
-            dlog.error(key.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, fieldName, symTable.stringType);
+            dlog.error(key.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.stringType, fieldName);
             containErrors = true;
         }
 
@@ -843,8 +848,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(new ArrayList<>(), type,
                 pos);
         TypeDefBuilderHelper.populateStructureFields(types, symTable, null, names, recordTypeNode, type, type, pos,
-                env, env.scope.owner.pkgID, null, 0, false);
+                env, env.scope.owner.pkgID, null, Flags.REQUIRED, false);
         recordTypeNode.sealed = true;
+        recordTypeNode.analyzed = true;
         type.restFieldType = new BNoType(TypeTags.NONE);
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.createTypeDefinitionForTSymbol(null,
                 typeDefinitionSymbol, recordTypeNode, env);
@@ -1318,7 +1324,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     private Object calculateSingletonValue(BFiniteType lhs, BFiniteType rhs, OperatorKind kind,
-                                                       BType type, Location currentPos) {
+                                                       BType type) {
         // Calculate the value for the binary operation.
         // TODO - Handle overflows.
         if (lhs == null || rhs == null) {
@@ -1336,27 +1342,27 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         try {
             switch (kind) {
                 case ADD:
-                    return calculateAddition(lhsValue, rhsValue, type, currentPos);
+                    return calculateAddition(lhsValue, rhsValue, type);
                 case SUB:
-                    return calculateSubtract(lhsValue, rhsValue, type, currentPos);
+                    return calculateSubtract(lhsValue, rhsValue, type);
                 case MUL:
-                    return calculateMultiplication(lhsValue, rhsValue, type, currentPos);
+                    return calculateMultiplication(lhsValue, rhsValue, type);
                 case DIV:
-                    return calculateDivision(lhsValue, rhsValue, type, currentPos);
+                    return calculateDivision(lhsValue, rhsValue, type);
                 case MOD:
                     return calculateMod(lhsValue, rhsValue, type);
                 case BITWISE_AND:
-                    return calculateBitWiseOp(lhsValue, rhsValue, (a, b) -> a & b, type, currentPos);
+                    return calculateBitWiseOp(lhsValue, rhsValue, (a, b) -> a & b, type);
                 case BITWISE_OR:
-                    return calculateBitWiseOp(lhsValue, rhsValue, (a, b) -> a | b, type, currentPos);
+                    return calculateBitWiseOp(lhsValue, rhsValue, (a, b) -> a | b, type);
                 case BITWISE_LEFT_SHIFT:
-                    return calculateBitWiseOp(lhsValue, rhsValue, (a, b) -> a << b, type, currentPos);
+                    return calculateBitWiseOp(lhsValue, rhsValue, (a, b) -> a << b, type);
                 case BITWISE_RIGHT_SHIFT:
-                    return calculateBitWiseOp(lhsValue, rhsValue, (a, b) -> a >> b, type, currentPos);
+                    return calculateBitWiseOp(lhsValue, rhsValue, (a, b) -> a >> b, type);
                 case BITWISE_UNSIGNED_RIGHT_SHIFT:
-                    return calculateBitWiseOp(lhsValue, rhsValue, (a, b) -> a >>> b, type, currentPos);
+                    return calculateBitWiseOp(lhsValue, rhsValue, (a, b) -> a >>> b, type);
                 case BITWISE_XOR:
-                    return calculateBitWiseOp(lhsValue, rhsValue, (a, b) -> a ^ b, type, currentPos);
+                    return calculateBitWiseOp(lhsValue, rhsValue, (a, b) -> a ^ b, type);
                 default:
 //                    dlog.error(currentPos, DiagnosticErrorCode.CONSTANT_EXPRESSION_NOT_SUPPORTED);
             }
@@ -1407,8 +1413,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return null;
     }
 
-    private Object calculateBitWiseOp(Object lhs, Object rhs,
-                                                  BiFunction<Long, Long, Long> func, BType type, Location currentPos) {
+    private Object calculateBitWiseOp(Object lhs, Object rhs, BiFunction<Long, Long, Long> func, BType type) {
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
                 Long val = func.apply((Long) lhs, (Long) rhs);
@@ -1421,7 +1426,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 //        return new BLangConstantValue(null, type);
     }
 
-    private Object calculateAddition(Object lhs, Object rhs, BType type, Location currentPos) {
+    private Object calculateAddition(Object lhs, Object rhs, BType type) {
         Object result = null;
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
@@ -1441,7 +1446,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.add(rhsDecimal, MathContext.DECIMAL128);
-                resultDecimal = types.getValidDecimalNumber(resultDecimal);
+                resultDecimal = types.getValidDecimalNumber(currentPos, resultDecimal);
                 result = resultDecimal != null ? resultDecimal.toPlainString() : null;
                 break;
             case TypeTags.STRING:
@@ -1451,7 +1456,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return result;
     }
 
-    private Object calculateSubtract(Object lhs, Object rhs, BType type, Location currentPos) {
+    private Object calculateSubtract(Object lhs, Object rhs, BType type) {
         Object result = null;
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
@@ -1471,14 +1476,14 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.subtract(rhsDecimal, MathContext.DECIMAL128);
-                resultDecimal = types.getValidDecimalNumber(resultDecimal);
+                resultDecimal = types.getValidDecimalNumber(currentPos, resultDecimal);
                 result = resultDecimal != null ? resultDecimal.toPlainString() : null;
                 break;
         }
         return result;
     }
 
-    private Object calculateMultiplication(Object lhs, Object rhs, BType type, Location currentPos) {
+    private Object calculateMultiplication(Object lhs, Object rhs, BType type) {
         Object result = null;
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
@@ -1498,14 +1503,14 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.multiply(rhsDecimal, MathContext.DECIMAL128);
-                resultDecimal = types.getValidDecimalNumber(resultDecimal);
+                resultDecimal = types.getValidDecimalNumber(currentPos, resultDecimal);
                 result = resultDecimal != null ? resultDecimal.toPlainString() : null;
                 break;
         }
         return result;
     }
 
-    private Object calculateDivision(Object lhs, Object rhs, BType type, Location currentPos) {
+    private Object calculateDivision(Object lhs, Object rhs, BType type) {
         Object result = null;
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
@@ -1524,7 +1529,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.divide(rhsDecimal, MathContext.DECIMAL128);
-                resultDecimal = types.getValidDecimalNumber(resultDecimal);
+                resultDecimal = types.getValidDecimalNumber(currentPos, resultDecimal);
                 result = resultDecimal != null ? resultDecimal.toPlainString() : null;
                 break;
         }
@@ -1554,6 +1559,10 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
 
     private Object calculateNegationForInt(Object value) {
+        if ((Long) (value) == Long.MIN_VALUE) {
+            dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
+            return null;
+        }
         return -1 * ((Long) (value));
     }
 
@@ -1652,17 +1661,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     public BType getIntegerLiteralType(BLangLiteral literalExpr, Object literalValue, BType expType) {
-        BType literalType = getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, expType);
-        if (literalType != symTable.semanticError) {
-            return literalType;
-        }
-
-        if (!(literalValue instanceof Long)) {
-            dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue,
-                    literalExpr.getBType());
-            return symTable.semanticError;
-        }
-        return symTable.intType;
+        return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, expType);
     }
 
     private BType getIntegerLiteralTypeUsingExpType(BLangLiteral literalExpr, Object literalValue, BType expType) {
@@ -1744,7 +1743,13 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 }
                 break;
         }
-        return symTable.semanticError;
+
+        if (!(literalValue instanceof Long)) {
+            dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue,
+                    literalExpr.getBType());
+            return symTable.semanticError;
+        }
+        return symTable.intType;
     }
 
     public void setLiteralValueForFiniteType(BLangLiteral literalExpr, BType type, AnalyzerData data) {
@@ -1944,7 +1949,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 return true;
             }
             // Duplicate key.
-            dlog.error(pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL, key);
+            dlog.error(pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL, keyValueType.getKind().typeName(),
+                    key);
             return false;
         }
         Set<Flag> flags = new HashSet<>();

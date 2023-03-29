@@ -57,10 +57,6 @@ public class FiniteTypeNegativeTest {
         int i = 0;
         validateError(resultNegativeTwo, i++, "incompatible types: expected 'Finite', found 'string'",
                 33, 16);
-        validateError(resultNegativeTwo, i++, "incompatible types: expected 'ByteType', found '5'",
-                40, 18);
-        validateError(resultNegativeTwo, i++, "incompatible types: expected 'IntType', found '5'",
-                47, 17);
         validateError(resultNegativeTwo, i++, "incompatible types: expected 'IntType', found 'float'",
                 52, 17);
         validateError(resultNegativeTwo, i++, "incompatible types: expected 'FloatType', found '5'",

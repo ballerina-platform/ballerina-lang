@@ -260,9 +260,8 @@ function testInvalidRuntimeUpdateOfConstMaps() {
         c["a"] = {a: 1, b: 2};
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type " +
-                                    "'record {| readonly (record {| 1 a; 2 b; |} & readonly & readonly) a; " +
-                                    "readonly (record {| 3 a; |} & readonly & readonly) b; |} & readonly'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'record {|" +
+        " readonly (record {| 1 a; 2 b; |} & readonly) a; readonly (record {| 3 a; |} & readonly) b; |} & readonly'");
 }
 
 type AA boolean;
