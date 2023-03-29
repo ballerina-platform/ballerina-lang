@@ -79,12 +79,13 @@ OPTIONS
            functionality.
 
        --excludes
-            Specify the Ballerina source files/folders to be excluded from code coverage
-            calculation. Multiple source files/folders can be provided as a comma separated list.
-            Source file path can be absolute or relative to the package directory. The '*' character is used to
-            match zero or more source files within a single directory level, without traversing into subdirectories.
-            The '**' can be used to traverse the sub-directories also.
-            For more details:- https://ballerina.io/learn/test-ballerina-code/execute-tests/#generate-test-report-and-code-coverage
+            Exclude a specific Ballerina source files or folders from code coverage
+            calculation by providing a comma-separated list of file paths. Path can be relative
+            to the package directory or absolute. Use the '*' character to match all source files
+            within a single directory level, without traversing into sub-directories.
+            Use the '**' character to extend the traversal to the sub-directories.
+            For the complete list of supported patterns,
+            see https://ballerina.io/learn/test-ballerina-code/execute-tests/#generate-test-report-and-code-coverage.
 
 
 EXAMPLES
