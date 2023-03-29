@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.diagramutil;
 
+import com.google.gson.Gson;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Project;
@@ -52,18 +53,21 @@ public class TestConnectorGenerator {
     private final Path testConnectorBalaFile = TestUtil.RES_DIR
             .resolve("connector")
             .resolve("test-TestConnector-any-0.3.0.bala");
-    private Project balaProject;
+    private final Path testClientBalaFile = TestUtil.RES_DIR
+            .resolve("connector/TestClient")
+            .resolve("test-TestClient-any-0.1.1.bala");
+    private Project testConProject;
 
     @BeforeClass
     public void initMetadataGenerator() {
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-        balaProject = ProjectLoader.loadProject(this.testConnectorBalaFile, defaultBuilder);
+        testConProject = ProjectLoader.loadProject(this.testConnectorBalaFile, defaultBuilder);
     }
 
     @Test(description = "Test getting project all connectors")
-    public void getProjectAllConnectors() throws IOException {
-        List<Connector> connectors = ConnectorGenerator.getProjectConnectors(balaProject, false, "");
+    public void getProjectAllConnectors() {
+        List<Connector> connectors = ConnectorGenerator.getProjectConnectors(testConProject, false, "");
         Assert.assertEquals(connectors.size(), 1);
         Connector connector = connectors.get(0);
 
@@ -73,8 +77,8 @@ public class TestConnectorGenerator {
     }
 
     @Test(description = "Test getting project connectors with query filter")
-    public void getProjectConnectorsWithFilter() throws IOException {
-        List<Connector> connectors = ConnectorGenerator.getProjectConnectors(balaProject, false, orgName);
+    public void getProjectConnectorsWithFilter() {
+        List<Connector> connectors = ConnectorGenerator.getProjectConnectors(testConProject, false, orgName);
         Assert.assertEquals(connectors.size(), 1);
         Connector connector = connectors.get(0);
 
@@ -84,8 +88,8 @@ public class TestConnectorGenerator {
     }
 
     @Test(description = "Test getting connector with function metadata")
-    public void getProjectConnectorWithFunctionMetadata() throws IOException {
-        List<Connector> connectors = ConnectorGenerator.getProjectConnectors(balaProject, true, orgName);
+    public void getProjectConnectorWithFunctionMetadata() {
+        List<Connector> connectors = ConnectorGenerator.getProjectConnectors(testConProject, true, orgName);
         Assert.assertEquals(connectors.size(), 1);
         Connector connector = connectors.get(0);
 
@@ -103,8 +107,8 @@ public class TestConnectorGenerator {
     }
 
     @Test(description = "Test connector metadata generation")
-    public void getConnectorMetadata() throws Exception {
-        List<Connector> connectors = ConnectorGenerator.generateConnectorModel(balaProject);
+    public void getConnectorMetadata() throws IOException {
+        List<Connector> connectors = ConnectorGenerator.generateConnectorModel(testConProject);
         Assert.assertEquals(connectors.size(), 1);
         Connector connector = connectors.get(0);
 
@@ -115,7 +119,7 @@ public class TestConnectorGenerator {
         Assert.assertTrue(connector.displayAnnotation.containsKey("iconPath"));
         Assert.assertEquals(connector.displayAnnotation.get("label"), "Test Client");
         Assert.assertEquals(connector.displayAnnotation.get("iconPath"), "logo.svg");
-        Assert.assertEquals(connector.icon, null);
+        Assert.assertNull(connector.icon);
 
         Assert.assertEquals(connector.functions.size(), 5);
         List<Function> functionList = connector.functions;
@@ -139,21 +143,21 @@ public class TestConnectorGenerator {
 
         Assert.assertEquals(viewMessageFuncParams.get(0).name, "uid");
         Assert.assertEquals(viewMessageFuncParams.get(0).typeName, "string");
-        Assert.assertEquals(viewMessageFuncParams.get(0).optional, false);
-        Assert.assertEquals(viewMessageFuncParams.get(0).defaultable, false);
+        Assert.assertFalse(viewMessageFuncParams.get(0).optional);
+        Assert.assertFalse(viewMessageFuncParams.get(0).defaultable);
         Assert.assertEquals(viewMessageFuncParams.get(1).name, "name");
         Assert.assertEquals(viewMessageFuncParams.get(1).typeName, "string");
-        Assert.assertEquals(viewMessageFuncParams.get(1).optional, false);
-        Assert.assertEquals(viewMessageFuncParams.get(1).defaultable, true);
+        Assert.assertFalse(viewMessageFuncParams.get(1).optional);
+        Assert.assertTrue(viewMessageFuncParams.get(1).defaultable);
         Assert.assertEquals(viewMessageFuncParams.get(2).name, "age");
         Assert.assertEquals(viewMessageFuncParams.get(2).typeName, "int");
-        Assert.assertEquals(viewMessageFuncParams.get(2).optional, true);
-        Assert.assertEquals(viewMessageFuncParams.get(2).defaultable, true);
+        Assert.assertTrue(viewMessageFuncParams.get(2).optional);
+        Assert.assertTrue(viewMessageFuncParams.get(2).defaultable);
     }
 
     @Test(description = "Test connector metadata generation")
-    public void getFunctionMetadata() throws Exception {
-        Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(balaProject);
+    public void getFunctionMetadata() throws IOException {
+        Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(testConProject);
         ModuleDoc testConnector = moduleDocMap.get(moduleName);
         SyntaxTree st = testConnector.syntaxTreeMap.get("main.bal");
         SemanticModel model = testConnector.semanticModel;
@@ -167,5 +171,49 @@ public class TestConnectorGenerator {
 
         Assert.assertEquals(modelFromSyntaxTree.get(0).functions.size(), 5);
         Assert.assertEquals(modelFromSyntaxTree.get(0).functions.get(0).name, initFunc);
+    }
+
+    @Test(description = "Test all types in connector metadata generation")
+    public void getAllTypesInConnectorMetadata() throws IOException {
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        Project testTypesConProject = ProjectLoader.loadProject(this.testClientBalaFile, defaultBuilder);
+        List<Connector> connectors = ConnectorGenerator.generateConnectorModel(testTypesConProject);
+        Assert.assertEquals(connectors.size(), 1);
+        Connector connector = connectors.get(0);
+        (new Gson()).toJson(connector);
+
+        Assert.assertEquals(connector.moduleName, "TestClient");
+        Assert.assertEquals(connector.functions.size(), 12);
+        // Path parameters
+        Assert.assertEquals(connector.functions.get(3).pathParams.size(), 2);
+        Assert.assertEquals(connector.functions.get(3).pathParams.get(0).name, "users");
+        Assert.assertEquals(connector.functions.get(3).pathParams.get(0).typeName, "token");
+        Assert.assertFalse(connector.functions.get(3).pathParams.get(0).isRestType);
+        Assert.assertTrue(connector.functions.get(4).pathParams.get(1).isRestType);
+        // Query parameters
+        Assert.assertEquals(connector.functions.get(3).parameters.size(), 2);
+        Assert.assertEquals(connector.functions.get(3).parameters.get(0).name, "i");
+        Assert.assertEquals(connector.functions.get(3).parameters.get(0).typeName, "int");
+        Assert.assertFalse(connector.functions.get(3).parameters.get(0).optional);
+        Assert.assertFalse(connector.functions.get(3).parameters.get(0).defaultable);
+        Assert.assertFalse(connector.functions.get(4).parameters.get(0).isRestType);
+        Assert.assertTrue(connector.functions.get(4).parameters.get(1).isRestType);
+        // Return type
+        Assert.assertEquals(connector.functions.get(3).returnType.typeName, "string");
+        // Qualifiers
+        Assert.assertEquals(connector.functions.get(3).qualifiers.length, 2);
+        Assert.assertEquals(connector.functions.get(3).qualifiers[0], "resource");
+        // Documentation and annotation
+        Assert.assertEquals(connector.functions.get(2).documentation.trim(),
+                "Resource function - no query parameter or path parameters");
+        Assert.assertEquals(connector.functions.get(2).displayAnnotation.get("label"), "Test client get function");
+        // Enum
+        Assert.assertEquals(connector.functions.get(8).parameters.get(0).typeName, "enum");
+        Assert.assertEquals(connector.functions.get(8).parameters.get(0).typeInfo.name, "Color");
+        // Table
+        Assert.assertEquals(connector.functions.get(6).parameters.get(3).typeName, "table");
+        // Map
+        Assert.assertEquals(connector.functions.get(6).parameters.get(2).typeName, "map");
     }
 }

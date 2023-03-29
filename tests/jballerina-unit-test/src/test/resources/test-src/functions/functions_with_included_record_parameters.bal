@@ -63,6 +63,10 @@ type Baz record {
     
 };
 
+type Baz2 record {
+    
+};
+
 type KVPairs record {
 	never message?;
 	never level?; 
@@ -195,6 +199,10 @@ function functionOfFunctionTypedParamWithIncludedRecordParam22(*Pairs values) re
     return <float[]>values["a"];
 }
 
+function functionWithMultipleIncludedRecordParams(*Baz baz, *Baz2 baz2) returns [anydata, anydata] {
+    return [baz["a"], baz2["b"]];
+}
+
 function testFuctionWithIncludedRecordParameters() {
     string fullName = functionOfFunctionTypedParamWithIncludedRecordParam(firstName = "chiran", secondName = "sachintha");
     string fullName2 = functionWithIncludedRecordParamAfterDefaultParam(firstName = "chiran", secondName = "sachintha");
@@ -229,6 +237,18 @@ function testFuctionWithIncludedRecordParameters5() {
     assertEquality(400.0, details[2]);
     assertEquality(true, details[3]);
     assertEquality("c/usr/filename", details[4]);
+    [anydata, anydata, anydata, anydata, anydata] details1 = functionOfFunctionTypedParamWithIncludedRecordParam5({"a": 30, "b": 400.0, "value": "Integer", "isCorrect": true, "path": "c/usr/filename"});
+    assertEquality("Integer", details1[0]);
+    assertEquality(30, details1[1]);
+    assertEquality(400.0, details1[2]);
+    assertEquality(true, details1[3]);
+    assertEquality("c/usr/filename", details1[4]);
+    [anydata, anydata] details2 = functionWithMultipleIncludedRecordParams({"a": 10}, {"b": 20});
+    assertEquality(10, details2[0]);
+    assertEquality(20, details2[1]);
+    [anydata, anydata] details3 = functionWithMultipleIncludedRecordParams(baz = {"a": 10}, baz2 = {"b": 20});
+    assertEquality(10, details3[0]);
+    assertEquality(20, details3[1]);
 }
 
 function testFuctionWithIncludedRecordParameters6() {

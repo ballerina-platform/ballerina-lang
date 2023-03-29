@@ -6779,6 +6779,7 @@ public class Desugar extends BLangNodeVisitor {
         switch (Types.getReferredType(invocation.expr.getBType()).tag) {
             case TypeTags.OBJECT:
             case TypeTags.RECORD:
+            case TypeTags.UNION:
                 if (!invocation.langLibInvocation) {
                     invocation.expr = rewriteExpr(invocation.expr);
                     List<BLangExpression> argExprs = new ArrayList<>(invocation.requiredArgs);

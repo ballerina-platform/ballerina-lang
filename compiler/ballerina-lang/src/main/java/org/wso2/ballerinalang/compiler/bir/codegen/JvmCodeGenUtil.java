@@ -92,6 +92,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAKE_CONCAT_WITH_CONSTANTS;
@@ -118,6 +119,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JSTR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE_IMPL;
@@ -325,10 +327,6 @@ public class JvmCodeGenUtil {
         return getPackageNameWithSeparator(packageID, "/");
     }
 
-    public static String getSourcePackageName(PackageID packageID) {
-        return getPackageNameWithSeparator(packageID, "/", true);
-    }
-
     private static String getPackageNameWithSeparator(PackageID packageID, String separator) {
         return getPackageNameWithSeparator(packageID, separator, false);
     }
@@ -357,6 +355,12 @@ public class JvmCodeGenUtil {
 
     public static String getModuleLevelClassName(PackageID packageID, String sourceFileName) {
         return getModuleLevelClassName(packageID, sourceFileName, "/");
+    }
+
+    public static void generateExitRuntime(MethodVisitor mv) {
+        mv.visitMethodInsn(INVOKESTATIC , JAVA_RUNTIME, "getRuntime", GET_RUNTIME, false);
+        mv.visitInsn(ICONST_0);
+        mv.visitMethodInsn(INVOKEVIRTUAL , JAVA_RUNTIME, "exit", "(I)V", false);
     }
 
     static String getModuleLevelClassName(PackageID packageID, String sourceFileName, String separator) {
