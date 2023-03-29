@@ -8569,35 +8569,26 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 break;
             case TypeTags.UNION:
                 // address the case where we have a union of types
-                LinkedHashSet<BType> possibleTypesByMember = new LinkedHashSet<>();
                 List<BFiniteType> finiteTypes = new ArrayList<>();
-                ((BUnionType) indexExprType).getMemberTypes().forEach(memType -> {
+                for (BType memType : ((BUnionType) indexExprType).getMemberTypes()) {
                     memType = Types.getReferredType(memType);
                     if (memType.tag == TypeTags.FINITE) {
                         finiteTypes.add((BFiniteType) memType);
                     } else {
                         BType possibleType = checkArrayIndexBasedAccess(indexBasedAccess, memType, arrayType);
-                        if (possibleType.tag == TypeTags.UNION) {
-                            possibleTypesByMember.addAll(((BUnionType) possibleType).getMemberTypes());
-                        } else {
-                            possibleTypesByMember.add(possibleType);
+                        if (possibleType == symTable.semanticError) {
+                            return symTable.semanticError;
                         }
                     }
-                });
+                }
                 if (!finiteTypes.isEmpty()) {
                     BFiniteType finiteType = createFiniteTypeFromFiniteTypeList(finiteTypes);
                     BType possibleType = checkArrayIndexBasedAccess(indexBasedAccess, finiteType, arrayType);
-                    if (possibleType.tag == TypeTags.UNION) {
-                        possibleTypesByMember.addAll(((BUnionType) possibleType).getMemberTypes());
-                    } else {
-                        possibleTypesByMember.add(possibleType);
+                    if (possibleType == symTable.semanticError) {
+                        return symTable.semanticError;
                     }
                 }
-                if (possibleTypesByMember.contains(symTable.semanticError)) {
-                    return symTable.semanticError;
-                }
-                actualType = possibleTypesByMember.size() == 1 ? possibleTypesByMember.iterator().next() :
-                        BUnionType.create(null, possibleTypesByMember);
+                actualType = arrayType.eType;
                 break;
             case TypeTags.TYPEREFDESC:
                 return checkArrayIndexBasedAccess(indexBasedAccess, Types.getReferredType(indexExprType),
