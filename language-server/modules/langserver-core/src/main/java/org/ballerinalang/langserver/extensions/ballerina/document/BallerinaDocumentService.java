@@ -36,19 +36,25 @@ import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManagerProxy;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.ballerinalang.langserver.definition.DefinitionUtil;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.FindNodes;
 import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataResponse;
+import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 import org.eclipse.lsp4j.services.LanguageServer;
@@ -519,5 +525,51 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
     @Override
     public Class<?> getRemoteInterface() {
         return getClass();
+    }
+
+    @JsonRequest
+    public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeNodeByPosition(TextDocumentPositionParams params) {
+        BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
+        return CompletableFutures.computeAsync((cancelChecker) -> {
+            try {
+                BallerinaDefinitionContext defContext = ContextBuilder.buildDefinitionContext(
+                        PathUtil.convertUriSchemeFromBala(params.getTextDocument().getUri()),
+                        this.workspaceManagerProxy.get(),
+                        this.serverContext,
+                        params.getPosition(),
+                        cancelChecker);
+                Either<List<Location>, Object> getLocationPositionList = Either.forLeft(DefinitionUtil.getDefinition(
+                        defContext, params.getPosition()));
+                List<Location> leftLocations = getLocationPositionList.getLeft();
+
+                Location location = leftLocations.get(0);
+                String fileUri = location.getUri();
+                Optional<Path> filePath = PathUtil.getPathFromURI(fileUri);
+
+                Optional<Document> srcFile = this.workspaceManagerProxy.get().document(filePath.get());
+
+                // Get the semantic model.
+                Optional<SemanticModel> semanticModel = this.workspaceManagerProxy.get().semanticModel(filePath.get());
+
+                //Find the ST Nodes of the selected range
+                SyntaxTree syntaxTree = srcFile.get().syntaxTree();
+                NonTerminalNode node = CommonUtil.findNode(location.getRange(), syntaxTree);
+
+                // Get the generated syntax tree JSON with type info.
+                JsonElement subSyntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(node, semanticModel.get());
+
+                // Preparing the response.
+                reply.setSource(node.toSourceCode());
+                reply.setSyntaxTree(subSyntaxTreeJSON);
+                reply.setParseSuccess(reply.getSyntaxTree() != null);
+                reply.setDefFilePath(fileUri);
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaDocument/syntaxTreeNodeByPosition' failed!";
+                this.clientLogger.logError(DocumentContext.DC_NODE_DEFINITION_BY_POSITION,
+                        msg, e, params.getTextDocument(),
+                        params.getPosition());
+            }
+            return reply;
+        });
     }
 }

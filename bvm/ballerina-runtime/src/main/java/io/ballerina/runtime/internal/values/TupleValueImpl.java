@@ -207,7 +207,7 @@ public class TupleValueImpl extends AbstractArrayValue {
             if (inherentType != null) {
                 this.typedesc = getTypedescValue(type.isReadOnly(), this, inherentType);
             } else {
-                this.typedesc = getTypedescValue(tupleType, this);
+                this.typedesc = getTypedescValue(type, this);
             }
         }
         return typedesc;

@@ -81,56 +81,60 @@ public class LangLibRegexpTest {
         };
     }
 
-    @Test(dataProvider = "negativeRegexpFindIndexProvider")
+    @Test(dataProvider = "negativeRegexpIndexProvider")
     public void testNegativeRegexp(String functionName) {
-        Object returns = BRunUtil.invoke(negativeTests, functionName);
-        Assert.assertEquals(returns.toString(),
-                "error(\"IndexOutOfRange\",message=\"start index cannot be less than 0\")");
+        BRunUtil.invoke(negativeTests, functionName);
     }
 
-    @DataProvider(name = "negativeRegexpFindIndexProvider")
-    private Object[][] negativeRegexpFindIndexes() {
+    @DataProvider(name = "negativeRegexpIndexProvider")
+    private Object[][] negativeRegexpIndexes() {
         return new Object[][] {
                 {"testNegativeIndexFind"},
                 {"testNegativeIndexFindAll"},
                 {"testNegativeIndexFindGroups"},
                 {"testNegativeIndexFindAllGroups"},
+                {"testNegativeIndexMatchAt"},
+                {"testNegativeIndexMatchGroupsAt"},
+                {"testNegativeIndexReplace"},
+                {"testNegativeIndexReplaceAll"}
         };
     }
 
-    @Test(dataProvider = "invalidRegexpFindIndexProvider")
-    public void testInvalidRegexp(String functionName, int startIndex, int length) {
-        Object returns = BRunUtil.invoke(negativeTests, functionName);
-        Assert.assertEquals(returns.toString(),
-                "error(\"IndexOutOfRange\",message=\"start index '" + startIndex + "' cannot be greater than input " +
-                        "string length '" + length + "'\")");
+    @Test(dataProvider = "invalidRegexpIndexProvider")
+    public void testInvalidRegexp(String functionName) {
+        BRunUtil.invoke(negativeTests, functionName);
     }
 
-    @DataProvider(name = "invalidRegexpFindIndexProvider")
-    private Object[][] invalidRegexpFindIndexes() {
+    @DataProvider(name = "invalidRegexpIndexProvider")
+    private Object[][] invalidRegexpIndexes() {
         return new Object[][] {
-                {"testInvalidIndexFind", 12, 5},
-                {"testInvalidIndexFindAll", 112, 63},
-                {"testInvalidIndexFindGroups", 97, 52},
-                {"testInvalidIndexFindAllGroups", 123, 31},
+                {"testInvalidIndexFind"},
+                {"testInvalidIndexFindAll"},
+                {"testInvalidIndexFindGroups"},
+                {"testInvalidIndexFindAllGroups"},
+                {"testInvalidIndexMatchAt"},
+                {"testInvalidIndexMatchGroupsAt"},
+                {"testInvalidIndexReplace"},
+                {"testInvalidIndexReplaceAll"}
         };
     }
 
-    @Test(dataProvider = "longRegexpFindIndexProvider")
-    public void testLongIndexRegexp(String functionName, long startIndex) {
-        Object returns = BRunUtil.invoke(negativeTests, functionName);
-        Assert.assertEquals(returns.toString(),
-                String.format("error(\"{ballerina/lang.regexp}RegularExpressionOperationError\",message=\"index " +
-                        "number too large: %,d\")", startIndex));
+    @Test(dataProvider = "longRegexpIndexProvider")
+    public void testLongIndexRegexp(String functionName) {
+        BRunUtil.invoke(negativeTests, functionName);
     }
 
-    @DataProvider(name = "longRegexpFindIndexProvider")
-    private Object[][] longRegexpFindIndexes() {
+    @DataProvider(name = "longRegexpIndexProvider")
+    private Object[][] longRegexpIndexes() {
         return new Object[][] {
-                {"testLongIndexFind", 68719476704L},
-                {"testLongIndexFindAll", 137438953408L},
-                {"testLongIndexFindGroups", 274877906816L},
-                {"testLongIndexFindAllGroups", 549755813632L},
+                {"testLongIndexFind"},
+                {"testLongIndexFindAll"},
+                {"testLongIndexFindGroups"},
+                {"testLongIndexFindAllGroups"},
+                {"testLongIndexMatchAt"},
+                {"testLongIndexMatchGroupsAt"},
+                {"testLongIndexReplace"},
+                {"testLongIndexReplaceAll"}
         };
     }
 
@@ -214,7 +218,8 @@ public class LangLibRegexpTest {
     private Object[][] negativeRegexpEmptyCharClassInsertion() {
         return new Object[][] {
                 {"testNegativeEmptyCharClass1"},
-                {"testNegativeEmptyCharClass2"}
+                {"testNegativeEmptyCharClass2"},
+                {"testNegativeEmptyCharClass3"}
         };
     }
 }

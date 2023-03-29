@@ -230,6 +230,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private SymbolEnv env;
     private SymbolEnv queryEnv;
     private boolean containsCheckExpr;
+    private boolean withinQuery = false;
     private boolean withinLambdaOrArrowFunc = false;
     private HashSet<BType> checkedErrorList;
 
@@ -1716,8 +1717,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
                 if (symbol instanceof BVarSymbol) {
                     ((BVarSymbol) symbol).originalSymbol = null;
-                    if (withinLambdaOrArrowFunc) {
-                        if (symbol.closure) {
+                    if (withinLambdaOrArrowFunc || withinQuery) {
+                        if (!withinLambdaOrArrowFunc || symbol.closure) {
                             // When there's a closure in a lambda inside a query lambda the symbol.closure is
                             // true for all its usages. Therefore mark symbol.closure = false for the existing
                             // symbol and create a new symbol with the same properties.
@@ -1745,7 +1746,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     }
                 }
                 identifiers.put(identifier, symbol);
-            } else if (identifiers.containsKey(identifier) && withinLambdaOrArrowFunc) {
+            } else if (identifiers.containsKey(identifier) && (withinLambdaOrArrowFunc || withinQuery)) {
                 symbol = identifiers.get(identifier);
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
@@ -2173,17 +2174,25 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangQueryAction queryAction) {
         SymbolEnv prevQueryEnv = this.queryEnv;
+        boolean prevWithinQuery = withinQuery;
+        // This can be set to true directly since it's invoked only for nested queries.
+        this.withinQuery = true;
         queryAction.getQueryClauses().forEach(this::acceptNode);
+        this.withinQuery = prevWithinQuery;
         this.queryEnv = prevQueryEnv;
     }
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
         SymbolEnv prevQueryEnv = this.queryEnv;
+        boolean prevWithinQuery = withinQuery;
+        // This can be set to true directly since it's invoked only for nested queries.
+        this.withinQuery = true;
         queryExpr.getQueryClauses().forEach(this::acceptNode);
+        this.withinQuery = prevWithinQuery;
         this.queryEnv = prevQueryEnv;
     }
-
+    
     @Override
     public void visit(BLangForeach foreach) {
         this.acceptNode(foreach.collection);
@@ -2201,6 +2210,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     public void visit(BLangJoinClause joinClause) {
         this.acceptNode(joinClause.collection);
         joinClause.collection.accept(this);
+        this.acceptNode(((BLangVariable) joinClause.variableDefinitionNode.getVariable()));
         this.acceptNode((BLangNode) joinClause.onClause.getLeftExpression());
         this.acceptNode((BLangNode) joinClause.onClause.getRightExpression());
     }
