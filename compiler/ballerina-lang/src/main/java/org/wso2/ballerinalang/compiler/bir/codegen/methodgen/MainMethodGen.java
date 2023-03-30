@@ -75,7 +75,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UT
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPERAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OPTION;
@@ -84,6 +83,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_LISTENER_FOUND_METHOD_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
@@ -172,16 +172,12 @@ public class MainMethodGen {
         generateExecuteFunctionCall(initClass, mv, MODULE_EXECUTE_METHOD, MAIN_METHOD, INIT_FUTURE_VAR, userMainFunc,
                 testExecuteFunc);
 
-        if (hasInitFunction) {
+        if (hasInitFunction && testExecuteFunc == null) {
             setListenerFound(mv, serviceEPAvailable);
         }
         stopListeners(mv, serviceEPAvailable);
         if (!serviceEPAvailable && testExecuteFunc == null) {
             JvmCodeGenUtil.generateExitRuntime(mv);
-        }
-
-        if (testExecuteFunc != null) {
-            generateModuleStopCall(initClass, mv);
         }
         mv.visitLabel(tryCatchEnd);
         mv.visitInsn(RETURN);
@@ -209,12 +205,6 @@ public class MainMethodGen {
         genSubmitToScheduler(initClass, mv, LAMBDA_PREFIX + lambdaName + "$", funcName, futureVar,
                 testExecuteFunc != null);
         genReturn(mv, indexMap, futureVar);
-    }
-
-    private void generateModuleStopCall(String initClass, MethodVisitor mv) {
-        mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
-        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "getRuntimeRegistry", GET_RUNTIME_REGISTRY_CLASS, false);
-        mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP_METHOD, INIT_RUNTIME_REGISTRY, false);
     }
 
     private void startScheduler(int schedulerVarIndex, MethodVisitor mv) {
@@ -293,7 +283,7 @@ public class MainMethodGen {
             int schedulerVarIndex = indexMap.get(SCHEDULER_VAR);
             mv.visitVarInsn(ALOAD, schedulerVarIndex);
             mv.visitInsn(ICONST_1);
-            mv.visitMethodInsn(INVOKEVIRTUAL , SCHEDULER, "setListenerDeclarationFound", "(Z)V", false);
+            mv.visitMethodInsn(INVOKEVIRTUAL , SCHEDULER, SET_LISTENER_FOUND_METHOD_NAME, "(Z)V", false);
             startScheduler(schedulerVarIndex, mv);
         }
     }
