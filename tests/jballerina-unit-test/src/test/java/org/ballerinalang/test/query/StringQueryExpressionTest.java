@@ -48,6 +48,11 @@ public class StringQueryExpressionTest {
         Assert.assertEquals(returnValues.toString(), "Alex Ranjan John ");
     }
 
+    @Test(description = "Test simple query expression with string result")
+    public void testSimpleQueryExprForStringResult2() {
+        BRunUtil.invoke(result, "testSimpleQueryExprForStringResult2");
+    }
+
     @Test(description = "Test query expression with where giving string result")
     public void testQueryExprWithWhereForStringResult() {
         Object returnValues = BRunUtil.invoke(result, "testQueryExprWithWhereForStringResult");
