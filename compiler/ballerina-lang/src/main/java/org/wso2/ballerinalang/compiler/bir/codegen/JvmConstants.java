@@ -407,6 +407,7 @@ public class JvmConstants {
     public static final String STRAND_METADATA_VAR_PREFIX = "$strand_metadata$";
     public static final String MAIN_ARG_VAR_PREFIX = "%param";
     public static final String GRACEFUL_EXIT_METHOD_NAME = "gracefulExit";
+    public static final String SET_LISTENER_FOUND_METHOD_NAME = "setListenerDeclarationFound";
     public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
     public static final String YIELD_LOCATION = "yieldLocation";
     public static final String YIELD_STATUS = "yieldStatus";
