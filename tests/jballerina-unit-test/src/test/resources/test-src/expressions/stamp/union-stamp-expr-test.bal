@@ -40,7 +40,6 @@ type Teacher record {
 class PersonObj {
     public int age = 10;
     public string name = "mohan";
-
     public int year = 2014;
     public string month = "february";
 }
@@ -55,14 +54,12 @@ class EmployeeObj {
 
 function stampUnionToRecord() returns Employee|error {
     int|float|Employee unionVar = {name: "Raja", status: "single", batch: "LK2014", "school": "Hindu College"};
-
     Employee|error employee = unionVar.cloneWithType(Employee);
     return employee;
 }
 
 function stampUnionToJSON() returns json|error {
     int|float|json unionVar = {name: "Raja", status: "single", batch: "LK2014", school: "Hindu College"};
-
     json|error jsonValue = unionVar.cloneWithType(json);
     return jsonValue;
 }
@@ -103,7 +100,6 @@ function stampUnionToConstraintMap() {
 function stampUnionToAnydata() returns anydata|error {
     int|float|string|boolean unionValue = "mohan";
     anydata|error anydataValue = unionValue.cloneWithType(anydata);
-
     return anydataValue;
 }
 
@@ -112,14 +108,12 @@ type StringString [string, string];
 function stampUnionToTuple() returns [string, string]|error {
     int|float|[string, string] unionVar = ["mohan", "LK2014"];
     [string, string]|error tupleValue = unionVar.cloneWithType(StringString);
-
     return tupleValue;
 }
 
 function stampUnionToAnydataV2() returns anydata|error {
     int|float|string|boolean unionValue = "mohan";
     anydata|error anydataValue = unionValue.cloneWithType(anydata);
-
     return anydataValue;
 }
 
@@ -128,11 +122,8 @@ type UnionTypedesc typedesc<int|float|map<Teacher>>;
 function stampUnionToConstraintMapToUnion() returns int|float|map<Teacher>|error {
     Teacher p1 = {name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College"};
     Teacher p2 = {name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College"};
-
     map<Teacher> teacherMap = {"a": p1, "b": p2};
-
     int|float|map<Teacher> unionVar = teacherMap;
-
     int|float|map<Teacher>|error mapValue = unionVar.cloneWithType(UnionTypedesc);
     return mapValue;
 }

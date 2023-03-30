@@ -90,8 +90,7 @@ function stampAnydataToTuple() returns [string, Teacher]|error {
             age: 25,
             status: "single",
             batch: "LK2014",
-            school:
-    "Hindu College"
+            school: "Hindu College"
         }
     ];
     anydata anydataValue = tupleValue;

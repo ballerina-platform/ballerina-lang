@@ -76,8 +76,7 @@ function testConvertStampTupleToMap() {
             age: 25,
             status: "single",
             batch: "Batch9",
-            school:
-    "ABC College"
+            school: "ABC College"
         }
     ];
     [string, Employee] returnValue = checkpanic tupleValue.cloneWithType(String_Employee);
