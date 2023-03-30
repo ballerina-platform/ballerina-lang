@@ -166,17 +166,17 @@ public class ClientResourceAccessActionNodeContext
                 break;
             }
             resourcePathSegments.add(segment);
-            if (resourcePath.separatorSize() >= separatorIndex) {
+            if (hasTrailingNewLineMinutiae(segment)) {
+                break;
+            }
+            if (resourcePath.separatorSize() > separatorIndex) {
                 Token separator = resourcePath.getSeparator(separatorIndex);
                 if (separator.lineRange().startLine().line() <= context.getCursorPositionInTree()
                         && hasTrailingNewLineMinutiae(separator)) {
                     break;
                 }
             }
-
-            if (hasTrailingNewLineMinutiae(segment)) {
-                break;
-            }
+            
             separatorIndex += 1;
         }
         return resourcePathSegments;
