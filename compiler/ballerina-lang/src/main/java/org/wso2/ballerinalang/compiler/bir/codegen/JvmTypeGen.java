@@ -227,13 +227,11 @@ public class JvmTypeGen {
     void generateUserDefinedTypeFields(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
         // create the type
         for (BIRTypeDefinition typeDef : typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(typeDef.type);
+            BType bType = typeDef.type;
             int bTypeTag = bType.tag;
             if (!(bTypeTag == TypeTags.RECORD || bTypeTag == TypeTags.ERROR || bTypeTag == TypeTags.OBJECT
-                    || bTypeTag == TypeTags.UNION || bTypeTag == TypeTags.TUPLE) || (bTypeTag == TypeTags.RECORD
-                    && typeDef.type.tag == TypeTags.TYPEREFDESC)) {
-                // do not generate anything for other types (e.g.: finite type, etc.)
-                // or if the type is a type reference type of a record type
+                    || bTypeTag == TypeTags.UNION || bTypeTag == TypeTags.TUPLE)) {
+                // do not generate anything for other types (e.g.: finite type, type reference types etc.)
                 continue;
             }
             String name = typeDef.internalName.value;
