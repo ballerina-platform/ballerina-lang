@@ -969,7 +969,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         ListDefinition d = new ListDefinition();
         td.defn = d;
         List<SemType> members = new ArrayList<>();
-        for (BLangType memberTypeNode : td.memberTypeNodes) {
+        for (BLangType memberTypeNode : td.getMemberTypeNodes()) {
             members.add(resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, memberTypeNode));
         }
         SemType restType = resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, td.restParamType);
@@ -5440,8 +5440,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         BResourceFunction bResourceFunction = new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol,
-                funcType,
-                accessor, pathParamSymbols, restPathParamSym, funcNode.pos);List<BLangResourcePathSegment> pathSegments = resourceFunction.resourcePathSegments;
+                funcType, accessor, pathParamSymbols, restPathParamSym, funcNode.pos);
+
+        List<BLangResourcePathSegment> pathSegments = resourceFunction.resourcePathSegments;
         int resourcePathCount = pathSegments.size();
         List<BResourcePathSegmentSymbol> pathSegmentSymbols = new ArrayList<>(resourcePathCount);
         BResourcePathSegmentSymbol parentResource = null;
