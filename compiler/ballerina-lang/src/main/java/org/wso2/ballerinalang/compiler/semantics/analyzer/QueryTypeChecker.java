@@ -357,12 +357,19 @@ public class QueryTypeChecker extends TypeChecker {
                 resolvedType = getResolvedType(selectType, type, isReadonly, env);
                 break;
             case TypeTags.STRING:
+                selectType = checkExpr(selectExp, env, type, data);
+                resolvedType = symTable.stringType;
+                break;
             case TypeTags.XML:
             case TypeTags.XML_COMMENT:
             case TypeTags.XML_ELEMENT:
             case TypeTags.XML_PI:
             case TypeTags.XML_TEXT:
                 selectType = checkExpr(selectExp, env, type, data);
+                if (types.isAssignable(selectType, symTable.xmlType)) {
+                    resolvedType = getResolvedType(new BXMLType(selectType, null), type, isReadonly, env);
+                    break;
+                }
                 resolvedType = selectType;
                 break;
             case TypeTags.INTERSECTION:

@@ -101,6 +101,11 @@ public class XMLQueryExpressionTest {
                 "<price>30.00</price><price>29.99</price><price>49.99</price><price>39.95</price>");
     }
 
+    @Test(description = "Test simple query expression for XMLs - #4")
+    public void testSimpleQueryExprForXML4() {
+        BRunUtil.invoke(result, "testSimpleQueryExprForXML4");
+    }
+
     @Test(description = "Test simple query expression with limit clause for XMLs")
     public void testQueryExprWithLimitForXML() {
         Object returnValues = BRunUtil.invoke(result, "testQueryExprWithLimitForXML");
