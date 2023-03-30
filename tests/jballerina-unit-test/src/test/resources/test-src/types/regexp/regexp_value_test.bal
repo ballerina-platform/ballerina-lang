@@ -220,8 +220,8 @@ function testRegExpValueWithCapturingGroups5() {
     string:RegExp x7 = re `(?i:a|b)`;
     assertEquality("(?i:a|b)", x7.toString());
 
-    string:RegExp x8 = re `(?im:a|b|[])`;
-    assertEquality("(?im:a|b|[])", x8.toString());
+    string:RegExp x8 = re `(?im:a|b)`;
+    assertEquality("(?im:a|b)", x8.toString());
 
     string:RegExp x9 = re `(?i-m:[0-9])`;
     assertEquality("(?i-m:[0-9])", x9.toString());
@@ -246,6 +246,12 @@ function testRegExpValueWithCapturingGroups5() {
 
     string:RegExp x16= re `(\d*)\d(\d+)`;
     assertEquality("(\\d*)\\d(\\d+)", x16.toString());
+
+    string:RegExp x17 = re `()`;
+    assertEquality("()", x17.toString());
+
+    string:RegExp x18 = re `(?xsmi:()\P{sc=Braille})`;
+    assertEquality("(?xsmi:()\\P{sc=Braille})", x18.toString());
 }
 
 function testComplexRegExpValue() {
@@ -525,6 +531,25 @@ function testExactEqualityWithRegExp() {
 
     assertEquality(true, x1 === x4);
     assertEquality(true, re `a\td-*ab[^c-f]+(?m:xj(?i:x|y))` === x4);
+}
+
+public type Constraint record {|
+    string:RegExp pattern?;
+|};
+
+public annotation Constraint String on type;
+
+@String {
+    pattern: re `[^0-9]*`
+}
+type Number string;
+
+function testFreezeDirectWithRegExp() {
+    typedesc<any> numTd = Number;
+    assertEquality(true, numTd.@String is Constraint);
+    Constraint constraint = <Constraint>numTd.@String;
+    assertEquality(false, constraint.pattern is ());
+    assertEquality(true, constraint.pattern == re `[^0-9]*`);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

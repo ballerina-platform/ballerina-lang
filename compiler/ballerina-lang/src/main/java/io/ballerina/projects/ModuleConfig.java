@@ -36,7 +36,6 @@ public class ModuleConfig {
     private final DocumentConfig moduleMd;
     private final List<ResourceConfig> resources;
     private final List<ResourceConfig> testResources;
-    private final ModuleKind kind;
 
     private ModuleConfig(ModuleId moduleId,
                          ModuleDescriptor moduleDescriptor,
@@ -45,8 +44,7 @@ public class ModuleConfig {
                          DocumentConfig moduleMd,
                          List<ModuleDescriptor> dependencies,
                          List<ResourceConfig> resources,
-                         List<ResourceConfig> testResources,
-                         ModuleKind kind) {
+                         List<ResourceConfig> testResources) {
         this.moduleId = moduleId;
         this.moduleDescriptor = moduleDescriptor;
         this.srcDocs = srcDocs;
@@ -55,17 +53,6 @@ public class ModuleConfig {
         this.moduleMd = moduleMd;
         this.resources = resources;
         this.testResources = testResources;
-        this.kind = kind;
-    }
-
-    static ModuleConfig from(ModuleId moduleId,
-                             ModuleDescriptor moduleDescriptor,
-                             List<DocumentConfig> srcDocs,
-                             List<DocumentConfig> testSrcDocs,
-                             DocumentConfig moduleMd,
-                             List<ModuleDescriptor> dependencies, ModuleKind kind) {
-        return new ModuleConfig(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies,
-                Collections.emptyList(), Collections.emptyList(), kind);
     }
 
     public static ModuleConfig from(ModuleId moduleId,
@@ -75,7 +62,7 @@ public class ModuleConfig {
                                     DocumentConfig moduleMd,
                                     List<ModuleDescriptor> dependencies) {
         return new ModuleConfig(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies,
-                Collections.emptyList(), Collections.emptyList(), ModuleKind.USER_PROVIDED);
+                Collections.emptyList(), Collections.emptyList());
     }
 
     public static ModuleConfig from(ModuleId moduleId,
@@ -86,8 +73,8 @@ public class ModuleConfig {
                                     List<ModuleDescriptor> dependencies,
                                     List<ResourceConfig> resources,
                                     List<ResourceConfig> testResources) {
-        return new ModuleConfig(moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies,
-                resources, testResources, ModuleKind.USER_PROVIDED);
+        return new ModuleConfig(
+                moduleId, moduleDescriptor, srcDocs, testSrcDocs, moduleMd, dependencies, resources, testResources);
     }
 
     public ModuleId moduleId() {
@@ -124,9 +111,5 @@ public class ModuleConfig {
 
     public List<ResourceConfig> testResources() {
         return testResources;
-    }
-
-    public ModuleKind kind() {
-        return kind;
     }
 }

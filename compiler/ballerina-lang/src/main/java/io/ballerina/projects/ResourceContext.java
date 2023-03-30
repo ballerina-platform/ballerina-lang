@@ -46,7 +46,7 @@ class ResourceContext {
         return new ResourceContext(
                 documentConfig.documentId(),
                 documentConfig.name(),
-                documentConfig.content().orElse(null),
+                documentConfig.content(),
                 documentConfig.path());
     }
 

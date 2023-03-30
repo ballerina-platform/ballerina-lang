@@ -10,7 +10,7 @@
     "result": {
       "contents": {
         "kind": "markdown",
-        "value": "### Methods  \n  \n+ `public function 'start() returns error?`  \n  \n+ `public function gracefulStop() returns error?`  \n  \n+ `public function immediateStop() returns error?`  \n  \n+ `public function attach(service object {} s, string[]|string? name) returns error?`  \n  \n+ `public function detach(service object {} s) returns error?`  \n  \n+ `public function initEndpoint() returns error?`  \n  \n  \n---  \n  \n[View API Docs](https://lib.ballerina.io/ballerina\\/module1\\/0.1.0\\/listeners\\/Listener)"
+        "value": "### Methods  \n  \n+ `public function 'start() returns error?`  \n  \n+ `public function gracefulStop() returns error?`  \n  \n+ `public function immediateStop() returns error?`  \n  \n+ `public function attach(service object {} s, string[]|string? name) returns error?`  \n  \n+ `public function detach(service object {} s) returns error?`  \n  \n+ `public function initEndpoint() returns error?`  \n  \n  \n---  \n  \n[View API Docs](https://lib.ballerina.io/ballerina/module1/0.1.0#Listener)"
       }
     },
     "id": {

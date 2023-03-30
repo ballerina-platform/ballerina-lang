@@ -224,7 +224,7 @@ public class TypeCreator {
      */
     public static RecordType createRecordType(String typeName, Module module, long flags, boolean sealed,
                                               int typeFlags) {
-        return new BRecordType(typeName, module, flags, sealed, typeFlags);
+        return new BRecordType(typeName, typeName, module, flags, sealed, typeFlags);
     }
 
     /**
@@ -417,7 +417,7 @@ public class TypeCreator {
      * Create a {@code Table} which represents the table type.
      *
      * @param constraint constraint type
-     * @param fieldNames filed names
+     * @param fieldNames field names
      * @param readonly   whether immutable
      * @return new table type
      */

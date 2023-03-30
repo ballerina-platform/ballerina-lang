@@ -25,9 +25,9 @@
 public type TestConfig record {
     boolean enable = true;
     string[] groups = [];
-    function() returns (any|error) dataProvider?;
-    function() returns (any|error) before?;
-    function() returns (any|error) after?;
+    function () returns DataProviderReturnType dataProvider?;
+    function () returns (any|error) before?;
+    function () returns (any|error) after?;
     function[] dependsOn = [];
 };
 
@@ -65,6 +65,10 @@ public type AfterGroupsConfig record {
 
 # Identifies test function.
 public annotation TestConfig Config on function;
+
+//TODO: Enable dynamic registration upon approval
+# Identifies test factory function for dynamic test registration.
+// public annotation Factory on function;
 
 # Identifies beforeSuite function.
 public annotation BeforeSuite on function;

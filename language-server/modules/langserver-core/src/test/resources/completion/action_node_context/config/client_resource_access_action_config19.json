@@ -1,0 +1,39 @@
+{
+  "position": {
+    "line": 38,
+    "character": 40
+  },
+  "source": "action_node_context/source/client_resource_access_action_source19.bal",
+  "items": [
+    {
+      "label": ".post",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` id  \n- `string[]` params"
+        }
+      },
+      "sortText": "G",
+      "filterText": "post",
+      "insertText": ".post",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 38,
+              "character": 39
+            },
+            "end": {
+              "line": 38,
+              "character": 40
+            }
+          },
+          "newText": ""
+        }
+      ]
+    }
+  ]
+}

@@ -113,18 +113,11 @@ public class ModuleExecutionFlowTests extends BaseTest {
         runAssertDynamicListener(projectPath);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testMultipleDynamicListenersWithAsyncCall() throws BallerinaTestException {
         Path projectPath = Paths.get("src", "test", "resources", "packaging",
                 "dynamic_listener_async_call_test_project");
-        BServerInstance serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
-                null, null);
-        LogLeecher errLeecherA = new LogLeecher("Stopped module A", LogLeecher.LeecherType.ERROR);
-        serverInstance.addErrorLogLeecher(errLeecherA);
-        serverInstance.shutdownServer();
-        errLeecherA.waitForText(15000);
-        serverInstance.removeAllLeechers();
+        runAssertDynamicListener(projectPath);
     }
 
     private void runAssertDynamicListener(Path projectPath) throws BallerinaTestException {
@@ -266,6 +259,113 @@ public class ModuleExecutionFlowTests extends BaseTest {
         infoLeecher2.waitForText(TIMEOUT);
         infoLeecher3.waitForText(TIMEOUT);
         infoLeecher4.waitForText(TIMEOUT);
+        serverInstance.removeAllLeechers();
+    }
+
+    @Test
+    public void testModuleExecuteFunctionOrder() throws BallerinaTestException {
+        Path projectPath = Paths.get("src", "test", "resources", "packaging", "module_execute_invocation_project");
+        BServerInstance serverInstance = new BServerInstance(balServer);
+        LogLeecher listenerInitLeecher = new LogLeecher("Calling init for 'current'", LogLeecher.LeecherType.INFO);
+        LogLeecher moduleInitLeecher = new LogLeecher("Initializing module 'current'", LogLeecher.LeecherType.INFO);
+        LogLeecher mainLeecher =
+                new LogLeecher("main function invoked for 'current' module", LogLeecher.LeecherType.INFO);
+        LogLeecher listenerStartLeecher = new LogLeecher("Calling start for 'current'", LogLeecher.LeecherType.INFO);
+
+        serverInstance.addLogLeecher(listenerInitLeecher);
+        serverInstance.addLogLeecher(moduleInitLeecher);
+        serverInstance.addLogLeecher(mainLeecher);
+        serverInstance.addLogLeecher(listenerStartLeecher);
+        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
+                null, null);
+        serverInstance.shutdownServer();
+
+        listenerInitLeecher.waitForText(TIMEOUT);
+        moduleInitLeecher.waitForText(TIMEOUT);
+        mainLeecher.waitForText(TIMEOUT);
+        listenerStartLeecher.waitForText(TIMEOUT);
+        serverInstance.removeAllLeechers();
+    }
+
+    @Test
+    public void testModuleInitWithBusyWorkerAndListener() throws BallerinaTestException {
+        Path projectPath = Paths.get("src", "test", "resources", "packaging", "module_init_worker_project");
+        BServerInstance serverInstance = new BServerInstance(balServer);
+        LogLeecher listenerInitLeecher = new LogLeecher("Calling init for 'current'", LogLeecher.LeecherType.INFO);
+        LogLeecher moduleInitLeecher = new LogLeecher("Initializing module 'current'", LogLeecher.LeecherType.INFO);
+        LogLeecher mainLeecher =
+                new LogLeecher("main function invoked for 'current' module", LogLeecher.LeecherType.INFO);
+        LogLeecher listenerStartLeecher = new LogLeecher("Calling start for 'current'", LogLeecher.LeecherType.INFO);
+        LogLeecher workerLeecher = new LogLeecher("executing worker 'w1'", LogLeecher.LeecherType.INFO);
+
+        serverInstance.addLogLeecher(listenerInitLeecher);
+        serverInstance.addLogLeecher(moduleInitLeecher);
+        serverInstance.addLogLeecher(mainLeecher);
+        serverInstance.addLogLeecher(listenerStartLeecher);
+        serverInstance.addLogLeecher(workerLeecher);
+        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
+                null, null);
+        serverInstance.shutdownServer();
+
+        listenerInitLeecher.waitForText(TIMEOUT);
+        moduleInitLeecher.waitForText(TIMEOUT);
+        mainLeecher.waitForText(TIMEOUT);
+        listenerStartLeecher.waitForText(TIMEOUT);
+        workerLeecher.waitForText(TIMEOUT);
+
+        serverInstance.removeAllLeechers();
+    }
+
+    @Test
+    public void testModuleInitWithBusyWorkerAndDynamicListener() throws BallerinaTestException {
+        Path projectPath =
+                Paths.get("src", "test", "resources", "packaging", "module_init_worker_dynamic_listener_project");
+        BServerInstance serverInstance = new BServerInstance(balServer);
+        LogLeecher moduleInitLeecher = new LogLeecher("Initializing module 'current'", LogLeecher.LeecherType.INFO);
+        LogLeecher mainLeecher =
+                new LogLeecher("main function invoked for 'current' module", LogLeecher.LeecherType.INFO);
+        LogLeecher workerLeecher = new LogLeecher("executing worker 'w1'", LogLeecher.LeecherType.INFO);
+        LogLeecher listenerInitLeecher = new LogLeecher("Calling init for 'dynamic'", LogLeecher.LeecherType.INFO);
+        LogLeecher listenerStartLeecher = new LogLeecher("Calling start for 'dynamic'", LogLeecher.LeecherType.INFO);
+        LogLeecher listenerStopLeecher = new LogLeecher("Calling stop for 'dynamic'", LogLeecher.LeecherType.INFO);
+
+        serverInstance.addLogLeecher(moduleInitLeecher);
+        serverInstance.addLogLeecher(mainLeecher);
+        serverInstance.addLogLeecher(workerLeecher);
+        serverInstance.addLogLeecher(listenerInitLeecher);
+        serverInstance.addLogLeecher(listenerStartLeecher);
+        serverInstance.addLogLeecher(listenerStopLeecher);
+        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
+                null, null);
+        serverInstance.shutdownServer();
+        moduleInitLeecher.waitForText(TIMEOUT);
+        mainLeecher.waitForText(TIMEOUT);
+        workerLeecher.waitForText(TIMEOUT);
+        listenerInitLeecher.waitForText(TIMEOUT);
+        listenerStartLeecher.waitForText(TIMEOUT);
+        listenerStopLeecher.waitForText(TIMEOUT);
+        serverInstance.removeAllLeechers();
+    }
+
+    @Test
+    public void testModuleInitWithBusyWorkerTerminating() throws BallerinaTestException {
+        Path projectPath =
+                Paths.get("src", "test", "resources", "packaging", "module_init_worker_no_listener_project");
+        BServerInstance serverInstance = new BServerInstance(balServer);
+        LogLeecher moduleInitLeecher = new LogLeecher("Initializing module 'current'", LogLeecher.LeecherType.INFO);
+        LogLeecher mainLeecher =
+                new LogLeecher("main function invoked for 'current' module", LogLeecher.LeecherType.INFO);
+        LogLeecher workerLeecher = new LogLeecher("executing worker 'w1'", LogLeecher.LeecherType.INFO);
+
+        serverInstance.addLogLeecher(moduleInitLeecher);
+        serverInstance.addLogLeecher(mainLeecher);
+        serverInstance.addLogLeecher(workerLeecher);
+        serverInstance.startServer(projectPath.toAbsolutePath().toString(), projectPath.getFileName().toString(), null,
+                null, null);
+        serverInstance.shutdownServer();
+        moduleInitLeecher.waitForText(TIMEOUT);
+        mainLeecher.waitForText(TIMEOUT);
+        workerLeecher.waitForText(TIMEOUT);
         serverInstance.removeAllLeechers();
     }
 }

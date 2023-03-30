@@ -68,7 +68,7 @@ class DefaultDiagnostic extends Diagnostic {
     @Override
     public String toString() {
         LineRange lineRange = this.location.lineRange();
-        String filePath = lineRange.filePath();
+        String filePath = lineRange.fileName();
         LineRange oneBasedLineRange = LineRange.from(
                 filePath,
                 LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),

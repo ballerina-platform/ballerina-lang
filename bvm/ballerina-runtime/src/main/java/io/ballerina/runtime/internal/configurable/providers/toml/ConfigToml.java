@@ -71,7 +71,7 @@ public class ConfigToml {
         StringBuilder errorMessage = new StringBuilder("\n");
         for (Diagnostic diagnostic : diagnosticList) {
             LineRange lineRange = getOneBasedLineRange(diagnostic.location().lineRange());
-            errorMessage.append("[").append(lineRange.filePath()).append(":")
+            errorMessage.append("[").append(lineRange.fileName()).append(":")
                     .append(lineRange).append("] ").append(diagnostic.message()).append("\n");
         }
         return errorMessage.toString();

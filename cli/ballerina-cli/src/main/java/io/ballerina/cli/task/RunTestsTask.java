@@ -18,8 +18,6 @@
 
 package io.ballerina.cli.task;
 
-import com.google.gson.Gson;
-import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarLibrary;
@@ -36,41 +34,23 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.projects.util.ProjectUtils;
-import org.ballerinalang.test.runtime.entity.CoverageReport;
-import org.ballerinalang.test.runtime.entity.ModuleCoverage;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
-import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.JacocoInstrumentUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
-import org.ballerinalang.test.runtime.util.TesterinaUtils;
 import org.ballerinalang.testerina.core.TestProcessor;
-import org.ballerinalang.testerina.core.TesterinaRegistry;
-import org.jacoco.core.analysis.IClassCoverage;
-import org.jacoco.core.analysis.ISourceFileCoverage;
-import org.jacoco.core.data.ExecutionData;
-import org.jacoco.core.data.SessionInfo;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,19 +60,14 @@ import java.util.stream.Collectors;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
 import static io.ballerina.cli.utils.DebugUtils.isInDebugMode;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.COVERAGE_DIR;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.DATA_KEY_SEPARATOR;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
+import static io.ballerina.cli.utils.TestUtils.cleanTempCache;
+import static io.ballerina.cli.utils.TestUtils.clearFailedTestsJson;
+import static io.ballerina.cli.utils.TestUtils.generateCoverage;
+import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
+import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
+import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.MODULE_SEPARATOR;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.RERUN_TEST_JSON_FILE;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_HTML_FILE;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_JSON_FILE;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.TOOLS_DIR_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
@@ -107,37 +82,24 @@ public class RunTestsTask implements Task {
     private final PrintStream out;
     private final PrintStream err;
     private final String includesInCoverage;
-    private List<String> groupList;
-    private List<String> disableGroupList;
+    private String groupList;
+    private String disableGroupList;
     private boolean report;
     private boolean coverage;
     private String coverageReportFormat;
-    private boolean isSingleTestExecution;
     private boolean isRerunTestExecution;
-    private List<String> singleExecTests;
+    private String singleExecTests;
     private Map<String, Module> coverageModules;
+    private boolean listGroups;
 
     TestReport testReport;
 
-    public RunTestsTask(PrintStream out, PrintStream err, String includes, String coverageFormat) {
+    public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
+                        String disableGroupList, String testList, String includes, String coverageFormat,
+                        Map<String, Module> modules, boolean listGroups)  {
         this.out = out;
         this.err = err;
-        this.includesInCoverage = includes;
-        this.coverageReportFormat = coverageFormat;
-    }
-
-    public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, List<String> groupList,
-                        List<String> disableGroupList, List<String> testList, String includes, String coverageFormat,
-                        Map<String, Module> modules) {
-        this.out = out;
-        this.err = err;
-        this.isSingleTestExecution = false;
         this.isRerunTestExecution = rerunTests;
-
-        // If rerunTests is true, we get the rerun test list and assign it to 'testList'
-        if (this.isRerunTestExecution) {
-            testList = new ArrayList<>();
-        }
 
         if (disableGroupList != null) {
             this.disableGroupList = disableGroupList;
@@ -146,12 +108,12 @@ public class RunTestsTask implements Task {
         }
 
         if (testList != null) {
-            isSingleTestExecution = true;
             singleExecTests = testList;
         }
         this.includesInCoverage = includes;
         this.coverageReportFormat = coverageFormat;
         this.coverageModules = modules;
+        this.listGroups = listGroups;
     }
 
     @Override
@@ -161,7 +123,6 @@ public class RunTestsTask implements Task {
             start = System.currentTimeMillis();
         }
 
-        filterTestGroups();
         report = project.buildOptions().testReport();
         coverage = project.buildOptions().codeCoverage();
 
@@ -205,26 +166,17 @@ public class RunTestsTask implements Task {
             ModuleName moduleName = module.moduleName();
 
             TestSuite suite = testProcessor.testSuite(module).orElse(null);
-
             if (suite == null) {
                 continue;
-            } else if (isRerunTestExecution && suite.getTests().isEmpty()) {
-                continue;
-            } else if (isSingleTestExecution && suite.getTests().isEmpty()) {
-                continue;
             }
+
             //Set 'hasTests' flag if there are any tests available in the package
             if (!hasTests) {
                 hasTests = true;
             }
 
-            if (isRerunTestExecution) {
-                singleExecTests = readFailedTestsFromFile(target.path());
-            }
-            if (isSingleTestExecution || isRerunTestExecution) {
-                // Update data driven tests with key
-                updatedSingleExecTests = filterKeyBasedTests(moduleName.moduleNamePart(), suite, singleExecTests);
-                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, updatedSingleExecTests));
+            if (!isRerunTestExecution) {
+                clearFailedTestsJson(target.path());
             }
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
                 suite.setSourceFileName(project.sourceRoot().getFileName().toString());
@@ -260,7 +212,8 @@ public class RunTestsTask implements Task {
         if (hasTests) {
             int testResult;
             try {
-                testResult = runTestSuit(target, project.currentPackage(), jBallerinaBackend, mockClassNames);
+                testResult = runTestSuite(target, project.currentPackage(), jBallerinaBackend, mockClassNames);
+
                 if (report || coverage) {
                     for (String moduleName : moduleNamesList) {
                         ModuleStatus moduleStatus = loadModuleStatusFromFile(
@@ -272,8 +225,9 @@ public class RunTestsTask implements Task {
                         testReport.addModuleStatus(moduleName, moduleStatus);
                     }
                     try {
-                        generateCoverage(project, jBallerinaBackend);
-                        generateTesterinaReports(project, this.out, testReport, target);
+                        generateCoverage(project, testReport, jBallerinaBackend, this.includesInCoverage,
+                                this.coverageReportFormat, this.coverageModules);
+                        generateTesterinaReports(project, testReport, this.out, target);
                     } catch (IOException e) {
                         cleanTempCache(project, cachesRoot);
                         throw createLauncherException("error occurred while generating test report :", e);
@@ -297,226 +251,7 @@ public class RunTestsTask implements Task {
         }
     }
 
-    /**
-     * Contains module name as prefix to test name.
-     *
-     * @param testName String
-     * @return boolean
-     */
-    private boolean containsModulePrefix(String testName) {
-        boolean hasModPrefix = false;
-        if (testName.contains(MODULE_SEPARATOR)) {
-            if (testName.contains(DATA_KEY_SEPARATOR)) {
-                if (testName.indexOf(MODULE_SEPARATOR) < testName.indexOf(DATA_KEY_SEPARATOR)) {
-                    hasModPrefix = true;
-                }
-            } else {
-                hasModPrefix = true;
-            }
-        }
-        return hasModPrefix;
-    }
-
-    /**
-     * Check whether module information is included in the provided test name.
-     *
-     * @param testName    String
-     * @param packageName String
-     * @param moduleName  String
-     * @return boolean
-     */
-    private boolean includesModule(String testName, String packageName, String moduleName) {
-        boolean flag = false;
-        if (containsModulePrefix(testName)) {
-            String prefix = testName.substring(0, testName.indexOf(MODULE_SEPARATOR));
-            try {
-                if (prefix.equals(packageName) || prefix.equals(packageName + DOT + moduleName)) {
-                    flag = true;
-                }
-            } catch (IndexOutOfBoundsException e) {
-                throw createLauncherException("error occurred while executing tests. Test list cannot be empty", e);
-            }
-        } else {
-            flag = true;
-        }
-        return flag;
-    }
-
-    /**
-     * Update test filters using the given data keys.
-     *
-     * @param moduleName      String
-     * @param suite           TestSuite
-     * @param singleExecTests List<String>
-     * @return List of updated tests
-     */
-    private List<String> filterKeyBasedTests(String moduleName, TestSuite suite, List<String> singleExecTests) {
-        List<String> updatedSingleExecTests = new ArrayList<>();
-        Map<String, List<String>> keyValues = new HashMap<>();
-        for (String testName : singleExecTests) {
-            if (testName.contains(DATA_KEY_SEPARATOR) && includesModule(testName, suite.getPackageID(), moduleName)) {
-                try {
-                    // Separate test name and the data set key
-                    String testValue = testName.substring(0, testName.indexOf(DATA_KEY_SEPARATOR));
-                    String originalTestName = testValue;
-                    String caseValue = testName.substring(testName.indexOf(DATA_KEY_SEPARATOR) + 1);
-                    if (originalTestName.contains(MODULE_SEPARATOR)) {
-                        originalTestName = originalTestName.substring(originalTestName.indexOf(MODULE_SEPARATOR) + 1);
-                    }
-                    if (keyValues.containsKey(originalTestName)) {
-                        keyValues.get(originalTestName).add(caseValue);
-                    } else {
-                        keyValues.put(originalTestName, new ArrayList<>(Arrays.asList(caseValue)));
-                    }
-                    // Update the test name in the filtered test list
-                    if (!updatedSingleExecTests.contains(testValue)) {
-                        updatedSingleExecTests.add(testValue);
-                    }
-                } catch (IndexOutOfBoundsException e) {
-                    throw createLauncherException("error occurred while filtering tests based on provided key values",
-                            e);
-                }
-            } else {
-                if (!updatedSingleExecTests.contains(testName)) {
-                    updatedSingleExecTests.add(testName);
-                }
-            }
-        }
-        if (!keyValues.isEmpty()) {
-            suite.setSingleDDTExecution(true);
-            suite.setDataKeyValues(keyValues);
-        }
-        return updatedSingleExecTests;
-    }
-
-    private void generateCoverage(Project project, JBallerinaBackend jBallerinaBackend)
-            throws IOException {
-        // Generate code coverage
-        if (!coverage) {
-            return;
-        }
-        if (testReport == null) { // This to avoid the spotbugs failure.
-            return;
-        }
-        Map<String, ModuleCoverage> moduleCoverageMap = initializeCoverageMap(project);
-        // Following lists will hold the coverage information needed for the coverage XML file generation.
-        List<ISourceFileCoverage> packageSourceCoverageList = new ArrayList();
-        List<IClassCoverage> packageNativeClassCoverageList = new ArrayList();
-        List<IClassCoverage> packageBalClassCoverageList = new ArrayList();
-        List<ExecutionData> packageExecData = new ArrayList();
-        List<SessionInfo> packageSessionInfo = new ArrayList();
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            Module module = project.currentPackage().module(moduleId);
-            CoverageReport coverageReport = new CoverageReport(module, moduleCoverageMap,
-                    packageNativeClassCoverageList, packageBalClassCoverageList, packageSourceCoverageList,
-                    packageExecData, packageSessionInfo);
-            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage, this.coverageReportFormat,
-                    this.coverageModules.get(module.moduleName().toString()));
-        }
-        // Traverse coverage map and add module wise coverage to test report
-        for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
-            String moduleName = (String) mapElement.getKey();
-            ModuleCoverage moduleCoverage = (ModuleCoverage) mapElement.getValue();
-            testReport.addCoverage(moduleName, moduleCoverage);
-        }
-        if (CodeCoverageUtils.isRequestedReportFormat(this.coverageReportFormat,
-                TesterinaConstants.JACOCO_XML_FORMAT)) {
-            // Generate coverage XML report
-            CodeCoverageUtils.createXMLReport(project, packageExecData, packageNativeClassCoverageList,
-                    packageBalClassCoverageList, packageSourceCoverageList, packageSessionInfo);
-        }
-    }
-
-
-    private void filterTestGroups() {
-        TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
-        if (disableGroupList != null) {
-            testerinaRegistry.setGroups(disableGroupList);
-            testerinaRegistry.setShouldIncludeGroups(false);
-        } else if (groupList != null) {
-            testerinaRegistry.setGroups(groupList);
-            testerinaRegistry.setShouldIncludeGroups(true);
-        }
-    }
-
-    /**
-     * Write the test report content into testerina report formats(json and html).
-     *
-     * @param out        PrintStream object to print messages to console
-     * @param testReport Data that are parsed to the json
-     */
-    private void generateTesterinaReports(Project project, PrintStream out, TestReport testReport, Target target)
-            throws IOException {
-        if (!report && !coverage) {
-            return;
-        }
-        if (testReport.getModuleStatus().size() <= 0) {
-            return;
-        }
-
-        out.println();
-        out.println("Generating Test Report");
-
-        Path reportDir = target.getReportPath();
-
-        // Set projectName in test report
-        String projectName;
-        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            projectName = ProjectUtils.getJarFileName(project.currentPackage().getDefaultModule())
-                    + ProjectConstants.BLANG_SOURCE_EXT;
-        } else {
-            projectName = project.currentPackage().packageName().toString();
-        }
-        testReport.setProjectName(projectName);
-        testReport.finalizeTestResults(coverage);
-
-        Gson gson = new Gson();
-        String json = gson.toJson(testReport).replaceAll("\\\\\\(", "(");
-
-        File jsonFile = new File(reportDir.resolve(RESULTS_JSON_FILE).toString());
-        try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
-            try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
-                writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                out.println("\t" + jsonFile.toPath() + "\n");
-            }
-        }
-
-        Path reportZipPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_LIB).
-                resolve(TesterinaConstants.TOOLS_DIR_NAME).resolve(TesterinaConstants.COVERAGE_DIR).
-                resolve(REPORT_ZIP_NAME);
-        // Dump the Testerina html report only if '--test-report' flag is provided
-        if (report) {
-            if (Files.exists(reportZipPath)) {
-                String content;
-                try {
-                    try (FileInputStream fileInputStream = new FileInputStream(reportZipPath.toFile())) {
-                        CodeCoverageUtils.unzipReportResources(fileInputStream,
-                                reportDir.toFile());
-                    }
-                    content = Files.readString(reportDir.resolve(RESULTS_HTML_FILE));
-                    content = content.replace(REPORT_DATA_PLACEHOLDER, json);
-                } catch (IOException e) {
-                    throw createLauncherException("error occurred while preparing test report: " + e.toString());
-                }
-                File htmlFile = new File(reportDir.resolve(RESULTS_HTML_FILE).toString());
-                try (FileOutputStream fileOutputStream = new FileOutputStream(htmlFile)) {
-                    try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
-                        writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                        out.println("\tView the test report at: " +
-                                FILE_PROTOCOL + Paths.get(htmlFile.getPath()).toAbsolutePath().normalize().toString());
-                    }
-                }
-            } else {
-                String reportToolsPath = "<" + BALLERINA_HOME + ">" + File.separator + BALLERINA_HOME_LIB +
-                        File.separator + TOOLS_DIR_NAME + File.separator + COVERAGE_DIR + File.separator +
-                        REPORT_ZIP_NAME;
-                out.println("warning: Could not find the required HTML report tools for code coverage at "
-                        + reportToolsPath);
-            }
-        }
-    }
-
-    private int runTestSuit(Target target, Package currentPackage, JBallerinaBackend jBallerinaBackend,
+    private int runTestSuite(Target target, Package currentPackage, JBallerinaBackend jBallerinaBackend,
                             List<String> mockClassNames) throws IOException, InterruptedException,
             ClassNotFoundException {
         String packageName = currentPackage.packageName().toString();
@@ -561,87 +296,19 @@ public class RunTestsTask implements Task {
         cmdArgs.add(mainClassName);
 
         // Adds arguments to be read at the Test Runner
-        // Index [0 - 3...]
         cmdArgs.add(target.path().toString());
         cmdArgs.add(jacocoAgentJarPath);
         cmdArgs.add(Boolean.toString(report));
         cmdArgs.add(Boolean.toString(coverage));
+        cmdArgs.add(this.groupList != null ? this.groupList : "");
+        cmdArgs.add(this.disableGroupList != null ? this.disableGroupList : "");
+        cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
+        cmdArgs.add(Boolean.toString(isRerunTestExecution));
+        cmdArgs.add(Boolean.toString(listGroups));
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
         return proc.waitFor();
-    }
-
-    /**
-     * Loads the ModuleStatus object by reading a given Json.
-     *
-     * @param statusJsonPath file path of json file
-     * @return ModuleStatus object
-     * @throws IOException if file does not exist
-     */
-    private ModuleStatus loadModuleStatusFromFile(Path statusJsonPath) throws IOException {
-        Gson gson = new Gson();
-        BufferedReader bufferedReader = Files.newBufferedReader(statusJsonPath, StandardCharsets.UTF_8);
-        return gson.fromJson(bufferedReader, ModuleStatus.class);
-    }
-
-    private List<String> readFailedTestsFromFile(Path rerunTestJsonPath) {
-        Gson gson = new Gson();
-        rerunTestJsonPath = Paths.get(rerunTestJsonPath.toString(), RERUN_TEST_JSON_FILE);
-
-        try (BufferedReader bufferedReader = Files.newBufferedReader(rerunTestJsonPath, StandardCharsets.UTF_8)) {
-            return gson.fromJson(bufferedReader, ArrayList.class);
-        } catch (IOException e) {
-            throw createLauncherException("error while running failed tests : ", e);
-        }
-    }
-
-    private void cleanTempCache(Project project, Path cachesRoot) {
-        if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            ProjectUtils.deleteDirectory(cachesRoot);
-        }
-    }
-
-    /**
-     * Initialize coverage map used for aggregating module wise coverage.
-     *
-     * @param project Project
-     * @return Map<String, ModuleCoverage>
-     */
-    private Map<String, ModuleCoverage> initializeCoverageMap(Project project) {
-        Map<String, ModuleCoverage> moduleCoverageMap = new HashMap<>();
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            Module module = project.currentPackage().module(moduleId);
-            moduleCoverageMap.put(module.moduleName().toString(), new ModuleCoverage());
-        }
-        return moduleCoverageMap;
-    }
-
-    /**
-     * Write the content of each test suite into a common json.
-     */
-    private static void writeToTestSuiteJson(Map<String, TestSuite> testSuiteMap, Path testsCachePath) {
-        if (!Files.exists(testsCachePath)) {
-            try {
-                Files.createDirectories(testsCachePath);
-            } catch (IOException e) {
-                throw LauncherUtils.createLauncherException("couldn't create test cache directories : " + e.toString());
-            }
-        }
-
-        Path jsonFilePath = Paths.get(testsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
-        File jsonFile = new File(jsonFilePath.toString());
-        try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
-            try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
-                Gson gson = new Gson();
-                String json = gson.toJson(testSuiteMap);
-                writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-            } catch (IOException e) {
-                throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
-            }
-        } catch (IOException e) {
-            throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
-        }
     }
 
     private String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {

@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 9,
+    "character": 37
+  },
+  "source": "type_cast_in_conditional_expr.bal",
+  "expected": [
+    {
+      "title": "Add type cast",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 35
+            },
+            "end": {
+              "line": 9,
+              "character": 35
+            }
+          },
+          "newText": "<int>"
+        }
+      ]
+    }
+  ]
+}

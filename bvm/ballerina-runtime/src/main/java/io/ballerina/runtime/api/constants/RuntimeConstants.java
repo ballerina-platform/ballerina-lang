@@ -106,7 +106,7 @@ public class RuntimeConstants {
     public static final double BINT_MIN_VALUE_DOUBLE_RANGE_MIN = -9223372036854775807.6;
     public static final BigDecimal BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX = new BigDecimal("9223372036854775807.5",
                                                                                          MathContext.DECIMAL128);
-    public static final BigDecimal BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN = new BigDecimal("-9223372036854775807.6",
+    public static final BigDecimal BINT_MIN_VALUE_BIG_DECIMAL_RANGE_MIN = new BigDecimal("-9223372036854775808.5",
                                                                                          MathContext.DECIMAL128);
     // runtime related error message constant values
     public static final String INTERNAL_ERROR_MESSAGE =

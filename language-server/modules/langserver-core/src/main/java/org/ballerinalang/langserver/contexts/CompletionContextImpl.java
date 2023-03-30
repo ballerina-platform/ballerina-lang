@@ -31,11 +31,9 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
  *
  * @since 1.2.0
  */
-public class CompletionContextImpl extends AbstractDocumentServiceContext implements CompletionContext {
+public class CompletionContextImpl extends PositionedOperationContextImpl implements CompletionContext {
 
     private final CompletionCapabilities capabilities;
-    private final Position cursorPosition;
-    private int cursorPosInTree = -1;
 
     CompletionContextImpl(LSOperation operation,
                           String fileUri,
@@ -43,9 +41,7 @@ public class CompletionContextImpl extends AbstractDocumentServiceContext implem
                           CompletionCapabilities capabilities,
                           Position cursorPosition,
                           LanguageServerContext serverContext) {
-        super(operation, fileUri, wsManager, serverContext);
-        this.capabilities = capabilities;
-        this.cursorPosition = cursorPosition;
+        this(operation, fileUri, wsManager, capabilities, cursorPosition, serverContext, null);
     }
 
     CompletionContextImpl(LSOperation operation,
@@ -55,34 +51,15 @@ public class CompletionContextImpl extends AbstractDocumentServiceContext implem
                           Position cursorPosition,
                           LanguageServerContext serverContext,
                           CancelChecker cancelChecker) {
-        super(operation, fileUri, wsManager, serverContext, cancelChecker);
+        super(operation, fileUri, cursorPosition, wsManager, serverContext, cancelChecker);
         this.capabilities = capabilities;
-        this.cursorPosition = cursorPosition;
     }
 
     @Override
     public CompletionCapabilities getCapabilities() {
         return this.capabilities;
     }
-
-    @Override
-    public void setCursorPositionInTree(int offset) {
-        if (this.cursorPosInTree > -1) {
-            throw new RuntimeException("Setting the cursor offset more than once is not allowed");
-        }
-        this.cursorPosInTree = offset;
-    }
-
-    @Override
-    public int getCursorPositionInTree() {
-        return this.cursorPosInTree;
-    }
-
-    @Override
-    public Position getCursorPosition() {
-        return this.cursorPosition;
-    }
-
+    
     /**
      * Represents Language server completion context Builder.
      *

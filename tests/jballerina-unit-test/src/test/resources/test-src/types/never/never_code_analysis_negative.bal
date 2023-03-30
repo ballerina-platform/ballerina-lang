@@ -48,3 +48,22 @@ function testInvalidUsageOfExprOfNeverInGroupedExpr() returns error? {
     error? x = check (unreached());
     return;
 }
+
+public type Foo record {
+    never w;
+    record {|
+        *Foo;
+    |} x;
+};
+
+public type Bar record {
+    record {|
+        *Bar;
+        never x?;
+    |} x;
+};
+
+function testCyclicInclusionViaFieldWithNever() {
+    Foo _ = {}; // error: expression of type 'never' or equivalent to type 'never' not allowed here
+    Bar _ = {x: {}}; // OK
+}

@@ -286,6 +286,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(ConstantDeclarationNode node) {
         checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
 
         Optional<Token> visibilityQualifier = node.visibilityQualifier();
         int startOffset = visibilityQualifier.map(token -> token.textRange().startOffset())
@@ -307,6 +308,7 @@ public class CodeActionNodeAnalyzer extends NodeVisitor {
     @Override
     public void visit(EnumDeclarationNode node) {
         checkAndSetCodeActionNode(node);
+        checkAndSetSyntaxKind(node.kind());
 
         int startOffset = node.qualifier().map(token -> token.textRange().startOffset())
                 .orElseGet(() -> node.enumKeywordToken().textRange().startOffset());

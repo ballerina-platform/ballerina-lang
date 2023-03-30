@@ -35,6 +35,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.AbstractMap;
@@ -58,7 +59,8 @@ public class PackageUtils {
     public static final String INIT_CLASS_NAME = "$_init";
     public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
     public static final String GENERATED_VAR_PREFIX = "$";
-    static final String MODULE_DIR_NAME = "modules";
+    static final String USER_MODULE_DIR = "modules";
+    static final String GEN_MODULE_DIR = "generated";
     static final String TEST_PKG_POSTFIX = "$test";
     private static final String URI_SCHEME_FILE = "file";
     private static final String URI_SCHEME_BALA = "bala";
@@ -190,6 +192,9 @@ public class PackageUtils {
             }
 
             Project project = context.getProjectCache().getProject(path.get());
+            // This triggers a resolution request to load all the generated modules, if not loaded already.
+            project.currentPackage().getResolution();
+
             if (project instanceof SingleFileProject) {
                 DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
                 String docName = project.currentPackage().getDefaultModule().document(documentId).name();
@@ -289,16 +294,36 @@ public class PackageUtils {
      */
     private static Optional<Path> getPathFromURI(String fileUri) {
         try {
+            if (isValidPath(fileUri)) {
+                return Optional.of(Paths.get(fileUri).normalize());
+            }
+
             URI uri = URI.create(fileUri);
             String scheme = uri.getScheme();
             if (uri.getScheme() == null || uri.getScheme().equals(URI_SCHEME_BALA)) {
                 scheme = URI_SCHEME_FILE;
             }
             URI converted = new URI(scheme, uri.getHost(), uri.getPath(), uri.getFragment());
-            return Optional.of(Paths.get(converted));
+            return Optional.of(Paths.get(converted).normalize());
         } catch (URISyntaxException e) {
             return Optional.empty();
         }
+    }
+
+    /**
+     * Checks if the given string is a valid path.
+     */
+    private static boolean isValidPath(String path) {
+        if (path.startsWith(URI_SCHEME_BALA + ":")) {
+            return false;
+        }
+
+        try {
+            Paths.get(path);
+        } catch (InvalidPathException | NullPointerException ex) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -310,13 +335,17 @@ public class PackageUtils {
      */
     private static String getFullModuleName(Document document) {
         String packageNamePart = encodeModuleName(document.module().moduleName().packageName().value());
-        if (document.module().testDocumentIds().contains(document.documentId())) {
-            // all the generated java classes for Ballerina test sources ends with "$test" postfix
-            packageNamePart = packageNamePart + TEST_PKG_POSTFIX;
-        }
 
         String moduleNamePart = document.module().moduleName().moduleNamePart();
-        return moduleNamePart != null ? encodeModuleName(packageNamePart + "." + moduleNamePart) : packageNamePart;
+        String moduleName = moduleNamePart != null ? encodeModuleName(packageNamePart + "." + moduleNamePart) :
+                packageNamePart;
+
+        if (document.module().testDocumentIds().contains(document.documentId())) {
+            // all the generated java classes for Ballerina test sources ends with "$test" postfix
+            moduleName = moduleName + TEST_PKG_POSTFIX;
+        }
+
+        return moduleName;
     }
 
     private static String replaceSeparators(String path) {

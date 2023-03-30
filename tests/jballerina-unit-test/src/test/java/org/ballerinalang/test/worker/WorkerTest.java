@@ -29,8 +29,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.Arrays;
 
 import static io.ballerina.runtime.api.utils.TypeUtils.getType;
@@ -242,13 +240,6 @@ public class WorkerTest {
         BRunUtil.invoke(result, "receiveDefaultWithCheckAndTrap");
     }
 
-    @Test(enabled = false) // https://github.com/ballerina-platform/ballerina-lang/issues/30595
-    public void sameStrandMultipleInvocation() {
-        for (int i = 0; i < 20; i++) {
-            sameStrandMultipleInvocationTest();
-        }
-    }
-
     @Test
     public void workerTestWithLambda() {
         Object returns = BRunUtil.invoke(result, "workerTestWithLambda");
@@ -279,21 +270,6 @@ public class WorkerTest {
             Assert.assertEquals(returns, 18L);
         } catch (BLangRuntimeException e) {
             Assert.assertTrue(e.getMessage().contains("error: {ballerina/lang.future}FutureAlreadyCancelled"));
-        }
-    }
-
-    private void sameStrandMultipleInvocationTest() {
-        PrintStream defaultOut = System.out;
-        try {
-            ByteArrayOutputStream tempOutStream = new ByteArrayOutputStream();
-            System.setOut(new PrintStream(tempOutStream));
-            BRunUtil.invoke(result, "sameStrandMultipleInvocation");
-            String result = new String(tempOutStream.toByteArray());
-            // we cannot guarantee an ordering between message sends
-            Assert.assertTrue((result.contains("11 - 11") && result.contains("12 - 12")) ||
-                    (result.contains("11 - 12") && result.contains("12 - 11")), result);
-        } finally {
-            System.setOut(defaultOut);
         }
     }
 

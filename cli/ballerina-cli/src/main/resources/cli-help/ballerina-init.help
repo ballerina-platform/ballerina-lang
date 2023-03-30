@@ -1,5 +1,5 @@
 NAME
-       ballerina-init - Create a new Ballerina package inside the current
+       ballerina-init - Initialize a Ballerina package inside the current
        directory
 
 SYNOPSIS

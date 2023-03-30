@@ -34,6 +34,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.context.util.RegexpCompletionProvider;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -61,11 +62,14 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
+        if (node.kind() == SyntaxKind.REGEX_TEMPLATE_EXPRESSION) {
+            completionItems.addAll(RegexpCompletionProvider.getRegexCompletions(nodeAtCursor, context));
+        }
+
         Optional<InterpolationNode> interpolationNode = findInterpolationNode(nodeAtCursor, node);
         if (interpolationNode.isEmpty() || !this.isWithinInterpolation(context, node)) {
             return completionItems;
         }
-        
         // If the node at cursor is an interpolation, show expression suggestions
         if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
@@ -79,12 +83,6 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         this.sort(context, node, completionItems, interpolationParent);
 
         return completionItems;
-    }
-
-    @Override
-    public boolean onPreValidation(BallerinaCompletionContext context, TemplateExpressionNode node) {
-        return node.textRange().startOffset() <= context.getCursorPositionInTree() 
-                && context.getCursorPositionInTree() <= node.textRange().endOffset();
     }
 
     /**
@@ -160,6 +158,12 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         }
     }
 
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, TemplateExpressionNode node) {
+        return node.textRange().startOffset() <= context.getCursorPositionInTree()
+                && context.getCursorPositionInTree() <= node.textRange().endOffset();
+    }
+
     private Predicate<Symbol> symbolFilterPredicate() {
         return CommonUtil.getVariableFilterPredicate()
                 .or(symbol -> symbol.kind() == SymbolKind.FUNCTION
@@ -180,7 +184,7 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
     private String getSortTextForResolvedType(TypeSymbol typeSymbol, SyntaxKind interpolationParent) {
         TypeSymbol resolvedType = this.getResolvedType(typeSymbol);
         TypeDescKind typeKind = resolvedType.typeKind();
-        
+
         // Note: The following logic can be simplified. Although, kept it as it is in order to improve the
         // readability and maintainability over the changes 
         switch (interpolationParent) {

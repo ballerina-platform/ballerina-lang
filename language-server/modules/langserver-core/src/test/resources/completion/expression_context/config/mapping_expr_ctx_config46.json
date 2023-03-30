@@ -45,7 +45,7 @@
       "detail": "LinkedList",
       "sortText": "R",
       "filterText": "fill",
-      "insertText": "next: {value: ${1:}, next: ${2:{}}},\nvalue: ${2:()}",
+      "insertText": "next: {value: ${1:}, next: ${2:{}}},\nvalue: ${3:()}",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -142,8 +142,9 @@ public class SignatureHelpUtil {
             }
         }
 
-        // Search function invocation symbol
-        List<SignatureInformation> signatures = new ArrayList<>(SignatureHelpUtil.getSignatureInformation(context));
+        // Get signature information
+        List<SignatureInformation> signatureInformation = SignatureHelpUtil.getSignatureInformation(context);
+        List<SignatureInformation> signatures = new ArrayList<>(signatureInformation);
         SignatureHelp signatureHelp = new SignatureHelp();
         signatureHelp.setActiveParameter(activeParamIndex);
         signatureHelp.setActiveSignature(0);

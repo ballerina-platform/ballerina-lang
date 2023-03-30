@@ -100,7 +100,8 @@ public class ConstantDeclarationNodeContext extends NodeWithRHSInitializerProvid
         int cursor = context.getCursorPositionInTree();
         Token constKeyword = node.constKeyword();
 
-        return !constKeyword.isMissing() && cursor > constKeyword.textRange().endOffset();
+        return !constKeyword.isMissing() && cursor > constKeyword.textRange().endOffset()
+                && cursor <= node.semicolonToken().textRange().endOffset();
     }
 
     @Override

@@ -76,6 +76,27 @@ public class StrandDumpTest extends BaseTest {
     }
 
     @Test
+    public void testStrandDumpDuringBalTest() throws BallerinaTestException {
+        if (isWindowsOS()) {
+            return;
+        }
+
+        Path expectedOutputFilePath = Paths.get(testFileLocation, "testOutputs", "balTestStrandDumpRegEx.txt");
+        String sourceRoot = testFileLocation + "/";
+        String packageName = "testPackageWithModules";
+        Map<String, String> envProperties = new HashMap<>();
+        bMainInstance.addJavaAgents(envProperties);
+
+        String[] cmdArgs = new String[]{"bash", balServer.getServerHome() + "/bin/bal", "test", packageName};
+        ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(sourceRoot));
+        startProcessAndVerifyStrandDump(processBuilder, envProperties, expectedOutputFilePath, false, 30000, 2000);
+    }
+
+    private static boolean isWindowsOS() {
+        return Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows");
+    }
+
+    @Test
     public void testStrandDumpOfSingleBalFile() throws BallerinaTestException {
         Path expectedOutputFilePath = Paths.get(testFileLocation, "testOutputs", "balProgram1StrandDumpRegEx.txt");
         String commandDir = balServer.getServerHome();
@@ -92,37 +113,47 @@ public class StrandDumpTest extends BaseTest {
 
     private void runJarAndVerifyStrandDump(Map<String, String> envProperties, String jarPath, String commandDir,
                                            Path expectedOutputFilePath) throws BallerinaTestException {
-        if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+        if (isWindowsOS()) {
             return;
         }
 
-        try {
-            List<String> runCmdSet = new ArrayList<>();
-            runCmdSet.add("java");
-            if (envProperties.containsKey(JAVA_OPTS)) {
-                runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
-            }
-            String tempBalHome = new File("src" + File.separator + "test" + File.separator +
-                    "resources" + File.separator + "ballerina.home").getAbsolutePath();
-            runCmdSet.add("-Dballerina.home=" + tempBalHome);
-            runCmdSet.addAll(Arrays.asList("-jar", jarPath));
+        List<String> runCmdSet = new ArrayList<>();
+        runCmdSet.add("java");
+        if (envProperties.containsKey(JAVA_OPTS)) {
+            runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
+        }
+        String tempBalHome = new File("src" + File.separator + "test" + File.separator +
+                "resources" + File.separator + "ballerina.home").getAbsolutePath();
+        runCmdSet.add("-Dballerina.home=" + tempBalHome);
+        runCmdSet.addAll(Arrays.asList("-jar", jarPath));
 
-            ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(new File(commandDir));
-            Map<String, String> env = processBuilder.environment();
-            for (Map.Entry<String, String> entry : envProperties.entrySet()) {
-                env.put(entry.getKey(), entry.getValue());
-            }
+        ProcessBuilder processBuilder = new ProcessBuilder(runCmdSet).directory(new File(commandDir));
+        startProcessAndVerifyStrandDump(processBuilder, envProperties, expectedOutputFilePath, true, 10000, 2000);
+    }
+
+    private void startProcessAndVerifyStrandDump(ProcessBuilder processBuilder, Map<String, String> envProperties,
+                                                 Path expectedOutputFilePath, boolean isJar, long initialTimeout,
+                                                 long nextTimeout) throws BallerinaTestException {
+
+        Map<String, String> env = processBuilder.environment();
+        for (Map.Entry<String, String> entry : envProperties.entrySet()) {
+            env.put(entry.getKey(), entry.getValue());
+        }
+
+        try {
             Process process = processBuilder.start();
-            Thread.sleep(6000);
-            Runtime.getRuntime().exec("kill -SIGTRAP " + process.pid());
-            Thread.sleep(4000);
-            Runtime.getRuntime().exec("kill -SIGINT " + process.pid());
+            Thread.sleep(initialTimeout);
+            long balProcessID = isJar ? process.pid() :
+                    process.children().findFirst().get().children().findFirst().get().pid();
+            Runtime.getRuntime().exec("kill -SIGTRAP " + balProcessID);
+            Thread.sleep(nextTimeout);
+            Runtime.getRuntime().exec("kill -SIGINT " + balProcessID);
 
             String obtainedStrandDump = getStdOutAsString(process);
             process.waitFor();
             verifyObtainedStrandDump(expectedOutputFilePath, obtainedStrandDump);
         } catch (InterruptedException | IOException e) {
-            throw new BallerinaTestException("Error starting services", e);
+            throw new BallerinaTestException("Error testing strand dump", e);
         }
     }
 

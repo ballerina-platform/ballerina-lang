@@ -73,10 +73,18 @@ OPTIONS
        --test-report
            Generate an HTML report containing the test results.
 
+       --native
+           Execute test cases using the GraalVM native image. Native image testing
+           is an experimental feature which supports only a limited set of
+           functionality.
+
 
 EXAMPLES
        Run all the test functions in the current package.
            $ bal test
+
+       Run all test cases using the GraalVM native image.
+           $ bal test --native
 
        List all the test groups in the current package.
            $ bal test --list-groups
@@ -100,6 +108,9 @@ EXAMPLES
        Run the tests in a standalone Ballerina file. The file path can be
        relative or absolute.
            $ bal test main_test.bal
+
+       Run a standalone test file using the GraalVM native image.
+           $ bal test --native main_test.bal
 
        Run the tests and generate a test report.
            $ bal test --test-report

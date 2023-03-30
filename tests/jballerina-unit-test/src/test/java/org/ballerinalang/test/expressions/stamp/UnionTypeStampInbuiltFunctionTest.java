@@ -18,7 +18,9 @@
 package org.ballerinalang.test.expressions.stamp;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.types.BJsonType;
@@ -115,8 +117,9 @@ public class UnionTypeStampInbuiltFunctionTest {
         Assert.assertEquals(employee0.size(), 2);
 
         Assert.assertEquals(getType(employee0).getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) employee0.getType()).getConstrainedType().getClass(), BRecordType.class);
-        Assert.assertEquals(((BMapType) employee0.getType()).getConstrainedType().getName(), "Employee");
+        Type constrainedType = TypeUtils.getReferredType(((BMapType) employee0.getType()).getConstrainedType());
+        Assert.assertEquals(constrainedType.getClass(), BRecordType.class);
+        Assert.assertEquals(constrainedType.getName(), "Employee");
 
         Assert.assertEquals(getType(employee0.get(StringUtils.fromString("a"))).getName(), "Employee");
         Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("a"))).get(
@@ -183,8 +186,9 @@ public class UnionTypeStampInbuiltFunctionTest {
         Assert.assertEquals(employee0.size(), 2);
 
         Assert.assertEquals(getType(employee0).getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) employee0.getType()).getConstrainedType().getClass(), BRecordType.class);
-        Assert.assertEquals(((BMapType) employee0.getType()).getConstrainedType().getName(), "Teacher");
+        Type constrainedType = TypeUtils.getReferredType(((BMapType) employee0.getType()).getConstrainedType());
+        Assert.assertEquals(constrainedType.getClass(), BRecordType.class);
+        Assert.assertEquals(constrainedType.getName(), "Teacher");
 
         Assert.assertEquals(getType(employee0.get(StringUtils.fromString("a"))).getName(), "Teacher");
         Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("a"))).get(

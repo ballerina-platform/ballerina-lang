@@ -1,0 +1,67 @@
+{
+  "position": {
+    "line": 5,
+    "character": 4
+  },
+  "source": "createVariableWithCheck.bal",
+  "description": "Parent function has no return type",
+  "expected": [
+    {
+      "title": "Create variable and check error",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 4
+            },
+            "end": {
+              "line": 5,
+              "character": 4
+            }
+          },
+          "newText": "int intWithError = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 4
+            },
+            "end": {
+              "line": 5,
+              "character": 4
+            }
+          },
+          "newText": "check "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 50
+            },
+            "end": {
+              "line": 4,
+              "character": 50
+            }
+          },
+          "newText": " returns error?"
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariableWithCheck.bal",
+          {
+            "line": 5,
+            "character": 8
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

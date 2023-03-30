@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "Person var1 \u003d new Person(\"Anne\", 25);\n    "
+          "newText": "Person var1 = new Person(\"Anne\", 25);\n    "
         },
         {
           "range": {
@@ -41,7 +41,19 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInExplicitNewExpression.bal",
+          {
+            "line": 12,
+            "character": 20
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

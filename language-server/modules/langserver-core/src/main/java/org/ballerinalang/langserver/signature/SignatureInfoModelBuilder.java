@@ -60,7 +60,7 @@ public class SignatureInfoModelBuilder {
     private final SignatureContext context;
     private final List<ParameterInfoModel> parameterModels;
 
-    private ParameterInfoModel firstIncludedRecordParam;
+    private List<ParameterInfoModel> includedRecordParams;
     private Either<String, MarkupContent> signatureDescription;
     private final Map<String, String> paramsMap = new HashMap<>();
 
@@ -68,6 +68,7 @@ public class SignatureInfoModelBuilder {
         this.symbol = symbol;
         this.context = context;
         this.parameterModels = new ArrayList<>();
+        this.includedRecordParams = new ArrayList<>();
         fillParamInfoModels();
     }
 
@@ -89,7 +90,7 @@ public class SignatureInfoModelBuilder {
         for (int i = 0; i < parameterModels.size(); i++) {
             ParameterInfoModel paramModel = parameterModels.get(i);
             int labelOffset = defaultLabelBuilder.toString().length();
-            if (firstIncludedRecordParam().isPresent() && firstIncludedRecordParam().get().equals(paramModel)) {
+            if (!includedRecordParams.isEmpty() && includedRecordParams.get(0).equals(paramModel)) {
                 expandedModelPrefix.append(defaultLabelBuilder.toString());
             }
             String parameterType = paramModel.getParameter().getType();
@@ -112,34 +113,48 @@ public class SignatureInfoModelBuilder {
             paramInfo.setLabel(Tuple.two(paramStart, paramEnd));
 
             defaultSignatureParamInfo.add(paramInfo);
-            if (firstIncludedRecordParam().isPresent() && !paramModel.isIncludedRecordParam()) {
+            if (!includedRecordParams.isEmpty() && !paramModel.isIncludedRecordParam()) {
                 expandedSignatureParamInfo.add(paramInfo);
             }
         }
 
-        if (firstIncludedRecordParam().isPresent()) {
-            int firstIncludedRecordParamIndex = this.parameterModels.indexOf(firstIncludedRecordParam().get());
-            List<ParameterInfoModel> includedRecordParams = this.parameterModels.stream()
-                    .filter(ParameterInfoModel::isIncludedRecordParam)
-                    .collect(Collectors.toList());
+        if (!includedRecordParams.isEmpty()) {
+            int firstIncludedRecordParamIndex = this.parameterModels.indexOf(includedRecordParams.get(0));
 
-            StringBuilder expandedLabelBuilder = new StringBuilder(expandedModelPrefix.toString());
+            List<String> expandedParamList = new ArrayList<>();
+            int labelOffset = expandedModelPrefix.toString().length();
             for (int i = 0; i < includedRecordParams.size(); i++) {
-                int labelOffset = expandedLabelBuilder.toString().length();
                 ParameterInfoModel includedParamInfo = includedRecordParams.get(i);
                 TypeSymbol paramTypeSymbol = includedParamInfo.getParameter().getParameterSymbol().typeDescriptor();
                 Pair<String, List<ParameterInformation>> includedRecordParamInfo =
                         getIncludedRecordParamInfo(paramTypeSymbol, labelOffset);
-                expandedLabelBuilder.append(includedRecordParamInfo.getKey());
-
-                if (firstIncludedRecordParamIndex + i < parameterModels.size() - 1) {
-                    expandedLabelBuilder.append(", ");
+                // If the params of included record param is empty, skip it. These params can be empty if the
+                // record only has never typed fields.
+                if (includedRecordParamInfo.getValue().isEmpty()) {
+                    continue;
                 }
-
+                
+                expandedParamList.add(includedRecordParamInfo.getKey());
                 expandedSignatureParamInfo.addAll(includedRecordParamInfo.getValue());
+                
+                labelOffset += includedRecordParamInfo.getKey().length();
+
+                // If there's more parameters, we add a comma between parameter segments.
+                if (firstIncludedRecordParamIndex + i < parameterModels.size() - 1) {
+                    // Comma + a space
+                    labelOffset += 2;
+                }
             }
-            expandedLabelBuilder.append(")");
-            result.add(getSignatureInfo(expandedLabelBuilder.toString(), expandedSignatureParamInfo));
+
+            // If there are expanded params coming from included record params, we add them as a separate signature.
+            if (!expandedParamList.isEmpty()) {
+                StringBuilder expandedLabelBuilder = new StringBuilder(expandedModelPrefix.toString());
+                
+                expandedLabelBuilder
+                        .append(String.join(", ", expandedParamList))
+                        .append(")");
+                result.add(getSignatureInfo(expandedLabelBuilder.toString(), expandedSignatureParamInfo));
+            }
         }
 
         defaultLabelBuilder.append(")");
@@ -182,10 +197,9 @@ public class SignatureInfoModelBuilder {
             parameterModels.add(new ParameterInfoModel(param, desc));
         }
 
-        firstIncludedRecordParam = this.parameterModels.stream()
+        includedRecordParams = this.parameterModels.stream()
                 .filter(ParameterInfoModel::isIncludedRecordParam)
-                .findFirst()
-                .orElse(null);
+                .collect(Collectors.toList());
     }
 
     /**
@@ -245,9 +259,15 @@ public class SignatureInfoModelBuilder {
 
         for (int i = 0; i < fieldSymbols.size(); i++) {
             RecordFieldSymbol recordFieldSymbol = fieldSymbols.get(i);
+            TypeSymbol fieldType = recordFieldSymbol.typeDescriptor();
+            // Never typed fields are used to prevent those fields from being specified as a parameter.
+            // log:printInfo() is one such example. Such fields should not be included in the signature help.
+            if (fieldType.typeKind() == TypeDescKind.NEVER) {
+                continue;
+            }
             int labelOffset = startOffset + paramLabelBuilder.length();
             ParameterInformation paramInfo = new ParameterInformation();
-            String typeSignature = recordFieldSymbol.typeDescriptor().signature();
+            String typeSignature = fieldType.signature();
             Optional<String> fieldName = recordFieldSymbol.getName();
             recordFieldSymbol.typeDescriptor().signature();
             String paramDocs = parameterDocumentation
@@ -314,10 +334,6 @@ public class SignatureInfoModelBuilder {
         paramDocumentation.setValue(markupContent.toString());
 
         return paramDocumentation;
-    }
-
-    private Optional<ParameterInfoModel> firstIncludedRecordParam() {
-        return Optional.ofNullable(this.firstIncludedRecordParam);
     }
 
     private Optional<FunctionTypeSymbol> getFunctionType(Symbol symbol) {

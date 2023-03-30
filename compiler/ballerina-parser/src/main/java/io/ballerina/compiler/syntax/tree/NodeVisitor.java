@@ -319,14 +319,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(moduleXMLNamespaceDeclarationNode);
     }
 
-    public void visit(ClientDeclarationNode clientDeclarationNode) {
-        visitSyntaxNode(clientDeclarationNode);
-    }
-
-    public void visit(ModuleClientDeclarationNode moduleClientDeclarationNode) {
-        visitSyntaxNode(moduleClientDeclarationNode);
-    }
-
     public void visit(FunctionBodyBlockNode functionBodyBlockNode) {
         visitSyntaxNode(functionBodyBlockNode);
     }
@@ -937,6 +929,10 @@ public abstract class NodeVisitor {
 
     public void visit(ReBracedQuantifierNode reBracedQuantifierNode) {
         visitSyntaxNode(reBracedQuantifierNode);
+    }
+  
+    public void visit(MemberTypeDescriptorNode memberTypeDescriptorNode) {
+        visitSyntaxNode(memberTypeDescriptorNode);
     }
 
     // Tokens

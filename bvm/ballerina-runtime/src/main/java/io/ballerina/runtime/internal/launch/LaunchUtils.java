@@ -67,6 +67,10 @@ public class LaunchUtils {
         startListeners(isService);
 
         // start TRAP signal handler which produces the strand dump
+        startTrapSignalHandler();
+    }
+
+    public static void startTrapSignalHandler() {
         try {
             Signal.handle(new Signal("TRAP"), signal -> outStream.println(StrandDump.getStrandDump()));
         } catch (IllegalArgumentException ignored) {

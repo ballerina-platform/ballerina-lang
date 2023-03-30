@@ -104,13 +104,11 @@ public class HoverUtil {
             }
 
             Optional<ModuleID> moduleID = symbol.flatMap(Symbol::getModule).map(ModuleSymbol::id);
-            Optional<HoverConstructKind> constructKind = symbolResolver.getConstructKind();
-            if (moduleID.isEmpty() || symbol.get().getName().isEmpty() || constructKind.isEmpty()) {
+            if (moduleID.isEmpty() || symbol.get().getName().isEmpty()) {
                 return hoverObj;
             }
             String url = APIDocReference.from(moduleID.get().orgName(),
-                    moduleID.get().moduleName(), moduleID.get().version(), constructKind.get(),
-                    symbol.get().getName().get());
+                    moduleID.get().moduleName(), moduleID.get().version(), symbol.get().getName().get());
             markupContent.setValue((content.isEmpty() ? "" : content + MarkupUtils.getHorizontalSeparator())
                     + "[View API Docs](" + url + ")");
             hoverObj.setContents(markupContent);

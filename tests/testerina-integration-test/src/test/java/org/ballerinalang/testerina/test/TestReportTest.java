@@ -24,6 +24,8 @@ import com.google.gson.JsonParser;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
+import org.ballerinalang.testerina.test.utils.CommonUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -65,20 +67,19 @@ public class TestReportTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--test-report"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg)) {
-            Assert.fail("Test failed due to report tools validation failure.");
-        }
+        String firstString = "Generating Test Report\n\t";
+        String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput("TestReportTest-testWarningForReportTools.txt", output);
     }
 
     @Test ()
-    public void testWarningForCoverageFormatFlag() throws BallerinaTestException {
+    public void testWarningForCoverageFormatFlag() throws BallerinaTestException, IOException {
         String msg = "warning: ignoring --coverage-format flag since code coverage is not enabled";
         String[] args = new String[]{"--coverage-format=xml"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg)) {
-            Assert.fail("Test failed due to coverage-format flag validation failure.");
-        }
+        AssertionUtils.assertOutput("TestReportTest-testWarningForCoverageFormatFlag.txt", output);
     }
 
     @Test()

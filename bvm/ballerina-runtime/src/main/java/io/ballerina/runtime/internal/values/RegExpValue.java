@@ -37,13 +37,12 @@ import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
  * @since 2201.3.0
  */
 public class RegExpValue implements BRegexpValue, RefValue {
-    private RegExpDisjunction regExpDisjunction;
+    private final RegExpDisjunction regExpDisjunction;
     private BTypedesc typedesc;
-    private final Type type = PredefinedTypes.TYPE_READONLY_ANYDATA;
+    private static final Type type = PredefinedTypes.TYPE_READONLY_ANYDATA;
 
     public RegExpValue(RegExpDisjunction regExpDisjunction) {
         this.regExpDisjunction = regExpDisjunction;
-        setTypedescValue(this.type);
     }
 
     public RegExpDisjunction getRegExpDisjunction() {
@@ -67,11 +66,7 @@ public class RegExpValue implements BRegexpValue, RefValue {
 
     @Override
     public Type getType() {
-        return this.type;
-    }
-
-    protected void setTypedescValue(Type type) {
-        this.typedesc = getTypedescValue(type, this);
+        return type;
     }
 
     @Override
@@ -86,6 +81,9 @@ public class RegExpValue implements BRegexpValue, RefValue {
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = getTypedescValue(type, this);
+        }
         return this.typedesc;
     }
 
@@ -97,5 +95,15 @@ public class RegExpValue implements BRegexpValue, RefValue {
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
         return this;
+    }
+
+    @Override
+    public void freezeDirect() {
+        // RegExpValue is always readonly
+    }
+
+    @Override
+    public String toString() {
+        return this.stringValue(null);
     }
 }

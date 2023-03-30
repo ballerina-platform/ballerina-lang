@@ -31,6 +31,7 @@ import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExcep
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_ACCESS;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_CLASS;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_FUNCTION;
+import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.QUALIFIED_VARIABLE_RESOLVING_FAILED;
 
 /**
  * Test implementation for debug expression evaluation negative scenarios on Ballerina packages.
@@ -104,21 +105,25 @@ public class PackageEvaluationNegativeTest extends ExpressionEvaluationNegativeT
         super.unaryExpressionEvaluationTest();
 
         // with qualified literals (i.e. imported modules)
-        debugTestRunner.assertEvaluationError(context, "-other:constant", String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS
-                .getString(), "other", "constant"));
+        debugTestRunner.assertEvaluationError(context, "-other:constant",
+                String.format(QUALIFIED_VARIABLE_RESOLVING_FAILED.getString(), "other", "constant"));
     }
 
     @Override
     @Test
-    public void variableReferenceEvaluationTest() throws BallerinaTestException {
-        super.variableReferenceEvaluationTest();
+    public void nameReferenceEvaluationTest() throws BallerinaTestException {
+        super.nameReferenceEvaluationTest();
 
         // package-private constant evaluation
-        debugTestRunner.assertEvaluationError(context, "other:constant", String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS
-                .getString(), "other", "constant"));
+        debugTestRunner.assertEvaluationError(context, "other:constant",
+                String.format(QUALIFIED_VARIABLE_RESOLVING_FAILED.getString(), "other", "constant"));
 
         // package-private module variable evaluation
         debugTestRunner.assertEvaluationError(context, "other:privateModuleVariable",
-                String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS.getString(), "other", "privateModuleVariable"));
+                String.format(QUALIFIED_VARIABLE_RESOLVING_FAILED.getString(), "other", "privateModuleVariable"));
+
+        // other qualified references (i.e. types)
+        debugTestRunner.assertEvaluationError(context, "other:UndefinedType",
+                String.format(QUALIFIED_VARIABLE_RESOLVING_FAILED.getString(), "other", "UndefinedType"));
     }
 }

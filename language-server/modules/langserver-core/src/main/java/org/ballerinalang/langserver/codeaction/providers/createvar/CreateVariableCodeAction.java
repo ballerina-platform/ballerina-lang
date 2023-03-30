@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.WorkerSymbol;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -81,8 +82,10 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
     public List<CodeAction> getCodeActions(Diagnostic diagnostic,
                                            DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
+
         Optional<TypeSymbol> typeSymbol = getExpectedTypeSymbol(positionDetails);
-        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.NONE) {
+        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.NONE
+                || isCompilationErrorTyped(typeSymbol.get())) {
             return Collections.emptyList();
         }
 
@@ -107,10 +110,26 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
             }
 
             CodeAction codeAction = CodeActionUtil.createCodeAction(commandTitle, edits, uri, CodeActionKind.QuickFix);
-            addRenamePopup(context, edits, variableEdit, codeAction, createVarTextEdits.renamePositions.get(i));
+            addRenamePopup(context, edits, variableEdit, codeAction, createVarTextEdits.renamePositions.get(i),
+                    createVarTextEdits.varRenamePosition.get(i), createVarTextEdits.imports.size());
             actions.add(codeAction);
         }
         return actions;
+    }
+
+    private boolean isCompilationErrorTyped(TypeSymbol typeSymbol) {
+
+        if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+            return isUnionCompErrorTyped((UnionTypeSymbol) typeSymbol);
+        }
+
+        return typeSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR;
+    }
+
+    protected boolean isUnionCompErrorTyped(UnionTypeSymbol unionTypeSymbol) {
+
+        return unionTypeSymbol.memberTypeDescriptors().stream()
+                .anyMatch(tSymbol -> tSymbol.typeKind() == TypeDescKind.COMPILATION_ERROR);
     }
 
     @Override
@@ -134,14 +153,17 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         List<TextEdit> edits = new ArrayList<>();
         List<Integer> renamePositions = new ArrayList<>();
         List<String> types = CodeActionUtil.getPossibleTypes(typeDescriptor, context, importsAcceptor);
-        Position pos = range.getStart();
+        Position insertPos = range.getStart();
+        List<Position> varRenamePositions = new ArrayList<>();
         for (String type : types) {
-            Position insertPos = new Position(pos.getLine(), pos.getCharacter());
             String edit = type + " " + name + " = ";
             edits.add(new TextEdit(new Range(insertPos, insertPos), edit));
             renamePositions.add(type.length() + 1);
+            varRenamePositions.add(new Position(insertPos.getLine(),
+                    insertPos.getCharacter() + type.length() + 1));
         }
-        return new CreateVariableOut(name, types, edits, importsAcceptor.getNewImportTextEdits(), renamePositions);
+        return new CreateVariableOut(name, types, edits, importsAcceptor.getNewImportTextEdits(), renamePositions,
+                varRenamePositions);
     }
 
     /**
@@ -152,6 +174,7 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
      * @return Optional expected type symbol
      */
     protected Optional<TypeSymbol> getExpectedTypeSymbol(DiagBasedPositionDetails positionDetails) {
+
         Optional<Symbol> symbol = positionDetails.diagnosticProperty(
                 CodeActionUtil.getDiagPropertyFilterFunction(
                         DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX));
@@ -179,21 +202,34 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         List<TextEdit> edits;
         List<TextEdit> imports;
         List<Integer> renamePositions;
+        List<Position> varRenamePosition;
 
         public CreateVariableOut(String name, List<String> types, List<TextEdit> edits, List<TextEdit> imports,
-                                 List<Integer> renamePositions) {
+                                 List<Integer> renamePositions, List<Position> varRenamePosition) {
             this.name = name;
             this.types = types;
             this.edits = edits;
             this.imports = imports;
             this.renamePositions = renamePositions;
+            this.varRenamePosition = varRenamePosition;
         }
     }
 
     public void addRenamePopup(CodeActionContext context, List<TextEdit> textEdits, TextEdit variableEdit,
-                               CodeAction codeAction, int renameOffset) {
+                               CodeAction codeAction, int renameOffset,
+                               Position varRenamePosition, int newImportsCount) {
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
+            codeAction.setCommand(new Command(
+                    CommandConstants.RENAME_COMMAND_TITLE_FOR_VARIABLE, CommandConstants.POSITIONAL_RENAME_COMMAND,
+                    List.of(context.fileUri(),
+                            new Position(varRenamePosition.getLine() + newImportsCount,
+                                    varRenamePosition.getCharacter()))));
+            return;
+        }
+
         Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
-        if (syntaxTree.isEmpty()) {
+        if (!lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported() || syntaxTree.isEmpty()) {
             return;
         }
         /*
@@ -225,10 +261,9 @@ public class CreateVariableCodeAction implements DiagnosticBasedCodeActionProvid
         }
 
         startPos = startPos + sum + renameOffset;
-        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
-        if (lsClientCapabilities.getInitializationOptions().isRefactorRenameSupported()) {
-            codeAction.setCommand(new Command(RENAME_COMMAND, "ballerina.action.rename",
-                    List.of(context.fileUri(), startPos)));
-        }
+
+        codeAction.setCommand(
+                new Command(CommandConstants.RENAME_COMMAND_TITLE_FOR_VARIABLE, CommandConstants.RENAME_COMMAND,
+                        List.of(context.fileUri(), startPos)));
     }
 }

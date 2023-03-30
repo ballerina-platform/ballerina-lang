@@ -65,19 +65,9 @@ public class LangLibStringTest {
     }
 
     @Test
-    public void testLength() {
-        BRunUtil.invoke(compileResult, "testLength");
-    }
-
-    @Test
     public void testSubString() {
         Object returns = BRunUtil.invoke(compileResult, "testSubString");
         assertEquals(returns.toString(), "[\"Bal\",\"Ballerina!\",\"Ballerina!\"]");
-    }
-
-    @Test
-    public void testIterator() {
-        BRunUtil.invoke(compileResult, "testIterator");
     }
 
     @Test
@@ -90,11 +80,6 @@ public class LangLibStringTest {
     public void testFromBytes() {
         Object returns = BRunUtil.invoke(compileResult, "testFromBytes");
         assertEquals(returns.toString(), "Hello Ballerina!");
-    }
-
-    @Test
-    public void testFromBytesInvalidValues() {
-        BRunUtil.invoke(compileResult, "testFromBytesInvalidValues");
     }
 
     @Test
@@ -124,11 +109,6 @@ public class LangLibStringTest {
         } else {
             assertEquals(returns, expected, "For substring: " + substr);
         }
-    }
-
-    @Test(description = "Test the lastIndexOf() method.")
-    public void testLastIndexOf() {
-        BRunUtil.invoke(compileResult, "testLastIndexOf");
     }
 
     @Test(dataProvider = "codePointCompareProvider")
@@ -253,11 +233,6 @@ public class LangLibStringTest {
                 "error(\"{ballerina/lang.string}StringOperationError\",message=\"" + result + "\")");
     }
 
-    @Test
-    public void testEqualsIgnoreCaseAscii() {
-        BRunUtil.invoke(compileResult, "testEqualsIgnoreCaseAscii");
-    }
-
     @DataProvider(name = "testSubstringDataProvider")
     public Object[][] testSubstringDataProvider() {
         return new Object[][]{
@@ -279,16 +254,6 @@ public class LangLibStringTest {
     public void testChainedStringFunctions() {
         Object returns = BRunUtil.invoke(compileResult, "testChainedStringFunctions");
         assertEquals(returns.toString(), "foo1foo2foo3foo4");
-    }
-
-    @Test
-    public void testLangLibCallOnStringSubTypes() {
-        BRunUtil.invoke(compileResult, "testLangLibCallOnStringSubTypes");
-    }
-
-    @Test
-    public void testLangLibCallOnFiniteType() {
-        BRunUtil.invoke(compileResult, "testLangLibCallOnFiniteType");
     }
 
     @Test(dataProvider = "unicodeCharProvider")
@@ -332,21 +297,6 @@ public class LangLibStringTest {
     @DataProvider(name = "StringPrefixProvider")
     public Object[] testBMPStringProvider() {
         return new String[]{"ascii~?", "£ßóµ¥", "ęЯλĢŃ", "☃✈௸ऴᛤ", "😀🄰🍺" };
-    }
-
-    @Test
-    public void testPadStart() {
-        BRunUtil.invoke(compileResult, "testPadStart");
-    }
-
-    @Test
-    public void testPadEnd() {
-        BRunUtil.invoke(compileResult, "testPadEnd");
-    }
-
-    @Test
-    public void testPadZero() {
-        BRunUtil.invoke(compileResult, "testPadZero");
     }
 
     @Test
@@ -475,4 +425,31 @@ public class LangLibStringTest {
         Assert.assertEquals(returns.toString(), "error(\"{ballerina/lang.string}length greater that '2147483647' not" +
                 " yet supported\")");
     }
+
+    @Test(dataProvider = "stringFunctionProvider")
+    public void testStringLibFunctions(String functionName) {
+        BRunUtil.invoke(compileResult, functionName);
+    }
+
+    @DataProvider(name = "stringFunctionProvider")
+    public Object[] testStringFunctionProvider() {
+
+        return new String[]{
+                "testLength",
+                "testIterator",
+                "testFromBytesInvalidValues",
+                "testLastIndexOf",
+                "testEqualsIgnoreCaseAscii",
+                "testLangLibCallOnStringSubTypes",
+                "testLangLibCallOnFiniteType",
+                "testPadStart",
+                "testPadEnd",
+                "testPadZero",
+                "testMatches",
+                "testIncludesMatch",
+                "testFromBytesAsync",
+                "testEqualsIgnoreCaseAsciiAsync"
+        };
+    }
+
 }

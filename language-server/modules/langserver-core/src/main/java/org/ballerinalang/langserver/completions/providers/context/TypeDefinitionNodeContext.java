@@ -20,7 +20,6 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -114,10 +113,10 @@ public class TypeDefinitionNodeContext extends AbstractCompletionProvider<TypeDe
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, TypeDefinitionNode node) {
-        TextRange typeKWRange = node.typeKeyword().textRange();
-        int cursorPosition = context.getCursorPositionInTree();
+        int cursor = context.getCursorPositionInTree();
 
-        return typeKWRange.endOffset() < cursorPosition;
+        return node.typeKeyword().textRange().endOffset() < cursor
+                && cursor <= node.semicolonToken().textRange().endOffset();
     }
 
     @Override

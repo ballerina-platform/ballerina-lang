@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -37,6 +38,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
@@ -46,8 +48,8 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.ResourcePathCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.ResourcePathCompletionUtil;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
@@ -74,8 +76,20 @@ public class ClientResourceAccessActionNodeContext
                                                  ClientResourceAccessActionNode node) throws LSCompletionException {
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> expressionType = node.expression().apply(resolver);
+        if (onSuggestClients(node, context)) {
+            // Covers following:
+            // 1. cl<cursor>->/path1/path2
+            completionItems.addAll(this.expressionCompletions(context));
+            this.sort(context, node, completionItems);
+            return completionItems;
+        }
+
+        LinePosition linePosition = node.expression().location().lineRange().endLine();
+        Optional<TypeSymbol> expressionType = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            expressionType = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
 
         if (expressionType.isEmpty() || !SymbolUtil.isClient(expressionType.get())) {
             return Collections.emptyList();
@@ -132,6 +146,29 @@ public class ClientResourceAccessActionNodeContext
         return completionItems;
     }
 
+    @Override
+    public void sort(BallerinaCompletionContext context, ClientResourceAccessActionNode node,
+                     List<LSCompletionItem> completionItems) {
+        // At expression of the remote method call action, suggest clients first
+        if (onSuggestClients(node, context)) {
+            completionItems.forEach(completionItem -> {
+                Optional<TypeSymbol> typeSymbol = SortingUtil.getSymbolFromCompletionItem(completionItem);
+                String sortText;
+                // Prioritize clients
+                if (typeSymbol.isPresent() && SymbolUtil.isClient(typeSymbol.get())) {
+                    sortText = SortingUtil.genSortText(1);
+                } else {
+                    sortText = SortingUtil.genSortText(2);
+                }
+                sortText += SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
+                completionItem.getCompletionItem().setSortText(sortText);
+            });
+            return;
+        }
+
+        super.sort(context, node, completionItems);
+    }
+
     private List<LSCompletionItem> getPathSegmentCompletionItems(ClientResourceAccessActionNode node,
                                                                  BallerinaCompletionContext context,
                                                                  List<ResourceMethodSymbol> resourceMethods,
@@ -160,9 +197,11 @@ public class ClientResourceAccessActionNodeContext
             } else if (completablePathSegments.getRight() && ResourcePathCompletionUtil
                     .isInMethodCallContext(node, context)) {
                 //suggest method call expressions
-                CompletionItem completionItem =
-                        ResourcePathCompletionItemBuilder.buildMethodCallExpression(resourceMethod, context);
-                completionItems.add(new SymbolCompletionItem(context, resourceMethod, completionItem));
+                if (!isGetMethodWithoutParams(resourceMethod)) {
+                    CompletionItem completionItem =
+                            ResourcePathCompletionItemBuilder.buildMethodCallExpression(resourceMethod, context);
+                    completionItems.add(new SymbolCompletionItem(context, resourceMethod, completionItem));
+                }
             }
         }
         return completionItems;
@@ -183,7 +222,10 @@ public class ClientResourceAccessActionNodeContext
                                                                     List<Node> currentSegments,
                                                                     BallerinaCompletionContext context,
                                                                     ClientResourceAccessActionNode accNode) {
-        if (segments.size() < currentSegments.size()) {
+        Optional<PathSegment> pathRestParam =
+                segments.stream().filter(pathSegment ->
+                        pathSegment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER).findFirst();
+        if (segments.size() < currentSegments.size() && pathRestParam.isEmpty()) {
             return Pair.of(Collections.emptyList(), false);
         }
 
@@ -197,7 +239,15 @@ public class ClientResourceAccessActionNodeContext
         for (int i = 0; i < numOfProvidedSegments; i++) {
             completableSegmentStartIndex += 1;
             Node node = currentSegments.get(i);
-            PathSegment segment = segments.get(i);
+            PathSegment segment;
+            if (i > segments.size() - 1) {
+                if (pathRestParam.isEmpty()) {
+                    return Pair.of(Collections.emptyList(), false);
+                }
+                segment = pathRestParam.get();
+            } else {
+                segment = segments.get(i);
+            }
             if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN
                     && segment.pathSegmentKind() == PathSegment.Kind.NAMED_SEGMENT) {
                 String currentPath = ((IdentifierToken) node).text().strip();
@@ -220,27 +270,39 @@ public class ClientResourceAccessActionNodeContext
                 }
                 //Covers named segments that are not matching
                 return Pair.of(Collections.emptyList(), false);
-            } else if (node.kind() == SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT
-                    && (segment.pathSegmentKind() == PathSegment.Kind.PATH_PARAMETER ||
-                    segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER)) {
-                TypeSymbol typeSymbol = segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER ?
-                        ((ArrayTypeSymbol) (((PathParameterSymbol) segment).typeDescriptor())).memberTypeDescriptor() :
-                        ((PathParameterSymbol) segment).typeDescriptor();
-                Optional<SemanticModel> semanticModel = context.currentSemanticModel();
-                if (semanticModel.isEmpty()) {
-                    return Pair.of(Collections.emptyList(), false);
-                }
-                Optional<TypeSymbol> exprType =
-                        semanticModel.get().typeOf(((ComputedResourceAccessSegmentNode) node).expression());
+            } else if (segment.pathSegmentKind() == PathSegment.Kind.PATH_PARAMETER ||
+                    segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
+                if (node.kind() == SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT) {
+                    TypeSymbol typeSymbol = segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER ?
+                            ((ArrayTypeSymbol) (((PathParameterSymbol) segment).typeDescriptor()))
+                                    .memberTypeDescriptor() : ((PathParameterSymbol) segment).typeDescriptor();
+                    Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+                    if (semanticModel.isEmpty()) {
+                        return Pair.of(Collections.emptyList(), false);
+                    }
+                    Optional<TypeSymbol> exprType =
+                            semanticModel.get().typeOf(((ComputedResourceAccessSegmentNode) node).expression());
 
-                if (exprType.isEmpty() || !exprType.get().subtypeOf(typeSymbol)) {
-                    return Pair.of(Collections.emptyList(), false);
+                    if (exprType.isEmpty() || !exprType.get().subtypeOf(typeSymbol)) {
+                        return Pair.of(Collections.emptyList(), false);
+                    }
+                    continue;
+                } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
+                    continue;
                 }
-                continue;
             }
             return Pair.of(Collections.emptyList(), false);
         }
-        return Pair.of(segments.subList(completableSegmentStartIndex, segments.size()), true);
+
+        List<PathSegment> completableSegments =
+                completableSegmentStartIndex <= segments.size() ?
+                        segments.subList(completableSegmentStartIndex, segments.size()) : Collections.emptyList();
+        return Pair.of(completableSegments, true);
+    }
+
+    private boolean onSuggestClients(ClientResourceAccessActionNode node, BallerinaCompletionContext context) {
+        int cursor = context.getCursorPositionInTree();
+        return cursor <= node.rightArrowToken().textRange().startOffset();
     }
 
     private boolean isInResourceMethodParameterContext(ClientResourceAccessActionNode node,
@@ -265,5 +327,16 @@ public class ClientResourceAccessActionNodeContext
         FunctionSymbol functionSymbol = (FunctionSymbol) symbol.get();
         return getNamedArgCompletionItems(context, functionSymbol,
                 node.arguments().get().arguments());
+    }
+
+    private boolean isGetMethodWithoutParams(ResourceMethodSymbol resourceMethodSymbol) {
+        Optional<String> name = resourceMethodSymbol.getName();
+        FunctionTypeSymbol functionTypeSymbol = resourceMethodSymbol.typeDescriptor();
+        if (name.isPresent() && !"get".equals(name.get())) {
+            return false;
+        }
+        return (functionTypeSymbol.params().isEmpty()
+                || functionTypeSymbol.params().get().size() == 0)
+                && functionTypeSymbol.restParam().isEmpty();
     }
 }

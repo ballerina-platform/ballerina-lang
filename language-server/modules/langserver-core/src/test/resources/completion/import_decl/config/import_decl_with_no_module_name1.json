@@ -1,0 +1,38 @@
+{
+  "position": {
+    "line": 0,
+    "character": 12
+  },
+  "source": "import_decl/source/import_decl_with_no_module_name1.bal",
+  "description": "Test completions in import declaration node: import orgName/<cursor>",
+  "items": [
+    {
+      "label": "project2",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "project2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "project1",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "project1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "local_project2",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "local_project2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "local_project1",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "local_project1",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

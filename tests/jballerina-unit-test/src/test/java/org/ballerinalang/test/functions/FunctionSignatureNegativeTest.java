@@ -105,6 +105,12 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 126, 59);
         BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 127, 54);
         BAssertUtil.validateError(result, i++, "incomplete quoted identifier", 130, 24);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'function () returns (int)', " +
+                "found 'function'", 156, 21);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'function (int) returns (boolean)', " +
+                "found 'function'", 158, 21);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'function " +
+                "(ballerina/lang.array:0.0.0:Type) returns (boolean)', found 'function'", 161, 20);
 
         Assert.assertEquals(i, result.getErrorCount());
     }

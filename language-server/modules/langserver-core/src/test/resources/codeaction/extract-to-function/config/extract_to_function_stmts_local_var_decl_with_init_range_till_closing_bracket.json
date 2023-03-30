@@ -10,6 +10,7 @@
     }
   },
   "source": "extract_to_function_stmts_local_var_decl_with_init.bal",
+  "description": "Extract to function for local variable declaration, checks when the end position of the selected range is just before the closing bracket of the enclosing function definition",
   "expected": [
     {
       "title": "Extract to function",
@@ -26,7 +27,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() {\n    int localVar \u003d 10;\n}"
+          "newText": "\n\nfunction extracted() {\n    int localVar = 10;\n}"
         },
         {
           "range": {
@@ -41,8 +42,19 @@
           },
           "newText": "extracted();"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_stmts_local_var_decl_with_init.bal",
+          {
+            "line": 1,
+            "character": 4
+          }
+        ]
+      },
+      "resolvable": false
     }
-  ],
-  "description": "Extract to function for local variable declaration, checks when the end position of the selected range is just before the closing bracket of the enclosing function definition"
+  ]
 }

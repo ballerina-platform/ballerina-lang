@@ -112,6 +112,7 @@ public class CommonUtil {
 
     public static final String EXPR_SCHEME = "expr";
 
+    //lang.array, regexp, lang.value, lang.runtime, jballerina.java are not pre-declared.
     public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
             "lang.error", "lang.float", "lang.function", "lang.future", "lang.int", "lang.map", "lang.object",
             "lang.stream", "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml");
@@ -304,16 +305,16 @@ public class CommonUtil {
     /**
      * Get the completion item label for a given package.
      *
-     * @param pkg {@link Package} package info to evaluate
+     * @param module {@link Package} module info to evaluate
      * @return {@link String} label computed
      */
-    public static String getPackageLabel(LSPackageLoader.PackageInfo pkg) {
+    public static String getPackageLabel(LSPackageLoader.ModuleInfo module) {
         String orgName = "";
-        if (pkg.packageOrg().value() != null && !pkg.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
-            orgName = pkg.packageOrg().value() + "/";
+        if (!module.packageOrg().value().isEmpty() && !module.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
+            orgName = module.packageOrg().value() + "/";
         }
 
-        return orgName + pkg.packageName().value();
+        return orgName + module.packageName().value();
     }
 
     /**
@@ -436,9 +437,14 @@ public class CommonUtil {
                 List<Token> qualsAtCursor = getQualifiersAtCursor(context);
                 Set<SyntaxKind> foundQuals = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
                 context.getNodeAtCursor().leadingInvalidTokens().stream()
-                        .filter(token -> QUALIFIER_KINDS.contains(token.kind())
-                                && !foundQuals.contains(token.kind())).forEach(qualifiers::add);
-                qualifiers.addAll(qualsAtCursor);
+                        .filter(token -> QUALIFIER_KINDS.contains(token.kind()))
+                        .filter(token -> !foundQuals.contains(token.kind()))
+                        .forEach(qualifiers::add);
+                // Avoid duplicating the token at cursor.
+                qualsAtCursor.stream()
+                        .filter(token -> qualifiers.stream()
+                                .noneMatch(qual -> qual.textRange().equals(token.textRange())))
+                        .forEach(qualifiers::add);
                 return qualifiers;
             default:
         }
@@ -615,10 +621,8 @@ public class CommonUtil {
     public static io.ballerina.tools.text.TextEdit getTextEdit(SyntaxTree syntaxTree,
                                                                org.eclipse.lsp4j.TextEdit textEdit) {
         TextDocument textDocument = syntaxTree.textDocument();
-        Position startPos = textEdit.getRange().getStart();
-        Position endPos = textEdit.getRange().getEnd();
-        int start = textDocument.textPositionFrom(LinePosition.from(startPos.getLine(), startPos.getCharacter()));
-        int end = textDocument.textPositionFrom(LinePosition.from(endPos.getLine(), endPos.getCharacter()));
+        int start = textDocument.textPositionFrom(PositionUtil.getLinePosition(textEdit.getRange().getStart()));
+        int end = textDocument.textPositionFrom(PositionUtil.getLinePosition(textEdit.getRange().getEnd()));
         return io.ballerina.tools.text.TextEdit.from(TextRange.from(start, end - start), textEdit.getNewText());
     }
 
@@ -635,5 +639,22 @@ public class CommonUtil {
             return Optional.empty();
         }
         return Optional.of(qualifiers.get(qualifiers.size() - 1));
+    }
+
+    /**
+     * Returns the matching node for a given node.
+     *
+     * @param nodeAtCursor node
+     * @return node
+     */
+    public static Optional<Node> getMappingContextEvalNode(Node nodeAtCursor) {
+        Predicate<Node> predicate = node ->
+                node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        || node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        || node.kind() == SyntaxKind.MAPPING_MATCH_PATTERN
+                        || node.parent().kind() == SyntaxKind.MAPPING_MATCH_PATTERN
+                        || node.kind() == SyntaxKind.SPECIFIC_FIELD
+                        || node.kind() == SyntaxKind.COMPUTED_NAME_FIELD;
+        return CommonUtil.getMatchingNode(nodeAtCursor, predicate);
     }
 }

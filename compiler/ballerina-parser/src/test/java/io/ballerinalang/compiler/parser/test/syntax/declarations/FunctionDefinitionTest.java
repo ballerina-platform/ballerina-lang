@@ -203,4 +203,9 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
     public void testOptionalSemicolonRecovery() {
         testFile("func-definition/func_def_source_35.bal", "func-definition/func_def_assert_35.json");
     }
+
+    @Test
+    public void testReKeywordAsFuncNameAndParamName() {
+        testFile("func-definition/func_def_source_36.bal", "func-definition/func_def_assert_36.json");
+    }
 }

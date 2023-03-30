@@ -24,6 +24,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.JsonType;
 import io.ballerina.runtime.api.types.MapType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.StructureType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
@@ -284,7 +285,8 @@ public class JsonUtils {
             return null;
         }
         Type sourceType = TypeChecker.getType(value);
-        if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && TypeChecker.checkIsType(value, jsonType)) {
+        if (TypeUtils.getReferredType(sourceType).getTag() <= TypeTags.BOOLEAN_TAG && TypeChecker.checkIsType(value,
+                jsonType)) {
             return value;
         }
         TypeValuePair typeValuePair = new TypeValuePair(value, jsonType);
@@ -292,8 +294,14 @@ public class JsonUtils {
             throw createCyclicValueReferenceError(value);
         }
         unresolvedValues.add(typeValuePair);
-        Object newValue;
+        Object newValue = getJsonObject(value, unresolvedValues, jsonType, sourceType);
+        unresolvedValues.remove(typeValuePair);
+        return newValue;
+    }
 
+    private static Object getJsonObject(Object value, List<TypeValuePair> unresolvedValues, Type jsonType,
+                                    Type sourceType) {
+        Object newValue;
         switch (sourceType.getTag()) {
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
@@ -309,7 +317,7 @@ public class JsonUtils {
                 break;
             case TypeTags.TABLE_TAG:
                 BTable bTable = (BTable) value;
-                Type constrainedType = ((TableType) bTable.getType()).getConstrainedType();
+                Type constrainedType = ((TableType) sourceType).getConstrainedType();
                 if (constrainedType.getTag() == TypeTags.MAP_TAG) {
                     newValue = convertMapConstrainedTableToJson((BTable) value, unresolvedValues);
                 } else {
@@ -324,11 +332,14 @@ public class JsonUtils {
             case TypeTags.MAP_TAG:
                 newValue = convertMapToJson((BMap<?, ?>) value, unresolvedValues);
                 break;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                newValue = getJsonObject(value, unresolvedValues, jsonType,
+                        ((ReferenceType) sourceType).getReferredType());
+                break;
             case TypeTags.ERROR_TAG:
             default:
                 throw createConversionError(value, jsonType);
         }
-        unresolvedValues.remove(typeValuePair);
         return newValue;
     }
 

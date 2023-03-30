@@ -263,7 +263,7 @@ public class BIRInstructionWriter extends BIRVisitor {
 
     public void visit(BIRTerminator.AsyncCall birAsyncCall) {
         writeCallInstruction(birAsyncCall);
-        binaryWriter.writeAnnotAttachments(buf, birAsyncCall.annotAttachments);
+        BIRWriterUtils.writeAnnotAttachments(this.cp, buf, birAsyncCall.annotAttachments);
         addCpAndWriteString(birAsyncCall.thenBB.id.value);
     }
 
@@ -387,6 +387,12 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(NewArray birNewArray) {
         writeType(birNewArray.type);
         birNewArray.lhsOp.accept(this);
+        if (birNewArray.typedescOp != null) {
+            buf.writeByte(1);
+            birNewArray.typedescOp.accept(this);
+        } else {
+            buf.writeByte(0);
+        }
         birNewArray.sizeOp.accept(this);
         buf.writeInt(birNewArray.values.size());
         for (BIRNode.BIRListConstructorEntry listValueEntry : birNewArray.values) {

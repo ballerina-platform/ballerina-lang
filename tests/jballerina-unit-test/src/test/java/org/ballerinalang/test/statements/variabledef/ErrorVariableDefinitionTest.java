@@ -224,6 +224,11 @@ public class ErrorVariableDefinitionTest {
     }
 
     @Test
+    public void testErrorBindingPatternWithErrorDeclaredWithReadOnlyIntersection() {
+        BRunUtil.invoke(result, "testErrorBindingPatternWithErrorDeclaredWithReadOnlyIntersection");
+    }
+
+    @Test
     public void testNegativeErrorVariables() {
         CompileResult resultNegative = BCompileUtil.
                 compile("test-src/statements/variabledef/error_variable_definition_stmt_negative.bal");

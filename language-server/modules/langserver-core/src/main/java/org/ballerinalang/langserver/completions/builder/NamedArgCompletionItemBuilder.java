@@ -42,10 +42,11 @@ public class NamedArgCompletionItemBuilder {
      * @return {@link CompletionItem}
      */
     public static CompletionItem build(String argName, TypeSymbol argSymbol) {
-        String defaultValue = DefaultValueGenerationUtil.getDefaultPlaceholderForType(argSymbol).orElse("");
+        String defaultValueToInsert = DefaultValueGenerationUtil.getDefaultPlaceholderForType(argSymbol).orElse("");
+        String defaultValueToDetail = DefaultValueGenerationUtil.getDefaultValueForType(argSymbol).orElse("");
         String label = argName + " = ...";
-        String insertText = CommonUtil.escapeEscapeCharsInIdentifier(argName) + " = ${1:" + defaultValue + "}";
-        String detail = argName + " = " + defaultValue;
+        String insertText = CommonUtil.escapeEscapeCharsInIdentifier(argName) + " = ${1:" + defaultValueToInsert + "}";
+        String detail = argName + " = " + defaultValueToDetail;
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
         item.setInsertText(insertText);

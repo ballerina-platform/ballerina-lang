@@ -30,11 +30,13 @@ import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeConverter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 
@@ -50,9 +52,12 @@ public class Option {
     private final Set<BString> recordKeysFound;
     private final int location;
 
+    private static final Pattern NUMBER_PATTERN = Pattern.compile("-?[0-9]+(\\.[0-9]+)?([eE][-+]?[0-9]+)?");
+    private static final Pattern HEX_LITERAL = Pattern.compile("[-+]?0[xX][\\dA-Fa-f.pP\\-+]+");
+
     public Option(Type recordType, int location) {
-        this((RecordType) recordType,
-             ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName()), location);
+        this((RecordType) TypeUtils.getReferredType(recordType),
+                ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName()), location);
     }
 
     public Option(RecordType recordType, BMap<BString, Object> recordVal) {
@@ -84,7 +89,14 @@ public class Option {
     }
 
     private boolean isShortOption(String arg) {
-        return arg.startsWith("-");
+        return arg.startsWith("-") && !isNumeric(arg);
+    }
+
+    private boolean isNumeric(String stringVal) {
+        if (TypeConverter.hasFloatOrDecimalLiteralSuffix(stringVal)) {
+            stringVal = stringVal.substring(0, stringVal.length() - 1);
+        }
+        return NUMBER_PATTERN.matcher(stringVal).matches() || HEX_LITERAL.matcher(stringVal).matches();
     }
 
     private void validateConfigOption(String arg) {

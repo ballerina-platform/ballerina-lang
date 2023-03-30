@@ -1,0 +1,103 @@
+{
+  "position": {
+    "line": 38,
+    "character": 22
+  },
+  "source": "action_node_context/source/client_resource_access_action_source18.bal",
+  "items": [
+    {
+      "label": "(string id)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` params  \n- `string` id"
+        }
+      },
+      "sortText": "G",
+      "filterText": "get",
+      "insertText": "(${1})",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 38,
+              "character": 21
+            },
+            "end": {
+              "line": 38,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": ".post",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` params"
+        }
+      },
+      "sortText": "G",
+      "filterText": "post",
+      "insertText": ".post",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 38,
+              "character": 21
+            },
+            "end": {
+              "line": 38,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": ".put",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` params"
+        }
+      },
+      "sortText": "G",
+      "filterText": "put",
+      "insertText": ".put",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 38,
+              "character": 21
+            },
+            "end": {
+              "line": 38,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    }
+  ]
+}

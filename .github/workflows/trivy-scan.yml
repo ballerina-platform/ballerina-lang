@@ -3,7 +3,7 @@ name: Trivy
 on:
   workflow_dispatch:
   schedule:
-    - cron:  '0 0 * * *'
+    - cron:  '30 18 * * *'    # 00:00 in LK time (GMT+5:30)
 
 jobs:
   ubuntu_build:

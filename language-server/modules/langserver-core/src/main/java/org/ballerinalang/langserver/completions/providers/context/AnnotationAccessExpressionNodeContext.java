@@ -130,10 +130,15 @@ public class AnnotationAccessExpressionNodeContext extends AbstractCompletionPro
             case OBJECT:
                 if (((ObjectTypeSymbol) symbol).qualifiers().contains(Qualifier.SERVICE)) {
                     annotationAttachPoints.add(AnnotationAttachPoint.SERVICE);
+                } else {
+                    annotationAttachPoints.add(AnnotationAttachPoint.CLASS);
                 }
                 break;
             case FUNCTION:
                 annotationAttachPoints.add(AnnotationAttachPoint.FUNCTION);
+                annotationAttachPoints.add(AnnotationAttachPoint.TYPE);
+                break;
+            case RECORD:
                 annotationAttachPoints.add(AnnotationAttachPoint.TYPE);
                 break;
             case UNION:

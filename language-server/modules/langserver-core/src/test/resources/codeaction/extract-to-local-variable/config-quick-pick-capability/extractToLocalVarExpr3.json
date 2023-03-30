@@ -1,0 +1,136 @@
+{
+  "position": {
+    "line": 3,
+    "character": 34
+  },
+  "source": "extractToLocalVariableExprsWithQuickPick.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "command": {
+        "title": "Extract To Local Variable",
+        "command": "ballerina.action.extract",
+        "arguments": [
+          "Extract To Local Variable",
+          "extractToLocalVariableExprsWithQuickPick.bal",
+          {
+            "60": [
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 4
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 4
+                  }
+                },
+                "newText": "int var1 = 60;\n    "
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 32
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 34
+                  }
+                },
+                "newText": "var1"
+              }
+            ],
+            "60 * two": [
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 4
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 4
+                  }
+                },
+                "newText": "int var1 = 60 * two;\n    "
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 32
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 40
+                  }
+                },
+                "newText": "var1"
+              }
+            ],
+            "40 + 50 + 60 * two": [
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 4
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 4
+                  }
+                },
+                "newText": "int var1 = 40 + 50 + 60 * two;\n    "
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 22
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 40
+                  }
+                },
+                "newText": "var1"
+              }
+            ],
+            "intLiteral == 40 + 50 + 60 * two": [
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 4
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 4
+                  }
+                },
+                "newText": "boolean var1 = intLiteral == 40 + 50 + 60 * two;\n    "
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 8
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 40
+                  }
+                },
+                "newText": "var1"
+              }
+            ]
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

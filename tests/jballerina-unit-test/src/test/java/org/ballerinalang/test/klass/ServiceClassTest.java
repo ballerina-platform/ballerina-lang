@@ -127,6 +127,10 @@ public class ServiceClassTest {
         validateError(result, index++, "incompatible types: expected 'object { resource function get " +
                 "[int]() returns (); }', found 'isolated object { resource function get [int]() returns (); }'",
                 237, 11);
+        validateError(result, index++, "incompatible types: expected 'object { resource function get " +
+                        "foo/[string...]() returns (); }', found 'isolated object { " +
+                        "resource function get foo/[int...]() returns (); }'",
+                244, 11);
 
         Assert.assertEquals(index, result.getErrorCount());
     }

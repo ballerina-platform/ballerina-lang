@@ -339,7 +339,7 @@ public class ErrorTest {
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
-                "at ballerina.lang.array.0:slice(array.bal:145)\n\t" +
+                "at ballerina.lang.array.0:slice(array.bal:219)\n\t" +
                 "   error_test:testStackTraceInNative(error_test.bal:337)");
     }
 

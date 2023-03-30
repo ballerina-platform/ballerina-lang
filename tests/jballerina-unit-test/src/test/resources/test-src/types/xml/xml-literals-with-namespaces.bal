@@ -213,23 +213,23 @@ function testXmlInterpolationWithQuery() returns error? {
     }
 
     xml x8 = xml ``;
-    check from int i in [1]
-        do {
-            x8 = xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>`;
-        };
+    from int i in [1]
+    do {
+        x8 = xml `<empRecord employeeId="${i}"><localNS:id>${i}</localNS:id></empRecord>`;
+    };
     string s5 = x8.toString();
     if (s5 != expectedStr3) {
         panic error("Assertion error", expected = expectedStr3, found = s5);
     }
 
     xml x9 = xml ``;
-    check from int i in [1]
+    from int i in [1]
+    do {
+        from int j in [1]
         do {
-            error? ign = from int j in [1]
-                do {
-                    x9 = xml `<empRecord employeeId="${j}"><localNS:id>${j}</localNS:id></empRecord>`;
-                };
+            x9 = xml `<empRecord employeeId="${j}"><localNS:id>${j}</localNS:id></empRecord>`;
         };
+    };
     string s6 = x9.toString();
     if (s6 != expectedStr3) {
         panic error("Assertion error", expected = expectedStr3, found = s6);

@@ -72,6 +72,17 @@ function testFloatRefEquality(float a, float b) returns boolean {
     return a === b && !(a !== b);
 }
 
+function checkDecimalRefEquality() {
+    decimal d1 = 0d;
+    decimal d2 = 0.0d;
+    decimal d3 = 1.0001;
+    decimal d4 = 1.000100;
+    test:assertTrue((d1 === d1) && !(d1 !== d1));
+    test:assertTrue((d3 === d3) && !(d4 !== d4));
+    test:assertFalse((d1 === d2) && !(d1 !== d2));
+    test:assertFalse((d3 === d4) && !(d4 !== d3));
+}
+
 function testStringRefEquality(string a, string b) returns boolean {
     return a === b && !(a !== b);
 }

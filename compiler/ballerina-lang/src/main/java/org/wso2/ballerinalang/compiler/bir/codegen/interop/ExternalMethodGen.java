@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
-import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -138,9 +137,8 @@ public class ExternalMethodGen {
         }
 
         String jMethodName = birFunc.name.value;
-        beginBB.terminator = new JavaMethodCall(birFunc.pos, InstructionKind.PLATFORM, args, retRef,
-                                                extFuncWrapper.jClassName, extFuncWrapper.jMethodVMSig, jMethodName,
-                                                retBB);
+        beginBB.terminator = new JavaMethodCall(birFunc.pos, args, retRef, extFuncWrapper.jClassName,
+                extFuncWrapper.jMethodVMSig, jMethodName, retBB);
 
         retBB.terminator = new BIRTerminator.Return(birFunc.pos);
     }

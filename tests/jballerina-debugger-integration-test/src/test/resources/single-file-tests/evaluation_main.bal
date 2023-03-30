@@ -449,3 +449,7 @@ function getRecordConstrainedError() returns FooError {
     FooError e = error FooError("Some Error", detailMsg = "Failed Message", isFatal = true);
     return e;
 }
+
+function processTypeDesc(typedesc t) returns typedesc {
+    return t;
+}

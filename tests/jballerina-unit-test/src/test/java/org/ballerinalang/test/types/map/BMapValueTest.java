@@ -88,6 +88,11 @@ public class BMapValueTest {
         programFile = BCompileUtil.compile("test-src/types/map/map-value.bal");
     }
 
+    @Test
+    public void testUpdateMapValue() {
+        BRunUtil.invoke(programFile, "testUpdateMapValue");
+    }
+
     @Test(dependsOnMethods = "testGrammar")
     public void testMapWithAny() {
         Object returnVals = BRunUtil.invoke(programFile, "testMapWithAny", new Object[0]);

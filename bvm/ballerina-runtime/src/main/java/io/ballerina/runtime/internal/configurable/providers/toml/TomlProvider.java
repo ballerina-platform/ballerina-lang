@@ -27,12 +27,12 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
-import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
@@ -68,9 +68,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.checkEffectiveTomlType;
+import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getLineRange;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getModuleKey;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getTomlTypeString;
@@ -87,7 +87,6 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_TABLE_KEY_NOT_PROVIDED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_UNUSED_VALUE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
 
 /**
  * Toml value provider for configurable implementation.
@@ -340,6 +339,9 @@ public class TomlProvider implements ConfigProvider {
             case TypeTags.JSON_TAG:
                 validateUnionValue(tomlValue, variableName, (BUnionType) type);
                 break;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                validateValue(tomlValue, variableName, ((ReferenceType) type).getReferredType());
+                break;
             default:
                 invalidTomlLines.add(tomlValue.location().lineRange());
                 throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, type.toString());
@@ -384,7 +386,7 @@ public class TomlProvider implements ConfigProvider {
                 if (key.type.getTag() == TypeTags.INTERSECTION_TAG) {
                     type = (BFiniteType) ((IntersectionType) key.type).getEffectiveType();
                 } else {
-                    type = (BFiniteType) key.type;
+                    type = (BFiniteType) TypeUtils.getReferredType(key.type);
                 }
                 return getTomlConfigValue(validateAndGetFiniteValue(tomlValue, key.variable, type), key);
             }
@@ -460,7 +462,7 @@ public class TomlProvider implements ConfigProvider {
         for (TomlTableNode moduleNode : moduleTomlNodes) {
             if (moduleNode.entries().containsKey(variableName)) {
                 TomlNode tomlValue = moduleNode.entries().get(variableName);
-                return getTomlNode(tomlValue, variableName, key.type);
+                return getTomlNode(tomlValue, variableName, TypeUtils.getReferredType(key.type));
             }
         }
         return null;
@@ -632,26 +634,13 @@ public class TomlProvider implements ConfigProvider {
     private void validateUnionValue(TomlNode tomlValue, String variableName, BUnionType unionType) {
         visitedNodes.add(tomlValue);
         Object balValue = Utils.getBalValueFromToml(tomlValue, visitedNodes, unionType, invalidTomlLines, variableName);
-        List<Type> convertibleTypes = new ArrayList<>();
-        for (Type type : unionType.getMemberTypes()) {
-            Type convertibleType = TypeConverter.getConvertibleType(balValue, type, variableName, false,
-                    new ArrayList<>(), new ArrayList<>(), false);
-            if (convertibleType != null) {
-                convertibleTypes.add(convertibleType);
-            }
-        }
-
-        if (convertibleTypes.size() > 1 &&
-                !(balValue instanceof BArray && unionType.getTag() == TypeTags.ANYDATA_TAG)) {
-            invalidTomlLines.add(tomlValue.location().lineRange());
-            throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlValue),
-                    variableName, decodeIdentifier(unionType.toString()));
-        }
-
-        if (convertibleTypes.isEmpty()) {
+        Type convertibleType = TypeConverter.getConvertibleType(balValue, unionType, variableName, new HashSet<>(),
+                new ArrayList<>(), false);
+        if (convertibleType == null) {
             throwTypeIncompatibleError(tomlValue, variableName, unionType);
         }
-        Type type = convertibleTypes.get(0);
+        Type type = getEffectiveType(convertibleType);
+
         if (isSimpleType(type.getTag()) || isXMLType(type)) {
             return;
         }
@@ -970,6 +959,6 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private Optional<ConfigValue> getTomlConfigValue(Object value, VariableKey key) {
-        return Optional.of(new TomlConfigValue(value, key.type));
+        return Optional.of(new TomlConfigValue(value, TypeUtils.getReferredType(key.type)));
     }
 }

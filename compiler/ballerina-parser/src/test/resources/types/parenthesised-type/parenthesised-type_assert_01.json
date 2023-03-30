@@ -807,10 +807,19 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "INT_TYPE_DESC",
+                          "kind": "MEMBER_TYPE_DESC",
                           "children": [
                             {
-                              "kind": "INT_KEYWORD"
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -824,10 +833,19 @@
                           ]
                         },
                         {
-                          "kind": "STRING_TYPE_DESC",
+                          "kind": "MEMBER_TYPE_DESC",
                           "children": [
                             {
-                              "kind": "STRING_KEYWORD"
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "STRING_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "STRING_KEYWORD"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -942,10 +960,19 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "INT_TYPE_DESC",
+                              "kind": "MEMBER_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "INT_KEYWORD"
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "INT_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "INT_KEYWORD"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -2357,10 +2384,19 @@
                                       "kind": "LIST",
                                       "children": [
                                         {
-                                          "kind": "INT_TYPE_DESC",
+                                          "kind": "MEMBER_TYPE_DESC",
                                           "children": [
                                             {
-                                              "kind": "INT_KEYWORD"
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "INT_TYPE_DESC",
+                                              "children": [
+                                                {
+                                                  "kind": "INT_KEYWORD"
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -2374,10 +2410,19 @@
                                           ]
                                         },
                                         {
-                                          "kind": "STRING_TYPE_DESC",
+                                          "kind": "MEMBER_TYPE_DESC",
                                           "children": [
                                             {
-                                              "kind": "STRING_KEYWORD"
+                                              "kind": "LIST",
+                                              "children": []
+                                            },
+                                            {
+                                              "kind": "STRING_TYPE_DESC",
+                                              "children": [
+                                                {
+                                                  "kind": "STRING_KEYWORD"
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
@@ -2497,10 +2542,19 @@
                                           "kind": "LIST",
                                           "children": [
                                             {
-                                              "kind": "INT_TYPE_DESC",
+                                              "kind": "MEMBER_TYPE_DESC",
                                               "children": [
                                                 {
-                                                  "kind": "INT_KEYWORD"
+                                                  "kind": "LIST",
+                                                  "children": []
+                                                },
+                                                {
+                                                  "kind": "INT_TYPE_DESC",
+                                                  "children": [
+                                                    {
+                                                      "kind": "INT_KEYWORD"
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },

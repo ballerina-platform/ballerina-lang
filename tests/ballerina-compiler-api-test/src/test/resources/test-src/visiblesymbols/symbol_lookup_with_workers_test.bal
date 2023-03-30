@@ -65,3 +65,14 @@ function testWorkerSendReceive() {
         int b = <-
     }
 }
+
+function testFlushWithoutWorkerName() {
+    worker w1 {
+        10 -> w2;
+        error? err = flush ;
+    }
+
+    worker w2 {
+        int receivedVal = <- w1;
+    }
+}

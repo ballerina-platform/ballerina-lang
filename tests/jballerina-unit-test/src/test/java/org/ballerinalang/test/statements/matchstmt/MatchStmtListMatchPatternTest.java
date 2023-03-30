@@ -125,6 +125,7 @@ public class MatchStmtListMatchPatternTest {
                 "testListMatchPatternWithRestPattern13",
                 "testListMatchPatternWithRestPattern14",
                 "testListMatchPatternWithRestPattern15",
+                "testListMatchPatternWithRestPattern16",
                 "testListMatchPatternWithRestPatternWithArrayAndAnydataIntersection",
                 "testListMatchPatternWithClosedArray",
         };
