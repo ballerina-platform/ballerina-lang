@@ -267,9 +267,12 @@ public class JvmCreateTypeGen {
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             String name = optionalTypeDef.internalName.value;
             BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
-            if (bType.tag != TypeTags.RECORD && bType.tag != TypeTags.OBJECT && bType.tag != TypeTags.ERROR &&
-                    bType.tag != TypeTags.UNION && bType.tag != TypeTags.TUPLE) {
+            int bTypeTag = bType.tag;
+            if (!(bTypeTag == TypeTags.RECORD || bTypeTag == TypeTags.ERROR || bTypeTag == TypeTags.OBJECT
+                    || bTypeTag == TypeTags.UNION || bTypeTag == TypeTags.TUPLE) || (bTypeTag == TypeTags.RECORD
+                    && optionalTypeDef.type.tag == TypeTags.TYPEREFDESC)) {
                         // do not generate anything for other types (e.g.: finite type, etc.)
+                        // or if the type is a type reference type of a record type
                         continue;
                     } else {
                 if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
@@ -323,7 +326,8 @@ public class JvmCreateTypeGen {
             BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
             int bTypeTag = bType.tag;
             if (!(bTypeTag == TypeTags.RECORD || bTypeTag == TypeTags.ERROR || bTypeTag == TypeTags.OBJECT
-                    || bTypeTag == TypeTags.UNION || bTypeTag == TypeTags.TUPLE)) {
+                    || bTypeTag == TypeTags.UNION || bTypeTag == TypeTags.TUPLE) || (bTypeTag == TypeTags.RECORD
+                    && optionalTypeDef.type.tag == TypeTags.TYPEREFDESC)) {
                 continue;
             }
 

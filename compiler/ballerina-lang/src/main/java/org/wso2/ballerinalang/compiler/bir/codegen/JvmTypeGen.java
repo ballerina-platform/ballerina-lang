@@ -228,13 +228,17 @@ public class JvmTypeGen {
         // create the type
         for (BIRTypeDefinition typeDef : typeDefs) {
             BType bType = JvmCodeGenUtil.getReferredType(typeDef.type);
-            if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
-                    || bType.tag == TypeTags.UNION || bType.tag == TypeTags.TUPLE) {
-                String name = typeDef.internalName.value;
-                generateTypeField(cw, name);
-                generateTypedescField(cw, name);
+            int bTypeTag = bType.tag;
+            if (!(bTypeTag == TypeTags.RECORD || bTypeTag == TypeTags.ERROR || bTypeTag == TypeTags.OBJECT
+                    || bTypeTag == TypeTags.UNION || bTypeTag == TypeTags.TUPLE) || (bTypeTag == TypeTags.RECORD
+                    && typeDef.type.tag == TypeTags.TYPEREFDESC)) {
+                // do not generate anything for other types (e.g.: finite type, etc.)
+                // or if the type is a type reference type of a record type
+                continue;
             }
-            // do not generate anything for other types (e.g.: finite type, unions, etc.)
+            String name = typeDef.internalName.value;
+            generateTypeField(cw, name);
+            generateTypedescField(cw, name);
         }
     }
 
