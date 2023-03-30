@@ -398,9 +398,9 @@ public class Type {
                 functionType.resourcePath = "";
                 if (methodSymbol.qualifiers().contains(Qualifier.RESOURCE)) {
                     functionType.name = "";
-                    functionType.accessor = methodSymbol.getName().toString();
+                    functionType.accessor = methodName;
                 } else {
-                    functionType.name = methodSymbol.getName().toString();
+                    functionType.name = methodName;
                     functionType.accessor = "";
                 }
                 functionType.description = methodSymbol.documentation().isPresent() &&
