@@ -1,0 +1,293 @@
+[
+  {
+    "description": "Add isolated qualifier for a remote definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tremote function hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tisolated remote function hello(string name){} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "remote function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove isolated qualifier for a remote definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tisolated remote function hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tremote function hello(string name) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "remote function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add transactional qualifier for a remote definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tremote function hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\ttransactional remote function hello(string name){} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "remote function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove transactional qualifier for a remote definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\ttransactional remote function hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tremote function hello(string name) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "remote function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add more than 1 qualifier for a remote definition",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tremote function hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tisolated transactional remote function hello(string name) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "remote function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is added"
+                    },
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove more than 1 qualifier for a remote definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tisolated transactional remote function hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tremote function hello(string name) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "remote function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is removed"
+                    },
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify qualifier for a remote definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\ttransactional remote function hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tisolated remote function hello(string name) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "remote function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is added"
+                    },
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

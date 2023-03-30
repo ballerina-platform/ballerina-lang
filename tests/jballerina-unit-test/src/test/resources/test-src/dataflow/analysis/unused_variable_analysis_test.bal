@@ -406,3 +406,17 @@ service / on new Listener(1234) {
         int _ = y[0];
     }
 }
+
+type AnnotTupleOne record {|
+   string value;
+|};
+
+annotation AnnotTupleOne annotOne on type, field;
+
+function f19() {
+    string n3 = "n3"; // used `n3`
+    [@annotOne {value: n3} int] k1 = []; // unused `k1`
+
+    string n4 = "n4"; // used `n4`
+    record {@annotOne {value: n4} string x;} k2 = {x: ""}; // unused `k2`
+}

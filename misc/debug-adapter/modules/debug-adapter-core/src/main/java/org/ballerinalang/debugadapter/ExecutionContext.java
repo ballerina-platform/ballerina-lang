@@ -41,6 +41,7 @@ public class ExecutionContext {
     private Process launchedProcess;
     private DebugInstruction lastInstruction;
     private boolean terminateRequestReceived;
+    private boolean supportsRunInTerminalRequest;
 
     ExecutionContext(JBallerinaDebugServer adapter) {
         this.adapter = adapter;
@@ -149,6 +150,14 @@ public class ExecutionContext {
 
     public void setSourceProjectRoot(String sourceProjectRoot) {
         this.sourceProjectRoot = sourceProjectRoot;
+    }
+
+    public void setSupportsRunInTerminalRequest(boolean supportsRunInTerminalRequest) {
+        this.supportsRunInTerminalRequest = supportsRunInTerminalRequest;
+    }
+
+    public boolean getSupportsRunInTerminalRequest() {
+        return supportsRunInTerminalRequest;
     }
 
     /**

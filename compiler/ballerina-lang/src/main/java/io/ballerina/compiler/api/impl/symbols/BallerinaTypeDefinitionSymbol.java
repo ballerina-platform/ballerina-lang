@@ -19,6 +19,7 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Qualifier;
@@ -48,8 +49,10 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
     private final boolean deprecated;
     private final boolean readonly;
     private final List<AnnotationSymbol> annots;
+    private final List<AnnotationAttachmentSymbol> annotAttachments;
 
     protected BallerinaTypeDefinitionSymbol(String name, List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
+                                            List<AnnotationAttachmentSymbol> annotAttachments,
                                             TypeSymbol typeDescriptor, BSymbol bSymbol, CompilerContext context) {
         super(name, SymbolKind.TYPE_DEFINITION, bSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
@@ -58,6 +61,7 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
         this.deprecated = Symbols.isFlagOn(bSymbol.flags, Flags.DEPRECATED);
         this.readonly = Symbols.isFlagOn(bSymbol.flags, Flags.READONLY);
         this.annots = Collections.unmodifiableList(annots);
+        this.annotAttachments = Collections.unmodifiableList(annotAttachments);
     }
 
     @Override
@@ -91,6 +95,11 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
     }
 
     @Override
+    public List<AnnotationAttachmentSymbol> annotAttachments() {
+        return this.annotAttachments;
+    }
+
+    @Override
     public Optional<Documentation> documentation() {
         return Optional.ofNullable(this.docAttachment);
     }
@@ -114,6 +123,7 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
 
         protected List<Qualifier> qualifiers = new ArrayList<>();
         protected List<AnnotationSymbol> annots = new ArrayList<>();
+        protected List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
         protected TypeSymbol typeDescriptor;
 
         public TypeDefSymbolBuilder(String name, BSymbol symbol, CompilerContext context) {
@@ -135,10 +145,15 @@ public class BallerinaTypeDefinitionSymbol extends BallerinaSymbol implements Ty
             return this;
         }
 
+        public TypeDefSymbolBuilder withAnnotationAttachment(AnnotationAttachmentSymbol annotAttachment) {
+            this.annotAttachments.add(annotAttachment);
+            return this;
+        }
+
         @Override
         public BallerinaTypeDefinitionSymbol build() {
-            return new BallerinaTypeDefinitionSymbol(this.name, this.qualifiers, this.annots, this.typeDescriptor,
-                                                     this.bSymbol, this.context);
+            return new BallerinaTypeDefinitionSymbol(this.name, this.qualifiers, this.annots, this.annotAttachments,
+                                                     this.typeDescriptor, this.bSymbol, this.context);
         }
     }
 }

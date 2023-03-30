@@ -1,0 +1,27 @@
+{
+  "position": {
+    "line": 3,
+    "character": 17
+  },
+  "source": "fixReturnTypeInCommitAction.bal",
+  "expected": [
+    {
+      "title": "Change return type to 'error?'",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 15
+            },
+            "end": {
+              "line": 0,
+              "character": 15
+            }
+          },
+          "newText": " returns error?"
+        }
+      ]
+    }
+  ]
+}

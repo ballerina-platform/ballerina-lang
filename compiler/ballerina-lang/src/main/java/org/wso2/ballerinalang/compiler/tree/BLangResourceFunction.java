@@ -31,10 +31,9 @@ public class BLangResourceFunction extends BLangFunction {
 
     // BLangNodes
     public BLangIdentifier methodName;
-    public List<BLangIdentifier> resourcePath;
     public BLangSimpleVariable restPathParam;
     public List<BLangSimpleVariable> pathParams = new ArrayList<>();
-
+    public List<BLangResourcePathSegment> resourcePathSegments;
 
     @Override
     public void accept(BLangNodeVisitor visitor) {

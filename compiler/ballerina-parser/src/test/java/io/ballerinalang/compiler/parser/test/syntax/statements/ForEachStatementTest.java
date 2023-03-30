@@ -86,6 +86,12 @@ public class ForEachStatementTest extends AbstractStatementTest {
                 "forEach-stmt/forEach_stmt_assert_24.json");
     }
 
+    @Test
+    public void testForEachStmtWithOnFailClauseWithoutVariable() {
+        testFile("forEach-stmt/forEach_stmt_source_26.bal",
+                "forEach-stmt/forEach_stmt_assert_26.json");
+    }
+
     // Recovery tests
 
     @Test

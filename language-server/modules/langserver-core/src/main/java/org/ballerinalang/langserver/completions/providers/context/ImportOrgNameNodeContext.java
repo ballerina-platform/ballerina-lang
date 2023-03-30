@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSPackageLoader;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -55,24 +55,24 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
             throw new AssertionError("ModuleName cannot be empty");
         }
 
-        List<LSPackageLoader.PackageInfo> packagesList =
-                new ArrayList<>(LSPackageLoader.getInstance(ctx.languageServercontext()).getDistributionRepoPackages());
-        ArrayList<LSCompletionItem> completionItems = moduleNameContextCompletions(ctx, orgName, packagesList);
+        List<LSPackageLoader.ModuleInfo> moduleList =
+                new ArrayList<>(LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx));
+        ArrayList<LSCompletionItem> completionItems = moduleNameContextCompletions(ctx, orgName, moduleList);
         this.sort(ctx, node, completionItems);
 
         return completionItems;
     }
 
     private ArrayList<LSCompletionItem> moduleNameContextCompletions(BallerinaCompletionContext context, String orgName,
-                                                                     List<LSPackageLoader.PackageInfo> packagesList) {
+                                                                     List<LSPackageLoader.ModuleInfo> moduleList) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> pkgNameLabels = new ArrayList<>();
 
-        packagesList.forEach(ballerinaPackage -> {
+        moduleList.forEach(ballerinaPackage -> {
             String packageName = ballerinaPackage.packageName().value();
             String insertText;
             if (orgName.equals(ballerinaPackage.packageOrg().value()) && !pkgNameLabels.contains(packageName)
-                    && CommonUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
+                    && ModuleUtil.matchingImportedModule(context, ballerinaPackage).isEmpty()) {
                 if (orgName.equals(Names.BALLERINA_ORG.value)
                         && packageName.startsWith(Names.LANG.value + ".")) {
                     insertText = ImportDeclarationContextUtil.getLangLibModuleNameInsertText(packageName);

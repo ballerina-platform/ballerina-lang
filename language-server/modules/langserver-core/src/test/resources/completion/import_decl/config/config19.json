@@ -156,6 +156,22 @@
       "sortText": "B",
       "insertText": "lang.runtime;",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "B",
+      "insertText": "lang.'function;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "B",
+      "insertText": "lang.regexp;",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

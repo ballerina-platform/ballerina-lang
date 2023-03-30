@@ -55,7 +55,7 @@ public abstract class BProgramRunner {
      */
     public abstract Process start() throws Exception;
 
-    protected ArrayList<String> getBallerinaCommand(String balFile) throws ClientConfigurationException {
+    public ArrayList<String> getBallerinaCommand(String balFile) throws ClientConfigurationException {
 
         List<String> ballerinaExec = new ArrayList<>();
         if (OSUtils.isWindows()) {

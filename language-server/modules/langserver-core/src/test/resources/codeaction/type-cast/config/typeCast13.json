@@ -1,9 +1,13 @@
 {
-  "line": 120,
-  "character": 21,
+  "position": {
+    "line": 120,
+    "character": 21
+  },
+  "source": "typeCast.bal",
   "expected": [
     {
-      "title": "Add type cast to assignment",
+      "title": "Add type cast",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -16,7 +20,7 @@
               "character": 19
             }
           },
-          "newText": "<MyRecord>"
+          "newText": "\u003cMyRecord\u003e"
         }
       ]
     }

@@ -39,4 +39,6 @@ public class Constants {
     static final String UNINSTALL_COMMAND = "uninstall";
     static final String SHELL_COMMAND = "shell";
     static final String PACK_COMMAND = "pack";
+    static final String GRAPH_COMMAND = "graph";
+    static final String DEPRECATE_COMMAND = "deprecate";
 }

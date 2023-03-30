@@ -20,6 +20,7 @@ package io.ballerina.compiler.internal.parser.utils;
 import io.ballerina.compiler.internal.parser.BallerinaParser;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
+import io.ballerina.compiler.internal.parser.tree.STNodeList;
 import io.ballerina.compiler.internal.parser.tree.STQualifiedNameReferenceNode;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
@@ -51,6 +52,10 @@ public class ConditionalExprResolver {
     }
 
     public static STNode getQualifiedNameRefNode(STNode parentNode, boolean leftMost) {
+        if (parentNode == null || parentNode.kind == SyntaxKind.LIST && ((STNodeList) parentNode).isEmpty()) {
+            return null;
+        }
+
         if (parentNode.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             STNode modulePrefix = ((STQualifiedNameReferenceNode) parentNode).modulePrefix;
             return isValidSimpleNameRef((STToken) modulePrefix) ? parentNode : null;

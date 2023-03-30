@@ -42,3 +42,7 @@ public class Listener {
 
     public function immediateStop() returns error? {}
 }
+
+service on new module1:Listener(9090) {
+}
+

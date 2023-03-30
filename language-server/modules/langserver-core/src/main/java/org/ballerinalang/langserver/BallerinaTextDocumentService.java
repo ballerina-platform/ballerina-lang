@@ -23,9 +23,10 @@ import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
 import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderHolder;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.CodeActionResolveContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.DocumentSymbolContext;
@@ -38,18 +39,19 @@ import org.ballerinalang.langserver.commons.RenameContext;
 import org.ballerinalang.langserver.commons.SemanticTokensContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
+import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
-import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.ballerinalang.langserver.definition.DefinitionUtil;
+import org.ballerinalang.langserver.documentsymbol.DocumentSymbolUtil;
+import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.foldingrange.FoldingRangeProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
+import org.ballerinalang.langserver.references.ReferencesUtil;
+import org.ballerinalang.langserver.rename.RenameUtil;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
-import org.ballerinalang.langserver.util.LSClientUtil;
-import org.ballerinalang.langserver.util.definition.DefinitionUtil;
-import org.ballerinalang.langserver.util.documentsymbol.DocumentSymbolUtil;
-import org.ballerinalang.langserver.util.references.ReferencesUtil;
-import org.ballerinalang.langserver.util.rename.RenameUtil;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManagerProxy;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -75,6 +77,7 @@ import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PrepareRenameDefaultBehavior;
 import org.eclipse.lsp4j.PrepareRenameParams;
 import org.eclipse.lsp4j.PrepareRenameResult;
 import org.eclipse.lsp4j.Range;
@@ -90,6 +93,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
 import java.net.URISyntaxException;
@@ -163,7 +167,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 HoverContext context = ContextBuilder.buildHoverContext(
-                        CommonUtil.convertUriSchemeFromBala(params.getTextDocument().getUri()),
+                        PathUtil.convertUriSchemeFromBala(params.getTextDocument().getUri()),
                         this.workspaceManagerProxy.get(),
                         this.serverContext, params.getPosition(),
                         cancelChecker);
@@ -185,7 +189,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<SignatureHelp> signatureHelp(SignatureHelpParams params) {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             String uri = params.getTextDocument().getUri();
-            Optional<Path> sigFilePath = CommonUtil.getPathFromURI(uri);
+            Optional<Path> sigFilePath = PathUtil.getPathFromURI(uri);
 
             // Note: If the path does not exist, then return early and ignore
             if (sigFilePath.isEmpty()) {
@@ -221,7 +225,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 BallerinaDefinitionContext defContext = ContextBuilder.buildDefinitionContext(
-                        CommonUtil.convertUriSchemeFromBala(params.getTextDocument().getUri()),
+                        PathUtil.convertUriSchemeFromBala(params.getTextDocument().getUri()),
                         this.workspaceManagerProxy.get(),
                         this.serverContext,
                         params.getPosition(),
@@ -247,7 +251,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 String fileUri = params.getTextDocument().getUri();
                 ReferencesContext context = ContextBuilder.buildReferencesContext(
-                        CommonUtil.convertUriSchemeFromBala(fileUri),
+                        PathUtil.convertUriSchemeFromBala(fileUri),
                         this.workspaceManagerProxy.get(fileUri),
                         this.serverContext,
                         params.getPosition(),
@@ -260,19 +264,19 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 List<Location> references = new ArrayList<>();
                 referencesMap.forEach((module, locations) ->
                         locations.forEach(location -> {
-                            Path filePath = ReferencesUtil.getPathFromLocation(module, location);
+                            Path filePath = PathUtil.getPathFromLocation(module, location);
                             String uri = filePath.toUri().toString();
                             // If path is readonly, change the URI scheme
-                            if (CommonUtil.isWriteProtectedPath(filePath)) {
+                            if (PathUtil.isWriteProtectedPath(filePath)) {
                                 try {
-                                    uri = CommonUtil.getBalaUriForPath(serverContext, filePath);
+                                    uri = PathUtil.getBalaUriForPath(serverContext, filePath);
                                 } catch (URISyntaxException e) {
                                     this.clientLogger.logError(LSContextOperation.TXT_REFERENCES,
                                             "Failed to convert path to bala URI", e,
                                             params.getTextDocument(), params.getPosition());
                                 }
                             }
-                            references.add(new Location(uri, ReferencesUtil.getRange(location)));
+                            references.add(new Location(uri, PathUtil.getRange(location)));
                         }));
 
                 return references;
@@ -295,7 +299,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     documentSymbol(DocumentSymbolParams params) {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             String fileUri = params.getTextDocument().getUri();
-            Optional<Path> docSymbolFilePath = CommonUtil.getPathFromURI(fileUri);
+            Optional<Path> docSymbolFilePath = PathUtil.getPathFromURI(fileUri);
 
             // Note: If the path does not exist, then return early and ignore
             if (docSymbolFilePath.isEmpty()) {
@@ -325,7 +329,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = params.getTextDocument().getUri();
             try {
                 CodeActionContext context = ContextBuilder.buildCodeActionContext(fileUri,
-                        workspaceManagerProxy.get(),
+                        this.workspaceManagerProxy.get(fileUri),
                         this.serverContext,
                         params,
                         cancelChecker);
@@ -347,6 +351,38 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
+    public CompletableFuture<CodeAction> resolveCodeAction(CodeAction codeAction) {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
+            try {
+                ResolvableCodeAction resolvableCodeAction = ResolvableCodeAction.from(codeAction);
+                if (resolvableCodeAction.getData() == null || resolvableCodeAction.getData().getFileUri() == null) {
+                   // Probably not a resolvable code action. Can be the client sending resolve request for a
+                   // scenario where code action's text edit is empty
+                    this.clientLogger.logWarning("Invalid resolvable code action received: " + codeAction.getTitle());
+                    return codeAction;
+                }
+                String fileUri = resolvableCodeAction.getData().getFileUri();
+                CodeActionResolveContext resolveContext = ContextBuilder.buildCodeActionResolveContext(
+                        fileUri,
+                        workspaceManagerProxy.get(fileUri),
+                        this.serverContext,
+                        cancelChecker);
+                return LangExtensionDelegator.instance().resolveCodeAction(resolvableCodeAction, resolveContext);
+            } catch (UserErrorException e) {
+                this.clientLogger.notifyUser("Resolve Code Action", e);
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
+            } catch (Throwable e) {
+                String msg = "Operation 'text/resolveCodeAction' failed!";
+                this.clientLogger.logError(LSContextOperation.TXT_RESOLVE_CODE_ACTION, msg, e, null,
+                        (Position) null);
+            }
+
+            return codeAction;
+        });
+    }
+
+    @Override
     public CompletableFuture<List<? extends CodeLens>> codeLens(CodeLensParams params) {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             if (!LSCodeLensesProviderHolder.getInstance(this.serverContext).isEnabled()) {
@@ -357,7 +393,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
 
             String fileUri = params.getTextDocument().getUri();
-            Optional<Path> docSymbolFilePath = CommonUtil.getPathFromURI(fileUri);
+            Optional<Path> docSymbolFilePath = PathUtil.getPathFromURI(fileUri);
 
             // Note: If the path does not exist, then return early and ignore
             if (docSymbolFilePath.isEmpty()) {
@@ -465,7 +501,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<Either<Range, PrepareRenameResult>> prepareRename(PrepareRenameParams params) {
+    public CompletableFuture<Either3<Range, PrepareRenameResult, PrepareRenameDefaultBehavior>>
+    prepareRename(PrepareRenameParams params) {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 String fileUri = params.getTextDocument().getUri();
@@ -477,7 +514,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         cancelChecker);
                 Optional<Range> range = RenameUtil.prepareRename(context);
                 if (range.isPresent()) {
-                    return Either.forLeft(range.get());
+                    return Either3.forFirst(range.get());
                 }
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Rename", e);
@@ -522,15 +559,15 @@ class BallerinaTextDocumentService implements TextDocumentService {
         String fileUri = params.getTextDocument().getUri();
         try {
             DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(
-                    CommonUtil.convertUriSchemeFromBala(fileUri),
+                    PathUtil.convertUriSchemeFromBala(fileUri),
                     this.workspaceManagerProxy.get(fileUri),
                     LSContextOperation.TXT_DID_OPEN, this.serverContext);
             this.workspaceManagerProxy.didOpen(params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
                     "' {fileUri: '" + fileUri + "'} opened");
-            DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
-            diagnosticsHelper.schedulePublishDiagnostics(this.languageServer.getClient(), context);
-            LSClientUtil.chekAndRegisterCommands(context);
+            EventSyncPubSubHolder.getInstance(this.serverContext)
+                    .getPublisher(EventKind.PROJECT_UPDATE)
+                    .publish(this.languageServer.getClient(), this.serverContext, context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didOpen' failed!";
             TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
@@ -544,16 +581,16 @@ class BallerinaTextDocumentService implements TextDocumentService {
         try {
             // Update content
             DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(
-                    CommonUtil.convertUriSchemeFromBala(fileUri),
+                    PathUtil.convertUriSchemeFromBala(fileUri),
                     this.workspaceManagerProxy.get(fileUri),
                     LSContextOperation.TXT_DID_CHANGE,
                     this.serverContext);
             this.workspaceManagerProxy.didChange(params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() +
                     "' {fileUri: '" + fileUri + "'} updated");
-            DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
-            diagnosticsHelper.schedulePublishDiagnostics(this.languageServer.getClient(), context);
-            LSClientUtil.chekAndRegisterCommands(context);
+            EventSyncPubSubHolder.getInstance(this.serverContext)
+                    .getPublisher(EventKind.PROJECT_UPDATE)
+                    .publish(this.languageServer.getClient(), this.serverContext, context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didChange' failed!";
             this.clientLogger.logError(LSContextOperation.TXT_DID_CHANGE, msg, e, params.getTextDocument(),
@@ -566,7 +603,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         String fileUri = params.getTextDocument().getUri();
         try {
             DocumentServiceContext context = ContextBuilder.buildDocumentServiceContext(
-                    CommonUtil.convertUriSchemeFromBala(fileUri),
+                    PathUtil.convertUriSchemeFromBala(fileUri),
                     this.workspaceManagerProxy.get(fileUri),
                     LSContextOperation.TXT_DID_CLOSE,
                     this.serverContext);

@@ -33,11 +33,13 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.DefaultValueGenerationUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Range;
@@ -46,6 +48,7 @@ import org.eclipse.lsp4j.TextEdit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -55,7 +58,7 @@ import java.util.Set;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
+public class ChangeParameterTypeCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Change Parameter Type";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
@@ -63,17 +66,17 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) && 
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
 
         // Skip, non-local var declarations
         VariableDeclarationNode localVarNode = getVariableDeclarationNode(positionDetails.matchedNode());
@@ -87,9 +90,9 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        // Skip, variable declarations with non-initializers
+        // Skip, variable declarations with non-initializers and field access initializers
         Optional<ExpressionNode> initializer = localVarNode.initializer();
-        if (initializer.isEmpty()) {
+        if (initializer.isEmpty()  || initializer.get().kind() == SyntaxKind.FIELD_ACCESS) {
             return Collections.emptyList();
         }
 
@@ -124,13 +127,22 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         // Derive possible types
         List<CodeAction> actions = new ArrayList<>();
         List<TextEdit> importEdits = new ArrayList<>();
-        List<String> types = CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context);
-        for (String type : types) {
+        Map<TypeSymbol, String> types = CodeActionUtil.getPossibleTypeSymbols(typeSymbol.get(), importEdits, context);
+        for (Map.Entry<TypeSymbol, String> entry : types.entrySet()) {
             List<TextEdit> edits = new ArrayList<>();
-            edits.add(new TextEdit(paramTypeRange.get(), type));
+            edits.add(new TextEdit(paramTypeRange.get(), entry.getValue()));
+
+            //Check if the parameter is a defaultable parameter and change the default value accordingly.
+            if (node.get().kind() == SyntaxKind.DEFAULTABLE_PARAM) {
+                Range defaultValRange =
+                        PositionUtil.toRange(((DefaultableParameterNode) node.get()).expression().lineRange());
+                edits.add(new TextEdit(defaultValRange,
+                        DefaultValueGenerationUtil.getDefaultValueForType(entry.getKey()).orElse("")));
+            }
             String commandTitle = String.format(CommandConstants.CHANGE_PARAM_TYPE_TITLE, paramSymbol.getName().get(),
-                    type);
-            actions.add(createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
+                    entry.getValue());
+            actions.add(CodeActionUtil
+                    .createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
         }
         return actions;
     }
@@ -153,13 +165,14 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
             return Optional.empty();
         } else if (parameterNode.kind() == SyntaxKind.REQUIRED_PARAM) {
             RequiredParameterNode requiredParameterNode = (RequiredParameterNode) parameterNode;
-            return Optional.of(CommonUtil.toRange(requiredParameterNode.typeName().lineRange()));
+            return Optional.of(PositionUtil.toRange(requiredParameterNode.typeName().lineRange()));
         } else if (parameterNode.kind() == SyntaxKind.DEFAULTABLE_PARAM) {
             DefaultableParameterNode defaultableParameterNode = (DefaultableParameterNode) parameterNode;
-            return Optional.of(CommonUtil.toRange(defaultableParameterNode.typeName().lineRange()));
+            return Optional.of(PositionUtil.toRange(defaultableParameterNode.typeName().lineRange()));
         } else if (parameterNode.kind() == SyntaxKind.REST_PARAM) {
             RestParameterNode restParameterNode = (RestParameterNode) parameterNode;
-            return Optional.of(CommonUtil.toRange(restParameterNode.typeName().lineRange()));
+            return Optional.of(new Range(PositionUtil.toPosition(restParameterNode.typeName().lineRange().startLine()),
+                    PositionUtil.toPosition(restParameterNode.ellipsisToken().lineRange().endLine())));
         } else {
             // Skip other node types
             return Optional.empty();

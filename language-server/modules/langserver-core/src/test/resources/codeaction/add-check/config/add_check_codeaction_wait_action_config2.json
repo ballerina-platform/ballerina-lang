@@ -4,6 +4,7 @@
   "expected": [
     {
       "title": "Add 'check' error",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

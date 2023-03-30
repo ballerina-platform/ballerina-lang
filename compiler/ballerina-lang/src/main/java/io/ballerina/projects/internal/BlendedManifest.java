@@ -89,7 +89,7 @@ public class BlendedManifest {
                                     ") cannot be found in the local repository. " +
                                     "org: `" + depInPkgManifest.org() + "` name: " + depInPkgManifest.name() + "",
                             DiagnosticSeverity.WARNING);
-                    PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(
+                    PackageDiagnostic diagnostic = new PackageDiagnostic(
                             diagnosticInfo, depInPkgManifest.location().orElseThrow());
                     diagnostics.add(diagnostic);
                     continue;
@@ -127,7 +127,7 @@ public class BlendedManifest {
                                     + existingDep.version + "). " +
                                     "org: `" + existingDep.org() + "` name: " + existingDep.name() + "",
                             DiagnosticSeverity.ERROR);
-                    PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(
+                    PackageDiagnostic diagnostic = new PackageDiagnostic(
                             diagnosticInfo, depInPkgManifest.location().orElseThrow());
                     diagnostics.add(diagnostic);
                     Dependency newDep = new Dependency(existingDep.org(), existingDep.name(),

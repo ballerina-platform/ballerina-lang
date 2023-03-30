@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.types.BTupleType;
@@ -162,11 +163,11 @@ public abstract class AbstractArrayValue implements ArrayValue {
     }
 
     protected void initializeIteratorNextReturnType() {
-        Type type;
-        if (getType().getTag() == TypeTags.ARRAY_TAG) {
+        Type type = TypeUtils.getReferredType(getType());
+        if (type.getTag() == TypeTags.ARRAY_TAG) {
             type = getElementType();
         } else {
-            BTupleType tupleType = (BTupleType) getType();
+            BTupleType tupleType = (BTupleType) type;
             LinkedHashSet<Type> types = new LinkedHashSet<>(tupleType.getTupleTypes());
             if (tupleType.getRestType() != null) {
                 types.add(tupleType.getRestType());

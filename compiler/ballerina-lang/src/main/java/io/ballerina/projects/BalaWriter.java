@@ -31,6 +31,7 @@ import io.ballerina.projects.internal.bala.adaptors.JsonStringsAdaptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -52,6 +53,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
 
 import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
@@ -120,6 +122,7 @@ public abstract class BalaWriter {
                       this.packageContext.project().sourceRoot(),
                       this.packageContext.packageName().toString());
         addPackageSource(balaOutputStream);
+        addIncludes(balaOutputStream);
         Optional<JsonArray> platformLibs = addPlatformLibs(balaOutputStream);
         addPackageJson(balaOutputStream, platformLibs);
 
@@ -149,6 +152,7 @@ public abstract class BalaWriter {
         packageJson.setSourceRepository(packageManifest.repository());
         packageJson.setKeywords(packageManifest.keywords());
         packageJson.setExport(packageManifest.exportedModules());
+        packageJson.setInclude(packageManifest.includes());
         packageJson.setVisibility(packageManifest.visibility());
         packageJson.setTemplate(packageManifest.template());
 
@@ -161,7 +165,7 @@ public abstract class BalaWriter {
             packageJson.setPlatformDependencies(platformLibs.get());
         }
 
-        // Set icon in bala path ion the package.json
+        // Set icon in bala path in the package.json
         if (packageManifest.icon() != null && !packageManifest.icon().isEmpty()) {
             Path iconPath = getIconPath(packageManifest.icon());
             packageJson.setIcon(String.valueOf(Paths.get(BALA_DOCS_DIR).resolve(iconPath.getFileName())));
@@ -265,6 +269,30 @@ public abstract class BalaWriter {
         }
     }
 
+    private void addIncludes(ZipOutputStream balaOutputStream) throws IOException {
+        List<String> includePatterns = this.packageContext.packageManifest().includes();
+        List<Path> includePaths = ProjectUtils.getPathsMatchingIncludePatterns(
+                includePatterns, this.packageContext.project().sourceRoot());
+
+        for (Path includePath: includePaths) {
+            Path includePathInPackage = this.packageContext.project().sourceRoot().resolve(includePath)
+                    .toAbsolutePath();
+            Path includeInBala = updateModuleDirectoryToMatchNamingInBala(includePath);
+            try {
+                if (includePathInPackage.toFile().isDirectory()) {
+                    putDirectoryToZipFile(includePathInPackage, includeInBala, balaOutputStream);
+                } else {
+                    putZipEntry(balaOutputStream, includeInBala,
+                            new FileInputStream(String.valueOf(includePathInPackage)));
+                }
+            } catch (ZipException e) {
+                if (!e.getMessage().contains("duplicate entry")) {
+                    throw e;
+                }
+            }
+        }
+    }
+
     private void addDependenciesJson(ZipOutputStream balaOutputStream) {
         PackageCache packageCache = this.packageContext.project().projectEnvironmentContext()
                 .getService(PackageCache.class);
@@ -282,6 +310,22 @@ public abstract class BalaWriter {
         } catch (IOException e) {
             throw new ProjectException("Failed to write '" + DEPENDENCY_GRAPH_JSON + "' file: " + e.getMessage(), e);
         }
+    }
+
+    private Path updateModuleDirectoryToMatchNamingInBala(Path relativePath) {
+        // a project with non-default module dir modules/<submodule_name> when packed into a BALA has the structure
+        // modules/<package_name>.<submodule_name>
+        Path moduleRootPath = Path.of(MODULES_ROOT);
+        if (relativePath.startsWith(moduleRootPath)) {
+            String packageName = this.packageContext.packageName().toString();
+            Path modulePath = moduleRootPath.resolve(moduleRootPath.relativize(relativePath).subpath(0, 1));
+            Path pathInsideModule = modulePath.relativize(relativePath);
+            String moduleName = Optional.ofNullable(modulePath.getFileName()).orElse(Paths.get("")).toString();
+            String updatedModuleName = packageName + ProjectConstants.DOT + moduleName;
+            Path updatedModulePath = moduleRootPath.resolve(updatedModuleName);
+            return updatedModulePath.resolve(pathInsideModule);
+        }
+        return relativePath;
     }
 
     private List<Dependency> getPackageDependencies(DependencyGraph<ResolvedPackageDependency> dependencyGraph) {
@@ -327,7 +371,7 @@ public abstract class BalaWriter {
                 }
                 Package pkgDependency = packageCache.getPackageOrThrow(
                         moduleDependency.packageDependency().packageId());
-                Module moduleInPkgDependency = pkgDependency.module(moduleDependency.moduleId());
+                Module moduleInPkgDependency = pkgDependency.module(moduleDependency.descriptor().name());
                 moduleDependencies.add(createModuleDependencyEntry(pkgDependency, moduleInPkgDependency,
                         Collections.emptyList()));
             }

@@ -47,8 +47,8 @@ public class DiagnosticComparator implements Comparator<Diagnostic> {
 
         // Compare file name
         // TODO: handle if one is null and other is not
-        String file1 = lineRange1.filePath();
-        String file2 = lineRange2.filePath();
+        String file1 = lineRange1.fileName();
+        String file2 = lineRange2.fileName();
         if (file1 != null && file2 != null) {
             int fileComparison = file1.compareTo(file2);
             if (fileComparison != 0) {

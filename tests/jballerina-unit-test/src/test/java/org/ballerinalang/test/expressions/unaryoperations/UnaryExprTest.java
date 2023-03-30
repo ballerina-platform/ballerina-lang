@@ -201,7 +201,7 @@ public class UnaryExprTest {
         BAssertUtil.validateError(resultNegative, 4, "incompatible types: expected 'int:Unsigned8', found 'int'",
                  34, 24);
         BAssertUtil.validateError(resultNegative, 5, "incompatible types: expected 'int:Signed8', found 'int'",
-                35, 22);
+                35, 23);
         BAssertUtil.validateError(resultNegative, 6, "incompatible types: expected 'byte', found 'int'",
                 38, 15);
         BAssertUtil.validateError(resultNegative, 7, "incompatible types: expected 'int:Unsigned8', found 'int'",
@@ -214,8 +214,8 @@ public class UnaryExprTest {
                 56, 11);
         BAssertUtil.validateError(resultNegative, 13, "incompatible types: expected 'B', found 'float'",
                 59, 11);
-        BAssertUtil.validateError(resultNegative, 14, "operator '-' not defined for 'C'", 74, 13);
-        BAssertUtil.validateError(resultNegative, 15, "operator '-' not defined for 'D'", 77, 13);
+        BAssertUtil.validateError(resultNegative, 14, "incompatible types: expected 'int', found 'C'", 74, 14);
+        BAssertUtil.validateError(resultNegative, 15, "incompatible types: expected 'int', found 'D'", 77, 14);
         BAssertUtil.validateError(resultNegative, 16, "operator '+' not defined for '(decimal|DecimalType1)'", 80, 24);
         BAssertUtil.validateError(resultNegative, 17, "operator '-' not defined for 'DecimalType1'", 83, 24);
         BAssertUtil.validateError(resultNegative, 18, "operator '+' not defined for '(decimal|DecimalType2)'", 86, 24);

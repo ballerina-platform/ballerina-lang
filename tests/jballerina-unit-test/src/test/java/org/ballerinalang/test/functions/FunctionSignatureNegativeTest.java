@@ -105,6 +105,12 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 126, 59);
         BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 127, 54);
         BAssertUtil.validateError(result, i++, "incomplete quoted identifier", 130, 24);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'function () returns (int)', " +
+                "found 'function'", 156, 21);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'function (int) returns (boolean)', " +
+                "found 'function'", 158, 21);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'function " +
+                "(ballerina/lang.array:0.0.0:Type) returns (boolean)', found 'function'", 161, 20);
 
         Assert.assertEquals(i, result.getErrorCount());
     }
@@ -128,11 +134,11 @@ public class FunctionSignatureNegativeTest {
     public void testExternalResourceFunction() {
         CompileResult result = BCompileUtil.compile("test-src/functions/extern_resource_function_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
-        BAssertUtil.validateError(result, 0, "external resource functions are not supported by the implementation",
-                                  19, 5);
-        BAssertUtil.validateError(result, 1, "external resource functions are not supported by the implementation",
-                                  21, 5);
-        BAssertUtil.validateError(result, 2, "external resource functions are not supported by the implementation",
-                                  23, 5);
+        BAssertUtil.validateError(result, 0,
+                "external resource methods are not yet supported in service objects", 19, 5);
+        BAssertUtil.validateError(result, 1,
+                "external resource methods are not yet supported in service objects", 21, 5);
+        BAssertUtil.validateError(result, 2,
+                "external resource methods are not yet supported in service objects", 23, 5);
     }
 }

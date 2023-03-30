@@ -362,7 +362,7 @@ public class MatchStatementStaticPatternsTest {
     @Test(description = "Test pattern will not be matched")
     public void testPatternNotMatched() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        Assert.assertEquals(resultNegative.getWarnCount(), 61);
+        Assert.assertEquals(resultNegative.getWarnCount(), 59);
         int i = -1;
         String patternNotMatched = "pattern will not be matched";
 
@@ -377,10 +377,8 @@ public class MatchStatementStaticPatternsTest {
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 34, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 35, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 36, 9);
-        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 41, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 42, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 43, 9);
-        BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 44, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 45, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 51, 9);
         BAssertUtil.validateWarning(resultNegative, ++i, patternNotMatched, 52, 9);

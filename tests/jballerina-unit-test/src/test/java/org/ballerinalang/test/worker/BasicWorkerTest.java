@@ -116,6 +116,19 @@ public class BasicWorkerTest {
         };
     }
 
+    @Test(dataProvider = "workerMessagePassingFunctions")
+    public void testWorkerMessagePassing(String funcName) {
+        BRunUtil.invoke(result, funcName);
+    }
+
+    @DataProvider(name = "workerMessagePassingFunctions")
+    public Object[] workerMessagePassingFunctions() {
+        return new Object[]{
+                "testWorkerMessagePassingRepeatedly",
+                "testPanicWithMessagePassing"
+        };
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

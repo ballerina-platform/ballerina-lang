@@ -44,3 +44,4 @@ const int D = 1;
 const float E = F;
 const float F = E;
 
+const int CONST4 = -9223372036854775808; // -9223372036854775808 is out of range

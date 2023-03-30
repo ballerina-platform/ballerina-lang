@@ -27,8 +27,10 @@ import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.ReferenceType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BField;
@@ -38,6 +40,7 @@ import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
+import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
@@ -119,8 +122,16 @@ public class ReadOnlyUtils {
             return type;
         }
 
+        if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return getAvailableImmutableType(((ReferenceType) type).getReferredType());
+        }
+
         if (type.getTag() == TypeTags.INTERSECTION_TAG && type.isReadOnly()) {
             return ((BIntersectionType) type).getEffectiveType();
+        }
+
+        if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return getAvailableImmutableType(((ReferenceType) type).getReferredType());
         }
 
         IntersectionType immutableType = ((SelectivelyImmutableReferenceType) type).getImmutableType();
@@ -146,7 +157,8 @@ public class ReadOnlyUtils {
 
     private static BIntersectionType setImmutableIntersectionType(Type type, Set<Type> unresolvedTypes) {
 
-        Type immutableType = ((SelectivelyImmutableReferenceType) type).getImmutableType();
+        Type immutableType = type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG ? null :
+                ((SelectivelyImmutableReferenceType) type).getImmutableType();
         if (immutableType != null) {
             return (BIntersectionType) immutableType;
         }
@@ -270,6 +282,12 @@ public class ReadOnlyUtils {
                                                           originalField.getFieldName(), originalField.getFlags()));
                 }
                 return objectIntersectionType;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                BTypeReferenceType bType = (BTypeReferenceType) type;
+                BTypeReferenceType refType = new BTypeReferenceType(bType.getName(), bType.getPkg(),
+                        bType.getTypeFlags(), true);
+                refType.setReferredType(getImmutableType(bType.getReferredType(), unresolvedTypes));
+                return createAndSetImmutableIntersectionType(bType, refType);
             case TypeTags.ANY_TAG:
             case TypeTags.ANYDATA_TAG:
             case TypeTags.JSON_TAG:
@@ -344,8 +362,9 @@ public class ReadOnlyUtils {
      */
     public static Type getMutableType(BIntersectionType intersectionType) {
         for (Type type : intersectionType.getConstituentTypes()) {
-            if (intersectionType.getEffectiveType().getTag() == type.getTag()) {
-                return type;
+            Type referredType = TypeUtils.getReferredType(type);
+            if (intersectionType.getEffectiveType().getTag() == referredType.getTag()) {
+                return referredType;
             }
         }
         throw new IllegalStateException("Unsupported intersection type found: " + intersectionType);

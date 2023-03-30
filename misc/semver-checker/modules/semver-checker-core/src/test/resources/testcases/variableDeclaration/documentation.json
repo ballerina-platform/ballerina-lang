@@ -1,0 +1,98 @@
+[
+  {
+    "description": "Add documentation for variable declaration",
+    "oldCode": "public int age=1;",
+    "newCode": "#Documentation\npublic int age=1;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "new",
+                  "versionImpact": "patch",
+                  "message": "documentation is added"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove documentation for variable declaration",
+    "oldCode": "#Documentation\npublic int age=1;",
+    "newCode": "public int age=1;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "removed",
+                  "versionImpact": "patch",
+                  "message": "documentation is removed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify documentation for variable declaration",
+    "oldCode": "#int declaration\npublic int age=1;",
+    "newCode": "#Documentation\npublic int age=1;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "module variable",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "message": "documentation is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

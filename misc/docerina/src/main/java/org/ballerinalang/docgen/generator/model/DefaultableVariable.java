@@ -17,6 +17,8 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.List;
+
 /**
  * Represents a defaultable variable.
  */
@@ -24,9 +26,19 @@ public class DefaultableVariable extends Variable {
     @Expose
     public String defaultValue;
 
+    @Expose
+    public List<AnnotationAttachment> annotationAttachments;
+
     public DefaultableVariable(String name, String description, boolean isDeprecated, Type type, String defaultValue) {
         super(name, description, isDeprecated, type);
         this.defaultValue = defaultValue;
+    }
+
+    public DefaultableVariable(String name, String description, boolean isDeprecated, Type type, String defaultValue,
+                               List<AnnotationAttachment> annotationAttachments) {
+        super(name, description, isDeprecated, type);
+        this.defaultValue = defaultValue;
+        this.annotationAttachments = annotationAttachments;
     }
 
     public DefaultableVariable(Type inclusionType) {

@@ -1,0 +1,79 @@
+[
+  {
+    "description": " Rename a type definition.\n",
+    "oldCode": "public type Coord record{\nint x;\nint y;\n };\n",
+    "newCode": "public type Age record{\nint x;\nint y;\n };\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "new",
+              "versionImpact": "minor"
+            },
+            {
+              "kind": "type definition",
+              "type": "removed",
+              "versionImpact": "major"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove a type definition.\n",
+    "oldCode": "public type Coord object{\nint x;\nint y;\n };\n",
+    "newCode": "",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "removed",
+              "versionImpact": "major"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add a type definition\n",
+    "oldCode": "",
+    "newCode": "public type Age ();\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "new",
+              "versionImpact": "minor"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

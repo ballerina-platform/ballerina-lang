@@ -1,9 +1,13 @@
 {
-  "line": 2,
-  "character": 16,
+  "position": {
+    "line": 2,
+    "character": 16
+  },
+  "source": "on_fail_for_lock_check_stmt.bal",
   "expected": [
     {
       "title": "Create on fail clause",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

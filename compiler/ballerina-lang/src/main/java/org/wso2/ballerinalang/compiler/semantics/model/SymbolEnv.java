@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -240,19 +239,6 @@ public class SymbolEnv {
         symbolEnv.enclInvokable = env.enclInvokable;
         symbolEnv.node = node;
         symbolEnv.enclPkg = env.enclPkg;
-        return symbolEnv;
-    }
-
-    public static SymbolEnv createOnFailEnv(BLangOnFailClause node, SymbolEnv env) {
-        Scope scope = node.body.scope;
-        if (scope == null) {
-            scope = new Scope(env.scope.owner);
-            node.body.scope = scope;
-        }
-        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
-        env.copyTo(symbolEnv);
-        symbolEnv.envCount = env.envCount + 1;
-        symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;
         return symbolEnv;
     }
 

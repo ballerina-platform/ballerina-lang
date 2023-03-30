@@ -1,0 +1,14 @@
+[
+  {
+    "description": "Change type descriptor from string to a value\n",
+    "oldCode": "public type Age string;",
+    "newCode": "public type Age “12”;",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change the value",
+    "oldCode": "public type Age “12”;",
+    "newCode": "public type Age “25”;",
+    "expectedOutput": {}
+  }
+]

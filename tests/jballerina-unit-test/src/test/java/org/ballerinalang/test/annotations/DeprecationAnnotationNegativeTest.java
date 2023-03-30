@@ -82,6 +82,12 @@ public class DeprecationAnnotationNegativeTest {
                 "allowed on constructs annotated as '@deprecated'", 225, 1);
         BAssertUtil.validateWarning(compileResult, i++, "'Deprecated parameters' documentation is not allowed here",
                 226, 1);
+        BAssertUtil.validateWarning(compileResult, i++, "'Deprecated parameters' documentation is not allowed here",
+                238, 1);
+        BAssertUtil.validateWarning(compileResult, i++, "constructs annotated as '@deprecated' must have " +
+                        "'Deprecated' documentation", 247, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "invalid documentation: 'Deprecated' documentation is " +
+                        "only allowed on constructs annotated as '@deprecated'", 257, 5);
         Assert.assertEquals(compileResult.getWarnCount(), i);
     }
 }

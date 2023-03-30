@@ -19,3 +19,8 @@ public function testNegativeIndexArrayAcess() {
     d[-1] = 3;
     d[INDEX] = 12;
 }
+
+function testUnaryConstExpressionInIndexAccess() {
+    int[2] a = [1,2];
+    int _ = a[-1];
+}

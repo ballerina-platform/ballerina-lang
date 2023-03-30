@@ -1,27 +1,40 @@
 NAME
-       ballerina-graphql - Generate Ballerina client sources from a GraphQL config file 
-                        configured with GraphQL schemas(SDL) and GraphQL queries.
+       ballerina-graphql - Generate the Ballerina client sources for a GraphQL config file
+       and generate the GraphQL schema for a Ballerina GraphQL service.
 
 
 SYNOPSIS
-       bal graphql [-i | --input] <graphql-configuration-file-path> [-o | --output] <output-location> 
+       bal graphql [-i | --input] <graphql-configuration-file-path>
+                   [-o | --output] <output-location>
+       bal graphql [-i | --input] <ballerina-graphql-service-file-path>
+                   [-o | --output] <output-location>
+                   [-s | --service] <service-base-path>
 
 
 DESCRIPTION
-       Generate the Ballerina GraphQL client sources for a given GraphQL config file 
-       configured with GraphQL schemas(SDL) and GraphQL queries.
+       Generate the Ballerina GraphQL client sources for a given GraphQL config file configured
+       with GraphQL schemas specified by GraphQL Schema Definition Language(SDL) and GraphQL
+       queries or export a GraphQL schema (SDL) for a given Ballerina GraphQL service.
     
-       The generated Ballerina sources will be written into the provided output location.
+       The generated Ballerina sources or GraphQL schema files will be written into the provided
+       output location.
 
 
 OPTIONS
-        -i, --input <path>
-           Path to a GraphQL config file configured with GraphQL schemas(SDL) and GraphQL queries.
-
-        -o, --output <path>
-           Location of the generated Ballerina source code. If this path is not specified,
-           the output will be written to the same directory from which the command is run.
-
+        -i, --input <graphql-configuration-file-path | ballerina-graphql-service-file-path>
+            This is mandatory input. The given GraphQL config file which is configured with
+            GraphQL schemas (SDL) and queries, will generate the Ballerina GraphQL client sources.
+            The given Ballerina GraphQL service file will generate the GraphQL schema (SDL) file
+            relevant to the service.
+        -o, --output <output-location>
+            Location of the generated Ballerina source code or GraphQL schema. If this path is not
+            specified, the output will be written to the same directory from which the command is
+            run.
+        -s, --service <service-base-path>
+            This service base path is used to identify the service that needs to generate the
+            GraphQL schema. This option is used with the GraphQL schema generation command.
+            If this base path is not specified, schemas will be generated for each of the GraphQL
+            services in the input file.
 
 EXAMPLES
        Generate Ballerina Graphql clients using a GraphQL config file (`graphql.config.yaml`).
@@ -30,3 +43,6 @@ EXAMPLES
        Generate Ballerina Graphql clients using a GraphQL config file (`graphql.config.yaml`) 
        and write the output to the given directory.
            $ bal graphql -i graphql.config.yaml -o ./output_path
+
+       Generate a GraphQL schema for a selected GraphQL service from the given input file.
+           $ bal graphql -i graphql_service.bal -o ./output_path -s /service_base_path

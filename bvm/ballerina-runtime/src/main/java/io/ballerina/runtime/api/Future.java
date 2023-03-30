@@ -33,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Future {
     private final Strand strand;
     private final AtomicBoolean visited = new AtomicBoolean();
-     Future(Strand strand) {
+    Future(Strand strand) {
         this.strand = strand;
     }
 

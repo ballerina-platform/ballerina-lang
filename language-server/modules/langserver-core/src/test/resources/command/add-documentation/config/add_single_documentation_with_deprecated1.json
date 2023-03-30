@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "add_single_documentation_with_deprecated1.bal",
   "expected": {
     "result": {
       "edit": {

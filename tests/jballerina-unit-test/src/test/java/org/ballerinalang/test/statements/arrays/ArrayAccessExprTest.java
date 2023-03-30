@@ -54,6 +54,14 @@ public class ArrayAccessExprTest {
         BRunUtil.invoke(compileResult, "testNonInitArrayAccess");
         Assert.fail("Test should fail at this point.");
     }
+    @Test(description = "Test invalid index access",
+            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
+                    "\\{\"message\":\"array index out of range: index: -2, size: 2.*")
+    public void testUnaryConstExpressionInIndexAccess() {
+        BRunUtil.invoke(compileResult, "testUnaryConstExpressionInIndexAccess");
+        Assert.fail("Test should fail at this point.");
+    }
 
     @Test(description = "Test arrays access expression")
     public void testArrayAccessExpr() {
@@ -142,6 +150,7 @@ public class ArrayAccessExprTest {
                                   12, 25);
         BAssertUtil.validateError(compileResult, i++, "list index out of range: index: '-1'", 19, 7);
         BAssertUtil.validateError(compileResult, i++, "list index out of range: index: '-2'", 20, 7);
+        BAssertUtil.validateError(compileResult, i++, "list index out of range: index: '-1'", 25, 15);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 

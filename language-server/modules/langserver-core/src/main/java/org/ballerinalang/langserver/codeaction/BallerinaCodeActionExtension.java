@@ -18,9 +18,12 @@
 package org.ballerinalang.langserver.codeaction;
 
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.CodeActionExtension;
+import org.ballerinalang.langserver.commons.CodeActionResolveContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 
@@ -44,5 +47,18 @@ public class BallerinaCodeActionExtension implements CodeActionExtension {
                                               CodeActionContext context,
                                               LanguageServerContext serverContext) {
         return CodeActionRouter.getAvailableCodeActions(context);
+    }
+
+    @Override
+    public CodeAction resolve(ResolvableCodeAction codeAction,
+                              CodeActionResolveContext resolveContext) {
+        return CodeActionRouter.resolveCodeAction(codeAction, resolveContext);
+    }
+
+    @Override
+    public List<String> handledCustomURISchemes(CodeActionParams inputParams,
+                                                CodeActionContext context,
+                                                LanguageServerContext serverContext) {
+        return List.of(CommonUtil.URI_SCHEME_EXPR);
     }
 }

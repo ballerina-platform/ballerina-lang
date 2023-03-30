@@ -144,10 +144,6 @@ public class BDecimalUsageTest {
         BRunUtil.invoke(result, "testDecimalDefaultable");
     }
 
-    @Test(description = "Test decimal values with too many exponents")
-    public void testDecimalNegativeLargeExponents() {
-        BRunUtil.invoke(result, "testDecimalNegativeLargeExponents");
-    }
 
     @AfterClass
     public void tearDown() {

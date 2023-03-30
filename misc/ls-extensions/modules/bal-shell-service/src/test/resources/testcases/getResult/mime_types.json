@@ -1,0 +1,116 @@
+[
+  {
+    "source": "10*10",
+    "result": {
+      "shellValue": {
+        "value":"100",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "type Name record {\n   string firstname;\n   string lastname;\n};\ntype Employee record { \n    readonly string username; \n    int salary;\n    Name fullname;\n};\n",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["Employee", "Name"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "Employee e = { username: \"John\", salary: 100, fullname: {\n    firstname: \"John\",\n    lastname: \"Doe\"\n} }",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["e"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "e",
+    "result": {
+      "shellValue": {
+        "value":"{\"username\":\"John\", \"salary\":100, \"fullname\":{\"firstname\":\"John\", \"lastname\":\"Doe\"}}",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"Employee"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "json j = e.toJson()",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["j"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "j",
+    "result": {
+      "shellValue": {
+        "value":"{\"username\":\"John\", \"salary\":100, \"fullname\":{\"firstname\":\"John\", \"lastname\":\"Doe\"}}",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"map<json>"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "table<Employee> key(username) t = table [ \n    { username: \"John\", salary: 100, fullname: {\n        firstname: \"John\",\n        lastname: \"Doe\"\n    } }, \n    { username: \"Adam\", salary: 300, fullname: {\n        firstname: \"Adam\",\n        lastname: \"Smith\"\n    } },  \n    { username: \"Jake\", salary: 100, fullname: {\n        firstname: \"jake\",\n        lastname: \"Peralta\"\n    } }\n]",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["t"],"moduleDclns":[]}
+    }
+  },
+  {
+    "source": "t",
+    "result": {
+      "shellValue": {
+        "value": "[{\"username\":\"John\", \"salary\":100, \"fullname\":{\"firstname\":\"John\", \"lastname\":\"Doe\"}}, {\"username\":\"Adam\", \"salary\":300, \"fullname\":{\"firstname\":\"Adam\", \"lastname\":\"Smith\"}}, {\"username\":\"Jake\", \"salary\":100, \"fullname\":{\"firstname\":\"jake\", \"lastname\":\"Peralta\"}}]",
+        "mimeType":"ballerina-notebook/table-view",
+        "type":"table<Employee> key(username)"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xml x1 = xml `<book>The Lost World</book>`;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["x1"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "x1",
+    "result": {
+      "shellValue": {
+        "value":"<book>The Lost World</book>",
+        "mimeType":"ballerina-notebook/xml-view",
+        "type":"lang.xml:Element"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

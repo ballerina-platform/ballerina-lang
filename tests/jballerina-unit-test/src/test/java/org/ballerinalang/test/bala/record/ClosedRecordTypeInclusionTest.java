@@ -84,6 +84,8 @@ public class ClosedRecordTypeInclusionTest {
                 "Employee]'", 173, 1);
         BAssertUtil.validateError(negative, index++, "included field 'body' of type 'float' cannot " +
                 "be overridden by a field of type 'Baz2': expected a subtype of 'float'", 185, 5);
+        BAssertUtil.validateError(negative, index++, "included field 'body' of type 'anydata' cannot be overridden by" +
+                " a field of type 'Qux': expected a subtype of 'anydata'", 207, 5);
         assertEquals(negative.getErrorCount(), index);
     }
 

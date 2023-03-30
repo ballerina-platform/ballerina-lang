@@ -124,6 +124,11 @@ public class FieldAccessMutateTest {
         Assert.assertEquals(receiver.lkr, 123.0f);
     }
 
+    @Test(description = "Test fieldSet and fieldGet methods with default parameters")
+    public void testFieldSetAndGetWithDefaultValues() {
+        BRunUtil.invoke(result, "testFieldSetAndGetWithDefaultValues");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

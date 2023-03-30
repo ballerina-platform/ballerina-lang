@@ -1,0 +1,38 @@
+{
+  "position": {
+    "line": 1,
+    "character": 9
+  },
+  "source": "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source2.bal",
+  "expected": [
+    {
+      "title": "Add isolated qualifier to 'testFunction'",
+      "edit": {
+        "documentChanges": [
+          {
+            "textDocument": {
+              "version": null,
+              "uri": "publicCodeAction/modules/module2/make_function_isolated_source2_test.bal"
+            },
+            "kind": "quickfix",
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "isolated "
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+[
+  {
+    "description": "Change a field type in module type definition\n",
+    "oldCode": "public type Person object{\n\tstring name;\n\tint age;\npublic int id;\n};\n",
+    "newCode": "public type Person object{\n\tstring name;\n\tint age;\n\tpublic string id;\n};\n",
+    "expectedOutput": {}
+  }
+]

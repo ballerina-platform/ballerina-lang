@@ -1,0 +1,100 @@
+[
+  {
+    "description": "Add a new object field.",
+    "oldCode": "service /demo on new http:Listener(8080){}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic int x=5;\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "minor",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "kind": "service field"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove  object field",
+    "oldCode": "service /demo on new http:Listener(8080){\npublic int x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\t}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "major",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "kind": "service field"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Change the name of the object field",
+    "oldCode": "service /demo on new http:Listener(8080){\npublic int x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic int y=5;\n\t}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "major",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "kind": "service field"
+                },
+                {
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "kind": "service field"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

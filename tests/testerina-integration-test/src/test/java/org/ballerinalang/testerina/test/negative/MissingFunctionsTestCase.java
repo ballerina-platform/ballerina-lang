@@ -24,6 +24,7 @@ import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -41,36 +42,30 @@ public class MissingFunctionsTestCase extends BaseTestCase {
     }
 
     @Test
-    public void testMissingBeforeFunction() throws BallerinaTestException {
+    public void testMissingBeforeFunction() throws BallerinaTestException, IOException {
         String errMsg = "ERROR [before-func-negative.bal:(22:13,22:31)] undefined symbol 'beforeFuncNonExist'";
         String[] args = mergeCoverageArgs(new String[]{"before-func-negative.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        if (!output.contains(errMsg)) {
-            AssertionUtils.assertForTestFailures(output, "error while handling missing before function");
-        }
+        AssertionUtils.assertOutput("MissingFunctionsTestCase-testMissingBeforeFunction.txt", output);
     }
 
     @Test
-    public void testMissingAfterFunction() throws BallerinaTestException {
+    public void testMissingAfterFunction() throws BallerinaTestException, IOException {
         String errMsg = "ERROR [after-func-negative.bal:(22:12,22:29)] undefined symbol 'afterFuncNonExist'";
         String[] args = mergeCoverageArgs(new String[]{"after-func-negative.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        if (!output.contains(errMsg)) {
-            AssertionUtils.assertForTestFailures(output, "error while handling missing after function");
-        }
+        AssertionUtils.assertOutput("MissingFunctionsTestCase-testMissingAfterFunction.txt", output);
     }
 
     @Test
-    public void testMissingDependsOnFunction() throws BallerinaTestException {
+    public void testMissingDependsOnFunction() throws BallerinaTestException, IOException {
         String errMsg = "ERROR [depends-on-negative.bal:(22:17,22:28)] undefined symbol 'nonExisting'";
         String[] args = mergeCoverageArgs(new String[]{"depends-on-negative.bal"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        if (!output.contains(errMsg)) {
-            AssertionUtils.assertForTestFailures(output, "error while handling missing depends on function");
-        }
+        AssertionUtils.assertOutput("MissingFunctionsTestCase-testMissingDependsOnFunction.txt", output);
     }
 
 }

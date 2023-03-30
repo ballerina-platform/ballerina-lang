@@ -46,6 +46,13 @@ public class JavaCastTest {
         Assert.assertEquals(returns.toString(), "cast this object");
     }
 
+    @Test(description = "Test java:cast function in ballerina/jballerina.java")
+    public void testJavaCastMethod2() {
+        Object returns = BRunUtil.invoke(result, "testJavaCastFunction2");
+
+        Assert.assertEquals(returns.toString(), "cast this object");
+    }
+
     @Test(description = "Test java:cast function in ballerina/jballerina.java for an incorrect Java cast")
     public void testIncorrectJavaCast() {
         Object returns = BRunUtil.invoke(result, "testIncorrectJavaCast");

@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.api.impl;
 
+import io.ballerina.compiler.api.TypeBuilder;
 import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.impl.util.FieldMap;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -60,6 +61,7 @@ public class BallerinaTypes extends Types {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Optional<Symbol> getTypeByName(String org, String moduleName, String version, String typeDefName) {
         if (org == null || moduleName == null || version == null || typeDefName == null) {
             throw new IllegalArgumentException("Null parameters are not allowed. Found parameter values are org: " +
@@ -86,6 +88,7 @@ public class BallerinaTypes extends Types {
     /**
      * {@inheritDoc}
      */
+    @Override
     public Optional<Map<String, Symbol>> typesInModule(String org, String moduleName, String version) {
         if (org == null || moduleName == null || version == null) {
             throw new IllegalArgumentException("Null parameters are not allowed. Found parameter values are org: " +
@@ -117,6 +120,14 @@ public class BallerinaTypes extends Types {
         }
 
         return Optional.of(Collections.unmodifiableMap(typeDefSymbols));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public TypeBuilder builder() {
+        return new BallerinaTypeBuilder(context);
     }
 
     private boolean isValidTypeDef(BSymbol bSymbol) {

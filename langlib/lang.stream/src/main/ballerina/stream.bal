@@ -43,6 +43,11 @@ type Type1 any|error;
 
 # Selects the members from a stream for which a function returns true.
 #
+# ```ballerina
+# stream<int> scores = [45, 60, 75, 30, 90].toStream();
+# scores.filter(score => score > 50).next() ⇒ {"value":60}
+# ```
+#
 # + stm - the stream
 # + func - a predicate to apply to each member to test whether it should be selected
 # + return - new stream only containing members of parameter `stm` for which parameter `func` evaluates to true
@@ -54,6 +59,11 @@ public isolated function filter(stream<Type,CompletionType> stm, @isolatedParam 
 }
 
 # Returns the next element in the stream wrapped in a record or () if the stream ends.
+#
+# ```ballerina
+# stream<int> scores = [45, 60, 75, 30, 90].toStream();
+# scores.next() ⇒ {"value":45}
+# ```
 #
 # + stm - The stream
 # + return - If the stream has elements, return the element wrapped in a record with single field called `value`,
@@ -76,6 +86,12 @@ public isolated function next(stream<Type, CompletionType> stm) returns record {
 
 # Applies a function to each member of a stream and returns a stream of the results.
 #
+# ```ballerina
+# stream<float> ms = [14.5f, 45.5f, 6.8f, 4f].toStream();
+# stream<float> cms = ms.map(m => m * 100.0);
+# cms.next() ⇒ {"value":1450.0}
+# ```
+#
 # + stm - the stream
 # + func - a function to apply to each member
 # + return - new stream containing result of applying parameter `func` to each member of parameter `stm` in order
@@ -90,6 +106,11 @@ public isolated function 'map(stream<Type,CompletionType> stm, @isolatedParam fu
 #
 # The combining function takes the combined value so far and a member of the stream,
 # and returns a new combined value.
+#
+# ```ballerina
+# stream<int> scores = [45, 60, 75, 30, 90].toStream();
+# scores.reduce(isolated function (int total, int score) returns int => total + score, 0) ⇒ 300
+# ```
 #
 # + stm - the stream
 # + func - combining function
@@ -115,6 +136,15 @@ public isolated function reduce(stream<Type,ErrorType?> stm,
 #
 # The parameter `func` is applied to each member of parameter `stm` stream in order.
 #
+# ```ballerina
+# stream<int> scores = [45, 60, 75, 30, 90].toStream();
+# int total = 0;
+# scores.forEach(function(int score) {
+#     total += score;
+# });
+# total ⇒ 300
+# ```
+#
 # + stm - the stream
 # + func - a function to apply to each member
 # + return - () if the close completed successfully, otherwise an error
@@ -136,6 +166,14 @@ public isolated function forEach(stream<Type,CompletionType> stm,
 
 # Returns an iterator over a stream.
 #
+# ```ballerina
+# stream<int> scores = [45, 60, 75, 30, 90].toStream();
+# object {
+#     public isolated function next() returns record {|int value;|}?;
+# } iterator = scores.iterator();
+# iterator.next() ⇒ {"value":45}
+# ```
+#
 # + stm - the stream
 # + return - a new iterator object that will iterate over the members of parameter `stm`.
 public isolated function iterator(stream<Type,CompletionType> stm) returns object {
@@ -149,7 +187,12 @@ public isolated function iterator(stream<Type,CompletionType> stm) returns objec
 # Closes a stream.
 #
 # This releases any system resources being used by the stream.
-# Closing a stream that has already been closed has no efffect and returns `()`.
+# Closing a stream that has already been closed has no effect and returns `()`.
+#
+# ```ballerina
+# stream<int, error?> strm = new;
+# check strm.close();
+# ```
 #
 # + stm - the stream to close
 # + return - () if the close completed successfully, otherwise an error

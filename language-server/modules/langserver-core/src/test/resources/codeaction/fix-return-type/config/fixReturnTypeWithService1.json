@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 10,
-    "character": 15,
-    "expected": [
+    "character": 15
+  },
+  "source": "fixReturnTypeInService.bal",
+  "expected": [
+    {
+      "title": "Change return type to \u0027int|error\u0027",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Change return type to 'int|error'",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 9,
-                            "character": 39
-                        },
-                        "end": {
-                            "line": 9,
-                            "character": 39
-                        }
-                    },
-                    "newText": " returns int|error"
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 39
+            },
+            "end": {
+              "line": 9,
+              "character": 39
+            }
+          },
+          "newText": " returns int|error"
         }
-    ]
+      ]
+    }
+  ]
 }

@@ -31,11 +31,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -61,6 +64,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
@@ -78,6 +82,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import static org.wso2.ballerinalang.compiler.bir.writer.BIRWriterUtils.getBIRAnnotAttachments;
 
 /**
  * Writes bType to a Byte Buffer in binary format.
@@ -198,7 +204,51 @@ public class BIRTypeWriter implements TypeVisitor {
             writeTypeCpIndex(bInvokableType.restType);
         }
         writeTypeCpIndex(bInvokableType.retType);
+        boolean hasTSymbol = bInvokableType.tsymbol != null;
+        buff.writeBoolean(hasTSymbol);
+        if (!hasTSymbol) {
+            return;
+        }
 
+        BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
+        buff.writeInt(invokableTypeSymbol.params.size());
+        for (BVarSymbol symbol : invokableTypeSymbol.params) {
+            buff.writeInt(addStringCPEntry(symbol.name.value));
+            buff.writeLong(symbol.flags);
+            writeMarkdownDocAttachment(buff, symbol.markdownDocumentation);
+            writeTypeCpIndex(symbol.type);
+        }
+
+        BVarSymbol restParam = invokableTypeSymbol.restParam;
+        boolean restParamExists = restParam != null;
+        buff.writeBoolean(restParamExists);
+        if (restParamExists) {
+            buff.writeInt(addStringCPEntry(restParam.name.value));
+            buff.writeLong(restParam.flags);
+            writeMarkdownDocAttachment(buff, restParam.markdownDocumentation);
+            writeTypeCpIndex(restParam.type);
+        }
+
+        buff.writeInt(invokableTypeSymbol.defaultValues.size());
+        invokableTypeSymbol.defaultValues.forEach((k, v) -> {
+            buff.writeInt(addStringCPEntry(k));
+            writeSymbolOfClosure(v);
+        });
+    }
+
+    private void writeSymbolOfClosure(BInvokableSymbol invokableSymbol) {
+        buff.writeInt(addStringCPEntry(invokableSymbol.name.value));
+        buff.writeLong(invokableSymbol.flags);
+        writeTypeCpIndex(invokableSymbol.type);
+        writePackageIndex(invokableSymbol.type.tsymbol);
+
+        buff.writeInt(invokableSymbol.params.size());
+        for (BVarSymbol symbol : invokableSymbol.params) {
+            buff.writeInt(addStringCPEntry(symbol.name.value));
+            buff.writeLong(symbol.flags);
+            writeMarkdownDocAttachment(buff, symbol.markdownDocumentation);
+            writeTypeCpIndex(symbol.type);
+        }
     }
 
     @Override
@@ -280,9 +330,15 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BTupleType bTupleType) {
-        buff.writeInt(bTupleType.tupleTypes.size());
-        for (BType memberType : bTupleType.tupleTypes) {
-            writeTypeCpIndex(memberType);
+        List<BTupleMember> members = bTupleType.getMembers();
+        buff.writeInt(members.size());
+        for (int i = 0; i < members.size(); i++) {
+            BTupleMember memberType = members.get(i);
+            buff.writeInt(addStringCPEntry(Integer.toString(i)));
+            buff.writeLong(memberType.symbol.flags);
+            writeTypeCpIndex(memberType.type);
+            BIRWriterUtils.writeAnnotAttachments(cp, buff,
+                    getBIRAnnotAttachments(memberType.symbol.getAnnotations()));
         }
         if (bTupleType.restType != null) {
             buff.writeBoolean(true);
@@ -363,6 +419,8 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeLong(symbol.flags);
             writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
             writeTypeCpIndex(field.type);
+            BIRWriterUtils.writeAnnotAttachments(cp, buff,
+                    getBIRAnnotAttachments(field.symbol.getAnnotations()));
         }
 
         BAttachedFunction initializerFunc = tsymbol.initializerFunc;

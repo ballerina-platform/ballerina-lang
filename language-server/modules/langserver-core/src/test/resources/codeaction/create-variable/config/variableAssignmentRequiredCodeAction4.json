@@ -1,9 +1,13 @@
 {
-  "line": 24,
-  "character": 3,
+  "position": {
+    "line": 24,
+    "character": 3
+  },
+  "source": "createVariable.bal",
   "expected": [
     {
       "title": "Create variable",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -18,7 +22,16 @@
           },
           "newText": "Grapes grapes = "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable.bal",
+          459
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

@@ -20,7 +20,7 @@ package org.ballerinalang.datamapper.util;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -86,7 +86,7 @@ public class DataMapperTestUtils {
         Position pos = new Position(configJsonObject.get("line").getAsInt(),
                 configJsonObject.get("character").getAsInt());
         diags = diags.stream().
-                filter(diag -> CommonUtil.isWithinRange(pos, diag.getRange()))
+                filter(diag -> PositionUtil.isWithinRange(pos, diag.getRange()))
                 .collect(Collectors.toList());
         CodeActionContext codeActionContext = new CodeActionContext(diags);
         Range range = new Range(pos, pos);

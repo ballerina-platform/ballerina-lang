@@ -22,13 +22,15 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
+import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -53,28 +55,31 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
      */
     @Override
     public int priority() {
+
         return 998;
     }
 
     @Override
-    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) && 
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+
+        return diagnostic.message().contains(CommandConstants.VAR_ASSIGNMENT_REQUIRED) &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
+
         String uri = context.fileUri();
 
-        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
-                DiagBasedPositionDetails.DIAG_PROP_VAR_ASSIGN_SYMBOL_INDEX);
-        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.UNION) {
+        Optional<TypeSymbol> typeSymbol = getExpectedTypeSymbol(positionDetails);
+        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() != TypeDescKind.UNION
+                || isUnionCompErrorTyped((UnionTypeSymbol) typeSymbol.get())) {
             return Collections.emptyList();
         }
         UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) typeSymbol.get();
@@ -87,46 +92,65 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         if (!hasErrorMemberType || nonErrorNonNilMemberCount == 0) {
             return Collections.emptyList();
         }
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
         List<TextEdit> edits = new ArrayList<>();
-        edits.addAll(getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, positionDetails,
-                typeSymbol.get(), context));
+        CreateVariableOut modifiedTextEdits = getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, positionDetails,
+                typeSymbol.get(), context, importsAcceptor);
+        edits.addAll(modifiedTextEdits.edits);
         edits.addAll(CodeActionUtil.getAddCheckTextEdits(
-                CommonUtil.toRange(diagnostic.location().lineRange()).getStart(),
+                PositionUtil.toRange(diagnostic.location().lineRange()).getStart(),
                 positionDetails.matchedNode(), context));
+        edits.addAll(importsAcceptor.getNewImportTextEdits());
 
-        String commandTitle = CommandConstants.CREATE_VAR_ADD_CHECK_TITLE;
-        return Collections.singletonList(AbstractCodeActionProvider.createCodeAction(commandTitle, edits, uri,
-                CodeActionKind.QuickFix));
+        int renamePosition = modifiedTextEdits.renamePositions.get(0);
+        CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.CREATE_VAR_ADD_CHECK_TITLE,
+                edits, uri, CodeActionKind.QuickFix);
+        addRenamePopup(context, edits, modifiedTextEdits.edits.get(0), codeAction, renamePosition,
+                modifiedTextEdits.varRenamePosition.get(0), modifiedTextEdits.imports.size());
+        return Collections.singletonList(codeAction);
     }
 
     @Override
     public String getName() {
+
         return NAME;
     }
 
-    private List<TextEdit> getModifiedCreateVarTextEdits(Diagnostic diagnostic,
-                                                         UnionTypeSymbol unionTypeDesc,
-                                                         DiagBasedPositionDetails positionDetails,
-                                                         TypeSymbol typeSymbol,
-                                                         CodeActionContext context) {
-        List<TextEdit> edits = new ArrayList<>();
+    private CreateVariableOut getModifiedCreateVarTextEdits(Diagnostic diagnostic,
+                                                            UnionTypeSymbol unionTypeDesc,
+                                                            DiagBasedPositionDetails positionDetails,
+                                                            TypeSymbol typeSymbol,
+                                                            CodeActionContext context,
+                                                            ImportsAcceptor importsAcceptor) {
 
         // Add create variable edits
-        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
-        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, typeSymbol, context);
+        Range range = PositionUtil.toRange(diagnostic.location().lineRange());
+        CreateVariableOut createVarTextEdits = getCreateVariableTextEdits(range, positionDetails, typeSymbol,
+                context, importsAcceptor);
 
         // Change and add type text edit
         String typeWithError = createVarTextEdits.types.get(0);
-        String typeWithoutError = unionTypeDesc.memberTypeDescriptors().stream()
-                .filter(member -> CommonUtil.getRawType(member).typeKind() != TypeDescKind.ERROR)
-                .map(typeDesc -> CodeActionUtil.getPossibleType(typeDesc, edits, context).orElseThrow())
-                .collect(Collectors.joining("|"));
+        String typeWithoutError = getTypeWithoutError(unionTypeDesc, context, importsAcceptor);
+
+        int lengthDiff = typeWithError.length() - typeWithoutError.length();
+
+        Position varRenamePosition = createVarTextEdits.varRenamePosition.get(0);
+        varRenamePosition.setCharacter(varRenamePosition.getCharacter() - lengthDiff);
+
+        Integer renamePos = createVarTextEdits.renamePositions.get(0);
+        createVarTextEdits.renamePositions.add(0, renamePos - lengthDiff);
 
         TextEdit textEdit = createVarTextEdits.edits.get(0);
         textEdit.setNewText(typeWithoutError + textEdit.getNewText().substring(typeWithError.length()));
-        edits.add(textEdit);
-        // Add all the import text edits excluding duplicates
-        createVarTextEdits.imports.stream().filter(edit -> !edits.contains(edit)).forEach(edits::add);
-        return edits;
+        return createVarTextEdits;
+    }
+
+    private String getTypeWithoutError(UnionTypeSymbol unionTypeDesc, CodeActionContext context,
+                                       ImportsAcceptor importsAcceptor) {
+
+        return unionTypeDesc.memberTypeDescriptors().stream()
+                .filter(member -> CommonUtil.getRawType(member).typeKind() != TypeDescKind.ERROR)
+                .map(typeDesc -> CodeActionUtil.getPossibleType(typeDesc, context, importsAcceptor).orElseThrow())
+                .collect(Collectors.joining("|"));
     }
 }

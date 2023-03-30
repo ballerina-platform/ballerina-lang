@@ -1,0 +1,47 @@
+[
+  {
+    "source": "int x = \"10\";",
+    "result": {
+      "errors":["Invocation of the snippet failed."],
+      "diagnostics":["error: incompatible types: expected \u0027int\u0027, found \u0027string\u0027\n\tint x \u003d \"10\";\n\t        ^--^","Compilation aborted due to errors."],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int string x = 10;",
+    "result": {
+      "errors":["Parsing the node from the statement failed."],
+      "diagnostics":["syntax error: invalid token \u0027string\u0027\n\tint string x \u003d 10;\n\t    ^----^","Parsing aborted due to errors."],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "1/0",
+    "result": {
+      "errors":[],
+      "diagnostics":["Execution aborted due to unhandled runtime error."],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":"panic: {ballerina}DivisionByZero {\"message\":\" / by zero\"}"
+    }
+  },
+  {
+    "source": "service hello on new http:Listener(9090) { }",
+    "result": {
+      "errors":["Converting the node into a snippet failed."],
+      "diagnostics":["Services are not allowed within REPL."],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "public function main() {\n    \n}",
+    "result": {
+      "errors":["Parsing the node from the statement failed."],
+      "diagnostics":["Function name \u0027main\u0027 not allowed in Ballerina Shell.\n"],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

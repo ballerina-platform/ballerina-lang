@@ -203,6 +203,10 @@ public class PackageDependencyGraphBuilder {
         return rawGraphBuilder.build();
     }
 
+    void addUnresolvedDirectDepToRawGraph(DependencyNode unresolvedDirectDep) {
+        rawGraphBuilder.addDependency(this.rootDepNode, unresolvedDirectDep);
+    }
+
     private NodeStatus addDependencyInternal(PackageDescriptor dependent,
                                              DependencyNode dependencyNode,
                                              boolean unresolved) {
@@ -399,7 +403,7 @@ public class PackageDependencyGraphBuilder {
                                 existingPkgDesc.org() + "/" + existingPkgDesc.name() +
                                 " versions: " + existingPkgDesc.version() + ", " + newPkgDesc.version(),
                         DiagnosticSeverity.ERROR);
-                PackageResolutionDiagnostic diagnostic = new PackageResolutionDiagnostic(
+                PackageDiagnostic diagnostic = new PackageDiagnostic(
                         diagnosticInfo, this.rootDepNode.pkgDesc().name().toString());
                 diagnosticList.add(diagnostic);
                 return null;

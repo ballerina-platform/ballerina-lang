@@ -1,0 +1,362 @@
+{
+  "position": {
+    "line": 4,
+    "character": 8
+  },
+  "source": "field_access_expression_context/source/field_access_ctx_source55.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "cloneWithType(typedesc<anydata> t)",
+      "kind": "Function",
+      "detail": "t|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen parameter `v` is a structural value, the inherent type of the value to be constructed\ncomes from parameter `t`. When parameter `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `cloneWithType` operation is recursively applied to each member of parameter `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable.\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members\n\n```ballerina\nanydata[] arr = [1, 2, 3, 4];\nint[] intArray = check arr.cloneWithType();\nintArray ⇒ [1,2,3,4]\narr === intArray ⇒ false\ntype Vowels string:Char[];\nstring[] vowels = [\"a\", \"e\", \"i\", \"o\", \"u\"];\nvowels.cloneWithType(Vowels) ⇒ [\"a\",\"e\",\"i\",\"o\",\"u\"]\nvowels.cloneWithType(string) ⇒ error\n```\n  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Return** `t|error`   \n- a new value that belongs to parameter `t`, or an error if this cannot be done  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "cloneWithType",
+      "insertText": "cloneWithType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "cloneReadOnly()",
+      "kind": "Function",
+      "detail": "value:CloneableType & readonly",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n\n```ballerina\nint[] arr = [1, 2, 3, 4];\nint[] & readonly immutableClone = arr.cloneReadOnly();\nimmutableClone ⇒ [1,2,3,4]\nimmutableClone is readonly ⇒ true \n```\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "cloneReadOnly",
+      "insertText": "cloneReadOnly()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toBalString()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n\n```ballerina\ndecimal value = 12.12d;\nvalue.toBalString() ⇒ 12.12d\nanydata[] data = [1, \"Sam\", 12.3f, 12.12d, {value: 12}];\ndata.toBalString() ⇒ [1,\"Sam\",12.3,12.12d,{\"value\":12}]\n```\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "toBalString",
+      "insertText": "toBalString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toJson()",
+      "kind": "Function",
+      "detail": "json",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value of type `anydata` to `json`.\n\nThis does a deep copy of parameter `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\nThis panics if parameter `v` has cycles.\n\n```ballerina\nanydata student = {name: \"Jo\", age: 11};\nstudent.toJson() ⇒ {\"name\":\"Jo\",\"age\":11}\nanydata[] array = [];\narray.push(array);\narray.toJson() ⇒ panic\n```\n  \n  \n  \n**Return** `json`   \n- representation of `v` as value of type json  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "toJson",
+      "insertText": "toJson()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "isReadOnly()",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nTests whether a value is read-only, i.e., immutable.\n\nReturns true if read-only, false otherwise.\n\n```ballerina\nint[] scores = <readonly> [21, 12, 33, 45, 81];\nscores.isReadOnly() ⇒ true\nstring[] sports = [\"cricket\", \"football\", \"rugby\"];\nsports.isReadOnly() ⇒ false\n```\n  \n  \n  \n**Return** `boolean`   \n- true if read-only, false otherwise  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "isReadOnly",
+      "insertText": "isReadOnly()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "clone()",
+      "kind": "Function",
+      "detail": "value:CloneableType",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n\n```ballerina\nint[] arr = [1, 2, 3, 4];\nint[] clone = arr.clone();\nclone ⇒ [1,2,3,4]\narr === clone ⇒ false\n```\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "clone",
+      "insertText": "clone()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ensureType(typedesc<any> t)",
+      "kind": "Function",
+      "detail": "t|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n\n```ballerina\njson student = {name: \"Jo\", subjects: [\"CS1212\", \"CS2021\"]};\njson[] subjects = check student.subjects.ensureType();\nsubjects ⇒ [\"CS1212\",\"CS2021\"]\nanydata vowel = \"I\";\nvowel.ensureType(string:Char) ⇒ I;\nvowel.ensureType(int) ⇒ error\n```\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "ensureType",
+      "insertText": "ensureType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toString()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n\n```ballerina\ndecimal value = 12.12d;\nvalue.toString() ⇒ 12.12\nanydata[] data = [1, \"Sam\", 12.3f, 12.12d, {value: 12}];\ndata.toString() ⇒ [1,\"Sam\",12.3,12.12,{\"value\":12}]\n```\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "toString",
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toJsonString()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the string that represents a anydata value in JSON format.\n\nparameter `v` is first converted to `json` as if by the function `toJson`.\n\n```ballerina\nanydata marks = {\"Alice\": 90, \"Bob\": 85, \"Jo\": 91};\nmarks.toJsonString() ⇒ {\"Alice\":90, \"Bob\":85, \"Jo\":91}\n```\n  \n  \n  \n**Return** `string`   \n- string representation of parameter `v` converted to `json`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "toJsonString",
+      "insertText": "toJsonString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "matchAt(string str, int startIndex)",
+      "kind": "Function",
+      "detail": "regexp:Span?",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.regexp:0.0.0_  \n  \nTests whether there is a match of a regular expression at a specific index in the string.\n\n```ballerina\nstring:RegExp r = re `World`;\nr.matchAt(\"Hello World\") is () ⇒ true\nr.matchAt(\"Hello World\", 6) is regexp:Span ⇒ true\n```\n  \n**Params**  \n- `string` str: the string in which to look for a match of `re`  \n- `int` startIndex: the index within `str` at which to look for a match; defaults to zero(Defaultable)  \n  \n**Return** `regexp:Span?`   \n- a `Span` describing the match, or nil if `re` did not match at that index; the startIndex of the  \n`Span` will always be equal to `startIndex`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "matchAt",
+      "insertText": "matchAt(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "replace(string str, regexp:Replacement replacement, int startIndex)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.regexp:0.0.0_  \n  \nReplaces the first match of a regular expression.\n\n```ballerina\nstring:RegExp r = re `0+`;\nr.replace(\"10010011\", \"*\") ⇒ 1*10011\nr.replace(\"10010011\", \"*\", 4) ⇒ 1001*11\nr.replace(\"122111\", \"*\") ⇒ 122111\nr.replace(\"10010011\", replaceFunction) ⇒ 1*10011\nr.replace(\"10010011\", replaceFunction, 4) ⇒ 1001*11\nisolated function replaceFunction(regexp:Groups groups) returns string => \"*\";\n```\n  \n**Params**  \n- `string` str: the string in which to perform the replacements  \n- `regexp:Replacement` replacement: a `Replacement` that gives the replacement for the match  \n- `int` startIndex: the index within `str` at which to start looking for a match; defaults to zero(Defaultable)  \n  \n**Return** `string`   \n- `str` with the first match, if any, replaced by the string specified by `replacement`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "replace",
+      "insertText": "replace(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "findGroups(string str, int startIndex)",
+      "kind": "Function",
+      "detail": "regexp:Groups?",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.regexp:0.0.0_  \n  \nReturns the `Groups` for the first match of a regular expression within a string.\n\n```ballerina\nstring:RegExp r = re `([bB].tt[a-z]*)`;\nr.findGroups(\"Not A Match\") is () ⇒ true\nr.findGroups(\"Butter was bought by Betty but the butter was bitter.\") is regexp:Groups ⇒ true\nr.findGroups(\"Butter was bought by Betty but the butter was bitter.\", 7) is regexp:Groups ⇒ true\n```\n  \n**Params**  \n- `string` str: the string in which to look for a match of `re`  \n- `int` startIndex: the index within `str` at which to start looking for a match(Defaultable)  \n  \n**Return** `regexp:Groups?`   \n- a `Groups` list describing the match, or nil if no match was found  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "findGroups",
+      "insertText": "findGroups(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "fullMatchGroups(string str)",
+      "kind": "Function",
+      "detail": "regexp:Groups?",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.regexp:0.0.0_  \n  \nReturns the `Groups` of the match of a regular expression that is a full match of a string.\nA match of the regular expression in a string is a full match if it\nstarts at index 0 and ends at index `n`, where `n` is the length of the string.\n\n```ballerina\nstring:RegExp r = re `([0-9]+)×([0-9]+)`;\nr.fullMatchGroups(\"test: 1440×900\") is () ⇒ true\nr.fullMatchGroups(\"1440×900\") is regexp:Groups ⇒ true\n```\n  \n**Params**  \n- `string` str: the string in which to look for a match of `re`  \n  \n**Return** `regexp:Groups?`   \n- a `Groups` list describing the match, or nil if there is not a full match; the  \nfirst `Span` in the list will be all of `str`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "fullMatchGroups",
+      "insertText": "fullMatchGroups(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "findAll(string str, int startIndex)",
+      "kind": "Function",
+      "detail": "regexp:Span[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.regexp:0.0.0_  \n  \nReturns a list of all the matches of a regular expression within a string.\nAfter one match is found, it looks for the next match starting where the previous\nmatch ended, so the list of matches will be non-overlapping.\n\n```ballerina\nstring:RegExp r = re `[bB].tt[a-z]*`;\nr.findAll(\"Not A Match\").length() ⇒ 0\nr.findAll(\"Butter was bought by Betty but the butter was bitter.\").length() ⇒ 4\nr.findAll(\"Butter was bought by Betty but the butter was bitter.\", 7).length() ⇒ 3\n```\n  \n**Params**  \n- `string` str: the string in which to look for matches of `re`  \n- `int` startIndex: the index within `str` at which to start looking for matches(Defaultable)  \n  \n**Return** `regexp:Span[]`   \n- a list containing a `Span` for each match found  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "findAll",
+      "insertText": "findAll(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "replaceAll(string str, regexp:Replacement replacement, int startIndex)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.regexp:0.0.0_  \n  \nReplaces all matches of a regular expression.\nAfter one match is found, it looks for the next match starting where the previous\nmatch ended, so the matches will be non-overlapping.\n\n```ballerina\nstring:RegExp r = re `0+`;\nr.replaceAll(\"10010011\", \"*\") ⇒ 1*1*11\nr.replaceAll(\"10010011\", \"*\", 4) ⇒ 1001*11\nr.replaceAll(\"122111\", \"*\") ⇒ 122111\nr.replaceAll(\"10010011\", replaceFunction) ⇒ 121211\nr.replaceAll(\"10010011\", replaceFunction, 4) ⇒ 1001211\nisolated function replaceFunction(regexp:Groups groups) returns string => groups[0].substring().length().toString();\n```\n  \n**Params**  \n- `string` str: the string in which to perform the replacements  \n- `regexp:Replacement` replacement: a `Replacement` that gives the replacement for each match  \n- `int` startIndex: the index within `str` at which to start looking for matches; defaults to zero(Defaultable)  \n  \n**Return** `string`   \n- `str` with every match replaced by the string specified by `replacement`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "replaceAll",
+      "insertText": "replaceAll(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "split(string str)",
+      "kind": "Function",
+      "detail": "string[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.regexp:0.0.0_  \n  \nSplits a string into substrings separated by matches of a regular expression.\nThis finds the the non-overlapping matches of a regular expression and\nreturns a list of substrings of `str` that occur before the first match,\nbetween matches, or after the last match.  If there are no matches, then\n`[str]` will be returned.\n\n```ballerina\nstring:RegExp r = re `,`;\nr.split(\"abc,cde,efg\") ⇒ [\"abc\",\"cde\",\"efg\"]\nr.split(\"abc cde efg\") ⇒ [\"abc cde efg\"]\n```\n  \n**Params**  \n- `string` str: the string to be split  \n  \n**Return** `string[]`   \n- a list of substrings of `str` separated by matches of `re`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "split",
+      "insertText": "split(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "find(string str, int startIndex)",
+      "kind": "Function",
+      "detail": "regexp:Span?",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.regexp:0.0.0_  \n  \nReturns the first match of a regular expression within a string.\n\n```ballerina\nstring:RegExp r = re `World`;\nr.find(\"Not A Match\") is () ⇒ true\nr.find(\"Hello World\") is regexp:Span ⇒ true\nr.find(\"Hello World\", 7) is regexp:Span ⇒ true\n```\n  \n**Params**  \n- `string` str: the string in which to look for a match of `re`  \n- `int` startIndex: the index within `str` at which to start looking for a match(Defaultable)  \n  \n**Return** `regexp:Span?`   \n- a `Span` describing the match, or nil if no match was found  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "find",
+      "insertText": "find(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "isFullMatch(string str)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.regexp:0.0.0_  \n  \nTests whether there is full match of regular expression with a string.\nA match of a regular expression in a string is a full match if it\nstarts at index 0 and ends at index `n`, where `n` is the length of the string.\n\n```ballerina\nstring:RegExp r = re `A|Th.*ch|^`;\nr.isFullMatch(\"This is a Match\") ⇒ true\nr.isFullMatch(\"Not a complete Match\") ⇒ false\n```\n  \n**Params**  \n- `string` str: the string  \n  \n**Return** `boolean`   \n- true if there is full match of `re` with `str`, and false otherwise  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "isFullMatch",
+      "insertText": "isFullMatch(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "findAllGroups(string str, int startIndex)",
+      "kind": "Function",
+      "detail": "regexp:Groups[]",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.regexp:0.0.0_  \n  \nReturns the `Groups` of all the matches of a regular expression within a string.\nAfter one match is found, it looks for the next match starting where the previous\nmatch ended, so the list of matches will be non-overlapping.\n\n```ballerina\nstring:RegExp r = re `(([a-z]u)(bble))`;\nr.findAllGroups(\"Not A Match\").length() ⇒ 0\nr.findAllGroups(\"rubble, trouble, bubble, hubble\").length() ⇒ 3\nr.findAllGroups(\"rubble, trouble, bubble, hubble\", 7) ⇒ 2\n```\n  \n**Params**  \n- `string` str: the string in which to look for matches of `re`  \n- `int` startIndex: the index within `str` at which to start looking for matches(Defaultable)  \n  \n**Return** `regexp:Groups[]`   \n- a list containing a `Group` for each match found  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "findAllGroups",
+      "insertText": "findAllGroups(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "matchGroupsAt(string str, int startIndex)",
+      "kind": "Function",
+      "detail": "regexp:Groups?",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.regexp:0.0.0_  \n  \nReturns the `Groups` of the match of a regular expression at a specific index in the string.\n\n```ballerina\nstring:RegExp r = re `([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])?`;\nr.matchGroupsAt(\"time: 14:35:59\") is () ⇒ true\nr.matchGroupsAt(\"time: 14:35:59\", 6) is regexp:Groups ⇒ true\n```\n  \n**Params**  \n- `string` str: the string in which to look for a match of `re`  \n- `int` startIndex: the index within `str` at which to look for a match; defaults to zero(Defaultable)  \n  \n**Return** `regexp:Groups?`   \n- a `Groups` list describing the match, or nil if `re` did not match at that index; the startIndex of the  \nfirst `Span` in the list will always be equal to the `startIndex` of the first member of the list  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "matchGroupsAt",
+      "insertText": "matchGroupsAt(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}

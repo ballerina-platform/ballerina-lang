@@ -1,0 +1,7 @@
+[package]
+org = "testOrg"
+name = "public_and_private_types"
+version = "0.1.0"
+
+[build-options]
+observabilityIncluded = false

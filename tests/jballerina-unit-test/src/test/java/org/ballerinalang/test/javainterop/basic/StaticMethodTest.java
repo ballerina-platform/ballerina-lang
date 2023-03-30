@@ -184,7 +184,8 @@ public class StaticMethodTest {
         return new String[]{"testBalEnvSlowAsyncVoidSig", "testBalEnvFastAsyncVoidSig", "testBalEnvSlowAsync",
                 "testBalEnvFastAsync", "testReturnNullString", "testReturnNotNullString", "testStaticResolve",
                 "testStringCast", "testGetCurrentModule", "testGetDefaultValueWithBEnv", "testCreateStudentUsingType",
-                "testCreateStudent", "testDefaultDecimalArgs", "testDefaultDecimalArgsAddition"};
+                "testCreateStudent", "testDefaultDecimalArgs", "testDefaultDecimalArgsAddition",
+                "testJavaNullPointerException"};
     }
 
     @AfterClass

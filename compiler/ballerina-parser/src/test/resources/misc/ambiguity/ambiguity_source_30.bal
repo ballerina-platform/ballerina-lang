@@ -1,3 +1,3 @@
 import foobar/baz;
 
-public function hello() re
+public function hello() 're

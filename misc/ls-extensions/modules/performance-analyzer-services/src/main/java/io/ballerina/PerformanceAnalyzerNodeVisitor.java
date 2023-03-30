@@ -42,27 +42,35 @@ import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
+import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.WaitActionNode;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import io.ballerina.component.ActionInvocationNode;
 import io.ballerina.component.EndPointNode;
 import io.ballerina.component.ForStatementNode;
 import io.ballerina.component.IfStatementNode;
 import io.ballerina.component.Node;
+import io.ballerina.component.ReturningActionInvocationNode;
+import io.ballerina.component.ReturningIfStatementNode;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.utils.ParserUtil;
+import io.ballerina.utils.ReturnFinder;
 import org.eclipse.lsp4j.Range;
 
 import java.util.HashMap;
 import java.util.Optional;
+
+import static io.ballerina.Constants.MAIN_WORKER;
 
 /**
  * Visitor to discover the program structure.
@@ -77,21 +85,30 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
     private final HashMap<LineRange, Object> variableMap;
     private final HashMap<LineRange, String> referenceMap;
     private final HashMap<String, EndPointNode> endPointDeclarationMap;
+    private final HashMap<String, Node> workers;
 
     private final Node startNode;
     private final SemanticModel model;
     private final String file;
     private final Range range;
     private Node currentNode;
+    private Node currentWorkerNode;
     private Document document;
     private boolean withinRange = false;
     private int uuid;
+    private boolean withinWorker = false;
+    private boolean addReturnNode = false;
+    private boolean isWorkerExists = false;
+    private boolean isWorkerWaiting = false;
+    private boolean isWorkersHaveConnectorCalls = false;
+    private boolean hasReturn = false;
 
     public PerformanceAnalyzerNodeVisitor(SemanticModel model, String file, Range range) {
 
         this.variableMap = new HashMap<>();
         this.referenceMap = new HashMap<>();
         this.endPointDeclarationMap = new HashMap<>();
+        this.workers = new HashMap<>();
         this.startNode = new Node();
         this.currentNode = this.startNode;
         this.model = model;
@@ -207,26 +224,56 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
     @Override
     public void visit(IfElseStatementNode ifElseStatementNode) {
 
+        addReturnNode = withinRange;
         IfStatementNode ifStatementNode = new IfStatementNode();
         Node currentParentNode = this.currentNode;
 
         Node ifBodyNode = new Node();
         this.currentNode = ifBodyNode;
 
+        ReturnFinder returnFinder = new ReturnFinder();
+        ifElseStatementNode.ifBody().accept(returnFinder);
+        hasReturn = returnFinder.isHasReturn() && withinRange;
+
         ifElseStatementNode.ifBody().accept(this);
 
-        ifStatementNode.setIfBody(ifBodyNode.getNextNode());
+        if (!returnFinder.isHasReturn()) {
+            ifElseStatementNode.elseBody().ifPresent(elseBody -> elseBody.accept(returnFinder));
+        }
+        Node ifBodyNodeNextNode = ifBodyNode.getNextNode();
+        if ((ifBodyNodeNextNode instanceof IfStatementNode) && returnFinder.isHasReturn()
+                && returnFinder.isHasNestedIfElse() && withinRange) {
+            IfStatementNode ifBodyNextNode = (IfStatementNode) ifBodyNodeNextNode;
+            ReturningIfStatementNode returningIfStatementNode =
+                    new ReturningIfStatementNode(ifBodyNextNode.getIfBody(), ifBodyNextNode.getElseBody(), true);
+            ifStatementNode.setIfBody(returningIfStatementNode);
+        } else {
+            ifStatementNode.setIfBody(ifBodyNodeNextNode);
+        }
+
+        hasReturn = false;
 
         Node elseBodyNode = new Node();
         this.currentNode = elseBodyNode;
 
+        returnFinder.setHasReturn(false);
+        returnFinder.setHasNestedIfElse(false);
         ifElseStatementNode.elseBody().ifPresent(elseBody -> {
+                    elseBody.accept(returnFinder);
+                    hasReturn = returnFinder.isHasReturn();
+                    addReturnNode = withinRange;
+
                     elseBody.accept(this);
                     ifStatementNode.setElseBody(elseBodyNode.getNextNode());
                 }
         );
+        hasReturn = false;
+        addReturnNode = false;
         this.currentNode = currentParentNode;
-        this.setChildNode(ifStatementNode);
+        if (ifStatementNode.getIfBody() != null || ifStatementNode.getElseBody() != null ||
+                ifStatementNode.getNextNode() != null) {
+            this.setChildNode(ifStatementNode);
+        }
     }
 
     @Override
@@ -307,10 +354,55 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
         assignmentStatementNode.expression().accept(this);
     }
 
+    @Override
+    public void visit(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
+
+        if (withinRange) {
+            withinWorker = true;
+            if (!isWorkerExists) {
+                isWorkerExists = namedWorkerDeclarationNode != null;
+            }
+            if (namedWorkerDeclarationNode != null) {
+                currentWorkerNode = new Node();
+                Node workerNode = currentWorkerNode;
+                namedWorkerDeclarationNode.workerBody().accept(this);
+
+                ParserUtil.getReducedTree(workerNode);
+                workers.put(namedWorkerDeclarationNode.workerName().text(), workerNode);
+            }
+            withinWorker = false;
+        }
+    }
+
+    @Override
+    public void visit(WaitActionNode waitActionNode) {
+
+        waitActionNode.waitFutureExpr().accept(this);
+    }
+
+    @Override
+    public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
+
+        if (withinRange) {
+            Optional<Symbol> waitNode = model.symbol(simpleNameReferenceNode);
+            if (waitNode.isEmpty() || waitNode.get().getLocation().isEmpty()) {
+                return;
+            }
+            if (!isWorkerWaiting) {
+                isWorkerWaiting = waitNode.get().kind() == SymbolKind.WORKER;
+            }
+        }
+    }
+
     private void setChildNode(Node node) {
 
-        this.currentNode.setNextNode(node);
-        this.currentNode = node;
+        if (withinWorker) {
+            this.currentWorkerNode.setNextNode(node);
+            this.currentWorkerNode = node;
+        } else {
+            this.currentNode.setNextNode(node);
+            this.currentNode = node;
+        }
     }
 
     private void registerVariableRef(LineRange key, Object value) {
@@ -374,10 +466,19 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
             LineRange lineRange = location.get().lineRange();
 
             if (withinRange) {
-                String pos = actionPos.filePath() + "/" + actionPos;
-                ActionInvocationNode actionNode = new ActionInvocationNode(getUUID(lineRange),
-                        actionName, actionPath, pos);
-                this.currentNode.setNextNode(actionNode);
+                if (withinWorker) {
+                    isWorkersHaveConnectorCalls = true;
+                }
+                String pos = actionPos.fileName() + "/" + actionPos;
+                ActionInvocationNode actionNode;
+                if (addReturnNode) {
+                    actionNode = new ReturningActionInvocationNode(getUUID(lineRange),
+                            actionName, actionPath, pos, hasReturn);
+                    addReturnNode = false;
+                } else {
+                    actionNode = new ActionInvocationNode(getUUID(lineRange),
+                            actionName, actionPath, pos);
+                }
                 this.setChildNode(actionNode);
             }
         }
@@ -523,5 +624,23 @@ public class PerformanceAnalyzerNodeVisitor extends NodeVisitor {
         invocationInfo.put(ENDPOINTS_KEY, this.endPointDeclarationMap);
         invocationInfo.put(ACTION_INVOCATION_KEY, this.startNode);
         return invocationInfo;
+    }
+    public HashMap<String, Object> getWorkers() {
+
+        this.workers.values().forEach(ParserUtil::getReducedTree);
+        ParserUtil.getReducedTree(this.startNode);
+        if (this.startNode.getNextNode() != null) {
+            this.workers.put(MAIN_WORKER, this.startNode);
+        }
+
+        HashMap<String, Object> invocationInfo = new HashMap<>();
+        invocationInfo.put(ENDPOINTS_KEY, this.endPointDeclarationMap);
+        invocationInfo.put(ACTION_INVOCATION_KEY, this.workers);
+        return invocationInfo;
+    }
+
+    public boolean canGivePrediction() {
+
+        return !(isWorkerExists && isWorkerWaiting && isWorkersHaveConnectorCalls);
     }
 }

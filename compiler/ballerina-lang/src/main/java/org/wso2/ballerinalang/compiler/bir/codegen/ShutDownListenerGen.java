@@ -37,10 +37,11 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LISTENER_REGISTRY_VARIABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_LISTENER_REGISTRY;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_LISTENER_REGISTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_REGISTRY_VARIABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME_REGISTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_RUNTIME_REGISTRY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
  * Generate the thread for the addShutDownHook.
@@ -52,8 +53,8 @@ public class ShutDownListenerGen {
         String innerClassName = initClass + "$SignalListener";
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visit(V1_8, ACC_SUPER, innerClassName, null, JAVA_THREAD, null);
-        FieldVisitor fv = cw.visitField(ACC_PRIVATE , LISTENER_REGISTRY_VARIABLE,
-                                        GET_LISTENER_REGISTRY, null, null);
+        FieldVisitor fv = cw.visitField(ACC_PRIVATE , RUNTIME_REGISTRY_VARIABLE,
+                GET_RUNTIME_REGISTRY, null, null);
         fv.visitEnd();
 
         // create constructor
@@ -67,30 +68,29 @@ public class ShutDownListenerGen {
     }
 
     private void genConstructor(String innerClassName, ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, INIT_LISTENER_REGISTRY, null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, INIT_RUNTIME_REGISTRY, null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, JAVA_THREAD, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, JAVA_THREAD, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
-        mv.visitFieldInsn(PUTFIELD, innerClassName , LISTENER_REGISTRY_VARIABLE,
-                          GET_LISTENER_REGISTRY);
+        mv.visitFieldInsn(PUTFIELD, innerClassName , RUNTIME_REGISTRY_VARIABLE,
+                GET_RUNTIME_REGISTRY);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, JVM_INIT_METHOD, innerClassName);
         mv.visitEnd();
     }
 
     private void genRunMethod(String initClass, String innerClassName, ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "run", "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "run", VOID_METHOD_DESC, null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, innerClassName , LISTENER_REGISTRY_VARIABLE,
-                          GET_LISTENER_REGISTRY);
+        mv.visitFieldInsn(GETFIELD, innerClassName , RUNTIME_REGISTRY_VARIABLE,
+                GET_RUNTIME_REGISTRY);
         mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP_METHOD,
-                           INIT_LISTENER_REGISTRY, false);
+                INIT_RUNTIME_REGISTRY, false);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, "run", innerClassName);
         mv.visitEnd();
     }
-
 }

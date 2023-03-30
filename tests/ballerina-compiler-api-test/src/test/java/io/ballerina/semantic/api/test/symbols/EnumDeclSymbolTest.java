@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.EnumSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.projects.Document;
@@ -34,11 +35,13 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertBasicsAndGetSymbol;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
+import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -161,5 +164,17 @@ public class EnumDeclSymbolTest {
                 {42, 4, "EUROPE", null, null, List.of(Qualifier.PUBLIC)},
                 {44, 4, "OTHER", "Other", null, List.of(Qualifier.PUBLIC)},
         };
+    }
+
+    @Test
+    public void testEnumMemberSignature() {
+        List<String> memberSignature = List.of("RED", "BLUE", "GREEN");
+        Optional<Symbol> symbolOptional = model.symbol(srcFile, from(17, 5));
+        assertTrue(symbolOptional.isPresent());
+        EnumSymbol symbol = (EnumSymbol) symbolOptional.get();
+        List<ConstantSymbol> members = symbol.members();
+        for (ConstantSymbol member : members) {
+            assertTrue(memberSignature.contains(member.signature()));
+        }
     }
 }

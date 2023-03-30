@@ -34,7 +34,7 @@ public class Formatter {
      * @throws FormatterException Exception caught while formatting
      */
     public static String format(String source) throws FormatterException {
-        return format(source, new FormattingOptions());
+        return format(source, FormattingOptions.builder().build());
     }
 
     /**
@@ -47,7 +47,7 @@ public class Formatter {
      * @throws FormatterException Exception caught while formatting
      */
     public static SyntaxTree format(SyntaxTree syntaxTree, LineRange range) throws FormatterException {
-        return format(syntaxTree, range, new FormattingOptions());
+        return format(syntaxTree, range, FormattingOptions.builder().build());
     }
 
     /**
@@ -58,7 +58,7 @@ public class Formatter {
      * @throws FormatterException Exception caught while formatting
      */
     public static SyntaxTree format(SyntaxTree syntaxTree) throws FormatterException {
-        return format(syntaxTree, new FormattingOptions());
+        return format(syntaxTree, FormattingOptions.builder().build());
     }
 
     /**

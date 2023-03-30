@@ -51,7 +51,8 @@ public class RecursiveRecordTypeTest {
                 "testRecursiveRecordWithArray",
                 "testRecursiveRecordWithRestType",
                 "testRecursiveRecordWithOptionalType",
-                "testRecursiveRecordWithReadOnlyType"
+                "testRecursiveRecordWithReadOnlyType",
+                "testRecursiveRecordEquality"
         };
     }
 

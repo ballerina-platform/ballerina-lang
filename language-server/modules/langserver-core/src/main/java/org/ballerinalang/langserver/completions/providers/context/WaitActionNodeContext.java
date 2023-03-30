@@ -25,13 +25,13 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.WaitActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
@@ -67,7 +67,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
 
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         // Covers both alternate and single wait actions
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Covers the following
             eg:
@@ -77,7 +77,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
             Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.FUNCTION
                     || symbol instanceof VariableSymbol;
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> filteredList = QNameReferenceUtil.getModuleContent(context, qNameRef, predicate);
+            List<Symbol> filteredList = QNameRefCompletionUtil.getModuleContent(context, qNameRef, predicate);
             completionItems.addAll(this.getCompletionItemList(filteredList, context));
         } else {
             completionItems.addAll(this.expressionCompletions(context));
@@ -140,12 +140,14 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
                 if (symbol.kind() == WORKER) {
                     rank = 1;
                 } else if (symbol.kind() == VARIABLE
-                        && ((VariableSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.FUTURE) {
-                    Optional<TypeSymbol> typeSymbol 
+                        && ((VariableSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.FUTURE 
+                        && contextType.isPresent() && contextType.get().typeKind() == TypeDescKind.FUTURE) {
+                    Optional<TypeSymbol> completionItemTypeSymbol 
                             = ((FutureTypeSymbol) ((VariableSymbol) symbol).typeDescriptor()).typeParameter();
-                    if (typeSymbol.isPresent() && contextType.isPresent() 
-                            && typeSymbol.get().subtypeOf(contextType.get())) {
-                        rank = 1;
+                    Optional<TypeSymbol> contextTypeSymbol = ((FutureTypeSymbol) contextType.get()).typeParameter();
+                    if (completionItemTypeSymbol.isPresent() && contextTypeSymbol.isPresent() 
+                            && completionItemTypeSymbol.get().subtypeOf(contextTypeSymbol.get())) {
+                            rank = 1;
                     } else {
                         rank = 2;
                     }

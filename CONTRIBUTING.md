@@ -7,7 +7,6 @@ We appreciate your help!
 - [Get started](#get-started)
 - [Build the source code](#build-the-source-code)
 - [Set up the development environment](#set-up-the-development-environment)
-    - [Set up the Ballerina plugins](#set-up-the-ballerina-plugins)
 - [Submit your contribution](#submit-your-contribution)
 - [Propose changes to Ballerina](#propose-changes-to-ballerina)
 
@@ -16,38 +15,21 @@ We appreciate your help!
 - Download [Ballerina](https://ballerina.io/downloads/) and go through the [learning resources](https://ballerina.io/learn/).
 - Read the <a href="https://ballerina.io/code-of-conduct">Ballerina Code of Conduct</a>.
 
-- Join the conversations at:
+- Join the [Ballerina community](https://ballerina.io/community/).
 
-    - [StackOverflow](https://stackoverflow.com/questions/tagged/ballerina): to get help with Ballerina (use the Ballerina tag for any of your questions)
-    - [Slack](https://ballerina.io/community/slack/): for real-time discussions with the team and community
-    - [Twitter](https://twitter.com/ballerinalang): to tweet about Ballerina (use the “#ballerinalang” hashtag) 
-    - [GitHub](https://github.com/ballerina-platform/ballerina-lang/issues): to file issues, join the conversations on new features, comment on other issues, and send your pull requests.
-
-- Submitting a bug is just as important as contributing to code. Report an issue in the relevant repo out of the GitHub repos listed below. 
-
-    >**Tip:** If you are unsure whether you have found a bug, search existing issues in the corresponding repo on GitHub and raise it in the [Ballerina Slack channel](https://ballerina-platform.slack.com/).
-    - Compiler, runtime, standard library, or tooling: <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo
-    - Language specification: <a href="https://github.com/ballerina-platform/ballerina-spec/issues">ballerina-spec</a> repo
-    - Website: <a href="https://github.com/ballerina-platform/ballerina-dev-website/issues">ballerina-dev-website</a> repo
-    - Security flaw: send an email to security@ballerina.io. For details, see the <a href="https://ballerina.io/security/">security policy</a>.
+- Submitting a bug is just as important as contributing to code. [Report an issue](https://github.com/ballerina-platform/ballerina-lang/blob/master/README.md#report-issues-and-security-flaws) in the relevant repo.
 
 -  Start with GitHub issues that can be fixed easily:
-    - Browse issues labeled "good first issue" in the <a href="https://github.com/ballerina-platform/ballerina-lang/issues">ballerina-lang</a> repo.
+    - Browse issues labeled `good first issue` in the source code repo.
     - Use comments on the issue itself to indicate that you will be working on it and get guidance and help.
 
 ## Build the source code 
 
-For instructions, see <a href="https://github.com/ballerina-platform/ballerina-distribution/blob/master/docs/building-from-source.md/">Building from source</a>.
+For instructions, see <a href="https://github.com/ballerina-platform/ballerina-distribution/blob/master/docs/build-ballerina-from-source.md">Building from source</a>.
 
 ## Set up the development environment
 
-See the below sections to set up the required plugins in your preferred IDEs/Editors.
-
-### Set up the Ballerina plugins
-
 Set up the [Ballerina plugin for VS Code](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina)
-    
-For installation instructions, see [Ballerina VS Code Documentation](https://ballerina.io/learn/visual-studio-code-extension/vs-code-quick-start/).
 
 ## Submit your contribution
 
@@ -61,7 +43,9 @@ For installation instructions, see [Ballerina VS Code Documentation](https://bal
     - Limit the subject line to 50 characters
     - Capitalize the subject line
     - Do not end the subject line with a period
-    - Use the imperative mood in the subject line
+    - Use the imperative mood in the subject line. A properly formed Git commit subject line should always be able to complete the following sentence:
+
+      If applied, this commit will `<your subject line here>`
     - Wrap the body at 72 characters
     - Use the body to explain what and why vs. how
 
@@ -74,4 +58,4 @@ For installation instructions, see [Ballerina VS Code Documentation](https://bal
 
 ## Propose changes to Ballerina
 
-Start the discussion on the changes you propose in the [Ballerina Slack channel](https://ballerina-platform.slack.com/). Once there is enough consensus around the proposal, you will likely be asked to file an issue on GitHub and label it as 'Proposal' to continue a detailed discussion there.
+Start the discussion on the changes you propose in the [Ballerina Discord](https://discord.com/invite/wAJYFbMrG2). Once there is enough consensus around the proposal, you will likely be asked to file an issue on GitHub and label it as `Type/Proposal` to continue a detailed discussion there.

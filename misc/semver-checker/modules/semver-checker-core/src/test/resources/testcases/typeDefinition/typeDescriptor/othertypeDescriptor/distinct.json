@@ -1,0 +1,34 @@
+[
+  {
+    "description": "Add a Distinct keyword to a type definition\n",
+    "oldCode": "public type Person object{};\n",
+    "newCode": "public type Person distinct object{};\n",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "type definition",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "type descriptor",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "message": "type descriptor is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

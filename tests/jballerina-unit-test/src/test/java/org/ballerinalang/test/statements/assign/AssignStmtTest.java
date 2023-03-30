@@ -209,6 +209,15 @@ public class AssignStmtTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'function ((any|error)...) returns ()', found " +
                         "'function (any...) returns ()'", 123, 47);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected " +
+                "'[\"list\",int?,Type]', found 'Type'", 133, 14);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', " +
+                "found 'table<record {| |}>'", 138, 11);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'int', " +
+                "found 'table<record {| |}>'", 141, 12);
+        BAssertUtil.validateError(resultNegative, i++,
+                "invalid operation: type 'record {| int b?; anydata...; |}[1]?' does not support member access",
+                153, 5);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
@@ -293,6 +302,14 @@ public class AssignStmtTest {
         BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to a type definition", 29, 14);
         BAssertUtil.validateError(resultNegative, i, "incompatible types: expected 'error?', found 'typedesc<Foo>'",
                 29, 14);
+    }
+
+    @Test
+    public void testOptionalFieldAssignment() {
+        BRunUtil.invoke(result, "testOptionalFieldAssignment1");
+        BRunUtil.invoke(result, "testOptionalFieldAssignment2");
+        BRunUtil.invoke(result, "testOptionalFieldAssignment3");
+        BRunUtil.invoke(result, "testOptionalFieldAssignment4");
     }
 
     @AfterClass

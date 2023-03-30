@@ -48,6 +48,7 @@ public class EnumDeclarationNodeContext extends AbstractCompletionProvider<EnumD
         int cursor = context.getCursorPositionInTree();
         Token token = node.enumKeywordToken();
 
-        return !token.isMissing() && cursor > token.textRange().startOffset();
+        return !token.isMissing() && cursor > token.textRange().startOffset()
+                && cursor <= node.closeBraceToken().textRange().endOffset();
     }
 }

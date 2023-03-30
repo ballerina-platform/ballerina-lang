@@ -42,8 +42,22 @@ public class XMLAttributeAccessTest {
 
     @Test
     public void testBasicAttributeAccessSyntax() {
-        Object result = BRunUtil.invoke(compileResult, "getElementAttrBasic");
-        Assert.assertEquals(result.toString(), "attr-val");
+        BRunUtil.invoke(compileResult, "getElementAttrBasic");
+    }
+
+    @Test
+    public void testBasicOptionalAttributeAccessSyntax() {
+        BRunUtil.invoke(compileResult, "getOptionalElementAttrBasic");
+    }
+
+    @Test
+    public void testUserDefinedAttributeAccessSyntax() {
+        BRunUtil.invoke(compileResult, "getUserDefinedTypeElementAttrBasic");
+    }
+
+    @Test
+    public void testUserDefinedOptionalAttributeAccessSyntax() {
+        BRunUtil.invoke(compileResult, "getUserDefinedTypeOptionalElementAttrBasic");
     }
 
     @Test

@@ -60,3 +60,14 @@ type Person record {|
     string name;
     int age;
 |};
+
+client class Foo {
+   resource function post bar/[string... ids](string fullname) returns string {
+     return ids[0] + fullname;
+   }
+}
+
+function testResource() {
+   Foo fooClient = new();
+   string yVal = fooClient->/bar/["3"].post("myname");
+}

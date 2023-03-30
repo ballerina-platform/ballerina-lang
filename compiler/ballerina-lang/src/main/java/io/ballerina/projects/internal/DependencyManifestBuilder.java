@@ -25,6 +25,7 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.exceptions.CorruptedDependenciesTomlException;
 import io.ballerina.projects.util.FileUtils;
@@ -68,6 +69,9 @@ public class DependencyManifestBuilder {
     private final DependencyManifest dependencyManifest;
 
     private static final String LATEST_DEPS_TOML_VERSION = "2";
+    private static final String DEPENDENCIES_TOML_VERSION_NAME = "dependencies-toml-version";
+    private static final String DISTRIBUTION_VERSION_NAME = "distribution-version";
+    private static final String BALLERINA = "ballerina";
 
     private DependencyManifestBuilder(TomlDocument dependenciesToml,
                                       PackageDescriptor packageDescriptor) {
@@ -109,18 +113,21 @@ public class DependencyManifestBuilder {
 
     private DependencyManifest parseAsDependencyManifest() {
         if (dependenciesToml.isEmpty() || dependenciesToml.get().toml().rootNode().entries().isEmpty()) {
-            return DependencyManifest.from(null, Collections.emptyList(), diagnostics());
+            return DependencyManifest.from(null, null, Collections.emptyList(), diagnostics());
         }
 
         // Check `dependencies-toml-version` exists
         String dependenciesTomlVersion = getDependenciesTomlVersion();
+
+        // Check `distribution-version` exists
+        SemanticVersion distributionVersion = getDistributionVersion();
 
         // Latest `Dependencies.toml`
         try {
             if (dependenciesTomlVersion != null) {
                 validateDependenciesTomlAgainstSchema("dependencies-toml-schema.json");
                 List<DependencyManifest.Package> packages = getPackages();
-                return DependencyManifest.from(dependenciesTomlVersion, packages, diagnostics());
+                return DependencyManifest.from(dependenciesTomlVersion, distributionVersion, packages, diagnostics());
             }
         } catch (CorruptedDependenciesTomlException e) {
             // Add warning and ignore this exception
@@ -129,7 +136,7 @@ public class DependencyManifestBuilder {
                     ProjectDiagnosticErrorCode.CORRUPTED_DEPENDENCIES_TOML.diagnosticId(), DiagnosticSeverity.WARNING,
                     dependenciesToml.get().toml().rootNode().location());
             // Continue as an empty Dependencies.toml
-            return DependencyManifest.from(null, Collections.emptyList(), diagnostics());
+            return DependencyManifest.from(null, null, Collections.emptyList(), diagnostics());
         }
 
         // Old `Dependencies.toml`
@@ -138,7 +145,7 @@ public class DependencyManifestBuilder {
                          dependenciesToml.get().toml().rootNode().location());
         validateDependenciesTomlAgainstSchema("old-dependencies-toml-schema.json");
         List<DependencyManifest.Package> packages = getPackagesFromOldBallerinaToml();
-        return DependencyManifest.from(null, packages, diagnostics());
+        return DependencyManifest.from(null, null, packages, diagnostics());
     }
 
     private void validateDependenciesTomlAgainstSchema(String schemaName) {
@@ -165,14 +172,41 @@ public class DependencyManifestBuilder {
             return null;
         }
 
-        TopLevelNode ballerinaEntries = tomlTableNode.entries().get("ballerina");
+        TopLevelNode ballerinaEntries = tomlTableNode.entries().get(BALLERINA);
         if (ballerinaEntries == null || ballerinaEntries.kind() == TomlType.NONE) {
             return null;
         }
 
         if (ballerinaEntries.kind() == TomlType.TABLE) {
             TomlTableNode ballerinaTableNode = (TomlTableNode) ballerinaEntries;
-            return getStringValueFromDependencyNode(ballerinaTableNode, "dependencies-toml-version");
+            return getStringValueFromDependencyNode(ballerinaTableNode, DEPENDENCIES_TOML_VERSION_NAME);
+        }
+        return null;
+    }
+
+    private SemanticVersion getDistributionVersion() {
+        if (dependenciesToml.isEmpty()) {
+            return null;
+        }
+
+        TomlTableNode tomlTableNode = dependenciesToml.get().toml().rootNode();
+        if (tomlTableNode.entries().isEmpty()) {
+            return null;
+        }
+
+        TopLevelNode ballerinaEntries = tomlTableNode.entries().get(BALLERINA);
+        if (ballerinaEntries == null || ballerinaEntries.kind() == TomlType.NONE) {
+            return null;
+        }
+
+        if (ballerinaEntries.kind() == TomlType.TABLE) {
+            TomlTableNode ballerinaTableNode = (TomlTableNode) ballerinaEntries;
+            String distributionVersionString = getStringValueFromDependencyNode(ballerinaTableNode,
+                    DISTRIBUTION_VERSION_NAME);
+            if (distributionVersionString == null) {
+                return null;
+            }
+            return SemanticVersion.from(distributionVersionString);
         }
         return null;
     }

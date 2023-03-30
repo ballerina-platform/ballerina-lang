@@ -1,0 +1,30 @@
+ {
+   "position": {
+     "line": 0,
+     "character": 8
+   },
+   "description": "Change variable type from int to float in module level var",
+   "source": "changeVarType_int_to_float.bal",
+   "expected": [
+     {
+       "title": "Change variable \u0027x\u0027 type to \u0027float\u0027",
+       "kind": "quickfix",
+       "edits": [
+         {
+           "range": {
+             "start": {
+               "line": 0,
+               "character": 0
+             },
+             "end": {
+               "line": 0,
+               "character": 3
+             }
+           },
+           "newText": "float"
+         }
+       ]
+     }
+   ]
+ }
+ 

@@ -49,7 +49,6 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     private BIntersectionType intersectionType = null;
 
-    public BIntersectionType immutableType;
     public BObjectType mutableType = null;
     public BLangClassDefinition classDef = null;
 
@@ -105,11 +104,14 @@ public class BObjectType extends BStructureType implements ObjectType {
             }
             BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) this.tsymbol;
             for (BAttachedFunction fun : objectSymbol.attachedFuncs) {
-                if (Symbols.isFlagOn(fun.symbol.flags, Flags.PUBLIC)) {
-                    sb.append(SPACE).append(PUBLIC);
-                } else if (Symbols.isFlagOn(fun.symbol.flags, Flags.PRIVATE)) {
-                    sb.append(SPACE).append(PRIVATE);
+                if (!Symbols.isResource(fun.symbol)) {
+                    if (Symbols.isFlagOn(fun.symbol.flags, Flags.PUBLIC)) {
+                        sb.append(SPACE).append(PUBLIC);
+                    } else if (Symbols.isFlagOn(fun.symbol.flags, Flags.PRIVATE)) {
+                        sb.append(SPACE).append(PRIVATE);
+                    }
                 }
+
                 sb.append(SPACE).append(fun).append(SEMI_COLON);
             }
             sb.append(SPACE).append(RIGHT_CURL);
@@ -121,16 +123,6 @@ public class BObjectType extends BStructureType implements ObjectType {
             return sb.toString();
         }
         return this.tsymbol.toString();
-    }
-
-    @Override
-    public BIntersectionType getImmutableType() {
-        return this.immutableType;
-    }
-
-    @Override
-    public void unsetImmutableType() {
-        this.immutableType = null;
     }
 
     @Override

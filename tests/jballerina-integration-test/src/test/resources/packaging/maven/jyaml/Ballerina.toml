@@ -6,4 +6,4 @@ version= "0.1.0"
 [[platform.java11.dependency]]
 groupId = "org.yaml"
 artifactId = "snakeyaml"
-version = "1.26"
+version = "1.32"

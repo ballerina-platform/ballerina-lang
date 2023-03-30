@@ -11,6 +11,7 @@
       }
     }
   },
+  "source": "commonDocumentation.bal",
   "expected": {
     "result": {
       "edit": {

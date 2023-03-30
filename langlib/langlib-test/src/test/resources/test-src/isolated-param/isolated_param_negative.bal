@@ -58,3 +58,9 @@ class Bar {
 }
 
 function strMapFilterFunc(string val) returns boolean => val is Greetings;
+
+isolated function testInvalidNonIsolatedFuncArgInFixedLengthArrayRestArg() {
+    int[] marks = [75, 80, 45, 90];
+    (function (int x) returns boolean)[1] fns = [x => x > 79];
+    _ = marks.filter(...fns);
+}

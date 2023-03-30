@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 10,
+    "character": 25
+  },
+  "source": "fill_record_fields_source9.bal",
+  "expected": [
+    {
+      "title": "Fill 'RecordName' required fields",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 10,
+              "character": 25
+            },
+            "end": {
+              "line": 10,
+              "character": 25
+            }
+          },
+          "newText": "rec1f2: 0, rec2f1: 0, rec2f2: 0"
+        }
+      ]
+    }
+  ],
+  "description": "Fill record fields for records with type reference"
+}

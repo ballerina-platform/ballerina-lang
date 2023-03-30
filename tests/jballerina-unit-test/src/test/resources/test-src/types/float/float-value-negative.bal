@@ -21,3 +21,11 @@ type Baz 9999999999e9999999999999999999f;
 type Baz1 9999999999e-9999999999999999999f;
 
 0x999.9p999999999999999 x = 0x999.9p999999999999999;
+
+type FloatType 9.99E+6111f;
+
+function testOutOfRangeFloat() {
+    float _ = 9.99E+6111f;
+    9.99E+6111f _ = 9.99E+6111f;
+    float _ = 9.99E+6111;
+}

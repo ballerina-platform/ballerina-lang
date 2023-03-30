@@ -97,8 +97,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      */
     public static class Call extends BIRTerminator implements BIRAssignInstruction {
         public boolean isVirtual;
-        public boolean transactional;
-        public List<BIRArgument> args;
+        public List<BIROperand> args;
         public Name name;
         public PackageID calleePkg;
         public List<BIRAnnotationAttachment> calleeAnnotAttachments;
@@ -109,7 +108,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                     boolean isVirtual,
                     PackageID calleePkg,
                     Name name,
-                    List<BIRArgument> args,
+                    List<BIROperand> args,
                     BIROperand lhsOp,
                     BIRBasicBlock thenBB,
                     List<BIRAnnotationAttachment> calleeAnnotAttachments,
@@ -117,7 +116,6 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             super(pos, kind);
             this.lhsOp = lhsOp;
             this.isVirtual = isVirtual;
-            this.transactional = calleeFlags.contains(Flag.TRANSACTIONAL);
             this.args = args;
             this.thenBB = thenBB;
             this.name = name;
@@ -131,7 +129,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                     boolean isVirtual,
                     PackageID calleePkg,
                     Name name,
-                    List<BIRArgument> args,
+                    List<BIROperand> args,
                     BIROperand lhsOp,
                     BIRBasicBlock thenBB,
                     List<BIRAnnotationAttachment> calleeAnnotAttachments,
@@ -177,7 +175,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                          boolean isVirtual,
                          PackageID calleePkg,
                          Name name,
-                         List<BIRArgument> args,
+                         List<BIROperand> args,
                          BIROperand lhsOp,
                          BIRBasicBlock thenBB,
                          List<BIRAnnotationAttachment> annotAttachments,
@@ -209,14 +207,14 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      */
     public static class FPCall extends BIRTerminator {
         public BIROperand fp;
-        public List<BIRArgument> args;
+        public List<BIROperand> args;
         public boolean isAsync;
-        public boolean transactional;
+        public boolean workerDerivative;
 
         public FPCall(Location pos,
                       InstructionKind kind,
                       BIROperand fp,
-                      List<BIRArgument> args,
+                      List<BIROperand> args,
                       BIROperand lhsOp,
                       boolean isAsync,
                       BIRBasicBlock thenBB,
@@ -233,14 +231,14 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public FPCall(Location pos,
                       InstructionKind kind,
                       BIROperand fp,
-                      List<BIRArgument> args,
+                      List<BIROperand> args,
                       BIROperand lhsOp,
                       boolean isAsync,
-                      boolean transactional,
                       BIRBasicBlock thenBB,
-                      BirScope scope) {
+                      BirScope scope,
+                      boolean workerDerivative) {
             this(pos, kind, fp, args, lhsOp, isAsync, thenBB, scope);
-            this.transactional = transactional;
+            this.workerDerivative = workerDerivative;
         }
 
         @Override
@@ -253,7 +251,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             BIROperand[] operands = new BIROperand[args.size() + 1];
             operands[0] = fp;
             int i = 1;
-            for (BIRArgument operand : args) {
+            for (BIROperand operand : args) {
                 operands[i++] = operand;
             }
             return operands;

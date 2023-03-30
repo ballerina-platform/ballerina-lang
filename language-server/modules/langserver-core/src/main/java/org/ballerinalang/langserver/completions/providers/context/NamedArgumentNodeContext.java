@@ -22,15 +22,15 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ public class NamedArgumentNodeContext extends AbstractCompletionProvider<NamedAr
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, NamedArgumentNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, node.expression())) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, node.expression())) {
             /*
             Captures the following cases
             (1) arg1 = module:<cursor>
@@ -62,8 +62,10 @@ public class NamedArgumentNodeContext extends AbstractCompletionProvider<NamedAr
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.expression();
             Predicate<Symbol> filter = symbol -> symbol instanceof VariableSymbol
-                    || symbol.kind() == SymbolKind.FUNCTION;
-            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, filter);
+                    || symbol.kind() == SymbolKind.FUNCTION                     
+                    || symbol.kind() == SymbolKind.TYPE_DEFINITION
+                    || symbol.kind() == SymbolKind.CLASS;
+            List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef, filter);
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else {
             /*
@@ -94,9 +96,12 @@ public class NamedArgumentNodeContext extends AbstractCompletionProvider<NamedAr
     @Override
     public void sort(BallerinaCompletionContext context, NamedArgumentNode node,
                      List<LSCompletionItem> completionItems) {
-
-        ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> typeSymbol = node.apply(resolver);
+        Optional<TypeSymbol> typeSymbol = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition linePosition = node.location().lineRange().endLine();
+            typeSymbol = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
 
         if (typeSymbol.isEmpty()) {
             super.sort(context, node, completionItems);
@@ -112,8 +117,12 @@ public class NamedArgumentNodeContext extends AbstractCompletionProvider<NamedAr
     private List<LSCompletionItem> getNewExprCompletionItems(BallerinaCompletionContext context,
                                                              NamedArgumentNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        ContextTypeResolver typeResolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> type = node.apply(typeResolver);
+        Optional<TypeSymbol> type = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition linePosition = node.location().lineRange().endLine();
+            type = context.currentSemanticModel().get().expectedType(context.currentDocument().get(), linePosition);
+        }
+
         if (type.isEmpty()) {
             return completionItems;
         }

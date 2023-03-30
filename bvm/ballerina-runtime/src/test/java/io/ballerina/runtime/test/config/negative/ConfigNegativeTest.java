@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
 import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
 
@@ -84,8 +83,6 @@ public class ConfigNegativeTest {
         MapType mapStringType = TypeCreator.createMapType(TYPE_STRING);
         Type incompatibleUnionType = new BIntersectionType(MODULE, new Type[]{},
                 new BUnionType(Arrays.asList(PredefinedTypes.TYPE_INT, mapStringType)), 0, true);
-        Type ambiguousUnionType = new BIntersectionType(MODULE, new Type[]{},
-                new BUnionType(Arrays.asList(TypeCreator.createMapType(TYPE_ANYDATA), mapStringType)), 0, true);
         return new Object[][]{
                 // Required but not given
                 {new String[]{}, null,
@@ -160,10 +157,10 @@ public class ConfigNegativeTest {
                                 "error: [MatchedTypeValues.toml:(3:1,3:14)] unused configuration value 'org.mod1" +
                                         ".intVar'"}},
                 // not supported both toml type and cli type
-                {new String[]{"-Corg.mod1.myMap=4"}, "MatchedTypeValues.toml",
-                        new VariableKey[]{new VariableKey(MODULE, "myMap", PredefinedTypes.TYPE_MAP, null, true)}, 6
-                        , 0, new String[]{"error: configurable variable 'myMap' with type 'map' is not supported",
-                        "error: [org.mod1.myMap=4] unused command line argument"}},
+                {new String[]{"-Corg.mod1.myVar=4"}, "MatchedTypeValues.toml",
+                        new VariableKey[]{new VariableKey(MODULE, "myVar", PredefinedTypes.TYPE_ANY, null, true)}, 6
+                        , 0, new String[]{"error: configurable variable 'myVar' with type 'any' is not supported",
+                        "error: [org.mod1.myVar=4] unused command line argument"}},
                 // not supported cli union type
                 {new String[]{"-Corg.mod1.myUnion=5"}, null, new VariableKey[]{
                         new VariableKey(MODULE, "myUnion", incompatibleUnionType, null, true)}, 1, 0,
@@ -179,13 +176,9 @@ public class ConfigNegativeTest {
                         "supported as a command line argument"}},
                 // not supported union type
                 {new String[]{""}, "InvalidUnionType.toml", new VariableKey[]{
-                        new VariableKey(MODULE, "floatUnionVar", incompatibleUnionType, null, true)}, 3, 0,
+                        new VariableKey(MODULE, "floatUnionVar", incompatibleUnionType, null, true)}, 1, 0,
                         new String[]{"error: [InvalidUnionType.toml:(2:1,2:19)] configurable variable 'floatUnionVar'" +
                                 " is expected to be of type '(int|map<string>)', but found 'float'"}},
-                {new String[]{""}, "InvalidUnionType.toml", new VariableKey[]{
-                        new VariableKey(MODULE, "ambiguousUnionVar", ambiguousUnionType, null, true)}, 2, 0,
-                        new String[]{"error: [InvalidUnionType.toml:(4:1,5:16)] ambiguous target types found for " +
-                                "configurable variable 'ambiguousUnionVar' with type '(map<anydata>|map<string>)'"}},
         };
     }
 }

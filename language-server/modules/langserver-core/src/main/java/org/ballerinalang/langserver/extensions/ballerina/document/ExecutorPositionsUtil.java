@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AbsResourcePathAttachPoint;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.LiteralAttachPoint;
@@ -31,7 +32,8 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -51,6 +53,7 @@ public class ExecutorPositionsUtil {
     protected static final String KIND = "kind";
     protected static final String FUNC_MAIN = "main";
     protected static final String MODULES = "modules";
+    protected static final String GENERATED_MODULES = "generated";
     protected static final String NAME = "name";
     protected static final String RANGE = "range";
     protected static final String SOURCE = "source";
@@ -62,19 +65,26 @@ public class ExecutorPositionsUtil {
     private ExecutorPositionsUtil() {
     }
 
-    public static JsonArray getExecutorPositions(Module module, Path filePath) {
-        Project project = module.project();
-
+    public static JsonArray getExecutorPositions(WorkspaceManager workspaceManager,
+                                                 Path filePath) {
         JsonArray execPositions = new JsonArray();
-        if (!module.isDefaultModule()) {
-            getTestCasePositions(execPositions, project, filePath, module);
+        Optional<Project> optionalProject = workspaceManager.project(filePath);
+        Optional<Module> module = workspaceManager.module(filePath);
+        if (optionalProject.isEmpty() || module.isEmpty()) {
             return execPositions;
         }
-        
-        List<Symbol> symbolList = module.project().currentPackage()
-                .getCompilation()
-                .getSemanticModel(module.moduleId())
-                .moduleSymbols();
+        Project project = optionalProject.get();
+
+        if (!module.get().isDefaultModule()) {
+            getTestCasePositions(execPositions, project, filePath, module.get());
+            return execPositions;
+        }
+
+        Optional<SemanticModel> semanticModel = workspaceManager.semanticModel(filePath);
+        if (semanticModel.isEmpty()) {
+            return execPositions;
+        }
+        List<Symbol> symbolList = semanticModel.get().moduleSymbols();
 
         List<FunctionSymbol> defaultModuleFunctionList = symbolList.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION &&
@@ -83,7 +93,7 @@ public class ExecutorPositionsUtil {
                         symbol.getLocation().isPresent())
                 .filter(symbol -> {
                     try {
-                        return CommonUtil.isLocationInFile(module, symbol.getLocation().get(), filePath);
+                        return isLocationInFile(module.get(), symbol.getLocation().get(), filePath);
                     } catch (IOException e) {
                         return false;
                     }
@@ -98,7 +108,7 @@ public class ExecutorPositionsUtil {
             if (defaultModuleFunctionList.get(0).getLocation().isPresent()) {
                 Location location = defaultModuleFunctionList.get(0).getLocation().get();
                 mainFunctionObject.add(RANGE, GSON.toJsonTree(location.lineRange()));
-                mainFunctionObject.addProperty(FILE_PATH, location.lineRange().filePath());
+                mainFunctionObject.addProperty(FILE_PATH, location.lineRange().fileName());
             }
             execPositions.add(mainFunctionObject);
         }
@@ -108,7 +118,7 @@ public class ExecutorPositionsUtil {
                         symbol.getLocation().isPresent())
                 .filter(symbol -> {
                     try {
-                        return CommonUtil.isLocationInFile(module, symbol.getLocation().get(), filePath);
+                        return isLocationInFile(module.get(), symbol.getLocation().get(), filePath);
                     } catch (IOException e) {
                         return false;
                     }
@@ -121,7 +131,7 @@ public class ExecutorPositionsUtil {
                     if (serviceSymbol.getLocation().isPresent()) {
                         Location location = serviceSymbol.getLocation().get();
                         serviceObject.add(RANGE, GSON.toJsonTree(location.lineRange()));
-                        serviceObject.addProperty(FILE_PATH, location.lineRange().filePath());
+                        serviceObject.addProperty(FILE_PATH, location.lineRange().fileName());
                     }
                     Optional<ServiceAttachPoint> serviceAttachPoint = serviceSymbol.attachPoint();
                     if (serviceAttachPoint.isPresent()) {
@@ -137,9 +147,24 @@ public class ExecutorPositionsUtil {
                     }
                     execPositions.add(serviceObject);
                 });
-        
-        getTestCasePositions(execPositions, project, filePath, module);
+
+        getTestCasePositions(execPositions, project, filePath, module.get());
         return execPositions;
+    }
+
+    /**
+     * Checks if the provided location (interpreted relatively to the provided module) is location in the same file
+     * provided.
+     *
+     * @param module   Module where the location resides
+     * @param location Location
+     * @param filePath File path to check against
+     * @return True if the location resides in the provided file path
+     * @throws IOException On IO errors
+     */
+    private static boolean isLocationInFile(Module module, Location location, Path filePath) throws IOException {
+        Path symbolPath = PathUtil.getPathFromLocation(module, location);
+        return Files.isSameFile(symbolPath, filePath);
     }
 
     private static void getTestCasePositions(JsonArray execPositions, Project project, Path filePath, Module module) {
@@ -156,12 +181,21 @@ public class ExecutorPositionsUtil {
                 Document testDocument = module.document(testDocumentId);
                 Path testDocPath;
                 if (module.isDefaultModule()) {
-                    testDocPath = project.sourceRoot().resolve(testDocument.name());
+                    testDocPath = project.sourceRoot().resolve(GENERATED_MODULES).resolve(testDocument.name());
+                    if (!filePath.endsWith(testDocPath)) {
+                        testDocPath = project.sourceRoot().resolve(testDocument.name());
+                    }
                 } else {
                     testDocPath = project.sourceRoot()
-                            .resolve(MODULES)
+                            .resolve(GENERATED_MODULES)
                             .resolve(moduleName)
                             .resolve(testDocument.name());
+                    if (!filePath.endsWith(testDocPath)) {
+                        testDocPath = project.sourceRoot()
+                                .resolve(MODULES)
+                                .resolve(moduleName)
+                                .resolve(testDocument.name());
+                    }
                 }
                 try {
                     if (Files.isSameFile(filePath, testDocPath)) {

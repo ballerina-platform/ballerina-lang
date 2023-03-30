@@ -1,0 +1,71 @@
+{
+  "position": {
+    "line": 9,
+    "character": 7
+  },
+  "source": "createVariableWithFunctionCall1.bal",
+  "expected": [
+    {
+      "title": "Create variable with 'record {}'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 4
+            },
+            "end": {
+              "line": 9,
+              "character": 4
+            }
+          },
+          "newText": "record {} rec = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariableWithFunctionCall1.bal",
+          {
+            "line": 9,
+            "character": 14
+          }
+        ]
+      },
+      "resolvable": false
+    },
+    {
+      "title": "Create variable with 'map<any>'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 4
+            },
+            "end": {
+              "line": 9,
+              "character": 4
+            }
+          },
+          "newText": "map<any> rec = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariableWithFunctionCall1.bal",
+          {
+            "line": 9,
+            "character": 13
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

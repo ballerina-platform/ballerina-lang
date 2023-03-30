@@ -82,6 +82,7 @@ public class FieldAccessExpressionEvaluator extends Evaluator {
             BExpressionValue result = objectExpressionEvaluator.evaluate();
             BVariable resultVar = VariableFactory.getVariable(context, result.getJdiValue());
             if (resultVar.getBType() != BVariableType.OBJECT
+                    && resultVar.getBType() != BVariableType.CLIENT_OBJECT
                     && resultVar.getBType() != BVariableType.SERVICE
                     && resultVar.getBType() != BVariableType.RECORD
                     && resultVar.getBType() != BVariableType.JSON

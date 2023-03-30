@@ -1,0 +1,20 @@
+[
+  {
+    "description": "Add annotation to the object field",
+    "oldCode": "service /demo on new http:Listener(8080){\nint x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n@display {\nlabel:\"\"\n}\n\tint x=5;\n\t}",
+    "expectedOutput":{}
+  },
+  {
+    "description": "Remove annotation from the object field",
+    "oldCode": "service /demo on new http:Listener(8080)\n@display {\nlabel:\"\"\n}\n\tint x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tint x=5;\n\t}",
+    "expectedOutput":{}
+  },
+  {
+    "description": "Modify annotation from the object field",
+    "oldCode": "service /demo on new http:Listener(8080){\n@display{\n\tlabel:””\n}\nint x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080)\n@display {\nlabel:\"label\"\n}\n\tint x=5;\n\t}",
+    "expectedOutput":{}
+  }
+]

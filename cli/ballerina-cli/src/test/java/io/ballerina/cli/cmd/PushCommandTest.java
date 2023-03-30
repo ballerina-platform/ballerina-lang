@@ -71,12 +71,28 @@ public class PushCommandTest extends BaseCommandTest {
     public void testPushWithInvalidPath() throws IOException {
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
         PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
-        new CommandLine(pushCommand).parse("tests");
+        String invalidPath = "tests";
+        new CommandLine(pushCommand).parse(invalidPath);
         pushCommand.execute();
 
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
-        String expected = "file provided is not a bala file.";
+        String expected = "path provided for the bala file does not exist: " + invalidPath + ".";
+        Assert.assertTrue(actual.contains(expected));
+    }
+
+    @Test(description = "Push package with invalid file extension")
+    public void testPushWithInvalidFileExtension() throws IOException {
+        Path validBalProject = this.testResources.resolve(VALID_PROJECT);
+        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
+        String invalidExtensionFilePath = this.testResources.resolve("non-bal-file")
+                .resolve("hello_world.txt").toString();
+        new CommandLine(pushCommand).parse(invalidExtensionFilePath);
+        pushCommand.execute();
+
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        String expected = "file provided is not a bala file: " + invalidExtensionFilePath + ".";
         Assert.assertTrue(actual.contains(expected));
     }
 

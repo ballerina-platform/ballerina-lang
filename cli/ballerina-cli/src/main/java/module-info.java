@@ -19,4 +19,6 @@ module io.ballerina.cli {
     requires io.ballerina.shell.cli;
     requires io.ballerina.toml;
     requires io.ballerina.identifier;
+    requires org.objectweb.asm;
+    requires org.objectweb.asm.commons;
 }

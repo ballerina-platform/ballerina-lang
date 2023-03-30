@@ -59,6 +59,11 @@ public class TransactionStatementTest extends AbstractStatementTest {
     }
 
     @Test
+    public void testRetryStatementWithOnFailClauseWithoutVariable() {
+        testFile("transaction-stmt/retry_stmt_source_07.bal", "transaction-stmt/retry_stmt_assert_07.json");
+    }
+
+    @Test
     public void testTransactionalWorker() {
         testFile("transaction-stmt/transactional_worker_source_01.bal",
                 "transaction-stmt/transactional_worker_assert_01.json");

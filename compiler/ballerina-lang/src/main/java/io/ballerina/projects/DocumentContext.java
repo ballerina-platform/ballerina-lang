@@ -113,16 +113,17 @@ class DocumentContext {
         return nodeCloner.cloneCUnit(compilationUnit);
     }
 
-    Set<ModuleLoadRequest> moduleLoadRequests(ModuleName currentModuleName, PackageDependencyScope scope) {
+    Set<ModuleLoadRequest> moduleLoadRequests(ModuleDescriptor currentModuleDesc, PackageDependencyScope scope) {
         if (this.moduleLoadRequests != null) {
             return this.moduleLoadRequests;
         }
 
-        this.moduleLoadRequests = getModuleLoadRequests(currentModuleName, scope);
+        this.moduleLoadRequests = getModuleLoadRequests(currentModuleDesc, scope);
         return this.moduleLoadRequests;
     }
 
-    private Set<ModuleLoadRequest> getModuleLoadRequests(ModuleName currentModuleName, PackageDependencyScope scope) {
+    private Set<ModuleLoadRequest> getModuleLoadRequests(ModuleDescriptor currentModuleDesc,
+                                                         PackageDependencyScope scope) {
         Set<ModuleLoadRequest> moduleLoadRequests = new LinkedHashSet<>();
         ModulePartNode modulePartNode = syntaxTree().rootNode();
         for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
@@ -134,14 +135,13 @@ class DocumentContext {
         TransactionImportValidator trxImportValidator = new TransactionImportValidator();
 
         if (trxImportValidator.shouldImportTransactionPackage(modulePartNode) &&
-               !currentModuleName.toString().equals(Names.TRANSACTION.value)) {
+                !currentModuleDesc.name().toString().equals(Names.TRANSACTION.value)) {
             String moduleName = Names.TRANSACTION.value;
             ModuleLoadRequest ballerinaiLoadReq = new ModuleLoadRequest(
                     PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
                     moduleName, scope, DependencyResolutionType.PLATFORM_PROVIDED);
             moduleLoadRequests.add(ballerinaiLoadReq);
         }
-
         return moduleLoadRequests;
     }
 

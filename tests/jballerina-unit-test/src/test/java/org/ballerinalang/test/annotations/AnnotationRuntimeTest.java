@@ -44,11 +44,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 @Test
 public class AnnotationRuntimeTest {
 
-    private CompileResult resultAccessNegative;
-    private final CompileResult resultOne = BCompileUtil.compile("test-src/annotations/annot_access.bal");
-
+    private CompileResult resultOne, resultAccessNegative;
+    
     @BeforeClass
     public void setup() {
+        resultOne = BCompileUtil.compile("test-src/annotations/annot_access.bal");
         resultAccessNegative = BCompileUtil.compile("test-src/annotations/annotation_access_negative.bal");
     }
 
@@ -178,24 +178,34 @@ public class AnnotationRuntimeTest {
         Assert.assertTrue((Boolean) annotValue);
     }
 
+    @Test
     public void testRecordTypeAnnotationReadonlyValueEdit() {
         BRunUtil.invoke(resultAccessNegative, "testRecordTypeAnnotationReadonlyValueEdit");
     }
 
+    @Test
     public void testAnnotationOnObjectTypeReadonlyValueEdit() {
         BRunUtil.invoke(resultAccessNegative, "testAnnotationOnObjectTypeReadonlyValueEdit");
     }
 
+    @Test
     public void testAnnotationOnFunctionTypeReadonlyValueEdit() {
         BRunUtil.invoke(resultAccessNegative, "testAnnotationOnFunctionTypeReadonlyValueEdit");
     }
 
+    @Test
     public void testReadonlyTypeAnnotationAttachment() {
         CompileResult readOnlyValues = BCompileUtil.compile("test-src/annotations/annotation_readonly_types.bal");
         BRunUtil.invoke(readOnlyValues, "testReadonlyTypeAnnotationAttachment");
     }
 
+    @Test
     public void testAnnotOnBoundMethod() {
         BRunUtil.invoke(resultOne, "testAnnotOnBoundMethod");
+    }
+
+    @Test
+    public void testListExprInConstAnnot() {
+        BRunUtil.invoke(resultOne, "testListExprInConstAnnot");
     }
 }

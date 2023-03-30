@@ -29,5 +29,7 @@ public class Constants {
     static final String TYPE = "type";
     static final String MESSAGE = "message";
     static final String NO_DATA = "NO_DATA";
-
+    static final String NEXT_NODE = "nextNode";
+    static final String WORKERS = "workers";
+    public static final String MAIN_WORKER = "mainWorker";
 }

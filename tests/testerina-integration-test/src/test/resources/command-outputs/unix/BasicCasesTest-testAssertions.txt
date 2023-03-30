@@ -1,0 +1,50 @@
+Compiling source
+	intg_tests/assertions:0.0.0
+
+Running Tests with Coverage
+
+	assertions
+		[pass] testAssertBooleanEquals
+		[pass] testAssertBooleanEqualsNegative
+		[pass] testAssertBooleanNotEquals
+		[pass] testAssertBooleanNotEqualsNegative
+		[pass] testAssertByteEquals
+		[pass] testAssertByteEqualsNegative
+		[pass] testAssertByteNotEquals
+		[pass] testAssertByteNotEqualsNegative
+		[pass] testAssertDecimalEquals
+		[pass] testAssertDecimalEqualsNegative
+		[pass] testAssertDecimalNotEquals
+		[pass] testAssertDecimalNotEqualsNegative
+		[pass] testAssertErrorEquals
+		[pass] testAssertFailWithNeverReturn
+		[pass] testAssertFalse
+		[pass] testAssertFalseNegative
+		[pass] testAssertFloatEquals
+		[pass] testAssertFloatEqualsNegative
+		[pass] testAssertFloatNotEquals
+		[pass] testAssertFloatNotEqualsNegative
+		[pass] testAssertIntEquals
+		[pass] testAssertIntEqualsNegative
+		[pass] testAssertIntNotEquals
+		[pass] testAssertIntNotEqualsNegative
+		[pass] testAssertJsonEquals
+		[pass] testAssertJsonEqualsNegative
+		[pass] testAssertJsonNotEquals
+		[pass] testAssertJsonNotEqualsNegative
+		[pass] testAssertNilEquals
+		[pass] testAssertNilEqualsNegative
+		[pass] testAssertNilNotEquals
+		[pass] testAssertNilNotEqualsNegative
+		[pass] testAssertTrue
+		[pass] testAssertTrueNegative
+		[pass] testAssertTypeNotEquals
+		[pass] testFn
+
+
+		36 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	assertions/target/report/test_results.json

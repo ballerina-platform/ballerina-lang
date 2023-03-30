@@ -25,11 +25,14 @@ configurations {
 
 dependencies {
     implementation project(':testerina:testerina-runtime')
+    implementation project(':testerina:testerina-compiler-plugin')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang:jballerina.java')
+    implementation 'com.google.code.gson:gson'
+    implementation "com.google.code.gson:gson:${project.gsonVersion}"
     implementation 'org.testng:testng'
 
     interopImports "io.github.java-diff-utils:java-diff-utils:${project.javaDiffUtilsVersion}"

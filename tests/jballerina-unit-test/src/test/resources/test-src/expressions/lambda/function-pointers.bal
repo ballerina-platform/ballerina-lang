@@ -1,3 +1,7 @@
+type Groups string|int;
+type ReplacerFunction function (Groups groups) returns string;
+type Replacement ReplacerFunction|string;
+
 function test1() returns (int){
     function (int, int) returns (int) addFunction = func1;
     return addFunction(1, 2);
@@ -301,6 +305,25 @@ public function testMemberTakenAsAFieldWithRestArgs() {
     _ = f(10, 100);
     assertEquality(112, g());
 }
+
+
+function funcInvocationWithinTypeNarrowingExpr(Replacement replacement) returns string {
+    Groups k = "chiran";
+    if (replacement is ReplacerFunction) {
+        return replacement(k);
+    } else {
+        return "";
+    }
+}
+
+function testFuncInvocationWithinTypeNarrowingExpr() {
+    assertEquality("chiran", funcInvocationWithinTypeNarrowingExpr(mat));
+}
+
+function mat(Groups x) returns string {
+    return "chiran";
+}
+
 
 function assertEquality(any|error expected, any|error  actual) {
     if expected is anydata && actual is anydata && expected == actual {

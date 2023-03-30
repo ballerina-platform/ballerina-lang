@@ -29,9 +29,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -59,6 +58,7 @@ public abstract class BIRNode {
         public final List<BIRImportModule> importModules;
         public final List<BIRTypeDefinition> typeDefs;
         public final List<BIRGlobalVariableDcl> globalVars;
+        public final Set<BIRGlobalVariableDcl> importedGlobalVarsDummyVarDcls;
         public final List<BIRFunction> functions;
         public final List<BIRAnnotation> annotations;
         public final List<BIRConstant> constants;
@@ -77,6 +77,7 @@ public abstract class BIRNode {
             this.importModules = new ArrayList<>();
             this.typeDefs = new ArrayList<>();
             this.globalVars = new ArrayList<>();
+            this.importedGlobalVarsDummyVarDcls = new HashSet<>();
             this.functions = new ArrayList<>();
             this.annotations = new ArrayList<>();
             this.constants = new ArrayList<>();
@@ -242,11 +243,18 @@ public abstract class BIRNode {
      */
     public static class BIRFunctionParameter extends BIRVariableDcl {
         public final boolean hasDefaultExpr;
+        public boolean isPathParameter;
 
         public BIRFunctionParameter(Location pos, BType type, Name name,
                                     VarScope scope, VarKind kind, String metaVarName, boolean hasDefaultExpr) {
             super(pos, type, name, scope, kind, metaVarName);
             this.hasDefaultExpr = hasDefaultExpr;
+        }
+
+        public BIRFunctionParameter(Location pos, BType type, Name name, VarScope scope, VarKind kind,
+                                    String metaVarName, boolean hasDefaultExpr, boolean isPathParameter) {
+            this(pos, type, name, scope, kind, metaVarName, hasDefaultExpr);
+            this.isPathParameter = isPathParameter;
         }
 
         @Override
@@ -322,7 +330,7 @@ public abstract class BIRNode {
         /**
          * Variable used for parameters of this function.
          */
-        public Map<BIRFunctionParameter, List<BIRBasicBlock>>  parameters;
+        public List<BIRFunctionParameter>  parameters;
 
         /**
          * List of basic blocks in this function.
@@ -350,10 +358,24 @@ public abstract class BIRNode {
 
         public Set<BIRGlobalVariableDcl> dependentGlobalVars = new TreeSet<>();
 
+        // Below fields will only be available on resource functions
+        // TODO: consider creating a sub class for resource functions issue: #36964
+        public List<BIRVariableDcl> pathParams;
+        
+        public BIRVariableDcl restPathParam;
+        
+        public List<Name> resourcePath;
+        
+        public List<Location> resourcePathSegmentPosList;
+        
+        public Name accessor;
+        
+        public List<BType> pathSegmentTypeList;
+
         public BIRFunction(Location pos, Name name, Name originalName, long flags, SymbolOrigin origin,
                            BInvokableType type, List<BIRParameter> requiredParams, BIRVariableDcl receiver,
                            BIRParameter restParam, int argsCount, List<BIRVariableDcl> localVars,
-                           BIRVariableDcl returnVariable, Map<BIRFunctionParameter, List<BIRBasicBlock>> parameters,
+                           BIRVariableDcl returnVariable, List<BIRFunctionParameter> parameters,
                            List<BIRBasicBlock> basicBlocks, List<BIRErrorEntry> errorTable, Name workerName,
                            ChannelDetails[] workerChannels,
                            List<BIRAnnotationAttachment> annotAttachments,
@@ -389,7 +411,7 @@ public abstract class BIRNode {
             this.flags = flags;
             this.type = type;
             this.localVars = new ArrayList<>();
-            this.parameters = new LinkedHashMap<>();
+            this.parameters = new ArrayList<>();
             this.requiredParams = new ArrayList<>();
             this.basicBlocks = new ArrayList<>();
             this.errorTable = new ArrayList<>();

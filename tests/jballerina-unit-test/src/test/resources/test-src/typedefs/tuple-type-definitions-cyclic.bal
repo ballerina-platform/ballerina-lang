@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 type A [int, A[]];
 public function testCycleTypeArray() {
     A a = [1];
@@ -325,6 +327,20 @@ function testUnionWithCyclicTuplesHashCode() {
     SubtypeRelation p = {subtype: subtype, superType: superType};
     assert(p.toJsonString(), "{\"subtype\":[\"|\", \"int\", [\"tuple\", \"never\", \"int\"]], " +
     "\"superType\":[\"|\", [\"|\", \"int\", \"float\"], [\"tuple\", \"never\", [\"|\", \"int\", \"string\"]]]}"); 
+}
+
+type List [List?];
+
+function testCloneOnRecursiveTuples() {
+    List list = [()];
+    list[0] = list;
+    List list_cloned = list.clone();
+    test:assertTrue(list_cloned == list);
+    test:assertFalse(list_cloned === list);
+
+    List list_readonly = list.cloneReadOnly();
+    test:assertTrue(list_readonly == list);
+    test:assertFalse(list_readonly === list);
 }
 
 function assertTrue(anydata actual) {

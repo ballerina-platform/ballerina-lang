@@ -784,7 +784,7 @@ function testUninitializedVariablesWithFunctionCalls() {
     boolean[] k;
     f2(i, j, ...k); // uninitialized `f2`, `i`, `j`, `k`
 
-    function (int i, string j = "", boolean... k) f3 = function (int i1, string j1 = "", boolean... k1) {};
+    function (int m, string n = "", boolean... o) f3 = function (int i1, string j1 = "", boolean... k1) {};
     int i2 = 0;
     string j2 = "";
     boolean[] k2 = [true];

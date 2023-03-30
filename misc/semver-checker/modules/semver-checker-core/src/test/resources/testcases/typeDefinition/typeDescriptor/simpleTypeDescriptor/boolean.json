@@ -1,0 +1,14 @@
+[
+  {
+    "description": "Change type descriptor from boolean to true\n",
+    "oldCode": "public type Age boolean;",
+    "newCode": "public type Age true;",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change type descriptor from true to false\n",
+    "oldCode": "public type Age true;",
+    "newCode": "public type Age false;",
+    "expectedOutput": {}
+  }
+]

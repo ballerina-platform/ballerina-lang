@@ -27,12 +27,14 @@ public enum DocumentContext implements LSOperation {
     DC_SYNTAX_TREE("ballerinaDocument/syntaxTree"),
     DC_SYNTAX_TREE_MODIFY("ballerinaDocument/syntaxTreeModify"),
     DC_SYNTAX_TREE_BY_RANGE("ballerinaDocument/syntaxTreeByRange"),
+    DC_SYNTAX_TREE_BY_NAME("ballerinaDocument/syntaxTreeByName"),
     DC_SYNTAX_TREE_LOCATE("ballerinaDocument/syntaxTreeLocate"),
     DC_AST("ballerinaDocument/ast"),
     DC_PROJECT("ballerinaDocument/project"),
     DC_DIAGNOSTICS("ballerinaDocument/diagnostics"),
     DC_SYNTAX_TREE_NODE("ballerinaDocument/syntaxTreeNode"),
     DC_EXEC_POSITION("ballerinaDocument/executorPositions"),
+    DC_NODE_DEFINITION_BY_POSITION("ballerinaDocument/syntaxTreeNodeByPosition"),
     DC_RESOLVE_MISSING_DEPENDENCIES("ballerinaDocument/resolveMissingDependencies");
 
     private final String name;

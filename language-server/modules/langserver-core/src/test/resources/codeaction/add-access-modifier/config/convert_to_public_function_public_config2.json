@@ -1,9 +1,13 @@
 {
-  "line": 1,
-  "character": 4,
+  "position": {
+    "line": 1,
+    "character": 4
+  },
+  "source": "convert_to_public_function_public_source2.bal",
   "expected": [
     {
       "title": "Convert to public function",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

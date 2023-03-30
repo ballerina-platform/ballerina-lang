@@ -28,6 +28,7 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 public class PerformanceAnalyzerRequest {
 
     private TextDocumentIdentifier documentIdentifier;
+    private boolean isWorkerSupported;
 
     public TextDocumentIdentifier getDocumentIdentifier() {
 
@@ -39,4 +40,13 @@ public class PerformanceAnalyzerRequest {
         this.documentIdentifier = documentIdentifier;
     }
 
+    public boolean isWorkerSupported() {
+
+        return isWorkerSupported;
+    }
+
+    public void setWorkerSupported(boolean workerSupported) {
+
+        isWorkerSupported = workerSupported;
+    }
 }

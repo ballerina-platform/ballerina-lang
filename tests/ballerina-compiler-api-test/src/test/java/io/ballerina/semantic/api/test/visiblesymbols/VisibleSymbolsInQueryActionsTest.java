@@ -62,13 +62,13 @@ public class VisibleSymbolsInQueryActionsTest extends BaseVisibleSymbolsTest {
                                 from("res1", VARIABLE),
                                 from("res2", VARIABLE)
                 )},
-                {35, 20, concat(expCommonSymbols,
+                {35, 8, concat(expCommonSymbols,
                                 from("i", VARIABLE),
                                 from("j", VARIABLE),
                                 from("res1", VARIABLE),
                                 from("res2", VARIABLE)
                 )},
-                {38, 20, concat(expCommonSymbols,
+                {38, 9, concat(expCommonSymbols,
                                 from("i", VARIABLE),
                                 from("res1", VARIABLE),
                                 from("res2", VARIABLE)

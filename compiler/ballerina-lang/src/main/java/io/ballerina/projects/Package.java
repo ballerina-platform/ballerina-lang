@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -155,7 +156,7 @@ public class Package {
         return this.packageContext.getResolution(compilationOptions);
     }
 
-    public DependencyGraph<ModuleId> moduleDependencyGraph() {
+    public DependencyGraph<ModuleDescriptor> moduleDependencyGraph() {
         // Each Package should know the packages that it depends on and packages that depends on it
         // Each Module should know the modules that it depends on and modules that depends on it
         return this.packageContext.moduleDependencyGraph();
@@ -236,6 +237,7 @@ public class Package {
      * @return a {@code DiagnosticResult} instance
      */
     public DiagnosticResult runCodeGenAndModifyPlugins() {
+        Package pkg = this;
         PackageCompilation cachedCompilation = this.packageContext.cachedCompilation();
         if (cachedCompilation != null) {
             // Check whether there are engaged code modifiers, if not return
@@ -255,13 +257,17 @@ public class Package {
         List<Diagnostic> diagnostics = new ArrayList<>();
         if (compilerPluginManager.engagedCodeGeneratorCount() > 0) {
             CodeGeneratorManager codeGeneratorManager = compilerPluginManager.getCodeGeneratorManager();
-            CodeGeneratorResult codeGeneratorResult = codeGeneratorManager.runCodeGenerators(this);
+            CodeGeneratorResult codeGeneratorResult = codeGeneratorManager.runCodeGenerators(pkg);
             diagnostics.addAll(codeGeneratorResult.reportedDiagnostics().allDiagnostics);
+            if (codeGeneratorResult.updatedPackage().isPresent()) {
+                pkg = codeGeneratorResult.updatedPackage().get();
+            }
         }
 
         if (compilerPluginManager.engagedCodeModifierCount() > 0) {
+            compilerPluginManager = pkg.getCompilation(compOptions).compilerPluginManager();
             CodeModifierManager codeModifierManager = compilerPluginManager.getCodeModifierManager();
-            CodeModifierResult codeModifierResult = codeModifierManager.runCodeModifiers(this);
+            CodeModifierResult codeModifierResult = codeModifierManager.runCodeModifiers(pkg);
             diagnostics.addAll(codeModifierResult.reportedDiagnostics().allDiagnostics);
         }
         return new DefaultDiagnosticResult(diagnostics);
@@ -667,12 +673,12 @@ public class Package {
                         packageDescriptor.name(), oldModuleContext.moduleName().moduleNamePart());
                 ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(moduleName, packageDescriptor);
 
-                Map<DocumentId, DocumentContext> srcDocContextMap = new HashMap<>();
+                Map<DocumentId, DocumentContext> srcDocContextMap = new LinkedHashMap<>();
                 for (DocumentId documentId : oldModuleContext.srcDocumentIds()) {
                     srcDocContextMap.put(documentId, oldModuleContext.documentContext(documentId));
                 }
 
-                Map<DocumentId, DocumentContext> testDocContextMap = new HashMap<>();
+                Map<DocumentId, DocumentContext> testDocContextMap = new LinkedHashMap<>();
                 for (DocumentId documentId : oldModuleContext.testSrcDocumentIds()) {
                     testDocContextMap.put(documentId, oldModuleContext.documentContext(documentId));
                 }
@@ -691,6 +697,9 @@ public class Package {
                         oldModuleContext.isDefaultModule(), srcDocContextMap, testDocContextMap,
                         oldModuleContext.moduleMdContext().orElse(null),
                         oldModuleContext.moduleDescDependencies(), resourceMap, testResourceMap));
+                // Remove the module with old PackageID from the compilation cache
+                PackageCache.getInstance(project.projectEnvironmentContext().getService(CompilerContext.class)).
+                        remove(oldModuleContext.descriptor().moduleCompilationId());
             }
             updateModules(moduleContextSet);
         }

@@ -1,4 +1,4 @@
-import ballerina/io;
+import ballerina/iox;
 
 public function main() {
     json resp = check {LKR_USD: 0.004908};

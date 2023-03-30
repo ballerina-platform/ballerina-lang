@@ -1,0 +1,80 @@
+[
+  {
+    "source": "class MyClass {private int n;public function init(int n = 0) {self.n = n;}public function inc() {self.n += 1;}public function get() returns int { return self.n;}}",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["MyClass"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "MyClass obj1 = new MyClass(5);",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["obj1"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "MyClass obj2 = new MyClass(4);",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["obj2"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "obj2.inc()",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "obj2.get()",
+    "result": {
+      "shellValue": {
+        "value": "5",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "obj1 === obj2",
+    "result": {
+      "shellValue": {
+        "value": "false",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "obj1",
+    "result": {
+      "shellValue": {
+        "value": "object MyClass",
+        "mimeType":"plain/text",
+        "type":"MyClass"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

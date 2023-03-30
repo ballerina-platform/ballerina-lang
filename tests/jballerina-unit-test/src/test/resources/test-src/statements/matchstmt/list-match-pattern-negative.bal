@@ -202,3 +202,240 @@ function testUnmatchedPattensForSizeMismatchWithClosedArray(int[3] val) {
         }
     }
 }
+
+public type T1 [string, int]|[int, string]|[int, int];
+public type T2 [int, int]|[T2, T2]|[T2[], T2[]];
+
+function testUnrechableMatchPaternWithTuples() {
+    T1 t1 = [1, 1];
+
+    match t1 {
+        [var x, var y] => {
+            _ = [x, y];
+        }
+        [...var x] => { // Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+    match t1 {
+        [_, var y] => {
+            _ = y;
+        }
+        [...var x] => { // Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+    match t1 {
+        [_, _] => {
+        }
+        [...var x] => { // Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+    match t1 {
+        [_, ... var y] => {
+            _ = y;
+        }
+        [...var x] => { // Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+    match t1 {
+        [var x, ... var y] => {
+            _ = [x, y];
+        }
+        [...var x] => { // Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+     match t1 {
+        [... var x] => {
+            _ = x;
+        }
+        [var x, var y] => { // Warning: unreachable pattern
+            _ = [x, y];
+        }
+    }
+}
+
+function testUnrechableMatchPaternWithTuples2() {
+    T2 t1 = [[1, 1], [1, 1]];
+
+    match t1 {
+        [var x, var y] => {
+            _ = [x, y];
+        }
+        [...var x] => { // Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+    match t1 {
+        [_, var y] => {
+            _ = y;
+        }
+        [...var x] => { // Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+    match t1 {
+        [_, _] => {
+        }
+        [...var x] => { // Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+    match t1 {
+        [_, ... var y] => {
+            _ = y;
+        }
+        [...var x] => { // Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+    match t1 {
+        [var x, ... var y] => {
+            _ = [x, y];
+        }
+        [...var x] => { // Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+     match t1 {
+        [... var x] => {
+            _ = x;
+        }
+        [var x, var y] => { // Warning: unreachable pattern
+            _ = [x, y];
+        }
+    }
+}
+
+public type T3 [string, int...]|[int, string, decimal...]|[int, int];
+public type T4 [int, int]|[T4, T4...]|[T4[], T4[], T4, T4[]...];
+
+function testUnrechableMatchPaternWithTuples3() {
+    T3 t1 = [1, 1];
+
+    match t1 {
+        [_, ... var y] => {
+            _ = y;
+        }
+        [...var x] => { // Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+    match t1 {
+        [var x, ... var y] => {
+            _ = [x, y];
+        }
+        [...var x] => { // Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+     match t1 {
+        [... var x] => {
+            _ = x;
+        }
+        [var x, var y] => { // Warning: unreachable pattern
+            _ = [x, y];
+        }
+    }
+}
+
+function testUnrechableMatchPaternWithTuples4() {
+    T4 t1 = [[1, 1], [1, 1]];
+
+    match t1 {
+        [_, ... var y] => {
+            _ = y;
+        }
+        [...var x] => { // Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+    match t1 {
+        [var x, ... var y] => {
+            _ = [x, y];
+        }
+        [...var x] => { // Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+     match t1 {
+        [... var x] => {
+            _ = x;
+        }
+        [var x, var y] => { // Warning: unreachable pattern
+            _ = [x, y];
+        }
+    }
+}
+
+public type T5 [string, int];
+
+public function testUnrechableMatchPaternWithTuples5() returns string {
+    T5 a = ["string", 1];
+    string b;
+    match a {
+        [_, var x] => {
+            _ = x;
+            b = "string";
+            return b;
+        }
+    }
+    return b; // Error: unreachable code
+}
+
+public function testUnrechableMatchPaternWithTuples6() {
+    T5 a = ["string", 1];
+    match a {
+        [_, _] => {
+        }
+        [...var x] => { //Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+    match a {
+        [var x, _] => {
+            _ = x;
+        }
+        [...var x] => { //Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+    match a {
+        [var x, var y] => {
+            _ = x;
+            _ = y;
+        }
+        [...var x] => { //Warning: unreachable pattern
+            _ = x;
+        }
+    }
+
+    match a {
+        [...var x] => {
+            _ = x;
+        }
+        [var x, var y] => { //Warning: unreachable pattern
+            _ = x;
+            _ = y;
+        }
+    }
+}

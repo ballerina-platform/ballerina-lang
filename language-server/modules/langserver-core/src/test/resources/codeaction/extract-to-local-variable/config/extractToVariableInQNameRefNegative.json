@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 2,
+    "character": 22
+  },
+  "source": "extractToVariableInQNameRef.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable"
+    }
+  ]
+}

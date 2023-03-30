@@ -1,0 +1,377 @@
+[
+  {
+    "description": "Add isolated qualifier for a  definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\t function hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tisolated  function hello(string name){} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove isolated qualifier for a  definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tisolated  function hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\t function hello(string name) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add transactional qualifier for a method definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\t function hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\ttransactional  function hello(string name){} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove transactional qualifier for a method definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\ttransactional  function hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\t function hello(string name) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add public qualifier for a method  definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\t function hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tpublic  function hello(string name){} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "minor",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "minor",
+                      "message": "'public' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove public qualifier for a method definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic function hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\t function hello(string name) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "major",
+                      "message": "'public' qualifier is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add more than 1 qualifier for a  definition",
+    "oldCode": "service /demo on new http:Listener(8080){\n\t function hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\t public isolated transactional function hello(string name) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "ambiguous",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "minor",
+                      "message": "'public' qualifier is added"
+                    },
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is added"
+                    },
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove more than 1 qualifier for a  definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic transactional  function hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\t function hello(string name) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "major",
+                      "message": "'public' qualifier is removed"
+                    },
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "ambiguous",
+                      "message": "'transactional' qualifier is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify qualifier for a  definition.",
+    "oldCode": "service /demo on new http:Listener(8080){\n\tpublic  function hello(string name) {} \n}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tisolated  function hello(string name) {} \n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "service",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "function",
+                  "type": "modified",
+                  "versionImpact": "major",
+                  "childDiffs": [
+                    {
+                      "kind": "unknown",
+                      "type": "removed",
+                      "versionImpact": "major",
+                      "message": "'public' qualifier is removed"
+                    },
+                    {
+                      "kind": "unknown",
+                      "type": "new",
+                      "versionImpact": "ambiguous",
+                      "message": "'isolated' qualifier is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

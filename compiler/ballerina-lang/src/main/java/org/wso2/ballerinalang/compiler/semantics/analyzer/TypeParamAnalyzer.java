@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Name;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -49,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -68,6 +70,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -190,8 +193,8 @@ public class TypeParamAnalyzer {
                 return containsTypeParam(((BArrayType) type).eType, resolvedTypes);
             case TypeTags.TUPLE:
                 BTupleType bTupleType = (BTupleType) type;
-                for (BType member : bTupleType.tupleTypes) {
-                    if (containsTypeParam(member, resolvedTypes)) {
+                for (BType memberType : bTupleType.getTupleTypes()) {
+                    if (containsTypeParam(memberType, resolvedTypes)) {
                         return true;
                     }
                 }
@@ -252,6 +255,8 @@ public class TypeParamAnalyzer {
                 return containsTypeParam(errorType.detailType, resolvedTypes);
             case TypeTags.TYPEDESC:
                 return containsTypeParam(((BTypedescType) type).constraint, resolvedTypes);
+            case TypeTags.TYPEREFDESC:
+                return containsTypeParam(Types.getReferredType(type), resolvedTypes);
             default:
                 return false;
         }
@@ -270,7 +275,13 @@ public class TypeParamAnalyzer {
             case TypeTags.ANY:
                 return new BAnyType(type.tag, null, name, flags);
             case TypeTags.ANYDATA:
-                BAnydataType anydataType = new BAnydataType((BUnionType) type);
+                BUnionType unionType = (BUnionType) type;
+                BAnydataType anydataType = new BAnydataType(unionType);
+                Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, PackageID.ANNOTATIONS,
+                                                                                   unionType);
+                if (immutableType.isPresent()) {
+                    Types.addImmutableType(symTable, PackageID.ANNOTATIONS, anydataType, immutableType.get());
+                }
                 anydataType.name = name;
                 anydataType.flags |= flags;
                 return anydataType;
@@ -505,9 +516,11 @@ public class TypeParamAnalyzer {
 
     private void findTypeParamInTuple(Location loc, BTupleType expType, BTupleType actualType,
                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
-
-        for (int i = 0; i < expType.tupleTypes.size() && i < actualType.tupleTypes.size(); i++) {
-            findTypeParam(loc, expType.tupleTypes.get(i), actualType.tupleTypes.get(i), env, resolvedTypes, result);
+        List<BType> expTypeMemberTypes = expType.getTupleTypes();
+        List<BType> actualTypeMemberTypes = actualType.getTupleTypes();
+        for (int i = 0; i < expTypeMemberTypes.size() && i < actualTypeMemberTypes.size(); i++) {
+            findTypeParam(loc, expTypeMemberTypes.get(i), actualTypeMemberTypes.get(i), env,
+                    resolvedTypes, result);
         }
     }
 
@@ -545,14 +558,15 @@ public class TypeParamAnalyzer {
             if (actualType.keyTypeConstraint != null) {
                 findTypeParam(loc, expType.keyTypeConstraint, actualType.keyTypeConstraint, env, resolvedTypes, result);
             } else if (!actualType.fieldNameList.isEmpty()) {
-                List<BType> memberTypes = new ArrayList<>();
+                List<BTupleMember> members = new ArrayList<>();
                 actualType.fieldNameList.stream()
                         .map(f -> types.getTableConstraintField(actualType.constraint, f))
-                        .filter(Objects::nonNull).map(f -> f.type).forEach(memberTypes::add);
-                if (memberTypes.size() == 1) {
-                    findTypeParam(loc, expType.keyTypeConstraint, memberTypes.get(0), env, resolvedTypes, result);
+                        .filter(Objects::nonNull).map(f -> new BTupleMember(f.type,
+                                Symbols.createVarSymbolForTupleMember(f.type))).forEach(members::add);
+                if (members.size() == 1) {
+                    findTypeParam(loc, expType.keyTypeConstraint, members.get(0).type, env, resolvedTypes, result);
                 } else {
-                    BTupleType tupleType = new BTupleType(memberTypes);
+                    BTupleType tupleType = new BTupleType(members);
                     findTypeParam(loc, expType.keyTypeConstraint, tupleType, env, resolvedTypes, result);
                 }
             }
@@ -561,12 +575,16 @@ public class TypeParamAnalyzer {
 
     private void findTypeParamInTupleForArray(Location loc, BArrayType expType, BTupleType actualType,
                                               SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
-        LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>(actualType.tupleTypes);
+        LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>();
+        actualType.getTupleTypes().forEach(m -> tupleTypes.add(m));
         if (actualType.restType != null) {
             tupleTypes.add(actualType.restType);
         }
-        BUnionType tupleElementType = BUnionType.create(null, tupleTypes);
-        findTypeParam(loc, expType.eType, tupleElementType, env, resolvedTypes, result);
+
+        int size = tupleTypes.size();
+        BType type = size == 0 ? symTable.neverType :
+                (size == 1 ? tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes));
+        findTypeParam(loc, expType.eType, type, env, resolvedTypes, result);
     }
 
     private void findTypeParamInUnion(Location loc, BType expType, BUnionType actualType,
@@ -591,7 +609,7 @@ public class TypeParamAnalyzer {
                 }
             }
             if (type.tag == TypeTags.TUPLE) {
-                members.addAll(((BTupleType) type).getTupleTypes());
+                ((BTupleType) type).getTupleTypes().forEach(member -> members.add(member));
             }
         }
         BUnionType tupleElementType = BUnionType.create(null, members);
@@ -643,7 +661,9 @@ public class TypeParamAnalyzer {
     private void findTypeParamInInvokableType(Location loc, BInvokableType expType,
                                               BInvokableType actualType, SymbolEnv env, HashSet<BType> resolvedTypes,
                                               FindTypeParamResult result) {
-
+        if (Symbols.isFlagOn(expType.flags, Flags.ANY_FUNCTION)) {
+            return;
+        }
         for (int i = 0; i < expType.paramTypes.size() && i < actualType.paramTypes.size(); i++) {
             findTypeParam(loc, expType.paramTypes.get(i), actualType.paramTypes.get(i), env, resolvedTypes, result,
                           true);
@@ -842,7 +862,7 @@ public class TypeParamAnalyzer {
             return matchingBoundNonReadOnlyType;
         }
 
-        if (!types.isSelectivelyImmutableType(matchingBoundNonReadOnlyType)) {
+        if (!types.isSelectivelyImmutableType(matchingBoundNonReadOnlyType, env.enclPkg.packageID)) {
             return symTable.semanticError;
         }
 
@@ -855,14 +875,15 @@ public class TypeParamAnalyzer {
 
     private BTupleType getMatchingTupleBoundType(BTupleType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         boolean hasDifferentType = false;
-        List<BType> tupleTypes = new ArrayList<>();
-        for (BType type : expType.tupleTypes) {
+        List<BTupleMember> members = new ArrayList<>();
+        for (BType type : expType.getTupleTypes()) {
             BType matchingBoundType = getMatchingBoundType(type, env, resolvedTypes);
             if (!hasDifferentType && isDifferentTypes(type, matchingBoundType)) {
                 hasDifferentType = true;
             }
-
-            tupleTypes.add(matchingBoundType);
+            BVarSymbol varSymbol = new BVarSymbol(matchingBoundType.flags, null, null, matchingBoundType,
+                    null, null, null);
+            members.add(new BTupleMember(matchingBoundType, varSymbol));
         }
 
         BType restType = expType.restType;
@@ -877,7 +898,7 @@ public class TypeParamAnalyzer {
             return expType;
         }
 
-        return new BTupleType(tupleTypes);
+        return new BTupleType(members);
     }
 
     private BRecordType getMatchingRecordBoundType(BRecordType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
@@ -1039,9 +1060,11 @@ public class TypeParamAnalyzer {
                                                   BInvokableSymbol invokableSymbol) {
         if (expFunc instanceof BResourceFunction) {
             BResourceFunction resourceFunction = (BResourceFunction) expFunc;
-            return new BResourceFunction(resourceFunction.funcName, invokableSymbol, matchType,
-                    resourceFunction.resourcePath, resourceFunction.accessor, resourceFunction.pathParams,
-                    resourceFunction.restPathParam, expFunc.pos);
+            BResourceFunction newResourceFunc = new BResourceFunction(resourceFunction.funcName, invokableSymbol,
+                    matchType, resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
+                    expFunc.pos);
+            newResourceFunc.pathSegmentSymbols = resourceFunction.pathSegmentSymbols;
+            return newResourceFunc;
         }
         return new BAttachedFunction(expFunc.funcName, invokableSymbol, matchType, expFunc.pos);
     }

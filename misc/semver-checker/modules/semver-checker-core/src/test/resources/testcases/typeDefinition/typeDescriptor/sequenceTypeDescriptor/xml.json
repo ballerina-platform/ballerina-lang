@@ -1,0 +1,8 @@
+[
+  {
+    "description": "Change type descriptor \n",
+    "oldCode": "public type Age xml<xml:Text>;",
+    "newCode": "public type Age xml<xml:Element>;",
+    "expectedOutput": {}
+  }
+]

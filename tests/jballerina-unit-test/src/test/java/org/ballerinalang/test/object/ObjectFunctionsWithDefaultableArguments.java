@@ -231,19 +231,19 @@ public class ObjectFunctionsWithDefaultableArguments {
     public void testObjectCasting1() {
         BArray returns = (BArray) BRunUtil.invoke(result, "testObjectCasting1");
         BArray bValueArray = (BArray) returns.get(0);
-        Assert.assertEquals(bValueArray.getRefValue(0), 200L);
-        Assert.assertEquals(bValueArray.getRefValue(1), 2.2);
+        Assert.assertEquals(bValueArray.getRefValue(0), 400L);
+        Assert.assertEquals(bValueArray.getRefValue(1), 4.4);
 
         bValueArray = (BArray) returns.get(1);
         Assert.assertEquals(bValueArray.getRefValue(0), 40L);
-        Assert.assertEquals(bValueArray.getRefValue(1), 2.2);
+        Assert.assertEquals(bValueArray.getRefValue(1), 4.4);
 
         bValueArray = (BArray) returns.get(2);
         Assert.assertEquals(bValueArray.getRefValue(0), 40L);
         Assert.assertEquals(bValueArray.getRefValue(1), 22.2);
 
         bValueArray = (BArray) returns.get(3);
-        Assert.assertEquals(bValueArray.getRefValue(0), 200L);
+        Assert.assertEquals(bValueArray.getRefValue(0), 400L);
         Assert.assertEquals(bValueArray.getRefValue(1), 22.2);
     }
 
@@ -251,19 +251,19 @@ public class ObjectFunctionsWithDefaultableArguments {
     public void testObjectCasting12() {
         BArray returns = (BArray) BRunUtil.invoke(result, "testObjectCasting2");
         BArray bValueArray = (BArray) returns.get(0);
-        Assert.assertEquals(bValueArray.getRefValue(0), 400L);
-        Assert.assertEquals(bValueArray.getRefValue(1), 4.4);
+        Assert.assertEquals(bValueArray.getRefValue(0), 200L);
+        Assert.assertEquals(bValueArray.getRefValue(1), 2.2);
 
         bValueArray = (BArray) returns.get(1);
         Assert.assertEquals(bValueArray.getRefValue(0), 80L);
-        Assert.assertEquals(bValueArray.getRefValue(1), 4.4);
+        Assert.assertEquals(bValueArray.getRefValue(1), 2.2);
 
         bValueArray = (BArray) returns.get(2);
         Assert.assertEquals(bValueArray.getRefValue(0), 80L);
         Assert.assertEquals(bValueArray.getRefValue(1), 44.4);
 
         bValueArray = (BArray) returns.get(3);
-        Assert.assertEquals(bValueArray.getRefValue(0), 400L);
+        Assert.assertEquals(bValueArray.getRefValue(0), 200L);
         Assert.assertEquals(bValueArray.getRefValue(1), 44.4);
     }
 

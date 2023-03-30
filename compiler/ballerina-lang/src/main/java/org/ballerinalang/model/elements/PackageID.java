@@ -56,6 +56,8 @@ public class PackageID {
             Lists.of(Names.LANG, Names.ERROR), DEFAULT_VERSION);
     public static final PackageID FLOAT = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.FLOAT), DEFAULT_VERSION);
+    public static final PackageID FUNCTION = new PackageID(Names.BALLERINA_ORG,
+            Lists.of(Names.LANG, Names.FUNCTION), DEFAULT_VERSION);
     public static final PackageID FUTURE = new PackageID(Names.BALLERINA_ORG,
             Lists.of(Names.LANG, Names.FUTURE), DEFAULT_VERSION);
     public static final PackageID INT = new PackageID(Names.BALLERINA_ORG,
@@ -90,6 +92,9 @@ public class PackageID {
                                                                        DEFAULT_VERSION);
     public static final PackageID OBSERVE_INTERNAL = new PackageID(Names.BALLERINA_INTERNAL_ORG,
             Lists.of(Names.OBSERVE), DEFAULT_VERSION);
+
+    public static final PackageID REGEXP = new PackageID(Names.BALLERINA_ORG, Lists.of(Names.LANG, Names.REGEXP),
+            DEFAULT_VERSION);
 
     public Name orgName;
     // A read-only variable is used to keep track of the Package Name.

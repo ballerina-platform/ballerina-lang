@@ -95,6 +95,11 @@ public class QueryActionTest {
         Assert.assertEquals(countValue, 6);
     }
 
+    @Test
+    public void testSimpleQueryAction3() {
+        BRunUtil.invoke(result, "testSimpleQueryAction3");
+    }
+
     @Test(description = "Test simple query action with let clause")
     public void testSimpleSelectQueryWithLetClause() {
         BArray returnValues = (BArray) BRunUtil.invoke(result, "testSimpleSelectQueryWithLetClause");
@@ -170,6 +175,21 @@ public class QueryActionTest {
         BRunUtil.invoke(result, "testReturnStmtWithinQueryAction");
     }
 
+    @Test
+    public void testQueryActionWithDoClauseContainsCheck() {
+        BRunUtil.invoke(result, "testQueryActionWithDoClauseContainsCheck");
+    }
+
+    @Test
+    public void testForeachStmtInsideDoClause() {
+        BRunUtil.invoke(result, "testForeachStmtInsideDoClause");
+    }
+
+    @Test
+    public void testIfStmtInsideDoClause() {
+        BRunUtil.invoke(result, "testIfStmtInsideDoClause");
+    }
+
     @Test(dataProvider = "dataToTestQueryActionWithVar")
     public void testQueryActionWithVar(String functionName) {
         BRunUtil.invoke(result, functionName);
@@ -180,6 +200,31 @@ public class QueryActionTest {
         return new Object[]{
                 "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction",
                 "testUsingDestructuringRecordingBindingPatternWithAnIntersectionTypeInQueryAction2"
+        };
+    }
+
+    @Test
+    public void testQueryWithOptionalFieldRecord() {
+        BRunUtil.invoke(result, "testQueryWithOptionalFieldRecord");
+    }
+
+    @Test
+    public void testQueryWithStream() {
+        BRunUtil.invoke(result, "testQueryStreamWithDiffTargetTypes");
+    }
+
+    @Test(dataProvider = "dataToTestQueryAction")
+    public void testQueryAction(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestQueryAction() {
+        return new Object[]{
+                "testQueryActionWithRegExp",
+                "testQueryActionWithRegExpWithInterpolations",
+                "testNestedQueryActionWithRegExp",
+                "testJoinedQueryActionWithRegExp"
         };
     }
 

@@ -20,11 +20,13 @@ package io.ballerina.shell;
 
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.shell.exceptions.BallerinaShellException;
+import io.ballerina.shell.invoker.AvailableVariable;
 import io.ballerina.shell.invoker.ShellSnippetsInvoker;
 import io.ballerina.shell.parser.TreeParser;
 import io.ballerina.shell.preprocessor.Preprocessor;
 import io.ballerina.shell.snippet.factory.SnippetFactory;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -100,6 +102,28 @@ public abstract class Evaluator extends DiagnosticReporter {
             throws BallerinaShellException;
 
     /**
+     * Base evaluation function which returns resulted object.
+     * <p>
+     * An input line may contain one or more statements separated by semicolons.
+     * The result will be written via the {@code ShellResultController}.
+     * <p>
+     * If the execution failed, an error will be thrown instead.
+     *
+     * @param compilation compilation.
+     * @return Object output from the evaluator.
+     */
+    public abstract Optional<NotebookReturnValue> getValueAsObject(Optional<PackageCompilation> compilation) throws
+            BallerinaShellException;
+
+
+    /**
+     * Returns the absolute path of the created temporary file.
+     *
+     * @return path of file as a string.
+     */
+    public abstract String getBufferFileUri() throws IOException;
+
+    /**
      * Evaluate a ballerina file as if it was entered to the shell.
      * This file should only include declarations.
      * Some functions, (eg: main) are skipped.
@@ -135,8 +159,24 @@ public abstract class Evaluator extends DiagnosticReporter {
         return invoker.availableVariables();
     }
 
+    public List<AvailableVariable> availableVariablesAsObjects() {
+        return invoker.availableVariablesAsObjects();
+    }
+
     public List<String> availableModuleDeclarations() {
         return invoker.availableModuleDeclarations();
+    }
+
+    public List<String> newVariableNames() {
+        return invoker.newVariableNames();
+    }
+
+    public List<String> newModuleDeclarations() {
+        return invoker.newModuleDeclarations();
+    }
+
+    public void clearPreviousVariablesAndModuleDclnsNames() {
+        invoker.clearPreviousVariablesAndModuleDclnsNames();
     }
 
     public Preprocessor getPreprocessor() {

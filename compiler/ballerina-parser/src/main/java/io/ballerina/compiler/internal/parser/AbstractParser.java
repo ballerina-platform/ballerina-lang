@@ -125,6 +125,14 @@ public abstract class AbstractParser {
         this.insertedToken = SyntaxErrors.createMissingTokenWithDiagnostics(kind, context);
     }
 
+    protected void removeInsertedToken() {
+        this.insertedToken = null;
+    }
+
+    protected boolean isInvalidNodeStackEmpty() {
+        return this.invalidNodeInfoStack.isEmpty();
+    }
+
     protected void startContext(ParserRuleContext context) {
         this.errorHandler.startContext(context);
     }
@@ -261,7 +269,7 @@ public abstract class AbstractParser {
      * @param node node to be cloned
      * @return a cloned node with invalid node minutiae
      */
-    private STNode addInvalidNodeStackToTrailingMinutiae(STNode node) {
+    protected STNode addInvalidNodeStackToTrailingMinutiae(STNode node) {
         while (!invalidNodeInfoStack.isEmpty()) {
             InvalidNodeInfo invalidNodeInfo = invalidNodeInfoStack.pop();
             node = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(node, invalidNodeInfo.node,

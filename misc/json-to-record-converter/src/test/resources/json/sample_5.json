@@ -1,0 +1,6 @@
+{
+    "students": ["Joe", "Martin", "Alba"],
+    "mathScores": [72, 67, 89],
+    "averages": [76, 56.3, 7.8E+1],
+    "position": [2, 3.0, "1"]
+}

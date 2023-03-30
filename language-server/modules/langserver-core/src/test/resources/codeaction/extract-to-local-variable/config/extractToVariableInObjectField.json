@@ -1,0 +1,15 @@
+{
+  "range": {
+    "start": {
+      "line": 11,
+      "character": 22
+    },
+    "end": {
+      "line": 11,
+      "character": 24
+    }
+  },
+  "source": "extractToVariableInFieldAccess.bal",
+  "expected": [
+  ]
+}

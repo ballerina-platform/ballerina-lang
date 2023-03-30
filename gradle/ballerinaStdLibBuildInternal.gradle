@@ -50,6 +50,7 @@ dependencies {
     distributionBala project(path: ':ballerina-lang:decimal', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:error', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:function', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:future', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:integer', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:map', configuration: 'distributionBala')
@@ -65,6 +66,7 @@ dependencies {
     //distributionBala project(path: ':ballerina-lang-test', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:query', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:transaction', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:regexp', configuration: 'distributionBala')
 }
 
 compileJava {

@@ -530,6 +530,42 @@ function testUsingAnIntersectionTypeInQueryExpr2() {
     assertEquality([{email : "peter@abc.com", teamId: 2}], j);
 }
 
+function testMethodCallExprsOnQueryExprs() {
+    string[] words = ["a", "b", "c"];
+    var len = (from string str in words
+        select str).length();
+    assertEquality(3, len);
+
+    len = (from string str in words
+        where str == "a"
+        select str).length();
+    assertEquality(1, len);
+
+    string word = (from string str in words
+        select str).pop();
+    assertEquality("c", word);
+
+    int? index = (from string str in words
+        select str).indexOf("b");
+    assertEquality(1, index);
+
+    boolean isReadonly = (from string str in words
+        select str).isReadOnly();
+    assertEquality(false, isReadonly);
+
+    word = (from string str in words
+        select str).remove(0);
+    assertEquality("a", word);
+
+    words = (from string str in words
+        select str).filter(w => w is string);
+    assertEquality(["a", "b", "c"], words);
+
+    words = (from string str in words
+        select str).reverse();
+    assertEquality(["c", "b", "a"], words);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

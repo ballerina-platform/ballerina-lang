@@ -265,6 +265,60 @@ function testInvalidRuntimeUpdateOfConstMaps() {
                                     "readonly (record {| 3 a; |} & readonly & readonly) b; |} & readonly'");
 }
 
+type AA boolean;
+
+type DECIMAL decimal;
+
+type FLOAT float;
+
+type INT int;
+
+const TWO = 2;
+const AA aa = !false;
+
+const DECIMAL b = 60 + 2;
+const DECIMAL c = 60 - 2;
+const DECIMAL d = 60 * 2;
+const DECIMAL e = 60 / 2;
+
+const FLOAT b1 = 60 + 2;
+const FLOAT c1 = 60 - 2;
+const FLOAT d1 = 60 * 2;
+const FLOAT e1 = 60 / 2;
+
+const INT f = 60 & 2;
+const INT g = 60 | 2;
+const INT h = 60 ^ 2;
+const INT j = 60 >> 2;
+const INT k = 60 >>> 2;
+const INT m = 60 << 2;
+const INT n = ~60;
+const INT p = +60;
+const INT q = -60;
+
+function testResolvingConstValForConstantsOfUserDefinedTypes() {
+    assertTrue(aa);
+    assertEqual(b, 62d);
+    assertEqual(c, 58d);
+    assertEqual(d, 120d);
+    assertEqual(e, 30d);
+
+    assertEqual(b1, 62f);
+    assertEqual(c1, 58f);
+    assertEqual(d1, 120f);
+    assertEqual(e1, 30f);
+
+    assertEqual(f, 0);
+    assertEqual(g, 62);
+    assertEqual(h, 62);
+    assertEqual(j, 15);
+    assertEqual(k, 15);
+    assertEqual(m, 240);
+    assertEqual(n, -61);
+    assertEqual(p, 60);
+    assertEqual(q, -60);
+}
+
 function assertInvalidUpdateError(error? res, string expectedDetailMessage) {
     assertTrue(res is error);
     error err = <error> res;

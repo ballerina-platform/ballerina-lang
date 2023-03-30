@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
@@ -199,7 +200,7 @@ public class AnnotationAttachmentTest {
 
     @Test
     public void testAnnotOnResourceOne() {
-        BLangFunction function = getFunction("$anonType$_1.$get$res");
+        BLangFunction function = getFunction("$anonType$_0.$get$res");
         List<BLangAnnotationAttachment> attachments = function.annAttachments;
         Assert.assertEquals(attachments.size(), 2);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v3", "val", "v34");
@@ -220,7 +221,7 @@ public class AnnotationAttachmentTest {
     public void testAnnotOnServiceTwo() {
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
                 compileResult.getAST().getClassDefinitions().stream()
-                        .filter(classNode -> classNode.getName().getValue().equals("$anonType$_3"))
+                        .filter(classNode -> classNode.getName().getValue().equals("$anonType$_1"))
                         .findFirst()
                         .get().getAnnotationAttachments()
                         .stream()
@@ -232,7 +233,7 @@ public class AnnotationAttachmentTest {
 
     @Test
     public void testAnnotOnResourceTwo() {
-        BLangFunction function = getFunction("$anonType$_3.$get$res");
+        BLangFunction function = getFunction("$anonType$_1.$get$res");
         List<BLangAnnotationAttachment> attachments = function.annAttachments;
         Assert.assertEquals(attachments.size(), 1);
         assertAnnotationNameAndKeyValuePair(attachments.get(0), "v5", "val", "542");
@@ -458,7 +459,7 @@ public class AnnotationAttachmentTest {
     public void testAnnotWithEmptyMapConstructorOnService() {
         List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
                 compileResult.getAST().getClassDefinitions().stream()
-                        .filter(classNode -> classNode.getName().getValue().equals("$anonType$_7"))
+                        .filter(classNode -> classNode.getName().getValue().equals("$anonType$_3"))
                         .findFirst()
                         .get().getAnnotationAttachments()
                         .stream()
@@ -469,7 +470,7 @@ public class AnnotationAttachmentTest {
 
     @Test
     public void testAnnotWithEmptyMapConstructorOnResource() {
-        BLangFunction function = getFunction("$anonType$_7.$get$res");
+        BLangFunction function = getFunction("$anonType$_2.$get$res");
         validateEmptyMapConstructorExprInAnnot(function.annAttachments, "v18", "A");
         validateEmptyMapConstructorExprInAnnot(function.requiredParams.get(0).annAttachments, "v19", "A");
     }
@@ -555,6 +556,15 @@ public class AnnotationAttachmentTest {
         keyValuePair = (BLangRecordLiteral.BLangRecordKeyValueField) recordFields.get(1);
         Assert.assertEquals(getKeyString(keyValuePair), "s2");
         Assert.assertNull(((BLangLiteral) keyValuePair.getValue()).value);
+    }
+
+    @Test
+    public void testAnnotOnTupleMember() {
+        BLangTupleTypeNode tp = (BLangTupleTypeNode) getTypeDefinition(
+                compileResult.getAST().getTypeDefinitions(), "Tp").getTypeNode();
+        BLangSimpleVariable m1 = tp.getMemberNodes().get(0);
+        Assert.assertEquals(m1.annAttachments.size(), 1);
+        Assert.assertEquals(m1.annAttachments.get(0).annotationName.getValue(), "v30");
     }
 
     private BLangTypeDefinition getTypeDefinition(List<? extends TypeDefinition> typeDefinitions, String name) {

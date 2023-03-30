@@ -1,0 +1,26 @@
+[
+  {
+    "description": "Change type descriptor from int to a decimal number\n",
+    "oldCode": "public type Age int;",
+    "newCode": "public type Age 7;",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change the value",
+    "oldCode": "public type Age 7;\n",
+    "newCode": "public type Age 8;\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change the decimal value to hexadecimal value",
+    "oldCode": "public type Age 10;\n",
+    "newCode": "public type Age 0XA;\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change the value int to hexadecimal\n",
+    "oldCode": "public type Age int;",
+    "newCode": "public type Age 0XA;",
+    "expectedOutput": {}
+  }
+]

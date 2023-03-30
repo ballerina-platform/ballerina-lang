@@ -42,4 +42,26 @@ public class CustomFunctionTest {
         // Checking duplicate parameter definition in a function starting at 35st column
         BAssertUtil.validateError(compile, 0, "redeclared symbol 'param'", 1, 35);
     }
+
+    @Test
+    public void testAssignValueToFunctionNegative() {
+        CompileResult compile = BCompileUtil.compile("test-src/functions/assign_value_to_function_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(compile, i++, "invalid assignment: 'function' declaration is final", 21, 5);
+        BAssertUtil.validateError(compile, i++, "invalid assignment: 'function' declaration is final", 22, 5);
+        BAssertUtil.validateError(compile, i++, "invalid assignment: 'function' declaration is final", 23, 6);
+        BAssertUtil.validateError(compile, i++, "invalid assignment: 'function' declaration is final", 23, 11);
+        BAssertUtil.validateError(compile, i++, "invalid assignment: 'function' declaration is final", 34, 13);
+        BAssertUtil.validateError(compile, i++, "invalid assignment: 'function' declaration is final", 43, 26);
+        Assert.assertEquals(compile.getErrorCount(), i);
+    }
+
+    @Test
+    public void testAssignValueToObjectMethodNegative() {
+        CompileResult compile = BCompileUtil.compile("test-src/functions/assign_value_to_object_method.bal");
+        int i = 0;
+        BAssertUtil.validateError(compile, i++, "cannot update 'final' object field 'getVal'", 30, 5);
+        BAssertUtil.validateError(compile, i++, "cannot update 'final' object field 'getVal'", 33, 5);
+        Assert.assertEquals(compile.getErrorCount(), i);
+    }
 }

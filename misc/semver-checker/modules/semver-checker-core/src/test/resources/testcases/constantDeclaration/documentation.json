@@ -1,0 +1,98 @@
+[
+  {
+    "description": "Add documentation for constant declaration",
+    "oldCode": "public const int age=10;",
+    "newCode": "#Documentation\npublic const int age=10;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "new",
+                  "versionImpact": "patch",
+                  "message": "documentation is added"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove documentation for constant declaration",
+    "oldCode": "#Documentation\npublic const int age=10;",
+    "newCode": "public const int age=10;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "removed",
+                  "versionImpact": "patch",
+                  "message": "documentation is removed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify documentation for constant declaration",
+    "oldCode": "#int declaration\npublic const int age=10;",
+    "newCode": "#Documentation\npublic const int age=10;",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "module constant",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "message": "documentation is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

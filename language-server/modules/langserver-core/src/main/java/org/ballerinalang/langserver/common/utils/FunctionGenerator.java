@@ -30,8 +30,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.ballerinalang.langserver.common.utils.CommonUtil.getModulePrefix;
-
 /**
  * Function generator utilities.
  */
@@ -80,7 +78,7 @@ public class FunctionGenerator {
             newText.append(text, nextStart, matcher.start(1));
             // Append module prefix(empty when in same module) and identify imports
             ModuleID moduleID = CodeActionModuleId.from(matcher.group(1), matcher.group(2), matcher.group(3));
-            newText.append(getModulePrefix(importsAcceptor, currentModuleID, moduleID, context));
+            newText.append(ModuleUtil.getModulePrefix(importsAcceptor, currentModuleID, moduleID, context));
             // Update next-start position
             nextStart = matcher.end(3) + 1;
         }
@@ -89,22 +87,6 @@ public class FunctionGenerator {
             newText.append(text.substring(nextStart));
         }
         return newText.length() > 0 ? newText.toString() : text;
-    }
-
-    /**
-     * Generate a function once function name, arguments and return type descriptor kind is provided.
-     *
-     * @param context            Document service context
-     * @param newLineAtStart     Whether to add a new line at the beginning
-     * @param functionName       Name of the function
-     * @param args               Function parameters
-     * @param returnTypeDescKind {@link TypeDescKind} of the return type
-     * @return Created function
-     * @see #generateFunction(DocumentServiceContext, boolean, String, List, TypeSymbol, boolean)
-     */
-    public static String generateFunction(DocumentServiceContext context, boolean newLineAtStart, String functionName,
-                                          List<String> args, TypeDescKind returnTypeDescKind) {
-        return generateFunction(context, newLineAtStart, functionName, args, returnTypeDescKind, false);
     }
 
     /**
@@ -123,40 +105,6 @@ public class FunctionGenerator {
     }
 
     /**
-     * Generate a function once function name, arguments and return type descriptor kind is provided.
-     *
-     * @param context            Document service context
-     * @param newLineAtStart     Whether to add a new line at the end of the function.
-     * @param functionName       Name of the function
-     * @param args               Function parameters
-     * @param returnTypeDescKind {@link TypeDescKind} of the return type
-     * @param isolated           Whether the created function should be prefixed with isolated qualifier
-     * @return Created function
-     * @see #generateFunction(DocumentServiceContext, boolean, String, List, TypeSymbol, boolean)
-     */
-    public static String generateFunction(DocumentServiceContext context, boolean newLineAtStart, String functionName,
-                                          List<String> args, TypeDescKind returnTypeDescKind, boolean isolated) {
-        String returnType = null;
-        if (returnTypeDescKind != TypeDescKind.COMPILATION_ERROR) {
-            returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeDescKind.getName());
-        }
-
-        String returnsClause = "";
-        String returnStmt = "";
-        if (returnType != null) {
-            // returns clause
-            returnsClause = "returns " + returnType;
-            // return statement
-            Optional<String> defaultReturnValue = CommonUtil.getDefaultValueForTypeDescKind(returnTypeDescKind);
-            if (defaultReturnValue.isPresent()) {
-                returnStmt = "return " + defaultReturnValue.get() + CommonKeys.SEMI_COLON_SYMBOL_KEY;
-            }
-        }
-
-        return generateFunction(functionName, args, returnsClause, returnStmt, newLineAtStart, isolated);
-    }
-
-    /**
      * Generates a function with the provided parameters.
      *
      * @param context          Document service context
@@ -170,7 +118,8 @@ public class FunctionGenerator {
     public static String generateFunction(DocumentServiceContext context, boolean newLineAtEnd, String functionName,
                                           List<String> args, TypeSymbol returnTypeSymbol, boolean isolated) {
         String returnType = null;
-        if (returnTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
+        if (returnTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR
+                && returnTypeSymbol.typeKind() != TypeDescKind.NIL) {
             returnType = FunctionGenerator.getReturnTypeAsString(context, returnTypeSymbol.signature());
         }
 
@@ -180,13 +129,13 @@ public class FunctionGenerator {
             // returns clause
             returnsClause = "returns " + returnType;
             // return statement
-            Optional<String> defaultReturnValue = CommonUtil.getDefaultValueForType(returnTypeSymbol);
+            Optional<String> defaultReturnValue = DefaultValueGenerationUtil.getDefaultValueForType(returnTypeSymbol);
             if (defaultReturnValue.isPresent()) {
                 returnStmt = "return " + defaultReturnValue.get() + CommonKeys.SEMI_COLON_SYMBOL_KEY;
             }
         }
 
-        return generateFunction(functionName, args, returnsClause, returnStmt, newLineAtEnd, isolated);
+        return generateFunction(functionName, args, returnsClause, returnStmt, newLineAtEnd, isolated, "");
     }
 
     /**
@@ -200,18 +149,24 @@ public class FunctionGenerator {
      * @param isolated      Whether the created function should be prefixed with isolated qualifier
      * @return Created function
      */
-    private static String generateFunction(String functionName, List<String> args, String returnsClause,
-                                           String returnStmt, boolean newLineAtEnd, boolean isolated) {
+    public static String generateFunction(String functionName, List<String> args, String returnsClause,
+                                          String returnStmt, boolean newLineAtEnd, boolean isolated,
+                                          String funcBodyExcludingRetStmt) {
         // padding
         int padding = 4;
         String paddingStr = StringUtils.repeat(" ", padding);
 
         // body
-        String body;
+        String body = "";
+
+        if (!funcBodyExcludingRetStmt.isEmpty()) {
+            body += funcBodyExcludingRetStmt;
+        }
+
         if (!returnStmt.isEmpty()) {
-            body = paddingStr + returnStmt + CommonUtil.LINE_SEPARATOR;
-        } else {
-            body = paddingStr + CommonUtil.LINE_SEPARATOR;
+            body += paddingStr + returnStmt + CommonUtil.LINE_SEPARATOR;
+        } else if (funcBodyExcludingRetStmt.isEmpty()) {
+            body += paddingStr + CommonUtil.LINE_SEPARATOR;
         }
 
         StringBuilder fnBuilder = new StringBuilder();

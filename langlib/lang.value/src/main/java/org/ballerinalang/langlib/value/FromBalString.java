@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.value;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
@@ -40,6 +41,9 @@ public class FromBalString {
             return StringUtils.parseExpressionStringValue(str, null);
         } catch (BallerinaException e) {
             return ErrorCreator.createError(FROM_BAL_STRING_ERROR, StringUtils.fromString(e.getMessage()));
+        } catch (BError bError) {
+            return ErrorCreator.createError(FROM_BAL_STRING_ERROR,
+                    StringUtils.fromString(bError.getErrorMessage().getValue()));
         }
     }
 }

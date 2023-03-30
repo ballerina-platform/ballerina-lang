@@ -40,4 +40,4 @@ Ballerina Language Server is currently work in progress and feel free to follow 
 
 ## Contact Us
 Managed By [WSO2 Inc.](https://wso2.com/)
-Slack channel : [Ballerina Platform](https://ballerina-platform.slack.com/)
+Discord server: [Ballerina](https://discord.gg/ballerinalang)

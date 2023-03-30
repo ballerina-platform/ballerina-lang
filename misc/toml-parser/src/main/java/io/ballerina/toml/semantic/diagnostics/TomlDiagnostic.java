@@ -86,7 +86,7 @@ public class TomlDiagnostic extends Diagnostic {
 
     @Override
     public String toString() {
-        String filePath = this.location().lineRange().filePath();
+        String filePath = this.location().lineRange().fileName();
 
         LineRange lineRange = this.location().lineRange();
         LineRange oneBasedLineRange = LineRange.from(

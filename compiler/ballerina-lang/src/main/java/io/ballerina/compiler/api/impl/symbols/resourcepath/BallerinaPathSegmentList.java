@@ -101,10 +101,10 @@ public class BallerinaPathSegmentList implements PathSegmentList {
             Name internalSegment = names.get(i);
             PathSegment segment;
             switch (internalSegment.value) {
-                case "*":
+                case "^":
                     segment = pathParams.get(pathParamCount++);
                     break;
-                case "**":
+                case "^^":
                     segment = pathRestParameter().get();
                     break;
                 default:

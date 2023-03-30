@@ -25,10 +25,10 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -59,9 +59,9 @@ public class TypeReferenceNodeContext extends AbstractCompletionProvider<TypeRef
             // Added for safety to avoid any mis-identification or any future grammar changes 
             return completionItems;
         }
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
-            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, predicate.get());
+            List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef, predicate.get());
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else {
             List<Symbol> symbols = context.visibleSymbols(context.getCursorPosition()).stream()

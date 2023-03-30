@@ -1,0 +1,21 @@
+{
+  "firstName": "Joe",
+  "lastName": "Jackson",
+  "gender": "male",
+  "age": 28,
+  "address": {
+    "streetAddress": "101",
+    "city": "San Diego",
+    "state": "CA"
+  },
+  "phoneNumber": null,
+  "friend": {
+    "firstName": "Joe",
+    "lastName": "Root",
+    "address": {
+      "streetAddress": 12,
+      "city": "Liverpool",
+      "state": "England"
+    }
+  }
+}

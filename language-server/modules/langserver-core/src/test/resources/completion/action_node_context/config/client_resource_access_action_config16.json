@@ -1,0 +1,43 @@
+{
+  "position": {
+    "line": 38,
+    "character": 33
+  },
+  "source": "action_node_context/source/client_resource_access_action_source16.bal",
+  "items": [
+    {
+      "label": "/[string... ids].post(string b, string... ids2)",
+      "kind": "Function",
+      "detail": "()",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string[]` ids  \n- `string` b  \n- `string[]` ids2"
+        }
+      },
+      "sortText": "C",
+      "filterText": "|post",
+      "insertText": "/[${1:\"\"}].post(${2})",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 38,
+              "character": 32
+            },
+            "end": {
+              "line": 38,
+              "character": 33
+            }
+          },
+          "newText": ""
+        }
+      ],
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    }
+  ]
+}

@@ -1,9 +1,13 @@
 {
-  "line": 7,
-  "character": 29,
+  "position": {
+    "line": 7,
+    "character": 29
+  },
+  "source": "implementAllInObjConstructorExpr.bal",
   "expected": [
     {
       "title": "Implement all",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
