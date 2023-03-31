@@ -72,18 +72,18 @@ public class LetVariableDeclarationNodeContext extends AbstractCompletionProvide
 
                 completionItems.addAll(this.getCompletionItemList(exprEntries, context));
                 this.sort(context, node, completionItems);
-            } else {
-                /*
-                Covers the following context
-                eg: let va<cursor>
-                    let int a = b, f<cursor>
-                 */
-                completionItems.addAll(this.getTypeDescContextItems(context));
-                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
-                for (LSCompletionItem lsCItem : completionItems) {
-                    CompletionItem completionItem = lsCItem.getCompletionItem();
-                    completionItem.setSortText(SortingUtil.genSortTextForTypeDescContext(context, lsCItem));
-                }
+                return completionItems;
+            }
+            /*
+            Covers the following context
+            eg: let va<cursor>
+                let int a = b, f<cursor>
+             */
+            completionItems.addAll(this.getTypeDescContextItems(context));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
+            for (LSCompletionItem lsCItem : completionItems) {
+                CompletionItem completionItem = lsCItem.getCompletionItem();
+                completionItem.setSortText(SortingUtil.genSortTextForTypeDescContext(context, lsCItem));
             }
             return completionItems;
         }

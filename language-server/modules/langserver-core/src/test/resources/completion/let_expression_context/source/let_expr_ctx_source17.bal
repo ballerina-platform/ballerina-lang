@@ -1,3 +1,3 @@
 public function main() {
-    string:Char ch = string:
+    string:Char ch = let string:
 }
