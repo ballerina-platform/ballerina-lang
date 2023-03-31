@@ -406,6 +406,29 @@ function testListMatchPatternWithRestPattern15() {
     assertEquals(5, a3[2]);
 }
 
+function listMatchPatternWithRestPattern16(any a) returns string {
+    match a {
+        [] => {
+            return "match1";
+        }
+        ["add", [...var operands]] => {
+            return "match2";
+        }
+        [...var operands] => {
+            return "match3";
+        }
+        _ => {
+            return "No match";
+        }
+    }
+}
+
+public function testListMatchPatternWithRestPattern16() {
+    assertEquals("match1", listMatchPatternWithRestPattern16([]));
+    assertEquals("match2", listMatchPatternWithRestPattern16(["add", [1, 2]]));
+    assertEquals("match3", listMatchPatternWithRestPattern16([1, 2, 3]));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

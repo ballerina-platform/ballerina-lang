@@ -23,10 +23,15 @@ import org.eclipse.lsp4j.debug.LoadedSourceEventArguments;
 import org.eclipse.lsp4j.debug.ModuleEventArguments;
 import org.eclipse.lsp4j.debug.OutputEventArguments;
 import org.eclipse.lsp4j.debug.ProcessEventArguments;
+import org.eclipse.lsp4j.debug.RunInTerminalRequestArguments;
+import org.eclipse.lsp4j.debug.RunInTerminalResponse;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.TerminatedEventArguments;
 import org.eclipse.lsp4j.debug.ThreadEventArguments;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
+import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * IDebugProtocolClient implementation.
@@ -98,4 +103,9 @@ public class DAPClient implements IDebugProtocolClient {
         this.requestManager = requestManager;
     }
 
+    @JsonRequest
+    public CompletableFuture<RunInTerminalResponse> runInTerminal(RunInTerminalRequestArguments args)
+            throws Exception {
+        return requestManager.runInTerminal(args);
+    }
 }

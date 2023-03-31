@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 function mappingBindingPatternRest1(any v) returns any|error {
     match v {
         var {w: a, x: b, y: c,  ...r} => {
@@ -263,10 +265,9 @@ function mappingBindingPatternRest12(RecTwo rec)
         var {p, ...q} => {
             return [p, q];
         }
-        // https://github.com/ballerina-platform/ballerina-lang/issues/30196
-        // var {a, b, ...c} => {
-        //     return [a, b, c];
-        // }
+        var {a, b, ...c} => {
+         return [a, b, c];
+        }
         var {m, ...n} => {
             return [m, n];
         }
@@ -286,18 +287,17 @@ public function testRestMappingAtRuntime() {
     assertEquals(2, m1.length());
     assertEquals(<RecTwo> {m: 101, "p": "hello", "q": "world"}, rec);
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/30196
-    // RecTwo rec2 = {m: 202, "a": "hello", "b": "world", "c": "ballerina"};
-    // var r2 = mappingBindingPatternRest12(rec2);
-    // assertEquals(true, r2 is [string, string, map<int|string>]);
-    // var v2 = <[string, string, map<int|string>]> r2;
-    // assertEquals("hello", v2[0]);
-    // assertEquals("world", v2[1]);
-    // var m2 = v2[2];
-    // assertEquals("ballerina", m2["c"]);
-    // assertEquals(202, m2["m"]);
-    // assertEquals(2, m2.length());
-    // assertEquals(<RecTwo> {m: 202, "a": "hello", "b": "world", "c": "ballerina"}, rec2);
+    RecTwo rec2 = {m: 202, "a": "hello", "b": "world", "c": "ballerina"};
+    var r2 = mappingBindingPatternRest12(rec2);
+    assertEquals(true, r2 is [string, string, map<int|string>]);
+    var v2 = <[string, string, map<int|string>]> r2;
+    assertEquals("hello", v2[0]);
+    assertEquals("world", v2[1]);
+    var m2 = v2[2];
+    assertEquals("ballerina", m2["c"]);
+    assertEquals(202, m2["m"]);
+    assertEquals(2, m2.length());
+    assertEquals(<RecTwo> {m: 202, "a": "hello", "b": "world", "c": "ballerina"}, rec2);
 
     RecTwo rec3 = {m: 303, "b": "ballerina"};
     var r3 = mappingBindingPatternRest12(rec3);
@@ -351,6 +351,32 @@ function testRestRecordPattern() {
              assertEquals(true, rest?.employed);
          }
      }
+}
+
+type PersonClosed record {|
+    int id;
+    string name;
+    boolean aged;
+|};
+
+type PersonOpen record {
+    int id;
+    string name;
+    boolean aged;
+};
+
+function testRestBindingPatternWithRecords() {
+    PersonOpen person1 = {id: 456, name: "yourName", aged: false, "address": "yourAddress"};
+    PersonOpen {id: personId1, ...otherDetails1} = person1;
+    test:assertEquals(personId1, 456);
+    test:assertEquals(otherDetails1, {"name":"yourName","aged":false,"address":"yourAddress"});
+    test:assertTrue(otherDetails1 is record {| never id?; string name; boolean aged; anydata...; |});
+
+    PersonClosed person2 = {id: 123, name: "myName", aged: true};
+    PersonClosed {id: personId2, ...otherDetails2} = person2;
+    test:assertEquals(personId2, 123);
+    test:assertEquals(otherDetails2, {"name":"myName","aged":true});
+    test:assertTrue(otherDetails2 is record {| never id?; string name; boolean aged; |});
 }
 
 type Record record {| int m; string...; |};

@@ -41,20 +41,25 @@ import io.ballerina.projects.directory.ProjectLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.LSClientLogger;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.DefaultValueGenerationUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.builder.ServiceTemplateCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.ProgressParams;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkDoneProgressBegin;
@@ -88,43 +93,13 @@ public class ServiceTemplateGenerator {
     private final Map<Pair<String, String>, List<ListenerMetaData>> moduleListenerMetaDataMap;
 
     private boolean isInitialized;
-    private static final String TITLE_INITIALIZE = "Service Template Generator";
-
-    public boolean initialized() {
-        return isInitialized;
-    }
+    private boolean isUserHomePackagesLoaded;
+    private static final String TITLE_SERVICE_TEMPLATE_GENERATOR = "Service Template Generator";
 
     private ServiceTemplateGenerator(LanguageServerContext context) {
         context.put(SERVICE_TEMPLATE_GENERATOR_KEY, this);
         this.moduleListenerMetaDataMap = new ConcurrentHashMap<>();
-        LSClientLogger clientLogger = LSClientLogger.getInstance(context);
-        String taskId = UUID.randomUUID().toString();
-        ExtendedLanguageClient languageClient = context.get(ExtendedLanguageClient.class);
-        CompletableFuture.runAsync(() -> {
-            clientLogger.logTrace("Loading listener symbols from the distribution");
-            if (languageClient != null) {
-                // Initialize progress notification
-                WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
-                workDoneProgressCreateParams.setToken(taskId);
-                languageClient.createProgress(workDoneProgressCreateParams);
-
-                // Start progress
-                WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
-                beginNotification.setTitle(TITLE_INITIALIZE);
-                beginNotification.setCancellable(false);
-                beginNotification.setMessage("Initializing...");
-                languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
-                        Either.forLeft(beginNotification)));
-            }
-
-        }).thenRunAsync(() -> initialize(context)).thenRunAsync(() -> {
-            clientLogger
-                    .logTrace("Finished loading listener symbols from the distribution");
-            WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
-            endNotification.setMessage("Initialized Successfully!");
-            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
-                    Either.forLeft(endNotification)));
-        });
+        loadListeners(context);
     }
 
     /**
@@ -142,16 +117,135 @@ public class ServiceTemplateGenerator {
         return serviceTemplateGenerator;
     }
 
+    private void loadListeners(LanguageServerContext lsContext) {
+        String taskId = UUID.randomUUID().toString();
+        ExtendedLanguageClient languageClient = lsContext.get(ExtendedLanguageClient.class);
+        LSClientLogger clientLogger = LSClientLogger.getInstance(lsContext);
+        CompletableFuture.runAsync(() -> {
+            if (languageClient != null) {
+                // Initialize progress notification
+                WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
+                workDoneProgressCreateParams.setToken(taskId);
+                languageClient.createProgress(workDoneProgressCreateParams);
+
+                // Start progress
+                WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
+                beginNotification.setTitle(TITLE_SERVICE_TEMPLATE_GENERATOR);
+                beginNotification.setCancellable(false);
+                beginNotification.setMessage("Initializing...");
+                languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                        Either.forLeft(beginNotification)));
+            }
+        }).thenRunAsync(() -> {
+            this.loadListenersFromDistribution(lsContext);
+        }).thenRunAsync(() -> {
+            WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
+            endNotification.setMessage("Initialized Successfully!");
+            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                    Either.forLeft(endNotification)));
+        }).exceptionally(e -> {
+            WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
+            endNotification.setMessage("Initialization Failed!");
+            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                    Either.forLeft(endNotification)));
+            clientLogger.logTrace("Failed loading listener symbols from BallerinaUserHome due to "
+                    + e.getMessage());
+            return null;
+        });
+    }
+
+    private void loadListeners(LanguageServerContext lsContext, DocumentServiceContext context) {
+        LSClientLogger clientLogger = LSClientLogger.getInstance(lsContext);
+        CompletableFuture.runAsync(() -> {
+            try {
+                this.loadListenersFromBallerinaUserHome(context, lsContext);
+            } catch (Throwable e) {
+                //ignore
+                clientLogger.logTrace("Failed loading listener symbols from the  BallerinaUserHome due to "
+                        + e.getMessage());
+            }
+        });
+    }
+
     /**
-     * Initializes the Service Template Generator.
+     * Loads listener symbols from the distribution.
      *
      * @param context Language Server Context.
      */
-    private void initialize(LanguageServerContext context) {
-        if (!this.isInitialized) {
-            loadListenersFromDistribution(context);
+    private void loadListenersFromDistribution(LanguageServerContext context) {
+        if (!this.initialized()) {
+            //Load distribution repo packages
+            LSClientLogger clientLogger = LSClientLogger.getInstance(context);
+            clientLogger.logTrace("Loading packages from the distribution");
+            List<LSPackageLoader.ModuleInfo> modules = LSPackageLoader.getInstance(context)
+                    .getDistributionRepoPackages();
+            loadListenersFromPackages(modules, context);
             this.isInitialized = true;
+            clientLogger.logTrace("Finished loading packages from the distribution");
         }
+    }
+
+    /**
+     * Loads Listeners from the BallerinaUserHome.
+     *
+     * @param context   Document Service context
+     * @param lsContext Language Server context.
+     */
+    private void loadListenersFromBallerinaUserHome(DocumentServiceContext context,
+                                                    LanguageServerContext lsContext) {
+        if (!this.userHomePackagesLoaded()) {
+            this.isUserHomePackagesLoaded = true;
+            //Load packages from BallerinaUserHome
+            LSClientLogger clientLogger = LSClientLogger.getInstance(lsContext);
+            clientLogger.logTrace("Loading modules from the BallerinaUserHome");
+            List<LSPackageLoader.ModuleInfo> modules = LSPackageLoader.getInstance(lsContext)
+                    .getPackagesFromBallerinaUserHome(context);
+            loadListenersFromPackages(modules, lsContext);
+            clientLogger.logTrace("Finished loading listener symbols from the  BallerinaUserHome");
+        }
+    }
+
+    /**
+     * Load projects from the distribution repo and generate service data holder.
+     *
+     * @param modules List of module info.
+     */
+    private void loadListenersFromPackages(List<LSPackageLoader.ModuleInfo> modules, LanguageServerContext context) {
+        modules.forEach(distPackage -> {
+            String orgName = ModuleUtil.escapeModuleName(distPackage.packageOrg().value());
+            Project project = ProjectLoader.loadProject(distPackage.sourceRoot());
+            //May take some time as we are compiling projects.
+            PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+            project.currentPackage().modules().forEach(module -> {
+
+                String moduleName = module.descriptor().name().toString();
+                String version = module.packageInstance().descriptor().version().value().toString();
+                ModuleID moduleID = CodeActionModuleId.from(orgName, moduleName, version);
+
+                Pair<String, String> moduleKey = Pair.of(moduleName, orgName);
+                if (!this.moduleListenerMetaDataMap.containsKey(moduleKey)) {
+                    SemanticModel semanticModel = packageCompilation.getSemanticModel(module.moduleId());
+                    List<ListenerMetaData> items = new ArrayList<>();
+                    semanticModel.moduleSymbols().stream().filter(listenerPredicate())
+                            .forEach(listener ->
+                                    generateServiceSnippetMetaData(listener, moduleID).ifPresent(items::add));
+                    if (!items.isEmpty()) {
+                        this.moduleListenerMetaDataMap.put(moduleKey, items);
+                    }
+                }
+            });
+        });
+    }
+
+    /**
+     * Update the module listener meta data map.
+     *
+     * @param newPackages packages list
+     * @param context     language server context
+     */
+    public void updateListenerMetaDataMap(List<LSPackageLoader.ModuleInfo> newPackages,
+                                          LanguageServerContext context) {
+        this.loadListenersFromPackages(newPackages, context);
     }
 
     /**
@@ -163,9 +257,9 @@ public class ServiceTemplateGenerator {
      * @return {@link List<LSCompletionItem>} Set of completion items corresponding to the listeners
      * in the given module.
      */
-    public synchronized List<LSCompletionItem> generateAndPopulate(ModuleSymbol moduleSymbol,
-                                                                   Boolean shouldImport,
-                                                                   BallerinaCompletionContext ctx) {
+    public synchronized List<LSCompletionItem> generateAndPopulateListenerMetaData(ModuleSymbol moduleSymbol,
+                                                                                   Boolean shouldImport,
+                                                                                   BallerinaCompletionContext ctx) {
         ModuleID moduleId = moduleSymbol.id();
         String moduleName = moduleId.moduleName();
         String orgName = moduleId.orgName();
@@ -187,6 +281,9 @@ public class ServiceTemplateGenerator {
      * @return {@link List<LSCompletionItem>} List of completion items.
      */
     public List<LSCompletionItem> getServiceTemplates(BallerinaCompletionContext ctx) {
+        if (!userHomePackagesLoaded()) {
+            loadListeners(ctx.languageServercontext(), ctx);
+        }
         List<LSCompletionItem> completionItems = new ArrayList<>();
         Set<String> processedModuleList = new HashSet<>();
 
@@ -223,7 +320,7 @@ public class ServiceTemplateGenerator {
             //Check if the module belongs to the current project. 
             //If it is not from the current project populate to the cache.
             if (!getModuleNamesOfCurrentProject(ctx, currentOrg).contains(moduleHash)) {
-                completionItems.addAll(generateAndPopulate(moduleSymbol, false, ctx));
+                completionItems.addAll(generateAndPopulateListenerMetaData(moduleSymbol, false, ctx));
                 processedModuleList.add(moduleHash);
                 return;
             }
@@ -236,28 +333,28 @@ public class ServiceTemplateGenerator {
         });
 
         //Generate service templates for listeners from the distribution
-        if (this.isInitialized) {
-            this.moduleListenerMetaDataMap.forEach((key, items) -> {
-                String moduleName = key.getLeft();
-                String orgName = key.getRight();
-                String moduleHash = generateModuleHash(orgName, moduleName);
-                if (processedModuleList.contains(moduleHash)) {
-                    return;
-                }
-                for (ListenerMetaData item : items) {
-                    completionItems.add(generateServiceSnippet(item, true, currentModuleID, ctx));
-                }
-                processedModuleList.add(moduleHash);
-            });
-        }
+        this.moduleListenerMetaDataMap.forEach((key, items) -> {
+            String moduleName = key.getLeft();
+            String orgName = key.getRight();
+            String moduleHash = generateModuleHash(orgName, moduleName);
+            if (processedModuleList.contains(moduleHash)) {
+                return;
+            }
+            for (ListenerMetaData item : items) {
+                completionItems.add(generateServiceSnippet(item, true, currentModuleID, ctx));
+            }
+            processedModuleList.add(moduleHash);
+        });
 
         //Generate completion items for the listeners in the current project.
         Optional<Project> project = ctx.workspace().project(ctx.filePath());
-        if (project.isEmpty()) {
+        Optional<PackageCompilation> packageCompilation =
+                ctx.workspace().waitAndGetPackageCompilation(ctx.filePath());
+        if (project.isEmpty() || packageCompilation.isEmpty()) {
             return completionItems;
         }
         boolean isDefaultModule = currentModule.get().isDefaultModule();
-        PackageCompilation packageCompilation = project.get().currentPackage().getCompilation();
+        
         project.get().currentPackage().modules().forEach(module -> {
             //Symbols in the default module should not be visible to other modules.
             if (module.isDefaultModule() && !isDefaultModule) {
@@ -276,44 +373,28 @@ public class ServiceTemplateGenerator {
             if (processedModuleList.contains(moduleHash)) {
                 return;
             }
-            SemanticModel semanticModel = packageCompilation.getSemanticModel(module.moduleId());
-            semanticModel.moduleSymbols().stream().filter(listenerPredicate()).forEach(listener ->
-                    generateServiceSnippetMetaData(listener, moduleID).ifPresent(item ->
-                            completionItems.add(generateServiceSnippet(item,
-                                    !isCurrentModule, currentModuleID, ctx))));
+
+            try {
+                SemanticModel semanticModel = packageCompilation.get().getSemanticModel(module.moduleId());
+                semanticModel.moduleSymbols().stream().filter(listenerPredicate()).forEach(listener ->
+                        generateServiceSnippetMetaData(listener, moduleID).ifPresent(item ->
+                                completionItems.add(generateServiceSnippet(item,
+                                        !isCurrentModule, currentModuleID, ctx))));
+            } catch (Throwable throwable) {
+                LSClientLogger clientLogger = LSClientLogger.getInstance(ctx.languageServercontext());
+                String msg = String.format("Operation 'txt/completion' failed for %s", moduleName);
+                clientLogger.logError(LSContextOperation.TXT_COMPLETION, msg, throwable, null, (Position) null);
+            }
         });
         return completionItems;
     }
 
-    /**
-     * Load projects from the distribution repo and generate service data holder.
-     *
-     * @param lsContext Language Server Context.
-     */
-    private void loadListenersFromDistribution(LanguageServerContext lsContext) {
-        List<LSPackageLoader.PackageInfo> packages = LSPackageLoader.getInstance(lsContext)
-                .getDistributionRepoPackages();
-        packages.forEach(distPackage -> {
-            String orgName = CommonUtil.escapeModuleName(distPackage.packageOrg().value());
-            Project project = ProjectLoader.loadProject(distPackage.sourceRoot());
-            PackageCompilation packageCompilation = project.currentPackage().getCompilation();
-            project.currentPackage().modules().forEach(module -> {
+    public boolean initialized() {
+        return this.isInitialized;
+    }
 
-                String moduleName = module.descriptor().name().toString();
-                String version = module.packageInstance().descriptor().version().value().toString();
-                ModuleID moduleID = CodeActionModuleId.from(orgName, moduleName, version);
-
-                Pair<String, String> moduleKey = Pair.of(moduleName, orgName);
-                SemanticModel semanticModel = packageCompilation.getSemanticModel(module.moduleId());
-                List<ListenerMetaData> items = new ArrayList<>();
-                semanticModel.moduleSymbols().stream().filter(listenerPredicate())
-                        .forEach(listener ->
-                                generateServiceSnippetMetaData(listener, moduleID).ifPresent(items::add));
-                if (!items.isEmpty() && !this.moduleListenerMetaDataMap.containsKey(moduleKey)) {
-                    this.moduleListenerMetaDataMap.put(moduleKey, items);
-                }
-            });
-        });
+    public boolean userHomePackagesLoaded() {
+        return this.isUserHomePackagesLoaded;
     }
 
     private Predicate<Symbol> listenerPredicate() {
@@ -396,7 +477,8 @@ public class ServiceTemplateGenerator {
                             parameterSymbol.paramKind() == ParameterKind.REQUIRED).collect(Collectors.toList());
             for (ParameterSymbol parameterSymbol : requiredParams) {
                 args.add("${" + snippetIndex + ":" +
-                        CommonUtil.getDefaultPlaceholderForType(parameterSymbol.typeDescriptor()).orElse("") + "}");
+                        DefaultValueGenerationUtil.getDefaultPlaceholderForType(parameterSymbol.typeDescriptor())
+                                .orElse("") + "}");
                 snippetIndex += 1;
             }
             listenerInitArgs = String.join(",", args);
@@ -414,11 +496,10 @@ public class ServiceTemplateGenerator {
 
         String symbolReference;
         ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
-        String modulePrefix = CommonUtil.getModulePrefix(importsAcceptor, currentModuleID,
+        String modulePrefix = ModuleUtil.getModulePrefix(importsAcceptor, currentModuleID,
                 serviceSnippet.moduleID, context);
         String moduleAlias = modulePrefix.replace(":", "");
-        String escapedName = CommonUtil.escapeModuleName(serviceSnippet.moduleID.moduleName());
-        String moduleName = escapedName.replaceAll(".*\\.", "");
+        String moduleName = ModuleUtil.escapeModuleName(serviceSnippet.moduleID.moduleName());
 
         if (!moduleAlias.isEmpty()) {
             symbolReference = modulePrefix + serviceSnippet.symbolName;
@@ -459,7 +540,7 @@ public class ServiceTemplateGenerator {
         filterText += "_" + serviceSnippet.symbolName;
         List<TextEdit> additionalTextEdits = new ArrayList<>(importsAcceptor.getNewImportTextEdits());
         return new StaticCompletionItem(context, ServiceTemplateCompletionItemBuilder.build(snippet, label, detail,
-                filterText, additionalTextEdits), StaticCompletionItem.Kind.OTHER);
+                filterText.replace(".", "_"), additionalTextEdits), StaticCompletionItem.Kind.SERVICE_TEMPLATE);
 
     }
 
@@ -471,7 +552,8 @@ public class ServiceTemplateGenerator {
         if (methodSymbol.typeDescriptor().returnTypeDescriptor().isPresent()) {
             TypeSymbol returnTypeSymbol = methodSymbol.typeDescriptor().returnTypeDescriptor().get();
             if (returnTypeSymbol.typeKind() != TypeDescKind.COMPILATION_ERROR) {
-                Optional<String> defaultReturnValueForType = CommonUtil.getDefaultPlaceholderForType(returnTypeSymbol);
+                Optional<String> defaultReturnValueForType = DefaultValueGenerationUtil
+                        .getDefaultPlaceholderForType(returnTypeSymbol);
                 if (defaultReturnValueForType.isPresent()) {
                     String defaultReturnValue = defaultReturnValueForType.get();
                     if (CommonKeys.PARANTHESES_KEY.equals(defaultReturnValue)) {

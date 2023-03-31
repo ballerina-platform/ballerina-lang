@@ -55,6 +55,7 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     private List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics;
     private final CodeActionParams params;
     private Node nodeAtCursor;
+    private Node nodeAtRange;
 
     @Deprecated(forRemoval = true)
     public CodeActionContextImpl(LSOperation operation,
@@ -105,7 +106,7 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
                 ? project.sourceRoot().getParent() :
                 project.sourceRoot();
         this.diagnostics = compilation.diagnosticResult().diagnostics().stream()
-                .filter(diag -> projectRoot.resolve(diag.location().lineRange().filePath()).equals(filePath))
+                .filter(diag -> projectRoot.resolve(diag.location().lineRange().fileName()).equals(filePath))
                 .collect(Collectors.toList());
         return this.diagnostics;
     }
@@ -170,5 +171,19 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
             this.nodeAtCursor = matchedNode;
         }
         return this.nodeAtCursor;
+    }
+
+    @Override
+    public Range range() {
+        return this.params.getRange();
+    }
+
+    @Override
+    public Node nodeAtRange() {
+        if (this.nodeAtRange == null) {
+            SyntaxTree syntaxTree = this.currentSyntaxTree().orElseThrow();
+            this.nodeAtRange = CommonUtil.findNode(range(), syntaxTree);
+        }
+        return this.nodeAtRange;
     }
 }

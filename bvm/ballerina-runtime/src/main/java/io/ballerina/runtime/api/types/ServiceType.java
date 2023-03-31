@@ -17,13 +17,10 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BServiceType} represents a service in Ballerina.
+ * {@code ServiceType} represents a service object in Ballerina.
  *
  * @since 2.0.0
  */
-public interface ServiceType extends ObjectType {
+public interface ServiceType extends NetworkObjectType {
 
-    RemoteMethodType[] getRemoteMethods();
-
-    ResourceMethodType[] getResourceMethods();
 }

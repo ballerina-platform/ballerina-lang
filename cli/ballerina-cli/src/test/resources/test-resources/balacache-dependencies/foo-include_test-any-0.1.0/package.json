@@ -1,0 +1,48 @@
+{
+  "organization": "foo",
+  "name": "include_test",
+  "version": "0.1.0",
+  "licenses": [
+    "MIT",
+    "Apache-2.0"
+  ],
+  "authors": [
+    "jo@wso2.com",
+    "pramodya@wso2.com"
+  ],
+  "source_repository": "https://github.com/ballerinalang/ballerina",
+  "keywords": [
+    "ballerina",
+    "security",
+    "crypto"
+  ],
+  "export": [
+    "include_test",
+    "include_test.services"
+  ],
+  "include": [
+    "foo",
+    "/bar",
+    "baz/",
+    "/qux/",
+    "/quux/",
+    "*.html",
+    "foo*bar.*",
+    "plug?",
+    "thud[ab]",
+    "fred[q-s]",
+    "**/grault/garply",
+    "waldo/xyzzy/**",
+    "babble/**/bar",
+    "*.rs",
+    "!corge.rs",
+    "include-resources/thud",
+    "include-resources/x.js"
+  ],
+  "visibility": "private",
+  "ballerina_version": "2201.2.0-SNAPSHOT",
+  "implementation_vendor": "WSO2",
+  "language_spec_version": "2022R2",
+  "platform": "any",
+  "template": true
+}

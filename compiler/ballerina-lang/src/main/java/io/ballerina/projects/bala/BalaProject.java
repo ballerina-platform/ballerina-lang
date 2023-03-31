@@ -64,11 +64,19 @@ public class BalaProject extends Project {
     }
 
     @Override
+    public void clearCaches() {
+        resetPackage(this);
+        ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        this.projectEnvironment = projectEnvironmentBuilder.build(this);
+    }
+
+    @Override
     public Project duplicate() {
         ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
         BalaProject balaProject = new BalaProject(projectEnvironmentBuilder, this.sourceRoot);
-        return cloneProject(balaProject);
+        return resetPackage(balaProject);
     }
 
     @Override

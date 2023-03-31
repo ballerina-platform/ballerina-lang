@@ -55,8 +55,31 @@ public class Async {
         return 0;
     }
 
+    public static long getFieldValWithMultipleOptionalArgsDefaultVal(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithMultipleOptionalArgs", 0, false, 0, false, 0, false);
+        return 0;
+    }
+
+    public static long getFieldValWithMultipleOptionalArgsDefaultValAsync(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithMultipleOptionalArgsAsync", 0, false, 0, false, 0,
+                false);
+        return 0;
+    }
+
     public static long getFieldValWithProvidedOptionalArgVal(Environment env, BObject obj, BString fieldName) {
         invokeMethodAsyncSequentially(env, obj, "getFieldValWithOptionalArg", fieldName, true);
+        return 0;
+    }
+
+    public static long getFieldValWithDefaultValSpecialChars(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithDefaultValSpecialChars", 0, false, 0, false, 0,
+                false);
+        return 0;
+    }
+
+    public static long getFieldValWithDefaultValSpecialCharsAsync(Environment env, BObject obj) {
+        invokeMethodAsyncSequentially(env, obj, "getFieldValWithDefaultValSpecialCharsAsync", 0, false, 0, false, 0,
+                false);
         return 0;
     }
 
@@ -76,7 +99,7 @@ public class Async {
     }
 
     public static boolean isolatedClassIsIsolated(BObject obj) {
-        return obj.getType().isIsolated();
+        return ((ObjectType) obj.getType()).isIsolated();
     }
 
     public static boolean isolatedClassIsIsolatedFunction(BObject obj) {
@@ -104,7 +127,7 @@ public class Async {
     }
 
     public static boolean nonIsolatedClassIsIsolated(BObject obj) {
-        return obj.getType().isIsolated();
+        return ((ObjectType) obj.getType()).isIsolated();
     }
 
     public static boolean nonIsolatedClassIsIsolatedFunction(BObject obj) {
@@ -117,7 +140,7 @@ public class Async {
     }
 
     public static boolean isolatedServiceIsIsolated(BObject obj) {
-        return obj.getType().isIsolated();
+        return ((ObjectType) obj.getType()).isIsolated();
     }
 
     public static boolean isolatedServiceIsIsolatedFunction(BObject obj) {
@@ -130,7 +153,7 @@ public class Async {
     }
 
     public static boolean nonIsolatedServiceIsIsolated(BObject obj) {
-        return obj.getType().isIsolated();
+        return ((ObjectType) obj.getType()).isIsolated();
     }
 
     public static boolean nonIsolatedServiceIsIsolatedFunction(BObject obj) {
@@ -238,7 +261,7 @@ public class Async {
     }
 
     private static boolean isRemoteMethodIsolated(BObject obj) {
-        MethodType[] methods = obj.getType().getMethods();
+        MethodType[] methods = ((ObjectType) obj.getType()).getMethods();
         for (MethodType method : methods) {
             if (method.getName().equals("getA")) {
                 return method.isIsolated();

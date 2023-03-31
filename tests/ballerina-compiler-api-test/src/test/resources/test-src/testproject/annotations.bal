@@ -15,3 +15,10 @@
 // under the License.
 
 public annotation Annot Config on function;
+
+public annotation ServiceAttributes ServiceAnnot on service;
+
+// helpers
+type ServiceAttributes record {|
+    string serviceName;
+|};

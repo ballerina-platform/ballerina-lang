@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
@@ -25,11 +27,15 @@ import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
+import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
-import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
+import org.ballerinalang.langserver.references.ReferencesUtil;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.eclipse.lsp4j.CodeAction;
@@ -49,11 +55,13 @@ import java.util.Set;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
+public class IgnoreUnusedVariableCodeAction implements DiagnosticBasedCodeActionProvider {
 
     private static final String NAME = "IGNORE_VARIABLE";
 
-    /** Interested diagnostic codes of this code action. */
+    /**
+     * Interested diagnostic codes of this code action.
+     */
     private static final Set<String> DIAGNOSTIC_CODES = Set.of(
             DiagnosticWarningCode.UNUSED_LOCAL_VARIABLE.diagnosticId(),
             DiagnosticErrorCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT.diagnosticId()
@@ -62,16 +70,15 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) && 
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code())
+                && CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
-        
-        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
+        Range range = PositionUtil.toRange(diagnostic.location().lineRange());
         Optional<NonTerminalNode> nonTerminalNode = context.currentSyntaxTree()
                 .flatMap(syntaxTree -> Optional.ofNullable(CommonUtil.findNode(range, syntaxTree)));
 
@@ -107,6 +114,12 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
+        // Only subtypes of any can be ignored.
+        if (bindingPatternNode.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN 
+                && !isSubTypeOfAny(bindingPatternNode, context)) {
+            return Collections.emptyList();
+        }
+
         // If it's a variable, need to check for references
         if (bindingPatternNode.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN) {
             BindingPatternNode finalBindingPatternNode = bindingPatternNode;
@@ -126,13 +139,13 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
         if (bindingPatternNode.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN ||
                 bindingPatternNode.kind() == SyntaxKind.MAPPING_BINDING_PATTERN ||
                 bindingPatternNode.kind() == SyntaxKind.LIST_BINDING_PATTERN) {
-            Range editRange = CommonUtil.toRange(bindingPatternNode.lineRange());
+            Range editRange = PositionUtil.toRange(bindingPatternNode.lineRange());
             textEdit = new TextEdit(editRange, "_");
         } else if (bindingPatternNode.kind() == SyntaxKind.FIELD_BINDING_PATTERN) {
             if (bindingPatternNode instanceof FieldBindingPatternVarnameNode) {
                 FieldBindingPatternVarnameNode fieldBindingPattern =
                         (FieldBindingPatternVarnameNode) bindingPatternNode;
-                Position position = CommonUtil.toPosition(fieldBindingPattern.variableName().lineRange().endLine());
+                Position position = PositionUtil.toPosition(fieldBindingPattern.variableName().lineRange().endLine());
                 Range editRange = new Range(position, position);
                 textEdit = new TextEdit(editRange, ": _");
             }
@@ -142,12 +155,35 @@ public class IgnoreUnusedVariableCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        return List.of(createCodeAction(CommandConstants.IGNORE_UNUSED_VAR_TITLE,
+        return List.of(CodeActionUtil.createCodeAction(CommandConstants.IGNORE_UNUSED_VAR_TITLE,
                 List.of(textEdit), context.fileUri(), CodeActionKind.QuickFix));
+    }
+
+    /**
+     * Check whether the given binding pattern node is a subtype of any.
+     *
+     * @param bindingPatternNode binding pattern node
+     * @param context            code action context
+     * @return {@code true} if the given binding pattern node is a subtype of any
+     */
+    private boolean isSubTypeOfAny(BindingPatternNode bindingPatternNode, CodeActionContext context) {
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isEmpty()) {
+            return false;
+        }
+
+        Optional<TypeSymbol> typeSymbol = semanticModel.get().symbol(bindingPatternNode)
+                .flatMap(SymbolUtil::getTypeDescriptor);
+
+        if (typeSymbol.isEmpty()) {
+            return false;
+        }
+
+        return typeSymbol.get().subtypeOf(semanticModel.get().types().ANY);
     }
 
     @Override
     public String getName() {
-        return null;
+        return NAME;
     }
 }

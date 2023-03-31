@@ -1,0 +1,48 @@
+{
+  "position": {
+    "line": 7,
+    "character": 15
+  },
+  "description": "Test return raw template when expecting a union type",
+  "source": "source.bal",
+  "expected": [
+    {
+      "title": "Convert to 'xml' template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 11
+            },
+            "end": {
+              "line": 7,
+              "character": 22
+            }
+          },
+          "newText": "xml `Ballerina`"
+        }
+      ]
+    },
+    {
+      "title": "Convert to 'string' template",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 11
+            },
+            "end": {
+              "line": 7,
+              "character": 22
+            }
+          },
+          "newText": "string `Ballerina`"
+        }
+      ]
+    }
+  ]
+}

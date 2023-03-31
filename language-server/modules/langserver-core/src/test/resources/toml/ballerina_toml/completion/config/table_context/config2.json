@@ -13,6 +13,13 @@
       "insertText": "[[platform.java11.dependency]]"
     },
     {
+      "label": "platform.java11.repository",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java11.repository]]"
+    },
+    {
       "label": "license",
       "kind": "Snippet",
       "detail": "Array",
@@ -34,6 +41,14 @@
       "detail": "Array",
       "sortText": "A",
       "insertText": "export=[${1:}]",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "include",
+      "kind": "Snippet",
+      "detail": "Array",
+      "sortText": "A",
+      "insertText": "include=[${1:}]",
       "insertTextFormat": "Snippet"
     },
     {

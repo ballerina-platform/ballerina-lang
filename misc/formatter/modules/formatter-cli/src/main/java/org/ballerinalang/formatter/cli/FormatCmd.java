@@ -39,11 +39,17 @@ public class FormatCmd implements BLauncherCmd {
     @CommandLine.Option(names = {"-d", "--dry-run"})
     private boolean dryRun;
 
+    @CommandLine.Option(names = "--module")
+    private String moduleName;
+
+    @CommandLine.Option(names = "--file")
+    private String fileName;
+
     @Override
     public void execute() {
         // Get source root path.
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
-        FormatUtil.execute(argList, helpFlag, dryRun, sourceRootPath);
+        FormatUtil.execute(argList, helpFlag, moduleName, fileName, dryRun, sourceRootPath);
     }
 
     @Override

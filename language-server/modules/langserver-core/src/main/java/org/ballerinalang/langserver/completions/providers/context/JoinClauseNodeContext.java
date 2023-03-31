@@ -26,11 +26,11 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.CompleteExpressionValidator;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -67,7 +67,7 @@ public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinCla
              */
             if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-                return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, qNameRef), context);
+                return this.getCompletionItemList(QNameRefCompletionUtil.getTypesInModule(context, qNameRef), context);
             }
             completionItems.addAll(this.getTypeDescContextItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
@@ -94,7 +94,7 @@ public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinCla
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+            List<Symbol> exprEntries = QNameRefCompletionUtil.getExpressionContextEntries(context, qNameRef);
             completionItems.addAll(this.getCompletionItemList(exprEntries, context));
         } else if (!isMissingVarName(node.typedBindingPattern())
                 && context.getCursorPositionInTree() >

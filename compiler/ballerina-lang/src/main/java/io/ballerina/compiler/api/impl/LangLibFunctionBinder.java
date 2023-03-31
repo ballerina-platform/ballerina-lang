@@ -119,6 +119,7 @@ public class LangLibFunctionBinder {
                                                                       originalSym.owner, originalSym.pos,
                                                                       originalSym.origin);
 
+        duplicate.retType = newRetType;
         duplicateTSym.params.addAll(newParams);
         duplicateTSym.restParam = newRestParam;
         duplicateTSym.returnType = newRetType;

@@ -267,3 +267,66 @@ function testArrSortWithNamedArgs1() {
 
     sortedArr = array:sort(arr, direction = array:DESCENDING, key = ());
 }
+
+class Obj {
+    int i;
+    int j;
+
+    function init(int i, int j) {
+        self.i = i;
+        self.j = j;
+    }
+}
+
+function testPushWithObjectConstructorExprNegative() {
+    Obj[] arr = [];
+    arr.push(
+        object { // OK
+            int i = 123;
+            int j = 234;
+        },
+        object { // error
+            int i = 123;
+        }
+    );
+}
+
+type Template object {
+    *object:RawTemplate;
+
+    public (readonly & string[]) strings;
+    public int[] insertions;
+};
+
+function testPushWithRawTemplateExprNegative() {
+    Template[] arr = [];
+    string i = "12345";
+    arr.push(
+        `number ${i}`, // error
+        `second number ${1 + 3} third ${i + "1"}` // error for second interpolations
+    );
+}
+
+type Department record {|
+    readonly string name;
+    int empCount;
+|};
+
+function testPushWithTableConstructorExprNegative() {
+    (table<Department> key(name))[] arr = [];
+    arr.push(
+        table [{name: "finance"}] // error for missing `empCount`
+    );
+}
+
+function testPushWithNewExprNegative() {
+    Obj[] arr = [];
+    arr.push(new (1)); // error for missing argument
+}
+
+type Error error<record {| int code; |}>;
+
+function testPushWithErrorConstructorExprNegative() {
+    Error[] arr = [];
+    arr.push(error("e1")); // error for missing `code`
+}

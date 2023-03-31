@@ -20,11 +20,12 @@ import io.ballerina.compiler.syntax.tree.MatchClauseNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -46,12 +47,21 @@ public class MatchClauseNodeContext extends MatchStatementContext<MatchClauseNod
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, MatchClauseNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
-            List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, this.constantFilter());
+            List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef, 
+                    this.constantFilter());
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else if (onSuggestIfClause(context, node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IF.get()));
+        } else if (onSuggestionsAfterDoubleArrow(context, node)) {
+            /*
+            Handles the following
+            eg: match v {
+                    1 => <cursor>
+                }
+             */
+            return completionItems;
         } else {
             completionItems.addAll(this.getPatternClauseCompletions(context));
         }
@@ -59,11 +69,20 @@ public class MatchClauseNodeContext extends MatchStatementContext<MatchClauseNod
 
         return completionItems;
     }
-    
+
+    private boolean onSuggestionsAfterDoubleArrow(BallerinaCompletionContext context, MatchClauseNode node) {
+        Token rightDoubleArrow = node.rightDoubleArrow();
+        return !rightDoubleArrow.isMissing() 
+                && context.getCursorPositionInTree() >= rightDoubleArrow.textRange().endOffset();
+    }
+
     private boolean onSuggestIfClause(BallerinaCompletionContext context, MatchClauseNode node) {
         int cursor = context.getCursorPositionInTree();
         SeparatedNodeList<Node> matchPatterns = node.matchPatterns();
+        Token rightDoubleArrow = node.rightDoubleArrow();
         
-        return !matchPatterns.isEmpty() && cursor > matchPatterns.get(matchPatterns.size() - 1).textRange().endOffset();
+        return !matchPatterns.isEmpty() && cursor > matchPatterns.get(matchPatterns.size() - 1).textRange().endOffset()
+                && (rightDoubleArrow.isMissing() || (!rightDoubleArrow.isMissing() 
+                && cursor <= rightDoubleArrow.textRange().startOffset()));
     }
 }

@@ -1,0 +1,58 @@
+{
+  "position": {
+    "line": 1,
+    "character": 23
+  },
+  "source": "create_function_in_conditional_expression.bal",
+  "description": "Test create function code action in conditional expression",
+  "expected": [
+    {
+      "title": "Create function 'isGreaterThanZero(...)'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 1
+            },
+            "end": {
+              "line": 2,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction isGreaterThanZero(int i) returns boolean {\n    return false;\n}"
+        }
+      ],
+      "resolvable": true,
+      "data": {
+        "extName": "org.ballerinalang.langserver.codeaction.BallerinaCodeActionExtension",
+        "codeActionName": "Create Function",
+        "fileUri": "create_function_in_conditional_expression.bal",
+        "range": {
+          "start": {
+            "line": 1,
+            "character": 17
+          },
+          "end": {
+            "line": 1,
+            "character": 39
+          }
+        },
+        "actionData": {
+          "key": "node.range",
+          "value": {
+            "start": {
+              "line": 1.0,
+              "character": 17.0
+            },
+            "end": {
+              "line": 1.0,
+              "character": 39.0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

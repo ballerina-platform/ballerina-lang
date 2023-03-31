@@ -1,0 +1,180 @@
+{
+  "position": {
+    "line": 7,
+    "character": 4
+  },
+  "source": "testproject/main.bal",
+  "expected": [
+    {
+      "title": "Create variable and type guard",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 4
+            },
+            "end": {
+              "line": 7,
+              "character": 4
+            }
+          },
+          "newText": "module2:Country|error countryWithError = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import testproject.module2;\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 34
+            },
+            "end": {
+              "line": 7,
+              "character": 34
+            }
+          },
+          "newText": "\n    if countryWithError is module2:Country {\n\n    }"
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "testproject/main.bal",
+          {
+            "line": 8,
+            "character": 26
+          }
+        ]
+      },
+      "resolvable": false
+    },
+    {
+      "title": "Create variable and check error",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 4
+            },
+            "end": {
+              "line": 7,
+              "character": 4
+            }
+          },
+          "newText": "module2:Country countryWithError = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 4
+            },
+            "end": {
+              "line": 7,
+              "character": 4
+            }
+          },
+          "newText": "check "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 31
+            },
+            "end": {
+              "line": 6,
+              "character": 31
+            }
+          },
+          "newText": " returns error?"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import testproject.module2;\n"
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "testproject/main.bal",
+          {
+            "line": 8,
+            "character": 20
+          }
+        ]
+      },
+      "resolvable": false
+    },
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 4
+            },
+            "end": {
+              "line": 7,
+              "character": 4
+            }
+          },
+          "newText": "module2:Country|error countryWithError = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import testproject.module2;\n"
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "testproject/main.bal",
+          {
+            "line": 8,
+            "character": 26
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+[
+  {
+    "description": "Add documentation",
+    "oldCode": "public enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "#Documentation\npublic enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "new",
+                  "versionImpact": "patch",
+                  "message": "documentation is added"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove documentation",
+    "oldCode": "#Documentation\npublic enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "public enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "removed",
+                  "versionImpact": "patch",
+                  "message": "documentation is removed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify documentation",
+    "oldCode": "#Documentation\npublic enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "newCode": "#Enumeration declaration\npublic enum color{\n\tRed,\n\tBlue,\n\tGreen\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "enum declaration",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "documentation",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "message": "documentation is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

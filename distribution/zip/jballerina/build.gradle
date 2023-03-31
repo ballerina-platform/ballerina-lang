@@ -62,6 +62,7 @@ dependencies {
     balSource project(path: ':ballerina-lang:decimal', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:error', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:floatingpoint', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:function', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:future', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:integer', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:map', configuration: 'balSource')
@@ -76,6 +77,7 @@ dependencies {
     balSource project(path: ':ballerina-lang:runtime', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:query', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:transaction', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:regexp', configuration: 'balSource')
 
     staticArtifacts files('COPYRIGHT', 'LICENSE', 'README.md')
 }

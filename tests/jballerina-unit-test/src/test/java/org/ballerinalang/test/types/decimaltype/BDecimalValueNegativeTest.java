@@ -33,32 +33,35 @@ public class BDecimalValueNegativeTest {
     @Test
     public void testDecimalValue() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/decimal/decimal_value_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 18);
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 21, 1);
         BAssertUtil.validateError(compileResult, index++, "missing binary operator", 23, 21);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'g'", 23, 21);
         BAssertUtil.validateError(compileResult, index++, "leading zeros in numeric literals", 26, 17);
-        BAssertUtil.validateError(compileResult, index++, "Hexadecimal '-0x' too small", 29, 17);
         BAssertUtil.validateError(compileResult, index++, "missing hex number after hex indicator", 29, 18);
+        BAssertUtil.validateError(compileResult, index++, "invalid expression statement", 29, 20);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 29, 20);
-        BAssertUtil.validateError(compileResult, index++, "unknown type 'X1231'", 29, 20);
-        BAssertUtil.validateError(compileResult, index++, "missing pipe token", 29, 25);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'X1231'", 29, 20);
+        BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 29, 25);
+        BAssertUtil.validateError(compileResult, index++, "invalid expression statement", 32, 20);
         BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 32, 20);
-        BAssertUtil.validateError(compileResult, index++, "unknown type 'X1231'", 32, 20);
-        BAssertUtil.validateError(compileResult, index++, "missing pipe token", 32, 25);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'X1231'", 32, 20);
+        BAssertUtil.validateError(compileResult, index++, "missing semicolon token", 32, 25);
         BAssertUtil.validateError(compileResult, index++, "missing digit after dot", 35, 17);
         BAssertUtil.validateError(compileResult, index++, "missing digit after dot", 36, 17);
-        BAssertUtil.validateError(compileResult, index++, "Hexadecimal '0x' too large", 39, 17);
         BAssertUtil.validateError(compileResult, index++, "missing hex number after hex indicator", 39, 17);
-        BAssertUtil.validateError(compileResult, index++, "Hexadecimal '0X' too large", 40, 17);
-        BAssertUtil.validateError(compileResult, index, "missing hex number after hex indicator", 40, 17);
+        BAssertUtil.validateError(compileResult, index++, "missing hex number after hex indicator", 40, 17);
+        BAssertUtil.validateError(compileResult, index++, "'9.99E+6111' is out of range for 'float'",
+                44, 17);
+        BAssertUtil.validateError(compileResult, index++, "'9.99E+6111' is out of range for 'float'",
+                45, 26);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
     @Test
     void testDecimalValueNegativeLiteral() {
         CompileResult negative = BCompileUtil.compile("test-src/types/decimal/decimal_value_negative_literal.bal");
-        Assert.assertEquals(negative.getErrorCount(), 13);
+        Assert.assertEquals(negative.getErrorCount(), 16);
         int i = 0;
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 20, 17);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected 'decimal', found 'float'", 21, 17);
@@ -73,5 +76,18 @@ public class BDecimalValueNegativeTest {
         BAssertUtil.validateError(negative, i++, "operator '+' not defined for 'float' and 'decimal'", 38, 17);
         BAssertUtil.validateError(negative, i++, "operator '-' not defined for 'float' and 'decimal'", 39, 17);
         BAssertUtil.validateError(negative, i++, "operator '+' not defined for 'decimal' and 'float'", 41, 17);
+        BAssertUtil.validateError(negative, i++, "'9.9999999999999999999999999999999999e6144' is out of range" +
+                " for 'decimal'", 48, 17);
+        BAssertUtil.validateError(negative, i++, "'9.999999999999999999999999999999999e6145' is out of range" +
+                " for 'decimal'", 49, 17);
+        BAssertUtil.validateError(negative, i, "'9.9999999999999999999999999999999999e6144' is out of range" +
+                " for 'decimal'", 52, 18);
+    }
+
+    @Test
+    void testDecimalLargeExponentLiteral() {
+        CompileResult negative = BCompileUtil.compile("test-src/types/decimal/decimal_large_exponent_literal.bal");
+        Assert.assertEquals(negative.getErrorCount(), 1);
+        BAssertUtil.validateError(negative, 0, "'1e10000000000000' is out of range for 'decimal'", 18, 17);
     }
 }

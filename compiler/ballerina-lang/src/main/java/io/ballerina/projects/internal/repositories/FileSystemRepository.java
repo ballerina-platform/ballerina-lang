@@ -36,6 +36,7 @@ import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.BalaFiles;
 import io.ballerina.projects.repos.FileSystemCache;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -44,6 +45,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -112,6 +114,26 @@ public class FileSystemRepository extends AbstractPackageRepository {
         return Optional.of(project.currentPackage());
     }
 
+    /**
+     * Update the deprecated status of the package in file system cache.
+     *
+     * @param descriptor Package descriptor
+     */
+    void updateDeprecatedStatusForPackage(PackageDescriptor descriptor) {
+        Path balaPath = getPackagePath(descriptor.org().value(), descriptor.name().value(),
+                descriptor.version().value().toString());
+        if (balaPath != null && Files.exists(balaPath)) {
+            Path deprecateMsgMetaFile = Paths.get(balaPath.toString(), ProjectConstants.DEPRECATED_META_FILE_NAME);
+            if (descriptor.getDeprecated() && !deprecateMsgMetaFile.toFile().exists()) {
+                FileUtils.addDeprecatedMetaFile(deprecateMsgMetaFile, descriptor.getDeprecationMsg());
+            }
+
+            if (!descriptor.getDeprecated() && deprecateMsgMetaFile.toFile().exists()) {
+                FileUtils.deleteDeprecatedMetaFile(deprecateMsgMetaFile);
+            }
+        }
+    }
+
     @Override
     public boolean isPackageExists(PackageOrg org,
                                    PackageName name,
@@ -139,30 +161,38 @@ public class FileSystemRepository extends AbstractPackageRepository {
             return packagesMap;
         }
         for (File file : orgDirs) {
-            if (!file.isDirectory()) {
+            if (!file.isDirectory() || file.isHidden()) {
                 continue;
             }
             String orgName = file.getName();
             File[] filesList = this.bala.resolve(orgName).toFile().listFiles();
             if (filesList == null) {
-                return packagesMap;
+                continue;
             }
             List<String> pkgList = new ArrayList<>();
             for (File pkgDir : filesList) {
-                if (!pkgDir.isDirectory() || pkgDir.isHidden()) {
+                if (!pkgDir.isDirectory()) {
                     continue;
                 }
                 File[] pkgs = this.bala.resolve(orgName).resolve(pkgDir.getName()).toFile().listFiles();
                 if (pkgs == null) {
                     continue;
                 }
-                String version = "";
+                String version = null;
                 for (File listFile : pkgs) {
                     if (listFile.isHidden() || !listFile.isDirectory()) {
                         continue;
                     }
                     version = listFile.getName();
                     break;
+                }
+                if (version == null) {
+                    continue;
+                }
+                try {
+                    PackageVersion.from(version);
+                } catch (ProjectException ignored) {
+                    continue;
                 }
                 pkgList.add(pkgDir.getName() + ":" + version);
             }

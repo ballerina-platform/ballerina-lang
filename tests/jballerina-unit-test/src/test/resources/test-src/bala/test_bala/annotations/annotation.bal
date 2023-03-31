@@ -1,4 +1,5 @@
 import testorg/foo;
+import ballerina/jballerina.java;
 
 @foo:ConfigAnnotation {
     numVal: 10,
@@ -26,6 +27,37 @@ function testAnnotOnBoundMethod() {
     foo:OtherConfiguration rec = <foo:OtherConfiguration> r;
     assertEquality(102, rec.i);
 }
+
+function testAnnotOnRecordFields() {
+    map<any> m = getLocalRecordAnnotations(typeof foo:testAnnotationsOnLocalRecordFields(), "$field$.x");
+    assertEquality({value : "10"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
+    m = getLocalRecordAnnotations(typeof foo:testRecordFieldAnnotationsOnReturnType(), "$field$.x");
+    assertEquality({value : "100"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
+
+}
+
+function testAnnotOnTupleFields() {
+    map<any> m = getAnonymousTupleAnnotations(typeof foo:testAnnotationsOnLocalTupleFields(), "$field$.0");
+    assertEquality({value : "10"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
+    m = getAnonymousTupleAnnotations(typeof foo:testTupleFieldAnnotationsOnReturnType(), "$field$.0");
+    assertEquality({value : "100"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
+    m = getAnonymousTupleAnnotations(typeof foo:g1, "$field$.0");
+    assertEquality({value : "chiranS"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
+    m = getAnonymousTupleAnnotations(typeof foo:g1, "$field$.1");
+    assertEquality({value : "k"} , <map<anydata>>m["testorg/foo:1:annotOne"]);
+}
+
+function getLocalRecordAnnotations(typedesc<any> obj, string annotName) returns map<any> =
+@java:Method {
+    'class: "org/ballerinalang/test/annotations/LocalRecordAnnotationTest",
+    name: "getLocalRecordAnnotations"
+} external;
+
+function getAnonymousTupleAnnotations(typedesc<any> obj, string annotName) returns map<any> =
+@java:Method {
+    'class: "org/ballerinalang/test/annotations/AnonymousTupleAnnotationTest",
+    name: "getAnonymousTupleAnnotations"
+} external;
 
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {

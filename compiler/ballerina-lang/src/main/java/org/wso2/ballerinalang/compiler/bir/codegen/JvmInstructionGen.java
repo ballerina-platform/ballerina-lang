@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JCast;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInsKind;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmConstantsGen;
@@ -41,16 +42,18 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
@@ -118,19 +121,23 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen.getTargetClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_MAP_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.EQUALS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INSTANTIATE_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -146,12 +153,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MATH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHORT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
@@ -170,11 +177,25 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_J
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ANY_TO_JSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ARRAY_ADD_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ARRAY_ADD_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BAL_ENV_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BOBJECT_GET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.BSTRING_CONCAT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CHECK_IS_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.COMPARE_DECIMALS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.COMPARE_OBJECTS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_REGEXP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_ASSERTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_ATOM_QUANTIFIER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_CAPTURING_GROUP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_CHAR_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_CHAR_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_CHAR_SET_RANGE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_DISJUNCTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_FLAG_EXPR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_FLAG_ON_OFF;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_LITERAL_CHAR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_QUANTIFIER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RE_SEQUENCE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_XML_COMMENT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_XML_ELEMENT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_XML_PI;
@@ -186,6 +207,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.FP_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ANNOTATION_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING_FOR_ARRAY_INDEX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_AT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_FROM_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
@@ -194,12 +216,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_M
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.HANDLE_TABLE_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ARRAY_WITH_INITIAL_VALUES;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ERROR_WITH_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_LIST_INITIAL_EXPRESSION_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_LIST_INITIAL_SPREAD_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_MAPPING_INITIAL_SPREAD_FIELD_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TABLE_VALUE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_TUPLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_WITH_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_XML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INSTANTIATE;
@@ -215,6 +237,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_DECI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_ON_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TWO_OBJECTS_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DESC_CONSTRUCTOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_ADD_CHILDREN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_CHILDREN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_CHILDREN_FROM_STRING;
@@ -247,6 +270,8 @@ public class JvmInstructionGen {
     private final SymbolTable symbolTable;
     private final AsyncDataCollector asyncDataCollector;
     private final JvmTypeTestGen typeTestGen;
+    private final Map<String, String> functions;
+    private final String moduleInitClass;
 
     public JvmInstructionGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, PackageID currentPackage,
                              JvmPackageGen jvmPackageGen, JvmTypeGen jvmTypeGen, JvmCastGen jvmCastGen,
@@ -260,7 +285,9 @@ public class JvmInstructionGen {
         this.asyncDataCollector = asyncDataCollector;
         this.jvmCastGen = jvmCastGen;
         this.jvmConstantsGen = jvmConstantsGen;
-        typeTestGen = new JvmTypeTestGen(this, types, mv, jvmTypeGen);
+        typeTestGen = new JvmTypeTestGen(this, types, mv, jvmTypeGen, jvmCastGen);
+        this.functions = new HashMap<>();
+        this.moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(currentPackage, MODULE_INIT_CLASS_NAME);
     }
 
     static void addJUnboxInsn(MethodVisitor mv, JType jType) {
@@ -401,21 +428,11 @@ public class JvmInstructionGen {
         BType bType = JvmCodeGenUtil.getReferredType(varDcl.type);
 
         switch (varDcl.kind) {
-            case GLOBAL: {
-                BIRNode.BIRGlobalVariableDcl globalVar = (BIRNode.BIRGlobalVariableDcl) varDcl;
-                String moduleName = JvmCodeGenUtil.getPackageName(globalVar.pkgId);
-
-                String varName = varDcl.name.value;
-                String className = jvmPackageGen.lookupGlobalVarClassName(moduleName, varName);
-
-                String typeSig = getTypeDesc(bType);
-                mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
-                return;
-            }
             case SELF:
                 mv.visitVarInsn(ALOAD, 0);
                 return;
-            case CONSTANT: {
+            case CONSTANT:
+            case GLOBAL:
                 String varName = varDcl.name.value;
                 PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
                 String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
@@ -423,7 +440,8 @@ public class JvmInstructionGen {
                 String typeSig = getTypeDesc(bType);
                 mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
                 return;
-            }
+            default:
+                break;
         }
 
         generateVarLoadForType(mv, bType, valueIndex);
@@ -434,7 +452,7 @@ public class JvmInstructionGen {
             mv.visitVarInsn(LLOAD, valueIndex);
             return;
         }  else if (TypeTags.isXMLTypeTag(bType.tag) ||
-                TypeTags.isStringTypeTag(bType.tag)) {
+                TypeTags.isStringTypeTag(bType.tag) || TypeTags.REGEXP == bType.tag) {
             mv.visitVarInsn(ALOAD, valueIndex);
             return;
         }
@@ -489,15 +507,7 @@ public class JvmInstructionGen {
     public void generateVarStore(MethodVisitor mv, BIRNode.BIRVariableDcl varDcl, int valueIndex) {
 
         BType bType = JvmCodeGenUtil.getReferredType(varDcl.type);
-        if (varDcl.kind == VarKind.GLOBAL) {
-            String varName = varDcl.name.value;
-            PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
-            String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
-            String className = jvmPackageGen.lookupGlobalVarClassName(pkgName, varName);
-            String typeSig = getTypeDesc(bType);
-            mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
-            return;
-        } else if (varDcl.kind == VarKind.CONSTANT) {
+        if (varDcl.kind == VarKind.GLOBAL || varDcl.kind == VarKind.CONSTANT) {
             String varName = varDcl.name.value;
             PackageID moduleId = ((BIRNode.BIRGlobalVariableDcl) varDcl).pkgId;
             String pkgName = JvmCodeGenUtil.getPackageName(moduleId);
@@ -515,7 +525,7 @@ public class JvmInstructionGen {
             mv.visitVarInsn(LSTORE, valueIndex);
             return;
         } else if (TypeTags.isStringTypeTag(bType.tag) ||
-                TypeTags.isXMLTypeTag(bType.tag)) {
+                TypeTags.isXMLTypeTag(bType.tag) || bType.tag == TypeTags.REGEXP) {
             mv.visitVarInsn(ASTORE, valueIndex);
             return;
         }
@@ -587,13 +597,37 @@ public class JvmInstructionGen {
         return symbolTable.byteType;
     }
 
-    void generatePlatformIns(JInstruction ins) {
+    void generatePlatformIns(JInstruction ins, int localVarOffset) {
         if (ins.jKind == JInsKind.JCAST) {
             JCast castIns = (JCast) ins;
             BType targetType = castIns.targetType;
             this.loadVar(castIns.rhsOp.variableDcl);
             jvmCastGen.generatePlatformCheckCast(this.mv, this.indexMap, castIns.rhsOp.variableDcl.type, targetType);
             this.storeToVar(castIns.lhsOp.variableDcl);
+        } else if (ins.jKind == JInsKind.CALL) {
+            JMethodCallInstruction callIns = (JMethodCallInstruction) ins;
+            boolean isInterface = callIns.invocationType == INVOKEINTERFACE;
+            int argIndex = 0;
+            String jMethodVMSig = callIns.jMethodVMSig;
+            boolean hasBalEnvParam = jMethodVMSig.startsWith(BAL_ENV_PARAM);
+            if (hasBalEnvParam) {
+                mv.visitTypeInsn(NEW, BAL_ENV);
+                mv.visitInsn(DUP);
+                // load the strand
+                this.mv.visitVarInsn(ALOAD, localVarOffset);
+                // load the current Module
+                mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
+                mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD,
+                        INIT_BAL_ENV, false);
+            }
+
+            while (argIndex < callIns.args.size()) {
+                BIROperand arg = callIns.args.get(argIndex);
+                this.loadVar(arg.variableDcl);
+                argIndex += 1;
+            }
+            this.mv.visitMethodInsn(callIns.invocationType, callIns.jClassName, callIns.name, jMethodVMSig,
+                    isInterface);
         }
     }
 
@@ -1028,7 +1062,7 @@ public class JvmInstructionGen {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "concat",
                                         BSTRING_CONCAT, true);
         } else if (bType.tag == TypeTags.DECIMAL) {
-            this.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "add",
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, ADD_METHOD,
                     SET_DECIMAL_RETURN_DECIMAL, false);
         } else if (bType.tag == TypeTags.FLOAT) {
             this.mv.visitInsn(DADD);
@@ -1315,7 +1349,7 @@ public class JvmInstructionGen {
             mv.visitInsn(AASTORE);
         }
 
-        this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, "instantiate",
+        this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION,
                                 INSTANTIATE, true);
         this.storeToVar(mapNewIns.lhsOp.variableDcl);
     }
@@ -1430,27 +1464,30 @@ public class JvmInstructionGen {
     void generateObjectStoreIns(BIRNonTerminator.FieldAccess objectStoreIns) {
         // visit object_ref
         this.loadVar(objectStoreIns.lhsOp.variableDcl);
+        if (objectStoreIns.onInitialization) {
+            BObjectType objectType = (BObjectType) objectStoreIns.lhsOp.variableDcl.type;
+            String className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(objectType.tsymbol.pkgID),
+                    toNameString(objectType));
+            // add cast to typeValueClass
+            this.mv.visitTypeInsn(CHECKCAST, className);
+            visitKeyValueExpressions(objectStoreIns);
+            // invoke setOnInitialization() method
+            this.mv.visitMethodInsn(INVOKESPECIAL, className, "setOnInitialization",
+                    SET_ON_INIT, false);
+            return;
+        }
+        visitKeyValueExpressions(objectStoreIns);
+        // invoke set() method
+        this.mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "set", SET_ON_INIT, true);
+    }
 
+    private void visitKeyValueExpressions(BIRNonTerminator.FieldAccess objectStoreIns) {
         // visit key_expr
         this.loadVar(objectStoreIns.keyOp.variableDcl);
-
         // visit value_expr
         BType valueType = objectStoreIns.rhsOp.variableDcl.type;
         this.loadVar(objectStoreIns.rhsOp.variableDcl);
         jvmCastGen.addBoxInsn(this.mv, valueType);
-
-        // invoke set() method
-        if (objectStoreIns.onInitialization) {
-            BObjectType objectType = (BObjectType) objectStoreIns.lhsOp.variableDcl.type;
-            this.mv.visitMethodInsn(INVOKESPECIAL,
-                                    getTypeValueClassName(JvmCodeGenUtil.getPackageName(objectType.tsymbol.pkgID),
-                                                          toNameString(objectType)), "setOnInitialization",
-                                    SET_ON_INIT, false);
-            return;
-        }
-
-        this.mv.visitMethodInsn(INVOKEINTERFACE, B_OBJECT, "set",
-                                SET_ON_INIT, true);
     }
 
     void generateStringLoadIns(BIRNonTerminator.FieldAccess stringLoadIns) {
@@ -1469,13 +1506,12 @@ public class JvmInstructionGen {
         this.storeToVar(stringLoadIns.lhsOp.variableDcl);
     }
 
-    void generateArrayNewIns(BIRNonTerminator.NewArray inst) {
+    void generateArrayNewIns(BIRNonTerminator.NewArray inst, int localVarOffset) {
         BType instType = JvmCodeGenUtil.getReferredType(inst.type);
         if (instType.tag == TypeTags.ARRAY) {
             this.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
             this.mv.visitInsn(DUP);
-            jvmTypeGen.loadType(this.mv, instType);
-            this.loadVar(inst.sizeOp.variableDcl);
+            jvmTypeGen.loadType(this.mv, inst.type);
             loadListInitialValues(inst);
             BType elementType = JvmCodeGenUtil.getReferredType(((BArrayType) instType).eType);
 
@@ -1488,12 +1524,10 @@ public class JvmInstructionGen {
             }
             this.storeToVar(inst.lhsOp.variableDcl);
         } else {
-            this.mv.visitTypeInsn(NEW, TUPLE_VALUE_IMPL);
-            this.mv.visitInsn(DUP);
-            jvmTypeGen.loadType(this.mv, instType);
-            this.loadVar(inst.sizeOp.variableDcl);
+            this.loadVar(inst.typedescOp.variableDcl);
+            this.mv.visitVarInsn(ALOAD, localVarOffset);
             loadListInitialValues(inst);
-            this.mv.visitMethodInsn(INVOKESPECIAL, TUPLE_VALUE_IMPL, JVM_INIT_METHOD, INIT_TUPLE, false);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, TYPEDESC_VALUE, INSTANTIATE_FUNCTION, INSTANTIATE, true);
             this.storeToVar(inst.lhsOp.variableDcl);
         }
     }
@@ -1502,8 +1536,6 @@ public class JvmInstructionGen {
         BType elementType = JvmCodeGenUtil.getReferredType(type);
         elementType = elementType.tag == TypeTags.INTERSECTION ?
                 ((BIntersectionType) elementType).effectiveType : elementType;
-        BTypeSymbol tsymbol = elementType.tag == TypeTags.RECORD ? elementType.tsymbol :
-                ((BIntersectionType) elementType).effectiveType.tsymbol;
         String typeOwner = JvmCodeGenUtil.getPackageName(type.tsymbol.pkgID) + MODULE_INIT_CLASS_NAME;
         String typedescFieldName =
                 jvmTypeGen.getTypedescFieldName(toNameString(elementType));
@@ -1520,21 +1552,19 @@ public class JvmInstructionGen {
 
         BType valueType = JvmCodeGenUtil.getReferredType(inst.rhsOp.variableDcl.type);
 
-        String method = "add";
-
         if (TypeTags.isIntegerTypeTag(valueType.tag)) {
-            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, "(JJ)V", true);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, ADD_METHOD, "(JJ)V", true);
         } else if (valueType.tag == TypeTags.FLOAT) {
-            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, "(JD)V", true);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, ADD_METHOD, "(JD)V", true);
         } else if (TypeTags.isStringTypeTag(valueType.tag)) {
-            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, ARRAY_ADD_BSTRING, true);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, ADD_METHOD, ARRAY_ADD_BSTRING, true);
         } else if (valueType.tag == TypeTags.BOOLEAN) {
-            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, "(JZ)V", true);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, ADD_METHOD, "(JZ)V", true);
         } else if (valueType.tag == TypeTags.BYTE) {
             this.mv.visitInsn(I2B);
-            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, "(JB)V", true);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, ADD_METHOD, "(JB)V", true);
         } else {
-            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, method, ARRAY_ADD_OBJECT, true);
+            this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, ADD_METHOD, ARRAY_ADD_OBJECT, true);
         }
     }
 
@@ -1680,11 +1710,9 @@ public class JvmInstructionGen {
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
 
-        jvmTypeGen.loadType(mv, type);
+        jvmTypeGen.loadType(mv, objectNewIns.expectedType);
         reloadObjectCtorAnnots(type, strandIndex);
-        this.mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE_IMPL);
-        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, OBJECT_TYPE_IMPL_INIT,
-                false);
+        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, OBJECT_TYPE_IMPL_INIT, false);
         this.storeToVar(objectNewIns.lhsOp.variableDcl);
     }
 
@@ -1711,8 +1739,15 @@ public class JvmInstructionGen {
         this.mv.visitInsn(DUP);
 
         String name = inst.funcName.value;
-        String lambdaName = Utils.encodeFunctionIdentifier(name) + "$lambda" +
-                asyncDataCollector.getLambdaIndex() + "$";
+
+        String funcKey = inst.pkgId.toString() + ":" + name;
+        String lambdaName = functions.get(funcKey);
+        if (lambdaName == null) {
+            lambdaName = Utils.encodeFunctionIdentifier(inst.funcName.value) + "$lambda" +
+                    asyncDataCollector.getLambdaIndex() + "$";
+            functions.put(funcKey, lambdaName);
+        }
+
         asyncDataCollector.incrementLambdaIndex();
 
         BType type = JvmCodeGenUtil.getReferredType(inst.type);
@@ -1728,6 +1763,9 @@ public class JvmInstructionGen {
 
         JvmCodeGenUtil.visitInvokeDynamic(mv, asyncDataCollector.getEnclosingClass(), lambdaName,
                                           inst.closureMaps.size());
+        // Need to remove once we fix #37875
+        type = inst.lhsOp.variableDcl.type.tag == TypeTags.TYPEREFDESC ? inst.lhsOp.variableDcl.type : type;
+
         jvmTypeGen.loadType(this.mv, type);
         if (inst.strandName != null) {
             mv.visitLdcInsn(inst.strandName);
@@ -1908,6 +1946,101 @@ public class JvmInstructionGen {
         this.storeToVar(xmlLoadIns.lhsOp.variableDcl);
     }
 
+    void generateNewRegExpIns(BIRNonTerminator.NewRegExp newRegExp) {
+        this.loadVar(newRegExp.reDisjunction.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createRegExpValue", CREATE_REGEXP, false);
+        this.storeToVar(newRegExp.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpDisjunctionIns(BIRNonTerminator.NewReDisjunction newReDisjunction) {
+        this.loadVar(newReDisjunction.sequences.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReDisjunction", CREATE_RE_DISJUNCTION, false);
+        this.storeToVar(newReDisjunction.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpSequenceIns(BIRNonTerminator.NewReSequence newReSequence) {
+        this.loadVar(newReSequence.terms.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReSequence", CREATE_RE_SEQUENCE, false);
+        this.storeToVar(newReSequence.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpAssertionIns(BIRNonTerminator.NewReAssertion newReAssertion) {
+        this.loadVar(newReAssertion.assertion.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReAssertion", CREATE_RE_ASSERTION, false);
+        this.storeToVar(newReAssertion.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpAtomQuantifierIns(BIRNonTerminator.NewReAtomQuantifier newReAtomQuantifier) {
+        this.loadVar(newReAtomQuantifier.atom.variableDcl);
+        this.loadVar(newReAtomQuantifier.quantifier.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReAtomQuantifier", CREATE_RE_ATOM_QUANTIFIER,
+                false);
+        this.storeToVar(newReAtomQuantifier.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpLiteralCharOrEscapeIns(BIRNonTerminator.NewReLiteralCharOrEscape newReLiteralCharOrEscape) {
+        this.loadVar(newReLiteralCharOrEscape.charOrEscape.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReLiteralCharOrEscape", CREATE_RE_LITERAL_CHAR,
+                false);
+        this.storeToVar(newReLiteralCharOrEscape.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpCharacterClassIns(BIRNonTerminator.NewReCharacterClass newReCharacterClass) {
+        this.loadVar(newReCharacterClass.classStart.variableDcl);
+        this.loadVar(newReCharacterClass.negation.variableDcl);
+        this.loadVar(newReCharacterClass.charSet.variableDcl);
+        this.loadVar(newReCharacterClass.classEnd.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReCharacterClass", CREATE_RE_CHAR_CLASS,
+                false);
+        this.storeToVar(newReCharacterClass.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpCharSetIns(BIRNonTerminator.NewReCharSet newReCharSet) {
+        this.loadVar(newReCharSet.charSetAtoms.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReCharSet", CREATE_RE_CHAR_SET, false);
+        this.storeToVar(newReCharSet.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpCharSetRangeIns(BIRNonTerminator.NewReCharSetRange newReCharSetRange) {
+        this.loadVar(newReCharSetRange.lhsCharSetAtom.variableDcl);
+        this.loadVar(newReCharSetRange.dash.variableDcl);
+        this.loadVar(newReCharSetRange.rhsCharSetAtom.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReCharSetRange", CREATE_RE_CHAR_SET_RANGE,
+                false);
+        this.storeToVar(newReCharSetRange.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpCapturingGroupIns(BIRNonTerminator.NewReCapturingGroup newReCapturingGroup) {
+        this.loadVar(newReCapturingGroup.openParen.variableDcl);
+        this.loadVar(newReCapturingGroup.flagExpr.variableDcl);
+        this.loadVar(newReCapturingGroup.reDisjunction.variableDcl);
+        this.loadVar(newReCapturingGroup.closeParen.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReCapturingGroup",
+                CREATE_RE_CAPTURING_GROUP, false);
+        this.storeToVar(newReCapturingGroup.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpFlagExprIns(BIRNonTerminator.NewReFlagExpression newReFlagExpression) {
+        this.loadVar(newReFlagExpression.questionMark.variableDcl);
+        this.loadVar(newReFlagExpression.flagsOnOff.variableDcl);
+        this.loadVar(newReFlagExpression.colon.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReFlagExpression", CREATE_RE_FLAG_EXPR, false);
+        this.storeToVar(newReFlagExpression.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpFlagOnOffIns(BIRNonTerminator.NewReFlagOnOff newReFlagOnOff) {
+        this.loadVar(newReFlagOnOff.flags.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReFlagOnOff", CREATE_RE_FLAG_ON_OFF, false);
+        this.storeToVar(newReFlagOnOff.lhsOp.variableDcl);
+    }
+
+    void generateNewRegExpQuantifierIns(BIRNonTerminator.NewReQuantifier newReQuantifier) {
+        this.loadVar(newReQuantifier.quantifier.variableDcl);
+        this.loadVar(newReQuantifier.nonGreedyChar.variableDcl);
+        this.mv.visitMethodInsn(INVOKESTATIC, REG_EXP_FACTORY, "createReQuantifier", CREATE_RE_QUANTIFIER, false);
+        this.storeToVar(newReQuantifier.lhsOp.variableDcl);
+    }
+
     void generateTypeofIns(BIRNonTerminator.UnaryOP unaryOp) {
 
         this.loadVar(unaryOp.rhsOp.variableDcl);
@@ -1955,19 +2088,28 @@ public class JvmInstructionGen {
 
     void generateNewTypedescIns(BIRNonTerminator.NewTypeDesc newTypeDesc) {
         List<BIROperand> closureVars = newTypeDesc.closureVars;
-        BType type = JvmCodeGenUtil.getReferredType(newTypeDesc.type);
-        if (type.tag == TypeTags.RECORD && closureVars.isEmpty() && type.tsymbol != null) {
+        if (isNonReferredRecord(newTypeDesc.type)) {
+            BType type = JvmCodeGenUtil.getReferredType(newTypeDesc.type);
             PackageID packageID = type.tsymbol.pkgID;
             String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
             String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(type));
             mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, GET_TYPEDESC);
         } else {
-            generateNewTypedescCreate(type, closureVars);
+            generateNewTypedescCreate(newTypeDesc.type, closureVars, newTypeDesc.annotations);
         }
         this.storeToVar(newTypeDesc.lhsOp.variableDcl);
     }
 
-    private void generateNewTypedescCreate(BType btype, List<BIROperand> closureVars) {
+    private boolean isNonReferredRecord(BType type) {
+        if (type.tag != TypeTags.TYPEREFDESC) {
+            return false;
+        }
+        BType referredType = ((BTypeReferenceType) type).referredType;
+        return referredType.tag == TypeTags.RECORD &&
+                type.getQualifiedTypeName().equals(referredType.getQualifiedTypeName());
+    }
+
+    private void generateNewTypedescCreate(BType btype, List<BIROperand> closureVars, BIROperand annotations) {
         BType type = JvmCodeGenUtil.getReferredType(btype);
         String className = TYPEDESC_VALUE_IMPL;
         if (type.tag == TypeTags.RECORD) {
@@ -1975,7 +2117,7 @@ public class JvmInstructionGen {
         }
         this.mv.visitTypeInsn(NEW, className);
         this.mv.visitInsn(DUP);
-        jvmTypeGen.loadType(this.mv, type);
+        jvmTypeGen.loadType(this.mv, btype);
 
         mv.visitIntInsn(BIPUSH, closureVars.size());
         mv.visitTypeInsn(ANEWARRAY, MAP_VALUE);
@@ -1986,9 +2128,13 @@ public class JvmInstructionGen {
             this.loadVar(closureVar.variableDcl);
             mv.visitInsn(AASTORE);
         }
-
-        String descriptor = TYPE_DESC_CONSTRUCTOR;
-        this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, descriptor, false);
+        if (annotations != null) {
+            this.loadVar(annotations.variableDcl);
+            this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS,
+                                    false);
+        } else {
+            this.mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_DESC_CONSTRUCTOR, false);
+        }
     }
 
     void loadVar(BIRNode.BIRVariableDcl varDcl) {
@@ -2081,7 +2227,7 @@ public class JvmInstructionGen {
                     generateTableLoadIns((FieldAccess) inst);
                     break;
                 case NEW_ARRAY:
-                    generateArrayNewIns((BIRNonTerminator.NewArray) inst);
+                    generateArrayNewIns((BIRNonTerminator.NewArray) inst, localVarOffset);
                     break;
                 case ARRAY_STORE:
                     generateArrayStoreIns((FieldAccess) inst);
@@ -2147,6 +2293,45 @@ public class JvmInstructionGen {
                 case XML_ATTRIBUTE_LOAD:
                     generateXMLAttrLoadIns((FieldAccess) inst);
                     break;
+                case NEW_REG_EXP:
+                    generateNewRegExpIns((BIRNonTerminator.NewRegExp) inst);
+                    break;
+                case NEW_RE_DISJUNCTION:
+                    generateNewRegExpDisjunctionIns((BIRNonTerminator.NewReDisjunction) inst);
+                    break;
+                case NEW_RE_SEQUENCE:
+                    generateNewRegExpSequenceIns((BIRNonTerminator.NewReSequence) inst);
+                    break;
+                case NEW_RE_ASSERTION:
+                    generateNewRegExpAssertionIns((BIRNonTerminator.NewReAssertion) inst);
+                    break;
+                case NEW_RE_ATOM_QUANTIFIER:
+                    generateNewRegExpAtomQuantifierIns((BIRNonTerminator.NewReAtomQuantifier) inst);
+                    break;
+                case NEW_RE_LITERAL_CHAR_ESCAPE:
+                    generateNewRegExpLiteralCharOrEscapeIns((BIRNonTerminator.NewReLiteralCharOrEscape) inst);
+                    break;
+                case NEW_RE_CHAR_CLASS:
+                    generateNewRegExpCharacterClassIns((BIRNonTerminator.NewReCharacterClass) inst);
+                    break;
+                case NEW_RE_CHAR_SET:
+                    generateNewRegExpCharSetIns((BIRNonTerminator.NewReCharSet) inst);
+                    break;
+                case NEW_RE_CHAR_SET_RANGE:
+                    generateNewRegExpCharSetRangeIns((BIRNonTerminator.NewReCharSetRange) inst);
+                    break;
+                case NEW_RE_CAPTURING_GROUP:
+                    generateNewRegExpCapturingGroupIns((BIRNonTerminator.NewReCapturingGroup) inst);
+                    break;
+                case NEW_RE_FLAG_EXPR:
+                    generateNewRegExpFlagExprIns((BIRNonTerminator.NewReFlagExpression) inst);
+                    break;
+                case NEW_RE_FLAG_ON_OFF:
+                    generateNewRegExpFlagOnOffIns((BIRNonTerminator.NewReFlagOnOff) inst);
+                    break;
+                case NEW_RE_QUANTIFIER:
+                    generateNewRegExpQuantifierIns((BIRNonTerminator.NewReQuantifier) inst);
+                    break;
                 case FP_LOAD:
                     generateFPLoadIns((BIRNonTerminator.FPLoad) inst);
                     break;
@@ -2166,7 +2351,7 @@ public class JvmInstructionGen {
                     generateNegateIns((BIRNonTerminator.UnaryOP) inst);
                     break;
                 case PLATFORM:
-                    generatePlatformIns((JInstruction) inst);
+                    generatePlatformIns((JInstruction) inst, localVarOffset);
                     break;
                 default:
                     throw new BLangCompilerException("JVM generation is not supported for operation " + inst);

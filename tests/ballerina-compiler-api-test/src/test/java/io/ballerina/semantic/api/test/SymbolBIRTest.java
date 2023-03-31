@@ -19,12 +19,16 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -56,6 +60,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
@@ -92,6 +97,29 @@ public class SymbolBIRTest {
         Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_import_test.bal");
         model = getDefaultModulesSemanticModel(project);
         srcFile = getDocumentForSingleSource(project);
+    }
+
+    @Test(dataProvider = "FunctionTypePosProvider")
+    public void test(int line, int col, String signature) {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_function_types_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), FUNCTION);
+
+        FunctionTypeSymbol functionTypeSymbol = ((FunctionSymbol) symbol.get()).typeDescriptor();
+        assertEquals(functionTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "FunctionTypePosProvider")
+    private Object[][] getFunctionTypePos() {
+        return new Object[][] {
+                {19, 24, "function (function (int x, float... y) returns string fn) returns int"},
+                {23, 16, "function (function (int x, function (string s, int... t) returns float fA)" +
+                        " returns string fn) returns ()"},
+        };
     }
 
     // Tests if the field symbols of a record type defined in testorg/testproject are accessible
@@ -146,12 +174,13 @@ public class SymbolBIRTest {
         BallerinaModule fooModule = (BallerinaModule) symbolsInScope.stream()
                 .filter(sym -> sym.getName().get().equals("testproject")).findAny().get();
         SemanticAPITestUtils.assertList(fooModule.functions(), List.of("loadHuman", 
-                "testAnonTypeDefSymbolsIsNotVisible", "add"));
+                "testAnonTypeDefSymbolsIsNotVisible", "add", "testFnA", "testFnB"));
         SemanticAPITestUtils.assertList(fooModule.constants(), List.of("RED", "GREEN", "BLUE", "PI", "TRUE", "FALSE"));
         
         SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), List.of("HumanObj", "ApplicationResponseError", 
                 "Person", "BasicType", "Digit", "FileNotFoundError", "EofError", "Error", "Pet", "Student", "Cat", 
-                "Annot", "Detail"));
+                "Annot", "Detail", "Service", "FnTypeA", "FnTypeB"));
+
         
         SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj", "Human"));
         SemanticAPITestUtils.assertList(fooModule.enums(), List.of("Colour"));
@@ -234,6 +263,28 @@ public class SymbolBIRTest {
         };
     }
 
+    @Test
+    public void testServiceDecl() {
+        Optional<Symbol> optionalSymbol = model.symbol(srcFile, from(46, 0));
+        assertTrue(optionalSymbol.isPresent());
+        assertEquals(optionalSymbol.get().kind(), SERVICE_DECLARATION);
+        ServiceDeclarationSymbol symbol = (ServiceDeclarationSymbol) optionalSymbol.get();
+
+        // Annotations
+        assertEquals(symbol.annotations().size(), 1);
+        AnnotationSymbol annotationSymbol = symbol.annotations().get(0);
+        assertEquals(annotationSymbol.getName().get(), "ServiceAnnot");
+        assertTrue(annotationSymbol.typeDescriptor().isPresent());
+        assertEquals(annotationSymbol.typeDescriptor().get().typeKind(), TYPE_REFERENCE);
+        TypeReferenceTypeSymbol typeRefSymbol = (TypeReferenceTypeSymbol) annotationSymbol.typeDescriptor().get();
+        assertEquals(typeRefSymbol.typeDescriptor().typeKind(), RECORD);
+        assertTrue(((RecordTypeSymbol) typeRefSymbol.typeDescriptor()).fieldDescriptors().containsKey("serviceName"));
+
+        // Fields and methods
+        assertTrue(symbol.fieldDescriptors().containsKey("count"));
+        assertTrue(symbol.methods().isEmpty());
+    }
+
     // util methods
 
     public static void assertList(List<Symbol> actualValues, List<SymbolInfo> expectedValues) {
@@ -269,7 +320,7 @@ public class SymbolBIRTest {
                 new Object[][]{
                         {"xml", MODULE}, {"testproject", MODULE}, {"object", MODULE}, {"error", MODULE},
                         {"boolean", MODULE}, {"decimal", MODULE}, {"typedesc", MODULE}, {"float", MODULE},
-                        {"future", MODULE}, {"int", MODULE}, {"map", MODULE}, {"stream", MODULE},
+                        {"function", MODULE}, {"future", MODULE}, {"int", MODULE}, {"map", MODULE}, {"stream", MODULE},
                         {"string", MODULE}, {"table", MODULE}, {"transaction", MODULE}
                 });
     }

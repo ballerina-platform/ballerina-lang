@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
@@ -38,7 +39,7 @@ public class Pop {
     private static final String FUNCTION_SIGNATURE = "pop()";
 
     public static Object pop(BArray arr) {
-        checkIsArrayOnlyOperation(arr.getType(), FUNCTION_SIGNATURE);
+        checkIsArrayOnlyOperation(TypeUtils.getReferredType(arr.getType()), FUNCTION_SIGNATURE);
         return arr.shift(arr.size() - 1);
     }
 }

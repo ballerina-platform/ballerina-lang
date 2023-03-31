@@ -1,0 +1,80 @@
+[
+  {
+    "source": "string? input = ();",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["input"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "string name = input is () ? \"John Doe\" : <string>input;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["name"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "name",
+    "result": {
+      "shellValue": {
+        "value":"\"John Doe\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "name = input ?: \"John Doe\";",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "name",
+    "result": {
+      "shellValue": {
+        "value":"\"John Doe\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "input = \"Bill Lambert\"; name = input ?: \"John Doe\"",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "name",
+    "result": {
+      "shellValue": {
+        "value":"\"Bill Lambert\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

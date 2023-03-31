@@ -1,0 +1,59 @@
+{
+  "range": {
+    "start": {
+      "line": 2,
+      "character": 17
+    },
+    "end": {
+      "line": 2,
+      "character": 30
+    }
+  },
+  "source": "extractToVariableInTypeCastExpression.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 4
+            }
+          },
+          "newText": "int var1 = <int>floatVal;\n    "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 17
+            },
+            "end": {
+              "line": 2,
+              "character": 30
+            }
+          },
+          "newText": "var1"
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInTypeCastExpression.bal",
+          {
+            "line": 3,
+            "character": 17
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

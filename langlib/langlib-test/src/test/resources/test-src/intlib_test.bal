@@ -108,18 +108,10 @@ function testLangLibCallOnFiniteType() {
 }
 
 function testIntOverflow() {
-    int a1 = -9223372036854775808;
-    int|error result = trap a1.abs();
+    int|error result = trap (-9223372036854775807 - 1).abs();
 
     test:assertValueEqual(true, result is error);
     error err = <error>result;
-    test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
-    test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
-
-    result = trap (-9223372036854775807 - 1).abs();
-
-    test:assertValueEqual(true, result is error);
-    err = <error>result;
     test:assertValueEqual("{ballerina/lang.int}NumberOverflow", err.message());
     test:assertValueEqual("int range overflow", <string>checkpanic err.detail()["message"]);
 }
@@ -207,15 +199,15 @@ function testIntOverflowWithSum() {
 function testIntNonOverflowWithSum() {
     int a1 = int:MIN_VALUE;
     int result = a1.sum();
-    test:assertValueEqual(-9223372036854775808, result);
+    test:assertValueEqual(int:MIN_VALUE, result);
 
     int a2 = -9223372036854775807;
     result = int:sum(a2, -1);
-    test:assertValueEqual(-9223372036854775808, result);
+    test:assertValueEqual(int:MIN_VALUE, result);
 
     int a3 = -9223372036854775805;
     result = a3.sum(-1, -2);
-    test:assertValueEqual(-9223372036854775808, result);
+    test:assertValueEqual(int:MIN_VALUE, result);
 
     int a4 = int:MAX_VALUE;
     result = a4.sum();
@@ -232,4 +224,60 @@ function testIntNonOverflowWithSum() {
     int a7 = 10;
     result = a7.sum(a1, a6);
     test:assertValueEqual(5, result);
+}
+
+function testIntRange() {
+    int[] num = [];
+    object:Iterable itb = int:range(0, 6, 3);
+    var itr = itb.iterator();
+    var next = itr.next();
+    while next is record{} {
+        var value = next.value;
+        if value is int {
+            num.push(value);
+        }
+        next = itr.next();
+    }
+    test:assertValueEqual([0,3], num);
+}
+
+function testIntRangeDec() {
+    int[] num = [];
+    object:Iterable itb = int:range(6, 0, -3);
+    var itr = itb.iterator();
+    var next = itr.next();
+    while next is record{} {
+        var value = next.value;
+        if value is int {
+            num.push(value);
+        }
+        next = itr.next();
+    }
+    test:assertValueEqual([6,3], num);
+}
+
+function testZeroStepIntRangeError() {
+    int[]|error e = trap zeroStepRange();
+    assert(e is error, true);
+}
+
+function zeroStepRange() returns int[] {
+    int[] r =[];
+
+    foreach int i in int:range(0, 4, 0) {
+        r.push(i);
+    }
+
+    return r;
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
 }

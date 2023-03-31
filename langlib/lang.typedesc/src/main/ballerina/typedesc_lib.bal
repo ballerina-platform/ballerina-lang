@@ -40,6 +40,19 @@ public type TypeId readonly & record {|
 |};
 
 # Returns the type-ids induced by a typedesc value.
+# 
+# ```ballerina
+# type Error distinct error;
+# 
+# type SampleError distinct (Error & error<record {string msg;}>);
+# 
+# Error.typeIds() ⇒ [{"moduleId":{"organization":"$anon","name":".","platformParts":["0"]},"localId":"Error"}]
+# 
+# SampleError.typeIds() ⇒ [{"moduleId":{"organization":"$anon","name":".","platformParts":["0"]},"localId":"SampleError"},{"moduleId":{"organization":"$anon","name":".","platformParts":["0"]},"localId":"Error"}]
+# 
+# SampleError.typeIds(true) ⇒ [{"moduleId":{"organization":"$anon","name":".","platformParts":["0"]},"localId":"SampleError"}]
+# ```
+# 
 # + t - the typedesc
 # + primaryOnly - if true, only the primary type-ids will be returned; otherwise, all type-ids will be returned
 # + return - an array containing the type-ids induced by `t` or nil if `t` is not definite

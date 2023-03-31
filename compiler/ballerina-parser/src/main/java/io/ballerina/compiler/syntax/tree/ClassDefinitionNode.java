@@ -65,6 +65,10 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
         return childInBucket(7);
     }
 
+    public Optional<Token> semicolonToken() {
+        return optionalChildInBucket(8);
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -85,7 +89,8 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
                 "className",
                 "openBrace",
                 "members",
-                "closeBrace"};
+                "closeBrace",
+                "semicolonToken"};
     }
 
     public ClassDefinitionNode modify(
@@ -96,7 +101,8 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
             Token className,
             Token openBrace,
             NodeList<Node> members,
-            Token closeBrace) {
+            Token closeBrace,
+            Token semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
@@ -105,7 +111,8 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
                 className,
                 openBrace,
                 members.underlyingListNode(),
-                closeBrace)) {
+                closeBrace,
+                semicolonToken)) {
             return this;
         }
 
@@ -117,7 +124,8 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
                 className,
                 openBrace,
                 members,
-                closeBrace);
+                closeBrace,
+                semicolonToken);
     }
 
     public ClassDefinitionNodeModifier modify() {
@@ -139,6 +147,7 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
         private Token openBrace;
         private NodeList<Node> members;
         private Token closeBrace;
+        private Token semicolonToken;
 
         public ClassDefinitionNodeModifier(ClassDefinitionNode oldNode) {
             this.oldNode = oldNode;
@@ -150,6 +159,7 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
             this.openBrace = oldNode.openBrace();
             this.members = oldNode.members();
             this.closeBrace = oldNode.closeBrace();
+            this.semicolonToken = oldNode.semicolonToken().orElse(null);
         }
 
         public ClassDefinitionNodeModifier withMetadata(
@@ -206,6 +216,12 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
+        public ClassDefinitionNodeModifier withSemicolonToken(
+                Token semicolonToken) {
+            this.semicolonToken = semicolonToken;
+            return this;
+        }
+
         public ClassDefinitionNode apply() {
             return oldNode.modify(
                     metadata,
@@ -215,7 +231,8 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
                     className,
                     openBrace,
                     members,
-                    closeBrace);
+                    closeBrace,
+                    semicolonToken);
         }
     }
 }

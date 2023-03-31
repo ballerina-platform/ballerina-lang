@@ -23,6 +23,7 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.ballerinalang.test.BCompileUtil;
@@ -54,15 +55,13 @@ import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 
 /**
- * Build command tests.
+ * Test command tests.
  *
  * @since 2.0.0
  */
 public class TestCommandTest extends BaseCommandTest {
     private Path testResources;
-    private Path testBuildDirectory;
     private Path testDistCacheDirectory;
-    Environment environment;
     ProjectEnvironmentBuilder projectEnvironmentBuilder;
 
     @BeforeClass
@@ -70,10 +69,10 @@ public class TestCommandTest extends BaseCommandTest {
         super.setup();
         try {
             this.testResources = super.tmpDir.resolve("test-cmd-test-resources");
-            this.testBuildDirectory = Paths.get("build").toAbsolutePath();
+            Path testBuildDirectory = Paths.get("build").toAbsolutePath();
             this.testDistCacheDirectory = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
             Path customUserHome = Paths.get("build", "user-home");
-            this.environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
+            Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
             projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
             URI testResourcesURI = Objects.requireNonNull(
                     getClass().getClassLoader().getResource("test-resources")).toURI();
@@ -92,7 +91,7 @@ public class TestCommandTest extends BaseCommandTest {
         // set valid source root
         TestCommand testCommand = new TestCommand(validBalFilePath, false);
         // name of the file as argument
-        new CommandLine(testCommand).parse(validBalFilePath.toString());
+        new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
         testCommand.execute();
     }
 
@@ -104,7 +103,7 @@ public class TestCommandTest extends BaseCommandTest {
         // set valid source root
         TestCommand testCommand = new TestCommand(validBalFilePath, false);
         // name of the file as argument
-        new CommandLine(testCommand).parse(validBalFilePath.toString());
+        new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
         testCommand.execute();
     }
 
@@ -112,12 +111,12 @@ public class TestCommandTest extends BaseCommandTest {
     public void testNonBalFileTest() throws IOException {
         Path nonBalFilePath = this.testResources.resolve("non-bal-file").resolve("hello_world.txt");
         TestCommand testCommand = new TestCommand(nonBalFilePath, printStream, printStream, false);
-        new CommandLine(testCommand).parse(nonBalFilePath.toString());
+        new CommandLine(testCommand).parseArgs(nonBalFilePath.toString());
         testCommand.execute();
 
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replaceAll("\r", "")
-                .contains("Invalid Ballerina source file(.bal): " + nonBalFilePath.toString()));
+                .contains("Invalid Ballerina source file(.bal): " + nonBalFilePath));
     }
 
     @Test(description = "Test non existing bal file")
@@ -126,11 +125,11 @@ public class TestCommandTest extends BaseCommandTest {
         Path validBalFilePath = this.testResources.resolve("valid-non-bal-file").resolve("xyz.bal");
         TestCommand testCommand = new TestCommand(validBalFilePath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(testCommand).parse(validBalFilePath.toString());
+        new CommandLine(testCommand).parseArgs(validBalFilePath.toString());
         testCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replaceAll("\r", "")
-                .contains("The file does not exist: " + validBalFilePath.toString()));
+                .contains("The file does not exist: " + validBalFilePath));
 
     }
 
@@ -140,7 +139,7 @@ public class TestCommandTest extends BaseCommandTest {
         Path balFilePath = this.testResources.resolve("bal-file-with-syntax-error").resolve("sample_tests.bal");
         TestCommand testCommand = new TestCommand(balFilePath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(testCommand).parse(balFilePath.toString());
+        new CommandLine(testCommand).parseArgs(balFilePath.toString());
         try {
             testCommand.execute();
         } catch (BLauncherException e) {
@@ -154,7 +153,7 @@ public class TestCommandTest extends BaseCommandTest {
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(testCommand).parse();
+        new CommandLine(testCommand).parseArgs();
         testCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("test-project.txt"));
@@ -166,7 +165,7 @@ public class TestCommandTest extends BaseCommandTest {
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(testCommand).parse();
+        new CommandLine(testCommand).parseArgs();
         testCommand.execute();
     }
 
@@ -175,7 +174,7 @@ public class TestCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("validProjectWithTests");
         TestCommand buildCommand = new TestCommand(projectPath, printStream, printStream, false);
         // non existing bal file
-        new CommandLine(buildCommand).parse(projectPath.toString());
+        new CommandLine(buildCommand).parseArgs(projectPath.toString());
         buildCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("test-project.txt"));
@@ -186,7 +185,7 @@ public class TestCommandTest extends BaseCommandTest {
         Path projectPath = this.testResources.resolve("oom-project");
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
-        new CommandLine(testCommand).parse();
+        new CommandLine(testCommand).parseArgs();
 
         try {
             testCommand.execute();
@@ -203,7 +202,7 @@ public class TestCommandTest extends BaseCommandTest {
         System.setProperty(ProjectConstants.USER_DIR, projectPath.toString());
         // build the project
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, true , false);
-        new CommandLine(buildCommand).parse();
+        new CommandLine(buildCommand).parseArgs();
         buildCommand.execute();
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         String md5BinJar = DigestUtils.md5Hex(
@@ -211,7 +210,7 @@ public class TestCommandTest extends BaseCommandTest {
 
         // Run tests
         TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
-        new CommandLine(testCommand).parse();
+        new CommandLine(testCommand).parseArgs();
         testCommand.execute();
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertEquals(md5BinJar, DigestUtils.md5Hex(
@@ -230,7 +229,7 @@ public class TestCommandTest extends BaseCommandTest {
         TestCommand testCommand = new TestCommand(
                 projectPath, printStream, printStream, false, false, true, "html");
 
-        new CommandLine(testCommand).parse();
+        new CommandLine(testCommand).parseArgs();
         testCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("unsupported coverage report format 'html' found. Only 'xml' format is " +
@@ -246,7 +245,7 @@ public class TestCommandTest extends BaseCommandTest {
         TestCommand testCommand = new TestCommand(
                 projectPath, printStream, printStream, false, true,
                 customTargetDir);
-        new CommandLine(testCommand).parse();
+        new CommandLine(testCommand).parseArgs();
         testCommand.execute();
 
         Assert.assertFalse(Files.exists(customTargetDir.resolve("bin")));
@@ -273,7 +272,7 @@ public class TestCommandTest extends BaseCommandTest {
 
         // Run bal test command
         TestCommand firstTestCommand = new TestCommand(projectPath, printStream, printStream, false);
-        new CommandLine(firstTestCommand).parse();
+        new CommandLine(firstTestCommand).parseArgs();
         firstTestCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("bal-test-project.txt"));
@@ -290,13 +289,74 @@ public class TestCommandTest extends BaseCommandTest {
 
         // Run bal test command with sticky flag
         TestCommand secondTestCommand = new TestCommand(projectPath, printStream, printStream, false);
-        new CommandLine(secondTestCommand).parse("--sticky");
+        new CommandLine(secondTestCommand).parseArgs("--sticky");
         secondTestCommand.execute();
         String secondBuildLog = readOutput(true);
         Assert.assertEquals(secondBuildLog.replaceAll("\r", ""), getOutput("bal-test-project.txt"));
         Assert.assertTrue(projectPath.resolve(DEPENDENCIES_TOML).toFile().exists());
         Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(), readFileAsString(
                 projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDeps.toml")).trim());
+    }
+
+    @Test(description = "Test a ballerina project with the flag dump-graph")
+    public void testTestBalProjectWithDumpGraphFlag() throws IOException {
+        Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_b"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+
+        Path projectPath = dumpGraphResourcePath.resolve("package_a");
+        System.setProperty("user.dir", projectPath.toString());
+
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs("--dump-graph");
+        testCommand.execute();
+        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+
+        Assert.assertEquals(buildLog, getOutput("test-project-with-dump-graph.txt"));
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("package_a").resolve("0.1.0").resolve("java11")
+                .resolve("foo-package_a-0.1.0.jar").toFile().exists());
+
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Test a ballerina project with the flag dump-raw-graphs")
+    public void testTestBalProjectWithDumpRawGraphsFlag() throws IOException {
+        Path dumpGraphResourcePath = this.testResources.resolve("projectsForDumpGraph");
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_c"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(dumpGraphResourcePath.resolve("package_b"), testDistCacheDirectory,
+                projectEnvironmentBuilder);
+
+        Path projectPath = dumpGraphResourcePath.resolve("package_a");
+        System.setProperty("user.dir", projectPath.toString());
+
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs("--dump-raw-graphs");
+        testCommand.execute();
+        String buildLog = readOutput(true).replaceAll("\r", "").strip();
+
+        Assert.assertEquals(buildLog, getOutput("test-project-with-dump-raw-graphs.txt"));
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("package_a").resolve("0.1.0").resolve("java11")
+                .resolve("foo-package_a-0.1.0.jar").toFile().exists());
+
+        ProjectUtils.deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Test an empty package")
+    public void testTestEmptyPackage() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyPackage");
+        System.setProperty("user.dir", projectPath.toString());
+
+        TestCommand testCommand = new TestCommand(projectPath, printStream, printStream, false);
+        new CommandLine(testCommand).parseArgs();
+        testCommand.execute();
+
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-empty-package.txt"));
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

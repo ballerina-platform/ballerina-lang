@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -74,6 +75,7 @@ import static org.objectweb.asm.Opcodes.DCONST_0;
 import static org.objectweb.asm.Opcodes.DLOAD;
 import static org.objectweb.asm.Opcodes.DSTORE;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.DUP_X1;
 import static org.objectweb.asm.Opcodes.FCONST_0;
 import static org.objectweb.asm.Opcodes.FLOAD;
 import static org.objectweb.asm.Opcodes.FSTORE;
@@ -99,7 +101,9 @@ import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.SIPUSH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.SCOPE_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.generateReturnType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModuleLevelClassName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.populateMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIONS_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -111,6 +115,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_LOCATION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_STATUS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_CANCELLED_FUTURE_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BDECIMAL;
@@ -122,16 +128,19 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_FUTU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPEDESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_XML;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INITIAL_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.PASS_OBJECT_RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STACK_FRAMES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.UPDATE_CHANNEL_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 
 /**
  * BIR function to JVM byte code generation class.
@@ -140,7 +149,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.UPDATE_C
  */
 public class MethodGen {
 
-    private static final String STATE = "state";
+    protected static final String STATE = "state";
+    protected static final String FUNCTION_INVOCATION = "functionInvocation";
+    private static final String INVOCATION_COUNT = "%invocationCount";
     private static final String RESUME_INDEX = "resumeIndex";
     private final JvmPackageGen jvmPackageGen;
     private final SymbolTable symbolTable;
@@ -157,11 +168,11 @@ public class MethodGen {
                                JvmConstantsGen jvmConstantsGen, AsyncDataCollector asyncDataCollector) {
         if (JvmCodeGenUtil.isExternFunc(birFunc)) {
             ExternalMethodGen.genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen,
-                                                         jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
-                                                         asyncDataCollector, types);
+                    jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
+                    asyncDataCollector, types);
         } else {
             genJMethodForBFunc(birFunc, cw, birModule, jvmTypeGen, jvmCastGen, jvmConstantsGen, moduleClassName,
-                               attachedType, asyncDataCollector);
+                    attachedType, asyncDataCollector);
         }
     }
 
@@ -171,10 +182,11 @@ public class MethodGen {
                                    BType attachedType, AsyncDataCollector asyncDataCollector) {
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
-        indexMap.addIfNotExists(STRAND, symbolTable.stringType);
+        boolean isWorker = Symbols.isFlagOn(func.flags, Flags.WORKER);
 
         // generate method desc
         int access = Opcodes.ACC_PUBLIC;
+        // localVarOffset is actually the local var index of the strand which is passed as an argument to the function
         int localVarOffset;
         if (attachedType != null) {
             localVarOffset = 1;
@@ -185,9 +197,18 @@ public class MethodGen {
             access += ACC_STATIC;
         }
 
+        indexMap.addIfNotExists(STRAND, symbolTable.stringType);
+
         String funcName = func.name.value;
         BType retType = getReturnType(func);
-        String desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
+        String desc;
+        int invocationCountArgVarIndex = -1;
+        if (isWorker) {
+            invocationCountArgVarIndex = indexMap.addIfNotExists(INVOCATION_COUNT, symbolTable.stringType);
+            desc = INITIAL_METHOD_DESC + "I" + populateMethodDesc(func.type.paramTypes) + generateReturnType(retType);
+        } else {
+            desc = JvmCodeGenUtil.getMethodDesc(func.type.paramTypes, retType);
+        }
         MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
         mv.visitCode();
 
@@ -196,16 +217,13 @@ public class MethodGen {
         Label methodStartLabel = new Label();
         mv.visitLabel(methodStartLabel);
 
-        // set channel details to strand.
-        setChannelDetailsToStrand(func, localVarOffset, mv);
-
-        // panic if this strand is cancelled
-        checkStrandCancelled(mv, localVarOffset);
-
         genLocalVars(indexMap, mv, func.localVars);
 
         int returnVarRefIndex = getReturnVarRefIndex(func, indexMap, retType, mv);
-        int stateVarIndex = getStateVarIndex(indexMap, mv);
+        int stateVarIndex = getIntVarIndex(STATE, indexMap, mv);
+        int yieldLocationVarIndex = getFrameStringVarIndex(indexMap, mv, YIELD_LOCATION);
+        int yieldStatusVarIndex = getFrameStringVarIndex(indexMap, mv, YIELD_STATUS);
+        int invocationVarIndex = getIntVarIndex(FUNCTION_INVOCATION, indexMap, mv);
 
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, RESUME_INDEX, "I");
@@ -214,8 +232,16 @@ public class MethodGen {
         Label resumeLabel = labelGen.getLabel(funcName + "resume");
         mv.visitJumpInsn(IFGT, resumeLabel);
 
-        Label varinitLabel = labelGen.getLabel(funcName + "varinit");
-        mv.visitLabel(varinitLabel);
+        // set function invocation variable
+        setFunctionInvocationVar(localVarOffset, mv, invocationVarIndex, invocationCountArgVarIndex);
+        // set channel details to strand.
+        setChannelDetailsToStrand(func, localVarOffset, mv, invocationVarIndex);
+
+        Label varInitLabel = labelGen.getLabel(funcName + "varinit");
+        mv.visitLabel(varInitLabel);
+
+        // panic if this strand is cancelled
+        checkStrandCancelled(mv, localVarOffset);
 
         // process basic blocks
         List<Label> labels = new ArrayList<>();
@@ -224,50 +250,82 @@ public class MethodGen {
         addCasesForBasicBlocks(func, funcName, labelGen, labels, states);
 
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module.packageID, jvmPackageGen, jvmTypeGen,
-                                                          jvmCastGen, jvmConstantsGen, asyncDataCollector,
-                                                          types);
+                jvmCastGen, jvmConstantsGen, asyncDataCollector,
+                types);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, instGen);
         JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module.packageID, instGen,
-                                                        jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
+                jvmPackageGen, jvmTypeGen, jvmCastGen, asyncDataCollector);
 
         mv.visitVarInsn(ILOAD, stateVarIndex);
-        Label yieldLable = labelGen.getLabel(funcName + "yield");
-        mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), labels.toArray(new Label[0]));
+        Label yieldLabel = labelGen.getLabel(funcName + "yield");
+        mv.visitLookupSwitchInsn(yieldLabel, toIntArray(states), labels.toArray(new Label[0]));
 
-        generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                            stateVarIndex, localVarOffset, module, attachedType, moduleClassName);
+        generateBasicBlocks(mv, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex, stateVarIndex,
+                yieldLocationVarIndex, yieldStatusVarIndex, localVarOffset, invocationVarIndex, module, attachedType,
+                moduleClassName);
         mv.visitLabel(resumeLabel);
         String frameName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(module.packageID), funcName,
-                                                            attachedType);
+                attachedType);
         genGetFrameOnResumeIndex(localVarOffset, mv, frameName);
 
         generateFrameClassFieldLoad(func.localVars, mv, indexMap, frameName);
+        mv.visitInsn(DUP);
         mv.visitFieldInsn(GETFIELD, frameName, STATE, "I");
         mv.visitVarInsn(ISTORE, stateVarIndex);
-        mv.visitJumpInsn(GOTO, varinitLabel);
+        mv.visitFieldInsn(GETFIELD, frameName, FUNCTION_INVOCATION, "I");
+        mv.visitVarInsn(ISTORE, invocationVarIndex);
+        mv.visitJumpInsn(GOTO, varInitLabel);
 
-        mv.visitLabel(yieldLable);
+        mv.visitLabel(yieldLabel);
         mv.visitTypeInsn(NEW, frameName);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, frameName, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, frameName, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
 
         generateFrameClassFieldUpdate(func.localVars, mv, indexMap, frameName);
 
         mv.visitInsn(DUP);
         mv.visitVarInsn(ILOAD, stateVarIndex);
         mv.visitFieldInsn(PUTFIELD, frameName, STATE, "I");
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ILOAD, invocationVarIndex);
+        mv.visitFieldInsn(PUTFIELD, frameName, FUNCTION_INVOCATION, "I");
+        generateFrameStringFieldSet(mv, frameName, yieldLocationVarIndex, YIELD_LOCATION);
+        generateFrameStringFieldSet(mv, frameName, yieldStatusVarIndex, YIELD_STATUS);
 
         generateGetFrame(indexMap, localVarOffset, mv);
 
         Label methodEndLabel = new Label();
         mv.visitLabel(methodEndLabel);
-        termGen.genReturnTerm(returnVarRefIndex, func);
+        termGen.genReturnTerm(returnVarRefIndex, func, invocationVarIndex);
 
         // Create Local Variable Table
         createLocalVariableTable(func, indexMap, localVarOffset, mv, methodStartLabel, labelGen, methodEndLabel);
 
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, funcName, moduleClassName);
         mv.visitEnd();
+    }
+
+    private void setFunctionInvocationVar(int localVarOffset, MethodVisitor mv, int invocationVarIndex,
+                                          int invocationCountArgVarIndex) {
+        if (invocationCountArgVarIndex == -1) {
+            mv.visitVarInsn(ALOAD, localVarOffset);
+            mv.visitInsn(DUP);
+            mv.visitFieldInsn(GETFIELD, STRAND_CLASS, FUNCTION_INVOCATION, "I");
+            mv.visitInsn(DUP_X1);
+            mv.visitInsn(ICONST_1);
+            mv.visitInsn(IADD);
+            mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, FUNCTION_INVOCATION, "I");
+        } else {
+            // this means this is a function created for a worker
+            mv.visitVarInsn(ILOAD, invocationCountArgVarIndex);
+        }
+        mv.visitVarInsn(ISTORE, invocationVarIndex);
+    }
+
+    private void generateFrameStringFieldSet(MethodVisitor mv, String frameName, int rhsVarIndex, String fieldName) {
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ALOAD, rhsVarIndex);
+        mv.visitFieldInsn(PUTFIELD, frameName, fieldName, GET_STRING);
     }
 
     private BType getReturnType(BIRFunction func) {
@@ -284,19 +342,20 @@ public class MethodGen {
         }
         mv.visitInsn(ICONST_1);
         mv.visitFieldInsn(PUTSTATIC, JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME),
-                          MODULE_START_ATTEMPTED, "Z");
+                MODULE_START_ATTEMPTED, "Z");
     }
 
-    private void setChannelDetailsToStrand(BIRFunction func, int localVarOffset, MethodVisitor mv) {
+    private void setChannelDetailsToStrand(BIRFunction func, int localVarOffset, MethodVisitor mv,
+                                           int invocationVarIndex) {
         // these channel info is required to notify datachannels, when there is a panic
         // we cannot set this during strand creation, because function call do not have this info.
         if (func.workerChannels.length <= 0) {
             return;
         }
         mv.visitVarInsn(ALOAD, localVarOffset);
-        JvmCodeGenUtil.loadChannelDetails(mv, Arrays.asList(func.workerChannels));
+        JvmCodeGenUtil.loadChannelDetails(mv, Arrays.asList(func.workerChannels), invocationVarIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "updateChannelDetails",
-                           UPDATE_CHANNEL_DETAILS, false);
+                UPDATE_CHANNEL_DETAILS, false);
     }
 
     private void checkStrandCancelled(MethodVisitor mv, int localVarOffset) {
@@ -374,6 +433,7 @@ public class MethodGen {
             case TypeTags.HANDLE:
             case TypeTags.TYPEDESC:
             case TypeTags.READONLY:
+            case TypeTags.REGEXP:
                 mv.visitInsn(ACONST_NULL);
                 mv.visitVarInsn(ASTORE, index);
                 break;
@@ -417,14 +477,21 @@ public class MethodGen {
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
-                                                         jType);
+                        jType);
         }
     }
 
-    private int getStateVarIndex(BIRVarToJVMIndexMap indexMap, MethodVisitor mv) {
-        int stateVarIndex = indexMap.addIfNotExists(STATE, symbolTable.stringType);
+    private int getIntVarIndex(String intVarName, BIRVarToJVMIndexMap indexMap, MethodVisitor mv) {
+        int varIndex = indexMap.addIfNotExists(intVarName, symbolTable.stringType);
         mv.visitInsn(ICONST_0);
-        mv.visitVarInsn(ISTORE, stateVarIndex);
+        mv.visitVarInsn(ISTORE, varIndex);
+        return varIndex;
+    }
+
+    private int getFrameStringVarIndex(BIRVarToJVMIndexMap indexMap, MethodVisitor mv, String frameStringFieldName) {
+        int stateVarIndex = indexMap.addIfNotExists(frameStringFieldName, symbolTable.stringType);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitVarInsn(ASTORE, stateVarIndex);
         return stateVarIndex;
     }
 
@@ -452,10 +519,10 @@ public class MethodGen {
         return ints;
     }
 
-    void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen,
-                             JvmInstructionGen instGen, JvmTerminatorGen termGen,
-                             BIRFunction func, int returnVarRefIndex, int stateVarIndex, int localVarOffset,
-                             BIRPackage module, BType attachedType, String moduleClassName) {
+    void generateBasicBlocks(MethodVisitor mv, LabelGenerator labelGen, JvmErrorGen errorGen, JvmInstructionGen instGen,
+                             JvmTerminatorGen termGen, BIRFunction func, int returnVarRefIndex, int stateVarIndex,
+                             int yieldLocationVarIndex, int yieldStatusVarIndex, int localVarOffset,
+                             int invocationVarIndex, BIRPackage module, BType attachedType, String moduleClassName) {
 
         String funcName = func.name.value;
         BirScope lastScope = null;
@@ -475,28 +542,60 @@ public class MethodGen {
             // generate instructions
             lastScope = JvmCodeGenUtil
                     .getLastScopeFromBBInsGen(mv, labelGen, instGen, localVarOffset, funcName, bb,
-                                              visitedScopesSet, lastScope);
+                            visitedScopesSet, lastScope);
 
             Label bbEndLabel = labelGen.getLabel(funcName + bb.id.value + "beforeTerm");
             mv.visitLabel(bbEndLabel);
 
+            String fullyQualifiedFuncName = getFullyQualifiedFuncName(func.type.tsymbol, funcName);
             BIRTerminator terminator = bb.terminator;
             pushShort(mv, stateVarIndex, caseIndex);
             caseIndex += 1;
 
             processTerminator(mv, func, module, funcName, terminator);
-            termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset,
-                                  returnVarRefIndex, attachedType);
+            termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
+                    attachedType, yieldLocationVarIndex, yieldStatusVarIndex, invocationVarIndex,
+                    fullyQualifiedFuncName);
 
             lastScope = JvmCodeGenUtil
                     .getLastScopeFromTerminator(mv, bb, funcName, labelGen, lastScope, visitedScopesSet);
 
-            errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
+            errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen, invocationVarIndex);
+
+            String yieldStatus = getYieldStatusByTerminator(terminator);
 
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {
-                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, localVarOffset);
+                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, localVarOffset,
+                        yieldLocationVarIndex, terminator.pos, fullyQualifiedFuncName,
+                        yieldStatus, yieldStatusVarIndex);
             }
+        }
+    }
+
+    private String getFullyQualifiedFuncName(BTypeSymbol funcTypeSymbol, String funcName) {
+        if (funcTypeSymbol != null) {
+            PackageID funcTSymbolPkgID = funcTypeSymbol.pkgID;
+            return funcTSymbolPkgID.getOrgName().toString() + "." +
+                    funcTSymbolPkgID.getName().toString() + "." + funcTSymbolPkgID.getPackageVersion().toString() +
+                    ":" + funcName;
+        }
+        return funcName;
+    }
+
+    private String getYieldStatusByTerminator(BIRTerminator terminator) {
+        switch (terminator.kind) {
+            case WK_SEND:
+                return "BLOCKED ON WORKER MESSAGE SEND";
+            case WK_RECEIVE:
+                return "BLOCKED ON WORKER MESSAGE RECEIVE";
+            case FLUSH:
+                return "BLOCKED ON WORKER MESSAGE FLUSH";
+            case WAIT:
+            case WAIT_ALL:
+                return "WAITING";
+            default:
+                return "BLOCKED";
         }
     }
 
@@ -523,14 +622,15 @@ public class MethodGen {
         if ((MethodGenUtils.isModuleInitFunction(func) || isModuleTestInitFunction(func)) &&
                 terminator instanceof Return) {
             String moduleAnnotationsClass = getModuleLevelClassName(module.packageID, MODULE_ANNOTATIONS_CLASS_NAME);
-            mv.visitMethodInsn(INVOKESTATIC, moduleAnnotationsClass, ANNOTATIONS_METHOD_PREFIX, "()V", false);
+            mv.visitMethodInsn(INVOKESTATIC, moduleAnnotationsClass, ANNOTATIONS_METHOD_PREFIX, VOID_METHOD_DESC,
+                    false);
         }
         //set module start success to true for $_init class
         if (isModuleStartFunction(funcName) && terminator.kind == InstructionKind.RETURN) {
             mv.visitInsn(ICONST_1);
             mv.visitFieldInsn(PUTSTATIC, JvmCodeGenUtil.getModuleLevelClassName(module.packageID,
-                                                                                MODULE_INIT_CLASS_NAME),
-                              MODULE_STARTED, "Z");
+                            MODULE_INIT_CLASS_NAME),
+                    MODULE_STARTED, "Z");
         }
     }
 
@@ -573,11 +673,15 @@ public class MethodGen {
                 mv.visitVarInsn(LSTORE, index);
             } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                                 GET_BSTRING);
+                        GET_BSTRING);
                 mv.visitVarInsn(ASTORE, index);
             } else if (TypeTags.isXMLTypeTag(bType.tag)) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                                  GET_XML);
+                        GET_XML);
+                mv.visitVarInsn(ASTORE, index);
+            } else if (TypeTags.REGEXP == bType.tag) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
+                        GET_REGEXP);
                 mv.visitVarInsn(ASTORE, index);
             } else {
                 generateFrameClassFieldLoadByTypeTag(mv, frameName, localVar, index, bType);
@@ -599,7 +703,7 @@ public class MethodGen {
                 break;
             case TypeTags.DECIMAL:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                                  GET_BDECIMAL);
+                        GET_BDECIMAL);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.BOOLEAN:
@@ -609,48 +713,48 @@ public class MethodGen {
             case TypeTags.MAP:
             case TypeTags.RECORD:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                                  GET_MAP_VALUE);
+                        GET_MAP_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.STREAM:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                                  GET_STREAM_VALUE);
+                        GET_STREAM_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.TABLE:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                                  GET_TABLE_VALUE_IMPL);
+                        GET_TABLE_VALUE_IMPL);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                                  GET_ARRAY_VALUE);
+                        GET_ARRAY_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.OBJECT:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                                  GET_BOBJECT);
+                        GET_BOBJECT);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.ERROR:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                                  GET_ERROR_VALUE);
+                        GET_ERROR_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.FUTURE:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                                  GET_FUTURE_VALUE);
+                        GET_FUTURE_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.INVOKABLE:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                                  GET_FUNCTION_POINTER);
+                        GET_FUNCTION_POINTER);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.TYPEDESC:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                                  GET_TYPEDESC);
+                        GET_TYPEDESC);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.NIL:
@@ -663,12 +767,12 @@ public class MethodGen {
             case TypeTags.FINITE:
             case TypeTags.READONLY:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                                  GET_OBJECT);
+                        GET_OBJECT);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case TypeTags.HANDLE:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                                  GET_HANDLE_VALUE);
+                        GET_HANDLE_VALUE);
                 mv.visitVarInsn(ASTORE, index);
                 break;
             case JTypeTags.JTYPE:
@@ -714,12 +818,12 @@ public class MethodGen {
             case JTypeTags.JARRAY:
             case JTypeTags.JREF:
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.jvmVarName,
-                                  InteropMethodGen.getJTypeSignature(jType));
+                        InteropMethodGen.getJTypeSignature(jType));
                 mv.visitVarInsn(ASTORE, index);
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
-                                                         jType);
+                        jType);
         }
     }
 
@@ -739,11 +843,15 @@ public class MethodGen {
             } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                                 GET_BSTRING);
+                        GET_BSTRING);
             } else if (TypeTags.isXMLTypeTag(bType.tag)) {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                                  GET_XML);
+                        GET_XML);
+            } else if (TypeTags.REGEXP == bType.tag) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
+                        GET_REGEXP);
             } else {
                 generateFrameClassFieldUpdateByTypeTag(mv, frameName, localVar, index, bType);
             }
@@ -764,7 +872,7 @@ public class MethodGen {
             case TypeTags.DECIMAL:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                                  GET_BDECIMAL);
+                        GET_BDECIMAL);
                 break;
             case TypeTags.BOOLEAN:
                 mv.visitVarInsn(ILOAD, index);
@@ -774,49 +882,49 @@ public class MethodGen {
             case TypeTags.RECORD:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                                  GET_MAP_VALUE);
+                        GET_MAP_VALUE);
                 break;
             case TypeTags.STREAM:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                                  GET_STREAM_VALUE);
+                        GET_STREAM_VALUE);
                 break;
             case TypeTags.TABLE:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                                  GET_TABLE_VALUE_IMPL);
+                        GET_TABLE_VALUE_IMPL);
                 break;
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                                  GET_ARRAY_VALUE);
+                        GET_ARRAY_VALUE);
                 break;
             case TypeTags.ERROR:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                                  GET_ERROR_VALUE);
+                        GET_ERROR_VALUE);
                 break;
             case TypeTags.FUTURE:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                                  GET_FUTURE_VALUE);
+                        GET_FUTURE_VALUE);
                 break;
             case TypeTags.TYPEDESC:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                                  GET_TYPEDESC);
+                        GET_TYPEDESC);
                 break;
             case TypeTags.OBJECT:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                                  GET_BOBJECT);
+                        GET_BOBJECT);
                 break;
             case TypeTags.INVOKABLE:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                                  GET_FUNCTION_POINTER);
+                        GET_FUNCTION_POINTER);
                 break;
             case TypeTags.NIL:
             case TypeTags.NEVER:
@@ -829,12 +937,12 @@ public class MethodGen {
             case TypeTags.READONLY:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                                  GET_OBJECT);
+                        GET_OBJECT);
                 break;
             case TypeTags.HANDLE:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                                  GET_HANDLE_VALUE);
+                        GET_HANDLE_VALUE);
                 break;
             case JTypeTags.JTYPE:
                 generateFrameClassJFieldUpdate(localVar, mv, index, frameName);
@@ -845,7 +953,7 @@ public class MethodGen {
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
-                                                         bType);
+                        bType);
         }
     }
 
@@ -895,7 +1003,7 @@ public class MethodGen {
                 break;
             default:
                 throw new BLangCompilerException(JvmConstants.TYPE_NOT_SUPPORTED_MESSAGE +
-                                                         jType);
+                        jType);
         }
     }
 
@@ -921,7 +1029,7 @@ public class MethodGen {
         String funcName = func.name.value;
         // Add strand variable to LVT
         mv.visitLocalVariable("__strand", GET_STRAND, null, methodStartLabel, methodEndLabel,
-                              localVarOffset);
+                localVarOffset);
         // Add self to the LVT
         if (func.receiver != null) {
             mv.visitLocalVariable("self", GET_BOBJECT, null, methodStartLabel, methodEndLabel, 0);
@@ -945,8 +1053,8 @@ public class MethodGen {
             String metaVarName = localVar.metaVarName;
             if (isCompilerAddedVars(metaVarName)) {
                 mv.visitLocalVariable(metaVarName, getJVMTypeSign(localVar.type), null,
-                                      startLabel, endLabel,
-                                      indexMap.addIfNotExists(localVar.name.value, localVar.type));
+                        startLabel, endLabel,
+                        indexMap.addIfNotExists(localVar.name.value, localVar.type));
             }
         }
     }
@@ -974,6 +1082,8 @@ public class MethodGen {
             return GET_STRING;
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             return GET_XML;
+        } else if (TypeTags.REGEXP == bType.tag) {
+            return GET_REGEXP;
         }
 
         String jvmType;

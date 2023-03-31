@@ -45,15 +45,18 @@ public class ObjectTest {
             "cannot use 'check' in an object field initializer of an object with no 'init' method";
 
     private CompileResult checkInInitializerResult;
+    private CompileResult checkFunctionReferencesResult;
 
     @BeforeClass
     public void setUp() {
         checkInInitializerResult = BCompileUtil.compile("test-src/object/object_field_initializer_with_check.bal");
+        checkFunctionReferencesResult = BCompileUtil.compile("test-src/object/object_function_pointer.bal");
     }
 
     @AfterClass
     public void tearDown() {
         checkInInitializerResult = null;
+        checkFunctionReferencesResult = null;
     }
 
     @Test(description = "Test Basic object as struct")
@@ -371,14 +374,17 @@ public class ObjectTest {
         Assert.assertEquals(returns, 89L);
     }
 
-    @Test(description = "Test function references from an object")
-    public void testFunctionReferencesFromObjects() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_function_pointer.bal");
-        Object returns = BRunUtil.invoke(compileResult, "testObjectFunctionPointer");
+    @Test(description = "Test function references from an object", dataProvider = "functionReferencesFromObjectTests")
+    public void testFunctionReferencesFromObjects(String functionName) {
+        BRunUtil.invoke(checkFunctionReferencesResult, functionName);
+    }
 
-        Assert.assertSame(returns.getClass(), Long.class);
-
-        Assert.assertEquals(returns, 18L);
+    @DataProvider
+    private Object[] functionReferencesFromObjectTests() {
+        return new String[]{
+                "testObjectFunctionPointer",
+                "testObjectFunctionPointerFieldAccess"
+        };
     }
 
     @Test(description = "Test object any type field as a constructor parameter")
@@ -914,5 +920,19 @@ public class ObjectTest {
                 {"testCheckInObjectFieldInitializer5"},
                 {"testCheckInObjectFieldInitializer6"}
         };
+    }
+
+    @Test
+    public void testNonPublicSymbolsWarningInClientDecl() {
+        CompileResult result = BCompileUtil.compile("test-src/object/client_object_decl_with_non_public_symbols.bal");
+        int i = 0;
+        BAssertUtil.validateWarning(result, i++, "attempt to expose non-public symbol 'Foo'", 18, 5);
+        Assert.assertEquals(result.getWarnCount(), i);
+    }
+
+    @Test
+    public void testNonPublicSymbolsWarningInServiceClass() {
+        CompileResult result = BCompileUtil.compile("test-src/object/service_class_decl_with_non_public_symbols.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 }

@@ -22,11 +22,11 @@ import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.SelectClauseNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
@@ -56,7 +56,7 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+            List<Symbol> exprEntries = QNameRefCompletionUtil.getExpressionContextEntries(context, qNameRef);
             completionItems.addAll(this.getCompletionItemList(exprEntries, context));
         } else {
             completionItems.addAll(this.expressionCompletions(context));

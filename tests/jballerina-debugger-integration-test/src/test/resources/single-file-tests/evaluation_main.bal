@@ -316,7 +316,8 @@ public function main() {
             maths: 80,
             physics: 75,
             chemistry: 65
-        }
+        },
+        "course": "ballerina"
     };
 
     record {|string city; string country;|} anonRecord = {city: "London", country: "UK"};
@@ -447,4 +448,8 @@ function getSampleError() returns SampleError {
 function getRecordConstrainedError() returns FooError {
     FooError e = error FooError("Some Error", detailMsg = "Failed Message", isFatal = true);
     return e;
+}
+
+function processTypeDesc(typedesc t) returns typedesc {
+    return t;
 }

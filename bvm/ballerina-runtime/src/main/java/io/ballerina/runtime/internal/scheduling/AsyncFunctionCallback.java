@@ -19,7 +19,6 @@
 package io.ballerina.runtime.internal.scheduling;
 
 import io.ballerina.runtime.api.async.Callback;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.values.FutureValue;
 
 /**
@@ -33,13 +32,12 @@ public abstract class AsyncFunctionCallback implements Callback {
     private FutureValue future;
     private Strand strand;
 
-    public void setReturnValues(Object returnValue) {
-        strand.returnValue = returnValue;
-        strand.scheduler.unblockStrand(strand);
+    public AsyncFunctionCallback(Strand strand) {
+        this.strand = strand;
     }
 
-    public void handleRuntimeErrors(BError error) {
-        strand.panic = error;
+    public void setReturnValues(Object returnValue) {
+        strand.returnValue = returnValue;
         strand.scheduler.unblockStrand(strand);
     }
 
@@ -51,7 +49,4 @@ public abstract class AsyncFunctionCallback implements Callback {
         this.future = future;
     }
 
-    public void setStrand(Strand strand) {
-        this.strand = strand;
-    }
 }

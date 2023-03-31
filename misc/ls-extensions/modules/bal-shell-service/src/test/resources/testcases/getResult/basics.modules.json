@@ -1,0 +1,75 @@
+[
+  {
+    "source": "import ballerina/lang.'float;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "import ballerina/lang.'int as intlib;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "intlib:fromString(\"50\");",
+    "result": {
+      "shellValue": {
+        "value":"50",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "float:fromString(\"50.89\");",
+    "result": {
+      "shellValue": {
+        "value":"50.89",
+        "mimeType":"plain/text",
+        "type":"float"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "import not/exists",
+    "result": {
+      "errors":["Invocation of the snippet failed."],
+      "diagnostics":["Import resolution failed. Module not found."],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "import ballerina/lang.'int as io;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "import ballerina/io",
+    "result": {
+      "errors":["Invocation of the snippet failed."],
+      "diagnostics":["The import prefix was already used by another import."],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

@@ -20,6 +20,7 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.EnumSymbol;
@@ -42,13 +43,15 @@ public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implement
 
     private List<ConstantSymbol> members;
     private List<AnnotationSymbol> annots;
+    private final List<AnnotationAttachmentSymbol> annotAttachments;
 
     protected BallerinaEnumSymbol(String name, List<ConstantSymbol> members, List<Qualifier> qualifiers,
-                                  List<AnnotationSymbol> annots, TypeSymbol typeDescriptor, BSymbol bSymbol,
-                                  CompilerContext context) {
-        super(name, qualifiers, annots, typeDescriptor, bSymbol, context);
+                                  List<AnnotationSymbol> annots, List<AnnotationAttachmentSymbol> annotAttachments,
+                                  TypeSymbol typeDescriptor, BSymbol bSymbol, CompilerContext context) {
+        super(name, qualifiers, annots, annotAttachments, typeDescriptor, bSymbol, context);
         this.members = Collections.unmodifiableList(members);
         this.annots = annots;
+        this.annotAttachments = annotAttachments;
     }
 
     @Override
@@ -59,6 +62,11 @@ public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implement
     @Override
     public List<AnnotationSymbol> annotations() {
         return this.annots;
+    }
+
+    @Override
+    public List<AnnotationAttachmentSymbol> annotAttachments() {
+        return this.annotAttachments;
     }
 
     @Override
@@ -86,6 +94,7 @@ public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implement
         protected List<ConstantSymbol> members;
         protected List<Qualifier> qualifiers = new ArrayList<>();
         protected List<AnnotationSymbol> annots = new ArrayList<>();
+        protected List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
         protected TypeSymbol typeDescriptor;
 
         public EnumSymbolBuilder(String name, BSymbol symbol, CompilerContext context) {
@@ -112,9 +121,14 @@ public class BallerinaEnumSymbol extends BallerinaTypeDefinitionSymbol implement
             return this;
         }
 
+        public EnumSymbolBuilder withAnnotationAttachment(AnnotationAttachmentSymbol annotAttachment) {
+            this.annotAttachments.add(annotAttachment);
+            return this;
+        }
+
         @Override
         public BallerinaEnumSymbol build() {
-            return new BallerinaEnumSymbol(this.name, this.members, this.qualifiers, this.annots,
+            return new BallerinaEnumSymbol(this.name, this.members, this.qualifiers, this.annots, this.annotAttachments,
                                            this.typeDescriptor, this.bSymbol, this.context);
         }
     }

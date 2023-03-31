@@ -29,6 +29,7 @@ under the License.
         <packages>
             <package name="org.ballerinalang.langserver.test.codeaction.*"/>
             <package name="org.ballerinalang.langserver.test.command.*"/>
+            <package name="org.ballerinalang.langserver.test.hover.*"/>
         </packages>
     </test>
 </suite>

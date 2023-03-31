@@ -181,6 +181,30 @@ type Employee record {
     Employee lead?;
 };
 
+type Topt record {
+    int x?;
+    int y?;
+};
+
+Topt topt1 = {x: 2, y: 4};
+var {x, y} = topt1;
+
+Topt topt2 = {x: 2};
+var {x: x1, y: y1} = topt2;
+
+int? x2 = ();
+int? y2 = 5;
+Topt topt3 = {x: x2, y: y2};
+
+function testOptionalFieldAssignment() {
+    assertEquality(2, x);
+    assertEquality(4, y);
+    assertEquality(2, x1);
+    assertTrue(y1 is ());
+    assertTrue(topt3.x is ());
+    assertEquality(5, topt3.y);
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

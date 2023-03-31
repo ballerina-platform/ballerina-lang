@@ -137,7 +137,7 @@
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "re",
+                          "value": "\u0027re",
                           "trailingMinutiae": [
                             {
                               "kind": "END_OF_LINE_MINUTIAE",

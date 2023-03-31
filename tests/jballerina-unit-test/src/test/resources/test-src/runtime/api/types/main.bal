@@ -15,11 +15,13 @@
 // under the License.
 
 import ballerina/test;
-import testorg/runtime_api_types.objects;
+import types.objects;
+import types.typeref;
 
 objects:PublicClientObject obj = new ();
 
 public function main() {
+    typeref:validateTypeRef();
     testRemoteFunctionParameters();
     testFunctionToString();
     testParamTypesString();
@@ -40,17 +42,17 @@ function testTypeIds() {
     objects:Apple apple = new("red");
     string[] types = objects:getTypeIds(apple);
     test:assertEquals(types.length(), 3);
-    test:assertEquals(types[0], "Apple");
+    test:assertEquals(types[0], "Common");
     test:assertEquals(types[1], "Fruit");
-    test:assertEquals(types[2], "Common");
+    test:assertEquals(types[2], "Apple");
 
     // service type
     objects:Collection collection = new("waruna");
     types = objects:getTypeIds(collection);
     test:assertEquals(types.length(), 3);
-    test:assertEquals(types[0], "Common");
-    test:assertEquals(types[1], "Collection");
-    test:assertEquals(types[2], "Iterable");
+    test:assertEquals(types[0], "Iterable");
+    test:assertEquals(types[1], "Common");
+    test:assertEquals(types[2], "Collection");
 }
 
 function testFunctionToString() {

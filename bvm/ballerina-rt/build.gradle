@@ -38,6 +38,7 @@ dependencies {
     dist project(path: ':ballerina-lang:decimal', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:error', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:function', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:future', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:integer', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:map', configuration: 'distributionBirJar')
@@ -52,6 +53,7 @@ dependencies {
     dist project(path: ':ballerina-lang:runtime', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:query', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:transaction', configuration: 'distributionBirJar')
+    dist project(path: ':ballerina-lang:regexp', configuration: 'distributionBirJar')
 //    dist project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'distributionBirJar')
 
     // Lang libs
@@ -61,6 +63,7 @@ dependencies {
     dist project(':ballerina-lang:decimal')
     dist project(':ballerina-lang:error')
     dist project(':ballerina-lang:floatingpoint')
+    dist project(':ballerina-lang:function')
     dist project(':ballerina-lang:future')
     dist project(':ballerina-lang:integer')
     dist project(':ballerina-lang:map')
@@ -73,9 +76,9 @@ dependencies {
     dist project(':ballerina-lang:xml')
     dist project(':ballerina-lang:bool')
     dist project(':ballerina-lang:runtime')
-    dist project(':ballerina-core')
     dist project(':ballerina-lang:query')
     dist project(':ballerina-lang:transaction')
+    dist project(':ballerina-lang:regexp')
     dist project(':ballerina-lang:jballerina.java')
     dist project(':ballerina-shell:shell-rt')
 

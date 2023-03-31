@@ -24,23 +24,82 @@ import java.util.List;
  */
 public class Function extends Construct {
     @Expose
+    public String accessor = "";
+    @Expose
+    public String resourcePath = "";
+    @Expose
     public boolean isIsolated;
     @Expose
     public boolean isRemote;
+    @Expose
+    public boolean isResource;
     @Expose
     public boolean isExtern;
     @Expose
     public List<DefaultableVariable> parameters;
     @Expose
     public List<Variable> returnParameters;
+    @Expose
+    List<AnnotationAttachment> annotationAttachments;
 
-    public Function(String name, String description, boolean isRemote, boolean isExtern, boolean isDeprecated,
-                    boolean isIsolated, List<DefaultableVariable> parameters, List<Variable> returnParameters) {
+    public Function(String name, String description, FunctionKind functionKind, boolean isExtern, boolean isDeprecated,
+                    boolean isIsolated, List<DefaultableVariable> parameters, List<Variable> returnParameters,
+                    List<AnnotationAttachment> annotationAttachments) {
         super(name, description, isDeprecated);
-        this.isRemote = isRemote;
+        this.isRemote = checkRemote(functionKind);
+        this.isResource = checkResource(functionKind);
         this.isExtern = isExtern;
         this.parameters = parameters;
         this.returnParameters = returnParameters;
         this.isIsolated = isIsolated;
+        this.annotationAttachments = annotationAttachments;
+    }
+
+    public Function(String name, String accessor, String resourcePath, String description, FunctionKind functionKind,
+                    boolean isExtern, boolean isDeprecated, boolean isIsolated, List<DefaultableVariable> parameters,
+                    List<Variable> returnParameters, List<AnnotationAttachment> annotationAttachments) {
+        super(name, description, isDeprecated);
+        this.accessor = accessor;
+        this.resourcePath = resourcePath;
+        this.isRemote = checkRemote(functionKind);
+        this.isResource = checkResource(functionKind);
+        this.isExtern = isExtern;
+        this.parameters = parameters;
+        this.returnParameters = returnParameters;
+        this.isIsolated = isIsolated;
+        this.annotationAttachments = annotationAttachments;
+    }
+
+    public Function(String name, String description, FunctionKind functionKind, boolean isExtern, boolean isDeprecated,
+                    boolean isIsolated, List<DefaultableVariable> parameters, List<Variable> returnParameters) {
+        super(name, description, isDeprecated);
+        this.isRemote = checkRemote(functionKind);
+        this.isResource = checkResource(functionKind);
+        this.isExtern = isExtern;
+        this.parameters = parameters;
+        this.returnParameters = returnParameters;
+        this.isIsolated = isIsolated;
+    }
+
+    public Function(String name, String accessor, String resourcePath, String description, FunctionKind functionKind,
+                    boolean isExtern, boolean isDeprecated, boolean isIsolated, List<DefaultableVariable> parameters,
+                    List<Variable> returnParameters) {
+        super(name, description, isDeprecated);
+        this.accessor = accessor;
+        this.resourcePath = resourcePath;
+        this.isRemote = checkRemote(functionKind);
+        this.isResource = checkResource(functionKind);
+        this.isExtern = isExtern;
+        this.parameters = parameters;
+        this.returnParameters = returnParameters;
+        this.isIsolated = isIsolated;
+    }
+
+    private boolean checkRemote(FunctionKind functionKind) {
+        return functionKind == FunctionKind.REMOTE;
+    }
+
+    private boolean checkResource(FunctionKind functionKind) {
+        return functionKind == FunctionKind.RESOURCE;
     }
 }

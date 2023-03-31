@@ -192,6 +192,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_STREAM_KEYWORD("BCE0292", "error.missing.stream.keyword"),
     ERROR_MISSING_READONLY_KEYWORD("BCE0293", "error.missing.readonly.keyword"),
     ERROR_MISSING_DISTINCT_KEYWORD("BCE0294", "error.missing.distinct.keyword"),
+    ERROR_MISSING_RE_KEYWORD("BCE0295", "error.missing.re.keyword"),
 
     // Missing other tokens
     ERROR_MISSING_IDENTIFIER("BCE0400", "error.missing.identifier"),
@@ -211,6 +212,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_ATTACH_POINT_NAME("BCE0414", "error.missing.attach.point.name"),
     ERROR_MISSING_HEX_NUMBER_AFTER_HEX_INDICATOR("BCE0415", "error.missing.hex.number.after.hex.indicator"),
     ERROR_MISSING_DIGIT_AFTER_DOT("BCE0416", "error.missing.digit.after.dot"),
+    ERROR_MISSING_RE_UNICODE_PROPERTY_VALUE("BCE0417", "error.missing.unicode.property.value"),
+    ERROR_MISSING_RE_QUANTIFIER_DIGIT("BCE0418", "error.missing.digit.in.quantifier"),
+    ERROR_MISSING_BACKSLASH("BCE0420", "error.missing.backslash"),
 
     // Missing non-terminal nodes
     ERROR_MISSING_FUNCTION_NAME("BCE0500", "error.missing.function.name"),
@@ -314,15 +318,13 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_CHARACTER_IN_XML_ATTRIBUTE_VALUE("BCE0653", "error.invalid.character.in.xml.attribute.value"),
     ERROR_INVALID_ENTITY_REFERENCE_NAME_START("BCE0654", "error.invalid.entity.reference.name.start"),
     ERROR_DOUBLE_HYPHEN_NOT_ALLOWED_WITHIN_XML_COMMENT("BCE0655", "error.double.hyphen.not.allowed.within.xml.comment"),
-    ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED("BCE0656",
-            "error.version.in.import.declaration.no.longer.supported"),
     ERROR_MORE_THAN_ONE_OBJECT_NETWORK_QUALIFIERS("BCE0657", "error.more.than.one.object.network.qualifiers"),
     ERROR_REMOTE_METHOD_HAS_A_VISIBILITY_QUALIFIER("BCE0658", "error.remote.method.has.a.visibility.qualifier"),
     ERROR_PRIVATE_QUALIFIER_IN_OBJECT_MEMBER_DESCRIPTOR("BCE0659",
             "error.private.qualifier.in.object.member.descriptor"),
     ERROR_RESOURCE_PATH_IN_FUNCTION_DEFINITION("BCE0660", "error.resource.path.in.function.definition"),
-    ERROR_REST_PARAM_MUST_BE_THE_LAST_SEGMENT_OF_RESOURCE_PATH("BCE0661",
-            "error.rest.param.must.be.the.last.segment.of.resource.path"),
+    ERROR_RESOURCE_PATH_SEGMENT_NOT_ALLOWED_AFTER_REST_PARAM("BCE0661",
+            "error.resource.path.segment.not.allowed.after.rest.param"),
     ERROR_REST_ARG_IN_ERROR_CONSTRUCTOR("BCE0662", "error.rest.arg.in.error.constructor"),
     ERROR_ADDITIONAL_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR("BCE0663",
             "error.additional.positional.arg.in.error.constructor"),
@@ -345,7 +347,15 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_BINDING_PATTERN("BCE0677", "error.invalid.binding.pattern"),
     ERROR_RESOURCE_PATH_CANNOT_BEGIN_WITH_SLASH("BCE0678", "error.resource.path.cannot.begin.with.slash"),
     REST_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER("BCE0679",
-            "error.rest.parameter.cannot.be.included.record.parameter")
+            "error.rest.parameter.cannot.be.included.record.parameter"),
+    RESOURCE_ACCESS_SEGMENT_IS_NOT_ALLOWED_AFTER_REST_SEGMENT("BCE0680",
+            "error.resource.access.segment.is.not.allowed.after.rest.segment"),
+    ERROR_INVALID_TOKEN_IN_REG_EXP("BCE0681", "error.invalid.token.in.reg.exp"),
+    ERROR_INVALID_FLAG_IN_REG_EXP("BCE0682", "error.invalid.flag.in.reg.exp"),
+    ERROR_INVALID_QUANTIFIER_IN_REG_EXP("BCE0683", "error.invalid.quantifier.in.reg.exp"),
+    ERROR_ANNOTATIONS_NOT_ALLOWED_FOR_TUPLE_REST_DESCRIPTOR("BCE0684",
+            "error.annotations.not.allowed.for.tuple.rest.descriptor"),
+    ERROR_INVALID_RE_SYNTAX_CHAR("BCE0685", "error.invalid.syntax.char")
     ;
 
     String diagnosticId;

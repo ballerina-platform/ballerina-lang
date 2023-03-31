@@ -1,9 +1,13 @@
 {
-  "line": 51,
-  "character": 41,
+  "position": {
+    "line": 51,
+    "character": 41
+  },
+  "source": "add_explicit_return_source1.bal",
   "expected": [
     {
       "title": "Add Explicit Return Statement",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

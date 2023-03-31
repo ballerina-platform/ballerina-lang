@@ -1,9 +1,13 @@
 {
-  "line": 8,
-  "character": 34,
+  "position": {
+    "line": 8,
+    "character": 34
+  },
+  "source": "implementFuncInObjConstructorExpr2.bal",
   "expected": [
     {
       "title": "Implement method 'getName'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {
@@ -22,6 +26,7 @@
     },
     {
       "title": "Implement method 'getId'",
+      "kind": "quickfix",
       "edits": [
         {
           "range": {

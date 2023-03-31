@@ -321,16 +321,28 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
                     data.continueAsLastStatement, data.potentiallyInvalidAssignmentInLoopsInfo);
 
             if (data.booleanConstCondition == symTable.trueType) {
+                if (elseStmt.getKind() != NodeKind.IF) {
+                    data.statementReturnsPanicsOrFails = checkAllBranchesTerminate(ifStmtReturnsPanicsOrFails,
+                            ifStmtBreakAsLastStatement, ifStmtContinueAsLastStatement, data);
+                }
                 resetErrorThrown(data);
             }
 
             if (data.booleanConstCondition == symTable.semanticError) {
-                data.statementReturnsPanicsOrFails = ifStmtReturnsPanicsOrFails && data.statementReturnsPanicsOrFails;
+                data.statementReturnsPanicsOrFails = checkAllBranchesTerminate(ifStmtReturnsPanicsOrFails,
+                        ifStmtBreakAsLastStatement, ifStmtContinueAsLastStatement, data);
                 data.errorThrown = currentErrorThrown && data.errorThrown;
                 data.breakAsLastStatement = ifStmtBreakAsLastStatement && data.breakAsLastStatement;
                 data.continueAsLastStatement = ifStmtContinueAsLastStatement && data.continueAsLastStatement;
             }
         }
+    }
+
+    private boolean checkAllBranchesTerminate(boolean ifStmtReturnsPanicsOrFails, boolean ifStmtBreakAsLastStatement,
+                                              boolean ifStmtContinueAsLastStatement, AnalyzerData data) {
+        return (ifStmtReturnsPanicsOrFails || ifStmtBreakAsLastStatement
+                || ifStmtContinueAsLastStatement) && (data.statementReturnsPanicsOrFails
+                || data.breakAsLastStatement || data.continueAsLastStatement);
     }
 
     @Override
@@ -504,7 +516,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         resetLastStatement(data);
         resetUnreachableBlock(data);
         analyzeReachability(onFailClause, data);
-        data.statementReturnsPanicsOrFails = currentStatementReturns;
+        data.statementReturnsPanicsOrFails = currentStatementReturns && data.statementReturnsPanicsOrFails;
     }
 
     @Override
@@ -570,7 +582,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     private Location getEndCharPos(Location pos) {
         LineRange lineRange = pos.lineRange();
         LinePosition endLinePos = lineRange.endLine();
-        return new BLangDiagnosticLocation(lineRange.filePath(), endLinePos.line(), endLinePos.line(),
+        return new BLangDiagnosticLocation(lineRange.fileName(), endLinePos.line(), endLinePos.line(),
                 endLinePos.offset() - 1, endLinePos.offset(),
                 pos.textRange().startOffset() + pos.textRange().length() - 1, 1);
     }

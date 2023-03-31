@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FindBugsFilter>
     <Match>
-        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD,BC_UNCONFIRMED_CAST,BC_UNCONFIRMED_CAST_OF_RETURN_VALUE,DM_EXIT,DM_CONVERT_CASE"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD,BC_UNCONFIRMED_CAST,BC_UNCONFIRMED_CAST_OF_RETURN_VALUE,DM_EXIT,DM_CONVERT_CASE,URF_UNREAD_FIELD"/>
     </Match>
     <Match>
         <Package name="org.ballerinalang.docgen.model"/>
         <Class name="org.ballerinalang.docgen.Generator"/>
+        <Class name="org.ballerinalang.docgen.generator.model.Function"/>
     </Match>
     <Match>
         <Class name="org.ballerinalang.docgen.docs.utils.BallerinaDocUtils"/>

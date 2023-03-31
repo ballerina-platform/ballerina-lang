@@ -1,0 +1,119 @@
+[
+  {
+    "description": "Add documentation",
+    "oldCode": "public class counter{\n\tpublic int n;\n}",
+    "newCode": "public class counter{\n\t#documentation\n\tpublic int n;\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "documentation",
+                      "type": "new",
+                      "versionImpact": "patch",
+                      "message": "documentation is added"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove documentation",
+    "oldCode": "public class counter{\n\t#documentation\n\tpublic int n;\n}",
+    "newCode": "public class counter{\n\tpublic int n;\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "documentation",
+                      "type": "removed",
+                      "versionImpact": "patch",
+                      "message": "documentation is removed"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify documentation",
+    "oldCode": "public class counter{\n\t#documentation\n\tpublic int n;\n}",
+    "newCode": "public class counter{\n\t#Object field\n\tpublic int n;\n}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "object field",
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "childDiffs": [
+                    {
+                      "kind": "documentation",
+                      "type": "modified",
+                      "versionImpact": "patch",
+                      "message": "documentation is modified"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

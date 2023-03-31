@@ -1,0 +1,18 @@
+{
+  "range": {
+    "start": {
+      "line": 2,
+      "character": 4
+    },
+    "end": {
+      "line": 2,
+      "character": 12
+    }
+  },
+  "source": "extractToVariableInFunctionCall.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable"
+    }
+  ]
+}

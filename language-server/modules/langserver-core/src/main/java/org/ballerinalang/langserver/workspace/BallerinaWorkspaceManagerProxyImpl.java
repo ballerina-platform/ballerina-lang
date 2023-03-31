@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.workspace;
 import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -60,7 +61,7 @@ public class BallerinaWorkspaceManagerProxyImpl implements BallerinaWorkspaceMan
     @Override
     public void didOpen(DidOpenTextDocumentParams params) throws WorkspaceDocumentException {
         String uri = params.getTextDocument().getUri();
-        Optional<Path> path = CommonUtil.getPathFromURI(uri);
+        Optional<Path> path = PathUtil.getPathFromURI(uri);
         if (path.isEmpty()) {
             return;
         }
@@ -74,7 +75,7 @@ public class BallerinaWorkspaceManagerProxyImpl implements BallerinaWorkspaceMan
     @Override
     public void didChange(DidChangeTextDocumentParams params) throws WorkspaceDocumentException {
         String uri = params.getTextDocument().getUri();
-        Optional<Path> path = CommonUtil.getPathFromURI(uri);
+        Optional<Path> path = PathUtil.getPathFromURI(uri);
         if (path.isEmpty()) {
             return;
         }
@@ -88,7 +89,7 @@ public class BallerinaWorkspaceManagerProxyImpl implements BallerinaWorkspaceMan
     @Override
     public void didClose(DidCloseTextDocumentParams params) throws WorkspaceDocumentException {
         String uri = params.getTextDocument().getUri();
-        Optional<Path> path = CommonUtil.getPathFromURI(uri);
+        Optional<Path> path = PathUtil.getPathFromURI(uri);
         if (path.isEmpty()) {
             return;
         }

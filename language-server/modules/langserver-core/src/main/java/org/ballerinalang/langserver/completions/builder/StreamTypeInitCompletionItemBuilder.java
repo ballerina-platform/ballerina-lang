@@ -21,8 +21,9 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -70,13 +71,13 @@ public class StreamTypeInitCompletionItemBuilder {
 
     private static String getQualifiedFunctionName(BallerinaCompletionContext ctx,
                                                    TypeDefinitionSymbol typeDefinitionSymbol) {
-        boolean onQNameRef = QNameReferenceUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor());
+        boolean onQNameRef = QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor());
         Optional<ModuleSymbol> module = typeDefinitionSymbol.getModule();
         if (module.isEmpty() || onQNameRef) {
             return typeDefinitionSymbol.getName().get();
         }
         ModuleID moduleID = module.get().id();
-        String modulePrefix = CommonUtil.getModulePrefix(ctx, moduleID.orgName(), moduleID.moduleName());
+        String modulePrefix = ModuleUtil.getModulePrefix(ctx, moduleID.orgName(), moduleID.moduleName());
 
         // Added the annotations prefix check until #31884 is resolved
         if (modulePrefix.isEmpty() || modulePrefix.equals("annotations")) {

@@ -1,45 +1,28 @@
 {
-  "line": 14,
-  "character": 13,
+  "position": {
+    "line": 14,
+    "character": 13
+  },
+  "source": "optimizeImports1.bal",
   "expected": [
     {
       "title": "Optimize all imports",
-      "kind": "quickfix",
-      "diagnostics": [],
-      "edit": {
-        "documentChanges": [
-          {
-            "edits": [
-              {
-                "range": {
-                  "start": {
-                    "line": 14,
-                    "character": 0
-                  },
-                  "end": {
-                    "line": 15,
-                    "character": 24
-                  }
-                },
-                "newText": ""
-              },
-              {
-                "range": {
-                  "start": {
-                    "line": 14,
-                    "character": 0
-                  },
-                  "end": {
-                    "line": 14,
-                    "character": 0
-                  }
-                },
-                "newText": "import projectls.lsmod2;\nimport ballerina/xyz;\n"
-              }
-            ]
-          }
-        ]
-      }
+      "kind": "source.organizeImports",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 0
+            },
+            "end": {
+              "line": 16,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/xyz;\nimport projectls.lsmod2;\n"
+        }
+      ]
     }
   ]
 }

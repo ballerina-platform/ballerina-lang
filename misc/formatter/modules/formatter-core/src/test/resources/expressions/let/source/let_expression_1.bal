@@ -7,6 +7,9 @@ function getPerson() returns Person => {    age: 31   };
 public function foo() {
    int a =    let    int b = 1     in b * 2;
 
+   int c =    let    int d = 1
+in d * 2;
+
    string greeting =let string hello = "Hello ",   string ballerina = "Ballerina!"in hello + ballerina;
 
    int three =    let int one = 1  , int two = one + one

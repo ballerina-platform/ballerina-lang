@@ -31,6 +31,7 @@ import io.ballerina.runtime.internal.BalStringUtils;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
@@ -170,7 +171,7 @@ public class StringUtils {
             return "";
         }
 
-        Type type = TypeChecker.getType(value);
+        Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
 
         if (type.getTag() == TypeTags.STRING_TAG) {
             return ((BString) value).getValue();
@@ -202,7 +203,7 @@ public class StringUtils {
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             BObject objectValue = (BObject) value;
-            ObjectType objectType = objectValue.getType();
+            ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
             for (MethodType func : objectType.getMethods()) {
                 if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
@@ -227,7 +228,7 @@ public class StringUtils {
             return "()";
         }
 
-        Type type = TypeChecker.getType(value);
+        Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
 
         if (type.getTag() == TypeTags.STRING_TAG) {
             return "\"" + ((BString) value).getValue() + "\"";
@@ -273,7 +274,7 @@ public class StringUtils {
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
-            ObjectType objectType = objectValue.getType();
+            ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
             for (MethodType func : objectType.getMethods()) {
                 if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
                         func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
@@ -334,7 +335,12 @@ public class StringUtils {
         if (exprValue.startsWith("xml")) {
             String xml = exprValue.substring(exprValue.indexOf('`') + 1,
                     exprValue.lastIndexOf('`')).trim();
-            return BalStringUtils.parseXmlExpressionStringValue(xml, parent);
+            return BalStringUtils.parseXmlExpressionStringValue(xml);
+        }
+        if (exprValue.startsWith("re")) {
+            String regexp = exprValue.substring(exprValue.indexOf('`') + 1,
+                    exprValue.lastIndexOf('`')).trim();
+            return RegExpFactory.parse(regexp);
         }
         if (exprValue.startsWith("...")) {
             return BalStringUtils.parseCycleDetectedExpressionStringValue(exprValue, parent);
@@ -349,31 +355,23 @@ public class StringUtils {
      * @return Json String value of the value
      */
     public static String getJsonString(Object value) {
-        if (value == null) {
-            return "null";
-        }
+        Object jsonValue = JsonUtils.convertToJson(value, new ArrayList<>());
 
-        Type type = TypeChecker.getType(value);
-
-        if (type.getTag() == TypeTags.STRING_TAG) {
-            return stringToJson((BString) value);
+        Type type = TypeUtils.getReferredType(TypeChecker.getType(jsonValue));
+        switch (type.getTag()) {
+            case TypeTags.NULL_TAG:
+                return "null";
+            case TypeTags.STRING_TAG:
+                return stringToJson((BString) jsonValue);
+            case TypeTags.MAP_TAG:
+                MapValueImpl mapValue = (MapValueImpl) jsonValue;
+                return mapValue.getJSONString();
+            case TypeTags.ARRAY_TAG:
+                ArrayValue arrayValue = (ArrayValue) jsonValue;
+                return arrayValue.getJSONString();
+            default:
+                return String.valueOf(jsonValue);
         }
-        if (type.getTag() < TypeTags.NULL_TAG) {
-            return String.valueOf(value);
-        }
-
-        if (type.getTag() == TypeTags.MAP_TAG) {
-            MapValueImpl mapValue = (MapValueImpl) value;
-            return mapValue.getJSONString();
-        }
-
-        if (type.getTag() == TypeTags.ARRAY_TAG) {
-            ArrayValue arrayValue = (ArrayValue) value;
-            return arrayValue.getJSONString();
-        }
-
-        RefValue refValue = (RefValue) value;
-        return refValue.stringValue(null);
     }
 
     private static String stringToJson(BString value) {

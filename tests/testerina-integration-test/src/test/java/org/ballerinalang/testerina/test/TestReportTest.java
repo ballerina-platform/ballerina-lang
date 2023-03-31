@@ -24,6 +24,8 @@ import com.google.gson.JsonParser;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
+import org.ballerinalang.testerina.test.utils.CommonUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -65,20 +67,19 @@ public class TestReportTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--test-report"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg)) {
-            Assert.fail("Test failed due to report tools validation failure.");
-        }
+        String firstString = "Generating Test Report\n\t";
+        String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput("TestReportTest-testWarningForReportTools.txt", output);
     }
 
     @Test ()
-    public void testWarningForCoverageFormatFlag() throws BallerinaTestException {
+    public void testWarningForCoverageFormatFlag() throws BallerinaTestException, IOException {
         String msg = "warning: ignoring --coverage-format flag since code coverage is not enabled";
         String[] args = new String[]{"--coverage-format=xml"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        if (!output.contains(msg)) {
-            Assert.fail("Test failed due to coverage-format flag validation failure.");
-        }
+        AssertionUtils.assertOutput("TestReportTest-testWarningForCoverageFormatFlag.txt", output);
     }
 
     @Test()
@@ -88,7 +89,7 @@ public class TestReportTest extends BaseTestCase {
         runCommand(args);
 
         int mathTotal = 2, mathPassed = 2, mathFailed = 0, mathSkipped = 0;
-        int fooTotal = 2, fooPassed = 0, fooFailed = 1, fooSkipped = 1;
+        int fooTotal = 3, fooPassed = 1, fooFailed = 1, fooSkipped = 1;
         int bartestTotal = 1, bartestPassed = 1, bartestFailed = 0, bartestSkipped = 0;
 
         int[] mathStatus =  {mathTotal, mathPassed, mathFailed, mathSkipped};
@@ -207,7 +208,8 @@ public class TestReportTest extends BaseTestCase {
         float mathPercentage = (float) (Math.round(mathPercentageVal * 100.0) / 100.0);
 
         //foo module
-        int[] fooMainCovered = new int[]{19, 22, 23, 24, 29, 30, 36, 37}, fooMainMissed = new int[]{26};
+        int[] fooMainCovered = new int[]{19, 22, 23, 24, 29, 30, 36, 37, 42, 43, 50, 55, 56, 57, 60, 61, 64, 65, 69,
+                70, 71, 74, 75}, fooMainMissed = new int[]{26};
         float fooMainPercentageVal =
                 (float) (fooMainCovered.length) / (fooMainCovered.length + fooMainMissed.length) * 100;
         float fooMainPercentage =
@@ -321,7 +323,8 @@ public class TestReportTest extends BaseTestCase {
         float mathPercentage = (float) (Math.round(mathPercentageVal * 100.0) / 100.0);
 
         //foo module
-        int[] fooMainCovered = new int[]{}, fooMainMissed = new int[]{19, 22, 23, 24, 26, 29, 30, 36, 37};
+        int[] fooMainCovered = new int[]{}, fooMainMissed = new int[]{19, 22, 23, 24, 26, 29, 30, 36, 37,
+                42, 43, 50, 55, 56, 57, 60, 61, 64, 65, 69, 70, 71, 74, 75};
         float fooMainPercentageVal =
                 (float) (fooMainCovered.length) / (fooMainCovered.length + fooMainMissed.length) * 100;
         float fooMainPercentage = (float) (Math.round(fooMainPercentageVal * 100.0) / 100.0);

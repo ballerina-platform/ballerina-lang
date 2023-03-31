@@ -1,0 +1,8 @@
+{
+  "position": {
+    "line": 6,
+    "character": 24
+  },
+  "source": "isolatedFunctionCodeAction/modules/module2/add_isolated_qualifier_source4.bal",
+  "expected": []
+}

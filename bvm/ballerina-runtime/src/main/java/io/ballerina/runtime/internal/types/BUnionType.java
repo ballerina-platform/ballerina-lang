@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.SelectivelyImmutableReferenceType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 
@@ -302,11 +303,12 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
             return null;
         }
 
-        if (memberTypes.get(0).getTag() == TypeTags.FINITE_TYPE_TAG) {
+        Type firstMemberType = TypeUtils.getReferredType(memberTypes.get(0));
+        if (firstMemberType.getTag() == TypeTags.FINITE_TYPE_TAG) {
             return TypeChecker.getType(
-                    ((BFiniteType) memberTypes.get(0)).getValueSpace().iterator().next()).getZeroValue();
+                    ((BFiniteType) firstMemberType).getValueSpace().iterator().next()).getZeroValue();
         } else {
-            return memberTypes.get(0).getZeroValue();
+            return firstMemberType.getZeroValue();
         }
     }
 
@@ -315,12 +317,12 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         if (isNilable() || memberTypes.stream().anyMatch(Type::isNilable)) {
             return null;
         }
-
-        if (memberTypes.get(0).getTag() == TypeTags.FINITE_TYPE_TAG) {
+        Type firstMemberType = TypeUtils.getReferredType(memberTypes.get(0));
+        if (firstMemberType.getTag() == TypeTags.FINITE_TYPE_TAG) {
             return TypeChecker.getType(
-                    ((BFiniteType) memberTypes.get(0)).getValueSpace().iterator().next()).getEmptyValue();
+                    ((BFiniteType) firstMemberType).getValueSpace().iterator().next()).getEmptyValue();
         } else {
-            return memberTypes.get(0).getEmptyValue();
+            return firstMemberType.getEmptyValue();
         }
     }
 
@@ -439,15 +441,15 @@ public class BUnionType extends BType implements UnionType, SelectivelyImmutable
         for (Type member : unionType.getMemberTypes()) {
             if (member instanceof BArrayType) {
                 BArrayType arrayType = (BArrayType) member;
-                if (arrayType.getElementType() == unionType) {
-                    BArrayType newArrayType = new BArrayType(this);
+                if (TypeUtils.getReferredType(arrayType.getElementType()) == unionType) {
+                    BArrayType newArrayType = new BArrayType(this, this.readonly);
                     this.addMember(newArrayType);
                     continue;
                 }
             } else if (member instanceof BMapType) {
                 BMapType mapType = (BMapType) member;
                 if (mapType.getConstrainedType() == unionType) {
-                    BMapType newMapType = new BMapType(this);
+                    BMapType newMapType = new BMapType(this, this.readonly);
                     this.addMember(newMapType);
                     continue;
                 }

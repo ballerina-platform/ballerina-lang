@@ -20,11 +20,11 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -49,8 +49,8 @@ public class ReturnStatementNodeContext extends AbstractCompletionProvider<Retur
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (node.expression().isPresent()
-                && QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
-            List<Symbol> entries = QNameReferenceUtil.getExpressionContextEntries(context,
+                && QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+            List<Symbol> entries = QNameRefCompletionUtil.getExpressionContextEntries(context,
                     (QualifiedNameReferenceNode) context.getNodeAtCursor());
 
             completionItems.addAll(this.getCompletionItemList(entries, context));

@@ -25,6 +25,7 @@ import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
@@ -65,7 +66,7 @@ public class ErrorValue extends BError implements RefValue {
     private static final PrintStream outStream = System.err;
 
     private final Type type;
-    private final BTypedesc typedesc;
+    private BTypedesc typedesc;
     private final BString message;
     private final BError cause;
     private final Object details;
@@ -94,7 +95,6 @@ public class ErrorValue extends BError implements RefValue {
         this.message = message;
         this.cause = cause;
         this.details = details;
-        this.typedesc = new TypedescValueImpl(type);
     }
 
     public ErrorValue(Type type, BString message, BError cause, Object details,
@@ -106,8 +106,7 @@ public class ErrorValue extends BError implements RefValue {
         this.details = details;
         BTypeIdSet typeIdSet = new BTypeIdSet();
         typeIdSet.add(typeIdPkg, typeIdName, true);
-        ((BErrorType) type).setTypeIdSet(typeIdSet);
-        this.typedesc = new TypedescValueImpl(type);
+        ((BErrorType) TypeUtils.getReferredType(type)).setTypeIdSet(typeIdSet);
     }
 
     @Override
@@ -188,6 +187,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String getModuleNameToBalString() {
+        Type type = TypeUtils.getReferredType(this.type);
         if (((BErrorType) type).typeIdSet == null) {
             return "";
         }
@@ -221,7 +221,11 @@ public class ErrorValue extends BError implements RefValue {
         return this;
     }
 
+    @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = new TypedescValueImpl(type);
+        }
         return typedesc;
     }
 

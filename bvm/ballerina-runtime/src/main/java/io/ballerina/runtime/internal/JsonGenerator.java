@@ -18,6 +18,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -279,7 +280,7 @@ public class JsonGenerator {
             return;
         }
 
-        switch (TypeChecker.getType(json).getTag()) {
+        switch (TypeUtils.getReferredType(TypeChecker.getType(json)).getTag()) {
             case TypeTags.ARRAY_TAG:
                 if (json instanceof StreamingJsonValue) {
                     ((StreamingJsonValue) json).serialize(this);

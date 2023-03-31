@@ -1,0 +1,25 @@
+[
+  {
+    "source": "function (string, string) returns string concat = function (string x, string y) returns string { return x + y; };",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["concat"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "concat(\"Hello \", \"World!\")",
+    "result": {
+      "shellValue": {
+        "value": "\"Hello World!\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

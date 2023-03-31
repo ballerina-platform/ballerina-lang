@@ -80,6 +80,7 @@ dependencies {
     
     testCompile 'org.testng:testng'
     testCompile 'org.mockito:mockito-all'
+    testCompile 'org.awaitility:awaitility'
     testImplementation 'org.powermock:powermock-mockito-release-full'
     testImplementation 'org.powermock:powermock-module-testng-common'
 }
@@ -123,7 +124,12 @@ createJavadoc {
     exclude "**"
 }
 
+task deleteGeneratedModules(type:Delete) {
+    delete 'build/resources/test/command/generate-module-for-client-decl/source/client_decl/generated'
+}
+
 test {
+    dependsOn deleteGeneratedModules
     dependsOn loadDistributionCache
     systemProperty "ballerina.home", "$buildDir/"
     systemProperty "experimental", "true"
@@ -141,3 +147,4 @@ task buildAndCopy(type: Copy) {
             '/build/extracted-distributions/jballerina-tools-' + project.version +
             '/bre/lib'
 }
+

@@ -100,8 +100,21 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -271,7 +284,6 @@ public class ReferenceFinder extends BaseVisitor {
         find(xmlnsNode.namespaceURI);
         addIfSameSymbol(xmlnsNode.symbol, xmlnsNode.prefix.pos);
     }
-
     @Override
     public void visit(BLangFunction funcNode) {
         find(funcNode.annAttachments);
@@ -281,7 +293,7 @@ public class ReferenceFinder extends BaseVisitor {
         find(funcNode.returnTypeNode);
         find(funcNode.body);
 
-        if (funcNode.symbol.origin != VIRTUAL) {
+        if (funcNode.symbol != null && funcNode.symbol.origin != VIRTUAL) {
             addIfSameSymbol(funcNode.symbol, funcNode.name.pos);
         }
     }
@@ -1124,7 +1136,7 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTupleTypeNode tupleTypeNode) {
-        find(tupleTypeNode.memberTypeNodes);
+        find(tupleTypeNode.members);
         find(tupleTypeNode.restParamType);
     }
 
@@ -1200,6 +1212,11 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+        // Ignore incomplete worker-flush expressions
+        // Ex: var a = flush;
+        if (workerFlushExpr.workerIdentifier == null) {
+            return;
+        }
         addIfSameSymbol(workerFlushExpr.workerSymbol, workerFlushExpr.workerIdentifier.pos);
     }
 
@@ -1287,6 +1304,96 @@ public class ReferenceFinder extends BaseVisitor {
         addIfSameSymbol(restMatchPattern.symbol, restMatchPattern.variableName.pos);
     }
 
+    @Override
+    public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
+        find(resourceAccessInvocation.expr);
+        find(resourceAccessInvocation.requiredArgs);
+        find(resourceAccessInvocation.annAttachments);
+        find(resourceAccessInvocation.restArgs);
+        find(resourceAccessInvocation.resourceAccessPathSegments);
+
+        if (!resourceAccessInvocation.pkgAlias.value.isEmpty()) {
+            addIfSameSymbol(resourceAccessInvocation.symbol.owner, resourceAccessInvocation.pkgAlias.pos);
+        }
+        addIfSameSymbol(resourceAccessInvocation.symbol, resourceAccessInvocation.resourceAccessPathSegments.pos);
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        find(regExpTemplateLiteral.reDisjunction);
+    }
+
+    @Override
+    public void visit(BLangReSequence reSequence) {
+        find(reSequence.termList);
+    }
+
+    @Override
+    public void visit(BLangReAtomQuantifier reAtomQuantifier) {
+        find(reAtomQuantifier.atom);
+        find(reAtomQuantifier.quantifier);
+    }
+
+    @Override
+    public void visit(BLangReAtomCharOrEscape reAtomCharOrEscape) {
+        find(reAtomCharOrEscape.charOrEscape);
+    }
+
+    @Override
+    public void visit(BLangReQuantifier reQuantifier) {
+        find(reQuantifier.quantifier);
+        find(reQuantifier.nonGreedyChar);
+    }
+
+    @Override
+    public void visit(BLangReCharacterClass reCharacterClass) {
+        find(reCharacterClass.characterClassStart);
+        find(reCharacterClass.negation);
+        find(reCharacterClass.charSet);
+        find(reCharacterClass.characterClassEnd);
+    }
+
+    @Override
+    public void visit(BLangReCharSet reCharSet) {
+        find(reCharSet.charSetAtoms);
+    }
+
+    @Override
+    public void visit(BLangReCharSetRange reCharSetRange) {
+        find(reCharSetRange.lhsCharSetAtom);
+        find(reCharSetRange.rhsCharSetAtom);
+    }
+
+    @Override
+    public void visit(BLangReAssertion reAssertion) {
+        find(reAssertion.assertion);
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups reCapturingGroups) {
+        find(reCapturingGroups.openParen);
+        find(reCapturingGroups.flagExpr);
+        find(reCapturingGroups.disjunction);
+        find(reCapturingGroups.closeParen);
+    }
+
+    @Override
+    public void visit(BLangReDisjunction reDisjunction) {
+        find(reDisjunction.sequenceList);
+    }
+
+    @Override
+    public void visit(BLangReFlagsOnOff reFlagsOnOff) {
+        find(reFlagsOnOff.flags);
+    }
+
+    @Override
+    public void visit(BLangReFlagExpression reFlagExpression) {
+        find(reFlagExpression.questionMark);
+        find(reFlagExpression.flagsOnOff);
+        find(reFlagExpression.colon);
+    }
+
     // Private methods
 
     private void visitNamedArgWithoutAddingSymbol(List<BLangNamedArgsExpression> args) {
@@ -1300,7 +1407,7 @@ public class ReferenceFinder extends BaseVisitor {
                 && this.targetSymbol.name.equals(symbol.name)
                 && this.targetSymbol.pkgID.equals(symbol.pkgID)
                 && this.targetSymbol.pos.equals(symbol.pos)
-                && (this.withDefinition || !symbol.pos.equals(location))) {
+                && (this.withDefinition || (symbol.getOrigin() != VIRTUAL && !symbol.pos.equals(location)))) {
             this.referenceLocations.add(location);
             return true;
         }
@@ -1322,7 +1429,7 @@ public class ReferenceFinder extends BaseVisitor {
      */
     private Location getLocationForLiteral(Location location) {
         LineRange lineRange = location.lineRange();
-        return new BLangDiagnosticLocation(lineRange.filePath(),
+        return new BLangDiagnosticLocation(lineRange.fileName(),
                                            lineRange.startLine().line(), lineRange.endLine().line(),
                                            lineRange.startLine().offset() + 1, lineRange.endLine().offset() - 1,
                                            location.textRange().startOffset(), location.textRange().length());

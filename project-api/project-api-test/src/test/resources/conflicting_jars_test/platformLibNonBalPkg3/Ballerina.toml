@@ -1,0 +1,5 @@
+[package]
+org = "user"
+name = "platformLibNonBalPkg3"
+version = "0.1.0"
+distribution = "2201.0.4-rc1.4"

@@ -42,12 +42,16 @@ public class ProjectConstants {
     public static final String BALA_JSON = "bala.json";
     public static final String COMPILER_PLUGIN_JSON = "compiler-plugin.json";
     public static final String DEPENDENCY_GRAPH_JSON = "dependency-graph.json";
+    public static final String DEPRECATED_META_FILE_NAME = "deprecated.txt";
     public static final String BUILD_FILE = "build";
 
     public static final String SOURCE_DIR_NAME = "src";
     public static final String BIN_DIR_NAME = "bin";
     public static final String TARGET_DIR_NAME = "target";
     public static final String TARGET_API_DOC_DIRECTORY = "apidocs";
+
+    public static final String NATIVE_DIR_NAME = "native";
+    public static final String NATIVE_CONFIG_DIR_NAME = "native-config";
 
     public static final String CACHES_DIR_NAME = "cache";
 
@@ -60,6 +64,7 @@ public class ProjectConstants {
 
     // Bala specific constants
     public static final String MODULES_ROOT = "modules";
+    public static final String GENERATED_MODULES_ROOT = "generated";
     public static final String LIB_DIR = "lib";
     public static final String COMPILER_PLUGIN_DIR = "compiler-plugin";
 
@@ -111,4 +116,5 @@ public class ProjectConstants {
     public static final String LOCAL_REPOSITORY_NAME = "local";
     public static final String CENTRAL_REPOSITORY_CACHE_NAME = "central.ballerina.io";
     public static final String DEPENDENCIES_TOML_VERSION = "2";
+    public static final String BALLERINA_ORG = "ballerina";
 }

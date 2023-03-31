@@ -1,0 +1,29 @@
+Compiling source
+	intg_tests/assertions:0.0.0
+WARNING [tests/assert-test-behavioral-types.bal:(22:5,22:29)] undocumented field 'name'
+WARNING [tests/assert-test-behavioral-types.bal:(23:5,23:24)] undocumented field 'age'
+WARNING [tests/assert-test-behavioral-types.bal:(24:5,24:32)] undocumented field 'parent'
+
+Running Tests with Coverage
+
+	assertions
+		[pass] testAssertObjectArrayEquals
+		[pass] testAssertObjectArrayEqualsNegative
+		[pass] testAssertObjectArrayNotEquals
+		[pass] testAssertObjectArrayNotEqualsNegative
+		[pass] testAssertObjectEquals
+		[pass] testAssertObjectEqualsNegative
+		[pass] testAssertObjectNotEquals
+		[pass] testAssertObjectNotEqualsNegative
+		[pass] testAssertObjectRecordEquals
+		[pass] testAssertObjectRecordEqualsNegative
+		[pass] testAssertObjectRecordNotEquals
+		[pass] testAssertObjectRecordNotEqualsNegative
+
+
+		12 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	assertions-behavioral-types/target/report/test_results.json

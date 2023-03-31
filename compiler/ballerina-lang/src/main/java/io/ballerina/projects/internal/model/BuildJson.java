@@ -20,6 +20,8 @@ package io.ballerina.projects.internal.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Map;
+
 /**
  * {@code PackageJson} Model for build file.
  *
@@ -39,12 +41,20 @@ public class BuildJson {
     @SerializedName(SERIALIZED_NAME_DISTRIBUTION_VERSION)
     private String distributionVersion;
 
+    public static final String SERIALIZED_NAME_LAST_MODIFIED_TIME = "last_modified_time";
+    @SerializedName(SERIALIZED_NAME_LAST_MODIFIED_TIME)
+    private Map<String, Long> lastModifiedTime;
+
     private static final long ONE_DAY = 24 * 60 * 60 * 1000;
 
-    public BuildJson(long lastBuildTime, long lastUpdateTime, String distributionVersion) {
+    public BuildJson(long lastBuildTime,
+                     long lastUpdateTime,
+                     String distributionVersion,
+                     Map<String, Long> lastModifiedTime) {
         this.lastBuildTime = lastBuildTime;
         this.lastUpdateTime = lastUpdateTime;
         this.distributionVersion = distributionVersion;
+        this.lastModifiedTime = lastModifiedTime;
     }
 
     public long lastBuildTime() {
@@ -69,6 +79,14 @@ public class BuildJson {
 
     public void setDistributionVersion(String distributionVersion) {
         this.distributionVersion = distributionVersion;
+    }
+
+    public Map<String, Long> getLastModifiedTime() {
+        return lastModifiedTime;
+    }
+
+    public void setLastModifiedTime(Map<String, Long> lastModifiedTime) {
+        this.lastModifiedTime = lastModifiedTime;
     }
 
     public boolean isExpiredLastUpdateTime() {

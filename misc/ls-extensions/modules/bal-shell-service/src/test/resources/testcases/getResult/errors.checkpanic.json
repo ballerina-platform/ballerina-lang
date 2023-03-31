@@ -1,0 +1,43 @@
+[
+  {
+    "source": "import ballerina/lang.'int;function parse(string num) returns int|error { return 'int:fromString(num); }",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["parse"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int y = checkpanic parse(\"120\");",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["y"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "y",
+    "result": {
+      "shellValue": {
+        "value":"120",
+        "mimeType":"plain/text",
+        "type":"int"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "int y2 = checkpanic parse(\"12.12\")",
+    "result": {
+      "errors":[],
+      "diagnostics":["Execution aborted due to unhandled runtime error."],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":"panic: {ballerina/lang.int}NumberParsingError {\"message\":\"\u0027string\u0027 value \u002712.12\u0027 cannot be converted to \u0027int\u0027\"}"
+    }
+  }
+]

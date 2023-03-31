@@ -46,6 +46,11 @@ public class MatchStatementOnFailTest {
         BRunUtil.invoke(result, "testStaticMatchPatternsWithFailStmt");
     }
 
+    @Test
+    public void testStaticMatchPatternsWithOnFailStmtWithoutVariable() {
+        BRunUtil.invoke(result, "testStaticMatchPatternsWithOnFailStmtWithoutVariable");
+    }
+
     @Test(description = "Test basics of static pattern match statement with check expression")
     public void testStaticMatchPatternsWithCheckExpr() {
          BRunUtil.invoke(result, "testStaticMatchPatternsWithCheckExpr");

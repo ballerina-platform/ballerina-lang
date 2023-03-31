@@ -31,14 +31,17 @@ import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.NameUtil;
+import org.ballerinalang.langserver.common.utils.TypeResolverUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.NamedArgCompletionItem;
 import org.ballerinalang.langserver.completions.builder.NamedArgCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -46,6 +49,7 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -69,23 +73,44 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
     @Override
     public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
         if ((node.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION && 
-                !CommonUtil.isInNewExpressionParameterContext(context, (ExplicitNewExpressionNode) node)) ||
-                (node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
-                        !CommonUtil.isInNewExpressionParameterContext(context, (ImplicitNewExpressionNode) node))) {
+                !TypeResolverUtil.isInNewExpressionParameterContext((ExplicitNewExpressionNode) node, 
+                        context.getCursorPositionInTree())) 
+                || (node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
+                        !TypeResolverUtil.isInNewExpressionParameterContext(
+                                (ImplicitNewExpressionNode) node, context.getCursorPositionInTree()))) {
             super.sort(context, node, completionItems);
             return;
         }
-        ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> parameterSymbol = node.apply(resolver);
-        if (parameterSymbol.isEmpty()) {
-            super.sort(context, node, completionItems);
-            return;
+
+        Optional<TypeSymbol> parameterSymbol = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            parameterSymbol = context.currentSemanticModel().get().expectedType(context.currentDocument().get(),
+                    LinePosition.from(context.getCursorPosition().getLine(),
+                            context.getCursorPosition().getCharacter()));
         }
+
         for (LSCompletionItem completionItem : completionItems) {
             if (completionItem.getType() == LSCompletionItem.CompletionItemType.NAMED_ARG) {
-                String sortText = SortingUtil.genSortText(1) +
-                        SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
+                NamedArgCompletionItem argCompletionItem = (NamedArgCompletionItem) completionItem;
+                Either<ParameterSymbol, RecordFieldSymbol> symbol = argCompletionItem.getParameterSymbol();
+                String sortText;
+                if (symbol.isRight()) {
+                    RecordFieldSymbol right = symbol.getRight();
+                    if (right.isOptional()) {
+                        sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(3);
+                    } else if (right.hasDefaultValue()) {
+                        sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(2);
+                    } else {
+                        sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(1);
+                    }
+                } else {
+                    sortText = SortingUtil.genSortText(1) +
+                            SortingUtil.genSortText(SortingUtil.toRank(context, completionItem));
+                }
                 completionItem.getCompletionItem().setSortText(sortText);
+            } else if (parameterSymbol.isEmpty()) {
+                completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(
+                        SortingUtil.toRank(context, completionItem)));
             } else {
                 completionItem.getCompletionItem().setSortText(
                         SortingUtil.genSortTextByAssignability(context, completionItem, parameterSymbol.get()));
@@ -98,7 +123,7 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
                                                             FunctionSymbol functionSymbol,
                                                             SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (!CommonUtil.isValidNamedArgContext(context, argumentNodeList)) {
+        if (!isValidNamedArgContext(context, argumentNodeList)) {
             return completionItems;
         }
         FunctionTypeSymbol functionTypeSymbol = functionSymbol.typeDescriptor();
@@ -107,7 +132,7 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
             return Collections.emptyList();
         }
 
-        List<String> existingNamedArgs = CommonUtil.getDefinedArgumentNames(context, params.get(), argumentNodeList);
+        List<String> existingNamedArgs = NameUtil.getDefinedArgumentNames(context, params.get(), argumentNodeList);
         for (ParameterSymbol parameterSymbol : params.get()) {
             if (parameterSymbol.paramKind() == ParameterKind.REQUIRED ||
                     parameterSymbol.paramKind() == ParameterKind.DEFAULTABLE) {
@@ -126,20 +151,43 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
                     continue;
                 }
                 RecordTypeSymbol includedRecordType = (RecordTypeSymbol) typeSymbol;
-                List<RecordFieldSymbol> recordFields = CommonUtil.getMandatoryRecordFields(includedRecordType);
-                recordFields.forEach(recordFieldSymbol -> {
-                    Optional<String> fieldName = recordFieldSymbol.getName();
-                    if (fieldName.isEmpty() || fieldName.get().isEmpty() || 
+                Map<String, RecordFieldSymbol> fieldSymbolMap = includedRecordType.fieldDescriptors();
+                fieldSymbolMap.forEach((key, value) -> {
+                    Optional<String> fieldName = value.getName();
+                    if (fieldName.isEmpty() || fieldName.get().isEmpty() ||
                             existingNamedArgs.contains(fieldName.get())) {
                         return;
                     }
-                    TypeSymbol fieldType = recordFieldSymbol.typeDescriptor();
+                    TypeSymbol fieldType = value.typeDescriptor();
                     CompletionItem completionItem = NamedArgCompletionItemBuilder.build(fieldName.get(), fieldType);
                     completionItems.add(
-                            new NamedArgCompletionItem(context, completionItem, Either.forRight(recordFieldSymbol)));
+                            new NamedArgCompletionItem(context, completionItem, Either.forRight(value)));
                 });
             }
         }
         return completionItems;
+    }
+
+
+    /**
+     * Check if the cursor is positioned in call expression context so that named arg
+     * completions can be suggested.
+     *
+     * @param context          completion context.
+     * @param argumentNodeList argument node list.
+     * @return {@link Boolean} whether the cursor is positioned so that the named arguments can  be suggested.
+     */
+    private boolean isValidNamedArgContext(BallerinaCompletionContext context,
+                                                 SeparatedNodeList<FunctionArgumentNode> argumentNodeList) {
+        int cursorPosition = context.getCursorPositionInTree();
+        for (Node child : argumentNodeList) {
+            TextRange textRange = child.textRange();
+            int startOffset = textRange.startOffset();
+            if (startOffset > cursorPosition
+                    && child.kind() == SyntaxKind.POSITIONAL_ARG || child.kind() == SyntaxKind.REST_ARG) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -34,7 +34,7 @@ public class ModuleData {
     private final List<DocumentData> testSrcDocs;
     private final DocumentData moduleMd;
     private final List<Path> resources;
-    private List<Path> testResources;
+    private final List<Path> testResources;
 
     // TODO do we need to maintain resources and test resources
 
@@ -76,8 +76,16 @@ public class ModuleData {
         return srcDocs;
     }
 
+    public void addSourceDocs(List<DocumentData> docs) {
+        srcDocs.addAll(docs);
+    }
+
     public List<DocumentData> testSourceDocs() {
         return testSrcDocs;
+    }
+
+    public void addTestSourceDocs(List<DocumentData> docs) {
+        testSrcDocs.addAll(docs);
     }
 
     public Optional<DocumentData> moduleMd() {

@@ -32,6 +32,7 @@ import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleConfig;
@@ -46,10 +47,13 @@ import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -57,10 +61,12 @@ import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.LinePosition;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.SkipException;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -82,9 +88,9 @@ import java.util.Optional;
 import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
+import static io.ballerina.projects.test.TestUtils.assertTomlFilesEquals;
 import static io.ballerina.projects.test.TestUtils.isWindows;
 import static io.ballerina.projects.test.TestUtils.loadProject;
-import static io.ballerina.projects.test.TestUtils.readFileAsString;
 import static io.ballerina.projects.test.TestUtils.resetPermissions;
 import static io.ballerina.projects.test.TestUtils.writeContent;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
@@ -92,6 +98,7 @@ import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
+import static io.ballerina.projects.util.ProjectConstants.REPO_BIR_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
@@ -106,12 +113,19 @@ import static org.testng.Assert.assertTrue;
  */
 public class TestBuildProject extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
+    private static Path tempResourceDir;
     static final PrintStream OUT = System.out;
     private final String dummyContent = "function foo() {\n}";
 
+    @BeforeClass
+    public void setup() throws IOException {
+        tempResourceDir = Files.createTempDirectory("project-api-test");
+        FileUtils.copyDirectory(RESOURCE_DIRECTORY.toFile(), tempResourceDir.toFile());
+    }
+
     @Test (description = "tests loading a valid build project")
     public void testBuildProjectAPI() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        Path projectPath = tempResourceDir.resolve("myproject");
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath);
@@ -148,9 +162,9 @@ public class TestBuildProject extends BaseTest {
 
     }
 
-    @Test (description = "tests loading a build project containing invalid platformdependency paths")
+    @Test (description = "tests loading a build project containing invalid platform dependency paths")
     public void testBuildProjectWithInvalidDependencyPaths() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject_invalidDependencyPath");
+        Path projectPath = tempResourceDir.resolve("myproject_invalidDependencyPath");
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath);
@@ -182,7 +196,7 @@ public class TestBuildProject extends BaseTest {
             throw new SkipException("Skipping tests on Windows");
         }
 
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
+        Path projectPath = tempResourceDir.resolve("project_no_permission");
 
         // 1) Remove read permission
         boolean readable = projectPath.toFile().setReadable(false, true);
@@ -210,7 +224,7 @@ public class TestBuildProject extends BaseTest {
             throw new SkipException("Skipping tests on Windows");
         }
 
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
+        Path projectPath = tempResourceDir.resolve("project_no_permission");
 
         // 1) Remove write permission
         boolean writable = projectPath.toFile().setWritable(false, true);
@@ -239,7 +253,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "tests package compilation")
     public void testPackageCompilation() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("test_proj_pkg_compilation");
+        Path projectPath = tempResourceDir.resolve("test_proj_pkg_compilation");
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath);
@@ -257,7 +271,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "tests package diagnostics")
     public void testDiagnostics() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("test_proj_pkg_compilation");
+        Path projectPath = tempResourceDir.resolve("test_proj_pkg_compilation");
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath);
@@ -284,15 +298,22 @@ public class TestBuildProject extends BaseTest {
 
         // Verify paths in packageCompilation diagnostics
         List<String> diagnosticFilePaths = compilation.diagnosticResult().diagnostics().stream().map(diagnostic ->
-                diagnostic.location().lineRange().filePath()).distinct().collect(Collectors.toList());
+                diagnostic.location().lineRange().fileName()).distinct().collect(Collectors.toList());
 
         for (String path : expectedPaths) {
             Assert.assertTrue(diagnosticFilePaths.contains(path), diagnosticFilePaths.toString());
         }
+        String diagnoticsStr = compilation.diagnosticResult().diagnostics().stream().map(Diagnostic::toString)
+                .distinct().collect(Collectors.joining());
+
+        // Verify the Diagnostic.toString method
+        for (String path : expectedPaths) {
+            Assert.assertTrue(diagnoticsStr.contains(path), diagnoticsStr);
+        }
 
         // Verify paths in jBallerina backend diagnostics
         diagnosticFilePaths = jBallerinaBackend.diagnosticResult().diagnostics().stream().map(diagnostic ->
-                diagnostic.location().lineRange().filePath()).distinct().collect(Collectors.toList());
+                diagnostic.location().lineRange().fileName()).distinct().collect(Collectors.toList());
 
         for (String path : expectedPaths) {
             Assert.assertTrue(diagnosticFilePaths.contains(path), diagnosticFilePaths.toString());
@@ -301,7 +322,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "tests codegen with native libraries")
     public void testJBallerinaBackend() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("test_proj_pkg_compilation_simple");
+        Path projectPath = tempResourceDir.resolve("test_proj_pkg_compilation_simple");
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath);
@@ -329,7 +350,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "tests package compilation with errors in test source files")
     public void testPackageCompilationWithTests() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_with_tests");
+        Path projectPath = tempResourceDir.resolve("project_with_tests");
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath);
@@ -346,7 +367,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "tests loading a valid build project using project compilation")
     public void testBuildProjectAPIWithPackageCompilation() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        Path projectPath = tempResourceDir.resolve("myproject");
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath);
@@ -373,7 +394,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test (description = "tests loading an invalid Ballerina project")
     public void testLoadBallerinaProjectNegative() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services")
+        Path projectPath = tempResourceDir.resolve("myproject").resolve("modules").resolve("services")
                 .resolve("svc.bal");
         try {
             TestUtils.loadBuildProject(projectPath);
@@ -381,14 +402,14 @@ public class TestBuildProject extends BaseTest {
             Assert.assertTrue(e.getMessage().contains("Invalid Ballerina package directory: " + projectPath));
         }
 
-        projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services");
+        projectPath = tempResourceDir.resolve("myproject").resolve("modules").resolve("services");
         try {
             TestUtils.loadBuildProject(projectPath);
         } catch (ProjectException e) {
             Assert.assertTrue(e.getMessage().contains("Invalid Ballerina package directory: " + projectPath));
         }
 
-        projectPath = RESOURCE_DIRECTORY.resolve("single_file");
+        projectPath = tempResourceDir.resolve("single_file");
         try {
             TestUtils.loadBuildProject(projectPath);
             Assert.fail("expected an invalid project exception");
@@ -399,7 +420,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test (description = "tests loading another invalid Ballerina project")
     public void testLoadBallerinaProjectInProject() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject").resolve("modules").resolve("services")
+        Path projectPath = tempResourceDir.resolve("myproject").resolve("modules").resolve("services")
                 .resolve("resources").resolve("invalidProject");
         try {
             TestUtils.loadBuildProject(projectPath);
@@ -412,7 +433,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "tests loading a valid build project with build options from toml")
     public void testLoadingBuildOptionsFromToml() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
+        Path projectPath = tempResourceDir.resolve("projectWithBuildOptions");
         // 1) Initialize the project instance
         BuildProject project = null;
         try {
@@ -431,7 +452,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "tests loading a valid build project with build options from toml")
     public void testOverrideBuildOptions() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
+        Path projectPath = tempResourceDir.resolve("projectWithBuildOptions");
         // 1) Initialize the project instance
         BuildProject project = null;
         BuildOptions buildOptions = BuildOptions.builder().setSkipTests(false).build();
@@ -451,7 +472,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "tests overriding build options when editing Toml")
     public void testOverrideBuildOptionsOnTomlEdit() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("projectWithBuildOptions");
+        Path projectPath = tempResourceDir.resolve("projectWithBuildOptions");
         // Initialize the project instance
         BuildOptions buildOptions = BuildOptions.builder().setOffline(true).build();
         BuildProject project = loadBuildProject(projectPath, buildOptions);
@@ -483,7 +504,7 @@ public class TestBuildProject extends BaseTest {
     @Test
     public void testUpdateDocument() {
         // Inputs from langserver
-        Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal").toAbsolutePath();
+        Path filePath = tempResourceDir.resolve("myproject").resolve("main.bal").toAbsolutePath();
 
         // Load the project from document filepath
         Project buildProject = TestUtils.loadProject(filePath);
@@ -523,7 +544,7 @@ public class TestBuildProject extends BaseTest {
     @Test
     public void testUpdateTestDocument() {
         // Inputs from langserver
-        Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.TEST_DIR_NAME)
+        Path filePath = tempResourceDir.resolve("myproject").resolve(ProjectConstants.TEST_DIR_NAME)
                 .resolve("main_tests.bal").toAbsolutePath();
 
         // Load the project from document filepath
@@ -556,8 +577,8 @@ public class TestBuildProject extends BaseTest {
 
     @Test
     public void testAddDocument() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
-        Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("db.bal").toAbsolutePath();
+        Path projectPath = tempResourceDir.resolve("myproject");
+        Path filePath = tempResourceDir.resolve("myproject").resolve("db.bal").toAbsolutePath();
         String newFileContent = "import ballerina/io;\n";
 
         BuildProject buildProject = (BuildProject) TestUtils.loadProject(projectPath);
@@ -593,9 +614,9 @@ public class TestBuildProject extends BaseTest {
 
     @Test
     public void testAddTestDocument() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        Path projectPath = tempResourceDir.resolve("myproject");
         Path filePath =
-                RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.TEST_DIR_NAME).resolve("db_test.bal")
+                tempResourceDir.resolve("myproject").resolve(ProjectConstants.TEST_DIR_NAME).resolve("db_test.bal")
                         .toAbsolutePath();
         String newFileContent = "import ballerina/io;\n";
 
@@ -632,7 +653,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test
     public void testRemoveDocument() {
-        Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("utils.bal").toAbsolutePath();
+        Path filePath = tempResourceDir.resolve("myproject").resolve("utils.bal").toAbsolutePath();
 
         Project buildProject = TestUtils.loadProject(filePath);
         DocumentId removeDocumentId = buildProject.documentId(filePath);
@@ -659,7 +680,7 @@ public class TestBuildProject extends BaseTest {
     @Test
     public void testRemoveTestDocument() {
         Path filePath =
-                RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.MODULES_ROOT).resolve("services")
+                tempResourceDir.resolve("myproject").resolve(ProjectConstants.MODULES_ROOT).resolve("services")
                         .resolve(ProjectConstants.TEST_DIR_NAME).resolve("svc_tests.bal").toAbsolutePath();
 
         Project buildProject = TestUtils.loadProject(filePath);
@@ -687,7 +708,7 @@ public class TestBuildProject extends BaseTest {
     @Test
     public void testAddEmptyModule() {
         Path filePath =
-                RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.MODULES_ROOT).resolve("newModule")
+                tempResourceDir.resolve("myproject").resolve(ProjectConstants.MODULES_ROOT).resolve("newModule")
                         .toAbsolutePath();
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
         BuildProject buildProject = (BuildProject) TestUtils.loadProject(projectRoot);
@@ -729,7 +750,7 @@ public class TestBuildProject extends BaseTest {
     @Test
     public void testAddModuleWithFiles() {
         Path filePath =
-                RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.MODULES_ROOT).resolve("newModule")
+                tempResourceDir.resolve("myproject").resolve(ProjectConstants.MODULES_ROOT).resolve("newModule")
                         .toAbsolutePath();
         Path projectRoot = ProjectUtils.findProjectRoot(filePath);
         BuildProject buildProject = (BuildProject) TestUtils.loadProject(projectRoot);
@@ -768,8 +789,8 @@ public class TestBuildProject extends BaseTest {
 
     @Test
     public void testAccessNonExistingDocument() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
-        Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("db.bal").toAbsolutePath();
+        Path projectPath = tempResourceDir.resolve("myproject");
+        Path filePath = tempResourceDir.resolve("myproject").resolve("db.bal").toAbsolutePath();
 
         // Load the project from document filepath
         Project buildProject = TestUtils.loadProject(projectPath);
@@ -784,7 +805,7 @@ public class TestBuildProject extends BaseTest {
     @Test
     public void testLoadFromNonExistentModule() {
         Path filePath =
-                RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.MODULES_ROOT)
+                tempResourceDir.resolve("myproject").resolve(ProjectConstants.MODULES_ROOT)
                         .resolve("db");
 
         try {
@@ -796,7 +817,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "tests get semantic model in module compilation")
     public void testGetSemanticModel() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        Path projectPath = tempResourceDir.resolve("myproject");
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath);
@@ -836,7 +857,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "tests if other documents exists ie. Ballerina.toml, Package.md")
     public void testOtherDocuments() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        Path projectPath = tempResourceDir.resolve("myproject");
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath);
@@ -873,7 +894,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "test editing Ballerina.toml")
     public void testModifyBallerinaToml() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_with_tests");
+        Path projectPath = tempResourceDir.resolve("project_with_tests");
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath);
@@ -931,7 +952,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "test editing Ballerina.toml")
     public void testModifyDependenciesToml() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
+        Path projectPath = tempResourceDir.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
         BuildProject project = loadBuildProject(projectPath, BuildOptions.builder().setSticky(true).build());
 
         PackageCompilation compilation = project.currentPackage().getCompilation();
@@ -1003,7 +1024,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "tests if other documents can be edited ie. Dependencies.toml, Package.md")
     public void testOtherDocumentModify() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        Path projectPath = tempResourceDir.resolve("myproject");
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath);
@@ -1073,7 +1094,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "tests adding Dependencies.toml, Package.md")
     public void testOtherDocumentAdd() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_without_k8s");
+        Path projectPath = tempResourceDir.resolve("project_without_k8s");
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath);
@@ -1134,7 +1155,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md")
     public void testOtherMinimalistProjectEdit() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject_minimalist");
+        Path projectPath = tempResourceDir.resolve("myproject_minimalist");
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath);
@@ -1198,7 +1219,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test
     public void testEditDependantModuleDocument() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_with_dependencies");
+        Path projectPath = tempResourceDir.resolve("projects_for_edit_api_tests/package_with_dependencies");
         String updatedFunctionStr = "public function concatStrings(string a, string b, string c) returns string {\n" +
                 "\treturn a + b;\n" +
                 "}\n";
@@ -1220,7 +1241,7 @@ public class TestBuildProject extends BaseTest {
         PackageCompilation compilation1 = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
-        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().fileName(),
                 "main.bal");
         Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
                 .contains("missing required parameter 'c'"));
@@ -1228,7 +1249,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test
     public void testRemoveDependantModuleDocument() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_with_dependencies");
+        Path projectPath = tempResourceDir.resolve("projects_for_edit_api_tests/package_with_dependencies");
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath);
@@ -1247,7 +1268,7 @@ public class TestBuildProject extends BaseTest {
         PackageCompilation compilation1 = project.currentPackage().getCompilation();
         DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
-        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().fileName(),
                 "main.bal");
         Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
                 .contains("undefined function 'concatStrings'"));
@@ -1255,7 +1276,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test
     public void testEditTransitivelyDependantModuleDocument() {
-        Path projectPath = RESOURCE_DIRECTORY
+        Path projectPath = tempResourceDir
                 .resolve("projects_for_edit_api_tests/package_with_transitive_dependencies");
         String updatedFunctionStr = "public function concatStrings(string a, string b) returns string {\n" +
                 "\treturn a + b;\n" +
@@ -1279,7 +1300,7 @@ public class TestBuildProject extends BaseTest {
         DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
 
-        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().fileName(),
                 Paths.get("modules").resolve("schema").resolve("schema.bal").toString());
         Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
                 .contains("unknown type 'PersonalDetails'"));
@@ -1287,7 +1308,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test
     public void testEditPackageWithCyclicDependency() {
-        Path projectPath = RESOURCE_DIRECTORY
+        Path projectPath = tempResourceDir
                 .resolve("projects_for_edit_api_tests/package_with_cyclic_dependencies");
         String updatedFunctionStr = "public function concatStrings(string a, string b) returns string {\n" +
                 "\treturn a + b;\n" +
@@ -1300,7 +1321,7 @@ public class TestBuildProject extends BaseTest {
 
         // 3) Compile the package
         PackageCompilation compilation = currentPackage.getCompilation();
-        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 4);
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 1);
 
         // 4) Edit a module that is used by another module
         Module module = currentPackage.module(ModuleName.from(PackageName.from("myproject"), "util"));
@@ -1311,10 +1332,10 @@ public class TestBuildProject extends BaseTest {
         DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
 
-        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
-                Paths.get("modules").resolve("schema").resolve("schema.bal").toString());
-        Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
-                .contains("unknown type 'PersonalDetails'"));
+        Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
+        Diagnostic firstDiagnostic = diagnosticIterator.next();
+        Assert.assertEquals(firstDiagnostic.message(), "cyclic module imports detected " +
+                "'foo/myproject.schema:0.1.0 -> foo/myproject.storage:0.1.0 -> foo/myproject.schema:0.1.0'");
     }
 
     /**
@@ -1324,7 +1345,7 @@ public class TestBuildProject extends BaseTest {
      */
     @Test
     public void testDocumentIdWhichModuleContainsPackageName() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("projectForDocumentIdTest");
+        Path projectPath = tempResourceDir.resolve("projectForDocumentIdTest");
 
         // 1) Initialize the project instance
         BuildProject project = loadBuildProject(projectPath);
@@ -1336,7 +1357,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertFalse(compilation.diagnosticResult().hasErrors());
 
         // Inputs from langserver
-        Path filePath = RESOURCE_DIRECTORY.resolve("projectForDocumentIdTest").resolve("modules").resolve("winery1")
+        Path filePath = tempResourceDir.resolve("projectForDocumentIdTest").resolve("modules").resolve("winery1")
                 .resolve("winery1.bal").toAbsolutePath();
 
         // Load the project from document filepath
@@ -1346,7 +1367,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "test auto updating dependencies using build file")
     public void testAutoUpdateWithBuildFile() throws IOException {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        Path projectPath = tempResourceDir.resolve("myproject");
         // Delete build file if already exists
         if (projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists()) {
             Files.delete(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
@@ -1361,7 +1382,7 @@ public class TestBuildProject extends BaseTest {
         project.save();
 
         Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
-        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        Path buildFile = project.targetDir().resolve(BUILD_FILE);
         Assert.assertTrue(buildFile.toFile().exists());
         BuildJson initialBuildJson = readBuildJson(buildFile);
         Assert.assertTrue(initialBuildJson.lastBuildTime() > 0);
@@ -1395,7 +1416,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test(description = "test auto updating dependencies with build file after removing Dependencies.toml")
     public void testAutoUpdateWithBuildFileWithoutDepsToml() throws IOException {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        Path projectPath = tempResourceDir.resolve("myproject");
         // Delete build file and Dependencies.toml file if already exists
         Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
@@ -1406,24 +1427,23 @@ public class TestBuildProject extends BaseTest {
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         // 1) Initialize the project instance
-        BuildProject project = loadBuildProject(projectPath);
+        BuildProject project = loadBuildProject(projectPath, buildOptions);
         project.save();
 
         Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
-        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        Path buildFile = project.targetDir().resolve(BUILD_FILE);
         Assert.assertTrue(buildFile.toFile().exists());
         BuildJson initialBuildJson = readBuildJson(buildFile);
         Assert.assertTrue(initialBuildJson.lastBuildTime() > 0, "invalid last_build_time in the build file");
         Assert.assertTrue(initialBuildJson.lastUpdateTime() > 0, "invalid last_update_time in the build file");
         Assert.assertFalse(initialBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
-        Assert.assertEquals(
-                readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")),
-                readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)));
+        assertTomlFilesEquals(projectPath.resolve(DEPENDENCIES_TOML),
+                projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml"));
 
 
         // 2) Build project again with build file after removing Dependencies.toml
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
-        Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists());
+        Assert.assertTrue(project.targetDir().resolve(BUILD_FILE).toFile().exists());
         BuildProject projectSecondBuild = loadBuildProject(projectPath, buildOptions);
         projectSecondBuild.save();
 
@@ -1435,17 +1455,16 @@ public class TestBuildProject extends BaseTest {
                      "last_update_time has updated for the second build");
         Assert.assertFalse(secondBuildJson.isExpiredLastUpdateTime(), "last_update_time is expired");
         Assert.assertFalse(projectSecondBuild.currentPackage().getResolution().autoUpdate());
-        Assert.assertEquals(
-                readFileAsString(projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")),
-                readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)));
+        assertTomlFilesEquals(projectPath.resolve(DEPENDENCIES_TOML),
+                projectPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml"));
 
         // Remove generated files
-        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        Files.deleteIfExists(projectSecondBuild.targetDir().resolve(BUILD_FILE));
     }
 
     @Test(description = "test auto updating dependencies with old distribution version")
     public void testAutoUpdateWithOldDistVersion() throws IOException {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("old_dist_version_project");
+        Path projectPath = tempResourceDir.resolve("old_dist_version_project");
         // Delete build file and Dependencies.toml file if already exists
         Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
@@ -1456,11 +1475,11 @@ public class TestBuildProject extends BaseTest {
         BuildOptions buildOptions = buildOptionsBuilder.build();
 
         // 1) Initialize the project instance
-        BuildProject project = loadBuildProject(projectPath);
+        BuildProject project = loadBuildProject(projectPath, buildOptions);
         project.save();
 
         Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
-        Path buildFile = project.sourceRoot().resolve(TARGET_DIR_NAME).resolve(BUILD_FILE);
+        Path buildFile = project.targetDir().resolve(BUILD_FILE);
         Assert.assertTrue(buildFile.toFile().exists());
         BuildJson initialBuildJson = readBuildJson(buildFile);
         Assert.assertTrue(initialBuildJson.lastBuildTime() > 0, "invalid last_build_time in the build file");
@@ -1471,7 +1490,7 @@ public class TestBuildProject extends BaseTest {
         // When distribution is not matching always should update Dependencies.toml, even build file has not expired
         initialBuildJson.setDistributionVersion("slbeta0");
         ProjectUtils.writeBuildFile(buildFile, initialBuildJson);
-        Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists());
+        Assert.assertTrue(project.targetDir().resolve(BUILD_FILE).toFile().exists());
         BuildProject projectSecondBuild = loadBuildProject(projectPath, buildOptions);
         projectSecondBuild.save();
 
@@ -1487,7 +1506,7 @@ public class TestBuildProject extends BaseTest {
         // 3) Build project again after setting dist version as null
         initialBuildJson.setDistributionVersion(null);
         ProjectUtils.writeBuildFile(buildFile, initialBuildJson);
-        Assert.assertTrue(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists());
+        Assert.assertTrue(projectSecondBuild.targetDir().resolve(BUILD_FILE).toFile().exists());
         BuildProject projectThirdBuild = loadBuildProject(projectPath, buildOptions);
         projectThirdBuild.save();
 
@@ -1501,13 +1520,13 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(projectThirdBuild.currentPackage().getResolution().autoUpdate());
 
         // Remove generated files
-        Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        Files.deleteIfExists(projectSecondBuild.targetDir().resolve(BUILD_FILE));
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
     }
 
     @Test(description = "test build package without dependencies")
     public void testPackageWithoutDependencies() throws IOException {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_wo_deps");
+        Path projectPath = tempResourceDir.resolve("project_wo_deps");
         // Delete Dependencies.toml and build file if already exists
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
         Files.deleteIfExists(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
@@ -1547,7 +1566,7 @@ public class TestBuildProject extends BaseTest {
     public void testDependenciesTomlCreationAndItsContent() throws IOException {
         // package_d --> package_b --> package_c
         // package_d --> package_e
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests").resolve("package_d");
+        Path projectDirPath = tempResourceDir.resolve("projects_for_resolution_tests").resolve("package_d");
 
         // Delete build file and Dependencies.toml if exists
         Files.deleteIfExists(projectDirPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
@@ -1563,9 +1582,8 @@ public class TestBuildProject extends BaseTest {
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         // Check Dependencies.toml
-        Assert.assertEquals(
-                readFileAsString(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml")),
-                readFileAsString(projectDirPath.resolve(DEPENDENCIES_TOML)));
+        assertTomlFilesEquals(projectDirPath.resolve(DEPENDENCIES_TOML),
+                projectDirPath.resolve(RESOURCE_DIR_NAME).resolve("expectedDependencies.toml"));
 
         // Clean Dependencies.toml and build file if already exists
         Files.deleteIfExists(projectDirPath.resolve(DEPENDENCIES_TOML));
@@ -1575,7 +1593,7 @@ public class TestBuildProject extends BaseTest {
     @Test
     public void testGetResources() {
         // 1. load the project
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        Path projectPath = tempResourceDir.resolve("myproject");
         BuildProject buildProject = loadBuildProject(projectPath);
         for (ModuleId moduleId : buildProject.currentPackage().moduleIds()) {
             Module module = buildProject.currentPackage().module(moduleId);
@@ -1610,7 +1628,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test
     public void testGetResourcesOfDependencies() throws IOException {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_resources_tests/package_e");
+        Path projectPath = tempResourceDir.resolve("projects_for_resources_tests/package_e");
         BuildProject buildProject = loadBuildProject(projectPath);
         Module defaultModule = buildProject.currentPackage().getDefaultModule();
         DocumentId documentId = defaultModule.resourceIds().stream().findFirst().orElseThrow();
@@ -1647,7 +1665,7 @@ public class TestBuildProject extends BaseTest {
     @Test
     public void testAddResources() throws IOException {
         // 1. load the project
-        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_resources_tests/myproject");
+        Path projectPath = tempResourceDir.resolve("projects_for_resources_tests/myproject");
         BuildProject buildProject = loadBuildProject(projectPath);
         Module defaultModule = buildProject.currentPackage().getDefaultModule();
 
@@ -1765,7 +1783,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test
     public void testProjectClearCaches() {
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("package_refresh_one");
+        Path projectDirPath = tempResourceDir.resolve("projects_for_refresh_tests").resolve("package_refresh_one");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
         int errorCount = compilation.diagnosticResult().errorCount();
@@ -1782,7 +1800,7 @@ public class TestBuildProject extends BaseTest {
 
     @Test
     public void testProjectDuplicate() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
+        Path projectPath = tempResourceDir.resolve("myproject");
         BuildOptions.BuildOptionsBuilder optionsBuilder = BuildOptions.builder().setCodeCoverage(true);
         Project project = loadProject(projectPath, optionsBuilder.build());
 
@@ -1872,8 +1890,10 @@ public class TestBuildProject extends BaseTest {
 
     @Test (description = "tests calling targetDir for Build Project")
     public void testBuildProjectTargetDir() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
-        BuildProject project = loadBuildProject(projectPath);
+        Path projectPath = tempResourceDir.resolve("myproject");
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setSticky(false);
+        BuildProject project = loadBuildProject(projectPath, buildOptionsBuilder.build());
         Path targetDirPath = project.targetDir();
         Path expectedPath = projectPath.resolve("target");
         Assert.assertEquals(targetDirPath, expectedPath);
@@ -2041,12 +2061,16 @@ public class TestBuildProject extends BaseTest {
         // Clean project directory
         writeContent(projectPath.resolve(BALLERINA_TOML), "");
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
+        Files.deleteIfExists(projectPath.resolve(BUILD_FILE));
 
         // write content to the Ballerina.toml
         writeContent(projectPath.resolve(BALLERINA_TOML), balTomlContent);
 
         // 1) Initialize the project instance
-        BuildProject project = loadBuildProject(projectPath);
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setSticky(false);
+
+        BuildProject project = loadBuildProject(projectPath, buildOptionsBuilder.build());
         project.save();
 
         // 2) Check compilation diagnostics
@@ -2066,10 +2090,230 @@ public class TestBuildProject extends BaseTest {
         Files.deleteIfExists(projectPath.resolve(DEPENDENCIES_TOML));
     }
 
-    @AfterClass (alwaysRun = true)
-    public void reset() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_no_permission");
-        TestUtils.resetPermissions(projectPath);
+    @Test(description = "test accessing semantic model after first build",
+            dependsOnMethods = "testGetSemanticModel")
+    public void testAccessSemanticModelAfterFirstBuild() throws IOException {
+        Path projectPath = tempResourceDir.resolve("myproject");
+        // Delete build file if already exists
+        if (projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE).toFile().exists()) {
+            Files.delete(projectPath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        }
+        // Set sticky false, to imitate the default build command behavior
+        BuildOptions.BuildOptionsBuilder buildOptionsBuilder = BuildOptions.builder();
+        buildOptionsBuilder.setSticky(false);
+
+        // 1) Initialize the project instance
+        BuildProject project = loadBuildProject(projectPath, buildOptionsBuilder.build());
+        // Get compilation
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        compilation.diagnosticResult().diagnostics().forEach(OUT::println);
+        Assert.assertFalse(compilation.diagnosticResult().hasErrors());
+        // Call `JBallerinaBackend`
+        JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        // BIR is not expected to be generated since the enable-cache option is not set
+        Assert.assertFalse(project.targetDir().resolve(CACHES_DIR_NAME).resolve("sameera").resolve("myproject")
+                .resolve("0.1.0").resolve(REPO_BIR_CACHE_NAME).resolve("myproject.bir").toFile().exists());
+
+        // 2) Build project again with build file
+        // Set temp dir as the target
+        buildOptionsBuilder.targetDir(ProjectUtils.getTemporaryTargetPath());
+        BuildProject projectSecondBuild = loadBuildProject(projectPath, buildOptionsBuilder.build());
+        projectSecondBuild.save();
+        // Get compilation
+        PackageCompilation compilationSecondBuild = projectSecondBuild.currentPackage().getCompilation();
+        compilationSecondBuild.diagnosticResult().diagnostics().forEach(OUT::println);
+        Assert.assertFalse(compilationSecondBuild.diagnosticResult().hasErrors());
+        // Get semantic model of the default module
+        Module defaultModule = projectSecondBuild.currentPackage().getDefaultModule();
+        compilationSecondBuild.getSemanticModel(defaultModule.moduleId());
+    }
+
+    @Test(description = "tests the order of module documents")
+    public void testDocumentsOrder() {
+        Path projectPath = tempResourceDir.resolve("project_documents");
+        String sourceFileName = "types.bal";
+        String testFileName = "tests/types.bal";
+        String newFileContent = "type Integer 1|2";
+
+        // Initialize the project and load the package
+        BuildProject project = loadBuildProject(projectPath);
+        Package currentPackage = project.currentPackage();
+
+        // Obtain the service module and check the documents order at project creation
+        Module serviceModule = currentPackage.module(ModuleName.from(currentPackage.packageName(), "services"));
+        List<String> expectedServiceFileNames = Arrays.asList("auth.bal", "subscribe.bal", "update.bal");
+        List<String> actualServiceFileNames = getDocumentFileNames(serviceModule, serviceModule.documentIds());
+
+        assertEquals(actualServiceFileNames.size(), 3);
+        assertEquals(actualServiceFileNames, expectedServiceFileNames);
+
+        // Obtain the modifier of the default module
+        Module oldDefaultModule = currentPackage.getDefaultModule();
+        Module.Modifier oldDefaultModuleModifier = oldDefaultModule.modify();
+
+        // Add types.bal and test_types.bal to the module
+        oldDefaultModuleModifier.addDocument(DocumentConfig.from(DocumentId.create(
+                sourceFileName, oldDefaultModule.moduleId()), newFileContent, sourceFileName));
+
+        oldDefaultModuleModifier.addTestDocument(DocumentConfig.from(DocumentId.create(
+                testFileName, oldDefaultModule.moduleId()), newFileContent, testFileName));
+
+        Module newDefaultModule = oldDefaultModuleModifier.apply();
+
+        // Check the documents order after adding documents to a module
+        // Check the order of source documents
+        List<String> expectedSourceFileNames = Arrays.asList("main.bal", sourceFileName, "utils.bal");
+        List<String> actualSourceFileNames = getDocumentFileNames(newDefaultModule, newDefaultModule.documentIds());
+
+        assertEquals(actualSourceFileNames.size(), 3);
+        assertEquals(actualSourceFileNames, expectedSourceFileNames);
+
+        // Check the order of test documents
+        List<String> expectedTestFileNames = Arrays.asList(
+                "tests/main_test.bal",
+                testFileName,
+                "tests/utils_test.bal");
+        List<String> actualTestFileNames = getDocumentFileNames(newDefaultModule, newDefaultModule.testDocumentIds());
+
+        assertEquals(actualTestFileNames.size(), 3);
+        assertEquals(actualTestFileNames, expectedTestFileNames);
+
+        // Check the order of diagnostics
+        PackageCompilation compilation = currentPackage.getCompilation();
+
+        List<String> actualDiagnosticPaths = compilation.diagnosticResult().diagnostics().stream().map(diagnostic ->
+                diagnostic.location().lineRange().fileName()).distinct().collect(Collectors.toList());
+
+        List<String> expectedDiagnosticPaths = Arrays.asList(
+                "main.bal", Paths.get("tests").resolve("main_test.bal").toString(),
+                Paths.get("tests").resolve("utils_test.bal").toString(), "utils.bal",
+                Paths.get("modules").resolve("services").resolve("auth.bal").toString(),
+                Paths.get("modules").resolve("services").resolve("subscribe.bal").toString(),
+                Paths.get("modules").resolve("services").resolve("update.bal").toString(),
+                Paths.get("modules").resolve("storage").resolve("db.bal").toString(),
+                Paths.get("modules").resolve("storage").resolve("tests").resolve("db_test.bal").toString(),
+                Paths.get("modules").resolve("utils").resolve("utils.bal").toString());
+
+        assertEquals(actualDiagnosticPaths.size(), 10);
+        assertEquals(actualDiagnosticPaths, expectedDiagnosticPaths);
+    }
+
+    private List<String> getDocumentFileNames(Module module, Collection<DocumentId> documentIds) {
+        List<String> actualFileNames = new ArrayList<>();
+        for (DocumentId documentId : documentIds) {
+            actualFileNames.add(module.document(documentId).name());
+        }
+        return actualFileNames;
+    }
+
+    @Test (description = "tests jar resolution for Build Project")
+    public void testConflictingJars() {
+        Path dep1Path = tempResourceDir.resolve("conflicting_jars_test/platformLibPkg1").toAbsolutePath();
+        Path dep2Path = tempResourceDir.resolve("conflicting_jars_test/platformLibPkg2").toAbsolutePath();
+        Path customUserHome = Paths.get("build", "userHome");
+        Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
+        ProjectEnvironmentBuilder envBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
+
+        CompileResult compileResult = BCompileUtil.compileAndCacheBala(dep1Path.toString(), CENTRAL_CACHE, envBuilder);
+        if (compileResult.getDiagnosticResult().hasErrors()) {
+            Assert.fail("unexpected diagnostics found when caching platformLibPkg1:\n"
+                    + getErrorsAsString(compileResult.getDiagnosticResult()));
+        }
+        compileResult = BCompileUtil.compileAndCacheBala(dep2Path.toString(), CENTRAL_CACHE, envBuilder);
+        if (compileResult.getDiagnosticResult().hasErrors()) {
+            Assert.fail("unexpected diagnostics found when caching platformLibPkg2:\n"
+                    + getErrorsAsString(compileResult.getDiagnosticResult()));
+        }
+
+        Path projectPath = tempResourceDir.resolve("conflicting_jars_test/platformLibPkg3");
+        BuildProject project = TestUtils.loadBuildProject(envBuilder, projectPath);
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+            Assert.fail("unexpected compilation failure:\n" + getErrorsAsString(compilation.diagnosticResult()));
+        }
+        Collection<JarLibrary> jarLibraries =
+                jBallerinaBackend.jarResolver().getJarFilePathsRequiredForExecution();
+        Assert.assertEquals(jarLibraries.size(), 9);
+
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg2/0.1.0/java11/platform/java11/native1.txt"),
+                PlatformLibraryScope.DEFAULT, "native1", "org.ballerina", "1.0.1", "ballerina/platformLibPkg2")));
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg1/0.1.0/java11/platform/java11/lib1.txt"),
+                PlatformLibraryScope.DEFAULT, "lib1", "org.apache", "2.0.0", "ballerina/platformLibPkg1")));
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg1/0.1.0/java11/platform/java11/lib2.txt"),
+                PlatformLibraryScope.DEFAULT))
+                || jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg2/0.1.0/java11/platform/java11/lib2.txt"),
+                PlatformLibraryScope.DEFAULT)));
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg2/0.1.0/java11/platform/java11/lib3.txt"),
+                PlatformLibraryScope.DEFAULT,
+                "lib3", "org.apache", "2.0.1", "ballerina/platformLibPkg2")));
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve("bala/ballerina/platformLibPkg2/0.1.0/java11/platform/java11/lib4.txt"),
+                PlatformLibraryScope.DEFAULT)));
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                Paths.get("src/test/resources/conflicting_jars_test/platformLibPkg3/" +
+                        "target/cache/user/platformLibPkg3/0.1.0/java11/user-platformLibPkg3-0.1.0.jar"),
+                PlatformLibraryScope.DEFAULT)));
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve(System.getProperty("project.version") +
+                        "/ballerina/platformLibPkg1/0.1.0/java11/ballerina-platformLibPkg1-0.1.0.jar"),
+                PlatformLibraryScope.DEFAULT)));
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve(System.getProperty("project.version") +
+                        "/ballerina/platformLibPkg2/0.1.0/java11/ballerina-platformLibPkg2-0.1.0.jar"),
+                PlatformLibraryScope.DEFAULT)));
+        Assert.assertTrue(jarLibraries.contains(new JarLibrary(
+                CENTRAL_CACHE.resolve(System.getProperty("ballerina.home") +
+                        "bre/lib/ballerina-rt-" + System.getProperty("project.version") + ".jar"),
+                PlatformLibraryScope.DEFAULT)));
+    }
+
+    @Test (description = "tests jar resolution with non ballerina packages for Build Project")
+    public void testConflictingJarsInNonBalPackages() {
+        Path dep1Path = tempResourceDir.resolve("conflicting_jars_test/platformLibNonBalPkg1").toAbsolutePath();
+        Path dep2Path = tempResourceDir.resolve("conflicting_jars_test/platformLibNonBalPkg2").toAbsolutePath();
+        Path customUserHome = Paths.get("build", "userHome");
+        Environment environment = EnvironmentBuilder.getBuilder().setUserHome(customUserHome).build();
+        ProjectEnvironmentBuilder envBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
+
+        CompileResult compileResult = BCompileUtil.compileAndCacheBala(dep1Path.toString(), CENTRAL_CACHE, envBuilder);
+        if (compileResult.getDiagnosticResult().hasErrors()) {
+            Assert.fail("unexpected diagnostics found when caching platformLibNonBalPkg1:\n"
+                    + getErrorsAsString(compileResult.getDiagnosticResult()));
+        }
+        compileResult = BCompileUtil.compileAndCacheBala(dep2Path.toString(), CENTRAL_CACHE, envBuilder);
+        if (compileResult.getDiagnosticResult().hasErrors()) {
+            Assert.fail("unexpected diagnostics found when caching platformLibNonBalPkg2:\n"
+                    + getErrorsAsString(compileResult.getDiagnosticResult()));
+        }
+
+        Path projectPath = tempResourceDir.resolve("conflicting_jars_test/platformLibNonBalPkg3");
+        BuildProject project = TestUtils.loadBuildProject(envBuilder, projectPath);
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
+            Assert.fail("unexpected compilation failure:\n" + getErrorsAsString(compilation.diagnosticResult()));
+        }
+
+        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, Paths.get("test.jar"));
+
+        Assert.assertFalse(emitResult.diagnostics().hasErrors());
+        Assert.assertTrue(emitResult.diagnostics().hasWarnings());
+        Assert.assertEquals(emitResult.diagnostics().warningCount(), 2);
+
+        ArrayList<Diagnostic> diagnostics =
+                new ArrayList<>(emitResult.diagnostics().diagnostics());
+        Assert.assertEquals(diagnostics.get(0).toString(), "WARNING [platformLibNonBalPkg3] detected conflicting jar" +
+                " files. 'native1-1.0.1.jar' dependency of 'platformlib/pkg2' conflicts with 'native1-1.0.0.jar'" +
+                " dependency of 'platformlib/pkg1'. Picking 'native1-1.0.1.jar' over 'native1-1.0.0.jar'.");
+        Assert.assertEquals(diagnostics.get(1).toString(), "WARNING [platformLibNonBalPkg3] detected conflicting jar" +
+                " files. 'lib3-2.0.1.jar' dependency of 'platformlib/pkg2' conflicts with 'lib3-2.0.0.jar'" +
+                " dependency of 'platformlib/pkg1'. Picking 'lib3-2.0.1.jar' over 'lib3-2.0.0.jar'.");
     }
 
     private static BuildProject loadBuildProject(Path projectPath) {

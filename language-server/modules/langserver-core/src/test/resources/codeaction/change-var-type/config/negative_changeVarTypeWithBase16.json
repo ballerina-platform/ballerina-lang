@@ -1,0 +1,13 @@
+{
+  "position": {
+    "line": 3,
+    "character": 18
+  },
+  "source": "negative_changeVarTypeWithBase16.bal",
+  "description": "Change variable type with a base16 constant in RHS",
+  "expected": [
+    {
+      "title": "Change variable 'arr' type to 'other'"
+    }
+  ]
+}

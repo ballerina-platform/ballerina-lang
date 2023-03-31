@@ -102,7 +102,7 @@ public class AnnotationSymbolTest {
                 {87, 22, RESOURCE_METHOD, of("v3")},
                 {96, 11, WORKER, of("v1")},
                 {105, 5, ENUM, of("v1", "v5")},
-                {109, 4, ENUM_MEMBER, of("v1")}
+                {109, 4, ENUM_MEMBER, of("v1")},
         };
     }
 
@@ -137,6 +137,21 @@ public class AnnotationSymbolTest {
                 {50, 5, "v5",  null},
                 {55, 29, "v4", "Annot"},
                 {115, 5, "v5", null}
+        };
+    }
+
+    @Test(dataProvider = "FunctionAnnotPosProvider")
+    public void functionAnnotationTest(int line, int col, SymbolKind kind) {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), kind);
+    }
+
+    @DataProvider(name = "FunctionAnnotPosProvider")
+    public Object[][] getFunctionAnnotPos() {
+        return new Object[][]{
+                {84, 5, ANNOTATION},
+                {85, 8, RECORD_FIELD}
         };
     }
 }

@@ -20,7 +20,9 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.codeaction.CodeActionModuleId;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -65,7 +67,7 @@ public class ImportsAcceptor {
         //The project should not be empty.
         String currentPkgName = CommonUtil.escapeReservedKeyword(project.get().currentPackage().packageName().value());
         String currentOrgName = CommonUtil.escapeReservedKeyword(project.get().currentPackage().packageOrg().value());
-        
+
         return (orgName, codeActionModuleId) -> {
             boolean notFound = currentModuleImportsMap.keySet().stream().noneMatch(
                     pkg -> {
@@ -83,12 +85,12 @@ public class ImportsAcceptor {
                 String pkgName;
 
                 String moduleName = codeActionModuleId.moduleName();
-                String modulePrefix = CommonUtil.escapeModuleName(moduleName).replaceAll(".*\\.", "");
+                String modulePrefix = ModuleUtil.escapeModuleName(moduleName).replaceAll(".*\\.", "");
                 if (!codeActionModuleId.modulePrefix().isEmpty() &&
                         !modulePrefix.equals(codeActionModuleId.modulePrefix())) {
                     moduleName = codeActionModuleId.moduleName() + " as " + codeActionModuleId.modulePrefix();
                 }
-                
+
                 pkgName = orgName.isEmpty() || orgName.equals(currentOrgName) ?
                         moduleName : orgName + "/" + moduleName;
                 newImports.add(pkgName);
@@ -126,7 +128,7 @@ public class ImportsAcceptor {
         int endCol = 0;
         int endLine = lastImport.isEmpty() ? 0 : lastImport.get().location().lineRange().endLine().line();
 
-        String editText = "import " + pkgName + ";\n";
+        String editText = String.format("%s %s;%n", ItemResolverConstants.IMPORT, pkgName);
         Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
         return new TextEdit(range, editText);
     }

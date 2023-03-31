@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
@@ -59,9 +60,8 @@ public class CliSpec {
         if (option != null) {
             BMap<BString, Object> recordVal = option.parseRecord(args);
             processOperands(option.getOperandArgs());
-            int optionLocation = option.getLocation() * 2 + 1;
+            int optionLocation = option.getLocation() + 1;
             mainArgs.add(optionLocation, recordVal);
-            mainArgs.add(optionLocation + 1, true);
         } else {
             RecordType type = TypeCreator.createRecordType("dummy", null, 1, new HashMap<>(), null, true, 6);
             Option dummyOption = new Option(type, ValueCreator.createRecordValue(type));
@@ -80,8 +80,8 @@ public class CliSpec {
             Type typeOp = curOperand.type;
             if (typeOp.getTag() == TypeTags.ARRAY_TAG) {
                 ArrayType arrayType = (ArrayType) typeOp;
-                BArray bArray = ValueCreator.createArrayValue(arrayType, -1);
-                Type elementType = arrayType.getElementType();
+                BArray bArray = ValueCreator.createArrayValue(arrayType);
+                Type elementType = TypeUtils.getReferredType(arrayType.getElementType());
                 int elementCount = getElementCount(operands, opIndex);
                 while (argIndex < operandArgs.size() - elementCount) {
                     try {
@@ -96,7 +96,6 @@ public class CliSpec {
                 bValue = CliUtil.getBValueWithUnionValue(curOperand.type, operandArgs.get(argIndex++), curOperand.name);
             }
             mainArgs.add(bValue);
-            mainArgs.add(true);
         }
         if (argIndex < operandArgs.size()) {
             throw ErrorCreator.createError(StringUtils.fromString("all operand arguments are not matched"));
@@ -110,13 +109,10 @@ public class CliSpec {
             Type opType = operand.type;
             if (operand.hasDefaultable) {
                 mainArgs.add(getDefaultBValue(opType));
-                mainArgs.add(false);
             } else if (isSupportedArrayType(opType)) {
-                mainArgs.add(ValueCreator.createArrayValue((ArrayType) opType, -1));
-                mainArgs.add(true);
+                mainArgs.add(ValueCreator.createArrayValue((ArrayType) opType));
             } else if ((CliUtil.isUnionWithNil(opType))) {
                 mainArgs.add(null);
-                mainArgs.add(true);
             } else {
                 throw ErrorCreator.createError(StringUtils.fromString(
                         "missing operand arguments for parameter '" + operand.name + "' of type '" + opType + "'"));
@@ -126,7 +122,7 @@ public class CliSpec {
 
     private boolean isSupportedArrayType(Type opType) {
         if (opType.getTag() == TypeTags.ARRAY_TAG) {
-            Type elementType = ((ArrayType) opType).getElementType();
+            Type elementType = TypeUtils.getReferredType(((ArrayType) opType).getElementType());
             return CliUtil.isSupportedType(elementType.getTag());
         }
         return false;
@@ -135,12 +131,20 @@ public class CliSpec {
     private static Object getDefaultBValue(Type type) {
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
             case TypeTags.BYTE_TAG:
                 return 0;
             case TypeTags.BOOLEAN_TAG:
                 return false;
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return getDefaultBValue(TypeUtils.getReferredType(type));
             default:
                 return null;
         }

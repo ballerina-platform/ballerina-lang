@@ -38,3 +38,17 @@ function trapInsideFunctionArg() {
 
 function errFn(error? res) {
 }
+
+int loopTrapCounter = 0;
+
+function testTrapInsideForLoop() {
+    foreach int i in 0 ..< 10 {
+        error? unionResult = trap func();
+    }
+    test:assertEquals(loopTrapCounter, 10);
+}
+
+function func() {
+    loopTrapCounter += 1;
+    panic error("err");
+}

@@ -18,11 +18,11 @@
 apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
-    implementation ('org.apache.ws.commons.axiom:axiom-impl') {
+    implementation("org.apache.ws.commons.axiom:axiom-impl:${project.apacheCommonsAxiomImplVersion}") {
         exclude group: 'org.apache.ws.commons.axiom', module: 'axiom-api'
     }
 
-    implementation ('org.apache.ws.commons.axiom:axiom-api') {
+    implementation('org.apache.ws.commons.axiom:axiom-api') {
         exclude group: 'org.apache.geronimo.specs', module: 'geronimo-stax-api_1.0_spec'
         exclude group: 'jaxen', module: 'jaxen'
     }

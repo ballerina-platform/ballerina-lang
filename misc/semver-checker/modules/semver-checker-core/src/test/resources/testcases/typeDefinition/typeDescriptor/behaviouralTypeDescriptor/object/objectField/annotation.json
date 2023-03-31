@@ -1,0 +1,20 @@
+[
+  {
+    "description": "Add annotation\n",
+    "oldCode": "public type Person object{\n\tpublic string name;\n};\n",
+    "newCode": "public type Person object{\n\t@display{\n\t\tlabel:\"\"\n}\n\tpublic string name;\n};\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Modify annotation",
+    "oldCode": "public type Person object{\n\t@display{\n\t\tlabel:\"\"\n}\n\tpublic string name;\n};\n",
+    "newCode": "public type Person object{\n\t@display{\n\t\tlabel:\"label\"\n}\n\tpublic string name;\n};\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove documentation\n",
+    "oldCode": "public type Person object{\n\t@display{\n\t\tlabel:\"\"\n}\n\tpublic string name;\n};\n",
+    "newCode": "public type Person object{\n\tpublic string name;\n};\n",
+    "expectedOutput": {}
+  }
+]

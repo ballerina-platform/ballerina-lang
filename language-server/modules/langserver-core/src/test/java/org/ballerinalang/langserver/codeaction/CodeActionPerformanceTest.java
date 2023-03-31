@@ -41,8 +41,8 @@ public class CodeActionPerformanceTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        super.test(config, source);
+    public void test(String config) throws IOException, WorkspaceDocumentException {
+        super.test(config);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class CodeActionPerformanceTest extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"performance_codeaction.json", "performance_codeaction.bal"},
+                {"performance_codeaction.json"},
         };
     }
 }

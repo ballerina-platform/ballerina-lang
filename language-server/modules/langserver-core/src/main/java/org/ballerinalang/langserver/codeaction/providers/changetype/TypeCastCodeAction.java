@@ -25,19 +25,20 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.MatchedExpressionNodeResolver;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.NameUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Position;
@@ -56,25 +57,25 @@ import java.util.Set;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class TypeCastCodeAction extends AbstractCodeActionProvider {
+public class TypeCastCodeAction implements DiagnosticBasedCodeActionProvider {
 
     public static final String NAME = "Type Cast";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2066", "BCE2068");
 
     @Override
-    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails, 
+    public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,
                             CodeActionContext context) {
-        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) && 
-                CodeActionNodeValidator.validate(context.nodeAtCursor());
+        return DIAGNOSTIC_CODES.contains(diagnostic.diagnosticInfo().code()) &&
+                CodeActionNodeValidator.validate(context.nodeAtRange());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
-                                                    DiagBasedPositionDetails positionDetails,
-                                                    CodeActionContext context) {
+    public List<CodeAction> getCodeActions(Diagnostic diagnostic,
+                                           DiagBasedPositionDetails positionDetails,
+                                           CodeActionContext context) {
         //Check if there is a type cast expression already present.
         MatchedExpressionNodeResolver expressionResolver =
                 new MatchedExpressionNodeResolver(positionDetails.matchedNode());
@@ -124,20 +125,25 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
             expectedTypeSymbol = optionalExpectedTypeSymbol.get();
         }
 
-        //Numeric types can be casted between each other.
-        if (!expectedTypeSymbol.subtypeOf(actualTypeSymbol) && (!isNumeric(expectedTypeSymbol)
-                || !isNumeric(actualTypeSymbol))) {
-            return Collections.emptyList();
+        String typeName = "";
+        if (expectedTypeSymbol.subtypeOf(actualTypeSymbol) && expectedTypeSymbol.typeKind() != TypeDescKind.SINGLETON) {
+            typeName = NameUtil.getModifiedTypeName(context, expectedTypeSymbol);
+        } else if (isNumeric(expectedTypeSymbol)) {
+            Optional<TypeSymbol> numericExpected = findNumericType(expectedTypeSymbol);
+            Optional<TypeSymbol> numericActual = findNumericType(actualTypeSymbol);
+            //Numeric types can be cast between each other.
+            if (numericActual.isPresent() && numericExpected.isPresent()) {
+                typeName = NameUtil.getModifiedTypeName(context, numericExpected.get());
+            }
         }
 
-        String typeName = CommonUtil.getModifiedTypeName(context, expectedTypeSymbol);
         if (typeName.isEmpty()) {
             return Collections.emptyList();
         }
 
         List<TextEdit> edits = new ArrayList<>(getTextEdits(expressionNode.get(), typeName));
         String commandTitle = CommandConstants.ADD_TYPE_CAST_TITLE;
-        return Collections.singletonList(createCodeAction(commandTitle, edits, context.fileUri(),
+        return Collections.singletonList(CodeActionUtil.createCodeAction(commandTitle, edits, context.fileUri(),
                 CodeActionKind.QuickFix));
     }
 
@@ -166,10 +172,10 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
      * @param expectedTypeName Expected type name as a string
      * @return Text edits to perform the cast
      */
-    private List<TextEdit> getTextEdits(NonTerminalNode expressionNode, String expectedTypeName) {
+    protected List<TextEdit> getTextEdits(Node expressionNode, String expectedTypeName) {
 
-        Position startPosition = CommonUtil.toPosition(expressionNode.lineRange().startLine());
-        Position endPosition = CommonUtil.toPosition(expressionNode.lineRange().endLine());
+        Position startPosition = PositionUtil.toPosition(expressionNode.lineRange().startLine());
+        Position endPosition = PositionUtil.toPosition(expressionNode.lineRange().endLine());
 
         String editText = "<" + expectedTypeName + ">";
 
@@ -187,8 +193,24 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
     }
 
     private boolean isNumeric(TypeSymbol typeSymbol) {
+        if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+            return ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors().stream()
+                    .anyMatch(this::isNumeric);
+        }
         return (typeSymbol.typeKind().isIntegerType()
                 || typeSymbol.typeKind() == TypeDescKind.FLOAT
                 || typeSymbol.typeKind() == TypeDescKind.DECIMAL);
+    }
+
+    private Optional<TypeSymbol> findNumericType(TypeSymbol typeSymbol) {
+        if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+            return ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors().stream().filter(this::isNumeric).findFirst();
+        }
+
+        if (isNumeric(typeSymbol)) {
+            return Optional.of(typeSymbol);
+        }
+        
+        return Optional.empty();
     }
 }

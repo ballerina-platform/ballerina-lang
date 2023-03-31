@@ -1,5 +1,0 @@
-function name() {
-    while getBoolean() {
-        
-    }
-}

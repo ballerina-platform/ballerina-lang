@@ -38,42 +38,143 @@ function testSpreadOpInferenceWithVar() {
     assertArrayEquality(v6, [true, 0, 0, 56, "s", true, "s", false]);
 }
 
+function testSpreadOpOnVariableLengthListsWithVar() {
+    int[] a1 = [4, 5];
+
+    var v1 = [...a1];
+    assertArrayEquality(v1, [4, 5]);
+
+    var v2 = [1, 2, ...a1, 3];
+    assertArrayEquality(v2, [1, 2, 4, 5, 3]);
+
+    [int, int...] a2 = [1];
+
+    var v3 = [...a2];
+    assertArrayEquality(v3, [1]);
+
+    var v4 = [1, 2, ...a2, 3];
+    assertArrayEquality(v4, [1, 2, 1, 3]);
+
+    [string, int, boolean, "x"] a3 = ["s", 7, false, "x"];
+    var v5 = [4, ...a1, 2.3d, ...a3];
+    assertArrayEquality(v5, [4, 4, 5, 2.3d, "s", 7, false, "x"]);
+
+    [string, boolean...] a4 = ["s"];
+    var v6 = [...a1, ...a4];
+    assertArrayEquality(v6, [4, 5, "s"]);
+
+    string[] a5 = ["x", "y"];
+    var v7 = [...a1, ...a5];
+    assertArrayEquality(v7, [4, 5, "x", "y"]);
+}
+
 type ReadonlyIntArr readonly & int[3];
 
 function testSpreadOpInferenceWithReadonly() {
     int[2] & readonly a1 = [];
-    readonly v1 = [...a1]; // OK
-    readonly v2 = [1, "y", ...a1, true]; // OK
+
+    readonly v1 = [...a1];
+    assertReadonlyArrayEquality(v1, [0, 0]);
+
+    readonly v2 = [1, "y", ...a1, true];
+    assertReadonlyArrayEquality(v2, [1, "y", 0, 0, true]);
 
     [int, string] & readonly a2 = [];
-    readonly v3 = [...a2]; // OK
-    readonly v4 = [1, "y", ...a2, true]; // OK
+
+    readonly v3 = [...a2];
+    assertReadonlyArrayEquality(v3, [0, ""]);
+
+    readonly v4 = [1, "y", ...a2, true];
+    assertReadonlyArrayEquality(v4, [1, "y", 0, "", true]);
 
     [string, (int|boolean)] & readonly a3 = ["s", true];
-    readonly v5 = [...a3]; // OK
-    readonly v6 = [1, "y", ...a3, true]; // OK
+
+    readonly v5 = [...a3];
+    assertReadonlyArrayEquality(v5, ["s", true]);
+
+    readonly v6 = [1, "y", ...a3, true];
+    assertReadonlyArrayEquality(v6, [1, "y", "s", true, true]);
 
     ReadonlyIntArr a4 = [2];
-    readonly v7 = [...a4]; // OK
-    readonly v8 = [33, ...a4, 5]; // OK
+    readonly v7 = [...a4];
+    assertReadonlyArrayEquality(v7, [2, 0, 0]);
+
+    readonly v8 = [33, ...a4, 5];
+    assertReadonlyArrayEquality(v8, [33, 2, 0, 0, 5]);
 
     string|int s = "SHH";
 
-    readonly v9 = [33, ...a4, s, 5]; // OK
-    readonly|int v10 = [33, ...a4, s, 5]; // OK
-    readonly & (int|string)[] v11 = [33, ...a4, s, 5]; // OK
+    readonly v9 = [33, ...a4, s, 5];
+    assertReadonlyArrayEquality(v9, [33, 2, 0, 0, "SHH", 5]);
+
+    readonly|int v10 = [33, ...a4, s, 5];
+    assertReadonlyArrayEquality(v10, [33, 2, 0, 0, "SHH", 5]);
+
+    readonly & (int|string)[] v11 = [33, ...a4, s, 5];
+    assertReadonlyArrayEquality(v11, [33, 2, 0, 0, "SHH", 5]);
+}
+
+function testSpreadOpOnVariableLengthListsWithReadonly() {
+    readonly & int[] a1 = [4, 5];
+
+    readonly v1 = [...a1];
+    assertReadonlyArrayEquality(v1, [4, 5]);
+
+    readonly v2 = [1, 2, ...a1, 3];
+    assertReadonlyArrayEquality(v2, [1, 2, 4, 5, 3]);
+
+    [int, int...] & readonly a2 = [1];
+
+    readonly v3 = [...a2];
+    assertReadonlyArrayEquality(v3, [1]);
+
+    readonly v4 = [1, 2, ...a2, 3];
+    assertReadonlyArrayEquality(v4, [1, 2, 1, 3]);
+
+    [string, int, boolean, "x"] & readonly a3 = ["s", 7, false, "x"];
+    readonly v5 = [4, ...a1, 2.3d, ...a3];
+    assertReadonlyArrayEquality(v5, [4, 4, 5, 2.3d, "s", 7, false, "x"]);
 }
 
 function testSpreadOpWithTypedesc() {
     int[2] a1 = [];
-    typedesc v1 = [...a1]; // OK
-    typedesc v2 = [string, ...a1, boolean]; // OK
+
+    typedesc v1 = [...a1];
+    assertEquality(v1.toString(), "typedesc [int,int]");
+
+    typedesc v2 = [string, ...a1, boolean];
+    assertEquality(v2.toString(), "typedesc [string,int,int,boolean]");
 
     [string, (int|boolean)] a2 = ["s", true];
-    typedesc v3 = [...a2]; // OK
-    typedesc v4 = [string , ...a2, any]; // OK
 
-    typedesc v5 = [string , ...[int, string], [3]]; // OK
+    typedesc v3 = [...a2];
+    assertEquality(v3.toString(), "typedesc [string,(int|boolean)]");
+
+    typedesc v4 = [string , ...a2, any];
+    assertEquality(v4.toString(), "typedesc [string,string,(int|boolean),any]");
+
+    int x = 7;
+    typedesc v5 = [string , ...[int, string], [3], x];
+    assertEquality(v5.toString(), "typedesc [string,typedesc<int>,typedesc<string>,[int],int]");
+
+    [int] a3 = [];
+
+    typedesc v6 = [...a3];
+    assertEquality(v6.toString(), "typedesc [int]");
+}
+
+function testSpreadOpOnVariableLengthListsWithTypedesc() {
+    int[] a1 = [];
+    typedesc v1 = [int, ...a1, boolean];
+    assertEquality(v1.toString(), "typedesc [int,(int|boolean)...]");
+
+    [int, int...] a2 = [1];
+    typedesc v2 = [any, boolean, ...a2, int];
+    assertEquality(v2.toString(), "typedesc [any,boolean,int,int...]");
+
+    [string, int, boolean, "x"] a3 = ["s", 7, false, "x"];
+    typedesc v3 = [4, ...a1, 2.3d, ...a3];
+    assertEquality(v3.toString(), "typedesc [int,(int|decimal|string|boolean)...]");
 }
 
 type IntArr int[];
@@ -149,4 +250,11 @@ function assertArrayEquality(any[] actualArr, any[] expectedArr) {
 
         assertEquality(actualElement, expectedElement);
     }
+}
+
+type AnyArr any[];
+
+function assertReadonlyArrayEquality(readonly actualArr, any[] expectedArr) {
+    AnyArr arr = checkpanic actualArr.ensureType(AnyArr);
+    assertArrayEquality(arr, expectedArr);
 }

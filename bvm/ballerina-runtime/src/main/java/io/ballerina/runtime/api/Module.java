@@ -32,23 +32,26 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.VERSION_SEPARA
  */
 public class Module {
 
-    private String org;
-    private String name;
-    private String majorVersion;
-    private int hashCode;
+    private final String org;
+    private final String name;
+    private final String majorVersion;
+    private final boolean isTestPkg;
+    private final int hashCode;
 
-    public Module(String org, String name, String majorVersion) {
+    public Module(String org, String name, String majorVersion, boolean isTestPkg) {
         this.org = org;
         this.name = name;
         this.majorVersion = majorVersion;
+        this.isTestPkg = isTestPkg;
         hashCode = Objects.hash(org, name, majorVersion);
     }
 
+    public Module(String org, String name, String majorVersion) {
+        this(org, name, majorVersion, false);
+    }
+
     public Module(String org, String name) {
-        this.org = org;
-        this.name = name;
-        this.majorVersion = "";
-        hashCode = Objects.hash(org, name);
+        this(org, name, "", false);
     }
 
     public String getOrg() {
@@ -66,6 +69,10 @@ public class Module {
 
     public String getMajorVersion() {
         return majorVersion;
+    }
+
+    public boolean isTestPkg() {
+        return isTestPkg;
     }
 
     @Override

@@ -624,6 +624,32 @@ public function testConstPattern19() {
     assertEquals(4, constPattern19([2, 4]));
 }
 
+enum FOO {
+    X,
+    Y
+}
+
+function constPattern20(FOO 'type, int|string g) returns string {
+    match 'type {
+        X if g is string => {
+            return "A";
+        }
+        Y if g is string => {
+            return "B";
+        }
+        _ => {
+            return string `no match ${'type.toString()}`;
+       }
+    }
+}
+
+function testConstPattern20() {
+    assertEquals(constPattern20(X, "AAA"), "A");
+    assertEquals(constPattern20(Y, "BBB"), "B");
+    assertEquals(constPattern20(X, 1), "no match X");
+    assertEquals(constPattern20(Y, 2), "no match Y");
+}
+
 function constPatternWithNegativeLiteral(any x) returns string {
     match x {
         -1 => {
@@ -686,6 +712,112 @@ function constPatternWithPredeclaredPrefix2(int[] x) returns int {
             return 1;
         }
     }
+}
+
+function testMatchStmtInsideForeachString1() {
+    string input = "1x2";
+    string output = "";
+    foreach string char in input {
+        match char {
+            "1" => {
+                output = output.concat("One");
+            }
+            "2" => {
+                output = output.concat("Two");
+            }
+            _ => {
+                output = output.concat("Other");
+            }
+        }
+    }
+    assertEquals("OneOtherTwo", output);
+}
+
+type CHAR string;
+
+function testMatchStmtInsideForeachString2() {
+    CHAR input = "1x2";
+    string output = "";
+    foreach string char in input {
+        match char {
+            "1" => {
+                output = output.concat("One");
+            }
+            "2" => {
+                output = output.concat("Two");
+            }
+            _ => {
+                output = output.concat("Other");
+            }
+        }
+    }
+    assertEquals("OneOtherTwo", output);
+}
+
+function testMatchStmtInsideForeachInt() {
+    int:Signed8[] input = [7, 2, 2];
+    string output = "";
+    foreach int number in input {
+        match number {
+            2 => {
+                output = output.concat("Two");
+            }
+            _ => {
+                output = output.concat("Other");
+            }
+        }
+    }
+    assertEquals("OtherTwoTwo", output);
+}
+
+const string one = "1";
+const string two = "2";
+
+function testMatchStmtInsideForeachWithConst() {
+    string input = "1x2";
+    string output = "";
+
+    foreach string char in input {
+        match char {
+            one => {
+                output = output.concat("One");
+            }
+            two => {
+                output = output.concat("Two");
+            }
+            _ => {
+                output = output.concat("Other");
+            }
+        }
+    }
+    assertEquals("OneOtherTwo", output);
+}
+
+function testMatchStmtInsideForeachString3() {
+    string input = "1x2";
+    string output = "";
+    foreach string:Char char in input {
+        match char {
+            "1" => {
+                output = output.concat("One");
+            }
+            "2" => {
+                output = output.concat("Two");
+            }
+            _ => {
+                output = output.concat("Other");
+            }
+        }
+    }
+    assertEquals("OneOtherTwo", output);
+}
+
+function testMatchStmtInsideForeach() {
+    testMatchStmtInsideForeachString1();
+    testMatchStmtInsideForeachString2();
+    testMatchStmtInsideForeachString3();
+    testMatchStmtInsideForeachInt();
+    testMatchStmtInsideForeachWithConst();
 }
 
 function constPatternWithPredeclaredPrefix3(map<int> x) returns int {

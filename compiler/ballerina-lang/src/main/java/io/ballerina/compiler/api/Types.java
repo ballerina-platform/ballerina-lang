@@ -37,6 +37,7 @@ import java.util.Optional;
  */
 public abstract class Types {
     protected static final CompilerContext.Key<BallerinaTypes> TYPES_KEY = new CompilerContext.Key<>();
+    protected final CompilerContext context;
     protected final SymbolFactory symbolFactory;
     protected final SymbolTable symbolTable;
     protected final PackageCache packageCache;
@@ -61,8 +62,10 @@ public abstract class Types {
     public final TypeSymbol JSON;
     public final TypeSymbol BYTE;
     public final TypeSymbol COMPILATION_ERROR;
+    public final TypeSymbol REGEX;
 
     protected Types(CompilerContext context) {
+        this.context = context;
         TypesFactory typesFactory = TypesFactory.getInstance(context);
         this.symbolFactory = SymbolFactory.getInstance(context);
         this.symbolTable = SymbolTable.getInstance(context);
@@ -88,6 +91,7 @@ public abstract class Types {
         this.JSON = typesFactory.getTypeDescriptor(symbolTable.jsonType);
         this.BYTE = typesFactory.getTypeDescriptor(symbolTable.byteType);
         this.COMPILATION_ERROR = typesFactory.getTypeDescriptor(symbolTable.semanticError);
+        this.REGEX = typesFactory.getTypeDescriptor(symbolTable.regExpType);
     }
 
     /**
@@ -118,4 +122,11 @@ public abstract class Types {
      * @return A {@link Map} of the user defined type symbols
      */
     public abstract Optional<Map<String, Symbol>> typesInModule(String org, String moduleName, String version);
+
+    /**
+     * Retrieves a single instance of the builders used to construct more complex types.
+     *
+     * @return An instance of the {@link TypeBuilder} for a given semantic context
+     */
+    public abstract TypeBuilder builder();
 }

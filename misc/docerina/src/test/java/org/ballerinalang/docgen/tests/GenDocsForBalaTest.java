@@ -41,22 +41,22 @@ import java.util.Comparator;
 public class GenDocsForBalaTest {
     private final Path resourceDir = Paths.get("src", "test", "resources");
     private Path docsPath;
-    
+
     @BeforeMethod
     public void setup() throws IOException {
         this.docsPath = Files.createTempDirectory("bala-doc-gen-" + System.currentTimeMillis());
     }
-    
+
     @Test
     public void generatingDocsForBalaTest() throws IOException {
         Path balaPath = this.resourceDir.resolve("balas").resolve("foo-fb-any-1.3.5.bala");
-        
+
         ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
         BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
 
         BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString(), true);
-    
+
         String sfModuleApiDocsJsonAsString = Files.readString(
                 this.docsPath.resolve("foo").resolve("fb").resolve("1.3.5")
                         .resolve(BallerinaDocGenerator.API_DOCS_JSON));
@@ -88,6 +88,35 @@ public class GenDocsForBalaTest {
         description = "";
         summary = BallerinaDocUtils.getSummary(description);
         Assert.assertEquals(summary, "");
+    }
+
+    @Test
+    public void generatingDocsForBalaWithAnnotationTest() throws IOException {
+        Path balaPath = this.resourceDir.resolve("balas").resolve("bar-testannotation-any-1.0.0.bala");
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+
+        BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString(), true);
+        String moduleApiDocsJsonAsString = Files.readString(
+                this.docsPath.resolve("bar").resolve("testannotation").resolve("1.0.0")
+                        .resolve(BallerinaDocGenerator.API_DOCS_JSON));
+        Assert.assertTrue(moduleApiDocsJsonAsString.contains("Expose"), "Variable annotation attachments missing");
+        Assert.assertTrue(moduleApiDocsJsonAsString.contains("Task"), "Function annotation attachments missing");
+    }
+
+    @Test
+    public void generatingDocsForBalaWithAnnotationTest2() throws IOException {
+        Path balaPath = this.resourceDir.resolve("balas").resolve("ballerina-http-java11-2.4.0.bala");
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+
+        BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString(), true);
+        String moduleApiDocsJsonAsString = Files.readString(
+                this.docsPath.resolve("ballerina").resolve("http").resolve("2.4.0")
+                        .resolve(BallerinaDocGenerator.API_DOCS_JSON));
+        Assert.assertTrue(moduleApiDocsJsonAsString.contains("QueryParamType"), "QueryParamType missing in docs");
     }
 
     @AfterMethod

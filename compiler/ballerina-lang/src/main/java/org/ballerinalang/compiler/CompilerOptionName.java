@@ -62,6 +62,8 @@ public enum CompilerOptionName {
 
     STICKY("sticky"),
 
+    ENABLE_CACHE("enableCache"),
+
     SEMTYPE("semtype"),
 
     /**

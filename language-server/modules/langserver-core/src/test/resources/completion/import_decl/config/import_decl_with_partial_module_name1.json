@@ -1,0 +1,515 @@
+{
+  "position": {
+    "line": 0,
+    "character": 22
+  },
+  "source": "import_decl/source/import_decl_with_partial_module_name1.bal",
+  "items": [
+    {
+      "label": "module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.int",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'int;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.boolean",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'boolean;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.decimal",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'decimal;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.runtime;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.future",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'future;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.error",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'error;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.regexp",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.regexp;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.transaction",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'transaction;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.object",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'object;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.function",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'function;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.typedesc",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'typedesc;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.table",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'table;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.string",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'string;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.test;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.value;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.xml",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'xml;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "jballerina.java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "jballerina.java",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.stream",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'stream;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.map",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'map;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.array;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "lang.float",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "lang.'float;",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 17
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": ""
+        }
+      ]
+    }
+  ]
+}

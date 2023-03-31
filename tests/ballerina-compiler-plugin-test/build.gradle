@@ -34,6 +34,7 @@ dependencies {
     testRuntime project(':ballerina-lang:decimal')
     testRuntime project(':ballerina-lang:error')
     testRuntime project(':ballerina-lang:floatingpoint')
+    testRuntime project(':ballerina-lang:function')
     testRuntime project(':ballerina-lang:future')
     testRuntime project(':ballerina-lang:integer')
     testRuntime project(':ballerina-lang:map')
@@ -48,6 +49,7 @@ dependencies {
     testRuntime project(':ballerina-runtime')
     testRuntime project(':ballerina-lang:internal')
     testRuntime project(':ballerina-lang:query')
+    testRuntime project(':ballerina-lang:regexp')
     testRuntime project(':ballerina-lang:transaction')
     testRuntime 'org.slf4j:slf4j-jdk14'
 }

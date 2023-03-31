@@ -1,0 +1,54 @@
+{
+  "position": {
+    "line": 5,
+    "character": 26
+  },
+  "source": "extract_to_function_exprs_binary_expr.bal",
+  "description": "Extract to function for expressions, within binary expression and cursor after plus token",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 8,
+              "character": 1
+            },
+            "end": {
+              "line": 8,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted(int moduleVar) returns int {\n    return constant + moduleVar;\n}"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 16
+            },
+            "end": {
+              "line": 5,
+              "character": 36
+            }
+          },
+          "newText": "extracted(moduleVar)"
+        }
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_binary_expr.bal",
+          {
+            "line": 5,
+            "character": 16
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

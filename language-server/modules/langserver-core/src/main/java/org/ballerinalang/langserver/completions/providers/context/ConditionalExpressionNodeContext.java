@@ -24,11 +24,11 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
@@ -60,15 +60,15 @@ public class ConditionalExpressionNodeContext extends AbstractCompletionProvider
              */
             String middleExprName = ((SimpleNameReferenceNode) node.middleExpression()).name().text();
             List<Symbol> expressionContextSymbols = 
-                    QNameReferenceUtil.getExpressionContextEntries(context, middleExprName);
+                    QNameRefCompletionUtil.getExpressionContextEntries(context, middleExprName);
             if (expressionContextSymbols.isEmpty()) {
                 completionItems.addAll(this.expressionCompletions(context));
             } else {
                 completionItems.addAll(this.getCompletionItemList(expressionContextSymbols, context));
             }
-        } else if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            List<Symbol> expressionContextSymbols =
-                    QNameReferenceUtil.getExpressionContextEntries(context, (QualifiedNameReferenceNode) nodeAtCursor);
+        } else if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            List<Symbol> expressionContextSymbols = QNameRefCompletionUtil.getExpressionContextEntries(context, 
+                    (QualifiedNameReferenceNode) nodeAtCursor);
             completionItems.addAll(this.getCompletionItemList(expressionContextSymbols, context));
         } else {
             completionItems.addAll(this.expressionCompletions(context));

@@ -99,13 +99,17 @@ public class PackageCompilation {
     private static PackageCompilation compile(PackageCompilation compilation) {
         // Compile modules in the dependency graph
         compilation.compileModules();
-
         // Now the modules are compiled, initialize the compiler plugin manager
         CompilerPluginManager compilerPluginManager = CompilerPluginManager.from(compilation);
         compilation.setCompilerPluginManager(compilerPluginManager);
 
-        // Do not run code analyzers, if the code generators are enabled.
-        if (compilation.compilationOptions().withCodeGenerators()) {
+        // Run code analyzers, if project has updated only
+        if (compilation.packageContext().defaultModuleContext().compilationState() != ModuleCompilationState.COMPILED) {
+            return compilation;
+        }
+        // Do not run code analyzers, if the code generators or code modifiers are enabled.
+        if (compilation.compilationOptions().withCodeGenerators()
+                || compilation.compilationOptions().withCodeModifiers()) {
             return compilation;
         }
 
@@ -196,10 +200,13 @@ public class PackageCompilation {
         // add dependency manifest diagnostics
         diagnostics.addAll(packageContext().dependencyManifest().diagnostics().allDiagnostics);
         // add compilation diagnostics
-        for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
-            moduleContext.compile(compilerContext);
-            for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+        if (!packageResolution.diagnosticResult().hasErrors()) {
+            for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
+                moduleContext.compile(compilerContext);
+                for (Diagnostic diagnostic : moduleContext.diagnostics()) {
+                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
+                            moduleContext.project()));
+                }
             }
         }
         // add plugin diagnostics

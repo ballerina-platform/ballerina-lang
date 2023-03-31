@@ -20,18 +20,19 @@ import io.ballerina.compiler.api.symbols.Documentable;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.command.executors.UpdateDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
-import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
+import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Command;
 
 import java.util.ArrayList;
@@ -50,27 +51,27 @@ import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.h
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class NodeBasedUpdateDocumentationCodeAction extends AbstractCodeActionProvider {
+public class NodeBasedUpdateDocumentationCodeAction implements RangeBasedCodeActionProvider {
 
     public static final String NAME = "Update Documentation";
 
-    public NodeBasedUpdateDocumentationCodeAction() {
-        super(Arrays.asList(CodeActionNodeType.FUNCTION,
-                CodeActionNodeType.OBJECT,
-                CodeActionNodeType.CLASS,
-                CodeActionNodeType.SERVICE,
-                CodeActionNodeType.RESOURCE,
-                CodeActionNodeType.RECORD,
-                CodeActionNodeType.OBJECT_FUNCTION,
-                CodeActionNodeType.CLASS_FUNCTION));
+    public List<SyntaxKind> getSyntaxKinds() {
+        return Arrays.asList(SyntaxKind.FUNCTION_DEFINITION,
+                SyntaxKind.OBJECT_TYPE_DESC,
+                SyntaxKind.CLASS_DEFINITION,
+                SyntaxKind.SERVICE_DECLARATION,
+                SyntaxKind.RESOURCE_ACCESSOR_DEFINITION,
+                SyntaxKind.RECORD_TYPE_DESC,
+                SyntaxKind.METHOD_DECLARATION,
+                SyntaxKind.OBJECT_METHOD_DEFINITION);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
-                                                    NodeBasedPositionDetails posDetails) {
+    public List<CodeAction> getCodeActions(CodeActionContext context,
+                                           RangeBasedPositionDetails posDetails) {
         String docUri = context.fileUri();
         Optional<NonTerminalNode> matchedDocumentableNode = posDetails.enclosingDocumentableNode();
 
@@ -81,14 +82,15 @@ public class NodeBasedUpdateDocumentationCodeAction extends AbstractCodeActionPr
         }
 
         CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, docUri);
-        CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE,
-                                                         CommonUtil.toRange(matchedDocumentableNode.get().lineRange()));
+        CommandArgument lineStart = CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE, PositionUtil
+                .toRange(matchedDocumentableNode.get().lineRange()));
         List<Object> args = new ArrayList<>(Arrays.asList(docUriArg, lineStart));
 
-        CodeAction action = new CodeAction(CommandConstants.UPDATE_DOCUMENTATION_TITLE);        
-        Command command = new Command(CommandConstants.UPDATE_DOCUMENTATION_TITLE, UpdateDocumentationExecutor.COMMAND, 
+        CodeAction action = new CodeAction(CommandConstants.UPDATE_DOCUMENTATION_TITLE);
+        Command command = new Command(CommandConstants.UPDATE_DOCUMENTATION_TITLE, UpdateDocumentationExecutor.COMMAND,
                 args);
         action.setCommand(command);
+        action.setKind(CodeActionKind.Refactor);
         return Collections.singletonList(action);
     }
 
@@ -101,27 +103,24 @@ public class NodeBasedUpdateDocumentationCodeAction extends AbstractCodeActionPr
         if (docAttachmentInfo.isEmpty()) {
             return false;
         }
-        
+
         DocAttachmentInfo docs = docAttachmentInfo.get();
         if (documentableSymbol.isEmpty()) {
             return false;
         }
-        
+
         Optional<Documentation> symbolDocumentation = ((Documentable) documentableSymbol.get()).documentation();
         if (symbolDocumentation.isEmpty()) {
             return false;
         }
-        
+
         Documentation documentation = symbolDocumentation.get();
         docs = docs.mergeDocAttachment(documentation);
-        
-        if (!documentation.description().equals(docs.description()) || 
-                !documentation.parameterMap().equals(docs.parameterMap()) || 
-                !documentation.returnDescription().equals(docs.returnDescription()) || 
-                !documentation.deprecatedDescription().equals(docs.deprecatedDescription())) {
-            return true;
-        }
-        return false;
+
+        return !documentation.description().equals(docs.description()) ||
+                !documentation.parameterMap().equals(docs.parameterMap()) ||
+                !documentation.returnDescription().equals(docs.returnDescription()) ||
+                !documentation.deprecatedDescription().equals(docs.deprecatedDescription());
     }
 
     @Override

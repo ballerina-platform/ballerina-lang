@@ -16,6 +16,7 @@
 package org.ballerinalang.docgen.generator.model.types;
 
 import com.google.gson.annotations.Expose;
+import org.ballerinalang.docgen.generator.model.FunctionKind;
 import org.ballerinalang.docgen.generator.model.Type;
 
 import java.util.ArrayList;
@@ -29,13 +30,17 @@ import java.util.List;
 public class FunctionType extends Type {
 
     @Expose
+    public String accessor;
+    @Expose
+    public String resourcePath;
+    @Expose
     public boolean isLambda;
     @Expose
     public boolean isIsolated;
     @Expose
     public boolean isExtern;
     @Expose
-    public boolean isRemote;
+    public FunctionKind functionKind;
     @Expose
     public List<Type> paramTypes = new ArrayList<>();
     @Expose

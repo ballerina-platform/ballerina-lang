@@ -1,0 +1,5 @@
+[plugin]
+class = "io.gayal.plugins.combined.CombinedCompilerPlugin"
+
+[[dependency]]
+path = "../../../../../build/compiler-plugin-jars/compiler-plugin-with-analyzer-generator-modifier-1.0.0.jar"

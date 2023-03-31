@@ -160,11 +160,14 @@ function testInherentTypeViolationForMap() {
 }
 
 function testByteArrayCastToIntArray() {
-    byte[] barr = [0, 1, 2, 255];
+    byte[4] barr = [0, 1, 2, 255];
     int[] iarr = <int[]> barr;
+    int[4] iarr2 = <int[4]> barr;
 
     assertTrue(iarr is byte[]);
     assertTrue(iarr === barr);
+    assertTrue(iarr2 is int[4]);
+    assertTrue(iarr2 == barr);
     assertEquality(0, iarr[0]);
     assertEquality(1, iarr[1]);
     assertEquality(2, iarr[2]);
@@ -184,6 +187,24 @@ function testDowncastOfByteArrayCastToIntArray() {
     assertEquality(1, barr2[1]);
     assertEquality(2, barr2[2]);
     assertEquality(255, barr2[3]);
+}
+
+function testByteArrayLiteralCastToReadOnlyType() {
+    byte[] & readonly arr1 = <byte[] & readonly>base16 `aa bb`;
+    assertTrue(arr1.isReadOnly());
+
+    int[2] & readonly arr2 = <int[2] & readonly>base16 `aa bb`;
+    assertTrue(arr2.isReadOnly());
+
+    byte[2] & readonly arr3 = <readonly>base16 `aa bb`;
+    assertTrue(arr3.isReadOnly());
+
+    anydata[] & readonly arr4 = <anydata[] & readonly>base16 `aa bb`;
+    assertTrue(arr4.isReadOnly());
+
+    any[] arr5 = <any[] & readonly>base16 `aa bb`;
+    byte[] arr6 = <byte[]> arr5;
+    assertTrue(arr6.isReadOnly());
 }
 
 function testInherentTypeViolationOfByteArrayCastToIntArray() {

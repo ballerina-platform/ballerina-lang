@@ -18,6 +18,7 @@
 
 package io.ballerina.projects.internal.environment;
 
+import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
@@ -86,7 +87,9 @@ public class DefaultPackageResolver implements PackageResolver {
                             }
                             if (!x.packageDescriptor().name().equals(y.packageDescriptor().name())) {
                                 ResolutionRequest resolutionRequest = ResolutionRequest
-                                        .from(y.packageDescriptor(), PackageDependencyScope.DEFAULT);
+                                        .from(y.packageDescriptor(), PackageDependencyScope.DEFAULT,
+                                                DependencyResolutionType.SOURCE,
+                                                options.packageLockingMode());
                                 Collection<PackageVersion> packageVersions =
                                         distributionRepo.getPackageVersions(resolutionRequest, options);
                                 // If module exists in both repos, then we check if a newer version of

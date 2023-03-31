@@ -37,7 +37,7 @@ import java.util.Map;
  */
 public interface IteratorValue extends RefValue, BIterator {
 
-    final BTypedesc TYPEDESC = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
+    BTypedesc TYPEDESC = new TypedescValueImpl(PredefinedTypes.TYPE_ITERATOR);
 
     /* Default implementation */
 

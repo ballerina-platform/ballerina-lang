@@ -67,6 +67,11 @@ public class FunctionPointersTest {
     }
 
     @Test
+    public void testFuncInvocationWithinTypeNarrowingExpr() {
+        BRunUtil.invoke(fpProgram, "testFuncInvocationWithinTypeNarrowingExpr");
+    }
+
+    @Test
     public void testLambdaAsReturnParameter() {
         Object returns = BRunUtil.invoke(fpProgram, "test4");
         Assert.assertNotNull(returns);
@@ -326,12 +331,14 @@ public class FunctionPointersTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/fps_hiding_block_scope_symbols.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 3, 26);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 3, 30);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'function (int) returns (int)', " +
+                "found 'function (other) returns (int)'", 7, 12);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 11, 55);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'z'", 11, 58);
         BAssertUtil.validateError(result, i++, "redeclared symbol 'y'", 34, 13);
-        BAssertUtil.validateError(result, i++, "redeclared symbol 'a'", 42, 32);
-        BAssertUtil.validateError(result, i++, "redeclared symbol 'a'", 47, 32);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'a'", 42, 36);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'a'", 47, 36);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

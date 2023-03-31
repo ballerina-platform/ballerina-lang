@@ -95,8 +95,52 @@ public class ErrorQueryTest {
     }
 
     @Test
-    public void testErrorReturnedFromSelect() {
+    public void testErrorReturnedFromSelectClause() {
         BRunUtil.invoke(result, "testErrorReturnedFromSelect");
+    }
+
+    @Test
+    public void testErrorReturnedFromWhereClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromWhereClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromLetClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromLetClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromLimitClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromLimitClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromJoinClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromJoinClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromOrderByClause() {
+        BRunUtil.invoke(result, "testErrorReturnedFromOrderByClause");
+    }
+
+    @Test
+    public void testErrorReturnedFromQueryAction() {
+        BRunUtil.invoke(result, "testErrorReturnedFromQueryAction");
+    }
+    @Test
+    public void testCompleteEarlyErrorsWithinQueryAction() {
+        BRunUtil.invoke(result, "testCompleteEarlyErrorsWithinQuery");
+    }
+
+    @Test
+    public void testErrorReturnedFromStreams() {
+        BRunUtil.invoke(result, "testErrorReturnedFromStreams");
+    }
+
+    @Test
+    public void testErrorsFailAndReturnedInQuery() {
+        BRunUtil.invoke(result, "testErrorsFailAndReturnedInQuery");
     }
 
     @AfterClass

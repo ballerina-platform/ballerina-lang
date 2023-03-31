@@ -1,0 +1,98 @@
+[
+  {
+    "description": "Add Documentation to the object field",
+    "oldCode": "service /demo on new http:Listener(8080){\nint x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\t#Documentation\n\tint x=5;\n\t}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "patch",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "new",
+                  "versionImpact": "patch",
+                  "kind": "documentation",
+                  "message": "documentation is added"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove Documentation from the object field",
+    "oldCode": "service /demo on new http:Listener(8080){\n#Documentation\nint x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\tint x=5;\n\t}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "patch",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "removed",
+                  "versionImpact": "patch",
+                  "kind": "documentation",
+                  "message": "documentation is removed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify Documentation from the object field",
+    "oldCode": "service /demo on new http:Listener(8080){\n#Documentation\nint x=5;\n\t}",
+    "newCode": "service /demo on new http:Listener(8080){\n\t#declaration of x.\n\tint x=5;\n\t}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "type": "modified",
+              "versionImpact": "patch",
+              "kind": "service",
+              "childDiffs": [
+                {
+                  "type": "modified",
+                  "versionImpact": "patch",
+                  "kind": "documentation",
+                  "message": "documentation is modified"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

@@ -45,10 +45,12 @@ public function main() {
     test:assertEquals(u:v3.a, "hello");
     test:assertEquals(cnt:MY_CONST1, 1);
     test:assertEquals(cnt:MY_CONST1000, "Ballerina1000");
+    test:assertEquals(cnt:MY_CONST5000, "Ballerina5000");
     test:assertEquals(bigRecord1.v2.toString(), "{\"a\":\"hello\",\"b1\":5,\"m1\":{\"a\":\"apple\"},\"d1\":[1,2,3],\"t\":[{\"id\":1,\"firstName\":\"Waruna\"}]}");
     test:assertEquals(bigRecord2?.'\/workers\/workAssignments\/assignmentStatus\/statusCode\/codeValue, "hello");
     test:assertEquals(bigRecord3?.'\/workers\/workAssignments\/assignmentStatus\/statusCode\/codeValue, "waruna");
     test:assertEquals(t:getLargeTupleArray(), 421);
     test:assertTrue(t:getLargeTuple() is typedesc<anydata>);
     test:assertTrue(a:testArrays() is true);
+    test:assertTrue(e:testDistinctErrors() is true);
 }

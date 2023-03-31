@@ -1,0 +1,462 @@
+[
+  {
+    "description": "Add public qualifier",
+    "oldCode": "class Employee{}",
+    "newCode": "public class Employee{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "minor",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "minor",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "minor",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "message": "'public' qualifier is added to class 'Employee'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove public qualifier",
+    "oldCode": "public class Employee{}",
+    "newCode": "class Employee{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "message": "'public' qualifier is removed from class 'Employee'"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add isolated qualifier",
+    "oldCode": "class Employee{}",
+    "newCode": "isolated class Employee{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "ambiguous",
+                  "message": "'isolated' qualifier is added"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove isolated qualifier",
+    "oldCode": "isolated class Employee{}",
+    "newCode": "class Employee{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "patch",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "patch",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "patch",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "ambiguous",
+                  "message": "'isolated' qualifier is removed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Modify qualifier",
+    "oldCode": "public class Employee{}",
+    "newCode": "isolated class Employee{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "major",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "major",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "major",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "major",
+                  "message": "'public' qualifier is removed from class 'Employee'"
+                },
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "ambiguous",
+                  "message": "'isolated' qualifier is added"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add 2 qualifiers",
+    "oldCode": "class Employee{}",
+    "newCode": "public isolated class Employee{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "minor",
+                  "message": "'public' qualifier is added to class 'Employee'"
+                },
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "ambiguous",
+                  "message": "'isolated' qualifier is added"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add distinct qualifier\n",
+    "oldCode": "public class Employee{}",
+    "newCode": "public distinct class Employee{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "ambiguous",
+                  "message": "'distinct' qualifier is added"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove distinct qualifier",
+    "oldCode": "public distinct  class Employee{}",
+    "newCode": "public class Employee{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "ambiguous",
+                  "message": "'distinct' qualifier is removed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add readonly qualifier",
+    "oldCode": "public class Employee{}",
+    "newCode": "public readonly class Employee{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "ambiguous",
+                  "message": "'readonly' qualifier is added"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove readonly qualifier",
+    "oldCode": "public readonly class Employee{}",
+    "newCode": "public class Employee{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "ambiguous",
+                  "message": "'readonly' qualifier is removed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": " Add client qualifier",
+    "oldCode": "public class Employee{}",
+    "newCode": "public client class Employee{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "ambiguous",
+                  "message": "'client' qualifier is added"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove client qualifier",
+    "oldCode": "public client class Employee{}",
+    "newCode": "public class Employee{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "ambiguous",
+                  "message": "'client' qualifier is removed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Add service qualifier",
+    "oldCode": "public class Employee{}",
+    "newCode": "public service class Employee{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "new",
+                  "versionImpact": "ambiguous",
+                  "message": "'service' qualifier is added"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "description": "Remove service qualifier",
+    "oldCode": "public service class Employee{}",
+    "newCode": "public class Employee{}",
+    "expectedOutput": {
+      "kind": "package",
+      "type": "modified",
+      "versionImpact": "ambiguous",
+      "childDiffs": [
+        {
+          "kind": "module",
+          "type": "modified",
+          "versionImpact": "ambiguous",
+          "childDiffs": [
+            {
+              "kind": "class",
+              "type": "modified",
+              "versionImpact": "ambiguous",
+              "childDiffs": [
+                {
+                  "kind": "unknown",
+                  "type": "removed",
+                  "versionImpact": "ambiguous",
+                  "message": "'service' qualifier is removed"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

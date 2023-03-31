@@ -28,12 +28,17 @@ public class JsonToRecordRequest {
     private String recordName;
     private boolean isRecordTypeDesc;
     private boolean isClosed;
+    private boolean forceFormatRecordFields;
+    private String filePathUri;
 
-    public JsonToRecordRequest(String jsonString, String recordName, boolean isRecordTypeDesc, boolean isClosed) {
+    public JsonToRecordRequest(String jsonString, String recordName, boolean isRecordTypeDesc, boolean isClosed,
+                               boolean forceFormatRecordFields, String filePathUri) {
         this.jsonString = jsonString;
         this.recordName = recordName;
         this.isRecordTypeDesc = isRecordTypeDesc;
         this.isClosed = isClosed;
+        this.forceFormatRecordFields = forceFormatRecordFields;
+        this.filePathUri = filePathUri;
     }
 
     public String getJsonString() {
@@ -66,5 +71,21 @@ public class JsonToRecordRequest {
 
     public void setIsClosed(boolean isClosed) {
         this.isClosed = isClosed;
+    }
+
+    public boolean getForceFormatRecordFields() {
+        return forceFormatRecordFields;
+    }
+
+    public void setForceFormatRecordFields(boolean forceFormatRecordFields) {
+        this.forceFormatRecordFields = forceFormatRecordFields;
+    }
+
+    public String getFilePathUri() {
+        return filePathUri;
+    }
+
+    public void setFilePathUri(String filePathUri) {
+        this.filePathUri = filePathUri;
     }
 }

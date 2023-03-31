@@ -22,17 +22,19 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
  *
  * @since 1.2.0
  */
-enum JTermKind {
-    JTERM_CALL(1), JTERM_NEW(2);
+public enum JTermKind {
+    J_METHOD_CALL((byte) 1),
+    JI_METHOD_CALL((byte) 2),
+    JI_CONSTRUCTOR_CALL((byte) 3);
 
-    private int termKind;
+    private final byte termKind;
 
-    JTermKind(int termKind) {
+    JTermKind(byte termKind) {
 
         this.termKind = termKind;
     }
 
-    int getTermKind() {
+    public byte getTermKind() {
 
         return this.termKind;
     }

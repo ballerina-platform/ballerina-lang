@@ -28,17 +28,20 @@ type IterableIntegerRange isolated object {
 #
 # + iStart - start expression of range expression
 # + iEnd - second expression on range expression
+# + iStep - step of range expression
 # + iCurrent - current cursor
 public isolated class __IntRange {
 
     *IterableIntegerRange;
     private final int iStart;
     private final int iEnd;
+    private final int iStep;
     private int iCurrent;
 
-    public isolated function init(int s, int e) {
+    public isolated function init(int s, int e, int step = 1) {
         self.iStart = s;
         self.iEnd = e;
+        self.iStep = step;
         self.iCurrent = s;
     }
 
@@ -47,7 +50,8 @@ public isolated class __IntRange {
         lock {
             currentVal = self.iCurrent;
         }
-        return (self.iStart <= currentVal) && (currentVal <= self.iEnd);
+        return self.iStep > 0 ? (self.iStart <= currentVal) && (currentVal <= self.iEnd) :
+                    (self.iStart >= currentVal) && (currentVal >= self.iEnd);
     }
 
     public isolated function next() returns record {|
@@ -58,7 +62,7 @@ public isolated class __IntRange {
             record {|int value;|} nextVal;
             lock {
                 nextVal = {value : self.iCurrent};
-                self.iCurrent += 1;
+                self.iCurrent += self.iStep;
             }
             return nextVal;
         }
@@ -68,7 +72,7 @@ public isolated class __IntRange {
 
     public isolated function iterator() returns
         isolated object {public isolated function next() returns record {|int value;|}?;} {
-            return new __IntRange(self.iStart, self.iEnd);
+            return new __IntRange(self.iStart, self.iEnd, self.iStep);
     }
 }
 

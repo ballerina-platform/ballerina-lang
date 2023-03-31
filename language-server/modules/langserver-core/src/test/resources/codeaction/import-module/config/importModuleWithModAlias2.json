@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 3,
+    "character": 21
+  },
+  "source": "importModuleWithModAlias2.bal",
+  "description": "Change module prefix when module prefix is available in another alias - ballerina/lang.array",
+  "expected": [
+    {
+      "title": "Change module prefix to 'arr'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 17
+            },
+            "end": {
+              "line": 3,
+              "character": 22
+            }
+          },
+          "newText": "arr"
+        }
+      ]
+    }
+  ]
+}

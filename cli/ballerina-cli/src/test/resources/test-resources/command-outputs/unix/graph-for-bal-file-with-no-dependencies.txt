@@ -1,0 +1,7 @@
+digraph "$anon/.:0.0.0" {
+	node [shape=record]
+	"$anon/." [label="<0.0.0> $anon/.:0.0.0"];
+
+	// Edges
+
+}

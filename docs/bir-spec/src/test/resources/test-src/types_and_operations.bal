@@ -338,21 +338,21 @@ public function functionWithStreams() {
     Student[] studentList = [s1, s2, s3];
     stream<Student> studentStream = studentList.toStream();
 
-    stream<Subscription> subscriptionStream = studentStream.filter(function (Student student) returns boolean {
-        return student.score > 1.0;
-    }).'map(function (Student student) returns Subscription {
+    stream<Subscription> subscriptionStream = studentStream.filter(function (Student student3) returns boolean {
+        return student3.score > 1.0;
+    }).'map(function (Student student4) returns Subscription {
         Subscription subscription = {
-            firstName: student.firstName,
-            lastName: student.lastName,
-            score: student.score,
+            firstName: student4.firstName,
+            lastName: student4.lastName,
+            score: student4.score,
             degree: "Bachelor of Medicine"
         };
         return subscription;
     });
 
 
-    float? avg = subscriptionStream.reduce(function (float accum, Student student) returns float {
-        return accum + <float>student.score / <float>studentList.length();
+    float? avg = subscriptionStream.reduce(function (float accum, Student student2) returns float {
+        return accum + <float>student2.score / <float>studentList.length();
     }, 0.0);
 
     if (avg is float) {

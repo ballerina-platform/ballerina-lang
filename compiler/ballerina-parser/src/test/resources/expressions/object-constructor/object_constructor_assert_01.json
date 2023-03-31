@@ -204,6 +204,21 @@
                           "value": "\n"
                         }
                       ]
+                    },
+                    {
+                      "kind": "SEMICOLON_TOKEN",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "                               "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -223,17 +238,10 @@
     },
     {
       "kind": "SEMICOLON_TOKEN",
-      "leadingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": "                               "
-        }
-      ],
-      "trailingMinutiae": [
-        {
-          "kind": "END_OF_LINE_MINUTIAE",
-          "value": "\n"
-        }
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_SEMICOLON_TOKEN"
       ]
     }
   ]

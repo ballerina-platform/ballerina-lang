@@ -1,0 +1,22 @@
+Code coverage is not yet supported with single bal files. Ignoring the flag and continuing the test run...
+warning: ignoring --includes flag since code coverage is not enabled
+Compiling source
+	failed-after-groups-test.bal
+WARNING [failed-after-groups-test.bal:(37:5,37:17)] unused variable 'b'
+
+Running Tests
+
+	failed-after-groups-test.bal
+	[fail] afterGroupsFunc1[after test group function for the test]:
+	     / by zero
+		[pass] testFunction
+		[pass] testFunction2
+		[pass] testFunction3
+		[pass] testFunction4
+		[pass] testFunction5
+
+
+		5 passing
+		0 failing
+		0 skipped
+error: there are test failures

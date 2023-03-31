@@ -57,14 +57,14 @@ public class BByteValueNegativeTest {
         BAssertUtil.validateError(result, 2, msg1 , 4, 15);
         BAssertUtil.validateError(result, 3, msg1 , 5, 15);
         BAssertUtil.validateError(result, 4, msg2 , 6, 15);
-        BAssertUtil.validateError(result, 5, msg2 , 7, 15);
+        BAssertUtil.validateError(result, 5, msg2 , 7, 16);
         BAssertUtil.validateError(result, 6, msg2 , 8, 15);
         BAssertUtil.validateError(result, 7, msg1 , 9, 24);
         BAssertUtil.validateError(result, 8, msg1 , 10, 21);
         BAssertUtil.validateError(result, 9, msg2 , 11, 21);
         BAssertUtil.validateError(result, 10, msg1 , 11, 30);
         BAssertUtil.validateError(result, 11, msg1 , 11, 35);
-        BAssertUtil.validateError(result, 12, msg2 , 12, 21);
+        BAssertUtil.validateError(result, 12, msg2 , 12, 22);
         BAssertUtil.validateError(result, 13, msg2 , 12, 27);
         BAssertUtil.validateError(result, 14, msg1 , 12, 35);
         BAssertUtil.validateError(result, 15, msg1 , 15, 14);

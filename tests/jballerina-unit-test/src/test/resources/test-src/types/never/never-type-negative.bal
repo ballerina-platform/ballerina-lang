@@ -260,3 +260,13 @@ function testNeverRestFieldType() {
     record {||} a3 = {};
     record {|int x;never...; |} copy4 = a3;
 }
+
+never N = check error("Error"); // error
+
+function testNeverTypeInTypedBindingPatternWithCheckingExpr() {
+    never n1 = check error("Error2"); // error
+    never n2 = checkpanic error("Error2"); // error
+}
+
+type NeverFoo never;
+NeverFoo NF = check error("Error"); //error

@@ -1,7 +1,7 @@
 public function main() {
-    int i = 3;
+    int x = 3;
 
-    string s = "s";
+    string y = "s";
 
     function (int i, string s) returns int testFunc2 = function(int i, string s) returns int {
         return 3;

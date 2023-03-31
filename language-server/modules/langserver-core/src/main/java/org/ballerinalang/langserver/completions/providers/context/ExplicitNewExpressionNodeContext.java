@@ -33,10 +33,11 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,15 +65,15 @@ public class ExplicitNewExpressionNodeContext extends InvocationNodeContextProvi
             lhs = new module:Client(<cursor>)
              */
             completionItems.addAll(this.getCompletionsWithinArgs(context, node));
-        } else if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+        } else if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
             /*
             Supports the following
             (1) new module:<cursor>
             (2) new module:a<cursor>
              */
             QualifiedNameReferenceNode referenceNode = (QualifiedNameReferenceNode) context.getNodeAtCursor();
-            String moduleName = QNameReferenceUtil.getAlias(referenceNode);
-            Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, moduleName);
+            String moduleName = QNameRefCompletionUtil.getAlias(referenceNode);
+            Optional<ModuleSymbol> module = ModuleUtil.searchModuleForAlias(context, moduleName);
             if (module.isEmpty()) {
                 return completionItems;
             }
@@ -135,9 +136,9 @@ public class ExplicitNewExpressionNodeContext extends InvocationNodeContextProvi
     private List<LSCompletionItem> getCompletionsWithinArgs(BallerinaCompletionContext ctx,
                                                             ExplicitNewExpressionNode node) {
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
-        if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
+        if (QNameRefCompletionUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
+            return this.getCompletionItemList(QNameRefCompletionUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
         }
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.expressionCompletions(ctx));

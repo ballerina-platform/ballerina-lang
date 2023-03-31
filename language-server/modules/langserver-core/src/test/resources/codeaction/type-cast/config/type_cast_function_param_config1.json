@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 2,
-    "character": 18,
-    "expected": [
+    "character": 18
+  },
+  "source": "type_cast_function_param_config1.bal",
+  "expected": [
+    {
+      "title": "Add type cast",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Add type cast to assignment",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 2,
-                            "character": 17
-                        },
-                        "end": {
-                            "line": 2,
-                            "character": 17
-                        }
-                    },
-                    "newText": "<int>"
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 17
+            },
+            "end": {
+              "line": 2,
+              "character": 17
+            }
+          },
+          "newText": "<int>"
         }
-    ]
+      ]
+    }
+  ]
 }

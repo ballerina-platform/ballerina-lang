@@ -1,0 +1,232 @@
+[
+  {
+    "source": "json j1 = \"Apple\";",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["j1"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "j1",
+    "result": {
+      "shellValue": {
+        "value":"\"Apple\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "json j2 = 5.36;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["j2"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "j2",
+    "result": {
+      "shellValue": {
+        "value":"5.36",
+        "mimeType":"plain/text",
+        "type":"float"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "json j3 = true;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["j3"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "j3",
+    "result": {
+      "shellValue": {
+        "value":"true",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "json j4 = null;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["j4"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "j4",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "json j5 = {}",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["j5"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "j5",
+    "result": {
+      "shellValue": {
+        "value":"{}",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"map\u003cjson\u003e"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "json j6 = {name: \"apple\", color: \"red\", price: j2};",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["j6"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "j6",
+    "result": {
+      "shellValue": {
+        "value":"{\"name\":\"apple\", \"color\":\"red\", \"price\":5.36}",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"map\u003cjson\u003e"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "j6.toJsonString()",
+    "result": {
+      "shellValue":{
+        "value":"\"{\"name\":\"apple\", \"color\":\"red\", \"price\":5.36}\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "map<json> mp = <map<json>>j6; mp[\"price\"] = 6.23;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["mp"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "mp[\"price\"]",
+    "result": {
+      "shellValue": {
+        "value":"6.23",
+        "mimeType":"plain/text",
+        "type":"float"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "json j7 = [1, false, null, \"foo\", {first: \"John\", last: \"Pala\"}];",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["j7"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "j7",
+    "result": {
+      "shellValue": {
+        "value":"[1, false, null, \"foo\", {\"first\":\"John\", \"last\":\"Pala\"}]",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"json[]"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "json j8 = checkpanic j4.mergeJson(j7);",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["j8"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "j8.toJsonString()",
+    "result": {
+      "shellValue": {
+        "value":"\"[1, false, null, \"foo\", {\"first\":\"John\", \"last\":\"Pala\"}]\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "j4 == j5",
+    "result": {
+      "shellValue": {
+        "value":"false",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

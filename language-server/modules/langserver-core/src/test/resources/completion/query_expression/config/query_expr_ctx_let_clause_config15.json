@@ -94,6 +94,15 @@
       "filterText": "select",
       "insertText": "select ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

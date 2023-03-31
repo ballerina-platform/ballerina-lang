@@ -20,6 +20,7 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -40,12 +41,12 @@ public class OnFailClauseNode extends ClauseNode {
         return childInBucket(1);
     }
 
-    public TypeDescriptorNode typeDescriptor() {
-        return childInBucket(2);
+    public Optional<TypeDescriptorNode> typeDescriptor() {
+        return optionalChildInBucket(2);
     }
 
-    public IdentifierToken failErrorName() {
-        return childInBucket(3);
+    public Optional<IdentifierToken> failErrorName() {
+        return optionalChildInBucket(3);
     }
 
     public BlockStatementNode blockStatement() {
@@ -116,8 +117,8 @@ public class OnFailClauseNode extends ClauseNode {
             this.oldNode = oldNode;
             this.onKeyword = oldNode.onKeyword();
             this.failKeyword = oldNode.failKeyword();
-            this.typeDescriptor = oldNode.typeDescriptor();
-            this.failErrorName = oldNode.failErrorName();
+            this.typeDescriptor = oldNode.typeDescriptor().orElse(null);
+            this.failErrorName = oldNode.failErrorName().orElse(null);
             this.blockStatement = oldNode.blockStatement();
         }
 
@@ -137,14 +138,12 @@ public class OnFailClauseNode extends ClauseNode {
 
         public OnFailClauseNodeModifier withTypeDescriptor(
                 TypeDescriptorNode typeDescriptor) {
-            Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
             this.typeDescriptor = typeDescriptor;
             return this;
         }
 
         public OnFailClauseNodeModifier withFailErrorName(
                 IdentifierToken failErrorName) {
-            Objects.requireNonNull(failErrorName, "failErrorName must not be null");
             this.failErrorName = failErrorName;
             return this;
         }

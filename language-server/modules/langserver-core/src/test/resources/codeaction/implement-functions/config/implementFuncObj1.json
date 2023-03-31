@@ -1,24 +1,28 @@
 {
+  "position": {
     "line": 6,
-    "character": 4,
-    "expected": [
+    "character": 4
+  },
+  "source": "implementFuncObj.bal",
+  "expected": [
+    {
+      "title": "Implement method \u0027pushText2\u0027",
+      "kind": "quickfix",
+      "edits": [
         {
-            "title": "Implement method \u0027pushText2\u0027",
-            "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 11,
-                            "character": 0
-                        },
-                        "end": {
-                            "line": 11,
-                            "character": 0
-                        }
-                    },
-                    "newText": "\n    public function pushText2(string text) returns error? {\n        return;\n    }\n"
-                }
-            ]
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 0
+            },
+            "end": {
+              "line": 11,
+              "character": 0
+            }
+          },
+          "newText": "\n    public function pushText2(string text) returns error? {\n        return;\n    }\n"
         }
-    ]
+      ]
+    }
+  ]
 }

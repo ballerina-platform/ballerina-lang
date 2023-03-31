@@ -1,0 +1,28 @@
+Compiling source
+	intg_tests/annotations:0.0.0
+
+Running Tests with Coverage
+
+	annotations
+		[pass] jsonDataProviderTest#0
+		[pass] stringDataProviderTest#0
+		[pass] stringDataProviderTest#1
+		[pass] stringDataProviderTest#2
+		[pass] stringDataProviderTest2#0
+		[pass] test1
+		[pass] testAfter
+		[pass] test2
+		[pass] testAfterAlone
+		[pass] test3
+		[pass] test4
+		[pass] test5
+		[pass] testDependsOn1
+		[pass] testBefore
+
+
+		14 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	annotations/target/report/test_results.json

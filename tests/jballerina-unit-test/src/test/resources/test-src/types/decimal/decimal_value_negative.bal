@@ -39,3 +39,8 @@ function testInvlaidDecimalValue() {
     decimal _ = 0x;
     decimal _ = 0X;
 }
+
+function testOutOfRangeFloatWithDecimal() {
+    decimal _ = 9.99E+6111f;
+    decimal _ = <decimal>9.99E+6111f;
+}

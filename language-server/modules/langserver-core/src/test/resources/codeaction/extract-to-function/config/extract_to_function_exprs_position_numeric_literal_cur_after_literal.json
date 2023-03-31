@@ -1,0 +1,54 @@
+{
+  "position": {
+    "line": 1,
+    "character": 21
+  },
+  "source": "extract_to_function_exprs_numeric_literal.bal",
+  "description": "Extract to function for expressions, cursor after numeric literal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 1
+            },
+            "end": {
+              "line": 2,
+              "character": 1
+            }
+          },
+          "newText": "\n\nfunction extracted() returns int {\n    return 10;\n}\n"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 19
+            },
+            "end": {
+              "line": 1,
+              "character": 21
+            }
+          },
+          "newText": "extracted()"
+        }
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_numeric_literal.bal",
+          {
+            "line": 1,
+            "character": 19
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

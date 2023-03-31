@@ -154,6 +154,11 @@ public class ArrayInitializerExprTest {
         Assert.assertEquals(arrayValue.getFloat(2), 5.0);
     }
 
+    @Test
+    public void testInferredArrayInitWithInGrpExpr() {
+        BRunUtil.invoke(compileResult, "testInferredArrayInitWithInGrpExpr");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

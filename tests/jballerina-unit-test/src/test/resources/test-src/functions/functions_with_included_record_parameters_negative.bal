@@ -194,3 +194,133 @@ function functionWithIncludedRecordParam14(int a, *Options options, int c = 10) 
 function functionWithIncludedRecordParam15(int a, int b = 12, *Options options, int c = 10) {
     string? name = options?.name;
 }
+
+type Record1 record {
+    int id;
+    string name;
+};
+
+function fn1(*Record1 record1) {
+
+}
+
+type Record2 record {|
+    int id?;
+    string name?;
+|};
+
+function fn2(*Record2 record2) {
+
+}
+
+function functionWithIncludedRecordParam16() {
+    fn1(id = 2, record1 = {id: 2, name: ""}); // error
+    fn1(record1 = {id: 2, name: ""}, id = 2); // error
+    fn1(record1 = {id: 2, name: ""}, name = "2"); // error
+    fn1({id: 2, name: ""}, name = "2"); // error
+    fn1({id: 2, name: "", addr: ""}, name = "2"); // error
+    
+    fn2(id = 2, record2 = {name: ""}); // error
+    fn2(record2 = {name: ""}, id = 2); // error
+    fn2(record2 = {name: ""}, name = ""); // error
+}
+
+type Record3 record {|
+    int idNew?;
+    string nameNew?;
+|};
+
+function fn3(*Record2 record2, *Record3 record3) {
+    
+}
+
+function functionWithIncludedRecordParam17() {
+    fn3(record2 = {id: 2, name: ""}, record3 = {idNew: 3, nameNew: ""});
+    fn3(record2 = {id: 2, name: ""}, idNew = 21, record3 = {idNew: 3, nameNew: ""}); // error
+    fn3(record2 = {id: 2, name: ""}, idNew = 21, record3 = {nameNew: ""}); // error
+    fn3({id: 2, name: ""}, {nameNew: ""}, idNew = 21); // error
+    fn3({name: ""}, {nameNew: ""}, idNew = 21, id = 2); // error
+    fn3(id = 2, record2 = {id: 2, name: ""}, record3 = {idNew: 3, nameNew: ""}); // error
+    fn3(idNew = 2, record2 = {id: 2, name: ""}, record3 = {idNew: 3, nameNew: ""}); // error
+    fn3(idNew = 2, id = 3, record2 = {id: 2, name: ""}, record3 = {idNew: 3, nameNew: ""}); // error
+}
+
+type Record4 record {|
+    int idNew?;
+    string nameNew?;
+    Record3 rec?;
+|};
+
+function fn4(*Record4 record4) {
+    
+}
+
+function functionWithIncludedRecordParam18() {
+    fn4(rec = {}, record4 = {}); // error
+}
+
+type Coo int;
+
+function fn(*Boo f) {
+}
+
+class MyClass {
+    function fn(*Boo f) {
+    }
+
+    function fn2(*Coo f) {
+    }
+}
+
+function testInvokingFunctionContainingIncludedRecordParamOfTypeOtherThanRecordOrUndefinedUsingNamedArg() {
+     // No errors will be logged for bellow lines, but we are testing the call path
+    fn(f = {});
+    MyClass obj = new;
+    _ = obj.fn(f = {});
+    _ = obj.fn2(f = {});
+}
+
+type Record5 record {
+};
+
+type Record6 record {
+};
+
+function fn5(*Record5 record5) {
+}
+
+function fn6(*Record5 record5, *Record6 record6) {
+}
+
+function testInvokingFunctionWithNamedArgForIncludedRecordParam() {
+    fn5(record5 = {}, j = 2);
+    fn5(j = 2, record5 = {});
+    fn6(record5 = {}, j = 2);
+    fn6(record5 = {}, record6 = {}, j = 2);
+    fn6(j = 2, record5 = {}, record6 = {});
+    fn9(record7 = {}, record6 = {}, j = 2);
+}
+
+type Baz record {|
+    int r;
+|};
+
+function fn7(*Baz r) {
+}
+
+function fn8(string k, *Record5 record5) {
+}
+
+function testInvokingFunctionWithPositionalArgForIncludedRecordParam() {
+    fn8("abc", {}, j = 2);
+    fn8("abc", {}, j = 2, i = 10);
+    fn5({}, j = 2);
+    fn6({}, {}, j = 2);
+    fn9({}, {}, j = 2);
+}
+
+function fn9(*Record7 record7, *Record6 record6) {
+}
+
+type Record7 record {|
+|};

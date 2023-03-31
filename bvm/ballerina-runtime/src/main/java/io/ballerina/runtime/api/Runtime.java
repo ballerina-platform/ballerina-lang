@@ -23,9 +23,12 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.FutureValue;
@@ -83,9 +86,19 @@ public class Runtime {
                                                  Type returnType, Object... args) {
         try {
             validateArgs(object, methodName);
-            Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-            return scheduler.scheduleToObjectGroup(new Object[1], func, null, callback, properties,
-                                                   returnType, strandName, metadata);
+            FutureValue future = scheduler.createFuture(null, callback, properties, returnType, strandName, metadata);
+            AsyncUtils.getArgsWithDefaultValues(scheduler, object, methodName, new Callback() {
+                @Override
+                public void notifySuccess(Object result) {
+                    Function<?, ?> func = getFunction((Object[]) result, object, methodName);
+                    scheduler.scheduleToObjectGroup(new Object[1], func, future);
+                }
+                @Override
+                public void notifyFailure(BError error) {
+                    callback.notifyFailure(error);
+                }
+            }, args);
+            return future;
         } catch (BError e) {
             callback.notifyFailure(e);
         } catch (Throwable e) {
@@ -119,9 +132,19 @@ public class Runtime {
                                                  Type returnType, Object... args) {
         try {
             validateArgs(object, methodName);
-            Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-            return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
-                                      metadata);
+            FutureValue future = scheduler.createFuture(null, callback, properties, returnType, strandName, metadata);
+            AsyncUtils.getArgsWithDefaultValues(scheduler, object, methodName, new Callback() {
+                @Override
+                public void notifySuccess(Object result) {
+                    Function<?, ?> func = getFunction((Object[]) result, object, methodName);
+                    scheduler.schedule(new Object[1], func, future);
+                }
+                @Override
+                public void notifyFailure(BError error) {
+                    callback.notifyFailure(error);
+                }
+            }, args);
+            return future;
         } catch (BError e) {
             callback.notifyFailure(e);
         } catch (Throwable e) {
@@ -161,16 +184,25 @@ public class Runtime {
                                      Type returnType, Object... args) {
         try {
             validateArgs(object, methodName);
-            ObjectType objectType = object.getType();
+            ObjectType objectType = (ObjectType) TypeUtils.getReferredType(object.getType());
             boolean isIsolated = objectType.isIsolated() && objectType.isIsolated(methodName);
-            Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
-            if (isIsolated) {
-                return scheduler.schedule(new Object[1], func, null, callback, properties, returnType, strandName,
-                                          metadata);
-            } else {
-                return scheduler.scheduleToObjectGroup(new Object[1], func, null, callback, properties,
-                                                       returnType, strandName, metadata);
-            }
+            FutureValue future = scheduler.createFuture(null, callback, properties, returnType, strandName, metadata);
+            AsyncUtils.getArgsWithDefaultValues(scheduler, object, methodName, new Callback() {
+                @Override
+                public void notifySuccess(Object result) {
+                    Function<?, ?> func = getFunction((Object[]) result, object, methodName);
+                    if (isIsolated) {
+                        scheduler.schedule(new Object[1], func, future);
+                    } else {
+                        scheduler.scheduleToObjectGroup(new Object[1], func, future);
+                    }
+                }
+                @Override
+                public void notifyFailure(BError error) {
+                    callback.notifyFailure(error);
+                }
+            }, args);
+            return future;
         } catch (BError e) {
             callback.notifyFailure(e);
         } catch (Throwable e) {
@@ -214,10 +246,24 @@ public class Runtime {
     }
 
     public void registerListener(BObject listener) {
-        scheduler.getListenerRegistry().registerListener(listener);
+        scheduler.getRuntimeRegistry().registerListener(listener);
     }
 
     public void deregisterListener(BObject listener) {
-        scheduler.getListenerRegistry().deregisterListener(listener);
+        scheduler.getRuntimeRegistry().deregisterListener(listener);
+    }
+
+    public void registerStopHandler(BFunctionPointer<?, ?> stopHandler) {
+        scheduler.getRuntimeRegistry().registerStopHandler(stopHandler);
+    }
+
+    private Function<?, ?> getFunction(Object[] argsWithDefaultValues, BObject object, String methodName) {
+        Function<?, ?> func;
+        if (argsWithDefaultValues.length == 1) {
+            func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, argsWithDefaultValues[0]);
+        } else {
+            func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, argsWithDefaultValues);
+        }
+        return func;
     }
 }

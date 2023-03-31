@@ -1,0 +1,19 @@
+{
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 4
+    },
+    "end": {
+      "line": 1,
+      "character": 17
+    }
+  },
+  "source": "negative_extract_to_function_stmts_retry_stmt.bal",
+  "expected": [
+    {
+      "title": "Extract to function"
+    }
+  ],
+  "description": "Extract to function for object fields inside class"
+}

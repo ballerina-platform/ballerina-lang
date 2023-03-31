@@ -39,6 +39,7 @@ import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -85,7 +86,7 @@ public class PackageConfigCreator {
         PackageDescriptor packageDesc = PackageDescriptor.from(PackageOrg.from(ProjectConstants.ANON_ORG),
                 PackageName.from(ProjectConstants.DOT), PackageVersion.from(ProjectConstants.DEFAULT_VERSION));
         PackageManifest packageManifest = PackageManifest.from(packageDesc);
-        DependencyManifest dependencyManifest = DependencyManifest.from(null, Collections.emptyList());
+        DependencyManifest dependencyManifest = DependencyManifest.from(null, null, Collections.emptyList());
 
         PackageData packageData = ProjectFiles.loadSingleFileProjectPackageData(filePath);
         return createPackageConfig(packageData, packageManifest, dependencyManifest);
@@ -215,6 +216,7 @@ public class PackageConfigCreator {
     private static List<DocumentConfig> getDocumentConfigs(ModuleId moduleId, List<DocumentData> documentData) {
         return documentData
                 .stream()
+                .sorted(Comparator.comparing(DocumentData::name))
                 .map(srcDoc -> createDocumentConfig(srcDoc, moduleId))
                 .collect(Collectors.toList());
     }

@@ -51,8 +51,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_DETAI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_TYPEID_SET_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_ERROR_TYPE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_TYPE_ID_SET;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
 
 /**
  * BIR error type to JVM byte code generation class.
@@ -112,8 +112,7 @@ public class JvmErrorTypeGen {
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
         jvmTypeGen.loadType(mv, bType.detailType);
-        mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE_IMPL, SET_DETAIL_TYPE_METHOD,
-                RECORD_INIT, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE_IMPL, SET_DETAIL_TYPE_METHOD, TYPE_PARAMETER, false);
         BTypeIdSet typeIdSet = bType.typeIdSet;
         if (!typeIdSet.isEmpty()) {
             mv.visitInsn(DUP);

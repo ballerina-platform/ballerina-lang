@@ -1,0 +1,145 @@
+[
+  {
+    "source": "import ballerina/lang.'xml as xmllib;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xmlns \"http://ballerina.com/aa\" as ns0;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":["ns0"]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xmllib:Element xmlData = <xmllib:Element> xml `<ns0:book ns0:status=\"available\" count=\"5\"/>`;",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["xmlData"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xmlData",
+    "result": {
+      "shellValue": {
+        "value": "\u003cns0:book xmlns:ns0\u003d\"http://ballerina.com/aa\" ns0:status\u003d\"available\" count\u003d\"5\"/\u003e",
+        "mimeType":"ballerina-notebook/xml-view",
+        "type":"lang.xml:Element"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xmlData.count",
+    "result": {
+      "shellValue": {
+        "value":"\"5\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xmlData.ns0:status",
+    "result": {
+      "shellValue": {
+        "value":"\"available\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xmlData.count2 is error",
+    "result": {
+      "shellValue": {
+        "value":"true",
+        "mimeType":"plain/text",
+        "type":"boolean"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "map<string> attributeMap = xmlData.getAttributes();",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":["attributeMap"],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "attributeMap",
+    "result": {
+      "shellValue": {
+        "value":"{\"{http://www.w3.org/2000/xmlns/}ns0\":\"http://ballerina.com/aa\", \"{http://ballerina.com/aa}status\":\"available\", \"count\":\"5\"}",
+        "mimeType":"ballerina-notebook/json-view",
+        "type":"map\u003cstring\u003e"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "attributeMap[\"{http://ballerina.com/aa}status\"]",
+    "result": {
+      "shellValue": {
+        "value":"\"available\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "attributeMap[ns0:status] = \"Not Available\";",
+    "result": {
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  },
+  {
+    "source": "xmlData.ns0:status;",
+    "result": {
+      "shellValue": {
+        "value":"\"Not Available\"",
+        "mimeType":"plain/text",
+        "type":"string"
+      },
+      "errors":[],
+      "diagnostics":[],
+      "metaInfo":{"definedVars":[],"moduleDclns":[]},
+      "consoleOut":""
+    }
+  }
+]

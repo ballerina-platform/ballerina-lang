@@ -1,0 +1,35 @@
+{
+  "position": {
+    "line": 7,
+    "character": 30
+  },
+  "source": "expression_context/source/mapping_constructor_expr_ctx_source6.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "Employee.name",
+      "sortText": "K",
+      "insertText": "name: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Employee Required Fields",
+      "kind": "Property",
+      "detail": "Employee",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "name: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

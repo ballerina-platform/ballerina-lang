@@ -58,13 +58,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_RE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RECORD_INIT_WRAPPER_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VISIT_MAX_SAFE_MARGIN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RECORD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RECORD_WITH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_STRAND;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RECORD_INIT_WRAPPER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 
@@ -114,7 +115,7 @@ public class JvmRecordCreatorGen {
             generateCreateRecordMethodSplits(cw, recordTypeDefList, moduleId, moduleInitClass, typeOwnerClass,
                     metadataVarName);
         }
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, CREATE_RECORD_VALUE, recordsClass);
         mv.visitEnd();
     }
 
@@ -159,13 +160,14 @@ public class JvmRecordCreatorGen {
             mv.visitTypeInsn(NEW, className);
             mv.visitInsn(DUP);
             mv.visitFieldInsn(GETSTATIC, moduleInitClass, fieldName, GET_TYPE);
-            mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, RECORD_INIT, false);
+            mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_PARAMETER, false);
 
             mv.visitInsn(DUP);
             mv.visitTypeInsn(NEW, STRAND_CLASS);
             mv.visitInsn(DUP);
             mv.visitInsn(ACONST_NULL);
             mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metadataVarName, GET_STRAND_METADATA);
+            mv.visitInsn(ACONST_NULL);
             mv.visitInsn(ACONST_NULL);
             mv.visitInsn(ACONST_NULL);
             mv.visitInsn(ACONST_NULL);
@@ -188,13 +190,13 @@ public class JvmRecordCreatorGen {
                             CREATE_RECORD, false);
                     mv.visitInsn(ARETURN);
                 }
-                mv.visitMaxs(i + 10, i + 10);
+                mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
                 mv.visitEnd();
             }
         }
         if (methodCount != 0 && bTypesCount % MAX_TYPES_PER_METHOD != 0) {
             createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, "No such record: ");
-            mv.visitMaxs(i + 10, i + 10);
+            mv.visitMaxs(i + VISIT_MAX_SAFE_MARGIN, i + VISIT_MAX_SAFE_MARGIN);
             mv.visitEnd();
         }
     }

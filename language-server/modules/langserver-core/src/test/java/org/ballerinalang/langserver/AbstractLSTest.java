@@ -48,8 +48,8 @@ public abstract class AbstractLSTest {
     private static final Map<String, String> REMOTE_PROJECTS = Map.of("project1", "main.bal", "project2", "main.bal");
     private static final Map<String, String> LOCAL_PROJECTS =
             Map.of("local_project1", "main.bal", "local_project2", "main.bal");
-    private static final List<LSPackageLoader.PackageInfo> REMOTE_PACKAGES = new ArrayList<>();
-    private static final List<LSPackageLoader.PackageInfo> LOCAL_PACKAGES = new ArrayList<>();
+    private static final List<LSPackageLoader.ModuleInfo> REMOTE_PACKAGES = new ArrayList<>();
+    private static final List<LSPackageLoader.ModuleInfo> LOCAL_PACKAGES = new ArrayList<>();
 
     private Endpoint serviceEndpoint;
 
@@ -63,10 +63,10 @@ public abstract class AbstractLSTest {
         Endpoint endpoint = TestUtil.initializeLanguageSever(languageServer);
         try {
             REMOTE_PACKAGES.addAll(getPackages(REMOTE_PROJECTS,
-                    languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.PackageInfo::new)
+                    languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.ModuleInfo::new)
                     .collect(Collectors.toList()));
             LOCAL_PACKAGES.addAll(getPackages(LOCAL_PROJECTS,
-                    languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.PackageInfo::new)
+                    languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.ModuleInfo::new)
                     .collect(Collectors.toList()));
         } catch (Exception e) {
             //ignore
@@ -75,25 +75,38 @@ public abstract class AbstractLSTest {
         }
     }
 
+    public boolean loadMockedPackages() {
+        return false;
+    }
+
     @BeforeClass
     public void init() throws Exception {
         this.languageServer = new BallerinaLanguageServer();
-        this.serviceEndpoint = TestUtil.initializeLanguageSever(this.languageServer);
-        setUp();
+        if (this.loadMockedPackages()) {
+            setUp();
+        }
+        TestUtil.LanguageServerBuilder builder = TestUtil.newLanguageServer()
+                .withLanguageServer(languageServer);
+        setupLanguageServer(builder);
+        this.serviceEndpoint = builder.build();
+    }
+
+    protected void setupLanguageServer(TestUtil.LanguageServerBuilder builder) {
     }
 
     public void setUp() {
         this.lsPackageLoader = Mockito.mock(LSPackageLoader.class, Mockito.withSettings().stubOnly());
         this.languageServer.getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, this.lsPackageLoader);
-        Mockito.when(lsPackageLoader.getRemoteRepoPackages(Mockito.any())).thenReturn(REMOTE_PACKAGES);
-        Mockito.when(lsPackageLoader.getLocalRepoPackages(Mockito.any())).thenReturn(LOCAL_PACKAGES);
-        Mockito.when(lsPackageLoader.getDistributionRepoPackages()).thenCallRealMethod();
-        Mockito.when(lsPackageLoader.getAllVisiblePackages(Mockito.any())).thenCallRealMethod();
+        Mockito.when(this.lsPackageLoader.getRemoteRepoPackages(Mockito.any())).thenReturn(REMOTE_PACKAGES);
+        Mockito.when(this.lsPackageLoader.getLocalRepoPackages(Mockito.any())).thenReturn(LOCAL_PACKAGES);
+        Mockito.when(this.lsPackageLoader.getDistributionRepoPackages()).thenCallRealMethod();
+        Mockito.when(this.lsPackageLoader.getAllVisiblePackages(Mockito.any())).thenCallRealMethod();
+        Mockito.when(this.lsPackageLoader.getPackagesFromBallerinaUserHome(Mockito.any())).thenCallRealMethod();
     }
 
-    private static List<Package> getPackages(Map<String, String> projects,
-                                             WorkspaceManager workspaceManager,
-                                             LanguageServerContext context)
+    protected static List<Package> getPackages(Map<String, String> projects,
+                                               WorkspaceManager workspaceManager,
+                                               LanguageServerContext context)
             throws WorkspaceDocumentException, IOException {
         List<Package> packages = new ArrayList<>();
         for (Map.Entry<String, String> entry : projects.entrySet()) {
@@ -108,12 +121,15 @@ public abstract class AbstractLSTest {
     public void cleanMocks() {
         if (this.lsPackageLoader != null) {
             Mockito.reset(this.lsPackageLoader);
+            this.lsPackageLoader = null;
         }
     }
 
     @AfterClass
     public void shutDownLanguageServer() {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
+        this.languageServer = null;
+        this.serviceEndpoint = null;
     }
 
     public BallerinaLanguageServer getLanguageServer() {
@@ -122,5 +138,21 @@ public abstract class AbstractLSTest {
 
     public Endpoint getServiceEndpoint() {
         return this.serviceEndpoint;
+    }
+
+    public void setLsPackageLoader(LSPackageLoader lsPackageLoader) {
+        this.lsPackageLoader = lsPackageLoader;
+    }
+
+    public LSPackageLoader getLSPackageLoader() {
+        return this.lsPackageLoader;
+    }
+
+    public static List<LSPackageLoader.ModuleInfo> getLocalPackages() {
+        return LOCAL_PACKAGES;
+    }
+
+    public static List<LSPackageLoader.ModuleInfo> getRemotePackages() {
+        return REMOTE_PACKAGES;
     }
 }

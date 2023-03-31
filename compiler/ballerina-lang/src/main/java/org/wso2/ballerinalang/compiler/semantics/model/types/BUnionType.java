@@ -43,7 +43,6 @@ import java.util.stream.Stream;
  */
 public class BUnionType extends BType implements UnionType {
 
-    public BIntersectionType immutableType;
     public boolean resolvingToString = false;
 
     private BIntersectionType intersectionType = null;
@@ -424,16 +423,6 @@ public class BUnionType extends BType implements UnionType {
             return true;
         }
         return false;
-    }
-
-    @Override
-    public BIntersectionType getImmutableType() {
-        return this.immutableType;
-    }
-
-    @Override
-    public void unsetImmutableType() {
-        this.immutableType = null;
     }
 
     private String getQualifiedName(String pkg, String name) {

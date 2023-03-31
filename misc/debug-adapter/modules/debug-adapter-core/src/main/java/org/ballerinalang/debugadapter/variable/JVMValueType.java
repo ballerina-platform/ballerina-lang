@@ -37,6 +37,7 @@ public enum JVMValueType {
     J_BOOLEAN("java.lang.Boolean"),
     BTYPE_JSON("BJsonType"),
     BTYPE_OBJECT("BObjectType"),
+    BTYPE_CLIENT("BClientType"),
     BTYPE_RECORD("BRecordType"),
     BTYPE_SERVICE("BServiceType"),
     BMP_STRING(INTERNAL_VALUE_PREFIX + "BmpStringValue"),

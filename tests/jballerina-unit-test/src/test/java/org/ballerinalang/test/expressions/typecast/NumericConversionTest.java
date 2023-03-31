@@ -76,7 +76,7 @@ public class NumericConversionTest {
         Assert.assertTrue((Boolean) returns.get(0), "expected decimals to be the same");
         Assert.assertTrue(returns.get(1) instanceof BDecimal);
         Assert.assertEquals(returns.get(1),
-                (ValueCreator.createDecimalValue(new BigDecimal(d, MathContext.DECIMAL128))),
+                (ValueCreator.createDecimalValue(BigDecimal.valueOf(d))),
                 "incorrect float representation as decimal");
     }
 

@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.impl.util.FieldMap;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
@@ -58,6 +59,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     private final ObjectTypeSymbol typeDescriptor;
     private final List<Qualifier> qualifiers;
     private final List<AnnotationSymbol> annots;
+    private final List<AnnotationAttachmentSymbol> annotAttachments;
     private final boolean deprecated;
     private final BClassSymbol internalSymbol;
     private final CompilerContext context;
@@ -66,11 +68,12 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     private Map<String, ClassFieldSymbol> classFields;
 
     protected BallerinaClassSymbol(CompilerContext context, String name, List<Qualifier> qualifiers,
-                                   List<AnnotationSymbol> annots, ObjectTypeSymbol typeDescriptor,
-                                   BClassSymbol classSymbol) {
+                                   List<AnnotationSymbol> annots, List<AnnotationAttachmentSymbol> annotAttachments,
+                                   ObjectTypeSymbol typeDescriptor, BClassSymbol classSymbol) {
         super(name, SymbolKind.CLASS, classSymbol, context);
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
+        this.annotAttachments = Collections.unmodifiableList(annotAttachments);
         this.docAttachment = getDocAttachment(classSymbol);
         this.typeDescriptor = typeDescriptor;
         this.deprecated = Symbols.isFlagOn(classSymbol.flags, Flags.DEPRECATED);
@@ -120,6 +123,11 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
     @Override
     public List<AnnotationSymbol> annotations() {
         return this.annots;
+    }
+
+    @Override
+    public List<AnnotationAttachmentSymbol> annotAttachments() {
+        return this.annotAttachments;
     }
 
     @Override
@@ -198,6 +206,7 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
 
         protected List<Qualifier> qualifiers = new ArrayList<>();
         protected List<AnnotationSymbol> annots = new ArrayList<>();
+        protected List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
         protected ObjectTypeSymbol typeDescriptor;
 
         public ClassSymbolBuilder(CompilerContext context, String name, BSymbol symbol) {
@@ -219,10 +228,15 @@ public class BallerinaClassSymbol extends BallerinaSymbol implements ClassSymbol
             return this;
         }
 
+        public ClassSymbolBuilder withAnnotationAttachment(AnnotationAttachmentSymbol annotAttachment) {
+            this.annotAttachments.add(annotAttachment);
+            return this;
+        }
+
         @Override
         public BallerinaClassSymbol build() {
             return new BallerinaClassSymbol(this.context, this.name, this.qualifiers, this.annots,
-                                            this.typeDescriptor, (BClassSymbol) this.bSymbol);
+                                            this.annotAttachments, this.typeDescriptor, (BClassSymbol) this.bSymbol);
         }
     }
 }

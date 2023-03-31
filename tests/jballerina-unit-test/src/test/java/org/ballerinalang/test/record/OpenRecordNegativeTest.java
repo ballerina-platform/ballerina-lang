@@ -59,7 +59,7 @@ public class OpenRecordNegativeTest {
                 "invalid operation: type 'Person' does not support optional field access for field 'firstName'",
                 59, 26);
         validateError(result, indx++,
-                "undefined field 'toValue' in record 'Teacher'",
+                "function invocation on type 'Teacher' is not supported",
                 68, 27);
         assertEquals(result.getErrorCount(), indx);
     }
@@ -81,15 +81,14 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test function invocation on a nil-able function pointer")
     public void testNilableFuncPtrInvocation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/open_record_nil-able_fn_ptr.bal");
-        String errMsg =
-                "invalid method call expression: expected a function type, but found 'function" +
-                        " (string,string) returns (string)?'";
+        String errMsg1 = "function invocation on type 'Person' is not supported";
+        String errMsg2 = "function invocation on type 'PersonB' is not supported";
         int indx = 0;
 
-        validateError(compileResult, indx++, errMsg, 28, 17);
-        validateError(compileResult, indx++, errMsg, 33, 17);
-        validateError(compileResult, indx++, errMsg, 47, 17);
-        validateError(compileResult, indx++, errMsg, 53, 17);
+        validateError(compileResult, indx++, errMsg1, 28, 21);
+        validateError(compileResult, indx++, errMsg1, 33, 21);
+        validateError(compileResult, indx++, errMsg2, 47, 21);
+        validateError(compileResult, indx++, errMsg2, 53, 21);
         assertEquals(compileResult.getErrorCount(), indx);
     }
 

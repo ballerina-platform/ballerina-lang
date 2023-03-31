@@ -30,13 +30,13 @@ import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
+import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
@@ -80,9 +80,9 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
             (2) service mod:<cursor>
             function ...
              */
-            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getTokenAtCursor().parent())) {
+            if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, context.getTokenAtCursor().parent())) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getTokenAtCursor().parent();
-                List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef,
+                List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context, qNameRef,
                         ModulePartNodeContextUtil.serviceTypeDescPredicate());
 
                 completionItems.addAll(this.getCompletionItemList(moduleContent, context));
@@ -113,9 +113,9 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
             Predicate<Symbol> predicate = symbol -> symbol instanceof VariableSymbol
                     && ((VariableSymbol) symbol).qualifiers().contains(Qualifier.LISTENER);
             NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 // Covers the use-case 3
-                List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context,
+                List<Symbol> moduleContent = QNameRefCompletionUtil.getModuleContent(context,
                         (QualifiedNameReferenceNode) nodeAtCursor, predicate);
                 completionItems.addAll(this.getCompletionItemList(moduleContent, context));
             } else {
@@ -186,7 +186,8 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
         int cursor = context.getCursorPositionInTree();
         Token serviceKeyword = node.serviceKeyword();
 
-        return serviceKeyword.textRange().endOffset() < cursor;
+        return serviceKeyword.textRange().endOffset() < cursor
+                && cursor <= node.closeBraceToken().textRange().endOffset();
     }
 
     @Override
@@ -221,7 +222,7 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
                     TypeSymbol rawType = CommonUtil.getRawType(typeDesc.get());
                     sortText = rawType.kind() == SymbolKind.CLASS ? genSortText(1) : genSortText(2);
                 }
-            } else if (isModuleCItem) {
+            } else if (isModuleCItem && !SortingUtil.isLangLibModuleCompletionItem(lsItem)) {
                 sortText = genSortText(3) + genSortTextForModule(context, lsItem);
             }
 
@@ -237,7 +238,8 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
             String sortText;
             CompletionItem cItem = lsItem.getCompletionItem();
             boolean isModuleCItem = SortingUtil.isModuleCompletionItem(lsItem);
-            if (!isModuleCItem && lsItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+            if ((SortingUtil.isLangLibModuleCompletionItem(lsItem))
+                    || (!isModuleCItem && lsItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL)) {
                 sortText = genSortText(1);
             } else if (Snippet.KW_NEW.equals(lsItem)) {
                 // Prioritize the new keyword
@@ -262,7 +264,8 @@ public class ServiceDeclarationNodeContext extends ObjectBodiedNodeContextProvid
                 sortText = genSortText(1);
             } else if (SortingUtil.isTypeCompletionItem(lsItem)) {
                 sortText = genSortText(2);
-            } else if (SortingUtil.isModuleCompletionItem(lsItem)) {
+            } else if (SortingUtil.isModuleCompletionItem(lsItem)
+                    && !SortingUtil.isLangLibModuleCompletionItem(lsItem)) {
                 sortText = genSortText(3) + SortingUtil.genSortTextForModule(context, lsItem);
             } else {
                 sortText = genSortText(4);
