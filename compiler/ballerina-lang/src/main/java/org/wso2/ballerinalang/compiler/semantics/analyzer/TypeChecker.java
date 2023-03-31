@@ -72,7 +72,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -6864,12 +6863,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     } else if (invokableSymbol.restParam != null &&
                             invokableSymbol.restParam.name.value.equals(((BLangNamedArgsExpression) expr).name.value)) {
                         // can not provide a rest parameters as named args
+                        checkTypeParamExpr(expr, symTable.noType, iExpr.langLibInvocation, data);
                         dlog.error(expr.pos, DiagnosticErrorCode.REST_ARG_CANNOT_BE_NAMED_ARG, iExpr.name.value);
                     } else {
                         if (incRecordAllowAdditionalFields && !namedArgForIncRecordParam) {
                             iExpr.requiredArgs.add(expr);
                         } else {
-                            checkTypeParamExpr(expr, new BNoType(TypeTags.NONE), iExpr.langLibInvocation, data);
+                            checkTypeParamExpr(expr, symTable.noType, iExpr.langLibInvocation, data);
                             dlog.error(expr.pos, DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
                         }
                     }
@@ -6986,7 +6986,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                             nonRestParams, incRecordParams, incRecordParamAllowAdditionalFields, data);
 
                 if (varSym == null) {
-                    checkTypeParamExpr(arg, new BNoType(TypeTags.NONE), iExpr.langLibInvocation, data);
+                    checkTypeParamExpr(arg, symTable.noType, iExpr.langLibInvocation, data);
                     dlog.error(arg.pos, DiagnosticErrorCode.UNDEFINED_PARAMETER, argName);
                     break;
                 }

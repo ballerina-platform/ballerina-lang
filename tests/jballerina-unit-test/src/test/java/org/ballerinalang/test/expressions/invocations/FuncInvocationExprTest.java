@@ -206,8 +206,7 @@ public class FuncInvocationExprTest {
         validateError(funcInvocationNegative, i++,
                 "incompatible types: expected 'int[]', found 'anydata[]'", 74, 29);
         validateError(funcInvocationNegative, i++,
-
-                "too many arguments in call to 'sum()'", 102, 18);
+                "rest argument cannot be a named argument", 102, 18);
         validateError(funcInvocationNegative, i++,
                 "too many arguments in call to 'sum()'", 103, 18);
         validateError(funcInvocationNegative, i++,
