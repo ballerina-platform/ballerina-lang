@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -57,7 +58,7 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  * @since 0.995.0
  */
 public abstract class AbstractObjectValue implements ObjectValue {
-    private final BTypedesc typedesc;
+    private BTypedesc typedesc;
     private final BObjectType objectType;
     private final Type type;
 
@@ -66,7 +67,6 @@ public abstract class AbstractObjectValue implements ObjectValue {
     public AbstractObjectValue(Type type) {
         this.type = type;
         this.objectType = (BObjectType) TypeUtils.getReferredType(type);
-        this.typedesc = new TypedescValueImpl(type);
     }
 
     @Override
@@ -148,7 +148,12 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     @Override
-    public Type getType() {
+    public ObjectType getType() {
+        return objectType;
+    }
+
+    @Override
+    public Type getOriginalType() {
         return type;
     }
 
@@ -182,6 +187,9 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = new TypedescValueImpl(type);
+        }
         return typedesc;
     }
 

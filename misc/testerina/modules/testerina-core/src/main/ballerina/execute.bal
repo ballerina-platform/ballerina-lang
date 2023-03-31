@@ -19,6 +19,8 @@ boolean shouldAfterSuiteSkip = false;
 int exitCode = 0;
 
 public function startSuite() {
+    // exit if setTestOptions has failed
+    exitOnError();
     if listGroups {
         string[] groupsList = groupStatusRegistry.getGroupsList();
         if groupsList.length() == 0 {
@@ -44,8 +46,12 @@ public function startSuite() {
             reportGenerators.forEach(reportGen => reportGen(reportData));
         }
     }
-    if (exitCode > 0) {
-        panic(error(""));
+    exitOnError();
+}
+
+function exitOnError() {
+    if exitCode > 0 {
+        panic (error(""));
     }
 }
 
@@ -305,8 +311,8 @@ function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType t
 
             boolean wildCardMatchBoolean = false;
             if (updatedSubFilter.includes(WILDCARD)) {
-                    boolean|error wildCardMatch = matchWildcard(updatedSuffix, updatedSubFilter);
-                    wildCardMatchBoolean = wildCardMatch is boolean && wildCardMatch;
+                boolean|error wildCardMatch = matchWildcard(updatedSuffix, updatedSubFilter);
+                wildCardMatchBoolean = wildCardMatch is boolean && wildCardMatch;
             }
             if ((updatedSubFilter == updatedSuffix) || wildCardMatchBoolean) {
                 suffixMatch = true;
@@ -333,7 +339,6 @@ function executeFunctions(TestFunction[] testFunctions, boolean skip = false) re
 function executeTestFunction(TestFunction testFunction, string suffix, TestType testType, AnyOrError[]? params = ()) returns ExecutionError|boolean {
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
         : trap function:call(testFunction.executableFunction, ...params);
-
     if output is TestError {
         exitCode = 1;
         reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output), testType = testType);
@@ -385,7 +390,7 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
             + string `but it is either disabled or not included.`;
             return error(errMsg);
         }
-        
+
         dependsOnTestFunction.dependents.push(testFunction);
 
         // Contains cyclic dependencies 
@@ -420,7 +425,7 @@ function nestedEnabledDependentsAvailable(TestFunction[] dependents) returns boo
     }
     TestFunction[] queue = [];
     foreach TestFunction dependent in dependents {
-        if(dependent.enabled) {
+        if (dependent.enabled) {
             return true;
         }
         dependent.dependents.forEach((superDependent) => queue.push(superDependent));

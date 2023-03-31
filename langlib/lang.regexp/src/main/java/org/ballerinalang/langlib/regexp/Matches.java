@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BString;
 
 import java.util.regex.Matcher;
 
-import static org.ballerinalang.langlib.regexp.RegexUtil.isEmptyRegexp;
+import static org.ballerinalang.langlib.regexp.RegexUtil.checkIndexWithinRange;
 
 /**
  * Native implementation of lang.regexp:matches(string).
@@ -33,10 +33,7 @@ import static org.ballerinalang.langlib.regexp.RegexUtil.isEmptyRegexp;
  */
 public class Matches {
     public static BArray matchAt(BRegexpValue regExp, BString str, int startIndex) {
-        if (isEmptyRegexp(regExp)) {
-            return null;
-        }
-
+        checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         matcher.region(startIndex, str.length());
         if (matcher.matches()) {
@@ -46,10 +43,7 @@ public class Matches {
     }
 
     public static BArray matchGroupsAt(BRegexpValue regExp, BString str, int startIndex) {
-        if (isEmptyRegexp(regExp)) {
-            return null;
-        }
-
+        checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         matcher.region(startIndex, str.length());
         BArray resultArray = null;
@@ -63,10 +57,6 @@ public class Matches {
     }
 
     public static boolean isFullMatch(BRegexpValue regExp, BString str) {
-        if (isEmptyRegexp(regExp)) {
-            return false;
-        }
-
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         return matcher.matches();
     }
