@@ -555,7 +555,7 @@ public class DocModelTest {
                 "First field in Human Record should be onRequestOpened");
         Assert.assertEquals(serviceType.get().methods.get(0).description,
                 "The remote method that will be called when a request is opened." + System.lineSeparator(),
-                "Type name of first field in Human Record should be " +
+                "The description of the first method should be " +
                         "The remote method that will be called when a request is opened.");
         Assert.assertEquals(serviceType.get().methods.get(0).parameters.size(), 1,
                 "Expected 1 parameter in the first method of the service type");
@@ -566,7 +566,7 @@ public class DocModelTest {
                 "First field in Human Record should be onRequestCommented");
         Assert.assertEquals(serviceType.get().methods.get(1).description,
                 "The remote method that will be called when a request is commented." + System.lineSeparator(),
-                "Type name of first field in Human Record should be " +
+                "The description of the first method should be " +
                         "The remote method that will be called when a request is commented.");
         Assert.assertEquals(serviceType.get().methods.get(1).parameters.size(), 1,
                 "Expected 1 parameter in the first method of the service type");
