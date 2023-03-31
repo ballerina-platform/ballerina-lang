@@ -232,17 +232,11 @@ public class JvmDesugarPhase {
                 localVar.metaVarName = encodeNonFunctionIdentifier(localVar.metaVarName, encodedVsInitialIds);
             }
             for (BIRNode.BIRParameter parameter : function.requiredParams) {
-                if (parameter.name == null) {
-                    continue;
-                }
                 parameter.name = Names.fromString(encodeNonFunctionIdentifier(parameter.name.value,
                                                                               encodedVsInitialIds));
             }
             if (function.type.tsymbol != null) {
                 for (BVarSymbol parameter : ((BInvokableTypeSymbol) function.type.tsymbol).params) {
-                    if (parameter.name == null) {
-                        continue;
-                    }
                     parameter.name = Names.fromString(encodeNonFunctionIdentifier(parameter.name.value,
                             encodedVsInitialIds));
                 }
@@ -350,16 +344,10 @@ public class JvmDesugarPhase {
                 localVar.metaVarName = getInitialIdString(localVar.metaVarName, encodedVsInitialIds);
             }
             for (BIRNode.BIRParameter parameter : function.requiredParams) {
-                if (parameter.name == null) {
-                    continue;
-                }
                 parameter.name = getInitialIdString(parameter.name, encodedVsInitialIds);
             }
             if (function.type.tsymbol != null) {
                 for (BVarSymbol parameter : ((BInvokableTypeSymbol) function.type.tsymbol).params) {
-                    if (parameter.name == null) {
-                        continue;
-                    }
                     parameter.name = getInitialIdString(parameter.name, encodedVsInitialIds);
                 }
             }

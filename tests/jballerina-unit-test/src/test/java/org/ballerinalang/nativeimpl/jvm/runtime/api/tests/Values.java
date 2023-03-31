@@ -57,6 +57,7 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import org.ballerinalang.langlib.value.FromJsonWithType;
 import org.jetbrains.annotations.Nullable;
@@ -464,6 +465,13 @@ public class Values {
 
     public static BString getParameterName(BFunctionPointer fpValue) {
         Parameter parameter = ((BFunctionType) fpValue.getType()).getParameters()[0];
+        return StringUtils.fromString(parameter.name);
+    }
+
+    public static BString getParameterNameFromResource(BTypedesc type) {
+        BServiceType serviceType = (BServiceType) type.getDescribingType();
+        ResourceMethodType resourceMethod = serviceType.getResourceMethods()[0];
+        Parameter parameter = resourceMethod.getParameters()[0];
         return StringUtils.fromString(parameter.name);
     }
 }
