@@ -63,7 +63,7 @@ public class BuildLangLib {
     static boolean skipBootstrap = false;
 
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         PrintStream out = System.out;
         try {
             projectDir = Paths.get(args[0]);

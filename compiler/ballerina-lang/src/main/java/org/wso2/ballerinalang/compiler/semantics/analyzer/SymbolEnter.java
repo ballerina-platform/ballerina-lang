@@ -413,7 +413,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         if (!PackageID.ANNOTATIONS.equals(pkgNode.packageID)) {
             initPredeclaredModules(symTable.predeclaredModules, pkgNode.compUnits, pkgEnv);
         }
-
         // Define type definitions.
         this.typePrecedence = 0;
 
@@ -1171,7 +1170,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
         }
-        this.env = prevEnv;
     }
 
     @Override
@@ -3717,6 +3715,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(REGEXP)) {
             symTable.langRegexpModuleSymbol = packageSymbol;
+            symTable.updateRegExpTypeOwners();
             return;
         }
     }
@@ -4617,6 +4616,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
             if (varNode.flagSet.contains(Flag.INCLUDED)) {
+                requiredParamNames.add(symbol.name.value);
                 BType varNodeType = Types.getReferredType(varNode.getBType());
                 if (varNodeType.getKind() == TypeKind.RECORD) {
                     symbol.flags |= Flags.INCLUDED;

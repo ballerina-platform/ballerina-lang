@@ -237,16 +237,6 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get version Keyword Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getVersionKeywordSnippet() {
-        return new SnippetBlock(ItemResolverConstants.VERSION_KEYWORD, ItemResolverConstants.VERSION_KEYWORD,
-                "version", ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
-    }
-
-    /**
      * Get From Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

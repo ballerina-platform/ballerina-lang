@@ -141,6 +141,8 @@ public class ExpressionTypeTestNew {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
         assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), REGEXP);
+        assertEquals(type.signature(), "ballerina/lang.regexp:0.0.0:RegExp");
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().signature(), "regexp:RegExp");
     }
 
     @DataProvider(name = "RegexpTemplateLiteralPosProvider")

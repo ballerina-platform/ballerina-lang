@@ -35,7 +35,9 @@ import io.ballerina.runtime.internal.values.RegExpTerm;
 import io.ballerina.runtime.internal.values.RegExpValue;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Regular expression tree builder for Ballerina regular expression node.
@@ -211,6 +213,9 @@ public class TreeBuilder {
         String negation = readNegation();
         RegExpCharSet characterSet = readRegCharSet();
         String characterClassEnd = readCharacterClassEnd();
+        if (negation.isEmpty() && characterSet.getCharSetAtoms().length == 0) {
+            throw new BallerinaException("Empty character class disallowed");
+        }
         return new RegExpCharacterClass(characterClassStart, negation, characterSet, characterClassEnd);
     }
 
@@ -241,7 +246,14 @@ public class TreeBuilder {
             RegExpCharSetRange reCharSetRange = new RegExpCharSetRange(startReCharSetAtom, minus.value,
                     rhsReCharSetAtom);
             RegExpCharSet reCharSet = readRegCharSet();
-            return new RegExpCharSet(new Object[]{reCharSetRange, reCharSet});
+
+            List<Object> charSetAtoms = new ArrayList<>();
+            charSetAtoms.add(reCharSetRange);
+            if (reCharSet.getCharSetAtoms().length > 0) {
+                charSetAtoms.add(reCharSet);
+            }
+
+            return new RegExpCharSet(charSetAtoms.toArray());
         }
         RegExpCharSet reCharSetNoDash = readCharSetNoDash(nextToken);
         return new RegExpCharSet(new Object[]{startReCharSetAtom, reCharSetNoDash});
@@ -379,6 +391,7 @@ public class TreeBuilder {
             dash = minus.value;
             rhsFlags = readRegFlags();
         }
+        checkValidityOfFlags(lhsReFlags + rhsFlags);
         return new RegExpFlagOnOff(lhsReFlags + dash + rhsFlags);
     }
 
@@ -466,5 +479,16 @@ public class TreeBuilder {
 
     private Token consume() {
         return this.tokenReader.read();
+    }
+
+    private void checkValidityOfFlags(String flags) {
+        Set<Character> charList = new HashSet<>();
+        for (int i = 0; i < flags.length(); i++) {
+            char flag = flags.charAt(i);
+            if (charList.contains(flag)) {
+                throw new BallerinaException("duplicate flag '" + flag + "'");
+            }
+            charList.add(flag);
+        }
     }
 }
