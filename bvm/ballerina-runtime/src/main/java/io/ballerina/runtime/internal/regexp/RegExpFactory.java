@@ -43,6 +43,7 @@ import io.ballerina.runtime.internal.values.RegExpValue;
  * @since 2201.3.0
  */
 public class RegExpFactory {
+
     private RegExpFactory() {
     }
 
@@ -111,11 +112,11 @@ public class RegExpFactory {
             TreeBuilder treeBuilder = new TreeBuilder(tokenReader);
             return treeBuilder.parse();
         } catch (BallerinaException e) {
-            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage() 
-                    + " in '" + regExpStr + "' RegExp pattern"));
+            throw ErrorCreator.createError(StringUtils.fromString("Failed to parse regular expression: "
+                    + e.getMessage() + " in '" + regExpStr + "'"));
         }
     }
-    
+
     public static void parseInsertion(String regExpStr) {
         try {
             CharReader charReader = CharReader.from(regExpStr);
@@ -124,7 +125,7 @@ public class RegExpFactory {
             treeBuilder.parseInsertion();
         } catch (BallerinaException e) {
             throw ErrorCreator.createError(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
-                    StringUtils.fromString(e.getMessage() + " in insertion substring '" 
+                    StringUtils.fromString(e.getMessage() + " in insertion substring '"
                             + regExpStr.substring(3, regExpStr.length() - 1) + "'"));
         }
     }
@@ -192,7 +193,7 @@ public class RegExpFactory {
     }
 
     private static RegExpCharacterClass createCharacterClass(String negation, Object[] charSet) {
-        return new RegExpCharacterClass("[", negation, new RegExpCharSet(charSet) , "]");
+        return new RegExpCharacterClass("[", negation, new RegExpCharSet(charSet), "]");
     }
 
     private static RegExpAtom translateCharacterClass(RegExpCharacterClass charClass) {

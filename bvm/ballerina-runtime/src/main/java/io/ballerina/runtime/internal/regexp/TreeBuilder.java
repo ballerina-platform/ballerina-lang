@@ -47,6 +47,7 @@ import java.util.Set;
  * @since 2201.3.0
  */
 public class TreeBuilder {
+
     private final TokenReader tokenReader;
 
     public TreeBuilder(TokenReader tokenReader) {
@@ -109,13 +110,13 @@ public class TreeBuilder {
         if (nextToken.kind == TokenKind.BITWISE_XOR_TOKEN || nextToken.kind == TokenKind.DOLLAR_TOKEN) {
             return readRegAssertion();
         }
-        
+
         RegExpAtom reAtom;
         switch (nextToken.kind) {
             case RE_LITERAL_CHAR:
             case RE_NUMERIC_ESCAPE:
             case RE_CONTROL_ESCAPE:
-            case COMMA_TOKEN:    
+            case COMMA_TOKEN:
             case DOT_TOKEN:
             case DIGIT:
                 reAtom = readRegChars();
@@ -140,7 +141,6 @@ public class TreeBuilder {
         return new RegExpAtomQuantifier(reAtom, quantifier);
     }
 
-    
     private RegExpAssertion readRegAssertion() {
         return new RegExpAssertion(consume().value);
     }
@@ -161,7 +161,7 @@ public class TreeBuilder {
                 return readRegUnicodePropertyEscape(backSlash.value);
             case BITWISE_XOR_TOKEN:
             case DOLLAR_TOKEN:
-            case BACK_SLASH_TOKEN:    
+            case BACK_SLASH_TOKEN:
             case DOT_TOKEN:
             case ASTERISK_TOKEN:
             case PLUS_TOKEN:
@@ -172,7 +172,7 @@ public class TreeBuilder {
             case CLOSE_BRACKET_TOKEN:
             case OPEN_BRACE_TOKEN:
             case CLOSE_BRACE_TOKEN:
-            case PIPE_TOKEN:    
+            case PIPE_TOKEN:
                 return readRegQuoteEscape(backSlash.value);
             default:
                 if (isReSimpleCharClassCode(nextToken)) {
@@ -297,6 +297,10 @@ public class TreeBuilder {
         String negation = readNegation();
         RegExpCharSet characterSet = readRegCharSet();
         String characterClassEnd = readCharacterClassEnd();
+        if (negation.isEmpty() && characterSet.getCharSetAtoms().length == 0) {
+            throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
+                    RuntimeErrors.REGEXP_EMPTY_CHARACTER_CLASS_DISALLOWED.messageKey()));
+        }
         return new RegExpCharacterClass(characterClassStart, negation, characterSet, characterClassEnd);
     }
 
@@ -328,7 +332,7 @@ public class TreeBuilder {
             String rhsReCharSetAtom = readCharSetAtom(nextToken);
             if (isIncorrectCharRange(startReCharSetAtom, rhsReCharSetAtom)) {
                 throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
-                        RuntimeErrors.REGEXP_INVALID_CHAR_CLASS_RANGE.messageKey(), 
+                        RuntimeErrors.REGEXP_INVALID_CHAR_CLASS_RANGE.messageKey(),
                         startReCharSetAtom, rhsReCharSetAtom));
             }
             RegExpCharSetRange reCharSetRange = new RegExpCharSetRange(startReCharSetAtom, minus.value,
@@ -403,7 +407,7 @@ public class TreeBuilder {
         throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
                 RuntimeErrors.REGEXP_MISSING_CLOSE_BRACKET.messageKey()));
     }
-    
+
     private RegExpQuantifier readOptionalQuantifier() {
         Token nextToken = peek();
         switch (nextToken.kind) {
@@ -574,6 +578,7 @@ public class TreeBuilder {
                 return true;
         }
     }
+
     private boolean isEndOfFlagExpression(TokenKind kind) {
         return kind == TokenKind.COLON_TOKEN || kind == TokenKind.EOF_TOKEN;
     }
@@ -644,7 +649,7 @@ public class TreeBuilder {
     private Token peek() {
         return this.tokenReader.peek();
     }
-    
+
     private Token peek(int n) {
         return this.tokenReader.peek(n);
     }

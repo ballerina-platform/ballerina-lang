@@ -143,7 +143,8 @@ public enum RuntimeErrors implements DiagnosticCode {
     REGEXP_INVALID_END_CHARACTER("regexp.invalid.end.character", "RUNTIME_0115"),
     REGEXP_INVALID_CHARACTER("regexp.invalid.character", "RUNTIME_0116"),
     REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE("regexp.invalid.unicode.general.category.value", "RUNTIME_0117"),
-    REGEXP_INVALID_UNICODE_PROPERTY_VALUE("regexp.invalid.unicode.property.value", "RUNTIME_0118");
+    REGEXP_INVALID_UNICODE_PROPERTY_VALUE("regexp.invalid.unicode.property.value", "RUNTIME_0118"),
+    REGEXP_EMPTY_CHARACTER_CLASS_DISALLOWED("regexp.empty.character.class.disallowed", "RUNTIME_0119");
     
     
 
