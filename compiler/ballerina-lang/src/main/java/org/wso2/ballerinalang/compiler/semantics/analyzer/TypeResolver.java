@@ -76,10 +76,10 @@ public class TypeResolver {
     private HashSet<BLangClassDefinition> resolvedClassDef = new HashSet<>();
     private Map<String, BLangNode> modTable = new LinkedHashMap<>();
     private Map<String, BLangConstantValue> constantMap = new HashMap<>();
-
     private HashSet<LocationData> unknownTypeRefs;
     private SymbolEnv pkgEnv;
     private int currentDepth;
+    public HashSet<BStructureType> resolvingStructureTypes = new HashSet<>();
 
     public TypeResolver(CompilerContext context) {
         context.put(TYPE_RESOLVER_KEY, this);
@@ -159,9 +159,11 @@ public class TypeResolver {
         // Define the class fields
         defineField(classDefinition, modTable, pkgEnv);
         resolvedClassDef.add(classDefinition);
+        BObjectType classDefType = (BObjectType) classDefinition.getBType();
+        resolvingStructureTypes.remove(classDefType);
 
         classDefinition.setPrecedence(this.typePrecedence++);
-        return classDefinition.getBType();
+        return classDefType;
     }
 
     public void defineField(BLangNode typeDefNode, Map<String, BLangNode> mod, SymbolEnv pkgEn) {
@@ -235,6 +237,7 @@ public class TypeResolver {
         }
 
         BObjectType objectType = new BObjectType(tSymbol, typeFlags);
+        resolvingStructureTypes.add(objectType);
         if (classDefinition.isObjectContructorDecl || flags.contains(Flag.OBJECT_CTOR)) {
             classDefinition.oceEnvData.objectType = objectType;
             objectType.classDef = classDefinition;
@@ -525,6 +528,26 @@ public class TypeResolver {
         } else {
             return extracted(pkgEnv, modTable, (BLangClassDefinition) moduleLevelDef);
         }
+    }
+
+    public List<BLangSimpleVariable> getFieldsOfStructureType(String name) {
+        BLangNode moduleLevelDef = modTable.get(name);
+        if (moduleLevelDef != null && moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
+            BLangNode typeNode = ((BLangTypeDefinition) moduleLevelDef).typeNode;
+            if (typeNode.getKind() == NodeKind.RECORD_TYPE || typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeNode;
+                return structureTypeNode.fields;
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    public BLangTypeDefinition getTypeDefinition(String name) {
+        BLangNode moduleLevelDef = modTable.get(name);
+        if (moduleLevelDef != null && moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
+            return (BLangTypeDefinition) moduleLevelDef;
+        }
+        return null;
     }
 
     private BType resolveTypeDesc(SymbolEnv symEnv, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
@@ -859,6 +882,7 @@ public class TypeResolver {
                 symEnv.scope.owner, td.pos,
                 td.isAnonymous ? VIRTUAL : BUILTIN);
         BRecordType recordType = new BRecordType(recordSymbol);
+        resolvingStructureTypes.add(recordType);
         recordSymbol.type = recordType;
         td.symbol = recordSymbol;
         BTypeDefinition defn = new BTypeDefinition(recordType);
@@ -871,10 +895,6 @@ public class TypeResolver {
             symEnter.defineSymbol(td.pos, td.symbol, symEnv);
             symEnter.defineNode(td, symEnv);
         }
-
-//        for (BLangSimpleVariable field : td.fields) {
-//            resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, field.typeNode);
-//        }
 
         if (td.getRestFieldType() != null) {
             resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.restFieldType);
@@ -890,7 +910,7 @@ public class TypeResolver {
         symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(typeDefinition);
         currentDepth = depth;
         defineFieldsOftypeDefinition(typeDefinition, symEnv, mod);
-
+        resolvingStructureTypes.remove(recordType);
         return recordType;
     }
 
@@ -923,7 +943,7 @@ public class TypeResolver {
                 symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner, td.pos, BUILTIN);
 
         BObjectType objectType = new BObjectType(objectSymbol, typeFlags);
-
+        resolvingStructureTypes.add(objectType);
         objectSymbol.type = objectType;
         td.symbol = objectSymbol;
         td.setBType(objectType);
@@ -939,7 +959,7 @@ public class TypeResolver {
         symEnter.defineDistinctClassAndObjectDefinitions(new ArrayList<>(Arrays.asList(typeDefinition)));
         symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(typeDefinition);
         defineFieldsOftypeDefinition(typeDefinition, symEnv, mod);
-
+        resolvingStructureTypes.remove(objectType);
         return objectType;
     }
 

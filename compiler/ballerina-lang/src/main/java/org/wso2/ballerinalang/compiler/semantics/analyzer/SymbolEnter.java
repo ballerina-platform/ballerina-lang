@@ -4059,6 +4059,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         // analyze restFieldType for open records
         for (BLangType typeRef : recordTypeNode.typeRefs) {
             BType refType = Types.getReferredType(typeRef.getBType());
+            if (typeResolver.resolvingStructureTypes.contains((BStructureType) refType)) {
+                BLangTypeDefinition typeDefinition = typeResolver.getTypeDefinition(refType.tsymbol.name.value);
+                if (typeDefinition != null) {
+                    resolveRestField(typeDefinition);
+                }
+            }
+
             if (refType.tag != TypeTags.RECORD) {
                 continue;
             }
@@ -5218,6 +5225,32 @@ public class SymbolEnter extends BLangNodeVisitor {
             // by the time we reach here. It is achieved by ordering the typeDefs according
             // to the precedence.
             // Default values of fields are not inherited.
+            if (referredTypeTag == TypeTags.RECORD || referredTypeTag == TypeTags.OBJECT) {
+                if ((typeResolver.resolvingStructureTypes.contains((BStructureType) referredType))) {
+                    List<BLangSimpleVariable> fields =
+                            typeResolver.getFieldsOfStructureType(referredType.tsymbol.name.value);
+                    return fields.stream().filter(f -> {
+                        if (fieldNames.containsKey(f.name.value)) {
+                            BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
+                            if (existingVariable.flagSet.contains(Flag.PUBLIC) !=
+                                    Symbols.isFlagOn(f.symbol.flags, Flags.PUBLIC)) {
+                                dlog.error(existingVariable.pos,
+                                        DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
+                                        existingVariable.name.value);
+                            }
+                            return false;
+                        }
+                        return true;
+                    }).map(field -> {
+                        BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value,
+                                                                                field.getBType());
+                        var.typeNode = field.typeNode;
+                        var.flagSet = field.getFlags();
+                        return var;
+                    });
+                }
+            }
+
             return ((BStructureType) referredType).fields.values().stream().filter(f -> {
                 if (fieldNames.containsKey(f.name.value)) {
                     BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
