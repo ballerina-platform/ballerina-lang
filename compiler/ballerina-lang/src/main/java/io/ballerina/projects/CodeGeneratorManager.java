@@ -40,9 +40,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 class CodeGeneratorManager {
     private final Package currentPackage;
@@ -712,17 +714,16 @@ class CodeGeneratorManager {
 
         Package modifyPackage(Package currentPackage, CodeGenTaskResult codeGenTaskResult) {
             Collection<ModuleId> moduleIds = currentPackage.moduleIds();
-            Package newPackage = currentPackage;
+            Set<ModuleContext> moduleContexts = new HashSet<>();
             for (ModuleId moduleId : moduleIds) {
-                newPackage = modifyModule(moduleId, newPackage, codeGenTaskResult);
+                moduleContexts.add(modifyModule(currentPackage.module(moduleId), codeGenTaskResult));
             }
-            return newPackage;
+            return currentPackage.modify().updateModules(moduleContexts).apply();
         }
 
-        private Package modifyModule(ModuleId moduleId, Package pkg, CodeGenTaskResult codeGenTaskResult) {
-            Module module = pkg.module(moduleId);
+        private ModuleContext modifyModule(Module module, CodeGenTaskResult codeGenTaskResult) {
             List<String> docNames = getDocNamesInModule(module);
-
+            ModuleId moduleId = module.moduleId();
             Module.Modifier modifier = module.modify();
             for (GeneratedSourceFile sourceFile : codeGenTaskResult.sourceFiles(moduleId)) {
                 String uniqueFilename = getUniqueFilename(sourceFile, docNames);
@@ -746,7 +747,7 @@ class CodeGeneratorManager {
                 addGeneratedTestResource(testResourceFile.filename(), testResourceFile.content, modifier, moduleId);
             }
 
-            return modifier.apply().packageInstance();
+            return modifier.getUpdatedModuleContext();
         }
 
         private void addGeneratedResource(String newResourceFilename,

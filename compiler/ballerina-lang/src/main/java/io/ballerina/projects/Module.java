@@ -313,6 +313,19 @@ public class Module {
             return createNewModule(this.srcDocContextMap, this.testDocContextMap);
         }
 
+        /**
+         *  Creates a new module context by updating the src and test docs and resets
+         *  the dependant modules.
+         *
+         * @return module context of the updated module and its dependants
+         */
+        ModuleContext getUpdatedModuleContext() {
+            return new ModuleContext(this.project,
+                    this.moduleId, this.moduleDescriptor, this.isDefaultModule, this.srcDocContextMap,
+                    this.testDocContextMap, this.moduleMdContext, this.dependencies, this.resourceContextMap,
+                    this.testResourceContextMap);
+        }
+
         private Map<DocumentId, ResourceContext> copyResources(Module oldModule, Collection<DocumentId> documentIds) {
             Map<DocumentId, ResourceContext> resourceContextMap = new HashMap<>();
             for (DocumentId documentId : documentIds) {
@@ -338,20 +351,6 @@ public class Module {
                     testDocContextMap, this.moduleMdContext, this.dependencies, this.resourceContextMap,
                     this.testResourceContextMap);
             moduleContextSet.add(newModuleContext);
-
-            // add dependant modules including transitives
-            Collection<ModuleDescriptor> dependants = getAllDependants(this.moduleDescriptor);
-            for (ModuleDescriptor dependentDescriptor : dependants) {
-                if (dependentDescriptor.equals(this.moduleDescriptor)) {
-                    continue;
-                }
-                Modifier module = this.packageInstance.module(dependentDescriptor.name()).modify();
-                moduleContextSet.add(new ModuleContext(this.project,
-                        module.moduleId, dependentDescriptor, module.isDefaultModule, module.srcDocContextMap,
-                        module.testDocContextMap, module.moduleMdContext, module.dependencies,
-                        module.resourceContextMap, module.testResourceContextMap));
-            }
-
             Package newPackage = this.packageInstance.modify().updateModules(moduleContextSet).apply();
             return newPackage.module(this.moduleId);
         }
@@ -359,31 +358,6 @@ public class Module {
         Modifier updateModuleMd(MdDocumentContext moduleMd) {
             this.moduleMdContext = moduleMd;
             return this;
-        }
-
-        private Collection<ModuleDescriptor> getAllDependants(ModuleDescriptor updatedModuleDescriptor) {
-            packageInstance.getResolution(); // this will build the dependency graph if it is not built yet
-            return getAllDependants(updatedModuleDescriptor, new HashSet<>(), new HashSet<>());
-        }
-
-        private Collection<ModuleDescriptor> getAllDependants(
-                ModuleDescriptor updatedModuleDescriptor,
-                HashSet<ModuleDescriptor> visited,
-                HashSet<ModuleDescriptor> dependants) {
-            if (!visited.contains(updatedModuleDescriptor)) {
-                visited.add(updatedModuleDescriptor);
-                Collection<ModuleDescriptor> directDependents = this.project.currentPackage()
-                        .moduleDependencyGraph().getDirectDependents(updatedModuleDescriptor);
-                if (directDependents.size() > 0) {
-                    dependants.addAll(directDependents);
-                    for (ModuleDescriptor directDependent : directDependents) {
-                        getAllDependants(directDependent, visited, dependants);
-                    }
-
-                }
-            }
-
-            return dependants;
         }
 
         private Map<DocumentId, DocumentContext> sortDocuments(Map<DocumentId, DocumentContext> docContextMap) {

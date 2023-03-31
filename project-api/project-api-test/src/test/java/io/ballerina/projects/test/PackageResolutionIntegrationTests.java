@@ -566,6 +566,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.errors().forEach(OUT::println);
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0,
+                "Unexpected compilation diagnostics: " + TestUtils.getDiagnosticsAsString(diagnosticResult));
     }
 }

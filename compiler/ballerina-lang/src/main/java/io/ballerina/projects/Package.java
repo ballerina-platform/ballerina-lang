@@ -263,7 +263,6 @@ public class Package {
                 pkg = codeGeneratorResult.updatedPackage().get();
             }
         }
-
         if (compilerPluginManager.engagedCodeModifierCount() > 0) {
             compilerPluginManager = pkg.getCompilation(compOptions).compilerPluginManager();
             CodeModifierManager codeModifierManager = compilerPluginManager.getCodeModifierManager();
@@ -401,6 +400,7 @@ public class Package {
         private TomlDocumentContext cloudTomlContext;
         private TomlDocumentContext compilerPluginTomlContext;
         private MdDocumentContext packageMdContext;
+        private final PackageContext packageContext;
 
         public Modifier(Package oldPackage) {
             this.packageId = oldPackage.packageId();
@@ -415,13 +415,49 @@ public class Package {
             this.cloudTomlContext = oldPackage.packageContext.cloudTomlContext().orElse(null);
             this.compilerPluginTomlContext = oldPackage.packageContext.compilerPluginTomlContext().orElse(null);
             this.packageMdContext = oldPackage.packageContext.packageMdContext().orElse(null);
+            this.packageContext = oldPackage.packageContext;
         }
 
         Modifier updateModules(Set<ModuleContext> newModuleContexts) {
+            Map<ModuleId, ModuleContext> dependantContexts = new HashMap<>();
             for (ModuleContext newModuleContext : newModuleContexts) {
                 this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
+                // add dependant modules including transitives
+                Collection<ModuleDescriptor> dependants = getAllDependants(newModuleContext.descriptor());
+                for (ModuleDescriptor dependentDescriptor : dependants) {
+                    if (dependentDescriptor.equals(newModuleContext.descriptor())) {
+                        continue;
+                    }
+                    ModuleContext dependantContext = packageContext.moduleContext(dependentDescriptor.name());
+                    dependantContexts.put(dependantContext.moduleId(), dependantContext.duplicate(project));
+                }
             }
+            this.moduleContextMap.putAll(dependantContexts);
             return this;
+        }
+
+        private Collection<ModuleDescriptor> getAllDependants(ModuleDescriptor updatedModuleDescriptor) {
+            this.packageContext.getResolution(); // this will build the dependency graph if it is not built yet
+            return getAllDependants(updatedModuleDescriptor, new HashSet<>(), new HashSet<>());
+        }
+
+        private Collection<ModuleDescriptor> getAllDependants(
+                ModuleDescriptor updatedModuleDescriptor,
+                HashSet<ModuleDescriptor> visited,
+                HashSet<ModuleDescriptor> dependants) {
+            if (!visited.contains(updatedModuleDescriptor)) {
+                visited.add(updatedModuleDescriptor);
+                Collection<ModuleDescriptor> directDependents = this.project.currentPackage()
+                        .moduleDependencyGraph().getDirectDependents(updatedModuleDescriptor);
+                if (directDependents.size() > 0) {
+                    dependants.addAll(directDependents);
+                    for (ModuleDescriptor directDependent : directDependents) {
+                        getAllDependants(directDependent, visited, dependants);
+                    }
+
+                }
+            }
+            return dependants;
         }
 
         /**
@@ -532,14 +568,14 @@ public class Package {
         Modifier updateBallerinaToml(BallerinaToml ballerinaToml) {
             this.ballerinaTomlContext = ballerinaToml.ballerinaTomlContext();
             updatePackageManifest();
-            updateModules();
+            updateAllModules();
             return this;
         }
 
         Modifier updateDependenciesToml(DependenciesToml dependenciesToml) {
             this.dependenciesTomlContext = dependenciesToml.dependenciesTomlContext();
             updateDependencyManifest();
-            updateModules();
+            updateAllModules();
             return this;
         }
 
@@ -662,7 +698,7 @@ public class Package {
             this.dependencyManifest = manifestBuilder.dependencyManifest();
         }
 
-        private void updateModules() {
+        private void updateAllModules() {
             Set<ModuleContext> moduleContextSet = new HashSet<>();
             for (Map.Entry<ModuleId, ModuleContext> moduleIdModuleContextEntry : moduleContextMap.entrySet()) {
                 ModuleId moduleId = moduleIdModuleContextEntry.getKey();
@@ -701,7 +737,9 @@ public class Package {
                 PackageCache.getInstance(project.projectEnvironmentContext().getService(CompilerContext.class)).
                         remove(oldModuleContext.descriptor().moduleCompilationId());
             }
-            updateModules(moduleContextSet);
+            for (ModuleContext newModuleContext : moduleContextSet) {
+                this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
+            }
         }
     }
 }

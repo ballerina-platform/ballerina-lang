@@ -922,7 +922,8 @@ public class TestBuildProject extends BaseTest {
 
         PackageCompilation newPackageCompilation = newPackage.getCompilation();
         // the 3 test diagnostics should be included since test sources are still compiled
-        Assert.assertEquals(newPackageCompilation.diagnosticResult().diagnosticCount(), 3);
+        Assert.assertEquals(newPackageCompilation.diagnosticResult().diagnosticCount(), 3,
+                TestUtils.getDiagnosticsAsString(newPackageCompilation.diagnosticResult()));
 
         // 2) Check editing file - change package metadata
         newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().withContent("" +
@@ -947,7 +948,8 @@ public class TestBuildProject extends BaseTest {
         newPackageCompilation = newPackage.getCompilation();
         // imports within the package should not be resolved since the package name has changed
         // the original 3 test diagnostics should also be present
-        Assert.assertEquals(newPackageCompilation.diagnosticResult().diagnosticCount(), 12);
+        Assert.assertEquals(newPackageCompilation.diagnosticResult().diagnosticCount(), 12,
+                TestUtils.getDiagnosticsAsString(newPackageCompilation.diagnosticResult()));
     }
 
     @Test(description = "test editing Ballerina.toml")
