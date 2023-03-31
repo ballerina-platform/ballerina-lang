@@ -868,8 +868,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
         }
+        BType referedType = Types.getReferredType(literalExpr.getBType());
 
-        if (Types.getReferredType(literalExpr.getBType()).tag == TypeTags.BYTE_ARRAY) {
+        if (referedType.tag == TypeTags.ARRAY && ((BArrayType) referedType).eType.tag == TypeTags.BYTE) {
+            return referedType;
+        }
+
+        if (referedType.tag == TypeTags.BYTE_ARRAY) {
             // check whether this is a byte array
             byte[] byteArray = types.convertToByteArray((String) literalExpr.value);
             literalType = new BArrayType(symTable.byteType, null, byteArray.length,
