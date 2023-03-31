@@ -383,6 +383,11 @@ public class TupleVariableDefinitionTest {
         BRunUtil.invoke(result, "testReadOnlyListWithListBindingPatternInVarDecl");
     }
 
+    @Test
+    public void testTupleVariableWithAnonymousRecordType() {
+        BRunUtil.invoke(result, "testTupleVariableWithAnonymousRecordType");
+    }
+
     private void validateTupleVarDefWithUnitionComplexResults(BArray returns) {
         Assert.assertEquals(returns.size(), 3);
 

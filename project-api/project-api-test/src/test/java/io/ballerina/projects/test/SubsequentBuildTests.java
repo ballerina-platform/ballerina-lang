@@ -20,6 +20,7 @@ package io.ballerina.projects.test;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -33,7 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static io.ballerina.projects.test.TestUtils.readFileAsString;
+import static io.ballerina.projects.test.TestUtils.assertTomlFilesEquals;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
@@ -49,12 +50,17 @@ public class SubsequentBuildTests {
 
     private static final Path RESOURCE_DIRECTORY =
             Paths.get("src/test/resources/projects_for_resolution_tests").toAbsolutePath();
+    private static Path tempResourceDir;
     private static final PrintStream OUT = System.out;
     private Path packagePath;
 
     @BeforeClass
     public void setUp() throws IOException {
-        packagePath = RESOURCE_DIRECTORY.resolve("package_f");
+        // copy the resource directory to a temp directory
+        tempResourceDir = Files.createTempDirectory("project-api-test");
+        FileUtils.copyDirectory(RESOURCE_DIRECTORY.toFile(), tempResourceDir.toFile());
+
+        packagePath = tempResourceDir.resolve("package_f");
         // Delete build file if exists
         Files.deleteIfExists(packagePath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
         // Delete Dependencies.toml file if exists
@@ -81,8 +87,8 @@ public class SubsequentBuildTests {
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         // Check Dependencies.toml content
-        Assert.assertEquals(readFileAsString(packagePath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                packagePath.resolve(RESOURCE_DIR_NAME).resolve("UpdatedDependencies.toml")));
+        assertTomlFilesEquals(packagePath.resolve(DEPENDENCIES_TOML),
+                packagePath.resolve(RESOURCE_DIR_NAME).resolve("UpdatedDependencies.toml"));
     }
 
     @Test(dependsOnMethods = "testBuildPackage")
@@ -97,7 +103,7 @@ public class SubsequentBuildTests {
                 + "name = \"package_c\"\n"
                 + "version = \"0.2.0\"\n"
                 + "export = [\"package_c\", \"package_c.mod_c1\", \"package_c.mod_c2\"]\n";
-        Files.write(RESOURCE_DIRECTORY.resolve("package_c").resolve(BALLERINA_TOML),
+        Files.write(tempResourceDir.resolve("package_c").resolve(BALLERINA_TOML),
                     pkgDBallerinaTomlContent.getBytes(StandardCharsets.UTF_8));
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_c");
 
@@ -111,8 +117,8 @@ public class SubsequentBuildTests {
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
 
         // Check updated Dependencies.toml content
-        Assert.assertEquals(readFileAsString(packagePath.resolve(DEPENDENCIES_TOML)), readFileAsString(
-                packagePath.resolve(RESOURCE_DIR_NAME).resolve("UpdatedDependencies.toml")));
+        assertTomlFilesEquals(packagePath.resolve(DEPENDENCIES_TOML),
+                packagePath.resolve(RESOURCE_DIR_NAME).resolve("UpdatedDependencies.toml"));
     }
 
     @AfterClass
@@ -126,9 +132,9 @@ public class SubsequentBuildTests {
                 + "name = \"package_c\"\n"
                 + "version = \"0.1.0\"\n"
                 + "export = [\"package_c\", \"package_c.mod_c1\", \"package_c.mod_c2\"]\n";
-        Files.write(RESOURCE_DIRECTORY.resolve("package_c").resolve(BALLERINA_TOML),
+        Files.write(tempResourceDir.resolve("package_c").resolve(BALLERINA_TOML),
                     pkgDBallerinaTomlContent.getBytes(StandardCharsets.UTF_8));
         // Delete package_c build file
-        Files.deleteIfExists(RESOURCE_DIRECTORY.resolve("package_c").resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
+        Files.deleteIfExists(tempResourceDir.resolve("package_c").resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
     }
 }

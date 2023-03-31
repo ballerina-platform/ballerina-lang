@@ -1,0 +1,23 @@
+Code coverage is not yet supported with single bal files. Ignoring the flag and continuing the test run...
+warning: ignoring --includes flag since code coverage is not enabled
+Compiling source
+	invalid-data-provider-test2.bal
+WARNING [invalid-data-provider-test2.bal:(25:5,25:53)] unused variable 'fErr'
+WARNING [invalid-data-provider-test2.bal:(26:5,26:53)] unused variable 'sErr'
+WARNING [invalid-data-provider-test2.bal:(27:5,27:58)] unused variable 'resultErr'
+
+Running Tests
+
+	invalid-data-provider-test2.bal
+
+		[fail] testInvalidDataProvider2:
+
+		    [fail data provider for the function testInvalidDataProvider2]
+			arguments of incompatible types: argument list '(int,int,int)' cannot be passed to function expecting parameter list '(string,string,string)'
+			
+
+
+		0 passing
+		1 failing
+		0 skipped
+error: there are test failures

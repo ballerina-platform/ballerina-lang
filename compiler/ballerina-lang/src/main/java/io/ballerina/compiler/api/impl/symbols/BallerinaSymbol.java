@@ -64,7 +64,7 @@ public class BallerinaSymbol implements Symbol {
         this.internalSymbol = symbol;
         LineRange lineRange = symbol.pos.lineRange();
         TextRange textRange = symbol.pos.textRange();
-        this.position = new BLangDiagnosticLocation(lineRange.filePath(),
+        this.position = new BLangDiagnosticLocation(lineRange.fileName(),
                                                     lineRange.startLine().line(),
                                                     lineRange.endLine().line(),
                                                     lineRange.startLine().offset(),

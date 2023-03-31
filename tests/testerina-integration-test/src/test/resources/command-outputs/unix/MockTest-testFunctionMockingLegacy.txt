@@ -1,0 +1,15 @@
+Compiling source
+	intg_tests/function_mocking_legacy:0.1.0
+
+Running Tests with Coverage
+
+	function_mocking_legacy
+		[pass] testIntAdd
+
+
+		1 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	legacy-function-mocking-tests/target/report/test_results.json

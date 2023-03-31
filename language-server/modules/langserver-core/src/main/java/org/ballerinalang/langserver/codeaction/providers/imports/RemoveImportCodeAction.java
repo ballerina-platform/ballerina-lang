@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class RemoveImportCodeAction implements DiagnosticBasedCodeActionProvider {
     public static final String NAME = "remove import";
-    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2002", "BCE2004");
+    public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE2002", "BCE2004", "BCE2008");
 
     @Override
     public boolean validate(Diagnostic diagnostic, DiagBasedPositionDetails positionDetails,

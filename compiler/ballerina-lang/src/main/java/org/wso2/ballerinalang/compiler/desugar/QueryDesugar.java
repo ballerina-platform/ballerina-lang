@@ -230,7 +230,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     private SymbolEnv env;
     private SymbolEnv queryEnv;
     private boolean containsCheckExpr;
-    private boolean withinLambdaFunc = false;
+    private boolean withinQuery = false;
+    private boolean withinLambdaOrArrowFunc = false;
     private HashSet<BType> checkedErrorList;
 
     private QueryDesugar(CompilerContext context) {
@@ -1519,10 +1520,10 @@ public class QueryDesugar extends BLangNodeVisitor {
             identifiers = prevIdentifiers;
             currentQueryLambdaBody = prevQueryLambdaBody;
         } else {
-            boolean prevWithinLambdaFunc = withinLambdaFunc;
-            withinLambdaFunc = true;
+            boolean prevWithinLambdaFunc = withinLambdaOrArrowFunc;
+            withinLambdaOrArrowFunc = true;
             function.getBody().accept(this);
-            withinLambdaFunc = prevWithinLambdaFunc;
+            withinLambdaOrArrowFunc = prevWithinLambdaFunc;
         }
     }
 
@@ -1706,7 +1707,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     symbol = originalSymbol;
                 }
             }
-            if ((withinLambdaFunc || queryEnv == null || !queryEnv.scope.entries.containsKey(symbol.name))
+            if ((withinLambdaOrArrowFunc || queryEnv == null || !queryEnv.scope.entries.containsKey(symbol.name))
                     && !identifiers.containsKey(identifier)) {
                 Location pos = currentQueryLambdaBody.pos;
                 BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
@@ -1716,8 +1717,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
                 if (symbol instanceof BVarSymbol) {
                     ((BVarSymbol) symbol).originalSymbol = null;
-                    if (withinLambdaFunc) {
-                        if (symbol.closure) {
+                    if (withinLambdaOrArrowFunc || withinQuery) {
+                        if (!withinLambdaOrArrowFunc || symbol.closure) {
                             // When there's a closure in a lambda inside a query lambda the symbol.closure is
                             // true for all its usages. Therefore mark symbol.closure = false for the existing
                             // symbol and create a new symbol with the same properties.
@@ -1745,7 +1746,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     }
                 }
                 identifiers.put(identifier, symbol);
-            } else if (identifiers.containsKey(identifier) && withinLambdaFunc) {
+            } else if (identifiers.containsKey(identifier) && (withinLambdaOrArrowFunc || withinQuery)) {
                 symbol = identifiers.get(identifier);
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
@@ -1972,7 +1973,10 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
         bLangArrowFunction.params.forEach(this::acceptNode);
+        boolean prevWithinLambdaFunc = this.withinLambdaOrArrowFunc;
+        this.withinLambdaOrArrowFunc = true;
         this.acceptNode(bLangArrowFunction.body);
+        this.withinLambdaOrArrowFunc = prevWithinLambdaFunc;
     }
 
     @Override
@@ -2170,17 +2174,25 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangQueryAction queryAction) {
         SymbolEnv prevQueryEnv = this.queryEnv;
+        boolean prevWithinQuery = withinQuery;
+        // This can be set to true directly since it's invoked only for nested queries.
+        this.withinQuery = true;
         queryAction.getQueryClauses().forEach(this::acceptNode);
+        this.withinQuery = prevWithinQuery;
         this.queryEnv = prevQueryEnv;
     }
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
         SymbolEnv prevQueryEnv = this.queryEnv;
+        boolean prevWithinQuery = withinQuery;
+        // This can be set to true directly since it's invoked only for nested queries.
+        this.withinQuery = true;
         queryExpr.getQueryClauses().forEach(this::acceptNode);
+        this.withinQuery = prevWithinQuery;
         this.queryEnv = prevQueryEnv;
     }
-
+    
     @Override
     public void visit(BLangForeach foreach) {
         this.acceptNode(foreach.collection);
@@ -2198,6 +2210,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     public void visit(BLangJoinClause joinClause) {
         this.acceptNode(joinClause.collection);
         joinClause.collection.accept(this);
+        this.acceptNode(((BLangVariable) joinClause.variableDefinitionNode.getVariable()));
         this.acceptNode((BLangNode) joinClause.onClause.getLeftExpression());
         this.acceptNode((BLangNode) joinClause.onClause.getRightExpression());
     }
@@ -2304,6 +2317,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
         resourceAccessInvocation.argExprs.forEach(this::acceptNode);
+        resourceAccessInvocation.restArgs.forEach(this::acceptNode);
+        resourceAccessInvocation.resourceAccessPathSegments.exprs.forEach(this::acceptNode);
         this.acceptNode(resourceAccessInvocation.expr);
     }
 

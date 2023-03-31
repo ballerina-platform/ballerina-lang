@@ -15,8 +15,6 @@
  */
 package org.ballerinalang.langserver.hover;
 
-import java.util.Set;
-
 /**
  * Hover Provider for Ballerina.
  *
@@ -26,21 +24,11 @@ public class APIDocReference {
 
     private static final String BASE_URL = "https://lib.ballerina.io/";
 
-    private static final Set<HoverConstructKind> MD_NAVIGATED_SET = Set.of(HoverConstructKind.Function,
-            HoverConstructKind.Variable, HoverConstructKind.Type, HoverConstructKind.Annotation, 
-            HoverConstructKind.Constant, HoverConstructKind.Error);
-    
     public static String from(String orgName,
                               String moduleName,
                               String version,
-                              HoverConstructKind constructType,
                               String constructReference) {
-        StringBuilder url = new StringBuilder(BASE_URL)
-                .append(String.join("\\/", orgName, moduleName, version, constructType.value()));
-        if (MD_NAVIGATED_SET.contains(constructType)) {
-            return url + "#" + constructReference;
-        }
-        
-        return url.append("\\/").append(constructReference).toString();
+        String url = BASE_URL + String.join("/", orgName, moduleName, version);
+        return url + "#" + constructReference;
     }
 }

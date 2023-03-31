@@ -19,7 +19,8 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
-import io.ballerina.projects.DiagnosticResult;
+import io.ballerina.projects.CodeGeneratorResult;
+import io.ballerina.projects.CodeModifierResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
@@ -27,16 +28,23 @@ import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.internal.PackageDiagnostic;
+import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.central.client.CentralClientConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 
 /**
  * Task for compiling a package.
@@ -85,11 +93,9 @@ public class CompileTask implements Task {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
 
         try {
+            printWarningForHigherDistribution(project);
             List<Diagnostic> diagnostics = new ArrayList<>();
             long start = 0;
-            if (project.buildOptions().dumpBuildTime()) {
-                start = System.currentTimeMillis();
-            }
 
             if (project.currentPackage().compilationOptions().dumpGraph()
                     || project.currentPackage().compilationOptions().dumpRawGraphs()) {
@@ -97,14 +103,21 @@ public class CompileTask implements Task {
                 this.out.println("Resolving dependencies");
             }
 
+            if (project.buildOptions().dumpBuildTime()) {
+                start = System.currentTimeMillis();
+            }
             PackageResolution packageResolution = project.currentPackage().getResolution();
+            if (project.buildOptions().dumpBuildTime()) {
+                BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
+            }
 
             if (project.currentPackage().compilationOptions().dumpRawGraphs()) {
                 packageResolution.dumpGraphs(out);
             }
 
             if (project.buildOptions().dumpBuildTime()) {
-                BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
+                BuildTime.getInstance().codeGeneratorPluginDuration = 0;
+                BuildTime.getInstance().codeModifierPluginDuration = 0;
                 start = System.currentTimeMillis();
             }
 
@@ -122,10 +135,20 @@ public class CompileTask implements Task {
                         // Hence, we run the code generators only for BuildProject.
                         if (this.isPackageModified || !this.cachesEnabled) {
                             // Run code gen and modify plugins, if project has updated only
-                            DiagnosticResult codeGenAndModifyDiagnosticResult = project.currentPackage()
-                                    .runCodeGenAndModifyPlugins();
-                            if (codeGenAndModifyDiagnosticResult != null) {
-                                diagnostics.addAll(codeGenAndModifyDiagnosticResult.diagnostics());
+                            CodeGeneratorResult codeGeneratorResult = project.currentPackage()
+                                    .runCodeGeneratorPlugins();
+                            diagnostics.addAll(codeGeneratorResult.reportedDiagnostics().diagnostics());
+                            if (project.buildOptions().dumpBuildTime()) {
+                                BuildTime.getInstance().codeGeneratorPluginDuration =
+                                        System.currentTimeMillis() - start;
+                                start = System.currentTimeMillis();
+                            }
+                            CodeModifierResult codeModifierResult = project.currentPackage()
+                                    .runCodeModifierPlugins();
+                            diagnostics.addAll(codeModifierResult.reportedDiagnostics().diagnostics());
+                            if (project.buildOptions().dumpBuildTime()) {
+                                BuildTime.getInstance().codeModifierPluginDuration =
+                                        System.currentTimeMillis() - start;
                             }
                         }
                     }
@@ -157,6 +180,9 @@ public class CompileTask implements Task {
             }
 
             // Package resolution is successful. Continue compiling the package.
+            if (project.buildOptions().dumpBuildTime()) {
+                start = System.currentTimeMillis();
+            }
             PackageCompilation packageCompilation = project.currentPackage().getCompilation();
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageCompilationDuration = System.currentTimeMillis() - start;
@@ -174,7 +200,10 @@ public class CompileTask implements Task {
                 if (d.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR)) {
                     hasErrors = true;
                 }
-                err.println(d.toString());
+                if (d.diagnosticInfo().code() == null || !d.diagnosticInfo().code().equals(
+                        ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId())) {
+                    err.println(d);
+                }
             }
             if (hasErrors) {
                 throw createLauncherException("compilation contains errors");
@@ -187,5 +216,40 @@ public class CompileTask implements Task {
 
     private boolean isPackCmdForATemplatePkg(Project project) {
         return compileForBalPack && project.currentPackage().manifest().template();
+    }
+
+    private void printWarningForHigherDistribution(Project project) {
+        SemanticVersion prevDistributionVersion = project.currentPackage().dependencyManifest().distributionVersion();
+        SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+        if (!project.buildOptions().sticky() && (null == prevDistributionVersion
+                || ProjectUtils.isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion))) {
+
+            if (project.currentPackage().dependencyManifest().dependenciesTomlVersion() != null) {
+                String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
+                if (currentDistributionVersion.patch() != 0) {
+                    currentVersionForDiagnostic += DOT + currentDistributionVersion.patch();
+                }
+                String prevVersionForDiagnostic;
+                if (null != prevDistributionVersion) {
+                    prevVersionForDiagnostic = String.valueOf(prevDistributionVersion.minor());
+                    if (prevDistributionVersion.patch() != 0) {
+                        prevVersionForDiagnostic += DOT + prevDistributionVersion.patch();
+                    }
+                } else {
+                    prevVersionForDiagnostic = "4 or an older Update";
+                }
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
+                        ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId(),
+                        "Detected an attempt to build this package using Swan Lake Update "
+                                + currentVersionForDiagnostic +
+                                ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
+                                ". To ensure compatibility, the Dependencies.toml file will be updated with the " +
+                                "latest versions that are compatible with Update " + currentVersionForDiagnostic + ".",
+                        DiagnosticSeverity.WARNING);
+                PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
+                        project.currentPackage().descriptor().name().toString());
+                err.println(diagnostic);
+            }
+        }
     }
 }

@@ -1,0 +1,8 @@
+Compiling source
+	intg_tests/group_test:0.0.0
+
+Running Tests
+
+	group_test
+	Following groups are available :
+	[g1, g2, g3, g4, g5, g6]

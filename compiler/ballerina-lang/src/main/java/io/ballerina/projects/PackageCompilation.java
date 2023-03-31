@@ -105,8 +105,9 @@ public class PackageCompilation {
         if (compilation.packageContext().defaultModuleContext().compilationState() != ModuleCompilationState.COMPILED) {
             return compilation;
         }
-        // Do not run code analyzers, if the code generators are enabled.
-        if (compilation.compilationOptions().withCodeGenerators()) {
+        // Do not run code analyzers, if the code generators or code modifiers are enabled.
+        if (compilation.compilationOptions().withCodeGenerators()
+                || compilation.compilationOptions().withCodeModifiers()) {
             return compilation;
         }
 

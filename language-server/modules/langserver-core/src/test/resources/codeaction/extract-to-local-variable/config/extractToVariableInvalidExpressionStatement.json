@@ -23,10 +23,23 @@
             },
             "end": {
               "line": 7,
+              "character": 4
+            }
+          },
+          "newText": "string|int? var1 = myvar.id;\n    "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 4
+            },
+            "end": {
+              "line": 7,
               "character": 12
             }
           },
-          "newText": "string|int? var1 = myvar.id"
+          "newText": "var1"
         }
       ],
       "resolvable": false

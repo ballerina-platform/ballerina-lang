@@ -1,0 +1,23 @@
+Compiling source
+	wso2/moduleExecution:0.0.0
+
+Running Tests with Coverage
+
+	moduleExecution.Module1
+
+
+		No tests found
+
+	moduleExecution
+		[pass] commonTest
+		[pass] main_test1
+		[pass] main_test2
+		[pass] main_test3
+
+
+		4 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	*****project-based-tests/module-execution-tests/target/report/test_results.json

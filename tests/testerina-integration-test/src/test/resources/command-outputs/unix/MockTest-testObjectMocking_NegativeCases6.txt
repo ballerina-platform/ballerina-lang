@@ -1,0 +1,23 @@
+Compiling source
+	intg_tests/object_mocking:0.0.0
+WARNING [modules/TestHttpClient/main.bal:(54:45,54:82)] this function should explicitly return a value
+WARNING [main.bal:(47:5,47:47)] unused variable 'closeErr'
+
+Running Tests with Coverage
+
+	object_mocking
+
+		[fail] testDefaultTooManyArgs:
+
+		    too many argument provided to mock the function 'get()'
+			
+
+
+		0 passing
+		1 failing
+		0 skipped
+
+Generating Test Report
+	*****project-based-tests/object-mocking-tests/target/report/test_results.json
+
+error: there are test failures

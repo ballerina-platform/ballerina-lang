@@ -1,0 +1,18 @@
+Code coverage is not yet supported with single bal files. Ignoring the flag and continuing the test run...
+warning: ignoring --includes flag since code coverage is not enabled
+Compiling source
+	skip-when-afterEach-fails.bal
+WARNING [skip-when-afterEach-fails.bal:(30:5,30:18)] unused variable 'i'
+
+Running Tests
+
+	skip-when-afterEach-fails.bal
+	[fail] afterEach[after each test function for the test]:
+	     / by zero
+		[pass] test1
+
+
+		1 passing
+		0 failing
+		2 skipped
+error: there are test failures

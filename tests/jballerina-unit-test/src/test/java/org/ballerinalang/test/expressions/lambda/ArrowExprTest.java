@@ -238,6 +238,15 @@ public class ArrowExprTest {
                                   "operator '+' not defined for 'string' and 'int'", 87, 25);
         BAssertUtil.validateError(resultSemanticsNegative, i++,
                                   "operator '+' not defined for 'int' and 'string'", 90, 25);
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
+                                  "cannot define a variable of type 'never' or equivalent to type 'never'", 92, 16);
+        BAssertUtil.validateError(resultSemanticsNegative, i++,
+                                  "operator '+' not defined for 'never' and 'int'", 92, 21);
+//        https://github.com/ballerina-platform/ballerina-lang/issues/26191
+//        BAssertUtil.validateError(resultSemanticsNegative, i++,
+//                                  "cannot define a variable of type 'never' or equivalent to type 'never'", 95, 22);
+//        BAssertUtil.validateError(resultSemanticsNegative, i++,
+//                                  "operator '+' not defined for 'int' and 'never'", 95, 27);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i);
     }
 

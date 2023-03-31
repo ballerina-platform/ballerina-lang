@@ -98,6 +98,12 @@ public class ForeachNegativeTests {
                 "(int|string|boolean)'", 308, 24);
         BAssertUtil.validateError(compile, index++, "incompatible types: expected 'Bar', found 'int'", 326, 13);
         BAssertUtil.validateError(compile, index++, "incompatible types: expected 'Bar2', found 'int'", 331, 13);
+        BAssertUtil.validateError(compile, index++, "invalid list binding pattern; member variable count " +
+                "mismatch with member type count", 338, 13);
+        BAssertUtil.validateError(compile, index++, "invalid list binding pattern; member variable count " +
+                "mismatch with member type count", 342, 13);
+        BAssertUtil.validateError(compile, index++, "invalid list binding pattern; member variable count " +
+                "mismatch with member type count", 346, 18);
         Assert.assertEquals(compile.getErrorCount(), index);
     }
 

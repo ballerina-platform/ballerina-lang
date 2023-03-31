@@ -23,6 +23,7 @@ import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 /**
@@ -40,18 +41,18 @@ public class PathVerificationTest extends BaseTestCase {
     }
 
     @Test
-    public void verifyTestsOutsidePath() throws BallerinaTestException {
+    public void verifyTestsOutsidePath() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"path-verification"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "outside path test failure");
+        AssertionUtils.assertOutput("PathVerificationTest-verifyTestsOutsidePath.txt", output);
     }
 
     @Test
-    public void verifyMissingTestsDirectory() throws BallerinaTestException {
+    public void verifyMissingTestsDirectory() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"missing-tests-dir"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(output, "missing test directory verification failure");
+        AssertionUtils.assertOutput("PathVerificationTest-verifyMissingTestsDirectory.txt", output);
     }
 }

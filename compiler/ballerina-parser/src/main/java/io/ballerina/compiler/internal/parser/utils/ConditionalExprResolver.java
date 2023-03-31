@@ -52,13 +52,13 @@ public class ConditionalExprResolver {
     }
 
     public static STNode getQualifiedNameRefNode(STNode parentNode, boolean leftMost) {
+        if (parentNode == null || parentNode.kind == SyntaxKind.LIST && ((STNodeList) parentNode).isEmpty()) {
+            return null;
+        }
+
         if (parentNode.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             STNode modulePrefix = ((STQualifiedNameReferenceNode) parentNode).modulePrefix;
             return isValidSimpleNameRef((STToken) modulePrefix) ? parentNode : null;
-        }
-
-        if (parentNode.kind == SyntaxKind.LIST && ((STNodeList) parentNode).isEmpty()) {
-            return null;
         }
 
         STNode firstOrLastChild =

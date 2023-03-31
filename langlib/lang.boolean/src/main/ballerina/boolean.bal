@@ -38,3 +38,35 @@ public isolated function fromString(string s) returns boolean|error = @java:Meth
     'class: "org.ballerinalang.langlib.bool.FromString",
     name: "fromString"
 } external;
+
+# Returns true if one or more of its arguments are true and false otherwise.
+# In particular, it returns false if there are no arguments.
+# 
+# ```ballerina
+# boolean:some(true, false) ⇒ true
+# boolean:some(false, false) ⇒ false
+# boolean:some() ⇒ false
+# ```
+# 
+# + bs - boolean values to be evaluated
+# + return - true if one or more of its arguments are true and false otherwise
+public isolated function some(boolean... bs) returns boolean = @java:Method {
+    'class: "org.ballerinalang.langlib.bool.Some",
+    name: "some"
+} external;
+
+# Returns true if all of its arguments are true and false otherwise.
+# In particular, it returns true if there are no arguments.
+# 
+# ```ballerina
+# boolean:every(true, false) ⇒ false
+# boolean:every(true, true) ⇒ true
+# boolean:every() ⇒ true    
+# ```
+# 
+# + bs - boolean values to be evaluated
+# + return - true if all of its arguments are true and false otherwise
+public isolated function every(boolean... bs) returns boolean = @java:Method {
+    'class: "org.ballerinalang.langlib.bool.Every",
+    name: "every"
+} external;

@@ -1,0 +1,28 @@
+Compiling source
+	intg_tests/annotation_access:0.0.0
+HINT [tests/main_test.bal:(73:5,73:5)] concurrent calls will not be made to this method since the service is not an 'isolated' service
+ballerina: Oh no, something really went wrong. Bad. Sad.
+
+We appreciate it if you can report the code that broke Ballerina in
+https://github.com/ballerina-platform/ballerina-lang/issues with the
+log you get below and your sample code.
+
+We thank you for helping make us better.***** SEVERE {b7a.log.crash} - class org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol cannot be cast to class org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol (org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol and org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol are in unnamed module of loader 'app') 
+java.lang.ClassCastException: class org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol cannot be cast to class org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol (org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol and org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol are in unnamed module of loader 'app')
+	at io.ballerina.compiler.api.impl.SymbolFactory.findAnnotationSymbol(SymbolFactory.java:777)
+	at io.ballerina.compiler.api.impl.SymbolFactory.createAnnotAttachment(SymbolFactory.java:701)
+	at io.ballerina.compiler.api.impl.SymbolFactory.createTypeDefinition(SymbolFactory.java:476)
+	at io.ballerina.compiler.api.impl.SymbolFactory.getBCompiledSymbol(SymbolFactory.java:225)
+	at io.ballerina.compiler.api.impl.BallerinaSemanticModel.addToCompiledSymbols(BallerinaSemanticModel.java:569)
+	at io.ballerina.compiler.api.impl.BallerinaSemanticModel.visibleSymbols(BallerinaSemanticModel.java:154)
+	at io.ballerina.compiler.api.impl.BallerinaSemanticModel.visibleSymbols(BallerinaSemanticModel.java:129)
+	at org.ballerinalang.testerina.core.TestProcessor.getFunctionSymbolList(TestProcessor.java:268)
+	at org.ballerinalang.testerina.core.TestProcessor.addUtilityFunctions(TestProcessor.java:315)
+	at org.ballerinalang.testerina.core.TestProcessor.generateTestSuite(TestProcessor.java:169)
+	at org.ballerinalang.testerina.core.TestProcessor.testSuite(TestProcessor.java:118)
+	at io.ballerina.cli.task.RunTestsTask.execute(RunTestsTask.java:168)
+	at io.ballerina.cli.TaskExecutor.executeTasks(TaskExecutor.java:40)
+	at io.ballerina.cli.cmd.TestCommand.execute(TestCommand.java:315)
+	at java.base/java.util.Optional.ifPresent(Optional.java:183)
+	at io.ballerina.cli.launcher.Main.main(Main.java:51)
+ 
