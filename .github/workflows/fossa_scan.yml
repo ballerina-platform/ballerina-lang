@@ -1,0 +1,11 @@
+name: Fossa Scan
+on:
+  workflow_dispatch:
+jobs:
+  fossa-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: fossas/fossa-action@main
+        with:
+          api-key: ${{secrets.FOSSA_APIKEY}}
