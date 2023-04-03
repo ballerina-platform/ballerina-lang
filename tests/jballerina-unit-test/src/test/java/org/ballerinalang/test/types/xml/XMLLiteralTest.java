@@ -100,6 +100,8 @@ public class XMLLiteralTest {
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
                 "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml:Element'", 72, 44);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml'", 73, 44);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
                 "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml:Element'", 73, 49);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
                 "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml:ProcessingInstruction'", 73, 96);
@@ -202,6 +204,11 @@ public class XMLLiteralTest {
                         "found 'ballerina/lang.object:0.0.0:RawTemplate[]'", 143, 25);
         BAssertUtil.validateError(negativeResult, index++,
                 "incompatible types: 'ballerina/lang.object:0.0.0:RawTemplate[]' cannot be cast to 'string'", 144, 25);
+
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml'", 148, 44);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'(xml<xml:Element>|xml:Text)', found 'xml'", 149, 39);
 
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
