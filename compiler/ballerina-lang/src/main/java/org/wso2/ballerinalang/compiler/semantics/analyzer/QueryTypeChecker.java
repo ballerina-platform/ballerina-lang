@@ -245,7 +245,7 @@ public class QueryTypeChecker extends TypeChecker {
             safeResultTypes.add(symTable.noType);
         }
         BType actualType = symTable.semanticError;
-        List<BType> selectTypes = new ArrayList<>();
+        Set<BType> selectTypes = new LinkedHashSet<>();
         List<BType> resolvedTypes = new ArrayList<>();
         BType selectType;
         BLangExpression collectionNode = (BLangExpression) ((BLangFromClause) clauses.get(0)).getCollection();
@@ -256,7 +256,7 @@ public class QueryTypeChecker extends TypeChecker {
         if (selectTypes.size() == 1) {
             List<BType> collectionTypes = getCollectionTypes(clauses);
             BType completionType = getCompletionType(collectionTypes, types.getQueryConstructType(queryExpr), data);
-            selectType = selectTypes.get(0);
+            selectType = selectTypes.iterator().next();
             if (queryExpr.isStream) {
                 return new BStreamType(TypeTags.STREAM, selectType, completionType, null);
             } else if (queryExpr.isTable) {
@@ -289,7 +289,7 @@ public class QueryTypeChecker extends TypeChecker {
     }
 
     void solveSelectTypeAndResolveType(BLangQueryExpr queryExpr, BLangExpression selectExp, BType expType,
-                                       BType collectionType, List<BType> selectTypes, List<BType> resolvedTypes,
+                                       BType collectionType, Set<BType> selectTypes, List<BType> resolvedTypes,
                                        SymbolEnv env, TypeChecker.AnalyzerData data, boolean isReadonly) {
         BType selectType, resolvedType;
         BType type = Types.getReferredType(expType);
