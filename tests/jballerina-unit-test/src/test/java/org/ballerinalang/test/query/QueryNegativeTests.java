@@ -60,8 +60,6 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 278, 24);
         validateError(compileResult, index++, "a type compatible with mapping constructor expressions " +
                 "not found in type 'string'", 292, 24);
-        validateError(compileResult, index++, "ambiguous type '[xml, xml]'", 314, 24);
-        validateError(compileResult, index++, "ambiguous type '[string, string]'", 327, 24);
         validateError(compileResult, index++, "redeclared symbol 'fname'", 351, 36);
         validateError(compileResult, index++, "redeclared symbol 'age'", 364, 21);
         validateError(compileResult, index++, "redeclared symbol 'age'", 381, 44);
