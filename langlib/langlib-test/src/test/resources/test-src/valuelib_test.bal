@@ -2914,6 +2914,27 @@ function testCloneWithTypeTableToAnydata() {
     test:assertValueEqual(result is readonly, true);
 }
 
+function testCloneWithTypeToArrays() {
+    string[2] lastNames = ["Alice", "Bob"];
+    string[] firstNames = ["Alice", "Bob"];
+    
+    string[0]|error names = lastNames.cloneWithType();
+    test:assertTrue(names is error);
+    if (names is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", names.message());
+        test:assertValueEqual("'string[2]' value cannot be converted to 'string[0]': \n\t\t" +
+        "element count exceeds the target array size '0'", <string> checkpanic names.detail()["message"]);
+    }
+
+    names = firstNames.cloneWithType();
+    test:assertTrue(names is error);
+    if (names is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", names.message());
+        test:assertValueEqual("'string[]' value cannot be converted to 'string[0]': \n\t\t" +
+        "element count exceeds the target array size '0'", <string> checkpanic names.detail()["message"]);
+    }
+}
+
 type ReadOnlyXmlElement xml:Element & readonly;
 type AnydataUnion int|anydata;
 
