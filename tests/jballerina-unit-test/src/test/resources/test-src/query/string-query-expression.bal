@@ -70,6 +70,9 @@ function testSimpleQueryExprForStringResult2() {
 
     e = trap simpleQueryExprForStringResult2();
     assertFalse(e is error);
+
+    e = trap simpleQueryExprForStringResult3();
+    assertFalse(e is error);
 }
 
 function simpleQueryExprForStringResult() returns error? {
@@ -97,6 +100,19 @@ function simpleQueryExprForStringResult2() returns error? {
 
     assertTrue(strValue is string);
     assertEquality(strValue, expectedValue);
+}
+
+function simpleQueryExprForStringResult3() returns error? {
+    string:Char chr = "a";
+    BookGenerator bookGenerator = new ();
+    stream<Book, error?> bookStream = new (bookGenerator);
+
+    string:Char[] strValue = check from Book _ in bookStream
+        select chr;
+
+    assertTrue(strValue is string:Char[]);
+    assertEquality(strValue[0], chr);
+    assertEquality(strValue[1], chr);
 }
 
 function testQueryExprWithWhereForStringResult() returns string {
