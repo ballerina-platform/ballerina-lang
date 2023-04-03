@@ -37,6 +37,7 @@ dependencies {
     implementation 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec'
     implementation 'org.wso2.staxon:staxon-core'
     implementation 'com.fasterxml.woodstox:woodstox-core:6.5.0'
+    implementation 'org.codehaus.woodstox:stax2-api:4.2.1'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'javax.transaction:javax.transaction-api'
     implementation 'io.ballerina.messaging:broker-common'

@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.values.XMLPi;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLText;
 import org.ballerinalang.jvm.values.api.BXML;
-import org.codehaus.stax2.XMLOutputFactory2;
 
 import java.io.CharArrayWriter;
 import java.io.IOException;
@@ -69,7 +68,6 @@ public class BallerinaXMLSerializer extends OutputStream {
         xmlOutputFactory = XMLOutputFactory.newInstance();
         if (xmlOutputFactory.getClass().getName().equals("com.ctc.wstx.stax.WstxOutputFactory")) {
             xmlOutputFactory.setProperty(WstxOutputProperties.P_OUTPUT_VALIDATE_STRUCTURE, false);
-            xmlOutputFactory.setProperty(XMLOutputFactory2.P_AUTOMATIC_EMPTY_ELEMENTS, false);
         } else {
             xmlOutputFactory.setProperty("escapeCharacters", false);
             isDefaultFactory = true;

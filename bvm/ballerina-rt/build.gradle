@@ -79,6 +79,7 @@ dependencies {
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
     dist 'org.apache.commons:commons-lang3:3.8.1'
     dist 'com.fasterxml.woodstox:woodstox-core:6.5.0'
+    dist 'org.codehaus.woodstox:stax2-api:4.2.1'
 
     // runtime
     dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
