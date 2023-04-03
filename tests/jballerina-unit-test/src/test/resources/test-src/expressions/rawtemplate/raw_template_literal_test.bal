@@ -209,7 +209,7 @@ function testUseWithVar() {
     var rt = `Hello ${name}!`;
     typedesc<any> td = typeof rt;
 
-    assert("typedesc $rawTemplate$RawTemplate$_14", td.toString());
+    assert("typedesc $rawTemplate$RawTemplate$_17", td.toString());
 }
 
 function testUseWithAny() {
@@ -217,7 +217,7 @@ function testUseWithAny() {
     any rt = `Hello ${name}!`;
     typedesc<any> td = typeof rt;
 
-    assert("typedesc $rawTemplate$RawTemplate$_15", td.toString());
+    assert("typedesc $rawTemplate$RawTemplate$_18", td.toString());
 }
 
 public type Template3 object {
@@ -281,6 +281,46 @@ function testAssignmentToUnion() {
 
     assert(<string[]>["Count: ", ", ", ""], t1.strings);
     assert(<int[]>[10, 20], t1.insertions);
+}
+
+type RawTemplateType object:RawTemplate;
+
+final object:RawTemplate & readonly tmp1 = `Count: ${10}, ${20}`;
+
+final Template1 & readonly tmp2 = `Count: ${10}, ${20}`;
+
+final RawTemplateType & readonly tmp3 = `Count: ${10}, ${20}`;
+
+function testRawTemplateWithIntersectionType() returns error? {
+    assert(["Count: ", ", ", ""], tmp1.strings);
+    var insertions = <int[] & readonly> checkpanic tmp1.insertions;
+    assert([10, 20], insertions);
+
+    assert(["Count: ", ", ", ""], tmp2.strings);
+    insertions = <int[] & readonly> checkpanic tmp2.insertions;
+    assert([10, 20], insertions);
+
+    assert(["Count: ", ", ", ""], tmp3.strings);
+    insertions = <int[] & readonly> checkpanic tmp3.insertions;
+    assert([10, 20], insertions);
+
+    final object:RawTemplate & readonly tmp4 = `Count: ${10}, ${20}`;
+
+    assert(["Count: ", ", ", ""], tmp4.strings);
+    insertions = <int[] & readonly> checkpanic tmp4.insertions;
+    assert([10, 20], insertions);
+
+    final Template1 & readonly tmp5 = `Count: ${10}, ${20}`;
+
+    assert(["Count: ", ", ", ""], tmp5.strings);
+    insertions = <int[] & readonly> checkpanic tmp5.insertions;
+    assert([10, 20], insertions);
+
+    final RawTemplateType & readonly tmp6 = `Count: ${10}, ${20}`;
+
+    assert(["Count: ", ", ", ""], tmp6.strings);
+    insertions = <int[] & readonly> checkpanic tmp6.insertions;
+    assert([10, 20], insertions);
 }
 
 // Util functions

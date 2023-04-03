@@ -62,8 +62,6 @@ public class MockTest extends BaseTestCase {
 
     @Test()
     public void testFunctionMocking() throws BallerinaTestException, IOException {
-        String msg1 = "14 passing";
-        String msg2 = "3 failing";
         String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -72,8 +70,6 @@ public class MockTest extends BaseTestCase {
 
     @Test
     public void testFunctionMockingLegacy() throws BallerinaTestException, IOException {
-        String msg1 = "1 passing";
-        String msg2 = "0 failing";
         String[] args = mergeCoverageArgs(new String[]{"legacy-function-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -82,9 +78,6 @@ public class MockTest extends BaseTestCase {
 
     @Test()
     public void testObjectMocking() throws BallerinaTestException, IOException {
-        String msg1 = "9 passing";
-        String msg2 = "7 failing";
-
         String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -98,7 +91,6 @@ public class MockTest extends BaseTestCase {
      */
     @Test()
     public void testObjectMockDouble() throws BallerinaTestException, IOException {
-        String msg1 = "1 passing";
         String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests2"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -107,8 +99,6 @@ public class MockTest extends BaseTestCase {
 
     @Test()
     public void testFunctionMockingModuleLevel() throws BallerinaTestException, IOException {
-        String msg1 = "3 passing";
-
         String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -117,7 +107,6 @@ public class MockTest extends BaseTestCase {
 
     @Test()
     public void testCoverageWithMocking() throws BallerinaTestException, IOException {
-        String msg1 = "2 passing";
         String[] args = mergeCoverageArgs(new String[]{"mocking-coverage-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);

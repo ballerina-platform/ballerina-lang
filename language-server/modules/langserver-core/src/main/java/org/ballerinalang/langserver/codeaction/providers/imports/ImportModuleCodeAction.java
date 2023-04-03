@@ -17,11 +17,13 @@ package org.ballerinalang.langserver.codeaction.providers.imports;
 
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -156,11 +158,32 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
         Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
         ModulePartNode modulePartNode = syntaxTree.orElseThrow().rootNode();
         NodeList<ImportDeclarationNode> imports = modulePartNode.imports();
-        if (imports.isEmpty()) {
+        // If there is already an import, add the new import after the last import
+        if (!imports.isEmpty()) {
+            ImportDeclarationNode lastImport = imports.get(imports.size() - 1);
+            return new Position(lastImport.lineRange().endLine().line() + 1, 0);
+        }
+        
+        // If the module part has no children, add the import at the beginning of the file
+        if (modulePartNode.members().isEmpty()) {
             return new Position(0, 0);
         }
-        ImportDeclarationNode lastImport = imports.get(imports.size() - 1);
-        return new Position(lastImport.lineRange().endLine().line() + 1, 0);
+
+        Position insertPosition = new Position(0, 0);
+        for (Minutiae minutiae : modulePartNode.leadingMinutiae()) {
+            if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE
+                    && minutiae.lineRange().startLine().offset() == 0) {
+                // If we find a new line character with offset 0 (a blank line), add the import after that
+                // And no further processing is required
+                insertPosition = new Position(minutiae.lineRange().startLine().line(), 0);
+                break;
+            } else if (minutiae.kind() == SyntaxKind.COMMENT_MINUTIAE) {
+                // If we find a comment, consider the import's position to be the next line
+                insertPosition = new Position(minutiae.lineRange().endLine().line() + 1, 0);
+            }
+        }
+
+        return insertPosition;
     }
 
     /**

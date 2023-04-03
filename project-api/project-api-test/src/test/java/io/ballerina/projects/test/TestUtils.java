@@ -26,6 +26,8 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import org.testng.Assert;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -196,5 +198,15 @@ public class TestUtils {
         } catch (IOException e) {
             throw new ProjectException("Failed to write dependencies to the 'Dependencies.toml' file");
         }
+    }
+
+    static void assertTomlFilesEquals(Path actualTomlFilePath, Path expectedTomlFilePath) throws IOException {
+        Assert.assertEquals(readFileAsString(actualTomlFilePath),
+                insertDistributionVersionToDependenciesToml(readFileAsString(expectedTomlFilePath)));
+    }
+
+    private static String insertDistributionVersionToDependenciesToml(String dependenciesToml) {
+        String distributionVersion = RepoUtils.getBallerinaShortVersion();
+        return dependenciesToml.replace("**INSERT_DISTRIBUTION_VERSION_HERE**", distributionVersion);
     }
 }
