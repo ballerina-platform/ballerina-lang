@@ -1,0 +1,49 @@
+package io.ballerina.plugins.completions;
+
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.projects.plugins.completion.AbstractCompletionProvider;
+import io.ballerina.projects.plugins.completion.CompletionContext;
+import io.ballerina.projects.plugins.completion.CompletionException;
+import io.ballerina.projects.plugins.completion.CompletionItem;
+import io.ballerina.projects.plugins.completion.CompletionUtil;
+
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * An example of a completion provider that adds a resource function to a service declaration.
+ *
+ * @since 2201.7.0
+ */
+public class ServiceBodyContextProvider extends AbstractCompletionProvider<ServiceDeclarationNode> {
+    public ServiceBodyContextProvider(Class<ServiceDeclarationNode> attachmentPoint) {
+        super(attachmentPoint);
+    }
+
+    @Override
+    public String name() {
+        return "ServiceBodyContextProvider";
+    }
+
+    @Override
+    public List<CompletionItem> getCompletions(CompletionContext context, ServiceDeclarationNode node) throws CompletionException {
+        //Adds a resource function if one is not present with path foo
+        if (node.members().stream().anyMatch(member -> member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION &&
+                ((FunctionDefinitionNode) member).relativeResourcePath()
+                        .stream().anyMatch(path -> "foo".equals(path.toSourceCode())))) {
+            return Collections.emptyList();
+        }
+
+        String insertText = "resource function " + CompletionUtil.getPlaceHolderText(1, "get") + " "
+                + CompletionUtil.getPlaceHolderText(2, "foo") + "(" + CompletionUtil.getPlaceHolderText(3) + ")" +
+                " returns " + CompletionUtil.getPlaceHolderText(4, "string") + " {" + CompletionUtil.LINE_BREAK +
+                CompletionUtil.PADDING + "return " + CompletionUtil.getPlaceHolderText(5, "\"\"") + ";"
+                + CompletionUtil.LINE_BREAK + "}";
+        String label = "resource function get foo() returns string";
+
+        CompletionItem completionItem = new CompletionItem(label, insertText, CompletionItem.Priority.HIGH);
+        return List.of(completionItem);
+    }
+}
