@@ -5842,7 +5842,7 @@ public class Desugar extends BLangNodeVisitor {
             if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
                 BLangExpression key = ((BLangRecordLiteral.BLangRecordKeyValueField) field).key.expr;
                 if (key.getKind() == NodeKind.LITERAL) {
-                    fieldNames.add(((BLangLiteral) key).originalValue);
+                    fieldNames.add(((BLangLiteral) key).value.toString());
                 } else if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                     fieldNames.add(((BLangSimpleVarRef) key).variableName.value);
                 }
