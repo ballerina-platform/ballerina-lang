@@ -635,6 +635,12 @@ public class TypeConverter {
             return false;
         }
         ArrayValue source = (ArrayValue) sourceValue;
+        int targetSize = targetType.getSize();
+        long sourceSize = source.getLength();
+        if (targetType.getState() == ArrayType.ArrayState.CLOSED && targetSize < sourceSize) {
+            addErrorMessage(0, errors, "element count exceeds the target array size '" + targetSize + "'");
+            return false;
+        }
         Type targetTypeElementType = TypeUtils.getReferredType(targetType.getElementType());
         Type sourceType = source.getType();
         if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
@@ -642,12 +648,6 @@ public class TypeConverter {
             if (isNumericType(sourceElementType) && isNumericType(targetTypeElementType)) {
                 return true;
             }
-        }
-        int targetSize = targetType.getSize();
-        long sourceSize = source.getLength();
-        if (targetType.getState() == ArrayType.ArrayState.CLOSED && targetSize < sourceSize) {
-            addErrorMessage(0, errors, "element count exceeds the target array size '" + targetSize + "'");
-            return false;
         }
         if (!TypeChecker.hasFillerValue(targetType) && sourceSize < targetSize) {
             addErrorMessage(0, errors, "array cannot be expanded to size '" + targetSize + "' because, the target " +
