@@ -368,9 +368,9 @@ public class QueryTypeChecker extends TypeChecker {
                 selectType = checkExpr(selectExp, env, type, data);
                 if (types.isAssignable(selectType, symTable.xmlType)) {
                     resolvedType = getResolvedType(new BXMLType(selectType, null), type, isReadonly, env);
-                    break;
+                } else {
+                    resolvedType = selectType;
                 }
-                resolvedType = selectType;
                 break;
             case TypeTags.INTERSECTION:
                 type = ((BIntersectionType) type).effectiveType;
