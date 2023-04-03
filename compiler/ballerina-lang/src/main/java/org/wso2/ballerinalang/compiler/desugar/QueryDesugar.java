@@ -296,13 +296,14 @@ public class QueryDesugar extends BLangNodeVisitor {
             onConflictExpr = null;
         } else {
             BType refType = Types.getReferredType(queryExpr.getBType());
-            if (isXml(types.getSafeType(refType, true, true))) {
+            BType safeType = types.getSafeType(refType, true, true);
+            if (isXml(safeType)) {
                 if (types.isSubTypeOfReadOnly(refType, env)) {
                     isReadonly.value = true;
                 }
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_XML_FUNCTION,
                         Lists.of(streamRef, isReadonly), pos);
-            } else if (TypeTags.isStringTypeTag(types.getSafeType(refType, true, true).tag)) {
+            } else if (TypeTags.isStringTypeTag(safeType.tag)) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
                 BType arrayType = refType;
