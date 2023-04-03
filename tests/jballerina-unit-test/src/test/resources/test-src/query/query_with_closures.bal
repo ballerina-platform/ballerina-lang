@@ -186,79 +186,82 @@ class EvenNumberGenerator {
 string str1 = "string-1";
 
 function testClosureInQueryActionInDo3() returns error? {
-  string str2 = "string-2";
-  EvenNumberGenerator evenGen = new ();
-  stream<int, error?> evenNumberStream = new (evenGen);
-  int|string str3 = "string-3";
+    string str2 = "string-2";
+    EvenNumberGenerator evenGen = new ();
+    stream<int, error?> evenNumberStream = new (evenGen);
+    int|string str3 = "string-3";
 
-  if (str3 is int) {
-  } else {
-    check from var _ in evenNumberStream
-    do {
-        string _ = str1;
-        string _ = str2;
-        string _ = str3;
-        int length1 = str1.length();
-        int length2 = str2.length();
-        int length3 = str3.length();
+    if (str3 is int) {
+    } else {
+        check from var _ in evenNumberStream
+        do {
+            string _ = str1;
+            string _ = str2;
+            string _ = str3;
+            int length1 = str1.length();
+            int length2 = str2.length();
+            int length3 = str3.length();
 
-        assertEquality(str1, "string-1");
-        assertEquality(str2, "string-2");
-        assertEquality(str3, "string-3");
-        assertEquality(length1, 8);
-        assertEquality(length2, 8);
-        assertEquality(length3, 8);
-    };
+            assertEquality(str1, "string-1");
+            assertEquality(str2, "string-2");
+            assertEquality(str3, "string-3");
+            assertEquality(length1, 8);
+            assertEquality(length2, 8);
+            assertEquality(length3, 8);
+        };
   }
 }
 
 class A {
-    public string name;
+    public string? name;
 
-    public function init(string name) {
+    public function init(string? name) {
         self.name = name;
     }
 
-    public function getName() returns string {
-        return self.name;
+    public function getName() returns string|error {
+        if self.name is () {
+            return error("Null value found for name attribute");
+        }
+        return <string> self.name;
     }
 }
 
 A object1 = new ("John");
 
 function testClosureInQueryActionInDo4() returns error? {
-  A object2 = new ("Jane");
-  EvenNumberGenerator evenGen = new ();
-  stream<int, error?> evenNumberStream = new (evenGen);
-  A|error object3 = new ("Anne");
+    A object2 = new ("Jane");
+    EvenNumberGenerator evenGen = new ();
+    stream<int, error?> evenNumberStream = new (evenGen);
+    A|error object3 = new ("Anne");
 
-  if (object3 is error) {
-  } else {
-    check from var _ in evenNumberStream
-    do {
-        A _ = object1;
-        A _ = object2;
-        A _ = object3;
+    if (object3 is error) {
+    } else {
+        check from var _ in evenNumberStream
+        do {
+            A _ = object1;
+            A _ = object2;
+            A _ = object3;
 
-        string objectName1 = object1.getName();
-        string objectName2 = object2.getName();
-        string objectName3 = object3.getName();
+            string objectName1 = check object1.getName();
+            string objectName2 = check object2.getName();
+            string objectName3 = check object3.getName();
 
-        assertEquality("John", objectName1);
-        assertEquality("Jane", objectName2);
-        assertEquality("Anne", objectName3);
-    };
+            assertEquality("John", objectName1);
+            assertEquality("Jane", objectName2);
+            assertEquality("Anne", objectName3);
+        };
   }
 }
 
 function testClosureInQueryActionInDo5() returns error? {
-  A object2 = new ("Jane");
-  EvenNumberGenerator evenGen = new ();
-  stream<int, error?> evenNumberStream = new (evenGen);
-  A|error object3 = new ("Anne");
+    A object2 = new ("Jane");
+    EvenNumberGenerator evenGen = new ();
+    stream<int, error?> evenNumberStream = new (evenGen);
+    A|error object3 = new ("Anne");
 
-  if (object3 is error) {
-  } else {
+    if (object3 is error) {
+    } else {
     check from var _ in evenNumberStream
     do {
         check from var _ in evenNumberStream
@@ -267,9 +270,9 @@ function testClosureInQueryActionInDo5() returns error? {
             A _ = object2;
             A _ = object3;
 
-            string objectName1 = object1.getName();
-            string objectName2 = object2.getName();
-            string objectName3 = object3.getName();
+            string objectName1 = check object1.getName();
+            string objectName2 = check object2.getName();
+            string objectName3 = check object3.getName();
 
             assertEquality("John", objectName1);
             assertEquality("Jane", objectName2);
