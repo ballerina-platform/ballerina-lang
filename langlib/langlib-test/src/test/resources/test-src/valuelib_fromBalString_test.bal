@@ -516,74 +516,65 @@ function testFromStringOnRegExpNegative() {
     string s = "re `AB+^*`";
     anydata|error x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing backslash before '*' token in 'AB+^*'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `AB\\hCD`";
     x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Invalid character '\\h'", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: invalid character 'h' after backslash in 'AB\\hCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `AB\\pCD`";
     x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Invalid character '\\p'", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: invalid character 'p' after backslash in 'AB\\pCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `AB\\uCD`";
     x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Invalid character '\\u'", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: invalid character 'u' after backslash in 'AB\\uCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `AB\\u{001CD`";
     x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Invalid character '\\u{001CD'", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing close brace '}' token in 'AB\\u{001CD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `AB\\p{sc=Lu`";
     x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Missing '}' character", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing close brace '}' token in 'AB\\p{sc=Lu'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `[^abc`";
     x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Missing ']' character", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing close bracket ']' token in '[^abc'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `(abc`";
     x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Missing ')' character", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing close parenthesis ')' token in '(abc'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `(ab^*)`";
     x1 = s.fromBalString();
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}FromBalStringError", x1.message());
-        assert("Failed to parse regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
+    assert("Failed to parse regular expression: missing backslash before '*' token in '(ab^*)'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 }
 
 function assert(anydata|error actual, anydata|error expected) {
