@@ -131,6 +131,16 @@ public function testSimpleQueryExprForXML4() {
 
     e = trap simpleQueryExprForXML7();
     assertFalse(e is error);
+
+    // issue - #40012
+    // e = trap simpleQueryExprForXML8();
+    // assertFalse(e is error);
+
+    e = trap simpleQueryExprForXML9();
+    assertFalse(e is error);
+
+    e = trap simpleQueryExprForXML10();
+    assertFalse(e is error);
 }
 
 function simpleQueryExprForXML() returns error? {
@@ -264,6 +274,73 @@ function simpleQueryExprForXML7() returns error? {
 
     assertTrue(xmlValue is xml & readonly);
     assertEquality(xmlValue, expectedValue);
+}
+
+// issue - #40012
+// function simpleQueryExprForXML8() returns error? {
+//     BookGenerator bookGenerator = new ();
+//     stream<Book, error?> bookStream = new (bookGenerator);
+
+//     xml|int[] xmlValue = check from Book book in bookStream
+//         select xml `<Book>
+//                         <Author>${book.author}</Author>
+//                         <Title>${book.title}</Title>
+//                     </Book>`;
+
+//     xml expectedValue = xml `<Book>
+//                         <Author>Author 1</Author>
+//                         <Title>Title 1</Title>
+//                     </Book><Book>
+//                         <Author>Author 2</Author>
+//                         <Title>Title 2</Title>
+//                     </Book>`;
+
+//     assertTrue(xmlValue is xml<xml:Element>);
+//     assertEquality(xmlValue, expectedValue);
+// }
+
+function simpleQueryExprForXML9() returns error? {
+    BookGenerator bookGenerator = new ();
+    stream<Book, error?> bookStream = new (bookGenerator);
+
+    var xmlValue = check from Book book in bookStream
+        select xml `<Book>
+                        <Author>${book.author}</Author>
+                        <Title>${book.title}</Title>
+                    </Book>`;
+
+    xml expectedValue = xml `<Book>
+                        <Author>Author 1</Author>
+                        <Title>Title 1</Title>
+                    </Book>`;
+
+    assertTrue(xmlValue is stream<xml:Element, error?>);
+    assertEquality((<record { xml:Element value; }> (check xmlValue.next())).value, expectedValue);
+}
+
+function simpleQueryExprForXML10() returns error? {
+    BookGenerator bookGenerator = new ();
+    stream<Book, error?> bookStream = new (bookGenerator);
+
+    xml:Element[] xmlValue = check from Book book in bookStream
+        select xml `<Book>
+                        <Author>${book.author}</Author>
+                        <Title>${book.title}</Title>
+                    </Book>`;
+
+    xml expectedValueElement1 = xml `<Book>
+                        <Author>Author 1</Author>
+                        <Title>Title 1</Title>
+                    </Book>`;
+    xml expectedValueElement2 = xml `<Book>
+                        <Author>Author 2</Author>
+                        <Title>Title 2</Title>
+                    </Book>`;
+
+    assertTrue(xmlValue is xml:Element[]);
+    assertEquality(xmlValue.length(), 2);
+    assertEquality(xmlValue[0], expectedValueElement1);
+    assertEquality(xmlValue[1], expectedValueElement2);
 }
 
 function testQueryExprWithLimitForXML() returns xml {

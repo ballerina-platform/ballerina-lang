@@ -71,7 +71,16 @@ public class XMLQueryExpressionTest {
         validateError(negativeResult, index++,
                 "incompatible types: expected 'xml<(xml:ProcessingInstruction & readonly)> & readonly', " +
                 "found 'xml:ProcessingInstruction'", 51, 16);
-        Assert.assertEquals(negativeResult.getErrorCount(), index);
+        validateError(negativeResult, index++,
+                "incompatible types: expected '(xml:Element|error)', found '(xml<xml:Element>|error)'", 81, 27);
+        // issue - #40012
+        // validateError(negativeResult, index++,
+        //         "ambiguous type '[xml:Element, xml:Element]'", 88, 16);
+        // validateError(negativeResult, index++,
+        //         "incompatible types: expected 'xml:Text', found 'xml:Element'", 94, 16);
+        // validateError(negativeResult, index++,
+        //         "ambiguous type '[xml:Element, xml:Element]'", 99, 16);
+        Assert.assertEquals(negativeResult.getErrorCount(), index + 3);
     }
 
     @Test(description = "Test simple query expression for XMLs - #1")
