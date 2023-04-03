@@ -154,12 +154,10 @@ public class SignatureHelpUtil {
                 int cursorPosition = context.getCursorPositionInTree();
                 for (Node child : arguments) {
                     int childPosition = child.textRange().endOffset();
-                    if (cursorPosition < childPosition) {
+                    if (cursorPosition <= childPosition) {
                         break;
                     }
-                    if (child.kind() == SyntaxKind.COMMA_TOKEN) {
-                        activeParamIndex++;
-                    }
+                    activeParamIndex++;
                 }
                 break;
             default:
