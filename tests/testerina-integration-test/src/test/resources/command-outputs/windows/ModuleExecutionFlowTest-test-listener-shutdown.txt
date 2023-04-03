@@ -4,7 +4,9 @@ Compiling source
 Running Tests
 
     moduleExecutionFlow
+Calling init for 'moduleA listener'
 Calling init for 'current module listener'
+Calling start for 'moduleA listener'
 Calling start for 'current module listener'
         [pass] main_test1
 
@@ -12,12 +14,16 @@ Calling start for 'current module listener'
         1 passing
         0 failing
         0 skipped
+Calling stop for 'current module listener'
+Calling stop for 'moduleA listener'
 
     moduleExecutionFlow.moduleA
+Calling init for 'moduleA listener'
+Calling start for 'moduleA listener'
         [pass] test1
 
 
         1 passing
         0 failing
         0 skipped
-Calling stop for 'current module listener'
+Calling stop for 'moduleA listener'
