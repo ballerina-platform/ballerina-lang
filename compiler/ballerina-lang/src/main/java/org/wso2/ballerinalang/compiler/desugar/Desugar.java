@@ -1167,7 +1167,13 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
         recordTypeNode.fields.addAll(recordTypeNode.includedFields);
-
+        for (BLangType type : recordTypeNode.typeRefs) {
+            if (type.getBType().tag != TypeTags.RECORD) {
+                continue;
+            }
+            ((BRecordTypeSymbol) recordTypeNode.getBType().tsymbol).defaultValues.putAll(
+                                                          ((BRecordTypeSymbol) type.getBType().tsymbol).defaultValues);
+        }
         for (BLangSimpleVariable bLangSimpleVariable : recordTypeNode.fields) {
             bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, env);
         }
