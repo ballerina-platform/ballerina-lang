@@ -191,15 +191,15 @@ public class InvocationNodeContextProvider<T extends Node> extends AbstractCompl
         return true;
     }
     
-    protected boolean isInNamedArgOnlyContext(BallerinaCompletionContext context, List<Node> arguments) {
+    protected boolean isNotInNamedArgOnlyContext(BallerinaCompletionContext context, List<Node> arguments) {
         int cursorPosition = context.getCursorPositionInTree();
         for (Node child : arguments) {
             TextRange textRange = child.textRange();
             int endOffset = textRange.endOffset();
             if (endOffset <= cursorPosition && child.kind() == SyntaxKind.NAMED_ARG) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     } 
 }

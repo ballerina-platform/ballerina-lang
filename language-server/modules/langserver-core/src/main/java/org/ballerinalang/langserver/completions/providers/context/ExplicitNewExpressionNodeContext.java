@@ -142,7 +142,7 @@ public class ExplicitNewExpressionNodeContext extends InvocationNodeContextProvi
             return this.getCompletionItemList(QNameRefCompletionUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
         }
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (!isInNamedArgOnlyContext(ctx, 
+        if (isNotInNamedArgOnlyContext(ctx, 
                 node.parenthesizedArgList().arguments().stream().collect(Collectors.toList()))) {
             completionItems.addAll(this.expressionCompletions(ctx));
         }

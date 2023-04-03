@@ -91,7 +91,7 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
                 List<LSCompletionItem> items = this.getCompletionItemList(exprEntries, context);
                 completionItems.addAll(items);
             } else {
-                if (!isInNamedArgOnlyContext(context, node.arguments().stream().collect(Collectors.toList()))) {
+                if (isNotInNamedArgOnlyContext(context, node.arguments().stream().collect(Collectors.toList()))) {
                     completionItems.addAll(this.actionKWCompletions(context));
                     completionItems.addAll(this.expressionCompletions(context));
                 }

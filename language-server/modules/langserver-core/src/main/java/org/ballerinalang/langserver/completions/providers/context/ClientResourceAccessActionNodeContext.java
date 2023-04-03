@@ -114,7 +114,7 @@ public class ClientResourceAccessActionNodeContext
                 List<Node> arguments = new ArrayList<>();
                 node.arguments().ifPresent(argList -> 
                         arguments.addAll(argList.arguments().stream().collect(Collectors.toList())));
-                if (!isInNamedArgOnlyContext(context, arguments)) {
+                if (isNotInNamedArgOnlyContext(context, arguments)) {
                     completionItems.addAll(this.actionKWCompletions(context));
                     completionItems.addAll(this.expressionCompletions(context));
                 }

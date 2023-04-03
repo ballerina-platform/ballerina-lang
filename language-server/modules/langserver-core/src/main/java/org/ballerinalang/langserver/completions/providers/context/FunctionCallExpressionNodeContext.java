@@ -54,7 +54,7 @@ public class FunctionCallExpressionNodeContext extends InvocationNodeContextProv
             completionItems.addAll(this.getCompletionItemList(QNameRefCompletionUtil
                     .getExpressionContextEntries(ctx, qNameRef), ctx));
         } else {
-            if (!this.isInNamedArgOnlyContext(ctx, node.arguments().stream().collect(Collectors.toList()))) {
+            if (this.isNotInNamedArgOnlyContext(ctx, node.arguments().stream().collect(Collectors.toList()))) {
                 completionItems.addAll(this.actionKWCompletions(ctx));
                 completionItems.addAll(this.expressionCompletions(ctx));
             }

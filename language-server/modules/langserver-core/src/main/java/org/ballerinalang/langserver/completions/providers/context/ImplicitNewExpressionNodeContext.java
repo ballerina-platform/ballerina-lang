@@ -117,7 +117,7 @@ public class ImplicitNewExpressionNodeContext extends InvocationNodeContextProvi
         List<Node> arguments = node.parenthesizedArgList().isPresent() ?
                 node.parenthesizedArgList().get().arguments().stream().collect(Collectors.toList())
                 : Collections.emptyList();
-        if (!isInNamedArgOnlyContext(ctx, arguments)) {
+        if (isNotInNamedArgOnlyContext(ctx, arguments)) {
             completionItems.addAll(this.expressionCompletions(ctx));
         }
         completionItems.addAll(getNamedArgExpressionCompletionItems(ctx, node));

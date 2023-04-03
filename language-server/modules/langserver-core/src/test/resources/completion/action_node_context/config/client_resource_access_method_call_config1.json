@@ -4,7 +4,7 @@
     "character": 58
   },
   "source": "action_node_context/source/client_resource_access_method_call_source1.bal",
-  "description": "",
+  "description": "Tests completions in method call context of client resource access action",
   "items": [
     {
       "label": "start",
