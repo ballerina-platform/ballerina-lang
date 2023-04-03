@@ -215,7 +215,7 @@ public class MethodGen {
         mv.visitCode();
 
         mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        mv.visitLdcInsn(funcName);
+        mv.visitLdcInsn(moduleClassName + "." + funcName);
         mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
 
         visitModuleStartFunction(module.packageID, funcName, mv);
