@@ -410,6 +410,9 @@ public class RunNativeImageTestTask implements Task {
                             String moduleName = testSuiteEntry.getKey();
                             ModuleStatus moduleStatus = TestUtils.loadModuleStatusFromFile(
                                     testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
+                            if (moduleStatus == null) {
+                                continue;
+                            }
 
                             if (!moduleName.equals(project.currentPackage().packageName().toString())) {
                                 moduleName = ModuleName.from(project.currentPackage().packageName(),
