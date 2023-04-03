@@ -407,8 +407,7 @@ public class JvmPackageGen {
                     generateTestExecutionStateField(cw);
                 }
 
-                MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, jvmCastGen,
-                                                                asyncDataCollector);
+                MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, asyncDataCollector);
                 mainMethodGen.generateMainMethod(mainFunc, testExecuteFunc, cw, module, moduleClass,
                         serviceEPAvailable);
                 initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc,
