@@ -533,8 +533,7 @@ public class QueryTypeChecker extends TypeChecker {
     }
 
     private BType getNonContextualQueryType(BType staticType, BType basicType, Location pos) {
-        basicType = Types.getReferredType(basicType);
-        switch (basicType.tag) {
+        switch (Types.getReferredType(basicType).tag) {
             case TypeTags.TABLE:
                 if (types.isAssignable(staticType, symTable.mapAllType)) {
                     return symTable.tableType;

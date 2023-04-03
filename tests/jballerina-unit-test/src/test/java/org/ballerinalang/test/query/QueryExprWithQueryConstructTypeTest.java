@@ -340,9 +340,9 @@ public class QueryExprWithQueryConstructTypeTest {
                 "[string,any|error], found 'int'", 496, 40);
         validateError(negativeResult, index++, "incompatible type in select clause: expected " +
                 "[string,any|error], found 'record {| int A; |}'", 497, 40);
-        validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
+        validateError(negativeResult, index++, "incompatible types: 'T1' " +
                 "cannot be constrained with 'int'", 504, 37);
-        validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
+        validateError(negativeResult, index++, "incompatible types: 'T1' " +
                 "cannot be constrained with 'T1'", 505, 37);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
