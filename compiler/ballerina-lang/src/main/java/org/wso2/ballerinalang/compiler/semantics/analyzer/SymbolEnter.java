@@ -83,7 +83,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -3727,12 +3726,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         switch (type.tag) {
             case TypeTags.MAP:
-                BType constraintType = ((BMapType) type).constraint;
-                return isCloneableTypeTypeSkippingObjectType(constraintType);
+                return types.isAssignable(((BMapType) type).constraint, symTable.cloneableType);
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) type;
                 for (BField field : recordType.fields.values()) {
-                    if (!isCloneableTypeTypeSkippingObjectType(field.type)) {
+                    if (!types.isAssignable(field.type, symTable.cloneableType)) {
                         return false;
                     }
                 }
@@ -3742,7 +3740,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     return true;
                 }
 
-                return isCloneableTypeTypeSkippingObjectType(recordRestType);
+                return types.isAssignable(recordRestType, symTable.cloneableType);
             case TypeTags.ARRAY:
                 BType elementType = Types.getReferredType(((BArrayType) type).eType);
                 if ((elementType.tag == TypeTags.MAP) || (elementType.tag == TypeTags.RECORD)) {
@@ -3755,70 +3753,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         return types.isAssignable(type, symTable.trueType);
     }
-
-    private boolean isCloneableTypeTypeSkippingObjectType(BType type) {
-        return isCloneableTypeSkippingObjectTypeHelper(type, new HashSet<>());
-    }
-
-    private boolean isCloneableTypeSkippingObjectTypeHelper(BType type, Set<BType> unresolvedTypes) {
-        if (type == symTable.semanticError) {
-            return false;
-        }
-
-        if (!unresolvedTypes.add(type)) {
-            return true;
-        }
-
-        switch (type.tag) {
-            case TypeTags.OBJECT:
-            case TypeTags.ANYDATA:
-                return true;
-            case TypeTags.RECORD:
-                BRecordType recordType = (BRecordType) type;
-                for (BField field : recordType.fields.values()) {
-                    if (!isCloneableTypeSkippingObjectTypeHelper(field.type, unresolvedTypes)) {
-                        return false;
-                    }
-                }
-                BType recordRestType = recordType.restFieldType;
-                if (recordRestType == null || recordRestType == symTable.noType) {
-                    return true;
-                }
-                return isCloneableTypeSkippingObjectTypeHelper(recordRestType, unresolvedTypes);
-            case TypeTags.MAP:
-                BType constraintType = ((BMapType) type).constraint;
-                return isCloneableTypeSkippingObjectTypeHelper(constraintType, unresolvedTypes);
-            case TypeTags.UNION:
-                for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                    if (!isCloneableTypeSkippingObjectTypeHelper(memberType, unresolvedTypes)) {
-                        return false;
-                    }
-                }
-                return true;
-            case TypeTags.TUPLE:
-                BTupleType tupleType = (BTupleType) type;
-                for (BType tupMemType : tupleType.getTupleTypes()) {
-                    if (!isCloneableTypeSkippingObjectTypeHelper(tupMemType, unresolvedTypes)) {
-                        return false;
-                    }
-                }
-                BType tupRestType = tupleType.restType;
-                if (tupRestType == null) {
-                    return true;
-                }
-                return isCloneableTypeSkippingObjectTypeHelper(tupRestType, unresolvedTypes);
-            case TypeTags.TABLE:
-                return isCloneableTypeSkippingObjectTypeHelper(((BTableType) type).constraint, unresolvedTypes);
-            case TypeTags.ARRAY:
-                return isCloneableTypeSkippingObjectTypeHelper(((BArrayType) type).getElementType(),
-                        unresolvedTypes);
-            case TypeTags.TYPEREFDESC:
-                return isCloneableTypeSkippingObjectTypeHelper(Types.getReferredType(type), unresolvedTypes);
-        }
-
-        return types.isAssignable(type, symTable.cloneableType);
-    }
-
 
     /**
      * Visit each compilation unit (.bal file) and add each top-level node
