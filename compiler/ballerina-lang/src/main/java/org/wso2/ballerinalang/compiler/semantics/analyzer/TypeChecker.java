@@ -5766,17 +5766,19 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
         
         // Disallow unions with 'xml:T (singleton) items
-         for (BType item : ((BUnionType) expType).getMemberTypes()) {
-             item = Types.getReferredType(item);
-             if (item.tag == TypeTags.XML_TEXT || item.tag == TypeTags.XML || item.tag == TypeTags.ERROR
-                     || item.tag == TypeTags.ANY) {
-                 data.resultType = symTable.xmlType;
-                 return;
-             }
-         }
-         dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, 
-                 expType, symTable.xmlType);
-         data.resultType = symTable.semanticError;
+        for (BType item : ((BUnionType) expType).getMemberTypes()) {
+            item = Types.getReferredType(item);
+//            if (item.tag == TypeTags.XML && !types.isAssignable(symTable.xmlType, item)) {
+//                item = ((BXMLType) item).constraint;
+//            }
+            if (item.tag == TypeTags.XML && types.isAssignable(symTable.xmlType, item) || item.tag == TypeTags.ANYDATA || item.tag == TypeTags.ANY) {
+                data.resultType = symTable.xmlType;
+                return;
+            }
+        }
+        dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
+                expType, symTable.xmlType);
+        data.resultType = symTable.semanticError;
     }
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral, AnalyzerData data) {

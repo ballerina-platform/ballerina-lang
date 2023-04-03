@@ -92,6 +92,10 @@ function testXMLSequence() {
     if (x34 is xml) {
         test:assertEquals(x34.toString(), "world<elem></elem>");
     }
+    xml|xml<xml:Text>|xml:Text x35 = xml `hello<e></e>`;
+    test:assertEquals(x35.toString(), "hello<e></e>");
+    xml|xml<xml:Text|xml:Comment> x36 = xml `world<e></e>`;
+    test:assertEquals(x36.toString(), "world<e></e>");
 }
 
 public type Template object {
