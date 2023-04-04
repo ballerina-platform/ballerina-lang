@@ -1,5 +1,5 @@
 Compiling source
-    wso2/moduleExecutionFlow:0.0.0
+	wso2/moduleExecutionFlow:0.0.0
 
 Running Tests
 
