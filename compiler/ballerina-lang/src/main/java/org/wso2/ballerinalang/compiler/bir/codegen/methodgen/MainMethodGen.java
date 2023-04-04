@@ -24,7 +24,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
@@ -73,6 +72,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
@@ -83,6 +83,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_LISTENER_FOUND_METHOD_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
@@ -122,30 +123,25 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_MET
 public class MainMethodGen {
 
     public static final String INIT_FUTURE_VAR = "initFutureVar";
-    public static final String START_FUTURE_VAR = "startFutureVar";
-    public static final String MAIN_FUTURE_VAR = "mainFutureVar";
     public static final String SCHEDULER_VAR = "schedulerVar";
     public static final String CONFIG_VAR = "configVar";
-    public static final String LAMBDA_MAIN_METHOD = "$lambda$main$";
     private final SymbolTable symbolTable;
     private final BIRVarToJVMIndexMap indexMap;
     private final JvmTypeGen jvmTypeGen;
-    private final JvmCastGen jvmCastGen;
     private final AsyncDataCollector asyncDataCollector;
 
-    public MainMethodGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen,
-                         JvmCastGen jvmCastGen, AsyncDataCollector asyncDataCollector) {
+    public MainMethodGen(SymbolTable symbolTable, JvmTypeGen jvmTypeGen, AsyncDataCollector asyncDataCollector) {
         this.symbolTable = symbolTable;
         // add main string[] args param first
         indexMap = new BIRVarToJVMIndexMap(1);
         this.jvmTypeGen = jvmTypeGen;
-        this.jvmCastGen = jvmCastGen;
         this.asyncDataCollector = asyncDataCollector;
     }
 
     public void generateMainMethod(BIRNode.BIRFunction userMainFunc, BIRNode.BIRFunction testExecuteFunc,
                                    ClassWriter cw, BIRNode.BIRPackage pkg, String initClass,
                                    boolean serviceEPAvailable) {
+
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, MAIN_METHOD, MAIN_METHOD_SIGNATURE,
                 null, null);
         mv.visitCode();
@@ -164,11 +160,14 @@ public class MainMethodGen {
 
         genInitScheduler(mv);
         // register a shutdown hook to call package stop() method.
-        genShutdownHook(mv, initClass);
+        if (testExecuteFunc == null) {
+            genShutdownHook(mv, initClass);
+        }
 
         boolean hasInitFunction = MethodGenUtils.hasInitFunction(pkg);
         generateExecuteFunctionCall(initClass, mv, userMainFunc, testExecuteFunc);
-        if (hasInitFunction) {
+
+        if (hasInitFunction && testExecuteFunc == null) {
             setListenerFound(mv, serviceEPAvailable);
         }
         stopListeners(mv, serviceEPAvailable);
@@ -182,15 +181,13 @@ public class MainMethodGen {
         mv.visitLabel(tryCatchEnd);
         mv.visitInsn(RETURN);
         mv.visitLabel(tryCatchHandle);
-        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_ALL_THROWABLE_METHOD,
-                           HANDLE_THROWABLE, false);
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_ALL_THROWABLE_METHOD, HANDLE_THROWABLE, false);
         mv.visitInsn(RETURN);
         JvmCodeGenUtil.visitMaxStackForMethod(mv, "main", initClass);
         mv.visitEnd();
     }
 
-    private void generateExecuteFunctionCall(String initClass, MethodVisitor mv,
-                                             BIRNode.BIRFunction userMainFunc,
+    private void generateExecuteFunctionCall(String initClass, MethodVisitor mv, BIRNode.BIRFunction userMainFunc,
                                              BIRNode.BIRFunction testExecuteFunc) {
         mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
         if (userMainFunc != null) {
@@ -202,9 +199,8 @@ public class MainMethodGen {
             mv.visitTypeInsn(ANEWARRAY, OBJECT);
         }
         // invoke the module execute method
-        genSubmitToScheduler(initClass, mv, LAMBDA_PREFIX + JvmConstants.MODULE_EXECUTE_METHOD + "$",
-                JvmConstants.MAIN_METHOD, MainMethodGen.INIT_FUTURE_VAR, testExecuteFunc != null);
-        genReturn(mv, indexMap, MainMethodGen.INIT_FUTURE_VAR);
+        genSubmitToScheduler(initClass, mv, testExecuteFunc != null);
+        genReturn(mv, indexMap);
     }
 
     private void generateModuleStopCall(String initClass, MethodVisitor mv) {
@@ -246,7 +242,7 @@ public class MainMethodGen {
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {
         mv.visitLdcInsn(getJavaVersion());
         mv.visitMethodInsn(INVOKESTATIC, COMPATIBILITY_CHECKER, "verifyJavaCompatibility",
-                           METHOD_STRING_PARAM, false);
+                METHOD_STRING_PARAM, false);
     }
 
     private String getJavaVersion() {
@@ -263,7 +259,7 @@ public class MainMethodGen {
     private void genShutdownHook(MethodVisitor mv, String initClass) {
         String shutdownClassName = initClass + "$SignalListener";
         mv.visitMethodInsn(INVOKESTATIC, JAVA_RUNTIME, "getRuntime",
-                           GET_RUNTIME, false);
+                GET_RUNTIME, false);
         mv.visitTypeInsn(NEW, shutdownClassName);
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
@@ -289,13 +285,13 @@ public class MainMethodGen {
             int schedulerVarIndex = indexMap.get(SCHEDULER_VAR);
             mv.visitVarInsn(ALOAD, schedulerVarIndex);
             mv.visitInsn(ICONST_1);
-            mv.visitMethodInsn(INVOKEVIRTUAL , SCHEDULER, "setListenerDeclarationFound", "(Z)V", false);
+            mv.visitMethodInsn(INVOKEVIRTUAL , SCHEDULER, SET_LISTENER_FOUND_METHOD_NAME, "(Z)V", false);
             startScheduler(schedulerVarIndex, mv);
         }
     }
 
-    private void storeFuture(BIRVarToJVMIndexMap indexMap, MethodVisitor mv, String futureVar) {
-        int mainFutureVarIndex = indexMap.addIfNotExists(futureVar, symbolTable.anyType);
+    private void storeFuture(BIRVarToJVMIndexMap indexMap, MethodVisitor mv) {
+        int mainFutureVarIndex = indexMap.addIfNotExists(INIT_FUTURE_VAR, symbolTable.anyType);
         mv.visitVarInsn(ASTORE, mainFutureVarIndex);
         mv.visitVarInsn(ALOAD, mainFutureVarIndex);
     }
@@ -397,35 +393,33 @@ public class MainMethodGen {
         return defaultableNames;
     }
 
-    private void genReturn(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, String futureVar) {
+    private void genReturn(MethodVisitor mv, BIRVarToJVMIndexMap indexMap) {
         // store future value
-        mv.visitVarInsn(ALOAD, indexMap.get(futureVar));
+        mv.visitVarInsn(ALOAD, indexMap.get(INIT_FUTURE_VAR));
         mv.visitFieldInsn(GETFIELD , FUTURE_VALUE, "result", GET_OBJECT);
 
         mv.visitMethodInsn(INVOKESTATIC , RUNTIME_UTILS , HANDLE_RETURNED_ERROR_METHOD,
-                           HANDLE_ERROR_RETURN, false);
+                HANDLE_ERROR_RETURN, false);
     }
 
-    private void genSubmitToScheduler(String initClass, MethodVisitor mv, String lambdaName,
-                                      String funcName, String futureVar, boolean isTestFunction) {
-        JvmCodeGenUtil.createFunctionPointer(mv, initClass, lambdaName);
+    private void genSubmitToScheduler(String initClass, MethodVisitor mv, boolean isTestFunction) {
+        JvmCodeGenUtil.createFunctionPointer(mv, initClass, LAMBDA_PREFIX + MODULE_EXECUTE_METHOD + "$");
 
         // no parent strand
         mv.visitInsn(ACONST_NULL);
 
         BType anyType = symbolTable.anyType;
         jvmTypeGen.loadType(mv, anyType);
-        MethodGenUtils.submitToScheduler(mv, initClass, funcName, asyncDataCollector);
-        storeFuture(indexMap, mv, futureVar);
-        mv.visitFieldInsn(GETFIELD , FUTURE_VALUE , STRAND,
-                         GET_STRAND);
+        MethodGenUtils.submitToScheduler(mv, initClass, MAIN_METHOD, asyncDataCollector);
+        storeFuture(indexMap, mv);
+        mv.visitFieldInsn(GETFIELD , FUTURE_VALUE , STRAND, GET_STRAND);
         mv.visitTypeInsn(NEW, STACK);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, STACK, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitFieldInsn(PUTFIELD, STRAND_CLASS, MethodGenUtils.FRAMES, STACK_FRAMES);
 
         startScheduler(indexMap.get(SCHEDULER_VAR), mv);
-        handleErrorFromFutureValue(mv, futureVar, initClass, isTestFunction);
+        handleErrorFromFutureValue(mv, initClass, isTestFunction);
     }
 
     private void stopListeners(MethodVisitor mv, boolean isServiceEPAvailable) {
@@ -433,12 +427,11 @@ public class MainMethodGen {
         mv.visitMethodInsn(INVOKESTATIC , LAUNCH_UTILS, "stopListeners", "(Z)V", false);
     }
 
-    private void handleErrorFromFutureValue(MethodVisitor mv, String futureVar, String initClass,
-                                            boolean isTestFunction) {
-        mv.visitVarInsn(ALOAD, indexMap.get(futureVar));
+    private void handleErrorFromFutureValue(MethodVisitor mv, String initClass, boolean isTestFunction) {
+        mv.visitVarInsn(ALOAD, indexMap.get(INIT_FUTURE_VAR));
         mv.visitInsn(DUP);
         mv.visitFieldInsn(GETFIELD , FUTURE_VALUE , PANIC_FIELD,
-                          GET_THROWABLE);
+                GET_THROWABLE);
 
         // handle any runtime errors
         Label labelIf = new Label();
@@ -453,5 +446,4 @@ public class MainMethodGen {
         }
         mv.visitLabel(labelIf);
     }
-
 }
