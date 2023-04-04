@@ -26,6 +26,7 @@ dependencies {
     implementation 'io.opentracing:opentracing-util'
     implementation 'org.awaitility:awaitility'
     implementation 'org.apache.commons:commons-lang3'
+    implementation 'com.fasterxml.woodstox:woodstox-core:6.5.0'
 
     implementation project(':ballerina-config')
     implementation project(':ballerina-logging')
