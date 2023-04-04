@@ -417,8 +417,7 @@ public class JvmPackageGen {
                     generateTestExecutionStateField(cw);
                 }
 
-                MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, jvmCastGen,
-                                                                asyncDataCollector);
+                MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, asyncDataCollector);
                 mainMethodGen.generateMainMethod(mainFunc, testExecuteFunc, cw, module, moduleClass,
                         serviceEPAvailable);
                 initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc,
@@ -829,7 +828,7 @@ public class JvmPackageGen {
         BIRFunction userMainFunc = null;
         if (module.packageID.skipTests) {
             for (BIRFunction func : module.functions) {
-                if (func != null && func.name.value.equals(MAIN_METHOD)) {
+                if (func.name.value.equals(MAIN_METHOD)) {
                     userMainFunc = func;
                     break;
                 }
@@ -842,7 +841,7 @@ public class JvmPackageGen {
         BIRFunction testExecuteFunction = null;
         if (!module.packageID.skipTests) {
             for (BIRFunction func : module.functions) {
-                if (func != null && func.name.value.equals(TEST_EXECUTE_METHOD)) {
+                if (func.name.value.equals(TEST_EXECUTE_METHOD)) {
                     testExecuteFunction = func;
                     break;
                 }
