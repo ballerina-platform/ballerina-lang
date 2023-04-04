@@ -251,18 +251,18 @@ public class FunctionsWithDefaultableArguments {
     }
 
     @Test
-    public void testFuncWithComputedNameFieldInRecordLiteralForDefaultValue() {
-        BRunUtil.invoke(result, "testFuncWithComputedNameFieldInRecordLiteralForDefaultValue");
+    public void testFuncWithComputedNameFieldInMappingConstructorForDefaultValue() {
+        BRunUtil.invoke(result, "testFuncWithComputedNameFieldInMappingConstructorForDefaultValue");
     }
 
     @Test
-    public void testFuncWithSpecificFieldInRecordLiteralForDefaultValue() {
-        BRunUtil.invoke(result, "testFuncWithSpecificFieldInRecordLiteralForDefaultValue");
+    public void testFuncWithVariableNameFieldInMappingConstructorForDefaultValue() {
+        BRunUtil.invoke(result, "testFuncWithVariableNameFieldInMappingConstructorForDefaultValue");
     }
 
     @Test
-    public void testFuncWithSpreadFieldInRecordLiteralForDefaultValue() {
-        BRunUtil.invoke(result, "testFuncWithSpreadFieldInRecordLiteralForDefaultValue");
+    public void testFuncWithSpreadFieldInMappingConstructorForDefaultValue() {
+        BRunUtil.invoke(result, "testFuncWithSpreadFieldInMappingConstructorForDefaultValue");
     }
 
     @AfterClass
