@@ -110,6 +110,7 @@ public class TesterinaUtils {
         try {
             initClazz = classLoader.loadClass(initClassName);
         } catch (Throwable e) {
+            e.printStackTrace();
             throw new BallerinaTestException("failed to load init class :" + initClassName);
         }
 
@@ -134,14 +135,19 @@ public class TesterinaUtils {
             final Method method = initClazz.getDeclaredMethod(name, parameterTypes);
             return method.invoke(null, (Object) args);
         } catch (InvocationTargetException e) {
+            e.printStackTrace();
             Throwable targetException = e.getTargetException();
             if (targetException instanceof BError) {
                 return targetException;
             }
             return targetException;
         } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException e) {
+            e.printStackTrace();
             return new BallerinaTestException("Failed to invoke the function '" + name + " due to " +
                     e.getMessage(), e);
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return e;
         }
     }
 
@@ -149,7 +155,8 @@ public class TesterinaUtils {
         try {
             final Method method = initClazz.getDeclaredMethod(GET_TEST_EXEC_STATE);
             return (int) method.invoke(null);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (Throwable e) {
+            e.printStackTrace();
             throw new BallerinaTestException("Failed to invoke the function '" + GET_TEST_EXEC_STATE + " due to " +
                     e.getMessage(), e);
         }
