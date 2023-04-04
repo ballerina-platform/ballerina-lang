@@ -57,7 +57,6 @@ public class BallerinaXMLSerializer extends OutputStream {
     public static final String XML = "xml";
     private static final String XML_NS_URI_PREFIX = "{" + XMLConstants.XML_NS_URI + "}";
     private static final String XML_NAME_SPACE = "http://www.w3.org/XML/1998/namespace";
-    private static boolean isDefaultFactory = false;
 
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
@@ -66,12 +65,7 @@ public class BallerinaXMLSerializer extends OutputStream {
 
     static {
         xmlOutputFactory = XMLOutputFactory.newInstance();
-        if (xmlOutputFactory.getClass().getName().equals("com.ctc.wstx.stax.WstxOutputFactory")) {
-            xmlOutputFactory.setProperty(WstxOutputProperties.P_OUTPUT_VALIDATE_STRUCTURE, false);
-        } else {
-            xmlOutputFactory.setProperty("escapeCharacters", false);
-            isDefaultFactory = true;
-        }
+        xmlOutputFactory.setProperty(WstxOutputProperties.P_OUTPUT_VALIDATE_STRUCTURE, false);
     }
 
     public BallerinaXMLSerializer(OutputStream outputStream) {
@@ -146,7 +140,7 @@ public class BallerinaXMLSerializer extends OutputStream {
     private void writeXMLText(XMLText xmlValue) throws XMLStreamException {
         // No need to escape xml text when they are within xml element or if it is not from default stream writer.
         // It's handled by xml stream  writer.
-        if (this.withinElement && !isDefaultFactory) {
+        if (this.withinElement) {
             String textValue = xmlValue.getTextValue();
             if (!textValue.isEmpty()) {
                 xmlStreamWriter.writeCharacters(textValue);

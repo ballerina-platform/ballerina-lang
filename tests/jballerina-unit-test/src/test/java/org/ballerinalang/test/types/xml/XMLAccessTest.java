@@ -57,9 +57,9 @@ public class XMLAccessTest {
     @Test
     public void testXMLElementAccessOnSingleElementXML() {
         BValue[] returns = BRunUtil.invoke(elementAccess, "testXMLElementAccessOnSingleElementXML");
-        Assert.assertEquals(returns[0].stringValue(), "<ns:root xmlns:ns=\"foo\"></ns:root>");
-        Assert.assertEquals(returns[1].stringValue(), "<ns:root xmlns:ns=\"foo\"></ns:root>");
-        Assert.assertEquals(returns[2].stringValue(), "<ns:root xmlns:ns=\"foo\"></ns:root>");
+        Assert.assertEquals(returns[0].stringValue(), "<ns:root xmlns:ns=\"foo\"/>");
+        Assert.assertEquals(returns[1].stringValue(), "<ns:root xmlns:ns=\"foo\"/>");
+        Assert.assertEquals(returns[2].stringValue(), "<ns:root xmlns:ns=\"foo\"/>");
         Assert.assertEquals(returns[3].stringValue(), "");
         Assert.assertEquals(returns[4].stringValue(), "");
         Assert.assertEquals(returns[5].stringValue(), "");
@@ -69,79 +69,79 @@ public class XMLAccessTest {
     public void testXMLElementAccessOnXMLSequence() {
         BValue[] returns = BRunUtil.invoke(elementAccess, "testXMLElementAccessOnXMLSequence");
         Assert.assertEquals(returns[0].stringValue(),
-                "<ns:root xmlns:ns=\"foo\"></ns:root>" +
-                        "<k:root xmlns:k=\"bar\"></k:root>" +
-                        "<k:item xmlns:k=\"bar\"></k:item>");
-        Assert.assertEquals(returns[1].stringValue(), "<ns:root xmlns:ns=\"foo\"></ns:root>");
-        Assert.assertEquals(returns[2].stringValue(), "<ns:root xmlns:ns=\"foo\"></ns:root>");
+                "<ns:root xmlns:ns=\"foo\"/>" +
+                        "<k:root xmlns:k=\"bar\"/>" +
+                        "<k:item xmlns:k=\"bar\"/>");
+        Assert.assertEquals(returns[1].stringValue(), "<ns:root xmlns:ns=\"foo\"/>");
+        Assert.assertEquals(returns[2].stringValue(), "<ns:root xmlns:ns=\"foo\"/>");
         Assert.assertEquals(returns[3].stringValue(), "");
         Assert.assertEquals(returns[4].stringValue(), "");
         Assert.assertEquals(returns[5].stringValue(),
-                "<k:root xmlns:k=\"bar\"></k:root><k:item xmlns:k=\"bar\"></k:item>");
+                "<k:root xmlns:k=\"bar\"/><k:item xmlns:k=\"bar\"/>");
     }
 
     @Test
     public void testXMLElementAccessMultipleFilters() {
         BValue[] returns = BRunUtil.invoke(elementAccess, "testXMLElementAccessMultipleFilters");
         Assert.assertEquals(returns[0].stringValue(),
-                "<ns:root xmlns:ns=\"foo\"></ns:root>" +
-                        "<k:root xmlns:k=\"bar\"></k:root>" +
-                        "<k:item xmlns:k=\"bar\"></k:item>");
+                "<ns:root xmlns:ns=\"foo\"/>" +
+                        "<k:root xmlns:k=\"bar\"/>" +
+                        "<k:item xmlns:k=\"bar\"/>");
 
         Assert.assertEquals(returns[1].stringValue(),
-                "<ns:root xmlns:ns=\"foo\"></ns:root>" +
-                        "<k:root xmlns:k=\"bar\"></k:root>" +
-                        "<k:item xmlns:k=\"bar\"></k:item>");
+                "<ns:root xmlns:ns=\"foo\"/>" +
+                        "<k:root xmlns:k=\"bar\"/>" +
+                        "<k:item xmlns:k=\"bar\"/>");
 
         Assert.assertEquals(returns[2].stringValue(),
-                "<ns:root xmlns:ns=\"foo\"></ns:root>" +
-                        "<k:root xmlns:k=\"bar\"></k:root>");
+                "<ns:root xmlns:ns=\"foo\"/>" +
+                        "<k:root xmlns:k=\"bar\"/>");
 
         Assert.assertEquals(returns[3].stringValue(),
-                "<k:item xmlns:k=\"bar\"></k:item>");
+                "<k:item xmlns:k=\"bar\"/>");
     }
 
     @Test
     public void testXMLNavigationOnSingleElement() {
         BValue[] returns = BRunUtil.invoke(navigation, "testXMLNavigationOnSingleElement");
-        Assert.assertEquals(returns[0].stringValue(), "<child attr=\"attr-val\"></child>");
-        Assert.assertEquals(returns[1].stringValue(), "<child attr=\"attr-val\"></child>");
-        Assert.assertEquals(returns[2].stringValue(), "<child attr=\"attr-val\"></child>");
-        Assert.assertEquals(returns[3].stringValue(), "<child attr=\"attr-val\"></child>");
-        Assert.assertEquals(returns[4].stringValue(), "<child attr=\"attr-val\"></child>");
+        Assert.assertEquals(returns[0].stringValue(), "<child attr=\"attr-val\"/>");
+        Assert.assertEquals(returns[1].stringValue(), "<child attr=\"attr-val\"/>");
+        Assert.assertEquals(returns[2].stringValue(), "<child attr=\"attr-val\"/>");
+        Assert.assertEquals(returns[3].stringValue(), "<child attr=\"attr-val\"/>");
+        Assert.assertEquals(returns[4].stringValue(), "<child attr=\"attr-val\"/>");
     }
 
     @Test
     public void testXMLNavigationOnSingleElementWithNamespaces() {
         BValue[] returns = BRunUtil.invoke(navigation, "testXMLNavigationOnSingleElementWithNamespaces");
-        Assert.assertEquals(returns[0].stringValue(), "<ns:child xmlns:ns=\"foo\"></ns:child>");
-        Assert.assertEquals(returns[1].stringValue(), "<ns:child xmlns:ns=\"foo\"></ns:child>");
-        Assert.assertEquals(returns[2].stringValue(), "<ns:child xmlns:ns=\"foo\"></ns:child>");
-        Assert.assertEquals(returns[3].stringValue(), "<ns:child xmlns:ns=\"foo\"></ns:child>");
-        Assert.assertEquals(returns[4].stringValue(), "<ns:child xmlns:ns=\"foo\"></ns:child>");
+        Assert.assertEquals(returns[0].stringValue(), "<ns:child xmlns:ns=\"foo\"/>");
+        Assert.assertEquals(returns[1].stringValue(), "<ns:child xmlns:ns=\"foo\"/>");
+        Assert.assertEquals(returns[2].stringValue(), "<ns:child xmlns:ns=\"foo\"/>");
+        Assert.assertEquals(returns[3].stringValue(), "<ns:child xmlns:ns=\"foo\"/>");
+        Assert.assertEquals(returns[4].stringValue(), "<ns:child xmlns:ns=\"foo\"/>");
     }
 
     @Test
     public void testXMLNavigationOnSingleElementReferToDefaultNS() {
         BValue[] returns = BRunUtil.invoke(navigation, "testXMLNavigationOnSingleElementReferToDefaultNS");
-        Assert.assertEquals(returns[0].stringValue(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns[1].stringValue(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns[2].stringValue(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns[3].stringValue(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns[4].stringValue(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns[5].stringValue(), "<child xmlns=\"foo\"></child>");
+        Assert.assertEquals(returns[0].stringValue(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns[1].stringValue(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns[2].stringValue(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns[3].stringValue(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns[4].stringValue(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns[5].stringValue(), "<child xmlns=\"foo\"/>");
         Assert.assertEquals(returns[6].stringValue(), "0");
-        Assert.assertEquals(returns[7].stringValue(), "<child xmlns=\"foo\"></child>");
+        Assert.assertEquals(returns[7].stringValue(), "<child xmlns=\"foo\"/>");
     }
 
     @Test
     public void testXMLNavigationOnSingleElementReferToDefaultNSViaPrefix() {
         BValue[] returns = BRunUtil.invoke(navigation, "testXMLNavigationOnSingleElementReferToDefaultNSViaPrefix");
-        Assert.assertEquals(returns[0].stringValue(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns[1].stringValue(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns[2].stringValue(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns[3].stringValue(), "<child xmlns=\"foo\"></child>");
-        Assert.assertEquals(returns[4].stringValue(), "<child xmlns=\"foo\"></child>");
+        Assert.assertEquals(returns[0].stringValue(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns[1].stringValue(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns[2].stringValue(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns[3].stringValue(), "<child xmlns=\"foo\"/>");
+        Assert.assertEquals(returns[4].stringValue(), "<child xmlns=\"foo\"/>");
     }
 
     @Test
