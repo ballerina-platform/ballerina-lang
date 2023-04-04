@@ -138,9 +138,8 @@ public class MainMethodGen {
         this.asyncDataCollector = asyncDataCollector;
     }
 
-    public void generateMainMethod(BIRNode.BIRFunction userMainFunc, BIRNode.BIRFunction testExecuteFunc,
-                                   ClassWriter cw, BIRNode.BIRPackage pkg, String initClass,
-                                   boolean serviceEPAvailable) {
+    public void generateMainMethod(BIRNode.BIRFunction userMainFunc, ClassWriter cw, BIRNode.BIRPackage pkg,
+                                   String initClass, boolean serviceEPAvailable, boolean isTestable) {
 
         MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC + ACC_STATIC, MAIN_METHOD, MAIN_METHOD_SIGNATURE,
                 null, null);
@@ -160,22 +159,22 @@ public class MainMethodGen {
 
         genInitScheduler(mv);
         // register a shutdown hook to call package stop() method.
-        if (testExecuteFunc == null) {
+        if (!isTestable) {
             genShutdownHook(mv, initClass);
         }
 
         boolean hasInitFunction = MethodGenUtils.hasInitFunction(pkg);
-        generateExecuteFunctionCall(initClass, mv, userMainFunc, testExecuteFunc);
+        generateExecuteFunctionCall(initClass, mv, userMainFunc, isTestable);
 
-        if (hasInitFunction && testExecuteFunc == null) {
+        if (hasInitFunction && !isTestable) {
             setListenerFound(mv, serviceEPAvailable);
         }
         stopListeners(mv, serviceEPAvailable);
-        if (!serviceEPAvailable && testExecuteFunc == null) {
+        if (!serviceEPAvailable && !isTestable) {
             JvmCodeGenUtil.generateExitRuntime(mv);
         }
 
-        if (testExecuteFunc != null) {
+        if (isTestable) {
             generateModuleStopCall(initClass, mv);
         }
         mv.visitLabel(tryCatchEnd);
@@ -188,19 +187,18 @@ public class MainMethodGen {
     }
 
     private void generateExecuteFunctionCall(String initClass, MethodVisitor mv, BIRNode.BIRFunction userMainFunc,
-                                             BIRNode.BIRFunction testExecuteFunc) {
+                                             boolean isTestable) {
         mv.visitVarInsn(ALOAD, indexMap.get(SCHEDULER_VAR));
         if (userMainFunc != null) {
             loadCLIArgsForMain(mv, userMainFunc.parameters, userMainFunc.annotAttachments);
-        } else if (testExecuteFunc != null) {
+        } else if (isTestable) {
             loadCLIArgsForTestExecute(mv);
         } else {
             mv.visitIntInsn(BIPUSH, 1);
             mv.visitTypeInsn(ANEWARRAY, OBJECT);
         }
         // invoke the module execute method
-        genSubmitToScheduler(initClass, mv,
-                testExecuteFunc != null);
+        genSubmitToScheduler(initClass, mv, isTestable);
         genReturn(mv, indexMap);
     }
 

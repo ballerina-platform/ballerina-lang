@@ -389,6 +389,7 @@ public class JvmPackageGen {
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
             boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
+            boolean isTestable = testExecuteFunc != null;
             LambdaGen lambdaGen = new LambdaGen(this, jvmCastGen);
             if (isInitClass) {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
@@ -403,18 +404,17 @@ public class JvmPackageGen {
                     }
                 }
 
-                if (testExecuteFunc != null) {
+                if (isTestable) {
                     generateTestExecutionStateField(cw);
                 }
 
                 MainMethodGen mainMethodGen = new MainMethodGen(symbolTable, jvmTypeGen, asyncDataCollector);
-                mainMethodGen.generateMainMethod(mainFunc, testExecuteFunc, cw, module, moduleClass,
-                        serviceEPAvailable);
+                mainMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable, isTestable);
                 initMethodGen.generateLambdaForModuleExecuteFunction(cw, moduleClass, jvmCastGen, mainFunc,
                         testExecuteFunc);
                 initMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports);
                 initMethodGen.generateGracefulExitMethod(cw);
-                if (testExecuteFunc != null) {
+                if (isTestable) {
                     initMethodGen.generateGetTestExecutionState(cw, moduleClass);
                 }
 
@@ -441,7 +441,7 @@ public class JvmPackageGen {
             }
             JvmCodeGenUtil.visitStrandMetadataFields(cw, asyncDataCollector.getStrandMetadata());
             generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable,
-                    asyncDataCollector, jvmConstantsGen, testExecuteFunc != null);
+                    asyncDataCollector, jvmConstantsGen, isTestable);
             cw.visitEnd();
 
             byte[] bytes = getBytes(cw, module);
