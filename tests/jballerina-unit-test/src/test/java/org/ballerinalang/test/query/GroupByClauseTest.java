@@ -116,7 +116,12 @@ public class GroupByClauseTest {
                 "testGroupByExpressionAndSelectWithNonGroupingKeys7",
                 "testGroupByVarDefsAndSelectWithNonGroupingKeys1",
                 "testGroupByVarDefsAndSelectWithNonGroupingKeys2",
-                "testGroupByVarDefsAndSelectWithNonGroupingKeys3"
+                "testGroupByVarDefsAndSelectWithNonGroupingKeys3",
+
+                "testGroupByExpressionWithStreamOutput",
+                "testGroupByExpressionWithStringOutput1",
+                "testGroupByExpressionWithTableOutput",
+                "testGroupByExpressionWithMapOutput"
         };
     }
 
@@ -129,7 +134,15 @@ public class GroupByClauseTest {
     public Object[] dataToTestGroupByClauseWithInvocation() {
         return new Object[]{
             "testGroupByExpressionAndSelectWithNonGroupingKeys1",
-            "testGroupByExpressionAndSelectWithNonGroupingKeys2"
+            "testGroupByExpressionAndSelectWithNonGroupingKeys2",
+            "testGroupByExpressionAndSelectWithNonGroupingKeys3",
+            "testGroupByExpressionAndSelectWithNonGroupingKeys4",
+            "testGroupByExpressionAndSelectWithNonGroupingKeys5",
+            "testGroupByExpressionAndSelectWithGroupingKeys1",
+            "testGroupByExpressionWithOrderBy",
+            "testGroupByExpressionWithStreamOutput",
+            "testGroupByExpressionWithTableOutput",
+            "testGroupByExpressionWithMapOutput"
         };
     }
 }

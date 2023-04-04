@@ -1386,12 +1386,97 @@ function testGroupByVarDefsAndSelectWithNonGroupingKeys3() {
 //                         // [[11, 11], [10, 10, 10], [10]]
 // }
 
+function testGroupByExpressionWithStreamOutput() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 15, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 9, price2: 12},
+                    {name: "Kamal", price1: 13, price2: 9},
+                    {name: "Amal", price1: 30, price2: 13}];
+    var res1 = stream from var {name, price1, price2} in input
+                    group by name
+                    select [price1];
+    record {| int[] value; |}|error? v = res1.next();
+    int[][] output = [];
+    while (v is record {| int[] value; |}) {
+        output.push(v.value);
+        v = res1.next();
+    }
+    assertEquality([[11, 15], [10, 9, 13], [30]], output);     
+    stream<int[]> res2 = stream from var {name, price1, price2} in input
+                    group by name
+                    select [price1];
+    v = res2.next();
+    output = [];
+    while (v is record {| int[] value; |}) {
+        output.push(v.value);
+        v = res2.next();
+    }
+    assertEquality([[11, 15], [10, 9, 13], [30]], output);  
+}
+
+function testGroupByExpressionWithStringOutput1() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 15, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 9, price2: 12},
+                    {name: "Kamal", price1: 13, price2: 9},
+                    {name: "Amal", price1: 30, price2: 13}];
+    string res = from var {name, price1, price2} in input
+                    group by name
+                    select name;
+    assertEquality("SamanKamalAmal", res);
+}
+
+function testGroupByExpressionWithTableOutput() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 15, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 9, price2: 12},
+                    {name: "Kamal", price1: 13, price2: 9},
+                    {name: "Amal", price1: 30, price2: 13}];
+    var res1 = table key(name) from var {name, price1, price2} in input
+                                    group by name
+                                    select {name: name, prices: [price1]};
+    assertEquality(res1, table key(name) [
+        {name: "Saman", prices: [11, 15]},
+        {name: "Kamal", prices: [10, 9, 13]},
+        {name: "Amal", prices: [30]}
+    ]);
+    table<record {|readonly string name; int[] prices;|}> key(name) res2 = table key(name) from var {name, price1, price2} in input
+                                                                                        group by name
+                                                                                        select {name: name, prices: [price1]};
+    assertEquality(res2, table key(name) [
+        {name: "Saman", prices: [11, 15]},
+        {name: "Kamal", prices: [10, 9, 13]},
+        {name: "Amal", prices: [30]}
+    ]);
+}
+
+function testGroupByExpressionWithMapOutput() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 15, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 9, price2: 12},
+                    {name: "Kamal", price1: 13, price2: 9},
+                    {name: "Amal", price1: 30, price2: 13}];
+    var res1 = map from var {name, price1, price2} in input
+                                    group by name
+                                    select [name, [price1]];
+    assertEquality(res1, {"Saman": [11, 15], "Kamal": [10, 9, 13], "Amal": [30]});
+    map<int[]> res2 = map from var {name, price1, price2} in input
+                            group by name
+                            select [name, [price1]];
+    assertEquality(res2, {"Saman": [11, 15], "Kamal": [10, 9, 13], "Amal": [30]});
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
     }
     panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }
+
 
 // TODO: Add test cases for use defined types and readonly types
 // TODO: query expression in group by variable definition expression

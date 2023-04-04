@@ -142,7 +142,6 @@ public class QueryTypeChecker extends TypeChecker {
     public void checkQueryType(BLangQueryExpr queryExpr, TypeChecker.AnalyzerData data) {
         AnalyzerData prevData = data.queryData;
         data.queryData = new AnalyzerData();
-        data.queryData.foundSequenceVariable = prevData.foundSequenceVariable;
         data.queryData.afterGroupBy = prevData.afterGroupBy;
 
         Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
@@ -836,6 +835,8 @@ public class QueryTypeChecker extends TypeChecker {
                     BType firstArgType = silentTypeCheckExpr(iExpr.argExprs.get(0), symTable.noType, data);
                     if (firstArgType.tag == TypeTags.SEQUENCE) {
                         pkgAlias = ((BSequenceType) firstArgType).elementType.tsymbol.name;
+                    } else {
+                        pkgAlias = firstArgType.tsymbol.name;
                     }
                 }
             }
@@ -867,27 +868,33 @@ public class QueryTypeChecker extends TypeChecker {
                     // match between params and args
                     // make sure all params are divided between required and rest
                     int argCount = 0;
-                    for (BVarSymbol params : functionSymbol.params) {
-                        // Update argCount
+                    List<BVarSymbol> params = functionSymbol.params;
+                    for (int i = 0; i < params.size(); i++) {
+                        BLangExpression arg = iExpr.argExprs.get(i);
+                        checkTypeParamExpr(arg, params.get(i).type, data);
+                        iExpr.requiredArgs.add(arg);
+                        argCount = i;
                     }
                     for (int i = argCount; i < iExpr.argExprs.size(); i++) {
                         if (functionSymbol.restParam != null) {
                             BLangExpression argExpr = iExpr.argExprs.get(i);
                             BType restParamType = functionSymbol.restParam.type;
-                            if (argExpr.getKind() == NodeKind.REST_ARGS_EXPR) {
-                                checkTypeParamExpr(argExpr, restParamType, data);
-                                iExpr.restArgs.add(argExpr);
-                            } else {
-                                // Special case for sequence variables
+                            NodeKind argExprKind = argExpr.getKind();
+                            iExpr.restArgs.add(argExpr);
+                            if (argExprKind == NodeKind.SIMPLE_VARIABLE_REF) {
                                 if (silentTypeCheckExpr(argExpr, symTable.noType, data).tag == TypeTags.SEQUENCE) {
                                     checkTypeParamExpr(argExpr, restParamType, data);
-                                    iExpr.restArgs.add(argExpr);
-                                } else {
-                                    if (restParamType.tag == TypeTags.ARRAY) {
-                                        checkTypeParamExpr(argExpr, ((BArrayType) restParamType).eType, data);
-                                    }
-                                    iExpr.restArgs.add(argExpr);
+                                    continue;
                                 }
+                            }
+                            if (argExprKind == NodeKind.REST_ARGS_EXPR) {
+                                checkTypeParamExpr(argExpr, restParamType, data);
+                                continue;
+                            }
+                            if (restParamType.tag == TypeTags.ARRAY) {
+                                checkTypeParamExpr(argExpr, ((BArrayType) restParamType).eType, data);
+                            } else {
+                                checkTypeParamExpr(argExpr, restParamType, data);
                             }
                         }
                     }
@@ -902,8 +909,9 @@ public class QueryTypeChecker extends TypeChecker {
     }
 
     private boolean checkInvocationAfterGroupBy(BLangInvocation invocation, TypeChecker.AnalyzerData data) {
+        data.queryData.foundSeqVarInExpr = false;
         invocation.argExprs.forEach(arg -> silentTypeCheckExpr(arg, symTable.noType, data));
-        return data.queryData.afterGroupBy && data.queryData.foundSequenceVariable;
+        return data.queryData.afterGroupBy && data.queryData.foundSeqVarInExpr;
     }
 
     @Override
@@ -982,6 +990,7 @@ public class QueryTypeChecker extends TypeChecker {
         boolean queryCompletesEarly = false;
         HashSet<BType> completeEarlyErrorList = new HashSet<>();
         boolean afterGroupBy = false;
-        boolean foundSequenceVariable = false;
+        boolean foundSeqVarInExpr = false;
+        boolean withinArgument = false;
     }
 }

@@ -1979,17 +1979,23 @@ public class QueryDesugar extends BLangNodeVisitor {
             return;
         }
         BSymbol symbol = ((BLangSimpleVarRef) expr).symbol;
-        if (symbol != null && (symbol.tag & SymTag.SEQUENCE) == SymTag.SEQUENCE) {
-            BType elementType = ((BSequenceType) symbol.type).elementType;
-            expr.expectedType = symbol.type =
-                    new BTupleType(null, new ArrayList<>(0), elementType, 0);
-            expr.setBType(symbol.type);
-            BLangListConstructorSpreadOpExpr spreadOpExpr = new BLangListConstructorSpreadOpExpr();
-            spreadOpExpr.expr = expr;
-            spreadOpExpr.pos = expr.pos;
-            expressions.clear();
-            expressions.add(spreadOpExpr);
+        if (symbol == null || (symbol.tag & SymTag.SEQUENCE) != SymTag.SEQUENCE) {
+            return;
         }
+        BType type;
+        if (symbol.type.tag == TypeTags.SEQUENCE) {
+            BType elementType = ((BSequenceType) symbol.type).elementType;
+            type = symbol.type = new BTupleType(null, new ArrayList<>(0), elementType, 0);
+        } else {
+            type = symbol.type;
+        }
+        expr.expectedType = type;
+        expr.setBType(type);
+        BLangListConstructorSpreadOpExpr spreadOpExpr = new BLangListConstructorSpreadOpExpr();
+        spreadOpExpr.expr = expr;
+        spreadOpExpr.pos = expr.pos;
+        expressions.clear();
+        expressions.add(spreadOpExpr);
     }
 
     @Override
