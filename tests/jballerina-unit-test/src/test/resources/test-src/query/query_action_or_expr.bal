@@ -898,6 +898,35 @@ function testNestedQueryActionOrExprWithClientResourceAccessAction() {
     assertEquality([["book1", "book4"]], res3);
 }
 
+type T1 record {
+    T3[] t3s;
+};
+
+type T2 record {
+    T3[]|T4[] t3OrT4;
+};
+
+type T3 record {
+    string str;
+};
+
+type T4 record {
+    boolean foo;
+};
+
+function transform(T1 t1) returns T2 => {
+    t3OrT4: from var t3sItem in t1.t3s
+        select {
+           str: "transformed_" + t3sItem.str
+        }
+};
+
+function testQueryActionOrExpressionWithUnionRecordResultType() {
+    T1 t1 = {t3s: [{str: "str1"}, {str: "str2"}]};
+    T2 t2 = transform(t1);
+    assertEquality([{str: "transformed_str1"}, {str: "transformed_str2"}], t2.t3OrT4);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(anydata expected, anydata actual) {
