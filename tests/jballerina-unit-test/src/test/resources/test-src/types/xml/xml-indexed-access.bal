@@ -88,6 +88,83 @@ function testLengthOfXMLSequence() returns [int, int, int, int] {
     return [x1.length(), x2.length(), x2[2].length(), x3.length()];
 }
 
+const i = -1;
+
+function testInvalidXMLAccessWithNegativeIndex() returns error? {
+    int a = -1;
+    xml x = xml `This is an xml`;
+    xml|error e = trap x[-1];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+    e = trap x[a];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+    e = trap x[i];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+
+    xml:Text x2 = xml `This is an xml`;
+    e = trap x2[-1];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+    e = trap x2[a];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+    e = trap x2[i];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+
+    xml x3 = xml `<name>Sherlock Holmes</name>`;
+    e = trap x3[-1];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+    e = trap x3[a];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+    e = trap x3[i];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+
+    xml:Element x4 = xml `<name>Sherlock Holmes</name>`;
+    e = trap x4[-1];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+    e = trap x4[a];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+    e = trap x4[i];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+
+    xml x5 = xml `<!--This is a comment 1-->`;
+    e = trap x5[-1];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+    e = trap x5[a];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+    e = trap x5[i];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+
+    xml:Comment x6 = xml `<!--This is a comment 1-->`;
+    e = trap x6[-1];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+    e = trap x6[a];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+    e = trap x6[i];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+
+    xml x7 = xml `<?target data?>`;
+    e = trap x7[-1];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+    e = trap x7[a];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+    e = trap x7[i];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+
+    xml:ProcessingInstruction x8 = xml `<?target data?>`;
+    e = trap x8[-1];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+    e = trap x8[a];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+    e = trap x8[i];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+
+    xml x9 = xml `<names><name>Sherlock Holmes</name><name>Sherlock Holmes</name></names>`;
+    e = trap x9[1][-1];
+    check assertErrorMessage(e, "Index -1 out of bounds for length 0");
+    e = trap x9[1][a];
+    check assertErrorMessage(e, "Index -1 out of bounds for length 0");
+    e = trap x9[0][i];
+    check assertErrorMessage(e, "xml index out of range: index -1");
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
@@ -97,4 +174,12 @@ function assert(anydata actual, anydata expected) {
         error e = error(reason);
         panic e;
     }
+}
+
+function assertErrorMessage(anydata|error actual, string expectedErrorMessage) returns error? {
+    anydata actualValue = (actual is error)? check (<error> actual).detail().get("message").ensureType() : actual;
+    if expectedErrorMessage == actualValue {
+        return;
+    }
+    panic error(string `expected '${expectedErrorMessage.toBalString()}', found '${actualValue.toBalString()}'`);
 }

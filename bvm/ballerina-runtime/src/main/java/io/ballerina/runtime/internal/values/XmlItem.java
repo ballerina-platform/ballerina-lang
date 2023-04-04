@@ -522,10 +522,12 @@ public final class XmlItem extends XmlValue implements BXmlItem {
      */
     @Override
     public XmlValue getItem(int index) {
-        if (index != 0) {
+        if (index > 0) {
             return new XmlSequence();
+        } else if (index < 0) {
+            throw ErrorCreator.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
+                    StringUtils.fromString("xml index out of range: index " + index));
         }
-
         return this;
     }
 
