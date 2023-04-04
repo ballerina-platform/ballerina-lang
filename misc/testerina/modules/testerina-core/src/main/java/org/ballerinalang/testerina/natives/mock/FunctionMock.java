@@ -56,10 +56,9 @@ public class FunctionMock {
         String originalClass = splitInfo[2];
 
         originalFunctionPackage = getQualifiedClassName(originalOrg, originalPackage, originalVersion, originalClass);
-        Object returnVal = null;
         for (String caseId : caseIds) {
             if (MockRegistry.getInstance().hasCase(caseId)) {
-                returnVal = MockRegistry.getInstance().getReturnValue(caseId);
+                Object returnVal = MockRegistry.getInstance().getReturnValue(caseId);
                 if (returnVal instanceof BString) {
                     if (returnVal.toString().contains(MockConstants.FUNCTION_CALL_PLACEHOLDER)) {
                         return callMockFunction(originalFunction, originalFunctionPackage,
@@ -70,19 +69,16 @@ public class FunctionMock {
                                 originalFunctionPackage, args);
                     }
                 }
-                break;
+                return returnVal;
             }
         }
-        if (returnVal == null) {
-            String message = "no return value or action registered for function";
-            throw ErrorCreator.createError(
-                    MockConstants.TEST_PACKAGE_ID,
-                    MockConstants.FUNCTION_CALL_ERROR,
-                    StringUtils.fromString(message),
-                    null,
-                    new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
-        }
-        return returnVal;
+        String message = "no return value or action registered for function";
+        throw ErrorCreator.createError(
+                MockConstants.TEST_PACKAGE_ID,
+                MockConstants.FUNCTION_CALL_ERROR,
+                StringUtils.fromString(message),
+                null,
+                new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
     private static Object callOriginalFunction(String originalFunction, String originalClassName, Object... args) {
@@ -289,4 +285,3 @@ public class FunctionMock {
         return caseIdList;
     }
 }
-

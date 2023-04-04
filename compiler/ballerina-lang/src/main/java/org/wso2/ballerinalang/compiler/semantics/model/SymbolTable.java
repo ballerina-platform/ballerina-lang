@@ -1141,6 +1141,13 @@ public class SymbolTable {
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol, this.builtinPos,
                                                      BUILTIN);
+
+        BInvokableTypeSymbol typeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, Flags.ANY_FUNCTION,
+                rootPkgSymbol.pkgID, opType, rootPkgSymbol, this.builtinPos, BUILTIN);
+
+        typeSymbol.returnType = retType;
+        opType.tsymbol = typeSymbol;
+
         rootScope.define(name, symbol);
     }
 

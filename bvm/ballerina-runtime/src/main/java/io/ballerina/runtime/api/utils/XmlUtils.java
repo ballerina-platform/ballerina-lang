@@ -58,7 +58,7 @@ public class XmlUtils {
     }
 
     /**
-     * Create a XML sequence from string inputstream.
+     * Create a XML sequence from string input stream.
      *
      * @param xmlStream XML input stream
      * @return XML Sequence
@@ -68,9 +68,9 @@ public class XmlUtils {
     }
 
     /**
-     * Create a XML sequence from string inputstream with a given charset.
+     * Create a XML sequence from string input stream with a given charset.
      *
-     * @param xmlStream XML imput stream
+     * @param xmlStream XML input stream
      * @param charset   Charset to be used for parsing
      * @return XML Sequence
      */
