@@ -352,7 +352,7 @@ public class RunNativeImageTestTask implements Task {
             testSuiteMapEntries.add(testSuiteMap);
         }
 
-        if(!hasTests) {
+        if (!hasTests) {
             out.println("\tNo tests found");
         }
 
