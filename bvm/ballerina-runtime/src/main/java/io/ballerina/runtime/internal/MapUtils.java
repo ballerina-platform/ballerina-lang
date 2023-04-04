@@ -50,9 +50,9 @@ public class MapUtils {
     public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, Object value) {
         try {
             updateMapValue(mapValue.getType(), mapValue, fieldName, value);
-            System.out.println("Map updated");
         } catch (Throwable e) {
             e.printStackTrace();
+            throw e;
         }
     }
 
