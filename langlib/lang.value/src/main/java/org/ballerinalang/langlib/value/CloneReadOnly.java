@@ -31,9 +31,7 @@ public class CloneReadOnly {
     public static final PrintStream out = System.out;
     public static Object cloneReadOnly(Object value) {
         try {
-            System.out.println("Before cloneReadOnly" + value.toString());
             Object o = CloneUtils.cloneReadOnly(value);
-            System.out.println("After cloneReadOnly" + o.toString());
             return o;
         } catch (Throwable e) {
             e.printStackTrace();

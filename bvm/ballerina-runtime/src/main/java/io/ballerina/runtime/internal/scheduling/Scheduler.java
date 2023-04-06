@@ -280,52 +280,57 @@ public class Scheduler {
      * Executes tasks that are submitted to the Scheduler.
      */
     private void run() {
-        while (true) {
-            SchedulerItem item;
-            ItemGroup group;
-            try {
-                group = runnableList.take();
-            } catch (InterruptedException ignored) {
-                continue;
-            }
-
-            if (group == POISON_PILL) {
-                this.mainBlockSem.release();
-                break;
-            }
-
-            boolean isItemsEmpty = group.items.isEmpty();
-            while (!isItemsEmpty) {
-                Object result = null;
-                Throwable panic = null;
-
-                item = group.get();
-
+        try {
+            while (true) {
+                SchedulerItem item;
+                ItemGroup group;
                 try {
-                    strandHolder.get().strand = item.future.strand;
-                    result = item.execute();
-                } catch (Throwable e) {
-                    panic = createError(e);
-                    notifyChannels(item, panic);
+                    group = runnableList.take();
+                } catch (InterruptedException ignored) {
+                    continue;
+                }
 
-                    if (!(panic instanceof BError)) {
-                        RuntimeUtils.printCrashLog(panic);
-                    }
-                    // Please refer #18763.
-                    // This logs cases where errors have occurred while strand is blocked.
-                    if (item.isYielded()) {
-                        RuntimeUtils.printCrashLog(panic);
-                    }
-                } finally {
-                    strandHolder.get().strand = previousStrand;
+                if (group == POISON_PILL) {
+                    this.mainBlockSem.release();
+                    break;
                 }
-                postProcess(item, result, panic);
-                group.lock();
-                if ((isItemsEmpty = group.items.empty())) {
-                    group.scheduled.set(false);
+
+                boolean isItemsEmpty = group.items.isEmpty();
+                while (!isItemsEmpty) {
+                    Object result = null;
+                    Throwable panic = null;
+
+                    item = group.get();
+
+                    try {
+                        strandHolder.get().strand = item.future.strand;
+                        result = item.execute();
+                    } catch (Throwable e) {
+                        panic = createError(e);
+                        notifyChannels(item, panic);
+
+                        if (!(panic instanceof BError)) {
+                            RuntimeUtils.printCrashLog(panic);
+                        }
+                        // Please refer #18763.
+                        // This logs cases where errors have occurred while strand is blocked.
+                        if (item.isYielded()) {
+                            RuntimeUtils.printCrashLog(panic);
+                        }
+                    } finally {
+                        strandHolder.get().strand = previousStrand;
+                    }
+                    postProcess(item, result, panic);
+                    group.lock();
+                    if ((isItemsEmpty = group.items.empty())) {
+                        group.scheduled.set(false);
+                    }
+                    group.unlock();
                 }
-                group.unlock();
             }
+        } catch (Throwable t) {
+            t.printStackTrace();
+            throw t;
         }
     }
 
