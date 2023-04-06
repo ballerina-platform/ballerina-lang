@@ -658,9 +658,6 @@ public class JvmCodeGenUtil {
         int gotoBBNumber = thenBB.number;
         int currentBBNumber = currentBB.number;
         if (currentBBNumber <= gotoBBNumber) {
-            mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-            mv.visitLdcInsn("yield to down");
-            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
             Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
             mv.visitJumpInsn(GOTO, gotoLabel);
             return;
@@ -669,9 +666,6 @@ public class JvmCodeGenUtil {
         mv.visitVarInsn(ISTORE, loopVarIndex);
         mv.visitIntInsn(SIPUSH, gotoBBNumber);
         mv.visitVarInsn(ISTORE, stateVarIndex);
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        mv.visitLdcInsn("yield to up");
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
 
         mv.visitJumpInsn(GOTO, loopLabel);
     }
@@ -694,9 +688,6 @@ public class JvmCodeGenUtil {
         mv.visitVarInsn(ASTORE, yieldStatusVarIndex);
 
         Label yieldLabel = labelGen.getLabel(funcName + "yield");
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        mv.visitLdcInsn("yielded");
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
 
         mv.visitJumpInsn(GOTO, yieldLabel);
         mv.visitLabel(yieldLocationLabel);
