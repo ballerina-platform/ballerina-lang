@@ -1266,6 +1266,41 @@ function testRuntimeRegexpParser() {
     anydata|error result = regexp:fromString("(?-:)");
 }
 
+function testTranslatingDiffNodesInCharClass() {
+    string:RegExp pattern1 = re `[A-Z\d]`;
+    regexp:Span? res1 = pattern1.find("ABC2");
+    assertTrue(res1 is regexp:Span);
+    assertEquality("A", (<regexp:Span>res1).substring());
+
+    string:RegExp pattern2 = re `[A-Z*]`;
+    regexp:Span? res2 = pattern2.find("ABC2");
+    assertTrue(res2 is regexp:Span);
+    assertEquality("A", (<regexp:Span>res2).substring());
+
+    string:RegExp pattern3 = re `[A-Za-z]`;
+    regexp:Span[] res3 = pattern3.findAll("ABCabc");
+    string concatRes = "";
+    foreach regexp:Span span in res3 {
+        concatRes += span.substring();
+    }
+    assertEquality("ABCabc", concatRes);
+
+    string:RegExp pattern4 = re `[A-Z\d\s]`;
+    regexp:Span? res4 = pattern4.find("ABC2 ");
+    assertTrue(res4 is regexp:Span);
+    assertEquality("A", (<regexp:Span>res4).substring());
+
+    string:RegExp pattern5 = re `[\d\s.]`;
+    regexp:Span? res5 = pattern5.find("ABC2 ");
+    assertTrue(res5 is regexp:Span);
+    assertEquality("2", (<regexp:Span>res5).substring());
+
+    string:RegExp pattern6 = re `[a-z\d]`;
+    regexp:Span? res6 = pattern6.find("ABC2 a");
+    assertTrue(res6 is regexp:Span);
+    assertEquality("2", (<regexp:Span>res6).substring());
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
