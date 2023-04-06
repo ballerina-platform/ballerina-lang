@@ -279,3 +279,48 @@ function testInvokingFunctionContainingIncludedRecordParamOfTypeOtherThanRecordO
     _ = obj.fn(f = {});
     _ = obj.fn2(f = {});
 }
+
+type Record5 record {
+};
+
+type Record6 record {
+};
+
+function fn5(*Record5 record5) {
+}
+
+function fn6(*Record5 record5, *Record6 record6) {
+}
+
+function testInvokingFunctionWithNamedArgForIncludedRecordParam() {
+    fn5(record5 = {}, j = 2);
+    fn5(j = 2, record5 = {});
+    fn6(record5 = {}, j = 2);
+    fn6(record5 = {}, record6 = {}, j = 2);
+    fn6(j = 2, record5 = {}, record6 = {});
+    fn9(record7 = {}, record6 = {}, j = 2);
+}
+
+type Baz record {|
+    int r;
+|};
+
+function fn7(*Baz r) {
+}
+
+function fn8(string k, *Record5 record5) {
+}
+
+function testInvokingFunctionWithPositionalArgForIncludedRecordParam() {
+    fn8("abc", {}, j = 2);
+    fn8("abc", {}, j = 2, i = 10);
+    fn5({}, j = 2);
+    fn6({}, {}, j = 2);
+    fn9({}, {}, j = 2);
+}
+
+function fn9(*Record7 record7, *Record6 record6) {
+}
+
+type Record7 record {|
+|};
