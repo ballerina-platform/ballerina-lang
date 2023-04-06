@@ -5768,10 +5768,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         // Disallow unions with 'xml:T (singleton) items
         for (BType item : ((BUnionType) expType).getMemberTypes()) {
             item = Types.getReferredType(item);
-//            if (item.tag == TypeTags.XML && !types.isAssignable(symTable.xmlType, item)) {
-//                item = ((BXMLType) item).constraint;
-//            }
-            if (item.tag == TypeTags.XML && types.isAssignable(symTable.xmlType, item) || item.tag == TypeTags.ANYDATA || item.tag == TypeTags.ANY) {
+            if (types.isAssignable(symTable.xmlType, item)) {
                 data.resultType = symTable.xmlType;
                 return;
             }
