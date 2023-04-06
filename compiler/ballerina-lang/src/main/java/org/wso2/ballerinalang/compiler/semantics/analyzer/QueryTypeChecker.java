@@ -257,6 +257,7 @@ public class QueryTypeChecker extends TypeChecker {
             List<BType> collectionTypes = getCollectionTypes(clauses);
             BType completionType = getCompletionType(collectionTypes, types.getQueryConstructType(queryExpr), data);
             selectType = selectTypes.iterator().next();
+            selectType = checkExpr(selectExp, env, selectType, data);
             if (queryExpr.isStream) {
                 return new BStreamType(TypeTags.STREAM, selectType, completionType, null);
             } else if (queryExpr.isTable) {
@@ -296,18 +297,18 @@ public class QueryTypeChecker extends TypeChecker {
         switch (type.tag) {
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) type).eType;
-                selectType = checkExpr(selectExp, env, elementType, data);
+                selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), elementType, data);
                 BType queryResultType = new BArrayType(selectType);
                 resolvedType = getResolvedType(queryResultType, type, isReadonly, env);
                 break;
             case TypeTags.TABLE:
-                selectType = checkExpr(selectExp, env, types.getSafeType(((BTableType) type).constraint,
-                        true, true), data);
+                selectType = checkExprSilent(nodeCloner.cloneNode(selectExp),
+                        types.getSafeType(((BTableType) type).constraint, true, true), data);
                 resolvedType = getResolvedType(symTable.tableType, type, isReadonly, env);
                 break;
             case TypeTags.STREAM:
-                selectType = checkExpr(selectExp, env, types.getSafeType(((BStreamType) type).constraint,
-                        true, true), data);
+                selectType = checkExprSilent(nodeCloner.cloneNode(selectExp),
+                        types.getSafeType(((BStreamType) type).constraint, true, true), data);
                 resolvedType = symTable.streamType;
                 break;
             case TypeTags.MAP:
@@ -319,7 +320,7 @@ public class QueryTypeChecker extends TypeChecker {
                 BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(memberType);
                 memberTypeList.add(new BTupleMember(memberType, varSymbol));
                 BTupleType newExpType = new BTupleType(null, memberTypeList);
-                selectType = checkExpr(selectExp, env, newExpType, data);
+                selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), newExpType, data);
                 resolvedType = getResolvedType(selectType, type, isReadonly, env);
                 break;
             case TypeTags.STRING:
@@ -328,7 +329,7 @@ public class QueryTypeChecker extends TypeChecker {
             case TypeTags.XML_ELEMENT:
             case TypeTags.XML_PI:
             case TypeTags.XML_TEXT:
-                selectType = checkExpr(selectExp, env, type, data);
+                selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), type, data);
                 resolvedType = selectType;
                 break;
             case TypeTags.INTERSECTION:
@@ -341,10 +342,9 @@ public class QueryTypeChecker extends TypeChecker {
                 // contextually expected type not given (i.e var).
                 selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), type, data);
                 if (selectType != symTable.semanticError) {
-                    selectType = checkExpr(selectExp, env, type, data);
-                }  else {
-                    selectType = checkExpr(selectExp, env, data);
+                    selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), type, data);
                 }
+
                 if (queryExpr.isMap) { // A query-expr that constructs a mapping must start with the map keyword.
                     resolvedType = symTable.mapType;
                 } else {
@@ -359,7 +359,13 @@ public class QueryTypeChecker extends TypeChecker {
             if (resolvedType.tag == TypeTags.TABLE) {
                 queryExpr.isTable = true;
             }
-            selectTypes.add(selectType);
+
+            if (types.isAssignable(selectType, type)) {
+                selectTypes.add(type);
+            } else {
+                selectTypes.add(selectType);
+            }
+
             resolvedTypes.add(resolvedType);
         }
     }
