@@ -449,7 +449,7 @@ type Type any|error;
 # + v - first argument
 # + vs - rest of the arguments
 # + return - first argument
-public isolated function first(Type v, (any|error)... vs) returns Type {
+public isolated function first(Type v, any|error... vs) returns Type {
     return v;
 }
 

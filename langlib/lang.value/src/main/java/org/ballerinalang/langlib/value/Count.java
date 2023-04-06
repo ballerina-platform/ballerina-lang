@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.value;
 /**
  * Extern function lang.values:count.
  *
- * @since 2201.5.0
+ * @since 2201.6.0
  */
 public class Count {
     public static long count(Object[] values) {

@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.value;
 /**
  * Extern function lang.values:last.
  *
- * @since 2201.5.0
+ * @since 2201.6.0
  */
 public class Last {
     public static Object last(Object value, Object[] values) {
