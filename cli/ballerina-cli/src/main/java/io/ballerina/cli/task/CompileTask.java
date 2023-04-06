@@ -218,34 +218,60 @@ public class CompileTask implements Task {
         return compileForBalPack && project.currentPackage().manifest().template();
     }
 
+    /**
+     * Prints the warning that explains the dependency update due to the detection of a new distribution.
+     *
+     * @param project project instance
+     */
     private void printWarningForHigherDistribution(Project project) {
         SemanticVersion prevDistributionVersion = project.currentPackage().dependencyManifest().distributionVersion();
         SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
-        if (!project.buildOptions().sticky() && (null == prevDistributionVersion
-                || ProjectUtils.isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion))) {
 
-            if (project.currentPackage().dependencyManifest().dependenciesTomlVersion() != null) {
-                String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
-                if (currentDistributionVersion.patch() != 0) {
-                    currentVersionForDiagnostic += DOT + currentDistributionVersion.patch();
+        if (project.currentPackage().dependencyManifest().dependenciesTomlVersion() != null) {
+            String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
+            if (currentDistributionVersion.patch() != 0) {
+                currentVersionForDiagnostic += DOT + currentDistributionVersion.patch();
+            }
+            String prevVersionForDiagnostic;
+            if (null != prevDistributionVersion) {
+                prevVersionForDiagnostic = String.valueOf(prevDistributionVersion.minor());
+                if (prevDistributionVersion.patch() != 0) {
+                    prevVersionForDiagnostic += DOT + prevDistributionVersion.patch();
                 }
-                String prevVersionForDiagnostic;
-                if (null != prevDistributionVersion) {
-                    prevVersionForDiagnostic = String.valueOf(prevDistributionVersion.minor());
-                    if (prevDistributionVersion.patch() != 0) {
-                        prevVersionForDiagnostic += DOT + prevDistributionVersion.patch();
-                    }
+            } else {
+                prevVersionForDiagnostic = "4 or an older Update";
+            }
+            String warning = null;
+            // existing project
+            if (prevDistributionVersion == null) {
+                // Built with Update 4 or less. Therefore, we issue a warning
+                warning = "Detected an attempt to compile this package using Swan Lake Update "
+                        + currentVersionForDiagnostic +
+                        ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
+                        ".";
+                if (project.buildOptions().sticky()) {
+                    warning += "\nHINT: Execute the bal command with --sticky=false";
                 } else {
-                    prevVersionForDiagnostic = "4 or an older Update";
+                    warning += " To ensure compatibility, the Dependencies.toml file will be updated with the " +
+                            "latest versions that are compatible with Update " + currentVersionForDiagnostic + ".";
                 }
+            } else {
+                // Built with Update 5 or above
+                boolean newUpdateDistribution =
+                        ProjectUtils.isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion);
+                if (newUpdateDistribution) {
+                    // Issue a warning
+                    warning = "Detected an attempt to compile this package using Swan Lake Update "
+                            + currentVersionForDiagnostic +
+                            ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
+                            ". To ensure compatibility, the Dependencies.toml file will be updated with the " +
+                            "latest versions that are compatible with Update " + currentVersionForDiagnostic + ".";
+                }
+            }
+            if (warning != null) {
                 DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                         ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId(),
-                        "Detected an attempt to build this package using Swan Lake Update "
-                                + currentVersionForDiagnostic +
-                                ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
-                                ". To ensure compatibility, the Dependencies.toml file will be updated with the " +
-                                "latest versions that are compatible with Update " + currentVersionForDiagnostic + ".",
-                        DiagnosticSeverity.WARNING);
+                        warning, DiagnosticSeverity.WARNING);
                 PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
                         project.currentPackage().descriptor().name().toString());
                 err.println(diagnostic);

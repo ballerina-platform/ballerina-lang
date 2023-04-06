@@ -26,6 +26,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -35,6 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.projects.test.TestUtils.assertTomlFilesEquals;
+import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
@@ -69,10 +71,12 @@ public class SubsequentBuildTests {
         // package_f --> package_d
         // package_d --> package_b --> package_c
         // package_d --> package_e
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_c");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_b");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_e");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_d");
+        BCompileUtil.compileAndCacheBala(tempResourceDir.resolve("package_c").toString());
+        Path packageBPath = tempResourceDir.resolve("package_b");
+        replaceDistributionVersionOfDependenciesToml(packageBPath, RepoUtils.getBallerinaShortVersion());
+        BCompileUtil.compileAndCacheBala(packageBPath.toString());
+        BCompileUtil.compileAndCacheBala(tempResourceDir.resolve("package_e").toString());
+        BCompileUtil.compileAndCacheBala(tempResourceDir.resolve("package_d").toString());
     }
 
     @Test
