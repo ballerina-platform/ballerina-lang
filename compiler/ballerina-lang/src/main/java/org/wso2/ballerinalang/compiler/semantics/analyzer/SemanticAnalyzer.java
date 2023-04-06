@@ -2352,8 +2352,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
         setTypeOfVarRef(tupleDeStmt.varRef, data);
 
-        BType type = typeChecker.checkExpr(tupleDeStmt.expr, data.env, tupleDeStmt.varRef.getBType(), data.prevEnvs,
-                data.commonAnalyzerData);
+        BType type = typeChecker.checkExpr(tupleDeStmt.expr, data.env, symTable.noType, data.prevEnvs,
+                        data.commonAnalyzerData);
 
         if (type.tag != TypeTags.SEMANTIC_ERROR) {
             checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef,
