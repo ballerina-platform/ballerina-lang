@@ -2642,6 +2642,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             dlog.error(varNode.pos, DiagnosticErrorCode.NO_NEW_VARIABLES_VAR_ASSIGNMENT);
             return false;
         }
+        varNode.setBType(tupleTypeNode);
         return true;
     }
 

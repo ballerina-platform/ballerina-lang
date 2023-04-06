@@ -60,3 +60,21 @@ function testIncompatibleAssignment() {
 function testNullAsUnionMember() {
     boolean|null _ = "null"; // error
 }
+
+function testInvalidUsageOfListBPInUnion() {
+    [string, boolean]|int [name1, married1] = fn1();
+    [string, boolean]|[int] [name2, married2] = fn2();
+    [string, boolean]|[int] [name3, married3] = fn3();
+    [string, boolean]|[int] [name4, married4] = fn4();
+    [string, boolean]|[int] [name5, married5] = fn5();
+    [string, boolean]|error [name6, married] = fn6();
+    [string, int, boolean...]|int [name7, age, ...status] = fn7();
+}
+
+function fn1() returns [string, boolean]|int => 1;
+function fn2() returns [string, boolean]|[int] => [1];
+function fn3() returns [int] => [1];
+function fn4() returns [string, boolean]|[int] => ["Anne"];
+function fn5() returns [string, boolean]|[int] => ["Anne", true];
+function fn6() returns [string, boolean]|error => error("Oops!");
+function fn7() returns [string, int, boolean...]|int => ["Anne", 40, true];

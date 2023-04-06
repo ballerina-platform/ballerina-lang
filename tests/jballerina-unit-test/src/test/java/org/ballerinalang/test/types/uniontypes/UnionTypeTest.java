@@ -123,7 +123,7 @@ public class UnionTypeTest {
     @Test(description = "Test negative cases")
     public void testAmbiguousAssignment() {
         int i = 0;
-        Assert.assertEquals(negativeResult.getErrorCount(), 8);
+        Assert.assertEquals(negativeResult.getErrorCount(), 15);
         BAssertUtil.validateError(negativeResult, i++, "ambiguous type '(ClosedBar|ClosedFoo)'", 43, 30);
         BAssertUtil.validateError(negativeResult, i++, "ambiguous type '(ClosedBar|OpenBar)'", 44, 28);
         BAssertUtil.validateError(negativeResult, i++, "incompatible mapping constructor expression for type '" +
@@ -136,8 +136,22 @@ public class UnionTypeTest {
                         "found 'string'", 56, 26);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'SomeTypes2', found 'string'",
                 57, 21);
-        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected '(boolean|null)', found 'string'",
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(boolean|null)', found 'string'",
                 61, 22);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'[string,boolean]', found '([string,boolean]|int)'", 65, 47);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'[string,boolean]', found '([string,boolean]|[int])'", 66, 49);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'[string,boolean]', found '[int]'", 67, 49);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'[string,boolean]', found '([string,boolean]|[int])'", 68, 49);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'[string,boolean]', found '([string,boolean]|[int])'", 69, 49);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'[string,boolean]', found '([string,boolean]|error)'", 70, 48);
+        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected " +
+                "'[string,int,boolean...]', found '([string,int,boolean...]|int)'", 71, 61);
     }
 
     @Test(description = "Test nullable check")
@@ -190,7 +204,12 @@ public class UnionTypeTest {
     public void testLiteralWithUnionExpectedType() {
         BRunUtil.invoke(result, "testLiteralWithUnionExpectedType");
     }
-    
+
+    @Test
+    public void testValidUsageOfListBPInUnion() {
+        BRunUtil.invoke(result, "testValidUsageOfListBPInUnion");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
