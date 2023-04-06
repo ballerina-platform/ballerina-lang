@@ -37,8 +37,8 @@ public class Constants {
 
     public static final String SKIP_TESTS = "false";
 
-    public static final int INIT_METHOD_SPLIT_SIZE = 100;
-    public static final int MAX_LISTENER_COUNT_PER_METHOD = 25;
+    public static final int INIT_METHOD_SPLIT_SIZE = 25;
+    public static final int MAX_LISTENER_COUNT_PER_METHOD = 10;
 
     public static final int MIN_UNICODE = 0xD800;
     public static final int MIDDLE_LIMIT_UNICODE = 0xDFFF;
