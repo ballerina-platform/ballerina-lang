@@ -223,7 +223,7 @@ public class BTestMain {
                     functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER));
                 }
             }
-            functionToMock = functionToMock.replaceAll("\\\\", "");
+            functionToMock = functionToMock.replaceAll("\\\\(.)", "$1");
             classVsMockFunctionsMap.computeIfAbsent(functionToMockClassName,
                     k -> new ArrayList<>()).add(functionToMock);
         }
@@ -241,7 +241,7 @@ public class BTestMain {
         byte[] classFile = new byte[0];
         boolean readFromBytes = false;
         for (Method method1 : functionToMockClass.getDeclaredMethods()) {
-            if (functionNames.contains(MOCK_FN_DELIMITER + method1.getName())) {
+            if (functionNames.contains(MOCK_FN_DELIMITER + TesterinaUtils.decodeIdentifier(method1.getName()))) {
                 String desugaredMockFunctionName = "$MOCK_" + method1.getName();
                 String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
                         suite.getTestPackageID(), suite.getVersion(),

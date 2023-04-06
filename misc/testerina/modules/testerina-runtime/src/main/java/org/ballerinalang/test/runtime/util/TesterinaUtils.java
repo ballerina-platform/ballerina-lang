@@ -51,6 +51,8 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CL
 import static io.ballerina.runtime.internal.launch.LaunchUtils.startTrapSignalHandler;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.IDENTIFIER_END_INDEX;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.IDENTIFIER_START_INDEX;
 
 /**
  * Utility methods.
@@ -511,5 +513,43 @@ public class TesterinaUtils {
 
     private static String cleanupClassName(String className) {
         return className.replace(GENERATE_OBJECT_CLASS_PREFIX, ".");
+    }
+
+    public static String decodeIdentifier(String encodedIdentifier) {
+        if (encodedIdentifier == null) {
+            return encodedIdentifier;
+        }
+        StringBuilder sb = new StringBuilder();
+        int index = 0;
+        while (index < encodedIdentifier.length()) {
+            if (encodedIdentifier.charAt(index) == '$' && index + 4 < encodedIdentifier.length()) {
+                if (isUnicodePoint(encodedIdentifier, index)) {
+                    sb.append((char) Integer.parseInt(encodedIdentifier.substring(index + IDENTIFIER_START_INDEX,
+                            index + IDENTIFIER_END_INDEX)));
+                    index += IDENTIFIER_END_INDEX;
+                } else {
+                    sb.append(encodedIdentifier.charAt(index));
+                    index++;
+                }
+            } else {
+                sb.append(encodedIdentifier.charAt(index));
+                index++;
+            }
+        }
+        return sb.toString();
+    }
+
+    private static boolean isUnicodePoint(String encodedName, int index) {
+        return (containsOnlyDigits(encodedName.substring(index + IDENTIFIER_START_INDEX,
+                index + IDENTIFIER_END_INDEX)));
+    }
+
+    private static boolean containsOnlyDigits(String digitString) {
+        for (int i = 0; i < digitString.length(); i++) {
+            if (!Character.isDigit(digitString.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 }
