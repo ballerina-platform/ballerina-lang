@@ -148,8 +148,8 @@ public abstract class AbstractObjectValue implements ObjectValue {
     }
 
     @Override
-    public ObjectType getType() {
-        return objectType;
+    public Type getType() {
+        return type;
     }
 
     @Override

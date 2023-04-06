@@ -41,13 +41,12 @@ public interface BObject extends RefValue {
     /**
      * Gets the type of ballerina object.
      *
-     * @return Ballerina object type.
-     * @deprecated use {@link BObject#getOriginalType()} ()} instead.
+     * @return The type of Ballerina object.
      * The API {@link BValue#getType()} should be used after fixing the issue #39850.
      */
-    @Deprecated
-    ObjectType getType();
+    Type getType();
 
+    @Deprecated
     default Type getOriginalType() {
         return TypeUtils.getType(this);
     }

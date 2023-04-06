@@ -200,7 +200,7 @@ public class TypeReference {
     public static Boolean validateParameterizedType(ObjectValue objectValue) {
         BError error = ErrorCreator.createError(StringUtils.fromString("parameterized type API provided a non type " +
                 "reference type."));
-        ObjectType objectType = objectValue.getType();
+        ObjectType objectType = (ObjectType) objectValue.getType();
         BFunctionType functionType = (BFunctionType) objectType.getMethods()[0].getType();
         BParameterizedType parameterizedType =
                 (BParameterizedType) ((UnionType) functionType.getReturnType()).getMemberTypes().get(0);
@@ -265,7 +265,7 @@ public class TypeReference {
 
     public static Boolean validateBObject(BObject value) {
         // TODO : change this to use `value.getType()`
-        if (value.getOriginalType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+        if (value.getType().getTag() != TypeTags.TYPE_REFERENCED_TYPE_TAG) {
             throw ErrorCreator.createError(StringUtils.fromString("BObject getType API provided a non type " +
                     "reference type."));
         }

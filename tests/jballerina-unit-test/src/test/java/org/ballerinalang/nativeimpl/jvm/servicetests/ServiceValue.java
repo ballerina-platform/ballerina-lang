@@ -76,7 +76,7 @@ public class ServiceValue {
     }
 
     public static BArray getParamNames(BObject o, BString methodName) {
-        ObjectType type = o.getType();
+        ObjectType type = (ObjectType) o.getType();
         if (!(type instanceof ServiceType)) {
             return null;
         }

@@ -165,7 +165,7 @@ public class GenericMockObjectValue implements BObject {
     }
 
     @Override
-    public ObjectType getType() {
+    public Type getType() {
         return type;
     }
 

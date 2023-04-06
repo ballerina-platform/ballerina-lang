@@ -141,8 +141,8 @@ public class StackTrace {
         }
 
         @Override
-        public ObjectType getType() {
-            return (ObjectType) TypeUtils.getReferredType(type);
+        public Type getType() {
+            return type;
         }
 
         @Override
