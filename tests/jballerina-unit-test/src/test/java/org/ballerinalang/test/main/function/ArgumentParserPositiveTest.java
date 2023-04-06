@@ -93,7 +93,7 @@ public class ArgumentParserPositiveTest {
     public void testXmlArg() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_xml_param.bal");
         String output = runMain(compileResult, new String[]{"<book status=\"available\" count=\"5\"></book>"});
-        Assert.assertTrue(output.contains("<book status=\"available\" count=\"5\"></book>"),
+        Assert.assertTrue(output.contains("<book status=\"available\" count=\"5\"/>"),
                 "string arg parsed as invalid XML");
     }
 

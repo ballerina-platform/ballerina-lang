@@ -98,8 +98,8 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "snakeyaml"
-    version = "1.31.0.wso2v1"
-    path = "./lib/snakeyaml-1.32.0.wso2v1.jar"
+    version = "2.0.0.wso2v1"
+    path = "./lib/snakeyaml-2.0.0.wso2v1.jar"
     groupId = "org.wso2.orbit.org.yaml"
     modules = ["web-sub"]
 

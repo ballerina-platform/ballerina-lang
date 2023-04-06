@@ -9,7 +9,7 @@ target = "java8"
 
     [[platform.libraries]]
     modules = ["balModule1"]
-    path = "./lib/snakeyaml-1.25.jar"
+    path = "./lib/snakeyaml-2.0.jar"
 
     [[platform.libraries]]
     modules = ["balModule1"]
@@ -21,7 +21,7 @@ target = "java8"
     modules = ["balModule1"]
     groupId = "org.yaml"
     artifactId = "snakeyaml"
-    version = "1.25"
+    version = "2.0"
 
     # transitive dependency of commons-logging:commons-logging:1.1.1
     [[platform.libraries]]

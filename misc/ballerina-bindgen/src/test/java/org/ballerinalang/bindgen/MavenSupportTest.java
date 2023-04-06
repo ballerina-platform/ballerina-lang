@@ -66,8 +66,8 @@ public class MavenSupportTest extends CommandTest {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
         String moduleDir = Paths.get(projectDir, "src", "balModule1").toString();
         Path mavenRepoPath = Paths.get(projectDir, "target", "platform-libs");
-        String jarName = "snakeyaml-1.25.jar";
-        String[] args = {"-mvn=org.yaml:snakeyaml:1.25", "-o=" + moduleDir, "org.yaml.snakeyaml.Yaml"};
+        String jarName = "snakeyaml-2.0.jar";
+        String[] args = {"-mvn=org.yaml:snakeyaml:2.0", "-o=" + moduleDir, "org.yaml.snakeyaml.Yaml"};
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
         new CommandLine(bindgenCommand).parseArgs(args);
 
@@ -76,7 +76,7 @@ public class MavenSupportTest extends CommandTest {
         Assert.assertTrue(output.contains("Ballerina project detected at:"));
         Assert.assertTrue(output.contains("Resolving maven dependencies..."));
         Assert.assertTrue(output.contains("Following jars were added to the classpath"));
-        Assert.assertTrue(output.contains("snakeyaml-1.25.jar"));
+        Assert.assertTrue(output.contains("snakeyaml-2.0.jar"));
         Assert.assertTrue(isJarAvailable(mavenRepoPath, jarName));
     }
 
