@@ -660,9 +660,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         if (isGlobalVarSymbol(symbol)) {
             BLangExpression expr = variable.expr;
-            if (expr instanceof BLangInvocation) {
+            if (expr.getKind() == NodeKind.INVOCATION) {
                 BLangInvocation invocationExpr = (BLangInvocation) expr;
-                isContainsUninitializedVars(invocationExpr.pos, invocationExpr);
+                containsUninitializedVars(invocationExpr.pos, invocationExpr);
             }
         }
         
@@ -1715,10 +1715,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return true;
         }
 
-        return isContainsUninitializedVars(pos, invocation);
+        return containsUninitializedVars(pos, invocation);
     }
     
-    private boolean isContainsUninitializedVars(Location pos, BLangInvocation invocation) {
+    private boolean containsUninitializedVars(Location pos, BLangInvocation invocation) {
         boolean isFirstUninitializedField = true;
         StringBuilder uninitializedFields = new StringBuilder();
 
