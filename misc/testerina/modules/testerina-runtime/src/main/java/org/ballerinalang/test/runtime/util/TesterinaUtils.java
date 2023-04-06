@@ -51,6 +51,8 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CL
 import static io.ballerina.runtime.internal.launch.LaunchUtils.startTrapSignalHandler;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.IDENTIFIER_END_INDEX;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.IDENTIFIER_START_INDEX;
 
 /**
  * Utility methods.
@@ -522,8 +524,9 @@ public class TesterinaUtils {
         while (index < encodedIdentifier.length()) {
             if (encodedIdentifier.charAt(index) == '$' && index + 4 < encodedIdentifier.length()) {
                 if (isUnicodePoint(encodedIdentifier, index)) {
-                    sb.append((char) Integer.parseInt(encodedIdentifier.substring(index + 1, index + 5)));
-                    index += 5;
+                    sb.append((char) Integer.parseInt(encodedIdentifier.substring(index + IDENTIFIER_START_INDEX,
+                            index + IDENTIFIER_END_INDEX)));
+                    index += IDENTIFIER_END_INDEX;
                 } else {
                     sb.append(encodedIdentifier.charAt(index));
                     index++;
@@ -537,7 +540,8 @@ public class TesterinaUtils {
     }
 
     private static boolean isUnicodePoint(String encodedName, int index) {
-        return (containsOnlyDigits(encodedName.substring(index + 1, index + 5)));
+        return (containsOnlyDigits(encodedName.substring(index + IDENTIFIER_START_INDEX,
+                index + IDENTIFIER_END_INDEX)));
     }
 
     private static boolean containsOnlyDigits(String digitString) {
