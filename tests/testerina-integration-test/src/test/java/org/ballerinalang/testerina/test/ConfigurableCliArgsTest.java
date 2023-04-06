@@ -26,6 +26,7 @@ import org.testng.annotations.Test;
 
 /**
  * Test class containing tests related to configurable cli arguments.
+ *
  * @since 2201.6.0
  */
 
