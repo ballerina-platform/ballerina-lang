@@ -25,14 +25,12 @@ type Account record {
 };
 
 service class AccountService {
-    resource function get account/[string account\-id]() returns Account {
-        return {
-            id: account\-id,
-            name: "John Doe",
-            email: "john.doe@email.com",
-            phone: "1234567890"
-        };
-    }
+    resource function get account/[string account\-id]() returns Account => {
+        id: account\-id,
+        name: "John Doe",
+        email: "john.doe@email.com",
+        phone: "1234567890"
+    };
 }
 
 public function main() {
@@ -43,8 +41,7 @@ public function main() {
 }
 
 function testFunctionParameters() {
-    test:assertEquals(getParameterName(function(string account\-id) {
-    }), "account-id");
+    test:assertEquals(getParameterName(function(string account\-id) {}), "account-id");
     test:assertEquals(getParameterNameFromResource(AccountService), "account-id");
 }
 
