@@ -258,9 +258,6 @@ public class MethodGen {
         mv.visitJumpInsn(IFEQ, loopConditionLabel);
         mv.visitInsn(ICONST_0);
         mv.visitVarInsn(ISTORE, loopVarIndex);
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        mv.visitLdcInsn("loop");
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
 
         // process basic blocks
         List<Label> labels = new ArrayList<>();
