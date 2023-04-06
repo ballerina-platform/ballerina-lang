@@ -106,6 +106,7 @@ public class RunTestsTask implements Task {
     private String singleExecTests;
     private Map<String, Module> coverageModules;
     private boolean listGroups;
+    private final List<String> cliArgs;
 
     TestReport testReport;
     private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
@@ -121,10 +122,11 @@ public class RunTestsTask implements Task {
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                         String disableGroupList, String testList, String includes, String coverageFormat,
-                        Map<String, Module> modules, boolean listGroups, String excludes)  {
+                        Map<String, Module> modules, boolean listGroups, String excludes, String[] cliArgs)  {
         this.out = out;
         this.err = err;
         this.isRerunTestExecution = rerunTests;
+        this.cliArgs = List.of(cliArgs);
 
         if (disableGroupList != null) {
             this.disableGroupList = disableGroupList;
@@ -340,6 +342,9 @@ public class RunTestsTask implements Task {
         cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
         cmdArgs.add(Boolean.toString(isRerunTestExecution));
         cmdArgs.add(Boolean.toString(listGroups));
+        cliArgs.forEach((arg) -> {
+            cmdArgs.add(arg);
+        });
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
