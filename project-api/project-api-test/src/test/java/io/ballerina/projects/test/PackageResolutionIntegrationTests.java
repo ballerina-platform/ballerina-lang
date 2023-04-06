@@ -32,6 +32,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,6 +41,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.projects.test.TestUtils.assertTomlFilesEquals;
+import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
@@ -149,6 +151,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // package_a ---> 1.0.0
         Files.copy(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve(DEPENDENCIES_TOML),
                 projectDirPath.resolve(DEPENDENCIES_TOML));
+        replaceDistributionVersionOfDependenciesToml(projectDirPath, RepoUtils.getBallerinaShortVersion());
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
         BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
         buildProject.save();
@@ -170,6 +173,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // package_a ---> 1.1.0
         Files.copy(projectDirPath.resolve(RESOURCE_DIR_NAME).resolve(DEPENDENCIES_TOML),
                 projectDirPath.resolve(DEPENDENCIES_TOML));
+        replaceDistributionVersionOfDependenciesToml(projectDirPath, RepoUtils.getBallerinaShortVersion());
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(projectDirPath));
         BuildProject buildProject = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
         buildProject.save();
@@ -312,6 +316,7 @@ public class PackageResolutionIntegrationTests extends BaseTest {
         // package_e ---> 2.0.0
         Files.copy(projectDirPath2.resolve(RESOURCE_DIR_NAME).resolve(DEPENDENCIES_TOML),
                 projectDirPath2.resolve(DEPENDENCIES_TOML));
+        replaceDistributionVersionOfDependenciesToml(projectDirPath2, RepoUtils.getBallerinaShortVersion());
         // Build package_f w/o deleting Dependencies.toml and build file
         // package_f       ---> package_e 2.0.0, 2.0.2
         // package_e 2.0.2 ---> package_d 1.0.0
