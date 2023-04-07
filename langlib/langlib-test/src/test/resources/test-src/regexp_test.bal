@@ -1266,7 +1266,7 @@ function testRuntimeRegexpParser() {
     anydata|error result = regexp:fromString("(?-:)");
 }
 
-function testTranslatingDiffNodesInCharClass() returns error? {
+function testTranslatingDiffNodesInCharClass() {
     string:RegExp pattern1 = re `[A-Z\d]`;
     regexp:Span? res1 = pattern1.find("ABC2");
     assertTrue(res1 is regexp:Span);
