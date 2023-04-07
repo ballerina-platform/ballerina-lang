@@ -109,7 +109,7 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
         List<CodeAction> actions = new ArrayList<>();
 
         symbolMap.forEach((importNode, moduleSymbol) -> {
-            if (importNode.prefix().isEmpty() && context.currentSyntaxTree().isEmpty()) {
+            if (importNode.prefix().isEmpty()) {
                 return;
             }
             ImportPrefixNode prefixNode = importNode.prefix().get();
