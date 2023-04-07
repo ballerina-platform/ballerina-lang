@@ -521,17 +521,11 @@ public class JvmTerminatorGen {
     }
 
     private void genCallTerm(BIRTerminator.Call callIns, int localVarOffset) {
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        mv.visitLdcInsn(Utils.encodeFunctionIdentifier(callIns.name.value));
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
         // invoke the function
         this.genCall(callIns, callIns.calleePkg, localVarOffset);
 
         // store return
         this.storeReturnFromCallIns(callIns.lhsOp != null ? callIns.lhsOp.variableDcl : null);
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        mv.visitLdcInsn(Utils.encodeFunctionIdentifier(callIns.name.value));
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
     }
 
     private void genPlatformIns(JTerminator terminator, BType attachedType, int localVarOffset,
