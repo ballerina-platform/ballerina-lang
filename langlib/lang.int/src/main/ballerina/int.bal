@@ -230,13 +230,13 @@ public isolated function fromHexString(string s) returns int|error = @java:Metho
 # foreach int i in int:range(0, 8, 2) {
 #     evenNumbers.push(i);
 # }
-# evenNumbers ⇒ [0, 2, 4, 6]
+# evenNumbers ⇒ [0,2,4,6]
 #
 # int[] oddNumbers = [];
 # foreach int i in int:range(7, 0, -2) {
 #     oddNumbers.push(i);
 # }
-# oddNumbers ⇒ [7, 5, 3, 1]
+# oddNumbers ⇒ [7,5,3,1]
 #
 # int:range(0, 3, 0) ⇒ panic
 # ```
