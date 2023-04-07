@@ -1266,7 +1266,7 @@ function testRuntimeRegexpParser() {
     anydata|error result = regexp:fromString("(?-:)");
 }
 
-function testTranslatingDiffNodesInCharClass() {
+function testTranslatingDiffNodesInCharClass() returns error? {
     string:RegExp pattern1 = re `[A-Z\d]`;
     regexp:Span? res1 = pattern1.find("ABC2");
     assertTrue(res1 is regexp:Span);
@@ -1299,6 +1299,16 @@ function testTranslatingDiffNodesInCharClass() {
     regexp:Span? res6 = pattern6.find("ABC2 a");
     assertTrue(res6 is regexp:Span);
     assertEquality("2", (<regexp:Span>res6).substring());
+
+    string:RegExp pattern7 = re `[\sa-z]`;
+    regexp:Span? res7 = pattern7.find("ABC2 a");
+    assertTrue(res7 is regexp:Span);
+    assertEquality(" ", (<regexp:Span>res7).substring());
+
+    string:RegExp pattern8 = re `[\--\\]`;
+    regexp:Span? res8 = pattern8.find("ABC2 a");
+    assertTrue(res8 is regexp:Span);
+    assertEquality("A", (<regexp:Span>res8).substring());
 }
 
 function assertEquality(any|error expected, any|error actual) {
