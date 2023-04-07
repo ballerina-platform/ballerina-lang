@@ -1406,6 +1406,9 @@ public class JvmInstructionGen {
                                     TWO_OBJECTS_ARGS, true);
         } else {
             this.mv.visitMethodInsn(INVOKESTATIC, MAP_UTILS, "handleMapStore", HANDLE_MAP_STORE, false);
+            mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+            mv.visitLdcInsn(mapStoreIns.pos.textRange() + " handleMapStore");
+            mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
         }
     }
 
