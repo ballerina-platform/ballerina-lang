@@ -48,12 +48,7 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 public class MapUtils {
 
     public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, Object value) {
-        try {
-            updateMapValue(mapValue.getType(), mapValue, fieldName, value);
-        } catch (Throwable e) {
-            e.printStackTrace();
-            throw e;
-        }
+        updateMapValue(mapValue.getType(), mapValue, fieldName, value);
     }
 
     public static void handleInherentTypeViolatingMapUpdate(Object value, BMapType mapType) {
