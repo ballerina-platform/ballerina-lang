@@ -123,7 +123,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
             // Writing Syntax Tree Json
             String syntaxTreeDataString;
             if (ProjectUtils.isProjectUpdated(project)) {
-                syntaxTreeDataString = generateCanonicalJsonString(packageHolder);
+                syntaxTreeDataString = generateSyntaxTreeJsonString(packageHolder);
             } else {
                 // When project is not updated read Syntax Tree Json from Observability Symbols Jar
                 Path observeJarCachePath = project.targetDir()
@@ -173,7 +173,7 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
         return hexString.toString();
     }
 
-    private String generateCanonicalJsonString(PackageHolder packageHolder) throws IOException {
+    private String generateSyntaxTreeJsonString(PackageHolder packageHolder) throws IOException {
         final String ballerinaVersion = RepoUtils.getBallerinaVersion();
         StringBuilder jsonStringBuilder = new StringBuilder().append("{\"")
                 .append(BALLERINA_VERSION_KEY).append("\":\"").append(ballerinaVersion).append("\",\"")
