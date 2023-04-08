@@ -20,22 +20,14 @@ package org.ballerinalang.langlib.value;
 
 import io.ballerina.runtime.internal.CloneUtils;
 
-import java.io.PrintStream;
-
 /**
  * Performs a deep copy, recursively copying all structural values and their members. The copy is read-only
  *
  * @since 1.0
  */
 public class CloneReadOnly {
-    public static final PrintStream out = System.out;
+
     public static Object cloneReadOnly(Object value) {
-        try {
-            Object o = CloneUtils.cloneReadOnly(value);
-            return o;
-        } catch (Throwable e) {
-            e.printStackTrace();
-            throw  e;
-        }
+        return CloneUtils.cloneReadOnly(value);
     }
 }
