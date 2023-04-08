@@ -348,7 +348,6 @@ public class JvmConstants {
     public static final String BUILT_IN_PACKAGE_NAME = "lang" + ENCODED_DOT_CHARACTER + "annotations";
     public static final String MODULE_START_ATTEMPTED = "$moduleStartAttempted";
     public static final String MODULE_STARTED = "$moduleStarted";
-    public static final String WRAPPER_GEN_BB_ID_NAME = "wrapperGen";
     public static final String JVM_INIT_METHOD = "<init>";
     public static final String JVM_STATIC_INIT_METHOD = "<clinit>";
     public static final String JVM_TO_STRING_METHOD = "toString";

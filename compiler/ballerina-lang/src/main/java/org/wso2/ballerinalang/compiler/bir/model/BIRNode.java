@@ -458,13 +458,24 @@ public abstract class BIRNode {
      * @since 0.980.0
      */
     public static class BIRBasicBlock extends BIRNode {
+        public int number;
         public Name id;
         public List<BIRNonTerminator> instructions;
         public BIRTerminator terminator;
+        public static final String BIR_BASIC_BLOCK_PREFIX = "bb";
 
-        public BIRBasicBlock(Name id) {
+        public BIRBasicBlock(int number) {
             super(null);
-            this.id = id;
+            this.number = number;
+            this.id = new Name(BIR_BASIC_BLOCK_PREFIX + number);
+            this.instructions = new ArrayList<>();
+            this.terminator = null;
+        }
+
+        public BIRBasicBlock(String idPrefix, int number) {
+            super(null);
+            this.number = number;
+            this.id = new Name(idPrefix + number);
             this.instructions = new ArrayList<>();
             this.terminator = null;
         }
@@ -477,6 +488,11 @@ public abstract class BIRNode {
         @Override
         public String toString() {
             return id.value;
+        }
+
+        public void setId(int bbNumber) {
+            this.number = bbNumber;
+            this.id = new Name(BIR_BASIC_BLOCK_PREFIX + number);
         }
     }
 
