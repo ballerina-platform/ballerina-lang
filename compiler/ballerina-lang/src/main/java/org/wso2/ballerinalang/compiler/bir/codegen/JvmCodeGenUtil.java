@@ -655,18 +655,18 @@ public class JvmCodeGenUtil {
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "isYielded", "()Z", false);
         generateSetYieldedStatus(mv, labelGen, funcName, yieldLocationVarIndex, terminatorPos,
                 fullyQualifiedFuncName, yieldStatus, yieldStatusVarIndex);
-        int gotoBBNumber = thenBB.number;
-        int currentBBNumber = currentBB.number;
-        if (currentBBNumber <= gotoBBNumber) {
+//        int gotoBBNumber = thenBB.number;
+//        int currentBBNumber = currentBB.number;
+//        if (currentBBNumber <= gotoBBNumber) {
             Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
             mv.visitJumpInsn(GOTO, gotoLabel);
-            return;
-        }
-        mv.visitInsn(ICONST_1);
-        mv.visitVarInsn(ISTORE, loopVarIndex);
-        mv.visitIntInsn(SIPUSH, gotoBBNumber);
-        mv.visitVarInsn(ISTORE, stateVarIndex);
-        mv.visitJumpInsn(GOTO, loopLabel);
+//            return;
+//        }
+//        mv.visitInsn(ICONST_1);
+//        mv.visitVarInsn(ISTORE, loopVarIndex);
+//        mv.visitIntInsn(SIPUSH, gotoBBNumber);
+//        mv.visitVarInsn(ISTORE, stateVarIndex);
+//        mv.visitJumpInsn(GOTO, loopLabel);
     }
 
     protected static void generateSetYieldedStatus(MethodVisitor mv, LabelGenerator labelGen, String funcName,
