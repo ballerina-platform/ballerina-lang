@@ -87,7 +87,7 @@ public class BIROptimizer {
         this.lockOptimizer.optimizeNode(pkg);
 
         // Optimize BB - unnecessary goto removal
-        bbOptimizer.optimizeNode(pkg, null);
+//        bbOptimizer.optimizeNode(pkg, null);
     }
 
     /**
