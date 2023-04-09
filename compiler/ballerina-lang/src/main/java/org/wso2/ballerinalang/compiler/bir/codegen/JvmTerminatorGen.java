@@ -344,14 +344,13 @@ public class JvmTerminatorGen {
 
         switch (terminator.kind) {
             case LOCK:
-                this.genLockTerm((BIRTerminator.Lock) terminator, funcName, currentBB, localVarOffset,
-                        yieldLocationVarIndex, terminator.pos, fullyQualifiedFuncName, yieldStatusVarIndex,
-                        stateVarIndex, loopVarIndex,
-                        loopLabel);
+                this.genLockTerm((BIRTerminator.Lock) terminator, funcName, localVarOffset,
+                        yieldLocationVarIndex, terminator.pos, fullyQualifiedFuncName, yieldStatusVarIndex
+                );
                 return;
             case UNLOCK:
-                this.genUnlockTerm((BIRTerminator.Unlock) terminator, funcName, currentBB, stateVarIndex, loopVarIndex,
-                        loopLabel);
+                this.genUnlockTerm((BIRTerminator.Unlock) terminator, funcName
+                );
                 return;
             case GOTO:
                 this.genGoToTerm((BIRTerminator.GOTO) terminator, funcName, currentBB, stateVarIndex, loopVarIndex,
@@ -406,22 +405,21 @@ public class JvmTerminatorGen {
                              int stateVarIndex, int loopVarIndex, Label loopLabel) {
         int currentBBNumber = currentBB.number;
         int gotoBBNumber = gotoIns.targetBB.number;
-        if (currentBBNumber <= gotoBBNumber) {
+//        if (currentBBNumber <= gotoBBNumber) {
             Label gotoLabel = this.labelGen.getLabel(funcName + gotoIns.targetBB.id.value);
             this.mv.visitJumpInsn(GOTO, gotoLabel);
-            return;
-        }
-        this.mv.visitInsn(ICONST_1);
-        this.mv.visitVarInsn(ISTORE, loopVarIndex);
-        this.mv.visitIntInsn(SIPUSH, gotoBBNumber);
-        this.mv.visitVarInsn(ISTORE, stateVarIndex);
-        this.mv.visitJumpInsn(GOTO, loopLabel);
+//            return;
+//        }
+//        this.mv.visitInsn(ICONST_1);
+//        this.mv.visitVarInsn(ISTORE, loopVarIndex);
+//        this.mv.visitIntInsn(SIPUSH, gotoBBNumber);
+//        this.mv.visitVarInsn(ISTORE, stateVarIndex);
+//        this.mv.visitJumpInsn(GOTO, loopLabel);
     }
 
-    private void genLockTerm(BIRTerminator.Lock lockIns, String funcName, BIRNode.BIRBasicBlock currentBB,
-                             int localVarOffset, int yieldLocationVarIndex, Location terminatorPos,
-                             String fullyQualifiedFuncName, int yieldStatusVarIndex, int stateVarIndex,
-                             int loopVarIndex, Label loopLabel) {
+    private void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset,
+                             int yieldLocationVarIndex, Location terminatorPos, String fullyQualifiedFuncName,
+                             int yieldStatusVarIndex) {
 
         Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
         String lockStore = "L" + LOCK_STORE + ";";
@@ -435,21 +433,10 @@ public class JvmTerminatorGen {
         this.mv.visitInsn(POP);
         genYieldCheckForLock(this.mv, this.labelGen, funcName, localVarOffset, yieldLocationVarIndex,
                 yieldStatusVarIndex, fullyQualifiedFuncName, terminatorPos);
-        int currentBBNumber = currentBB.number;
-        int gotoBBNumber = lockIns.lockedBB.number;
-        if (currentBBNumber <= gotoBBNumber) {
-            this.mv.visitJumpInsn(GOTO, gotoLabel);
-            return;
-        }
-        this.mv.visitInsn(ICONST_1);
-        this.mv.visitVarInsn(ISTORE, loopVarIndex);
-        this.mv.visitIntInsn(SIPUSH, gotoBBNumber);
-        this.mv.visitVarInsn(ISTORE, stateVarIndex);
-        this.mv.visitJumpInsn(GOTO, loopLabel);
+        this.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    private void genUnlockTerm(BIRTerminator.Unlock unlockIns, String funcName, BIRNode.BIRBasicBlock currentBB,
-                               int stateVarIndex, int loopVarIndex, Label loopLabel) {
+    private void genUnlockTerm(BIRTerminator.Unlock unlockIns, String funcName) {
 
         Label gotoLabel = this.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
 
@@ -461,17 +448,7 @@ public class JvmTerminatorGen {
         this.mv.visitLdcInsn(lockName);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", GET_LOCK_MAP, false);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", VOID_METHOD_DESC, false);
-        int currentBBNumber = currentBB.number;
-        int gotoBBNumber = unlockIns.unlockBB.number;
-        if (currentBBNumber <= gotoBBNumber) {
-            this.mv.visitJumpInsn(GOTO, gotoLabel);
-            return;
-        }
-        this.mv.visitInsn(ICONST_1);
-        this.mv.visitVarInsn(ISTORE, loopVarIndex);
-        this.mv.visitIntInsn(SIPUSH, gotoBBNumber);
-        this.mv.visitVarInsn(ISTORE, stateVarIndex);
-        this.mv.visitJumpInsn(GOTO, loopLabel);
+        this.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
     private void handleErrorRetInUnion(int returnVarRefIndex, List<BIRNode.ChannelDetails> channels, BUnionType bType,
@@ -519,30 +496,30 @@ public class JvmTerminatorGen {
         int trueBBNumber = branchIns.trueBB.number;
         int falseBBNumber = branchIns.falseBB.number;
         this.loadVar(branchIns.op.variableDcl);
-        if (currentBBNumber <= trueBBNumber) {
+//        if (currentBBNumber <= trueBBNumber) {
             Label trueBBLabel = this.labelGen.getLabel(funcName + trueBBId);
             this.mv.visitJumpInsn(IFGT, trueBBLabel);
-        } else {
-            Label condition = new Label();
-            this.mv.visitJumpInsn(IFGT, condition);
-            this.mv.visitInsn(ICONST_1);
-            this.mv.visitVarInsn(ISTORE, loopVarIndex);
-            this.mv.visitIntInsn(SIPUSH, trueBBNumber);
-            this.mv.visitVarInsn(ISTORE, stateVarIndex);
-            this.mv.visitJumpInsn(GOTO, loopLabel);
-            this.mv.visitLabel(condition);
-        }
+//        } else {
+//            Label condition = new Label();
+//            this.mv.visitJumpInsn(IFGT, condition);
+//            this.mv.visitInsn(ICONST_1);
+//            this.mv.visitVarInsn(ISTORE, loopVarIndex);
+//            this.mv.visitIntInsn(SIPUSH, trueBBNumber);
+//            this.mv.visitVarInsn(ISTORE, stateVarIndex);
+//            this.mv.visitJumpInsn(GOTO, loopLabel);
+//            this.mv.visitLabel(condition);
+//        }
 
-        if (currentBBNumber <= falseBBNumber) {
+//        if (currentBBNumber <= falseBBNumber) {
             Label falseBBLabel = this.labelGen.getLabel(funcName + falseBBId);
             this.mv.visitJumpInsn(GOTO, falseBBLabel);
-        } else {
-            this.mv.visitInsn(ICONST_1);
-            this.mv.visitVarInsn(ISTORE, loopVarIndex);
-            this.mv.visitIntInsn(SIPUSH, falseBBNumber);
-            this.mv.visitVarInsn(ISTORE, stateVarIndex);
-            this.mv.visitJumpInsn(GOTO, loopLabel);
-        }
+//        } else {
+//            this.mv.visitInsn(ICONST_1);
+//            this.mv.visitVarInsn(ISTORE, loopVarIndex);
+//            this.mv.visitIntInsn(SIPUSH, falseBBNumber);
+//            this.mv.visitVarInsn(ISTORE, stateVarIndex);
+//            this.mv.visitJumpInsn(GOTO, loopLabel);
+//        }
     }
 
     private void genCallTerm(BIRTerminator.Call callIns, int localVarOffset) {
