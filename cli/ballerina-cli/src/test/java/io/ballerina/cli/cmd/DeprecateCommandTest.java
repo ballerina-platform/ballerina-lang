@@ -82,6 +82,20 @@ public class DeprecateCommandTest extends BaseCommandTest {
         Assert.assertTrue(actual.contains("bal deprecate {<org-name>/<package-name>:<version>} [OPTIONS]"));
     }
 
+    @Test(description = "Test deprecate with invalid message")
+    public void testDeprecationWithInvalidMessage() throws IOException {
+        DeprecateCommand deprecationCommand = new DeprecateCommand(printStream, printStream, false);
+        new CommandLine(deprecationCommand).parseArgs("mynewdil/deppack:xxx", "--message", "this is a test message \n" +
+                "with multiple lines");
+        deprecationCommand.execute();
+
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertTrue(actual.contains("ballerina: invalid deprecation message. " +
+                "The message cannot contain non-space whitespace or back slash characters."));
+        Assert.assertTrue(actual.contains("bal deprecate {<org-name>/<package-name>:<version>} [OPTIONS]"));
+    }
+
     @Test(description = "Test deprecate with unused flags")
     public void testDeprecationWithUnusedFlags() throws IOException {
         DeprecateCommand deprecationCommand = new DeprecateCommand(printStream, printStream, false);

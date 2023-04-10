@@ -113,8 +113,8 @@ public class DeprecateCommand implements BLauncherCmd {
 
         // validate deprecation message
         if (!validateDeprecationMsg(deprecationMsg)) {
-            CommandUtil.printError(errStream, "invalid deprecation message. The message can only contain" +
-                            " alphanumerics, underscores, hyphens, commas, periods and spaces.",
+            CommandUtil.printError(errStream, "invalid deprecation message. The message cannot contain " +
+                            "non-space whitespace or back slash characters.",
                     USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -133,7 +133,7 @@ public class DeprecateCommand implements BLauncherCmd {
 
     private boolean validateDeprecationMsg(String deprecationMsg) {
         if (deprecationMsg != null) {
-            return deprecationMsg.matches("^[a-zA-Z0-9,.'\\-_ ]*$");
+            return deprecationMsg.matches("^[^\\f\\n\\r\\t\\v\\\\]*$");
         }
         return true;
     }
