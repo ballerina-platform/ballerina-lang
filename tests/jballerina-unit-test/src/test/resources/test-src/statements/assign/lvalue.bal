@@ -496,6 +496,70 @@ function testRecordMemberAccessLvExprWithStringCharKeyExpr() {
                    <string> checkpanic err.detail()["message"]);
 }
 
+function testNilAssignmentToRecordFieldWithMemberAccessLvExprWithVariableRefKey() {
+    string sa = "a";
+    string sb = "b";
+
+    record {|
+        int a;
+        boolean? b;
+    |} a = {a: 1, b: true};
+    a[sb] = ();
+    assertEquality({a: 1, b: ()}, a);
+
+    var fn = function () {
+        a[sa] = ();
+    };
+    error? res = trap fn();
+    assertTrue(res is error);
+    error err = <error> res;
+    assertEquality("{ballerina/lang.map}InherentTypeViolation", err.message());
+    assertEquality("invalid value for record field 'a': expected value of type 'int', found '()'",
+                   <string> checkpanic err.detail()["message"]);
+
+    record {
+        int a;
+    } c = {a: 2, "b": true, "c": 1.0};
+    fn = function () {
+        c[sa] = ();
+    };
+    res = trap fn();
+    assertTrue(res is error);
+    err = <error> res;
+    assertEquality("{ballerina/lang.map}InherentTypeViolation", err.message());
+    assertEquality("invalid value for record field 'a': expected value of type 'int', found '()'",
+                   <string> checkpanic err.detail()["message"]);
+
+    c[sb] = ();
+    assertEquality({a: 2, b: (), c: 1.0}, c);
+
+    "a"|"b" ab = "b";
+    a = {a: 12, b: false};
+    a[ab] = ();
+    assertEquality({a: 12, b: ()}, a);
+
+    ab = "a";
+    a = {a: 122, b: false};
+    a[ab] = 124;
+    assertEquality({a: 124, b: false}, a);
+
+    a = {a: 123, b: false};
+    "b" bStr = "b";
+    a[bStr] = ();
+    assertEquality({a: 123, b: ()}, a);
+
+    fn = function () {
+        ab = "a";
+        a[ab] = ();
+    };
+    res = trap fn();
+    assertTrue(res is error);
+    err = <error> res;
+    assertEquality("{ballerina/lang.map}InherentTypeViolation", err.message());
+    assertEquality("invalid value for record field 'a': expected value of type 'int', found '()'",
+                   <string> checkpanic err.detail()["message"]);
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }

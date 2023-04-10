@@ -21,7 +21,6 @@ package io.ballerina.cli.cmd;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -338,11 +337,6 @@ public class GraphCommandTest extends BaseCommandTest {
         Assert.assertEquals(actualLog, expectedLog);
     }
 
-    @AfterClass
-    public void cleanUp() throws IOException {
-        deleteDependenciesToml(projectsWithDependencyConflicts);
-    }
-
     private void copyTestResourcesToTmpDir() throws URISyntaxException, IOException {
         URI testResourcesURI = Objects.requireNonNull(getClass().getClassLoader().getResource("test-resources"))
                 .toURI();
@@ -383,9 +377,5 @@ public class GraphCommandTest extends BaseCommandTest {
                 writer.newLine();
             }
         }
-    }
-
-    private void deleteDependenciesToml(Path projectPath) throws IOException {
-        Files.deleteIfExists(projectPath.resolve("Dependencies.toml"));
     }
 }

@@ -84,8 +84,8 @@ import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
 import static org.ballerinalang.central.client.Utils.getBearerToken;
+import static org.ballerinalang.central.client.Utils.getRemoteRepo;
 import static org.ballerinalang.central.client.Utils.isApplicationJsonContentType;
-
 /**
  * {@code CentralAPIClient} is a client for the Central API.
  *
@@ -337,9 +337,10 @@ public class CentralAPIClient {
                     .addFormDataPart("bala-file", fileName,
                             RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
                     .build();
-
+            String remoteRepo = getRemoteRepo();
+            String projectRepo = balaPath.toString().split(name)[0] + name;
             ProgressRequestBody balaFileReqBodyWithProgressBar = new ProgressRequestBody(balaFileReqBody,
-                    packageSignature + " [project repo -> central]", this.outStream);
+                    packageSignature + " [" + projectRepo + " -> " + remoteRepo + "]", this.outStream);
 
             // If OutStream is disabled, then pass `balaFileReqBody` only
             Request pushRequest = getNewRequest(supportedPlatform, ballerinaVersion)
@@ -776,6 +777,15 @@ public class CentralAPIClient {
      */
     public void deprecatePackage(String packageInfo, String deprecationMsg, String supportedPlatform,
                                  String ballerinaVersion, Boolean isUndo) throws CentralClientException {
+        // Get existing package details
+        // PackageInfo is already validated to support the format org-name/package-name:version
+        Package existingPackage = getPackage(packageInfo.split("/")[0], packageInfo.split("/")[1].split(":")[0],
+                packageInfo.split("/")[1].split(":")[1], supportedPlatform, ballerinaVersion);
+        if (isUndo && !existingPackage.getDeprecated()) {
+            this.outStream.println("package " + packageInfo + " is not marked as deprecated in central");
+            return;
+        }
+
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
         try {
@@ -809,9 +819,15 @@ public class CentralAPIClient {
                     if (deprecationResponse.code() == HTTP_OK) {
                         Package packageResponse = new Gson().fromJson(body.get().string(), Package.class);
                         if (packageResponse.getDeprecated()) {
-                            this.outStream.println(packageInfo + " marked as deprecated in central successfully");
+                            if (existingPackage.getDeprecated()) {
+                                this.outStream.println("deprecation message is successfully updated for the package "
+                                        + packageInfo + " in central");
+                            } else {
+                                this.outStream.println("package " + packageInfo
+                                        + " marked as deprecated in central successfully");
+                            }
                         } else {
-                            this.outStream.println("deprecation of " + packageInfo +
+                            this.outStream.println("deprecation of the package " + packageInfo +
                                     " is successfully undone in central");
                         }
                     }
