@@ -802,6 +802,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCS4045", "unsupported.empty.character.class"),
     USER_DEFINED_FUNCTIONS_ARE_DISALLOWED_WITH_AGGREGATED_VARIABLES(
             "BCS4046", "user.defined.functions.not.allowed.with.aggregated.variables"),
+    SEQUENCE_VARIABLE_CANNOT_BE_USED_IN_REQUIRED_ARG(
+            "BCS4047", "seq.var.cannot.be.used.in.required.arg"),
+    SEQUENCE_VARIABLE_CAN_BE_USED_IN_SINGLE_ELEMENT_LIST_CTR_OR_FUNC_INVOCATION(
+            "BCS4048", "seq.var.used.in.single.element.list.ctr.or.func.invocation"),
     ;
 
     private String diagnosticId;

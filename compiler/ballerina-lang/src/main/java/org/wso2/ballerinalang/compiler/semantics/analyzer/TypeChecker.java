@@ -2893,10 +2893,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
                 markAndRegisterClosureVariable(symbol, varRefExpr.pos, data.env, data);
-            } else if ((symbol.tag & SymTag.SEQUENCE) == SymTag.SEQUENCE) {
-                varRefExpr.symbol = symbol;
-                actualType = symbol.type;
-                data.queryData.foundSeqVarInExpr = true;
             } else if ((symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
                 actualType = symbol.type.tag == TypeTags.TYPEDESC ? symbol.type : new BTypedescType(symbol.type, null);
                 varRefExpr.symbol = symbol;
@@ -9247,7 +9243,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
     }
 
-    private void logUndefinedSymbolError(Location pos, String name) {
+    protected void logUndefinedSymbolError(Location pos, String name) {
         if (!missingNodesHelper.isMissingNode(name)) {
             dlog.error(pos, DiagnosticErrorCode.UNDEFINED_SYMBOL, name);
         }
