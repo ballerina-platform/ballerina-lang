@@ -89,6 +89,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_ARGUMENTS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_CONFIG_ARGS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TOML_DETAILS;
@@ -99,6 +100,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME_REGISTRY_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING_ARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TEST_CONFIG_PATH;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TOML_DETAILS;
@@ -215,17 +217,17 @@ public class MainMethodGen {
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
         String configClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, CONFIGURATION_CLASS_NAME);
-        mv.visitVarInsn(ALOAD, 0);
         if (!packageID.isTestPkg) {
+            mv.visitVarInsn(ALOAD, 0);
             mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getConfigurationDetails", GET_TOML_DETAILS,
                     false);
         } else {
+            loadCLIArgsForTestConfigInit(mv);
             String initClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, MODULE_INIT_CLASS_NAME);
             mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
             mv.visitLdcInsn(packageID.pkgName.toString());
             mv.visitLdcInsn(packageID.sourceRoot);
-            mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getTestConfigPaths", GET_TEST_CONFIG_PATH,
-                    false);
+            mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getTestConfigPaths", GET_TEST_CONFIG_PATH, false);
         }
         int configDetailsIndex = indexMap.addIfNotExists(CONFIG_VAR, symbolTable.anyType);
 
@@ -307,6 +309,14 @@ public class MainMethodGen {
         mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESPECIAL , CLI_SPEC, JVM_INIT_METHOD, INIT_CLI_SPEC, false);
         mv.visitMethodInsn(INVOKEVIRTUAL , CLI_SPEC, "getMainArgs", GET_MAIN_ARGS, false);
+    }
+
+    private void loadCLIArgsForTestConfigInit(MethodVisitor mv) {
+        mv.visitTypeInsn(NEW , TEST_CONFIG_ARGS);
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESPECIAL , TEST_CONFIG_ARGS, JVM_INIT_METHOD, INIT_TEST_ARGS, false);
+        mv.visitMethodInsn(INVOKEVIRTUAL , TEST_CONFIG_ARGS, "getConfigCliArgs", GET_STRING_ARRAY, false);
     }
 
     private void loadCLIArgsForTestExecute(MethodVisitor mv) {
