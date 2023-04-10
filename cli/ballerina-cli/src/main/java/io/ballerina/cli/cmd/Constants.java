@@ -41,4 +41,5 @@ public class Constants {
     static final String PACK_COMMAND = "pack";
     static final String GRAPH_COMMAND = "graph";
     static final String DEPRECATE_COMMAND = "deprecate";
+    static final String TOOL_COMMAND = "tool";
 }
