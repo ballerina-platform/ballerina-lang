@@ -1574,7 +1574,7 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangStructLiteral astStructLiteralExpr) {
         List<BIROperand> varDcls = mapToVarDcls(astStructLiteralExpr.enclMapSymbols);
         BType type = astStructLiteralExpr.getBType();
-        visitTypedesc(astStructLiteralExpr.pos, type, varDcls, getAnnotations(type.tsymbol, this.env));
+        visitTypedesc(astStructLiteralExpr.pos, type, varDcls);
 
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astStructLiteralExpr.getBType(),
                                                        this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.TEMP);
@@ -1637,8 +1637,7 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangArrayLiteral astArrayLiteralExpr) {
         BType bType = astArrayLiteralExpr.getBType();
         if (bType.tag == TypeTags.TUPLE) {
-            visitTypedesc(astArrayLiteralExpr.pos, bType, Collections.emptyList(),
-                          getAnnotations(bType.tsymbol, this.env));
+            visitTypedesc(astArrayLiteralExpr.pos, bType, Collections.emptyList());
         }
         generateListConstructorExpr(astArrayLiteralExpr);
     }
@@ -1646,22 +1645,8 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleLiteral tupleLiteral) {
         BType type = tupleLiteral.getBType();
-        visitTypedesc(tupleLiteral.pos, type, Collections.emptyList(), getAnnotations(type.tsymbol, this.env));
+        visitTypedesc(tupleLiteral.pos, type, Collections.emptyList());
         generateListConstructorExpr(tupleLiteral);
-    }
-
-    private BIROperand getAnnotations(BTypeSymbol typeSymbol, BIRGenEnv env) {
-        if (typeSymbol == null || typeSymbol.annotations == null) {
-            return null;
-        }
-        return new BIROperand(getAnnotations(typeSymbol.annotations, env));
-    }
-
-    private BIRVariableDcl getAnnotations(BVarSymbol annotations, BIRGenEnv env) {
-        if (env.symbolVarMap.containsKey(annotations)) {
-            return env.symbolVarMap.get(annotations);
-        }
-        return globalVarMap.get(annotations);
     }
 
     @Override
@@ -1673,8 +1658,7 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangJSONArrayLiteral jsonArrayLiteralExpr) {
         BType bType = jsonArrayLiteralExpr.getBType();
         if (bType.tag == TypeTags.TUPLE) {
-            visitTypedesc(jsonArrayLiteralExpr.pos, bType, Collections.emptyList(),
-                          getAnnotations(bType.tsymbol, this.env));
+            visitTypedesc(jsonArrayLiteralExpr.pos, bType, Collections.emptyList());
         }
         generateListConstructorExpr(jsonArrayLiteralExpr);
     }
@@ -2232,21 +2216,19 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private void visitTypedesc(Location pos, BType type, List<BIROperand> varDcls) {
-        visitTypedesc(pos, type, varDcls, null);
-    }
-
-    private void visitTypedesc(Location pos, BType type, List<BIROperand> varDcls, BIROperand annotations) {
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(symTable.typeDesc, this.env.nextLocalVarId(names),
                                                        VarScope.FUNCTION, VarKind.TEMP);
-        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIRGenEnv env = this.env;
+        env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
+        BIROperand annotations = getAnnotations(type.tsymbol, env);
         if (annotations != null) {
             setScopeAndEmit(new BIRNonTerminator.NewTypeDesc(pos, toVarRef, type, varDcls, annotations));
-            this.env.targetOperand = toVarRef;
+            env.targetOperand = toVarRef;
             return;
         }
         setScopeAndEmit(new BIRNonTerminator.NewTypeDesc(pos, toVarRef, type, varDcls));
-        this.env.targetOperand = toVarRef;
+        env.targetOperand = toVarRef;
     }
 
     @Override
@@ -3017,4 +2999,17 @@ public class BIRGen extends BLangNodeVisitor {
         return annotationAttachments;
     }
 
+    private BIROperand getAnnotations(BTypeSymbol typeSymbol, BIRGenEnv env) {
+        if (typeSymbol == null || typeSymbol.annotations == null) {
+            return null;
+        }
+        return new BIROperand(getAnnotations(typeSymbol.annotations, env));
+    }
+
+    private BIRVariableDcl getAnnotations(BVarSymbol annotations, BIRGenEnv env) {
+        if (env.symbolVarMap.containsKey(annotations)) {
+            return env.symbolVarMap.get(annotations);
+        }
+        return globalVarMap.get(annotations);
+    }
 }

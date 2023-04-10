@@ -97,4 +97,8 @@ public class TesterinaConstants {
 
     public static final String MOCK_FN_DELIMITER = "#";
     public static final String MOCK_LEGACY_DELIMITER = "~";
+
+    public static final int IDENTIFIER_START_INDEX = 1;
+    public static final int IDENTIFIER_END_INDEX = 5;
+
 }

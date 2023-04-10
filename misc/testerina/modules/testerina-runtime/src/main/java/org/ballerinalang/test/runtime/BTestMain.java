@@ -53,6 +53,7 @@ import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,9 +124,14 @@ public class BTestMain {
                             replaceMockedFunctions(testSuite, testExecutionDependencies, instrumentDir, coverage);
                         }
 
+                        String[] testArgs = new String[]{args[0], packageName, moduleName};
+                        for (int i = 2; i < args.length; i++) {
+                            testArgs = Arrays.copyOf(testArgs, testArgs.length + 1);
+                            testArgs[testArgs.length - 1] = args[i];
+                        }
+
                         result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, classLoader,
-                                new String[]{args[0], packageName, moduleName, args[2], args[3],
-                                        args[4], args[5], args[6], args[7], args[8]});
+                                testArgs);
                         exitStatus = (result == 1) ? result : exitStatus;
                     }
                 } else {
@@ -220,7 +226,7 @@ public class BTestMain {
                     functionToMock = key.substring(key.indexOf(MOCK_LEGACY_DELIMITER));
                 }
             }
-            functionToMock = functionToMock.replaceAll("\\\\", "");
+            functionToMock = functionToMock.replaceAll("\\\\(.)", "$1");
             classVsMockFunctionsMap.computeIfAbsent(functionToMockClassName,
                     k -> new ArrayList<>()).add(functionToMock);
         }
@@ -238,7 +244,7 @@ public class BTestMain {
         byte[] classFile = new byte[0];
         boolean readFromBytes = false;
         for (Method method1 : functionToMockClass.getDeclaredMethods()) {
-            if (functionNames.contains(MOCK_FN_DELIMITER + method1.getName())) {
+            if (functionNames.contains(MOCK_FN_DELIMITER + TesterinaUtils.decodeIdentifier(method1.getName()))) {
                 String desugaredMockFunctionName = "$MOCK_" + method1.getName();
                 String testClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
                         suite.getTestPackageID(), suite.getVersion(),

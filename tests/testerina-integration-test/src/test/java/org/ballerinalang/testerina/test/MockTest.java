@@ -146,6 +146,14 @@ public class MockTest extends BaseTestCase {
         AssertionUtils.assertOutput("MockTest-testFuncMockInMultiModulesWDepen.txt", output);
     }
 
+    @Test
+    public void testFunctionMockingThenReturnWithNilReturnValue() throws BallerinaTestException, IOException {
+        String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests-then-return-with-nil-ret-val"});
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
+        AssertionUtils.assertOutput("MockTest-testFunctionMockingThenReturnWithNilRetVal.txt",
+                output.replaceAll("\r\n|\r", "\n"));
+    }
+
     @Test(dataProvider = "testNegativeCases")
     public void testObjectMocking_NegativeCases(String message, String test, String baseOutputFile) throws
             BallerinaTestException, IOException {

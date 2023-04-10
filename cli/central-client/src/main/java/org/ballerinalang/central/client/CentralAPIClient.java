@@ -84,8 +84,8 @@ import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
 import static org.ballerinalang.central.client.Utils.getBearerToken;
+import static org.ballerinalang.central.client.Utils.getRemoteRepo;
 import static org.ballerinalang.central.client.Utils.isApplicationJsonContentType;
-
 /**
  * {@code CentralAPIClient} is a client for the Central API.
  *
@@ -337,9 +337,10 @@ public class CentralAPIClient {
                     .addFormDataPart("bala-file", fileName,
                             RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
                     .build();
-
+            String remoteRepo = getRemoteRepo();
+            String projectRepo = balaPath.toString().split(name)[0] + name;
             ProgressRequestBody balaFileReqBodyWithProgressBar = new ProgressRequestBody(balaFileReqBody,
-                    packageSignature + " [project repo -> central]", this.outStream);
+                    packageSignature + " [" + projectRepo + " -> " + remoteRepo + "]", this.outStream);
 
             // If OutStream is disabled, then pass `balaFileReqBody` only
             Request pushRequest = getNewRequest(supportedPlatform, ballerinaVersion)
