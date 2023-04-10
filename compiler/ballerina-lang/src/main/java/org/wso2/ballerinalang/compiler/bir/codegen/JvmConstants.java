@@ -182,6 +182,7 @@ public class JvmConstants {
     public static final String TOML_DETAILS = "io/ballerina/runtime/internal/configurable/providers/toml/TomlDetails";
     public static final String CLI_TEST_ARGS = "io/ballerina/runtime/internal/configurable/providers/cli/CliTestArgs";
     public static final String TEST_ARGUMENTS = "io/ballerina/runtime/internal/testable/TestArguments";
+    public static final String TEST_CONFIG_ARGS = "io/ballerina/runtime/internal/testable/TestConfigArguments";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
     public static final String TYPE_ID = "io/ballerina/runtime/internal/types/BTypeIdSet$TypeId";
 

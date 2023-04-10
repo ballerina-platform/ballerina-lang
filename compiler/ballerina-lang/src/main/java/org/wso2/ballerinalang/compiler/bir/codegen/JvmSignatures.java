@@ -231,6 +231,7 @@ public class JvmSignatures {
     public static final String GET_FUTURE_VALUE = "L" + FUTURE_VALUE + ";";
     public static final String GET_HANDLE_VALUE = "L" + HANDLE_VALUE + ";";
     public static final String GET_JSTRING = "()L" + STRING_VALUE + ";";
+    public static final String GET_STRING_ARRAY = "()[L" + STRING_VALUE + ";";
     public static final String GET_RUNTIME_REGISTRY = "L" + RUNTIME_REGISTRY_CLASS + ";";
     public static final String GET_RUNTIME_REGISTRY_CLASS = "()L" + RUNTIME_REGISTRY_CLASS + ";";
     public static final String GET_LOCK_FROM_MAP = "(L" + STRING_VALUE + ";)L" + LOCK_VALUE + ";";
