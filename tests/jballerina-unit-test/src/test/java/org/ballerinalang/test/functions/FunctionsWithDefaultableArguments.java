@@ -250,6 +250,21 @@ public class FunctionsWithDefaultableArguments {
         Assert.assertEquals(returns.toString(), "hellohelloasyncworldworldasyncsamplevalue");
     }
 
+    @Test
+    public void testFuncWithComputedNameFieldInMappingConstructorForDefaultValue() {
+        BRunUtil.invoke(result, "testFuncWithComputedNameFieldInMappingConstructorForDefaultValue");
+    }
+
+    @Test
+    public void testFuncWithVariableNameFieldInMappingConstructorForDefaultValue() {
+        BRunUtil.invoke(result, "testFuncWithVariableNameFieldInMappingConstructorForDefaultValue");
+    }
+
+    @Test
+    public void testFuncWithSpreadFieldInMappingConstructorForDefaultValue() {
+        BRunUtil.invoke(result, "testFuncWithSpreadFieldInMappingConstructorForDefaultValue");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
