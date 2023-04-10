@@ -180,6 +180,9 @@ public class JvmConstants {
 
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
     public static final String TOML_DETAILS = "io/ballerina/runtime/internal/configurable/providers/toml/TomlDetails";
+    public static final String CLI_TEST_ARGS = "io/ballerina/runtime/internal/configurable/providers/cli/CliTestArgs";
+    public static final String TEST_ARGUMENTS = "io/ballerina/runtime/internal/testable/TestArguments";
+    public static final String TEST_CONFIG_ARGS = "io/ballerina/runtime/internal/testable/TestConfigArguments";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
     public static final String TYPE_ID = "io/ballerina/runtime/internal/types/BTypeIdSet$TypeId";
 
@@ -331,6 +334,7 @@ public class JvmConstants {
     public static final String MODULE_STOP_METHOD = "$moduleStop";
 
     public static final String MODULE_EXECUTE_METHOD = "$moduleExecute";
+    public static final String TEST_EXECUTE_METHOD = "__execute__";
     public static final String MAIN_METHOD = "main";
     public static final String BAL_EXTENSION = ".bal";
     public static final String WINDOWS_PATH_SEPERATOR = "\\";
@@ -380,6 +384,8 @@ public class JvmConstants {
     public static final String LAMBDA_PREFIX = "$lambda$";
     public static final String POPULATE_METHOD_PREFIX = "$populate";
     public static final String ADD_METHOD = "add";
+    public static final String TEST_EXECUTION_STATE = "$testExecutionState";
+    public static final String GET_TEST_EXECUTION_STATE = "$getTestExecutionState";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
@@ -402,6 +408,7 @@ public class JvmConstants {
     public static final String STRAND_METADATA_VAR_PREFIX = "$strand_metadata$";
     public static final String MAIN_ARG_VAR_PREFIX = "%param";
     public static final String GRACEFUL_EXIT_METHOD_NAME = "gracefulExit";
+    public static final String SET_LISTENER_FOUND_METHOD_NAME = "setListenerDeclarationFound";
     public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
     public static final String YIELD_LOCATION = "yieldLocation";
     public static final String YIELD_STATUS = "yieldStatus";

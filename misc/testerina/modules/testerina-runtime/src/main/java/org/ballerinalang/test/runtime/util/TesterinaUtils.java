@@ -18,23 +18,19 @@
 package org.ballerinalang.test.runtime.util;
 
 import io.ballerina.identifier.Utils;
-import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.internal.scheduling.RuntimeRegistry;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.test.runtime.entity.Test;
-import org.ballerinalang.test.runtime.entity.TestArguments;
 import org.ballerinalang.test.runtime.entity.TestSuite;
-import org.ballerinalang.test.runtime.entity.TesterinaFunction;
 import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,13 +42,13 @@ import java.util.regex.Pattern;
 
 import static io.ballerina.identifier.Utils.encodeNonFunctionIdentifier;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERIOD_SEPARATOR;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
-import static io.ballerina.runtime.internal.launch.LaunchUtils.startTrapSignalHandler;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.GET_TEST_EXEC_STATE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.IDENTIFIER_END_INDEX;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.IDENTIFIER_START_INDEX;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.TESTERINA_MAIN_METHOD;
 
 /**
  * Utility methods.
@@ -68,11 +64,6 @@ public class TesterinaUtils {
     private static final String INIT_FUNCTION_SUFFIX = "..<init>";
     private static final String START_FUNCTION_SUFFIX = ".<start>";
     private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
-    private static final String INIT_FUNCTION_NAME = ".<init>";
-    private static final String START_FUNCTION_NAME = ".<start>";
-    private static final String STOP_FUNCTION_NAME = ".<stop>";
-    private static final String CONFIGURATION_CLASS_NAME = "$configurationMapper";
-    private static final String CONFIG_FILE_NAME = "Config.toml";
 
     /**
      * Cleans up any remaining testerina metadata.
@@ -85,7 +76,7 @@ public class TesterinaUtils {
                 Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
             }
         } catch (IOException e) {
-            errStream.println("Error occurred while deleting the dir : " + path.toString() + " with error : "
+            errStream.println("Error occurred while deleting the dir : " + path + " with error : "
                                       + e.getMessage());
         }
     }
@@ -96,14 +87,12 @@ public class TesterinaUtils {
      * @param sourceRootPath source root path
      * @param testSuite test meta data
      */
-    public static void executeTests(Path sourceRootPath, TestSuite testSuite, ClassLoader classLoader,
-                                    TestArguments args, String[] cliArgs) throws RuntimeException {
+    public static int executeTests(Path sourceRootPath, TestSuite testSuite,
+                                    ClassLoader classLoader, String[] args) throws RuntimeException {
         try {
-            execute(testSuite, classLoader, args, cliArgs);
+            int exitStatus = execute(testSuite, classLoader, args);
             cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
-//            if (testRunner.getTesterinaReport().isFailure()) {
-//                throw new RuntimeException("there are test failures");
-//            }
+            return exitStatus;
         } catch (BallerinaTestException e) {
             if (e.getMessage() != null) {
                 errStream.println("error: " + e.getMessage());
@@ -114,7 +103,7 @@ public class TesterinaUtils {
         }
     }
 
-    private static void execute(TestSuite suite, ClassLoader classLoader, TestArguments args, String[] cliArgs) {
+    private static int execute(TestSuite suite, ClassLoader classLoader, String[] args) {
         String initClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
                 suite.getTestPackageID(),
                 suite.getVersion(),
@@ -125,92 +114,44 @@ public class TesterinaUtils {
         } catch (Throwable e) {
             throw new BallerinaTestException("failed to load init class :" + initClassName);
         }
-        Class<?> configClazz;
-        String configClassName = TesterinaUtils
-                .getQualifiedClassName(suite.getOrgName(), suite.getTestPackageID(), suite.getVersion(),
-                        CONFIGURATION_CLASS_NAME);
-        try {
-            configClazz = classLoader.loadClass(configClassName);
-        } catch (Throwable e) {
-            throw new BallerinaTestException("failed to load configuration class :" + configClassName);
-        }
-        String suiteExecuteFilePath = suite.getExecuteFilePath();
-        if (suite.getOrgName().equals(ANON_ORG) && suite.getTestPackageID().equals(DOT)) {
-            suiteExecuteFilePath = suiteExecuteFilePath.replace(DOT, FILE_NAME_PERIOD_SEPARATOR);
-        }
-        String testExecuteClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
-                suite.getTestPackageID(),
-                suite.getVersion(),
-                suiteExecuteFilePath);
-        Class<?> testExecuteClazz;
-        try {
-            testExecuteClazz = classLoader.loadClass(testExecuteClassName);
-        } catch (Throwable e) {
-            throw new BallerinaTestException("failed to load test execution class :" + testExecuteClassName);
-        }
-        Scheduler scheduler = new Scheduler(4, false);
-        Scheduler initScheduler = new Scheduler(4, false);
 
-        // start TRAP signal handler which produces the strand dump
-        startTrapSignalHandler();
-
-        // This will init and start the test module.
-        startSuite(suite, initScheduler, initClazz, configClazz, testExecuteClazz, args, cliArgs);
-        // Call module stop and test stop function
-        stopSuite(scheduler, initClazz);
+        // This will run the main method of the test module.
+        startSuite(initClazz, args);
+        return getTestExecutionState(initClazz);
     }
 
-    private static void startSuite(TestSuite suite, Scheduler initScheduler, Class<?> initClazz,
-                            Class<?> configClazz, Class<?> testExecuteClazz, TestArguments args, String[] cliArgs) {
-        TesterinaFunction init = new TesterinaFunction(initClazz, INIT_FUNCTION_NAME, initScheduler);
-        TesterinaFunction start = new TesterinaFunction(initClazz, START_FUNCTION_NAME, initScheduler);
-        TesterinaFunction configInit = new TesterinaFunction(configClazz, "$configureInit", initScheduler);
-        TesterinaFunction testExecute = new TesterinaFunction(testExecuteClazz, "__execute__", initScheduler);
-        // As the init function we need to use $moduleInit to initialize all the dependent modules
-        // properly.
-
-        Object response = configInit.directInvoke(new Class[]{String[].class, Path[].class, String.class},
-                new Object[]{cliArgs, getConfigPaths(suite), null});
+    private static void startSuite(Class<?> initClazz, String[] args) {
+        // Call test module main
+        Object response = runTestModuleMain(initClazz, args, String[].class);
         if (response instanceof Throwable) {
-            throw new BallerinaTestException("configurable initialization for test suite failed due to " +
+            throw new BallerinaTestException("dependant module execution for test suite failed due to " +
                     formatErrorMessage((Throwable) response), (Throwable) response);
         }
-
-        init.setName("$moduleInit");
-        response = init.invoke();
-        if (response instanceof Throwable) {
-            throw new BallerinaTestException("dependant module initialization for test suite failed due to " +
-                    formatErrorMessage((Throwable) response), (Throwable) response);
-        }
-        // As the start function we need to use $moduleStart to start all the dependent modules
-        // properly.
-        start.setName("$moduleStart");
-        response = start.invoke();
-        if (response instanceof Throwable) {
-            throw new BallerinaTestException("dependant module start for test suite failed due to error : " +
-                    formatErrorMessage((Throwable) response), (Throwable) response);
-        }
-
-        response = testExecute.invoke(args.getArgTypes(), args.getArgValues());
-        if (response instanceof Throwable) {
-            throw new BallerinaTestException();
-        }
-
-        // Once the start function finish we will re start the scheduler with immortal true
-        initScheduler.setImmortal(true);
-        Thread immortalThread = new Thread(initScheduler::start, "module-start");
-        immortalThread.setDaemon(true);
-        immortalThread.start();
     }
 
-    private static void stopSuite(Scheduler scheduler, Class<?> initClazz) {
-        TesterinaFunction stop = new TesterinaFunction(initClazz, STOP_FUNCTION_NAME, scheduler);
-        stop.setName("$moduleStop");
-        Object response = stop.directInvoke(new Class<?>[]{RuntimeRegistry.class},
-                new Object[]{scheduler.getRuntimeRegistry()});
-        if (response instanceof Throwable) {
-            throw new BallerinaTestException("dependant module stop for test suite failed due to " +
-                    formatErrorMessage((Throwable) response), (Throwable) response);
+    private static Object runTestModuleMain(Class<?> initClazz, String[] args, Class<?>... parameterTypes) {
+        try {
+            final Method method = initClazz.getDeclaredMethod(TESTERINA_MAIN_METHOD, parameterTypes);
+            return method.invoke(null, (Object) args);
+        } catch (InvocationTargetException e) {
+            Throwable targetException = e.getTargetException();
+            if (targetException instanceof BError) {
+                return targetException;
+            }
+            return targetException;
+        } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException e) {
+            return new BallerinaTestException("Failed to invoke the function '" + TESTERINA_MAIN_METHOD + " due to " +
+                    formatErrorMessage(e), e);
+        }
+    }
+
+    private static int getTestExecutionState(Class<?> initClazz) {
+        try {
+            final Method method = initClazz.getDeclaredMethod(GET_TEST_EXEC_STATE);
+            return (int) method.invoke(null);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new BallerinaTestException("Failed to invoke the function '" + GET_TEST_EXEC_STATE + " due to " +
+                    formatErrorMessage(e), e);
         }
     }
 
@@ -226,20 +167,6 @@ public class TesterinaUtils {
         } catch (ClassCastException classCastException) {
             // If an unhandled error type is passed to format error message
             return TesterinaUtils.getPrintableStackTrace(e);
-        }
-    }
-
-    private static Path[] getConfigPaths(TestSuite testSuite) {
-        String moduleName = testSuite.getModuleName();
-        Path configFilePath = Paths.get(testSuite.getSourceRootPath());
-        if (!moduleName.equals(testSuite.getPackageName())) {
-            configFilePath = configFilePath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
-        }
-        configFilePath = configFilePath.resolve(ProjectConstants.TEST_DIR_NAME).resolve(CONFIG_FILE_NAME);
-        if (!Files.exists(configFilePath)) {
-            return new Path[] {};
-        } else {
-            return new Path[] {configFilePath};
         }
     }
 
