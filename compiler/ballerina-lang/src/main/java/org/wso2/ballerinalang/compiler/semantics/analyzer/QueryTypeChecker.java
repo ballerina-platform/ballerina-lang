@@ -35,8 +35,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSequenceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
@@ -924,11 +924,9 @@ public class QueryTypeChecker extends TypeChecker {
     }
     
     private boolean effectiveSimpleVarRef(BLangExpression expr) {
+        // TODO: Improve this method to handle grouping-expr
         NodeKind kind = expr.getKind();
-        if (kind == NodeKind.SIMPLE_VARIABLE_REF) {
-            return true;
-        }
-        return false;
+        return kind == NodeKind.SIMPLE_VARIABLE_REF;
     }
 
     // TODO: Combine this with the method in TypeChecker
