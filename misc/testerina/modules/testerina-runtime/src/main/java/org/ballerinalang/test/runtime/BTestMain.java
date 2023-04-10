@@ -22,7 +22,6 @@ import com.google.gson.reflect.TypeToken;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.entity.MockFunctionReplaceVisitor;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
-import org.ballerinalang.test.runtime.entity.TestArguments;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
@@ -126,9 +125,8 @@ public class BTestMain {
                         }
 
                         result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, classLoader,
-                                new TestArguments(args[0], packageName, moduleName,
-                                        args[2], args[3], args[4], args[5], args[6], args[7],
-                                        args[8]), Arrays.copyOfRange(args, 9, args.length));
+                                new String[]{args[0], packageName, moduleName, args[2], args[3],
+                                        args[4], args[5], args[6], args[7], args[8]});
                         exitStatus = (result == 1) ? result : exitStatus;
                     }
                 } else {
@@ -143,10 +141,10 @@ public class BTestMain {
     }
 
     private static int startTestSuit(Path sourceRootPath, TestSuite testSuite, ClassLoader classLoader,
-                                     TestArguments args, String[] cliArgs) {
+                                     String[] args) {
         int exitStatus = 0;
         try {
-            TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader, args, cliArgs);
+            exitStatus = TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader, args);
         } catch (RuntimeException e) {
             exitStatus = 1;
         } finally {
