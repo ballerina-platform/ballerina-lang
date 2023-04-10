@@ -256,7 +256,7 @@ function testTupleWithUnion() {
     assertEquality(3, c[0]);
 }
 
-function getTuples() returns [int]|[int, int, int] {
+function getTuples() returns [int, int, int] {
     return [1, 2, 3];
 }
 
