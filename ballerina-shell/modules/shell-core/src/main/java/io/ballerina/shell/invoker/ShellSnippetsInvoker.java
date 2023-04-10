@@ -580,13 +580,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         return System.err;
     }
 
-    /**
-     * Get classLoader without main jar.
-     *
-     * @param jBallerinaBackend jballerina backend.
-     * @param jarResolver jarResolver.
-     * @return class Loader without main jar.
-     */
     public ClassLoader getClassLoaderWithRequiredJarFilesForExecutionWithoutMainJar(JBallerinaBackend jBallerinaBackend,
                                                                                     JarResolver jarResolver) {
 
@@ -597,13 +590,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         return createClassLoader(jBallerinaBackend, jarLibraries);
     }
 
-    /**
-     * Create new classLoader.
-     *
-     * @param jBallerinaBackend jballerina backend.
-     * @param jarFiles required jar files to create classLoader.
-     * @return created classLoader.
-     */
     private URLClassLoader createClassLoader(JBallerinaBackend jBallerinaBackend, Collection<JarLibrary> jarFiles) {
         if (jBallerinaBackend.diagnosticResult().hasErrors()) {
             throw new IllegalStateException("Cannot create a ClassLoader: this compilation has errors.");
