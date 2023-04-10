@@ -115,24 +115,23 @@ public class TesterinaUtils {
             throw new BallerinaTestException("failed to load init class :" + initClassName);
         }
 
-        // This will init and start the test module.
+        // This will run the main method of the test module.
         startSuite(initClazz, args);
         return getTestExecutionState(initClazz);
     }
 
     private static void startSuite(Class<?> initClazz, String[] args) {
         // Call test module main
-        Object response = runTestModuleMain(initClazz, TESTERINA_MAIN_METHOD, args, String[].class);
+        Object response = runTestModuleMain(initClazz, args, String[].class);
         if (response instanceof Throwable) {
             throw new BallerinaTestException("dependant module execution for test suite failed due to " +
                     formatErrorMessage((Throwable) response), (Throwable) response);
         }
     }
 
-    private static Object runTestModuleMain(Class<?> initClazz, String name, String[] args,
-                                            Class<?>... parameterTypes) {
+    private static Object runTestModuleMain(Class<?> initClazz, String[] args, Class<?>... parameterTypes) {
         try {
-            final Method method = initClazz.getDeclaredMethod(name, parameterTypes);
+            final Method method = initClazz.getDeclaredMethod(TESTERINA_MAIN_METHOD, parameterTypes);
             return method.invoke(null, (Object) args);
         } catch (InvocationTargetException e) {
             Throwable targetException = e.getTargetException();
@@ -141,8 +140,8 @@ public class TesterinaUtils {
             }
             return targetException;
         } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException e) {
-            return new BallerinaTestException("Failed to invoke the function '" + name + " due to " +
-                    e.getMessage(), e);
+            return new BallerinaTestException("Failed to invoke the function '" + TESTERINA_MAIN_METHOD + " due to " +
+                    formatErrorMessage(e), e);
         }
     }
 
@@ -152,7 +151,7 @@ public class TesterinaUtils {
             return (int) method.invoke(null);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             throw new BallerinaTestException("Failed to invoke the function '" + GET_TEST_EXEC_STATE + " due to " +
-                    e.getMessage(), e);
+                    formatErrorMessage(e), e);
         }
     }
 
