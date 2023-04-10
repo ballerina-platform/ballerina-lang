@@ -41,8 +41,6 @@ public class JIMethodCall extends JTerminator {
     public int invocationType;
     public boolean isInternal = false;
 
-    public boolean isInternal = false;
-
     public JIMethodCall(Location pos) {
 
         super(pos);
