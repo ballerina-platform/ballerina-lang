@@ -2896,7 +2896,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             } else if ((symbol.tag & SymTag.SEQUENCE) == SymTag.SEQUENCE) {
                 varRefExpr.symbol = symbol;
                 actualType = symbol.type;
-                data.queryData.foundSequenceVariable = true;
+                data.queryData.foundSeqVarInExpr = true;
             } else if ((symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
                 actualType = symbol.type.tag == TypeTags.TYPEDESC ? symbol.type : new BTypedescType(symbol.type, null);
                 varRefExpr.symbol = symbol;
