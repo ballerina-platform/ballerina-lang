@@ -1,8 +1,6 @@
 package io.ballerina.cli.cmd.sub;
 
-import java.util.List;
+import io.ballerina.cli.BLauncherCmd;
 
-public interface SubToolCommand {
-    void execute(List<String> args);
-    String getName();
+public interface SubToolCommand extends BLauncherCmd {
 }

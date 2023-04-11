@@ -5,10 +5,10 @@ package io.ballerina.cli.cmd;
 //  2. How to persist once added ***
 //  3. How to remove once added
 //  4. How to list
-//  5. How to move the sub command attaching logic to the subcommand itself rather than the ToolCmd class ***
+//  5. Move OpenAPI to a separate gradle project and use
 
 import io.ballerina.cli.BLauncherCmd;
-import io.ballerina.cli.cmd.sub.OpenAPITool;
+import io.ballerina.cli.cmd.sub.ConcreteSubTool;
 import io.ballerina.cli.cmd.sub.SubToolCommand;
 import io.ballerina.cli.launcher.BallerinaCliCommands;
 import picocli.CommandLine;
@@ -69,10 +69,11 @@ class ToolCommand implements BLauncherCmd {
             String toolName = toolCommands.get(1);
             System.out.println("Trying to pull tool: " + toolName);
 
-            // Tool pulling logic
+            // Tool pulling logic identical to bal pull.
+            // TODO: Should we have a way to identify if its a tool or a general package?
             // TODO: look into using SPI here. add to the spi list and load directly as a command
             // TODO: try using a creational design pattern here
-            SubToolCommand subToolCommand = new OpenAPITool();
+            SubToolCommand subToolCommand = new ConcreteSubTool();
             subCommands.put(toolName, subToolCommand);
             saveSubCommands();
             System.out.println("Saved sub command: " + subToolCommand.getName());
@@ -81,7 +82,8 @@ class ToolCommand implements BLauncherCmd {
 
         if (toolCommands.size() >= 1 && subCommands.containsKey(toolCommands.get(0))) {
             SubToolCommand subToolCommand = subCommands.get(toolCommands.get(0));
-            subToolCommand.execute(toolCommands.subList(1, toolCommands.size()));
+            // TODO: need a mechanism to pass args to sub commands
+            subToolCommand.execute();
             return;
         }
 
