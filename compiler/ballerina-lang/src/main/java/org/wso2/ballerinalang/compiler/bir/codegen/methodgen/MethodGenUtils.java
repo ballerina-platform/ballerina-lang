@@ -34,10 +34,7 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FRAME_CLASS_PREFIX;
-<<<<<<< HEAD
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
-=======
->>>>>>> 5c8a31b67dd (Add Java main for testable packages)
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
