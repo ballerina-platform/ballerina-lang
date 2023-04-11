@@ -661,7 +661,7 @@ public class JvmCodeGenUtil {
             Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
             mv.visitJumpInsn(GOTO, gotoLabel);
 //            return;
-        }
+//        }
 //        mv.visitInsn(ICONST_1);
 //        mv.visitVarInsn(ISTORE, loopVarIndex);
 //        mv.visitIntInsn(SIPUSH, gotoBBNumber);
