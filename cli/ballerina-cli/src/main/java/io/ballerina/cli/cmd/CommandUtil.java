@@ -21,6 +21,7 @@ package io.ballerina.cli.cmd;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.ballerina.cli.cmd.sub.SubToolCommand;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
@@ -39,15 +40,21 @@ import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
+import picocli.CommandLine;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -57,14 +64,18 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
@@ -92,6 +103,8 @@ public class CommandUtil {
     public static final String DEVCONTAINER = "devcontainer";
     public static final String NEW_CMD_DEFAULTS = "new_cmd_defaults";
     public static final String CREATE_CMD_TEMPLATES = "create_cmd_templates";
+    private static final File subCommandsFile = new File(System.getProperty("user.home")
+            + "/.ballerina/subCommands.properties");
     private static FileSystem jarFs;
     private static Map<String, String> env;
     private static PrintStream errStream;
@@ -941,5 +954,101 @@ public class CommandUtil {
      */
     private static String removeLastCharacter(String str) {
         return str.substring(0, str.length() - 1);
+    }
+
+    public static void addSubCommandsFromJarToCmdParser(String toolName, CommandLine parentCmdParser) {
+        // TODO: need to get the jar file path of the pulled package. Hard coded for the time being
+
+        // TODO: how to decide on the org, version of the package?
+        //  Should the org be ballerina and version the latest all the time?
+        //  Or should we allow the user to specify the org and version in the command?
+        //  Hard coded for the time being
+        String orgName = "ballerina";
+        String version = "1.0.0";
+        Path packagePathInBala = ProjectUtils.createAndGetHomeReposPath()
+                .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+                .resolve(ProjectConstants.BALA_DIR_NAME)
+                .resolve(orgName).resolve(toolName);
+
+        // TODO: need to get the proper platform. Hardcoded as java11 for now.
+        String jarFilePath = packagePathInBala.resolve(version).resolve("java11").resolve("platform")
+                .resolve("java11").resolve(toolName + "-native-" + version + ".jar").toString();
+        URL[] jarUrls;
+        try {
+            jarUrls = new URL[]{new File(jarFilePath).toURI().toURL()};
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        URLClassLoader classLoader = new URLClassLoader(jarUrls);
+
+        // Load all classes in the JAR file.
+        List<Class<?>> classes = loadClassesFromJar(classLoader, jarFilePath);
+
+        // Register each command class with the Picocli command line parser.
+        for (Class<?> clazz : classes) {
+            if (SubToolCommand.class.isAssignableFrom(clazz)) {
+                parentCmdParser.addSubcommand(clazz);
+            }
+        }
+    }
+
+
+
+    private static List<Class<?>> loadClassesFromJar(URLClassLoader classLoader, String jarFilePath) {
+        List<Class<?>> classes = new ArrayList<>();
+
+        // Open the JAR file as a ZIP file.
+        try (ZipFile zip = new ZipFile(jarFilePath)) {
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+
+                // Only load classes from the JAR file.
+                if (entry.getName().endsWith(".class")) {
+                    String className = entry.getName().replace('/', '.');
+                    className = className.substring(0, className.length() - ".class".length());
+
+                    // Load the class using the class loader.
+                    Class<?> clazz = classLoader.loadClass(className);
+                    classes.add(clazz);
+                }
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        return classes;
+    }
+
+    public static String[] loadJarFilePathsFromConfigFile() throws IOException {
+        Map<String, String> map = new HashMap<>();
+        // Load the configuration file as a Properties object.
+        Properties props = new Properties();
+        if (subCommandsFile.exists()) {
+            try (FileInputStream in = new FileInputStream(subCommandsFile)) {
+                props.load(in);
+            }
+        }
+        return props.values().toArray(new String[0]);
+    }
+
+    static void saveJarFilePathToConfigFile(String toolName) throws IOException {
+        // Load the configuration file as a Properties object.
+        Properties props = new Properties();
+        if (subCommandsFile.exists()) {
+            try (FileInputStream in = new FileInputStream(subCommandsFile)) {
+                props.load(in);
+            }
+        }
+
+        // Set the jarFilePath property to the specified value.
+        // TODO: add the org name and version to the key
+        props.setProperty(toolName, toolName);
+
+        // Save the updated configuration file.
+        try (FileOutputStream out = new FileOutputStream(subCommandsFile)) {
+            props.store(out, "sub tool command name, jar file path mapping");
+        }
     }
 }
