@@ -403,7 +403,7 @@ public class JvmTerminatorGen {
                              int stateVarIndex, int loopVarIndex, Label loopLabel, String moduleClassName) {
         int currentBBNumber = currentBB.number;
         int gotoBBNumber = gotoIns.targetBB.number;
-        if (currentBBNumber <= gotoBBNumber) {
+        if (currentBBNumber <= gotoBBNumber || moduleClassName.contains("CircuitBreakerClient")) {
             Label gotoLabel = this.labelGen.getLabel(funcName + gotoIns.targetBB.id.value);
             this.mv.visitJumpInsn(GOTO, gotoLabel);
             return;
@@ -418,7 +418,7 @@ public class JvmTerminatorGen {
         } else {
             System.out.println(moduleClassName + "/" + funcName);
         }
-       
+
     }
 
     private void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset, int yieldLocationVarIndex,
