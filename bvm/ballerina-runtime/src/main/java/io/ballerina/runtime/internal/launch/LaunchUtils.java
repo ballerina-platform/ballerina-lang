@@ -45,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILES_ENV_VARIABLE;
@@ -59,7 +58,6 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.TomlCons
 public class LaunchUtils {
 
     private static final PrintStream outStream = System.out;
-    private static final Pattern UNESCAPED_NEWLINE_CHAR = Pattern.compile("\\\\n(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
     private LaunchUtils() {
     }
@@ -136,7 +134,7 @@ public class LaunchUtils {
                 paths.add(Paths.get(pathString));
             }
         } else if (envVars.containsKey(CONFIG_DATA_ENV_VARIABLE)) {
-            return UNESCAPED_NEWLINE_CHAR.matcher(envVars.get(CONFIG_DATA_ENV_VARIABLE)).replaceAll("\n");
+            return envVars.get(CONFIG_DATA_ENV_VARIABLE);
         } else {
             if (Files.exists(DEFAULT_CONFIG_PATH)) {
                 paths.add(DEFAULT_CONFIG_PATH);

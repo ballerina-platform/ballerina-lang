@@ -148,11 +148,10 @@ public class ConfigurableTest extends BaseTest {
         executeBalCommand("", "envVarPkg",
                 addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
 
-        configData =
-                "[envVarPkg]\\n\\r intVar = 42\\n\\r floatVar = 3.5\\n\\r stringVar = \"abc\"\\n\\r booleanVar = true\\n\\r " +
-                        "decimalVar = 24.87\\n\\r intArr = [1,2,3]\\n\\r floatArr = [9.0, 5.6]\\n\\r " +
-                        "stringArr = [\"red\", \"yellow\", \"green\"]\\n\\r booleanArr = [true, false,false, true]\\n\\r " +
-                        "decimalArr = [8.9, 4.5, 6.2]";
+        configData = "[envVarPkg]\\n\\rintVar = 42\\n\\rfloatVar = 3.5\\n\\rstringVar = \"abc\"\\n\\r" +
+                "booleanVar = true\\n\\rdecimalVar = 24.87\\n\\rintArr = [1,2,3]\\n\\r" +
+                "floatArr = [9.0, 5.6]\\n\\rstringArr = [\"red\", \"yellow\", \"green\"]\\n\\r" +
+                "booleanArr = [true, false,false, true]\\n\\rdecimalArr = [8.9, 4.5, 6.2]";
         executeBalCommand("", "envVarPkg",
                 addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
     }
