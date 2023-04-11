@@ -2,6 +2,7 @@ module io.ballerina.cli {
     exports io.ballerina.cli;
     exports io.ballerina.cli.launcher;
     exports io.ballerina.cli.utils;
+    exports io.ballerina.cli.cmd.sub;
 
     requires io.ballerina.runtime;
     requires io.ballerina.lang;

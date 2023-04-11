@@ -82,7 +82,13 @@ public class Main {
 
             // loading additional commands via SPI
             ServiceLoader<BLauncherCmd> bCmds = ServiceLoader.load(BLauncherCmd.class);
+//            String classpath = System.getProperty("java.class.path");
+//            String[] classpathEntries = classpath.split(System.getProperty("path.separator"));
+//            for (String entry : classpathEntries) {
+//                System.out.println("Classpath entry: " + entry);
+//            }
             for (BLauncherCmd bCmd : bCmds) {
+                System.out.println("bCmd.getName() = " + bCmd.getName());
                 cmdParser.addSubcommand(bCmd.getName(), bCmd);
                 bCmd.setParentCmdParser(cmdParser);
             }
