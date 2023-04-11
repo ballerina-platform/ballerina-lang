@@ -35,6 +35,7 @@ import io.ballerina.runtime.internal.values.RegExpTerm;
 import io.ballerina.runtime.internal.values.RegExpValue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -239,6 +240,7 @@ public class TreeBuilder {
         if (isCharacterClassEnd(nextToken.kind)) {
             return new RegExpCharSet(new Object[]{startReCharSetAtom});
         }
+        List<Object> charSetAtoms = new ArrayList<>();
         if (nextToken.kind == TokenKind.MINUS_TOKEN) {
             Token minus = consume();
             nextToken = peek();
@@ -246,17 +248,18 @@ public class TreeBuilder {
             RegExpCharSetRange reCharSetRange = new RegExpCharSetRange(startReCharSetAtom, minus.value,
                     rhsReCharSetAtom);
             RegExpCharSet reCharSet = readRegCharSet();
-
-            List<Object> charSetAtoms = new ArrayList<>();
             charSetAtoms.add(reCharSetRange);
             if (reCharSet.getCharSetAtoms().length > 0) {
-                charSetAtoms.add(reCharSet);
+                charSetAtoms.addAll(Arrays.asList(reCharSet.getCharSetAtoms()));
             }
-
             return new RegExpCharSet(charSetAtoms.toArray());
         }
         RegExpCharSet reCharSetNoDash = readCharSetNoDash(nextToken);
-        return new RegExpCharSet(new Object[]{startReCharSetAtom, reCharSetNoDash});
+        charSetAtoms.add(startReCharSetAtom);
+        if (reCharSetNoDash.getCharSetAtoms().length > 0) {
+            charSetAtoms.addAll(Arrays.asList(reCharSetNoDash.getCharSetAtoms()));
+        }
+        return new RegExpCharSet(charSetAtoms.toArray());
     }
     
     private RegExpCharSet readCharSetNoDash(Token nextToken) {
@@ -265,6 +268,7 @@ public class TreeBuilder {
         if (isCharacterClassEnd(nextToken.kind)) {
             return new RegExpCharSet(new Object[]{startReCharSetAtomNoDash});
         }
+        List<Object> charSetAtoms = new ArrayList<>();
         if (nextToken.kind == TokenKind.MINUS_TOKEN) {
             Token minus = consume();
             nextToken = peek();
@@ -272,10 +276,18 @@ public class TreeBuilder {
             RegExpCharSetRange reCharSetRange = new RegExpCharSetRange(startReCharSetAtomNoDash, minus.value,
                     rhsReCharSetAtom);
             RegExpCharSet reCharSet = readRegCharSet();
-            return new RegExpCharSet(new Object[]{reCharSetRange, reCharSet});
+            charSetAtoms.add(reCharSetRange);
+            if (reCharSet.getCharSetAtoms().length > 0) {
+                charSetAtoms.addAll(Arrays.asList(reCharSet.getCharSetAtoms()));
+            }
+            return new RegExpCharSet(charSetAtoms.toArray());
         }
         RegExpCharSet reCharSetNoDash = readCharSetNoDash(nextToken);
-        return new RegExpCharSet(new Object[]{startReCharSetAtomNoDash, reCharSetNoDash});
+        charSetAtoms.add(startReCharSetAtomNoDash);
+        if (reCharSetNoDash.getCharSetAtoms().length > 0) {
+            charSetAtoms.addAll(Arrays.asList(reCharSetNoDash.getCharSetAtoms()));
+        }
+        return new RegExpCharSet(charSetAtoms.toArray());
     }
 
     private String readCharSetAtom(Token nextToken) {

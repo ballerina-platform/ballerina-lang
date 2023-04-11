@@ -1311,6 +1311,80 @@ function testTranslatingDiffNodesInCharClass() {
     assertEquality("A", (<regexp:Span>res8).substring());
 }
 
+function testCharClassesWithMultipleRangesAndAtoms() returns error? {
+    string:RegExp pattern1 = check regexp:fromString("[a-zA-Z0-9]");
+    assertTrue(pattern1 is string:RegExp);
+    if (pattern1 is string:RegExp) {
+        assertTrue(re `[a-zA-Z0-9]` == pattern1);
+    }
+    regexp:Span? res1 = pattern1.find("ABC");
+    assertTrue(res1 is regexp:Span);
+    assertEquality("A", (<regexp:Span>res1).substring());
+        
+    string:RegExp pattern2 = check regexp:fromString("[abc-mzABC-FGH012-5]");
+    assertTrue(pattern2 is string:RegExp);
+    if (pattern2 is string:RegExp) {
+        assertTrue(re `[abc-mzABC-FGH012-5]` == pattern2);
+    }
+    regexp:Span? res2 = pattern2.find("abc");
+    assertTrue(res2 is regexp:Span);
+    assertEquality("a", (<regexp:Span>res2).substring());
+    
+    string:RegExp pattern3 = check regexp:fromString("[a-z\\d\\s]");
+    assertTrue(pattern3 is string:RegExp);
+    if (pattern3 is string:RegExp) {
+        assertTrue(re `[a-z\d\s]` == pattern3);
+    }
+    regexp:Span? res3 = pattern3.find("abc");
+    assertTrue(res3 is regexp:Span);
+    assertEquality("a", (<regexp:Span>res3).substring());
+    
+    string:RegExp pattern4 = check regexp:fromString("[\\w-\\d\\s]");
+    assertTrue(pattern4 is string:RegExp);
+    if (pattern4 is string:RegExp) {
+        assertTrue(re `[\w-\d\s]` == pattern4);
+    }
+    regexp:Span? res4 = pattern4.find("abc");
+    assertTrue(res4 is regexp:Span);
+    assertEquality("a", (<regexp:Span>res4).substring());
+    
+    string:RegExp pattern5 = check regexp:fromString("[ABC-MZ.a-z]");
+    assertTrue(pattern5 is string:RegExp);
+    if (pattern5 is string:RegExp) {
+        assertTrue(re `[ABC-MZ.a-z]` == pattern5);
+    }
+    regexp:Span? res5 = pattern5.find("abc");
+    assertTrue(res5 is regexp:Span);
+    assertEquality("a", (<regexp:Span>res5).substring());
+    
+    string:RegExp pattern6 = check regexp:fromString("[^a-zA-Z*]");
+    assertTrue(pattern6 is string:RegExp);
+    if (pattern6 is string:RegExp) {
+        assertTrue(re `[^a-zA-Z*]` == pattern6);
+    }
+    regexp:Span? res6 = pattern6.find("123");
+    assertTrue(res6 is regexp:Span);
+    assertEquality("1", (<regexp:Span>res6).substring());
+    
+    string:RegExp pattern7 = check regexp:fromString("[a-z.\\s\\w]");
+    assertTrue(pattern7 is string:RegExp);
+    if (pattern7 is string:RegExp) {
+        assertTrue(re `[a-z.\s\w]` == pattern7);
+    }
+    regexp:Span? res7 = pattern7.find("abc");
+    assertTrue(res7 is regexp:Span);
+    assertEquality("a", (<regexp:Span>res7).substring());
+    
+    string:RegExp pattern8 = check regexp:fromString("[\\s]");
+    assertTrue(pattern8 is string:RegExp);
+    if (pattern8 is string:RegExp) {
+        assertTrue(re `[\s]` == pattern8);
+    }
+    regexp:Span? res8 = pattern8.find("abc ");
+    assertTrue(res8 is regexp:Span);
+    assertEquality(" ", (<regexp:Span>res8).substring());
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
