@@ -355,7 +355,7 @@ public class StringUtils {
      * @return Json String value of the value
      */
     public static String getJsonString(Object value) {
-        Object jsonValue = JsonUtils.convertToJson(value, new ArrayList<>());
+        Object jsonValue = JsonUtils.convertToJson(value);
 
         Type type = TypeUtils.getReferredType(TypeChecker.getType(jsonValue));
         switch (type.getTag()) {

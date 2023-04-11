@@ -50,6 +50,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -59,7 +60,7 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
- * Class @{@link JsonParser} provides APIs to handle json values.
+ * Class {@link JsonParser} provides APIs to handle json values.
  *
  * @since 2.0.0
  */
@@ -279,7 +280,31 @@ public class JsonUtils {
         }
     }
 
+    /**
+     * Create a json value from the given source value.
+     *
+     * @param value source value
+     * @return      json value
+     */
+    public static Object convertToJson(Object value) {
+        return convertToJsonType(value, new ArrayList<>());
+    }
+
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
+    /**
+     * Create a json value from the given source value.
+     *
+     * @param value             source value
+     * @param unresolvedValues  list of unresolved values
+     * @return                  json value
+     * @deprecated              use {@link #convertToJson(Object)} instead.
+     */
+    @Deprecated
     public static Object convertToJson(Object value, List<TypeValuePair> unresolvedValues) {
+        return convertToJsonType(value, unresolvedValues);
+    }
+
+    private static Object convertToJsonType(Object value, List<TypeValuePair> unresolvedValues) {
         Type jsonType = PredefinedTypes.TYPE_JSON;
         if (value == null) {
             return null;
@@ -359,7 +384,7 @@ public class JsonUtils {
         BMap<BString, Object> newMap =
                 ValueCreator.createMapValue(TypeCreator.createMapType(PredefinedTypes.TYPE_JSON));
         for (Map.Entry entry : map.entrySet()) {
-            Object newValue = convertToJson(entry.getValue(), unresolvedValues);
+            Object newValue = convertToJsonType(entry.getValue(), unresolvedValues);
             newMap.put(StringUtils.fromString(entry.getKey().toString()), newValue);
         }
         return newMap;
@@ -368,7 +393,7 @@ public class JsonUtils {
     private static Object convertArrayToJson(BArray array, List<TypeValuePair> unresolvedValues) {
         BArray newArray = ValueCreator.createArrayValue((ArrayType) PredefinedTypes.TYPE_JSON_ARRAY);
         for (int i = 0; i < array.size(); i++) {
-            Object newValue = convertToJson(array.get(i), unresolvedValues);
+            Object newValue = convertToJsonType(array.get(i), unresolvedValues);
             newArray.add(i, newValue);
         }
         return newArray;
