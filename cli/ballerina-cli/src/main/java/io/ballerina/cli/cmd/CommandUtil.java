@@ -50,6 +50,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -987,7 +989,22 @@ public class CommandUtil {
         // Register each command class with the Picocli command line parser.
         for (Class<?> clazz : classes) {
             if (SubToolCommand.class.isAssignableFrom(clazz)) {
-                parentCmdParser.addSubcommand(clazz);
+                Class<? extends SubToolCommand> subCmdClazz = clazz.asSubclass(SubToolCommand.class);
+                try {
+                    // TODO: what if the constructor is not public, or if it has parameters?
+                    Constructor<? extends SubToolCommand> constructor = subCmdClazz.getDeclaredConstructor();
+                    if (!constructor.canAccess(null)) {
+                        constructor.trySetAccessible();
+                    }
+
+                    // Create a new instance of the assignable class
+                    SubToolCommand subToolCommand = constructor.newInstance();
+                    parentCmdParser.addSubcommand(subToolCommand);
+                    subToolCommand.setParentCmdParser(parentCmdParser);
+                } catch (NoSuchMethodException | InstantiationException | InvocationTargetException |
+                         IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
