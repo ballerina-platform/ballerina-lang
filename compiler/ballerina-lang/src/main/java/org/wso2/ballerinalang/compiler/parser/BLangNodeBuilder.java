@@ -3595,7 +3595,13 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private BLangNode createXMLEmptyLiteral(Node expressionNode) {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
         xmlTextLiteral.pos = getPosition(expressionNode);
-        xmlTextLiteral.textFragments.add(createEmptyStringLiteral(xmlTextLiteral.pos));
+        Location expressionPos = xmlTextLiteral.pos;
+        if (expressionNode.kind() == SyntaxKind.XML_TEMPLATE_EXPRESSION) {
+            TemplateExpressionNode templateExprNode = (TemplateExpressionNode) expressionNode;
+            expressionPos = getPosition(templateExprNode.startBacktick(), templateExprNode.endBacktick());
+        }
+
+        xmlTextLiteral.textFragments.add(createEmptyStringLiteral(expressionPos));
         return xmlTextLiteral;
     }
 
