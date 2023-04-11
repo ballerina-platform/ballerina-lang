@@ -19,11 +19,13 @@
 package io.ballerina.cli.launcher;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.cmd.CommandUtil;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.compiler.BLangCompilerException;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -93,6 +95,22 @@ public class Main {
                 bCmd.setParentCmdParser(cmdParser);
             }
 
+
+            String[] toolNames = CommandUtil.loadJarFilePathsFromConfigFile();
+
+            if (toolNames.length > 0) {
+                // Dynamically load and register all commands in the previously added JAR file.
+                try {
+                    // Create a new class loader that can load classes from the JAR file.
+                    for (String toolName : toolNames) {
+                        CommandUtil.addSubCommandsFromJarToCmdParser(toolName, cmdParser);
+                        // do something with the key-value pair
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
             HelpCmd helpCmd = new HelpCmd();
             cmdParser.addSubcommand(BallerinaCliCommands.HELP, helpCmd);
             helpCmd.setParentCmdParser(cmdParser);
@@ -155,6 +173,8 @@ public class Main {
                                                                      + " needs an argument");
             }
             throw LauncherUtils.createUsageExceptionWithHelp(LauncherUtils.makeFirstLetterLowerCase(msg));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
