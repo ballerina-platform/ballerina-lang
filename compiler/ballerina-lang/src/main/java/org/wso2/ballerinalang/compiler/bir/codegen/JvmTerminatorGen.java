@@ -352,7 +352,7 @@ public class JvmTerminatorGen {
                 return;
             case GOTO:
                 this.genGoToTerm((BIRTerminator.GOTO) terminator, funcName, currentBB, stateVarIndex, loopVarIndex,
-                        loopLabel);
+                        loopLabel, moduleClassName);
                 return;
             case CALL:
                 this.genCallTerm((BIRTerminator.Call) terminator, localVarOffset);
@@ -400,19 +400,25 @@ public class JvmTerminatorGen {
     }
 
     private void genGoToTerm(BIRTerminator.GOTO gotoIns, String funcName, BIRNode.BIRBasicBlock currentBB,
-                             int stateVarIndex, int loopVarIndex, Label loopLabel) {
+                             int stateVarIndex, int loopVarIndex, Label loopLabel, String moduleClassName) {
         int currentBBNumber = currentBB.number;
         int gotoBBNumber = gotoIns.targetBB.number;
-//        if (currentBBNumber <= gotoBBNumber) {
+        if (currentBBNumber <= gotoBBNumber) {
             Label gotoLabel = this.labelGen.getLabel(funcName + gotoIns.targetBB.id.value);
             this.mv.visitJumpInsn(GOTO, gotoLabel);
-//            return;
-//        }
-//        this.mv.visitInsn(ICONST_1);
-//        this.mv.visitVarInsn(ISTORE, loopVarIndex);
-//        this.mv.visitIntInsn(SIPUSH, gotoBBNumber);
-//        this.mv.visitVarInsn(ISTORE, stateVarIndex);
-//        this.mv.visitJumpInsn(GOTO, loopLabel);
+            return;
+        }
+        this.mv.visitInsn(ICONST_1);
+        this.mv.visitVarInsn(ISTORE, loopVarIndex);
+        this.mv.visitIntInsn(SIPUSH, gotoBBNumber);
+        this.mv.visitVarInsn(ISTORE, stateVarIndex);
+        this.mv.visitJumpInsn(GOTO, loopLabel);
+        if (gotoIns.pos != null) {
+            System.out.println(moduleClassName + "/" + funcName + ": "+ gotoIns.pos);
+        } else {
+            System.out.println(moduleClassName + "/" + funcName);
+        }
+       
     }
 
     private void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset, int yieldLocationVarIndex,
