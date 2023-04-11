@@ -293,7 +293,7 @@ public class ReferenceFinder extends BaseVisitor {
         find(funcNode.returnTypeNode);
         find(funcNode.body);
 
-        if (funcNode.symbol.origin != VIRTUAL) {
+        if (funcNode.symbol != null && funcNode.symbol.origin != VIRTUAL) {
             addIfSameSymbol(funcNode.symbol, funcNode.name.pos);
         }
     }
@@ -1407,7 +1407,7 @@ public class ReferenceFinder extends BaseVisitor {
                 && this.targetSymbol.name.equals(symbol.name)
                 && this.targetSymbol.pkgID.equals(symbol.pkgID)
                 && this.targetSymbol.pos.equals(symbol.pos)
-                && (this.withDefinition || !symbol.pos.equals(location))) {
+                && (this.withDefinition || (symbol.getOrigin() != VIRTUAL && !symbol.pos.equals(location)))) {
             this.referenceLocations.add(location);
             return true;
         }
@@ -1429,7 +1429,7 @@ public class ReferenceFinder extends BaseVisitor {
      */
     private Location getLocationForLiteral(Location location) {
         LineRange lineRange = location.lineRange();
-        return new BLangDiagnosticLocation(lineRange.filePath(),
+        return new BLangDiagnosticLocation(lineRange.fileName(),
                                            lineRange.startLine().line(), lineRange.endLine().line(),
                                            lineRange.startLine().offset() + 1, lineRange.endLine().offset() - 1,
                                            location.textRange().startOffset(), location.textRange().length());

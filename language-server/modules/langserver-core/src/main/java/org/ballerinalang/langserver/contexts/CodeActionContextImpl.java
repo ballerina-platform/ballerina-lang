@@ -106,7 +106,7 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
                 ? project.sourceRoot().getParent() :
                 project.sourceRoot();
         this.diagnostics = compilation.diagnosticResult().diagnostics().stream()
-                .filter(diag -> projectRoot.resolve(diag.location().lineRange().filePath()).equals(filePath))
+                .filter(diag -> projectRoot.resolve(diag.location().lineRange().fileName()).equals(filePath))
                 .collect(Collectors.toList());
         return this.diagnostics;
     }

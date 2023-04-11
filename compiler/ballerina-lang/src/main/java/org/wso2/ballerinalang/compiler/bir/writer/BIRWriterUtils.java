@@ -58,8 +58,8 @@ public class BIRWriterUtils {
             eLine = pos.lineRange().endLine().line();
             sCol = pos.lineRange().startLine().offset();
             eCol = pos.lineRange().endLine().offset();
-            if (pos.lineRange().filePath() != null) {
-                sourceFileName = pos.lineRange().filePath();
+            if (pos.lineRange().fileName() != null) {
+                sourceFileName = pos.lineRange().fileName();
             }
         }
         buf.writeInt(addStringCPEntry(sourceFileName, cp));

@@ -47,7 +47,7 @@ import java.util.function.Function;
 public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
 
     final Type type;
-    private final BTypedesc typedesc;
+    private BTypedesc typedesc;
     Function<T, R> function;
     public boolean isConcurrent;
     public String strandName;
@@ -58,7 +58,6 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
         this.type = type;
         this.strandName = strandName;
         this.isConcurrent = isConcurrent;
-        this.typedesc = new TypedescValueImpl(type);
     }
 
     public R call(T t) {
@@ -116,6 +115,9 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = new TypedescValueImpl(type);
+        }
         return typedesc;
     }
 

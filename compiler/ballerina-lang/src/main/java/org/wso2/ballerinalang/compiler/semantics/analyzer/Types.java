@@ -3988,7 +3988,13 @@ public class Types {
                 if (NumericLiteralSupport.isDecimalDiscriminated(originalValue)) {
                     return false;
                 }
-                double baseDoubleVal = Double.parseDouble(baseValueStr);
+                double baseDoubleVal;
+                try {
+                    baseDoubleVal = Double.parseDouble(baseValueStr);
+                } catch (NumberFormatException e) {
+                    // We reach here if a floating point literal has syntax diagnostics.
+                    return false;
+                }
                 double candidateDoubleVal;
                 if (candidateTypeTag == TypeTags.INT && !candidateLiteral.isConstant) {
                     if (candidateLiteral.value instanceof Double) {
@@ -6435,19 +6441,10 @@ public class Types {
                 ((TypeTags.isStringTypeTag(firstTypeTag)) && (TypeTags.isStringTypeTag(secondTypeTag)));
     }
 
-    public boolean isUnionOfSimpleBasicTypes(BType bType) {
-        BType type = getReferredType(bType);
-        if (type.tag == TypeTags.UNION) {
-            Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
-            for (BType memType : memberTypes) {
-                memType = getReferredType(memType);
-                if (!isSimpleBasicType(memType.tag)) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return isSimpleBasicType(type.tag);
+    public boolean isSubTypeOfSimpleBasicTypeOrString(BType bType) {
+        return isAssignable(getReferredType(bType),
+                            BUnionType.create(null, symTable.nilType, symTable.booleanType, symTable.intType,
+                                              symTable.floatType, symTable.decimalType, symTable.stringType));
     }
 
     public BType findCompatibleType(BType type) {
@@ -6615,6 +6612,14 @@ public class Types {
             case TypeTags.TYPEREFDESC:
                 visitedTypeSet.add(type);
                 return isNeverTypeOrStructureTypeWithARequiredNeverMember(getReferredType(type), visitedTypeSet);
+            case UNION:
+                BUnionType unionType = (BUnionType) type;
+                for (BType memType : unionType.getMemberTypes()) {
+                    if (!isNeverTypeOrStructureTypeWithARequiredNeverMember(memType, visitedTypeSet)) {
+                        return false;
+                    }
+                }
+                return true;
             default:
                 return false;
         }

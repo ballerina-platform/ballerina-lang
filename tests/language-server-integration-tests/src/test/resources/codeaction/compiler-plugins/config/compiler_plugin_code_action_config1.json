@@ -43,7 +43,7 @@
           {
             "key": "node.range",
             "value": {
-              "filePath": "main.bal",
+              "fileName": "main.bal",
               "startLine": {
                 "line": 6,
                 "offset": 3

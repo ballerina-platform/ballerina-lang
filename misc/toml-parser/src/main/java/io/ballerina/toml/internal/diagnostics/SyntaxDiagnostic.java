@@ -80,6 +80,6 @@ public class SyntaxDiagnostic extends Diagnostic {
     @Override
     public String toString() {
         return diagnosticInfo().severity().toString() + " [" +
-                location().lineRange().filePath() + ":" + location().lineRange() + "] " + message();
+                location().lineRange().fileName() + ":" + location().lineRange() + "] " + message();
     }
 }

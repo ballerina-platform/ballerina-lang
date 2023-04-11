@@ -19,6 +19,8 @@ package io.ballerina.runtime.internal.commons;
 
 import io.ballerina.runtime.api.types.Type;
 
+import java.util.Objects;
+
 /**
  * Type vector of size two, to hold the source value and the target type.
  *
@@ -34,11 +36,23 @@ public class TypeValuePair {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof TypeValuePair)) {
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof TypeValuePair)) {
             return false;
         }
-        TypeValuePair other = (TypeValuePair) obj;
-        return this.sourceValue.equals(other.sourceValue) && this.targetType.equals(other.targetType);
+        TypeValuePair other = (TypeValuePair) o;
+        boolean sourceValueEquals = (this.sourceValue == null && other.sourceValue == null)
+                || (this.sourceValue != null && this.sourceValue.equals(other.sourceValue));
+        boolean targetTypeEquals = (this.targetType == null && other.targetType == null)
+                || (this.targetType != null && this.targetType.equals(other.targetType));
+        return sourceValueEquals && targetTypeEquals;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sourceValue, targetType);
     }
 }

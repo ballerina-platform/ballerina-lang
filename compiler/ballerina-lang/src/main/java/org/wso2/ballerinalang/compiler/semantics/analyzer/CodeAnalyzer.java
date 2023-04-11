@@ -1998,6 +1998,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         verifyPeerCommunication(workerSendNode.pos, receiver, workerSendNode.workerIdentifier.value, data.env);
 
         WorkerActionSystem was = data.workerActionSystemStack.peek();
+        if (data.withinLockBlock) {
+            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.WORKER_SEND_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT);
+            was.hasErrors = true;
+        }
 
         BType type = workerSendNode.expr.getBType();
         if (type == symTable.semanticError) {
@@ -2064,6 +2068,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         String workerName = syncSendExpr.workerIdentifier.getValue();
         WorkerActionSystem was = data.workerActionSystemStack.peek();
 
+        if (data.withinLockBlock) {
+            this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.WORKER_SEND_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT);
+            was.hasErrors = true;
+        }
+
         if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
@@ -2091,6 +2100,12 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         verifyPeerCommunication(workerReceiveNode.pos, sender, workerReceiveNode.workerIdentifier.value, data.env);
 
         WorkerActionSystem was = data.workerActionSystemStack.peek();
+
+        if (data.withinLockBlock) {
+            this.dlog.error(workerReceiveNode.pos,
+                            DiagnosticErrorCode.WORKER_RECEIVE_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT);
+            was.hasErrors = true;
+        }
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();
         if (data.withinQuery || (!isCommunicationAllowedLocation(data.env) && !data.inInternallyDefinedBlockStmt)) {

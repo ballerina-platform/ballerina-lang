@@ -113,6 +113,8 @@ public class ExpressionTypeTestNew {
         TypeSymbol type = getExprType(26, 12, 26, 45);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
         assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), XML_ELEMENT);
+
+        assertType(371, 8, 371, 14, XML);
     }
 
     @Test
@@ -141,6 +143,8 @@ public class ExpressionTypeTestNew {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
         assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), REGEXP);
+        assertEquals(type.signature(), "ballerina/lang.regexp:0.0.0:RegExp");
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().signature(), "regexp:RegExp");
     }
 
     @DataProvider(name = "RegexpTemplateLiteralPosProvider")

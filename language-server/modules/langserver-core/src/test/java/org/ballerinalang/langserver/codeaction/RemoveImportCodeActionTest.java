@@ -54,7 +54,8 @@ public class RemoveImportCodeActionTest extends AbstractCodeActionTest {
                 {"remove_unused_import_config7.json"},
                 {"remove_unused_import_config8.json"},
                 {"remove_unused_import_config9.json"},
-                {"remove_redeclared_import_config.json"}
+                {"remove_redeclared_import_config1.json"},
+                {"remove_redeclared_import_config2.json"}
         };
     }
 }

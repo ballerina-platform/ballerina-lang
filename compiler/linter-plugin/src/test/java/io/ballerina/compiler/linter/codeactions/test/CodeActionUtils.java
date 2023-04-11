@@ -70,7 +70,7 @@ public class CodeActionUtils {
         return compilation.diagnosticResult().diagnostics().stream()
                 // Filter diagnostics available for the cursor position
                 .filter(diagnostic -> isWithinRange(diagnostic.location().lineRange(), cursorPos) &&
-                        filePath.endsWith(diagnostic.location().lineRange().filePath()))
+                        filePath.endsWith(diagnostic.location().lineRange().fileName()))
                 .flatMap(diagnostic -> {
                     CodeActionContextImpl context = CodeActionContextImpl.from(
                             filePath.toUri().toString(),

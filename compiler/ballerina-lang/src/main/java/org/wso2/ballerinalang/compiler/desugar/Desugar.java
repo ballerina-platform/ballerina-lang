@@ -2000,7 +2000,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVariableDef variableDefStmt = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
             variableDefStmt.var = ASTBuilderUtil.createVariable(pos,
                     parentErrorVariable.restDetail.name.value,
-                                                                filteredDetail.getBType(),
+                    filteredDetail.getBType(),
                     ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol),
                     parentErrorVariable.restDetail.symbol);
         }
@@ -6495,7 +6495,7 @@ public class Desugar extends BLangNodeVisitor {
             for (BLangNamedArgsExpression namedArg : errorConstructorExpr.namedArgs) {
                 BLangRecordLiteral.BLangRecordKeyValueField member = new BLangRecordLiteral.BLangRecordKeyValueField();
                 member.key = new BLangRecordLiteral.BLangRecordKey(ASTBuilderUtil.createLiteral(namedArg.name.pos,
-                        symTable.stringType, namedArg.name.value));
+                        symTable.stringType, StringEscapeUtils.unescapeJava(namedArg.name.value)));
 
                 if (Types.getReferredType(recordLiteral.getBType()).tag == TypeTags.RECORD) {
                     member.valueExpr = addConversionExprIfRequired(namedArg.expr, symTable.anyType);
@@ -6779,6 +6779,7 @@ public class Desugar extends BLangNodeVisitor {
         switch (Types.getReferredType(invocation.expr.getBType()).tag) {
             case TypeTags.OBJECT:
             case TypeTags.RECORD:
+            case TypeTags.UNION:
                 if (!invocation.langLibInvocation) {
                     invocation.expr = rewriteExpr(invocation.expr);
                     List<BLangExpression> argExprs = new ArrayList<>(invocation.requiredArgs);
@@ -9032,7 +9033,7 @@ public class Desugar extends BLangNodeVisitor {
             Location invPos = invokableNode.pos;
             Location returnStmtPos;
             if (invPos != null && !invokableNode.name.value.contains(GENERATED_INIT_SUFFIX.value)) {
-                returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().filePath(),
+                returnStmtPos = new BLangDiagnosticLocation(invPos.lineRange().fileName(),
                         invPos.lineRange().endLine().line(),
                         invPos.lineRange().endLine().line(),
                         invPos.lineRange().startLine().offset(),

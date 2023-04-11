@@ -211,6 +211,7 @@ public class CodeActionUtil {
         if (semanticModel.isEmpty()) {
             return Collections.emptyMap();
         }
+
         if (typeDescriptor.getName().isPresent() && typeDescriptor.getName().get().startsWith("$")) {
             typeDescriptor = CommonUtil.getRawType(typeDescriptor);
         }
@@ -707,6 +708,10 @@ public class CodeActionUtil {
                 objectFieldNode.fieldName().lineRange().endLine().offset();
     }
 
+    public static boolean isRangeSelection(Range range) {
+        return !range.getStart().equals(range.getEnd());
+    }
+
     public static List<TextEdit> getGetterSetterCodeEdits(ObjectFieldNode objectFieldNode,
                                                           Optional<FunctionDefinitionNode> initNode,
                                                           String fieldName,
@@ -905,10 +910,10 @@ public class CodeActionUtil {
      *
      * @param context        Code action context
      * @param codeAction     Code action
-     * @param command Title of the command                  
+     * @param command        Title of the command
      * @param renamePosition Position of renaming symbol
      */
-    public static void addRenamePopup(CodeActionContext context, CodeAction codeAction, String command, 
+    public static void addRenamePopup(CodeActionContext context, CodeAction codeAction, String command,
                                       Position renamePosition) {
         LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
         if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
