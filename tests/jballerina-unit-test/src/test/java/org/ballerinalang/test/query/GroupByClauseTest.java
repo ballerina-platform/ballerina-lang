@@ -121,7 +121,9 @@ public class GroupByClauseTest {
                 "testGroupByExpressionWithStreamOutput",
                 "testGroupByExpressionWithStringOutput1",
                 "testGroupByExpressionWithTableOutput",
-                "testGroupByExpressionWithMapOutput"
+                "testGroupByExpressionWithMapOutput",
+
+                "testGroupByWithDoClause"
         };
     }
 

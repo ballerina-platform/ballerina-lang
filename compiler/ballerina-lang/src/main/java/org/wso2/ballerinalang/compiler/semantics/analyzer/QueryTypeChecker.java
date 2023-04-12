@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.clauses.OrderKeyNode;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -91,6 +92,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
  * @since 2201.5.0
@@ -233,7 +236,7 @@ public class QueryTypeChecker extends TypeChecker {
         List<BType> collectionTypes = getCollectionTypes(clauses);
         BType completionType = getCompletionType(collectionTypes, Types.QueryConstructType.ACTION, data);
         // Analyze foreach node's statements.
-        semanticAnalyzer.analyzeNode(doClause.body, SymbolEnv.createBlockEnv(doClause.body,
+        semanticAnalyzer.analyzeNodeViaQuery(doClause.body, SymbolEnv.createBlockEnv(doClause.body,
                 commonAnalyzerData.queryEnvs.peek()), data.prevEnvs, commonAnalyzerData);
         BType actualType = completionType == null ? symTable.nilType : completionType;
         data.resultType = types.checkType(doClause.pos, actualType, data.expType,
@@ -695,7 +698,7 @@ public class QueryTypeChecker extends TypeChecker {
         letClause.env = letEnv;
         commonAnalyzerData.queryEnvs.push(letEnv);
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
-            semanticAnalyzer.analyzeNode((BLangNode) letVariable.definitionNode, letEnv, commonAnalyzerData);
+            semanticAnalyzer.analyzeNodeViaQuery((BLangNode) letVariable.definitionNode, letEnv, commonAnalyzerData);
         }
         for (Name variable : letEnv.scope.entries.keySet()) {
             data.queryVariables.add(variable.value);
@@ -784,7 +787,7 @@ public class QueryTypeChecker extends TypeChecker {
                 checkExpr(groupingKey.variableRef, groupByClause.env, data);
                 variable = groupingKey.variableRef.variableName.value;
             } else {
-                semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env,
+                semanticAnalyzer.analyzeNodeViaQuery(groupingKey.variableDef, groupByClause.env,
                         data.commonAnalyzerData);
                 variable = groupingKey.variableDef.var.name.value;
             }
@@ -929,6 +932,12 @@ public class QueryTypeChecker extends TypeChecker {
             if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BType type = silentTypeCheckExpr(expr, symTable.noType, data);
                 if (type.tag == TypeTags.SEQUENCE) {
+                    // TODO: There is another type of doing this
+                    // First check the expr with expType = noType
+                    // Use the result type to generate the type of list-ctr
+                    // Then check the expType is an array or tuple
+                    // Then do the type check for element types
+                    // This may cause to remove the type checking part for seq from Types.java
                     checkExpr(expr, data.env, expType, data);
                     data.resultType = new BTupleType(null, new ArrayList<>(0), ((BSequenceType) type).elementType, 0);
                     listConstructor.setBType(data.resultType);

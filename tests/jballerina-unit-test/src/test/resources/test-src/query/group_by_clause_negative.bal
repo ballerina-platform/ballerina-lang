@@ -57,3 +57,30 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys9() {
                             select [price]; // @output [[11, 12], [11]]
     assertEquality([[11, 12], [11]], prices);
 }
+
+function testTupleDestructure() {
+    _ = from var {name, price} in [{name: "Saman", price: 11}]
+                group by name
+                do {
+                    [int, int...] x = [price]; // error
+                };    
+    _ = from var {name, price} in [{name: "Saman", price: 11}]
+                group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
+                do {
+                    [int[]] x = [price1];
+                };
+    _ = from var {name, price} in [{name: "Saman", price: 11}]
+                group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
+                do {
+                    [int, int] x = [price1];
+                };
+}
+
+function testRecordDestructure() {
+    _ = from var {name, price} in [{name: "Saman", price: 11}]
+                group by name
+                do {
+                    int[] prices;
+                    {prices} = {prices: [price]}; // error
+                };    
+}

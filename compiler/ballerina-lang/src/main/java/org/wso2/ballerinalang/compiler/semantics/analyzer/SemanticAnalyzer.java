@@ -612,7 +612,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangExprFunctionBody body, AnalyzerData data) {
         SymbolEnv env = SymbolEnv.createFuncBodyEnv(body, data.env);
-        typeChecker.checkExpr(body.expr, env, data.expType, data.prevEnvs, data.commonAnalyzerData);
+        if (data.withinQuery) {
+            typeChecker.queryTypeChecker.checkExpr(body.expr, env, data.expType, data.prevEnvs,
+                    data.commonAnalyzerData);
+        } else {
+            typeChecker.checkExpr(body.expr, env, data.expType, data.prevEnvs, data.commonAnalyzerData);
+        }
     }
 
     @Override
@@ -1206,11 +1211,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             validateListenerCompatibility(varNode, rhsType);
         } else {
             // let int _ = check getDistinctErrorOrInt()
-            if (data.commonAnalyzerData.queryEnvs.empty()) {
-                typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType, data.prevEnvs, data.commonAnalyzerData);
-            } else {
+            if (data.withinQuery) {
                 typeChecker.queryTypeChecker.checkExpr(rhsExpr, varInitEnv, lhsType, data.prevEnvs,
                         data.commonAnalyzerData);
+            } else {
+                typeChecker.checkExpr(rhsExpr, varInitEnv, lhsType, data.prevEnvs, data.commonAnalyzerData);
             }
         }
 
@@ -2260,7 +2265,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             expType = symTable.semanticError;
         }
 
-        this.typeChecker.checkExpr(compoundAssignment.expr, currentEnv, data.prevEnvs, data.commonAnalyzerData);
+        if (data.withinQuery) {
+            this.typeChecker.queryTypeChecker.checkExpr(compoundAssignment.expr, currentEnv, data.prevEnvs,
+                    data.commonAnalyzerData);
+        } else {
+            this.typeChecker.checkExpr(compoundAssignment.expr, currentEnv, data.prevEnvs, data.commonAnalyzerData);
+        }
 
         checkConstantAssignment(varRef, data);
 
@@ -2342,7 +2352,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
         }
 
-        typeChecker.checkExpr(assignNode.expr, data.env, data.expType, data.prevEnvs, data.commonAnalyzerData);
+        if (data.withinQuery) {
+            typeChecker.queryTypeChecker.checkExpr(assignNode.expr, data.env, data.expType, data.prevEnvs,
+                    data.commonAnalyzerData);
+        } else {
+            typeChecker.checkExpr(assignNode.expr, data.env, data.expType, data.prevEnvs, data.commonAnalyzerData);
+        }
 
         validateWorkerAnnAttachments(assignNode.expr, data);
 
@@ -2808,7 +2823,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv stmtEnv = new SymbolEnv(exprStmtNode, currentEnv.scope);
         currentEnv.copyTo(stmtEnv);
         BLangExpression expr = exprStmtNode.expr;
-        BType bType = typeChecker.checkExpr(expr, stmtEnv, data.prevEnvs, data.commonAnalyzerData);
+        BType bType;
+        if (data.withinQuery) {
+            bType = typeChecker.queryTypeChecker.checkExpr(expr, stmtEnv, data.prevEnvs, data.commonAnalyzerData);
+        } else {
+            bType = typeChecker.checkExpr(expr, stmtEnv, data.prevEnvs, data.commonAnalyzerData);
+        }
         if (!types.isAssignable(bType, symTable.nilType) && bType != symTable.semanticError &&
                 expr.getKind() != NodeKind.FAIL && !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(bType)) {
             dlog.error(exprStmtNode.pos, DiagnosticErrorCode.ASSIGNMENT_REQUIRED, bType);
@@ -2822,8 +2842,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangIf ifNode, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
-        typeChecker.checkExpr(ifNode.expr, currentEnv, symTable.booleanType, data.prevEnvs,
-                data.commonAnalyzerData);
+        if (data.withinQuery) {
+            typeChecker.queryTypeChecker.checkExpr(ifNode.expr, currentEnv, symTable.booleanType, data.prevEnvs,
+                    data.commonAnalyzerData);
+        } else {
+            typeChecker.checkExpr(ifNode.expr, currentEnv, symTable.booleanType, data.prevEnvs,
+                    data.commonAnalyzerData);
+        }
         BType actualType = ifNode.expr.getBType();
         if (TypeTags.TUPLE == Types.getReferredType(actualType).tag) {
             dlog.error(ifNode.expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
@@ -3847,8 +3872,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     public void visit(BLangForeach foreach, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
         // Check the collection's type.
-        typeChecker.checkExpr(foreach.collection, currentEnv, symTable.noType, data.prevEnvs,
-                data.commonAnalyzerData);
+        if (data.withinQuery) {
+            typeChecker.queryTypeChecker.checkExpr(foreach.collection, currentEnv, symTable.noType, data.prevEnvs,
+                    data.commonAnalyzerData);
+        } else {
+            typeChecker.checkExpr(foreach.collection, currentEnv, symTable.noType, data.prevEnvs,
+                    data.commonAnalyzerData);
+        }
         // object type collection should be a subtype of 'object:Iterable
         if (Types.getReferredType(foreach.collection.getBType()).tag == TypeTags.OBJECT
                 && !types.isAssignable(foreach.collection.getBType(), symTable.iterableType)) {
@@ -3908,8 +3938,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangWhile whileNode, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
-        typeChecker.checkExpr(whileNode.expr, currentEnv, symTable.booleanType, data.prevEnvs,
-                data.commonAnalyzerData);
+        if (data.withinQuery) {
+            typeChecker.queryTypeChecker.checkExpr(whileNode.expr, currentEnv, symTable.booleanType, data.prevEnvs,
+                    data.commonAnalyzerData);
+        } else {
+            typeChecker.checkExpr(whileNode.expr, currentEnv, symTable.booleanType, data.prevEnvs,
+                    data.commonAnalyzerData);
+        }
 
         if (whileNode.onFailClause != null) {
             this.analyzeNode(whileNode.onFailClause, data);
@@ -4248,8 +4283,13 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     @Override
     public void visit(BLangReturn returnNode, AnalyzerData data) {
         SymbolEnv currentEnv = data.env;
-        this.typeChecker.checkExpr(returnNode.expr, currentEnv, currentEnv.enclInvokable.returnTypeNode.getBType(),
-                                   data.prevEnvs, data.commonAnalyzerData);
+        if (data.withinQuery) {
+            this.typeChecker.queryTypeChecker.checkExpr(returnNode.expr, currentEnv,
+                    currentEnv.enclInvokable.returnTypeNode.getBType(), data.prevEnvs, data.commonAnalyzerData);
+        } else {
+            this.typeChecker.checkExpr(returnNode.expr, currentEnv, currentEnv.enclInvokable.returnTypeNode.getBType(),
+                    data.prevEnvs, data.commonAnalyzerData);
+        }
         validateWorkerAnnAttachments(returnNode.expr, data);
         data.notCompletedNormally = true;
     }
@@ -4263,9 +4303,22 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         analyzeNode(node, data);
     }
 
+    public void analyzeNodeViaQuery(BLangNode node, SymbolEnv env) {
+        AnalyzerData data = new AnalyzerData(env);
+        data.withinQuery = true;
+        analyzeNode(node, data);
+    }
+
     public void analyzeNode(BLangNode node, SymbolEnv env, Types.CommonAnalyzerData commonAnalyzerData) {
         AnalyzerData data = new AnalyzerData(env);
         data.commonAnalyzerData = commonAnalyzerData;
+        analyzeNode(node, data);
+    }
+
+    public void analyzeNodeViaQuery(BLangNode node, SymbolEnv env, Types.CommonAnalyzerData commonAnalyzerData) {
+        AnalyzerData data = new AnalyzerData(env);
+        data.commonAnalyzerData = commonAnalyzerData;
+        data.withinQuery = true;
         analyzeNode(node, data);
     }
 
@@ -4282,6 +4335,17 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         data.commonAnalyzerData = commonAnalyzerData;
         analyzeNode(node, data);
     }
+
+    // TODO: Need to check whether this is the best approach.
+    public void analyzeNodeViaQuery(BLangNode node, SymbolEnv env, Stack<SymbolEnv> prevEnvs,
+                            Types.CommonAnalyzerData commonAnalyzerData) {
+        AnalyzerData data = new AnalyzerData(env);
+        data.prevEnvs = prevEnvs;
+        data.commonAnalyzerData = commonAnalyzerData;
+        data.withinQuery = true;
+        analyzeNode(node, data);
+    }
+
     public void analyzeNode(BLangNode node,  AnalyzerData data) {
         analyzeNode(node, symTable.noType, data);
     }
@@ -5058,6 +5122,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         boolean breakFound;
         Types.CommonAnalyzerData commonAnalyzerData = new Types.CommonAnalyzerData();
         Stack<SymbolEnv> prevEnvs = new Stack<>();
+        boolean withinQuery = false;
 
         public AnalyzerData(SymbolEnv env) {
             this.env = env;

@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.array;
 
 // group by <expression>, select <expr with grouping keys>, lhs has the type
 function testGroupByExpressionAndSelectWithGroupingKeys1() {
@@ -1470,6 +1471,262 @@ function testGroupByExpressionWithMapOutput() {
     assertEquality(res2, {"Saman": [11, 15], "Kamal": [10, 9, 13], "Amal": [30]});
 }
 
+function testGroupByWithDoClause() {
+    var input = [{name: "Saman", price1: 11, price2: 12}, 
+                    {name: "Saman", price1: 13, price2: 14}, 
+                    {name: "Kamal", price1: 15, price2: 16}, 
+                    {name: "Kamal", price1: 17, price2: 18}, 
+                    {name: "Saman", price1: 19, price2: 20}];
+    int[] lengths = [];
+    _ = from var {name, price1, price2} in input
+                group by name 
+                do {
+                    lengths.push(array:length([price1]) + array:length([price2]));
+                };
+    assertEquality([6, 4], lengths);
+
+    lengths = [];
+    _ = from var {name, price1, price2} in input
+                group by name 
+                do {
+                    int x = [price1].length() + [price2].length();
+                    lengths.push(x);
+                };
+    assertEquality([6, 4], lengths);
+
+    lengths = [];
+    int x = 0;
+    _ = from var {name, price1, price2} in input
+                group by name 
+                do {
+                    x = [price1].length() + [price2].length();
+                    lengths.push(x);
+                };
+    assertEquality([6, 4], lengths);
+
+    string[] names = [];
+    _ = from var {name, price1, price2} in input
+                group by name 
+                do {
+                    names.push(name);
+                }; 
+    assertEquality(["Saman", "Kamal"], names);
+
+// Check after https://github.com/ballerina-platform/ballerina-lang/issues/40181
+//     input = [{name: "Saman", price1: 11, price2: 12}, 
+//                 {name: "Saman", price1: 13, price2: 14}, 
+//                 {name: "Kamal", price1: 15, price2: 16}, 
+//                 {name: "Kamal", price1: 17, price2: 18}, 
+//                 {name: "Saman", price1: 19, price2: 20}];
+//     int[] prices = [];
+//     _ = from var {name, price1, price2} in input
+//                 group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
+//                 do {
+//                     foreach int p in [price1] {
+//                         prices.push(p);
+//                     }
+//                 };
+//     assertEquality([11, 13, 15, 17, 19], prices);
+
+    input = [{name: "Saman", price1: 11, price2: 12}, 
+                {name: "Saman", price1: 13, price2: 14}, 
+                {name: "Kamal", price1: 25, price2: 16}, 
+                {name: "Kamal", price1: 27, price2: 18}, 
+                {name: "Saman", price1: 19, price2: 20}];
+    boolean[] res = [];
+    _ = from var {name, price1, price2} in input
+                group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
+                do {
+                    boolean b = [price1].some(someFunc);
+                    res.push(b);
+                };
+    assertEquality([false, true], res);
+
+    // input = [{name: "Saman", price1: 11, price2: 12}, 
+    //             {name: "Saman", price1: 13, price2: 14}, 
+    //             {name: "Kamal", price1: 25, price2: 16}, 
+    //             {name: "Kamal", price1: 27, price2: 18}, 
+    //             {name: "Saman", price1: 19, price2: 20}];
+    int[] arr = [];
+    _ = from var {name, price1, price2} in input
+                group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
+                do {
+                    [price1].forEach(function (int i) {
+                        arr.push(i);
+                    });
+                };
+    assertEquality([11, 13, 19, 25, 27], arr);
+
+    // This is working in the latest version
+    // _ = from var {name, price1, price2} in input
+    //             group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
+    //             do {
+    //                 int[] p = from var x in [price1]
+    //                             select x;
+    //                 io:println(p);
+    //             };
+
+    // int[] arr = [];
+    // _ = from var {name, price1, price2} in input
+    //             group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
+    //             do {
+    //                 from var x in [price1]
+    //                     do {
+    //                         arr.push(x + [price2].length());
+    //                     };
+    //             };
+    // io:println(arr); 
+
+    int[][] arr1 = [];
+    _ = from var {name, price1, price2} in input
+            group by name
+            let var p = {prices: [price1]}
+            do {
+                int[] prices;
+                {prices} = p;
+                arr1.push(prices);
+            };
+    assertEquality([[11, 13, 19], [25, 27]], arr1);
+
+    arr1 = [];
+    _ = from var {name, price1, price2} in input
+            group by name 
+            do {
+                if ([price1].length() > 0) {
+                    arr1.push([price1]);
+                }
+            };    
+    assertEquality([[11, 13, 19], [25, 27]], arr1);
+
+    arr1 = [];
+    _ = from var {name, price1, price2} in input
+            group by name 
+            do {
+                arr1.push([price1]);
+            };    
+    assertEquality([[11, 13, 19], [25, 27]], arr1);
+
+    // Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/40200
+    // _ = from var {name, price1, price2} in input
+    //         group by name 
+    //         do {
+    //             match [price1] {
+    //                 [...var a] => {
+    //                     io:println("a");
+    //                 }
+    //             }
+    //         };
+    arr = [];
+    _ = from var {name, price1, price2} in input
+            group by name
+            do {
+                while [price1].length() < 0 {
+                    arr.push(100);
+                }
+            };
+    assertEquality([], arr);    
+
+    assertEquality([11, 13, 19], foo1());
+    assertEquality([11, 13, 19], foo2());
+
+    arr1 = [];
+    _ = from var {name, price1, price2} in input
+            group by name
+            do {
+                int[] xx = [price2];
+                arr1.push(xx);
+            };
+    assertEquality([[12, 14, 20], [16, 18]], arr1);
+
+    arr1 = [];
+    _ = from var {name, price1, price2} in input
+            group by name
+            do {
+                [int...] xx = [price2];
+                arr1.push(xx);
+            };
+    assertEquality([[12, 14, 20], [16, 18]], arr1);
+
+    arr = [];
+    _ = from var {name, price1, price2} in input
+            group by name
+            do {
+                [int...] xx = [price2];
+                arr.push(xx[0]);
+            };
+    assertEquality([12, 16], arr);
+
+    arr = [];
+    _ = from var {name, price1, price2} in input
+            group by name
+            do {
+                arr.push([price2][0]);
+            };
+    assertEquality([12, 16], arr);
+
+    // Rec[] input = [{name: "Saman", price1: [11, 12]}, 
+    //                 {name: "Saman", price1: [19, 20]}];
+    // // int[] arr = [];
+    // _ = from var {name, price1} in input
+    //         group by name
+    //         do {
+    //             function () returns [int...] func = function () returns [int...] => [...price1];
+    //         };
+
+    arr1 = [];
+    _ = from var {name, price1, price2} in input
+            group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
+            do {
+                record {| int[] prices; |} r = {prices: [price1]};
+                arr1.push(r.prices);
+            };
+    assertEquality([[11, 13, 19], [25, 27]], arr1);
+
+    arr = [];
+    _ = from var {name, price1, price2} in input
+            group by name
+            do {
+                int i = 0;
+                i += [price1].length();
+                arr.push(i);
+            };
+    assertEquality([3, 2], arr);
+}
+
+function foo1() returns int[] {
+    var input = [{name: "Saman", price1: 11, price2: 12}, 
+                    {name: "Saman", price1: 13, price2: 14}, 
+                    {name: "Kamal", price1: 25, price2: 16}, 
+                    {name: "Kamal", price1: 27, price2: 18}, 
+                    {name: "Saman", price1: 19, price2: 20}];
+    int[] arr = [];
+    _ = from var {name, price1, price2} in input
+                group by name
+                do {
+                    return [price1];
+                };  
+    return [];  
+}
+
+function foo2() returns [int...] {
+    var input = [{name: "Saman", price1: 11, price2: 12}, 
+                    {name: "Saman", price1: 13, price2: 14}, 
+                    {name: "Kamal", price1: 25, price2: 16}, 
+                    {name: "Kamal", price1: 27, price2: 18}, 
+                    {name: "Saman", price1: 19, price2: 20}];
+    int[] arr = [];
+    _ = from var {name, price1, price2} in input
+                group by name
+                do {
+                    return [price1];
+                };  
+    return [];  
+}
+
+function someFunc(int i) returns boolean {
+    return i > 20;
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
@@ -1480,3 +1737,4 @@ function assertEquality(anydata expected, anydata actual) {
 
 // TODO: Add test cases for use defined types and readonly types
 // TODO: query expression in group by variable definition expression
+// TODO: Add tests to empty groups
