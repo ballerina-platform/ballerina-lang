@@ -53,6 +53,7 @@ import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -699,7 +700,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                                 .Node(this, parent)));
                         break;
                     default:
-                        sj.add(StringUtils.getStringValue(refValues[i], new CycleUtils.Node(this, parent)));
+                        sj.add(getStringVal(refValues[i], new CycleUtils.Node(this, parent)));
                         break;
                 }
             }

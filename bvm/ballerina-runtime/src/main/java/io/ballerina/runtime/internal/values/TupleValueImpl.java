@@ -48,6 +48,7 @@ import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -456,7 +457,7 @@ public class TupleValueImpl extends AbstractArrayValue {
                     sj.add("null");
                     break;
                 default:
-                    sj.add(StringUtils.getStringValue(value, new CycleUtils.Node(this, parentNode)));
+                    sj.add(getStringVal(value, new CycleUtils.Node(this, parentNode)));
                     break;
             }
         }

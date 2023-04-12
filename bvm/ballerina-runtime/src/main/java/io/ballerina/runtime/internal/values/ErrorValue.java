@@ -49,6 +49,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 
 /**
  * <p>
@@ -158,7 +159,7 @@ public class ErrorValue extends BError implements RefValue {
                         sj.add(key + "=" + ((BValue) value).informalStringValue(parent));
                         break;
                     default:
-                        sj.add(key + "=" + StringUtils.getStringValue(value, parent));
+                        sj.add(key + "=" + getStringVal(value, parent));
                         break;
                 }
             }

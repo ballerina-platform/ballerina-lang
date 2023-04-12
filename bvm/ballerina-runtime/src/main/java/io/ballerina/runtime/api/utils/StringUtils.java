@@ -24,9 +24,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
-import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.BalStringUtils;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.JsonGenerator;
@@ -57,6 +55,9 @@ import java.util.List;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
+import static io.ballerina.runtime.internal.util.StringUtils.STR_CYCLE;
+import static io.ballerina.runtime.internal.util.StringUtils.TO_STRING;
+import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
@@ -66,9 +67,6 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  * @since 0.95.3
  */
 public class StringUtils {
-
-    private static final String STR_CYCLE = "...";
-    public static final String TO_STRING = "toString";
 
     /**
      * Convert input stream to String.
@@ -163,57 +161,24 @@ public class StringUtils {
      * Returns the human-readable string value of Ballerina values.
      *
      * @param value The value on which the function is invoked
-     * @param parent The link to the parent node
-     * @return String value of the value
+     * @return      String value of the provided value
      */
+    public static String getStringValue(Object value) {
+        return getStringVal(value, null);
+    }
+
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
+    /**
+     * Returns the human-readable string value of Ballerina values.
+     *
+     * @param value     The value on which the function is invoked
+     * @param parent    The link to the parent node
+     * @return          String value of the value
+     * @deprecated      use {@link #getStringValue(Object)} instead.
+     */
+    @Deprecated
     public static String getStringValue(Object value, BLink parent) {
-        if (value == null) {
-            return "";
-        }
-
-        Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
-
-        if (type.getTag() == TypeTags.STRING_TAG) {
-            return ((BString) value).getValue();
-        }
-
-        if (type.getTag() < TypeTags.NULL_TAG) {
-            return String.valueOf(value);
-        }
-
-        CycleUtils.Node node = new CycleUtils.Node(value, parent);
-
-        if (node.hasCyclesSoFar()) {
-            return STR_CYCLE;
-        }
-
-        if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            MapValueImpl mapValue = (MapValueImpl) value;
-            return mapValue.stringValue(parent);
-        }
-
-        if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
-            ArrayValue arrayValue = (ArrayValue) value;
-            return arrayValue.stringValue(parent);
-        }
-
-        if (type.getTag() == TypeTags.TABLE_TAG) {
-            return ((RefValue) value).informalStringValue(parent);
-        }
-
-        if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            BObject objectValue = (BObject) value;
-            ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
-            for (MethodType func : objectType.getMethods()) {
-                if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
-                        func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
-                    return objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
-                }
-            }
-        }
-
-        BValue bValue = (BValue) value;
-        return bValue.stringValue(parent);
+        return getStringVal(value, parent);
     }
 
     /**
@@ -281,11 +246,6 @@ public class StringUtils {
                     return "object " + objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
                 }
             }
-        }
-
-        if (type.getTag() == TypeTags.ERROR_TAG) {
-            RefValue errorValue = (RefValue) value;
-            return errorValue.expressionStringValue(parent);
         }
 
         RefValue refValue = (RefValue) value;

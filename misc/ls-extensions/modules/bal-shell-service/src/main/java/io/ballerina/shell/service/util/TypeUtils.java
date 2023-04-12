@@ -77,7 +77,7 @@ public class TypeUtils {
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TEXT_TAG:
             case TypeTags.OBJECT_TYPE_TAG:
-                return StringUtils.getStringValue(value, null);
+                return StringUtils.getStringValue(value);
             default:
                 return StringUtils.getExpressionStringValue(value, null);
         }

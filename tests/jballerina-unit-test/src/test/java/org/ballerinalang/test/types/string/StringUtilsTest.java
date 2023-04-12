@@ -47,7 +47,7 @@ public class StringUtilsTest {
         StringBuilder content = new StringBuilder();
         for (Object value : values) {
             if (value != null) {
-                content.append(StringUtils.getStringValue(value, null));
+                content.append(StringUtils.getStringValue(value));
             }
         }
         return StringUtils.fromString(content.toString());

@@ -334,7 +334,7 @@ public class JsonUtils {
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TEXT_TAG:
             case TypeTags.REG_EXP_TYPE_TAG:
-                newValue = StringUtils.fromString(StringUtils.getStringValue(value, null));
+                newValue = StringUtils.fromString(StringUtils.getStringValue(value));
                 break;
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:

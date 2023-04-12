@@ -65,6 +65,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
@@ -399,11 +400,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Map.Entry<Long, List<V>> struct = itr.next();
             if (struct.getValue().size() > 1) {
                 for (V data: struct.getValue()) {
-                    sj.add(StringUtils.getStringValue(data,
+                    sj.add(getStringVal(data,
                             new CycleUtils.Node(this, parent)));
                 }
             } else {
-                sj.add(StringUtils.getStringValue(struct.getValue().get(0),
+                sj.add(getStringVal(struct.getValue().get(0),
                         new CycleUtils.Node(this, parent)));
             }
         }
