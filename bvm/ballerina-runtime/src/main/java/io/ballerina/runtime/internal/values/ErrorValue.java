@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
@@ -49,6 +48,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 
 /**
@@ -175,7 +175,7 @@ public class ErrorValue extends BError implements RefValue {
         StringJoiner sj = new StringJoiner(",");
         for (Object key : ((MapValue) details).getKeys()) {
             Object value = ((MapValue) details).get(key);
-            sj.add(key + "=" + StringUtils.getExpressionStringValue(value, parent));
+            sj.add(key + "=" + getExpressionStringVal(value, parent));
         }
         return "," + sj;
     }

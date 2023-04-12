@@ -66,6 +66,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.JsonInternalUtils.mergeJson;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
@@ -504,7 +505,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             K key = kvEntry.getKey();
             V value = kvEntry.getValue();
             CycleUtils.Node mapParent = new CycleUtils.Node(this, node);
-            sj.add("\"" + key + "\":" + StringUtils.getExpressionStringValue(value, mapParent));
+            sj.add("\"" + key + "\":" + getExpressionStringVal(value, mapParent));
         }
         return "{" + sj.toString() + "}";
     }

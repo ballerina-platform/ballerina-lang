@@ -30,7 +30,9 @@ import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.ArrayValue;
+import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RefValue;
 
@@ -43,6 +45,8 @@ public class StringUtils {
 
     public static final String STR_CYCLE = "...";
     public static final String TO_STRING = "toString";
+
+    private StringUtils() {}
 
     /**
      * Returns the human-readable string value of Ballerina values.
@@ -101,5 +105,74 @@ public class StringUtils {
         return bValue.stringValue(parent);
     }
 
-    private StringUtils() {}
+    /**
+     * Returns the string value of Ballerina values in expression style.
+     *
+     * @param value The value on which the function is invoked
+     * @param parent The link to the parent node
+     * @return String value of the value in expression style
+     */
+    public static String getExpressionStringVal(Object value, BLink parent) {
+        if (value == null) {
+            return "()";
+        }
+
+        Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
+
+        if (type.getTag() == TypeTags.STRING_TAG) {
+            return "\"" + ((BString) value).getValue() + "\"";
+        }
+
+        if (type.getTag() == TypeTags.DECIMAL_TAG) {
+            DecimalValue decimalValue = (DecimalValue) value;
+            return decimalValue.expressionStringValue(parent);
+        }
+
+        if (type.getTag() == TypeTags.FLOAT_TAG) {
+            if (Double.isNaN((Double) value)) {
+                return "float:" + value;
+            }
+            if (Double.isInfinite((Double) value)) {
+                return "float:" + value;
+            }
+        }
+
+        if (type.getTag() < TypeTags.NULL_TAG) {
+            return String.valueOf(value);
+        }
+
+        CycleUtils.Node node = new CycleUtils.Node(value, parent);
+
+        if (node.hasCyclesSoFar()) {
+            return STR_CYCLE + "[" + node.getIndex() + "]";
+        }
+
+        if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            MapValueImpl mapValue = (MapValueImpl) value;
+            return mapValue.expressionStringValue(parent);
+        }
+
+        if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
+            ArrayValue arrayValue = (ArrayValue) value;
+            return arrayValue.expressionStringValue(parent);
+        }
+
+        if (type.getTag() == TypeTags.TABLE_TAG) {
+            return ((RefValue) value).expressionStringValue(parent);
+        }
+
+        if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
+            AbstractObjectValue objectValue = (AbstractObjectValue) value;
+            ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
+            for (MethodType func : objectType.getMethods()) {
+                if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
+                        func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
+                    return "object " + objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
+                }
+            }
+        }
+
+        RefValue refValue = (RefValue) value;
+        return refValue.expressionStringValue(parent);
+    }
 }

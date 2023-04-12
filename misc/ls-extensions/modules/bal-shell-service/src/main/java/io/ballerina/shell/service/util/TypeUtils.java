@@ -79,7 +79,7 @@ public class TypeUtils {
             case TypeTags.OBJECT_TYPE_TAG:
                 return StringUtils.getStringValue(value);
             default:
-                return StringUtils.getExpressionStringValue(value, null);
+                return StringUtils.getExpressionStringValue(value);
         }
     }
 }

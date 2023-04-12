@@ -18,30 +18,24 @@ package io.ballerina.runtime.api.utils;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.types.MethodType;
-import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.BalStringUtils;
-import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
-import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
-import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.NonBmpStringValue;
-import io.ballerina.runtime.internal.values.RefValue;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -55,8 +49,7 @@ import java.util.List;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
-import static io.ballerina.runtime.internal.util.StringUtils.STR_CYCLE;
-import static io.ballerina.runtime.internal.util.StringUtils.TO_STRING;
+import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -185,71 +178,24 @@ public class StringUtils {
      * Returns the string value of Ballerina values in expression style.
      *
      * @param value The value on which the function is invoked
-     * @param parent The link to the parent node
      * @return String value of the value in expression style
      */
+    public static String getExpressionStringValue(Object value) {
+        return getExpressionStringVal(value, null);
+    }
+
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
+    /**
+     * Returns the string value of Ballerina values in expression style.
+     *
+     * @param value The value on which the function is invoked
+     * @param parent The link to the parent node
+     * @return String value of the value in expression style
+     * @deprecated      use {@link #getExpressionStringValue(Object)} instead.
+     */
+    @Deprecated
     public static String getExpressionStringValue(Object value, BLink parent) {
-        if (value == null) {
-            return "()";
-        }
-
-        Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
-
-        if (type.getTag() == TypeTags.STRING_TAG) {
-            return "\"" + ((BString) value).getValue() + "\"";
-        }
-
-        if (type.getTag() == TypeTags.DECIMAL_TAG) {
-            DecimalValue decimalValue = (DecimalValue) value;
-            return decimalValue.expressionStringValue(parent);
-        }
-
-        if (type.getTag() == TypeTags.FLOAT_TAG) {
-            if (Double.isNaN((Double) value)) {
-                return "float:" + value;
-            }
-            if (Double.isInfinite((Double) value)) {
-                return "float:" + value;
-            }
-        }
-
-        if (type.getTag() < TypeTags.NULL_TAG) {
-            return String.valueOf(value);
-        }
-
-        CycleUtils.Node node = new CycleUtils.Node(value, parent);
-
-        if (node.hasCyclesSoFar()) {
-            return STR_CYCLE + "[" + node.getIndex() + "]";
-        }
-
-        if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            MapValueImpl mapValue = (MapValueImpl) value;
-            return mapValue.expressionStringValue(parent);
-        }
-
-        if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
-            ArrayValue arrayValue = (ArrayValue) value;
-            return arrayValue.expressionStringValue(parent);
-        }
-
-        if (type.getTag() == TypeTags.TABLE_TAG) {
-            return ((RefValue) value).expressionStringValue(parent);
-        }
-
-        if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            AbstractObjectValue objectValue = (AbstractObjectValue) value;
-            ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
-            for (MethodType func : objectType.getMethods()) {
-                if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
-                        func.getType().getReturnType().getTag() == TypeTags.STRING_TAG) {
-                    return "object " + objectValue.call(Scheduler.getStrand(), TO_STRING).toString();
-                }
-            }
-        }
-
-        RefValue refValue = (RefValue) value;
-        return refValue.expressionStringValue(parent);
+        return getExpressionStringVal(value, parent);
     }
 
     /**

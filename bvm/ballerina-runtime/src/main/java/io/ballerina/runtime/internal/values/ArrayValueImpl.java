@@ -53,6 +53,7 @@ import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
@@ -719,14 +720,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(StringUtils.getExpressionStringValue(intValues[i],
-                                                                new CycleUtils.Node(this, parent)));
+                    sj.add(getExpressionStringVal(intValues[i], new CycleUtils.Node(this, parent)));
                 }
                 break;
             case TypeTags.BOOLEAN_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(StringUtils.getExpressionStringValue(booleanValues[i],
-                                                                new CycleUtils.Node(this, parent)));
+                    sj.add(getExpressionStringVal(booleanValues[i], new CycleUtils.Node(this, parent)));
                 }
                 break;
             case TypeTags.BYTE_TAG:
@@ -736,21 +735,18 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             case TypeTags.FLOAT_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(StringUtils.getExpressionStringValue(floatValues[i],
-                                                                new CycleUtils.Node(this, parent)));
+                    sj.add(getExpressionStringVal(floatValues[i], new CycleUtils.Node(this, parent)));
                 }
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(StringUtils.getExpressionStringValue(bStringValues[i],
-                                                                new CycleUtils.Node(this, parent)));
+                    sj.add(getExpressionStringVal(bStringValues[i], new CycleUtils.Node(this, parent)));
                 }
                 break;
             default:
                 for (int i = 0; i < size; i++) {
-                    sj.add(StringUtils.getExpressionStringValue(refValues[i],
-                                                                new CycleUtils.Node(this, parent)));
+                    sj.add(getExpressionStringVal(refValues[i], new CycleUtils.Node(this, parent)));
                 }
                 break;
         }
