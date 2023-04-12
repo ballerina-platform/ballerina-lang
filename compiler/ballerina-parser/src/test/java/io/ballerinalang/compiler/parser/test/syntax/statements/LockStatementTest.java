@@ -56,6 +56,26 @@ public class LockStatementTest extends AbstractStatementTest {
                 "lock-stmt/lock_stmt_assert_10.json");
     }
 
+    public void testLockWithOnFailClauseHavingErrorBPWithVar() {
+        testFile("lock-stmt/lock_stmt_source_11.bal",
+                "lock-stmt/lock_stmt_assert_11.json");
+    }
+
+    public void testLockWithOnFailClauseHavingErrorBPWithType() {
+        testFile("lock-stmt/lock_stmt_source_12.bal",
+                "lock-stmt/lock_stmt_assert_12.json");
+    }
+
+    public void testLockWithOnFailClauseHavingErrorBPWithUserDefinedError() {
+        testFile("lock-stmt/lock_stmt_source_13.bal",
+                "lock-stmt/lock_stmt_assert_13.json");
+    }
+
+    public void testLockWithOnFailClauseHavingErrorBPWithUserDefinedErrorWithVar() {
+        testFile("lock-stmt/lock_stmt_source_14.bal",
+                "lock-stmt/lock_stmt_assert_14.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -85,5 +105,9 @@ public class LockStatementTest extends AbstractStatementTest {
     @Test
     public void testLockOnFailClauseRecovery() {
         testFile("lock-stmt/lock_stmt_source_09.bal", "lock-stmt/lock_stmt_assert_09.json");
+        testFile("lock-stmt/lock_stmt_source_15.bal", "lock-stmt/lock_stmt_assert_15.json");
+        testFile("lock-stmt/lock_stmt_source_16.bal", "lock-stmt/lock_stmt_assert_16.json");
+        testFile("lock-stmt/lock_stmt_source_17.bal", "lock-stmt/lock_stmt_assert_17.json");
+        testFile("lock-stmt/lock_stmt_source_18.bal", "lock-stmt/lock_stmt_assert_18.json");
     }
 }

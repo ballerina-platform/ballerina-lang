@@ -92,12 +92,32 @@ public class ForEachStatementTest extends AbstractStatementTest {
                 "forEach-stmt/forEach_stmt_assert_26.json");
     }
 
+    @Test
+    public void testForEachWithOnFailClauseHavingErrorBPWithVar() {
+        testFile("forEach-stmt/forEach_stmt_source_27", "forEach-stmt/forEach_stmt_assert_27.json");
+    }
+
+    @Test
+    public void testForEachWithOnFailClauseHavingErrorBPWithType() {
+        testFile("forEach-stmt/forEach_stmt_source_28", "forEach-stmt/forEach_stmt_assert_28.json");
+    }
+
+    @Test
+    public void testForEachWithOnFailClauseHavingErrorBPWithUserDefinedError() {
+        testFile("forEach-stmt/forEach_stmt_source_29", "forEach-stmt/forEach_stmt_assert_29.json");
+    }
+
+    @Test
+    public void testForEachWithOnFailClauseHavingErrorBPWithUserDefinedErrorWithVar() {
+        testFile("forEach-stmt/forEach_stmt_source_30", "forEach-stmt/forEach_stmt_assert_30.json");
+    }
+
     // Recovery tests
 
     @Test
     public void testForEachStmtWithMissingClosingBraces() {
         testFile("forEach-stmt/forEach_stmt_source_04.bal",
-        "forEach-stmt/forEach_stmt_assert_04.json");
+        "forEach-stmt/forEach_stmt_source_04.json");
     }
 
     @Test
@@ -181,5 +201,9 @@ public class ForEachStatementTest extends AbstractStatementTest {
     @Test
     public void testForEachOnFailClauseRecovery() {
         testFile("forEach-stmt/forEach_stmt_source_25.bal", "forEach-stmt/forEach_stmt_assert_25.json");
+        testFile("forEach-stmt/forEach_stmt_source_31.bal", "forEach-stmt/forEach_stmt_assert_31.json");
+        testFile("forEach-stmt/forEach_stmt_source_32.bal", "forEach-stmt/forEach_stmt_assert_32.json");
+        testFile("forEach-stmt/forEach_stmt_source_33.bal", "forEach-stmt/forEach_stmt_assert_33.json");
+        testFile("forEach-stmt/forEach_stmt_source_34.bal", "forEach-stmt/forEach_stmt_assert_34.json");
     }
 }

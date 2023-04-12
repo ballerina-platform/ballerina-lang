@@ -46,6 +46,26 @@ public class DoStatementTest extends AbstractStatementTest {
         testFile("do-stmt/do_stmt_source_09.bal", "do-stmt/do_stmt_assert_09.json");
     }
 
+    @Test
+    public void testDoWithOnFailClauseHavingErrorBPWithVar() {
+        testFile("do-stmt/do_stmt_source_10", "do-stmt/do_stmt_assert_10.json");
+    }
+
+    @Test
+    public void testDoWithOnFailClauseHavingErrorBPWithType() {
+        testFile("do-stmt/do_stmt_source_11", "do-stmt/do_stmt_assert_11.json");
+    }
+
+    @Test
+    public void testDoWithOnFailClauseHavingErrorBPWithUserDefinedError() {
+        testFile("do-stmt/do_stmt_source_12", "do-stmt/do_stmt_assert_12.json");
+    }
+
+    @Test
+    public void testDoWithOnFailClauseHavingErrorBPWithUserDefinedErrorWithVar() {
+        testFile("do-stmt/do_stmt_source_13", "do-stmt/do_stmt_assert_13.json");
+    }
+
     // Recovery test
 
     @Test
@@ -57,6 +77,10 @@ public class DoStatementTest extends AbstractStatementTest {
     @Test
     public void testDoOnFailClauseRecovery() {
         testFile("do-stmt/do_stmt_source_06.bal", "do-stmt/do_stmt_assert_06.json");
+        testFile("do-stmt/do_stmt_source_14", "do-stmt/do_stmt_assert_14.json");
+        testFile("do-stmt/do_stmt_source_15", "do-stmt/do_stmt_assert_15.json");
+        testFile("do-stmt/do_stmt_source_16", "do-stmt/do_stmt_assert_16.json");
+        testFile("do-stmt/do_stmt_source_17", "do-stmt/do_stmt_assert_17.json");
     }
 
     @Test
