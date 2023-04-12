@@ -23,17 +23,14 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.BalStringUtils;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.BmpStringValue;
-import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.NonBmpStringValue;
 
@@ -49,8 +46,10 @@ import java.util.List;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
+import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
+import static io.ballerina.runtime.internal.util.StringUtils.parseExpressionStringVal;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
@@ -188,9 +187,9 @@ public class StringUtils {
     /**
      * Returns the string value of Ballerina values in expression style.
      *
-     * @param value The value on which the function is invoked
-     * @param parent The link to the parent node
-     * @return String value of the value in expression style
+     * @param value     The value on which the function is invoked
+     * @param parent    The link to the parent node
+     * @return          String value of the value in expression style
      * @deprecated      use {@link #getExpressionStringValue(Object)} instead.
      */
     @Deprecated
@@ -202,56 +201,28 @@ public class StringUtils {
      * Returns the Ballerina value represented by Ballerina expression syntax.
      *
      * @param value The value on which the function is invoked
-     * @return Ballerina value represented by Ballerina expression syntax
-     * @throws BError for any parsing error
+     * @return      Ballerina value represented by Ballerina expression syntax
+     * @throws      BError for any parsing error
      */
+    public static Object parseExpressionStringValue(String value) throws BError {
+        try {
+            return parseExpressionStringVal(value, null);
+        } catch (BallerinaException e) {
+            throw createError(e);
+        }
+    }
+
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
+    /**
+     * Returns the Ballerina value represented by Ballerina expression syntax.
+     *
+     * @param value The value on which the function is invoked
+     * @return      Ballerina value represented by Ballerina expression syntax
+     * @deprecated  use {@link #parseExpressionStringValue(String)} instead.
+     */
+    @Deprecated
     public static Object parseExpressionStringValue(String value, BLink parent) throws BallerinaException {
-        String exprValue = value.trim();
-        int endIndex = exprValue.length() - 1;
-        if (exprValue.equals("()")) {
-            return null;
-        }
-        if (exprValue.startsWith("\"") && exprValue.endsWith("\"")) {
-            return StringUtils.fromString(exprValue.substring(1, endIndex));
-        }
-        if (exprValue.matches("[+-]?[0-9][0-9]*")) {
-            return Long.parseLong(exprValue);
-        }
-        if (exprValue.equals("float:Infinity") || exprValue.equals("float:NaN")) {
-            return Double.parseDouble(exprValue.substring(6));
-        }
-        if (exprValue.matches("[+-]?[0-9]+([.][0-9]+)?([Ee][+-]?[0-9]+)?")) {
-            return Double.parseDouble(exprValue);
-        }
-        if (exprValue.matches("[+-]?[0-9]+(.[0-9]+)?([Ee][+-]?[0-9]+)?[d]")) {
-            return new DecimalValue(exprValue.substring(0, endIndex));
-        }
-        if (exprValue.equals("true") || exprValue.equals("false")) {
-            return Boolean.parseBoolean(exprValue);
-        }
-        if (exprValue.startsWith("[") && exprValue.endsWith("]")) {
-            return BalStringUtils.parseArrayExpressionStringValue(exprValue, parent);
-        }
-        if (exprValue.startsWith("{") && exprValue.endsWith("}")) {
-            return BalStringUtils.parseMapExpressionStringValue(exprValue, parent);
-        }
-        if (exprValue.startsWith("table key")) {
-            return BalStringUtils.parseTableExpressionStringValue(exprValue, parent);
-        }
-        if (exprValue.startsWith("xml")) {
-            String xml = exprValue.substring(exprValue.indexOf('`') + 1,
-                    exprValue.lastIndexOf('`')).trim();
-            return BalStringUtils.parseXmlExpressionStringValue(xml);
-        }
-        if (exprValue.startsWith("re")) {
-            String regexp = exprValue.substring(exprValue.indexOf('`') + 1,
-                    exprValue.lastIndexOf('`')).trim();
-            return RegExpFactory.parse(regexp);
-        }
-        if (exprValue.startsWith("...")) {
-            return BalStringUtils.parseCycleDetectedExpressionStringValue(exprValue, parent);
-        }
-        throw new BallerinaException("invalid expression style string value");
+        return parseExpressionStringVal(value, parent);
     }
 
     /**

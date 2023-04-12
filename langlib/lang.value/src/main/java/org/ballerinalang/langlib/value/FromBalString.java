@@ -38,7 +38,7 @@ public class FromBalString {
             return null;
         }
         try {
-            return StringUtils.parseExpressionStringValue(str, null);
+            return StringUtils.parseExpressionStringValue(str);
         } catch (BallerinaException e) {
             return ErrorCreator.createError(FROM_BAL_STRING_ERROR, StringUtils.fromString(e.getMessage()));
         } catch (BError bError) {

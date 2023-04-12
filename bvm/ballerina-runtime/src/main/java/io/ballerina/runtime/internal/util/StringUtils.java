@@ -23,13 +23,17 @@ import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
+import io.ballerina.runtime.internal.BalStringUtils;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -174,5 +178,61 @@ public class StringUtils {
 
         RefValue refValue = (RefValue) value;
         return refValue.expressionStringValue(parent);
+    }
+
+    /**
+     * Returns the Ballerina value represented by Ballerina expression syntax.
+     *
+     * @param value The value on which the function is invoked
+     * @return Ballerina value represented by Ballerina expression syntax
+     * @throws BError for any parsing error
+     */
+    public static Object parseExpressionStringVal(String value, BLink parent) throws BallerinaException {
+        String exprValue = value.trim();
+        int endIndex = exprValue.length() - 1;
+        if (exprValue.equals("()")) {
+            return null;
+        }
+        if (exprValue.startsWith("\"") && exprValue.endsWith("\"")) {
+            return io.ballerina.runtime.api.utils.StringUtils.fromString(exprValue.substring(1, endIndex));
+        }
+        if (exprValue.matches("[+-]?[0-9][0-9]*")) {
+            return Long.parseLong(exprValue);
+        }
+        if (exprValue.equals("float:Infinity") || exprValue.equals("float:NaN")) {
+            return Double.parseDouble(exprValue.substring(6));
+        }
+        if (exprValue.matches("[+-]?[0-9]+([.][0-9]+)?([Ee][+-]?[0-9]+)?")) {
+            return Double.parseDouble(exprValue);
+        }
+        if (exprValue.matches("[+-]?[0-9]+(.[0-9]+)?([Ee][+-]?[0-9]+)?[d]")) {
+            return new DecimalValue(exprValue.substring(0, endIndex));
+        }
+        if (exprValue.equals("true") || exprValue.equals("false")) {
+            return Boolean.parseBoolean(exprValue);
+        }
+        if (exprValue.startsWith("[") && exprValue.endsWith("]")) {
+            return BalStringUtils.parseArrayExpressionStringValue(exprValue, parent);
+        }
+        if (exprValue.startsWith("{") && exprValue.endsWith("}")) {
+            return BalStringUtils.parseMapExpressionStringValue(exprValue, parent);
+        }
+        if (exprValue.startsWith("table key")) {
+            return BalStringUtils.parseTableExpressionStringValue(exprValue, parent);
+        }
+        if (exprValue.startsWith("xml")) {
+            String xml = exprValue.substring(exprValue.indexOf('`') + 1,
+                    exprValue.lastIndexOf('`')).trim();
+            return BalStringUtils.parseXmlExpressionStringValue(xml);
+        }
+        if (exprValue.startsWith("re")) {
+            String regexp = exprValue.substring(exprValue.indexOf('`') + 1,
+                    exprValue.lastIndexOf('`')).trim();
+            return RegExpFactory.parse(regexp);
+        }
+        if (exprValue.startsWith("...")) {
+            return BalStringUtils.parseCycleDetectedExpressionStringValue(exprValue, parent);
+        }
+        throw new BallerinaException("invalid expression style string value");
     }
 }
