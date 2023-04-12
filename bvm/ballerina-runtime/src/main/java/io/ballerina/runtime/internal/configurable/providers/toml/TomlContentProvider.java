@@ -34,9 +34,7 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.TomlCons
 public class TomlContentProvider extends TomlProvider {
 
     private final String configContent;
-    // Finds the `\n` characters that is not inside values to replace with the system line separator
     private static final Pattern UNESCAPED_NEWLINE_CHAR = Pattern.compile("\\\\n(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
-    // Finds the `\r` and `\t` characters that is not inside values to remove them
     private static final Pattern UNESCAPED_CARRIAGE_CHAR =
             Pattern.compile("(\\\\r|\\\\t)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
 
@@ -46,7 +44,9 @@ public class TomlContentProvider extends TomlProvider {
     }
 
     private String cleanContent(String configContent) {
+        // Finds the `\n` characters that is not inside values to replace with the system line separator
         String content =  UNESCAPED_NEWLINE_CHAR.matcher(configContent).replaceAll(System.lineSeparator());
+        // Finds the `\r` and `\t` characters that is not inside values to remove them
         return UNESCAPED_CARRIAGE_CHAR.matcher(content).replaceAll("");
     }
 
