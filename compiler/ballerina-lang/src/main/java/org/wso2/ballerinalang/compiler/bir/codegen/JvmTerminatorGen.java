@@ -403,7 +403,7 @@ public class JvmTerminatorGen {
                              int stateVarIndex, int loopVarIndex, Label loopLabel, String moduleClassName) {
         int currentBBNumber = currentBB.number;
         int gotoBBNumber = gotoIns.targetBB.number;
-        if (currentBBNumber <= gotoBBNumber || gotoIns.pos != null || moduleClassName.contains("test")) {
+        if (currentBBNumber <= gotoBBNumber || moduleClassName.contains("performRetryAction")) {
             Label gotoLabel = this.labelGen.getLabel(funcName + gotoIns.targetBB.id.value);
             this.mv.visitJumpInsn(GOTO, gotoLabel);
             return;
