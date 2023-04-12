@@ -403,17 +403,19 @@ public class JvmTerminatorGen {
                              int stateVarIndex, int loopVarIndex, Label loopLabel, String moduleClassName) {
         int currentBBNumber = currentBB.number;
         int gotoBBNumber = gotoIns.targetBB.number;
-        if (currentBBNumber <= gotoBBNumber || moduleClassName.contains("performRetryAction")) {
+        if (currentBBNumber <= gotoBBNumber) {
             Label gotoLabel = this.labelGen.getLabel(funcName + gotoIns.targetBB.id.value);
             this.mv.visitJumpInsn(GOTO, gotoLabel);
             return;
         }
+        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
+        mv.visitLdcInsn(moduleClassName + "/" + funcName);
+        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
         this.mv.visitInsn(ICONST_1);
         this.mv.visitVarInsn(ISTORE, loopVarIndex);
         this.mv.visitIntInsn(SIPUSH, gotoBBNumber);
         this.mv.visitVarInsn(ISTORE, stateVarIndex);
         this.mv.visitJumpInsn(GOTO, loopLabel);
-        System.out.println(moduleClassName + "/" + funcName);
     }
 
     private void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset, int yieldLocationVarIndex,
