@@ -109,7 +109,7 @@ public final class FunctionCompletionItemBuilder {
         if (functionSymbol != null) {
             // Override function signature
             String funcName = functionSymbol.getName().orElse("");
-            item.setInsertText(CommonUtil.escapeEscapeCharsInIdentifier(funcName));
+            item.setInsertText(CommonUtil.escapeSpecialCharsInInsertText(funcName));
             item.setLabel(funcName);
             item.setFilterText(funcName);
             item.setKind(CompletionItemKind.Variable);
