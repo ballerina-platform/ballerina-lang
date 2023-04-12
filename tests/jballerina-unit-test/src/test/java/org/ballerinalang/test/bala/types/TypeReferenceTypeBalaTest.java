@@ -67,7 +67,6 @@ public class TypeReferenceTypeBalaTest {
         validateError(negativeResult, i++, "unknown type 'Decimal2'", 20, 53);
         validateError(negativeResult, i++, "unknown type 'FooBar2'", 22, 20);
         validateError(negativeResult, i++, "unknown type 'ImmutableIntArray2'", 25, 5);
-        validateError(negativeResult, i++, "incompatible types: 'tr:Bar2' is not a record", 29, 6);
         validateError(negativeResult, i++, "unknown type 'Bar2'", 29, 6);
         validateError(negativeResult, i++, "undefined field 'b' in record 'record {| |} & readonly'", 30, 9);
         validateError(negativeResult, i++,

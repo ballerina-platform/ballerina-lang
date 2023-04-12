@@ -54,6 +54,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     private final ConstantTypeChecker.FillMembers fillMembers;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private Location currentPos;
+    public Stack<String> anonTypeNameSuffixes = new Stack<>();
 
     public ConstantTypeChecker(CompilerContext context) {
         context.put(CONSTANT_TYPE_CHECKER_KEY, this);
@@ -603,7 +604,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 if (data.commonAnalyzerData.nonErrorLoggingCheck) {
                     exprToCheck = nodeCloner.cloneNode(keyValue.valueExpr);
                 }
+                this.anonTypeNameSuffixes.push(key.toString());
                 BType keyValueType = checkConstExpr(exprToCheck, expType, data);
+                this.anonTypeNameSuffixes.pop();
                 if (keyValueType == symTable.semanticError) {
                     containErrors = true;
                     continue;
@@ -728,7 +731,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 if (data.commonAnalyzerData.nonErrorLoggingCheck) {
                     exprToCheck = nodeCloner.cloneNode(keyValue.valueExpr);
                 }
+                this.anonTypeNameSuffixes.push(key.toString());
                 BType keyValueType = checkConstExpr(exprToCheck, expType, data);
+                this.anonTypeNameSuffixes.pop();
                 BLangExpression keyExpr = key.expr;
 
                 // Add the resolved field.
@@ -1557,7 +1562,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return result;
     }
 
-
     private Object calculateNegationForInt(Object value) {
         if ((Long) (value) == Long.MIN_VALUE) {
             dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
@@ -1591,7 +1595,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 result = calculateNegationForDecimal(value);
                 break;
         }
-
         return result;
     }
 
@@ -1953,7 +1956,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     key);
             return false;
         }
-        Set<Flag> flags = new HashSet<>();
+        long flags = recordSymbol.flags | Flags.REQUIRED;
 //        flags.add(Flag.REQUIRED); // All the fields in constant mapping types should be required fields.
 
         BVarSymbol fieldSymbol = new BVarSymbol(recordSymbol.flags, fieldName, recordSymbol.pkgID , keyValueType,
@@ -1970,9 +1973,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     private BRecordTypeSymbol createRecordTypeSymbol(PackageID pkgID, Location location,
                                                      SymbolOrigin origin, AnalyzerData data) {
         SymbolEnv env = data.env;
-        BRecordTypeSymbol recordSymbol =
-                Symbols.createRecordSymbol(data.constantSymbol.flags,
-                        names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(pkgID)),
+        Name genName = Names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(pkgID,
+                this.anonTypeNameSuffixes));
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(data.constantSymbol.flags, genName,
                         pkgID, null, env.scope.owner, location, origin);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);

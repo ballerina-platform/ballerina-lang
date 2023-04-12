@@ -67,9 +67,7 @@ public class ClosedRecordTypeInclusionTest {
         BAssertUtil.validateError(negative, index++, "only type references are allowed as type inclusions", 51, 6);
         BAssertUtil.validateError(negative, index++, "missing non-defaultable required record field 'gender'", 67, 18);
         BAssertUtil.validateError(negative, index++, "redeclared symbol 'name'", 72, 6);
-        BAssertUtil.validateError(negative, index++, "incompatible types: 'Data' is not a record", 76, 6);
         BAssertUtil.validateError(negative, index++, "unknown type 'Data'", 76, 6);
-        BAssertUtil.validateError(negative, index++, "incompatible types: 'Data' is not a record", 81, 6);
         BAssertUtil.validateError(negative, index++, "unknown type 'Data'", 81, 6);
         BAssertUtil.validateError(negative, index++, "cannot use type inclusion with more than one open record with " +
                 "different rest descriptor types", 99, 20);
@@ -78,6 +76,8 @@ public class ClosedRecordTypeInclusionTest {
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'anydata', found 'error'", 137, 50);
         BAssertUtil.validateError(negative, index++, "cannot use type inclusion with more than one open record with " +
                 "different rest descriptor types", 158, 10);
+        BAssertUtil.validateError(negative, index++, "invalid cyclic type reference in 'PersonOne'", 163, 1);
+        BAssertUtil.validateError(negative, index++, "invalid cyclic type reference in 'PersonTwo'", 168, 1);
         BAssertUtil.validateError(negative, index++, "included field 'body' of type 'float' cannot " +
                 "be overridden by a field of type 'Baz2': expected a subtype of 'float'", 185, 5);
         BAssertUtil.validateError(negative, index++, "included field 'body' of type 'anydata' cannot be overridden by" +

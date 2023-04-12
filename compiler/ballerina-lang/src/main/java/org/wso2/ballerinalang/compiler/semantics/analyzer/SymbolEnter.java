@@ -1889,7 +1889,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         return false;
     }
 
-    public BEnumSymbol createEnumSymbol(BLangTypeDefinition typeDefinition, BType definedType) {
+    private BEnumSymbol createEnumSymbol(BLangTypeDefinition typeDefinition, BType definedType) {
         List<BConstantSymbol> enumMembers = new ArrayList<>();
 
         List<BLangType> members = ((BLangUnionTypeNode) typeDefinition.typeNode).memberTypeNodes;
@@ -4253,13 +4253,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                 boolean hasNonReadOnlyElement = false;
                 for (BType constituentType : intersectionType.getConstituentTypes()) {
-                    if (Types.getReferredType(constituentType) == symTable.readonlyType) {
+                    if (Types.getReferredType(constituentType) == symTable.readonlyType ||
+                            types.isInherentlyImmutableType(constituentType)) {
                         continue;
                     }
                     // If constituent type is error, we have already validated error intersections.
                     if (!types.isSelectivelyImmutableType(constituentType, true, packageID)
                             && Types.getReferredType(constituentType).tag != TypeTags.ERROR) {
-
                         hasNonReadOnlyElement = true;
                         break;
                     }
@@ -5228,9 +5228,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return Stream.empty();
             }
 
-            // Here it is assumed that all the fields of the referenced types are resolved
-            // by the time we reach here. It is achieved by ordering the typeDefs according
-            // to the precedence.
+            // Here, if all the fields of reference type not resolved we get the fields from modTable and add them to
+            // the included fields. Otherwise, we get the fields from the resolved reference type.
             // Default values of fields are not inherited.
             if (referredTypeTag == TypeTags.RECORD || referredTypeTag == TypeTags.OBJECT) {
                 if ((typeResolver.resolvingStructureTypes.contains((BStructureType) referredType))) {

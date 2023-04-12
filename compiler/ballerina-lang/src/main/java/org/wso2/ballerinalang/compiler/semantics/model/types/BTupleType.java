@@ -43,7 +43,7 @@ public class BTupleType extends BType implements TupleType {
     public boolean resolvingToString = false;
     public boolean isCyclic = false;
 
-    public BRecordType mutableType;
+    public BTupleType mutableType;
 
     private BIntersectionType intersectionType = null;
 
