@@ -1,6 +1,6 @@
 [package]
 org = "testorg"
-name = "syntaxtree_test"
+name = "syntaxtree"
 version = "0.1.0"
 
 [build-options]

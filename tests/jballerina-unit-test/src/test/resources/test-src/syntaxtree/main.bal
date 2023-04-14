@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import syntaxtree_test.moduleA;
-import syntaxtree_test.moduleB;
+import syntaxtree.moduleA;
+import syntaxtree.moduleB;
 
 public function main() {
     moduleB:Person p1 = new moduleB:Person(1001, "John", 20);

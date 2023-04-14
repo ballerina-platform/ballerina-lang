@@ -36,6 +36,7 @@ dependencies {
     implementation project(':docerina')
     implementation project(':ballerina-lang:value');
     implementation project(':ballerina-lang:regexp');
+    implementation project(':observability-symbol-collector');
 
     implementation 'org.testng:testng'
     testCompile 'org.awaitility:awaitility'

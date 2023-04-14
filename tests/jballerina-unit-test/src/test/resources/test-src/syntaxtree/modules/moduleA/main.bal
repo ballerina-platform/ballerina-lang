@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import syntaxtree_test.moduleB;
+import syntaxtree.moduleB;
 
 public class Examiner {
     int id;

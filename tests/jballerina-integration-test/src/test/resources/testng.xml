@@ -145,10 +145,4 @@
             <class name="org.ballerinalang.test.semver.SemverValidatorNegativeTest"/>
         </classes>
     </test>
-    <test name="ballerina-observability-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <classes>
-            <class name="org.ballerinalang.test.observe.syntaxtree.SyntaxTreeEqualityTest"/>
-        </classes>
-    </test>
 </suite>
