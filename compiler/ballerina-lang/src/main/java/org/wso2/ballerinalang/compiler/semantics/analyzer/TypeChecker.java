@@ -868,8 +868,13 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 }
             }
         }
+        BType referedType = Types.getReferredType(literalExpr.getBType());
 
-        if (Types.getReferredType(literalExpr.getBType()).tag == TypeTags.BYTE_ARRAY) {
+        if (referedType.tag == TypeTags.ARRAY && ((BArrayType) referedType).eType.tag == TypeTags.BYTE) {
+            return referedType;
+        }
+
+        if (referedType.tag == TypeTags.BYTE_ARRAY) {
             // check whether this is a byte array
             byte[] byteArray = types.convertToByteArray((String) literalExpr.value);
             literalType = new BArrayType(symTable.byteType, null, byteArray.length,
@@ -8804,11 +8809,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     fieldTypes.add(record.restFieldType);
                 }
 
-                if (fieldTypes.stream().noneMatch(BType::isNullable)) {
+                if (!accessExpr.isLValue && fieldTypes.stream().noneMatch(BType::isNullable)) {
                     fieldTypes.add(symTable.nilType);
                 }
 
-                actualType = BUnionType.create(null, fieldTypes);
+                actualType = fieldTypes.size() == 1 ? fieldTypes.iterator().next() :
+                        BUnionType.create(null, fieldTypes);
                 break;
             case TypeTags.FINITE:
                 BFiniteType finiteIndexExpr = (BFiniteType) currentType;
@@ -8840,7 +8846,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     return symTable.semanticError;
                 }
 
-                if (possibleTypes.stream().noneMatch(BType::isNullable)) {
+                if (!accessExpr.isLValue && possibleTypes.stream().noneMatch(BType::isNullable)) {
                     possibleTypes.add(symTable.nilType);
                 }
 

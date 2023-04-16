@@ -19,6 +19,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ReBracedQuantifierNode;
+import io.ballerina.compiler.syntax.tree.ReCapturingGroupsNode;
 import io.ballerina.compiler.syntax.tree.ReFlagExpressionNode;
 import io.ballerina.compiler.syntax.tree.ReFlagsOnOffNode;
 import io.ballerina.compiler.syntax.tree.ReQuantifierNode;
@@ -114,6 +115,13 @@ public class RegexpCompletionProvider {
                 // Eg: `\p{gc=L<cursor>}`, re `\p{gc=M<cursor>}`, re `\p{L<cursor>}`, re `\p{M<cursor>}`
                 addUnicodeGeneralCategorySnippets(unicodeGeneralCategoryNode, ctx, completionItems);
             }
+            return completionItems;
+        }
+
+        if (isCapturingGroupStart(nodeAtCursor, ctx)) {
+            // Eg: re `(<cursor>)`
+            completionItems.add(new SnippetCompletionItem(ctx, new SnippetBlock("?", "?", "?",
+                    ItemResolverConstants.VALUE_TYPE, SnippetBlock.Kind.VALUE)));
             return completionItems;
         }
 
@@ -307,7 +315,8 @@ public class RegexpCompletionProvider {
                     - templateExpressionNode.textRange().startOffset(); // 103 - 100 -> 3
             int subStrLength = currentPosition - startIndex; // 8 -> "re `abc"
             // (abc
-            String subStr = templateExpressionNode.toSourceCode().substring(expressionStartIndex + 1, subStrLength);
+            String subStr = templateExpressionNode.toSourceCode().trim().substring(expressionStartIndex + 1, 
+                    subStrLength);
             int len = subStr.length() - 1; // 3
             String currentChar = subStr.substring(len, len + 1); // c
             boolean isCurrentCharAWordSeparator = WORD_SEPARATOR_ARRAY.contains(currentChar);
@@ -479,6 +488,12 @@ public class RegexpCompletionProvider {
                 || nodeAtCursor.kind() == SyntaxKind.RE_SIMPLE_CHAR_CLASS_ESCAPE
                 || nodeAtCursor.kind() == SyntaxKind.RE_QUOTE_ESCAPE
                 || nodeAtCursor.kind() == SyntaxKind.RE_CAPTURING_GROUP;
+    }
+
+    private static boolean isCapturingGroupStart(NonTerminalNode nodeAtCursor, BallerinaCompletionContext ctx) {
+        return nodeAtCursor.kind() == SyntaxKind.RE_CAPTURING_GROUP
+                && ((ReCapturingGroupsNode) nodeAtCursor).openParenthesis().textRange().endOffset()
+                == ctx.getCursorPositionInTree();
     }
 
     private static boolean isFlagExpr(NonTerminalNode nodeAtCursor, BallerinaCompletionContext ctx) {

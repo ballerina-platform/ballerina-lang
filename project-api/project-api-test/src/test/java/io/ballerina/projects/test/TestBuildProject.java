@@ -71,6 +71,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,6 +92,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.projects.test.TestUtils.assertTomlFilesEquals;
 import static io.ballerina.projects.test.TestUtils.isWindows;
 import static io.ballerina.projects.test.TestUtils.loadProject;
+import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
 import static io.ballerina.projects.test.TestUtils.resetPermissions;
 import static io.ballerina.projects.test.TestUtils.writeContent;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
@@ -951,8 +953,9 @@ public class TestBuildProject extends BaseTest {
     }
 
     @Test(description = "test editing Ballerina.toml")
-    public void testModifyDependenciesToml() {
+    public void testModifyDependenciesToml() throws IOException {
         Path projectPath = tempResourceDir.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
+        replaceDistributionVersionOfDependenciesToml(projectPath, RepoUtils.getBallerinaShortVersion());
         BuildProject project = loadBuildProject(projectPath, BuildOptions.builder().setSticky(true).build());
 
         PackageCompilation compilation = project.currentPackage().getCompilation();
@@ -967,6 +970,7 @@ public class TestBuildProject extends BaseTest {
                 .get().modify().withContent("" +
                 "[ballerina]\n" +
                 "dependencies-toml-version = \"2\"\n" +
+                "distribution-version = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n" +
                 "\n" +
                 "[[package]]\n" +
                 "org = \"foo\"\n" +
@@ -1001,6 +1005,7 @@ public class TestBuildProject extends BaseTest {
                 .get().modify().withContent("" +
                 "[ballerina]\n" +
                 "dependencies-toml-version = \"2\"\n" +
+                "distribution-version = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n" +
                 "\n" +
                 "[[package]]\n" +
                 "org = \"foo\"\n" +
