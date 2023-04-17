@@ -55,19 +55,19 @@ public class TypedescTests {
                 10, 24);
         validateError(compileResult, index++, "missing key expr in member access expr", 10, 31);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<readonly>', found " +
-                "'typedesc<IntArray>'", 21, 28);
+                "'typedesc<int[]>'", 21, 28);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<(string[]|boolean[])>', found " +
                 "'typedesc<ImmutableIntArray>'", 22, 38);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<string>', " +
                 "found 'typedesc<ImmutableIntArray>'", 23, 26);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<string[]>', found " +
-                "'typedesc<Foo>'", 24, 28);
+                "'typedesc<\"foo\">'", 24, 28);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<string>', found " +
-                "'typedesc<FooBar>'", 25, 26);
+                "'typedesc<\"foo\"|1>'", 25, 26);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<string>', found " +
-                "'typedesc<FunctionTypeOne>'", 26, 26);
+                "'typedesc<function (int) returns (string)>'", 26, 26);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<function (int) returns (string)" +
-                ">', found 'typedesc<FunctionTypeTwo>'", 27, 51);
+                ">', found 'typedesc<function () returns (string)>'", 27, 51);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 

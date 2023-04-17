@@ -59,67 +59,6 @@ function getAnonymousTupleAnnotations(typedesc<any> obj, string annotName) retur
     name: "getAnonymousTupleAnnotations"
 } external;
 
-type AnnotationRecord record {|
-    int minValue;
-    int maxValue;
-|};
-
-annotation AnnotationRecord BarAnnotation on type;
-annotation AnnotationRecord BarAnnotation2 on type;
-
-@BarAnnotation {
-    minValue: 18,
-    maxValue: 36
-}
-type Bar int|float;
-type Bar2 int|float;
-
-@BarAnnotation2 {
-    minValue: 18,
-    maxValue: 36
-}
-type Bar3 Bar4;
-type Bar4 Bar2;
-type Bar5 Bar;
-
-function testAnnotationsOnTypeRefTypes() {
-    var f1 = function (typedesc td) returns AnnotationRecord? {
-        return td.@BarAnnotation;
-    };
-
-    AnnotationRecord? 'annotation = f1(Bar);
-    assertTrue('annotation is AnnotationRecord);
-    AnnotationRecord rec = <AnnotationRecord> 'annotation;
-    assertEquality(rec.minValue, 18);
-    assertEquality(rec.maxValue, 36);
-
-    'annotation = f1(Bar2);
-    assertTrue('annotation is ());
-
-    var f2 = function (typedesc td) returns AnnotationRecord? {
-        return td.@BarAnnotation2;
-    };
-
-    'annotation = f2(Bar3);
-    assertTrue('annotation is AnnotationRecord);
-    rec = <AnnotationRecord> 'annotation;
-    assertEquality(rec.minValue, 18);
-    assertEquality(rec.maxValue, 36);
-
-    'annotation = f2(Bar4);
-    assertTrue('annotation is ());
-
-    'annotation = f1(Bar5);
-    assertTrue('annotation is ());
-
-    'annotation = f2(Bar5);
-    assertTrue('annotation is ());
-}
-
-function assertTrue(anydata actual) {
-    assertEquality(true, actual);
-}
-
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
