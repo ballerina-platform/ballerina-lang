@@ -133,6 +133,27 @@ public class ConfigurableTest extends BaseTest {
                 "decimalArr = [8.9, 4.5, 6.2]";
         executeBalCommand("", "envVarPkg",
                 addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
+
+        configData = "[envVarPkg]\nintVar = 42\nfloatVar = 3.5\nstringVar = \"abc\"\nbooleanVar = true\n" +
+                "decimalVar = 24.87\nintArr = [1,2,3]\nfloatArr = [9.0, 5.6]\n" +
+                "stringArr = [\"red\", \"yellow\", \"green\"]\nbooleanArr = [true, false,false, true]\n" +
+                "decimalArr = [8.9, 4.5, 6.2]";
+        executeBalCommand("", "envVarPkg",
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
+
+        configData = "[envVarPkg]\\nintVar = 42\\nfloatVar = 3.5\\nstringVar = \"abc\"\\nbooleanVar = true\\n" +
+                "decimalVar = 24.87\\nintArr = [1,2,3]\\nfloatArr = [9.0, 5.6]\\n" +
+                "stringArr = [\"red\", \"yellow\", \"green\"]\\nbooleanArr = [true, false,false, true]\\n" +
+                "decimalArr = [8.9, 4.5, 6.2]";
+        executeBalCommand("", "envVarPkg",
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
+
+        configData = "[envVarPkg]\\n\\rintVar = 42\\n\\rfloatVar = 3.5\\n\\rstringVar = \"abc\"\\n\\r" +
+                "booleanVar = true\\n\\rdecimalVar = 24.87\\n\\rintArr = [1,2,3]\\n\\r" +
+                "floatArr = [9.0, 5.6]\\n\\rstringArr = [\"red\", \"yellow\", \"green\"]\\n\\r" +
+                "booleanArr = [true, false,false, true]\\n\\rdecimalArr = [8.9, 4.5, 6.2]";
+        executeBalCommand("", "envVarPkg",
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
     }
 
     @Test
