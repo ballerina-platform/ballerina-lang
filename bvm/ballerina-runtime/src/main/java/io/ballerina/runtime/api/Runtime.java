@@ -75,7 +75,7 @@ public class Runtime {
      * @param properties Set of properties for strand.
      * @param returnType Expected return type of this method.
      * @param args       Ballerina function arguments.
-     * @return {@link FutureValue} containing return value for executing this method.
+     * @return {@link BFuture} containing return value for executing this method.
      * <p>
      * This method needs to be called if object.getType().isIsolated() or
      * object.getType().isIsolated(methodName) returns false.
@@ -121,7 +121,7 @@ public class Runtime {
      * @param properties Set of properties for strand.
      * @param returnType Expected return type of this method.
      * @param args       Ballerina function arguments.
-     * @return {@link FutureValue} containing return value for executing this method.
+     * @return {@link BFuture} containing return value for executing this method.
      * <p>
      * This method needs to be called if both object.getType().isIsolated() and
      * object.getType().isIsolated(methodName) returns true.
@@ -170,7 +170,7 @@ public class Runtime {
      * @param properties Set of properties for strand
      * @param returnType Expected return type of this method
      * @param args       Ballerina function arguments.
-     * @return {@link FutureValue} containing return value for executing this method.
+     * @return {@link BFuture} containing return value for executing this method.
      * @deprecated If caller can ensure that given object and object method is isolated and no data race is possible
      * for the mutable state with given arguments, use @invokeMethodAsyncConcurrently
      * otherwise @invokeMethodAsyncSequentially .

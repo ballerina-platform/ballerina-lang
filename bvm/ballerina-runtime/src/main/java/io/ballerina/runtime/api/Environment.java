@@ -91,7 +91,7 @@ public class Environment {
     }
 
     /**
-     * Gets current module @{@link Module}.
+     * Gets current module {@link Module}.
      *
      * @return module of the environment.
      */
@@ -119,7 +119,7 @@ public class Environment {
     }
 
     /**
-     * Gets @{@link StrandMetadata}.
+     * Gets {@link StrandMetadata}.
      *
      * @return metadata of the strand.
      */
