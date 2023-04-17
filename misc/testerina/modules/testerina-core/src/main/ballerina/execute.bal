@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.'error as langError;
+
 boolean shouldSkip = false;
 boolean shouldAfterSuiteSkip = false;
 int exitCode = 0;
@@ -326,7 +328,7 @@ function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType t
 }
 
 function printExecutionError(ExecutionError err, string functionSuffix)
-    => println("\t[fail] " + err.detail().functionName + "[" + functionSuffix + "]" + ":\n\t    " + err.message());
+    => println("\t[fail] " + err.detail().functionName + "[" + functionSuffix + "]" + ":\n\t    " + formatFailedError(err.message(), 2));
 
 function executeFunctions(TestFunction[] testFunctions, boolean skip = false) returns ExecutionError? {
     foreach TestFunction testFunction in testFunctions {
@@ -361,8 +363,13 @@ function executeFunction(TestFunction|function testFunction) returns ExecutionEr
 }
 
 function getErrorMessage(error err) returns string {
-    string|error message = err.detail()["message"].ensureType();
-    return message is error ? err.message() : message;
+    string message = err.toBalString();
+
+    string accumulatedTrace = "";
+    foreach langError:StackFrame stackFrame in err.stackTrace() {
+        accumulatedTrace = accumulatedTrace + "\t" + stackFrame.toString() + "\n";
+    }
+    return message + "\n" + accumulatedTrace;
 }
 
 function orderTests() returns error? {

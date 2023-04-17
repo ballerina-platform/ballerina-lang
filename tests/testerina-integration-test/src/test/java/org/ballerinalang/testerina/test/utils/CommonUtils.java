@@ -29,9 +29,17 @@ public class CommonUtils {
     }
 
     public static String replaceVaryingString(String firstString, String endString, String content) {
-        int firstPos = content.indexOf(firstString) + firstString.length();
-        int lastPos = content.indexOf(endString, firstPos);
-        String modfiedContent = content.substring(0, firstPos) + "*****" + content.substring(lastPos);
-        return modfiedContent;
+        String modifiedContent = content;
+        int firstPos = modifiedContent.indexOf(firstString) + firstString.length();
+        int lastPos = modifiedContent.indexOf(endString, firstPos);
+        while (firstPos != -1) {
+            modifiedContent = modifiedContent.substring(0, firstPos) + "*****" + modifiedContent.substring(lastPos);
+            firstPos = modifiedContent.indexOf(firstString, firstPos);
+            if (firstPos >= 0) {
+                firstPos = firstPos + firstString.length();
+                lastPos = modifiedContent.indexOf(endString, firstPos);
+            }
+        }
+        return modifiedContent;
     }
 }
