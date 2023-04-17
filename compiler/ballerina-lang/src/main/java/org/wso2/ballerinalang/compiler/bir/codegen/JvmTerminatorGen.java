@@ -226,12 +226,7 @@ public class JvmTerminatorGen {
             "ballerina/test/0/execute/executeTests",
             "ballerina/http/2/auth_desugar/getResourceAuthConfig",
             "ballerina/http/2/$value$LoadBalanceClient/performLoadBalanceAction",
-            "ballerina/http/2/$value$FailoverClient/performFailoverAction",
-            "ballerina/http/2/$value$CircuitBreakerClient/prepareRollingWindow",
-            "ballerina/http/2/$value$CircuitBreakerClient/getTotalRequestsCount",
-            "ballerina/http/2/$value$CircuitBreakerClient/getCurrentFailureRatio",
-            "ballerina/log/2/natives/printLogFmt",
-            "ballerina/io/1/print/fprintln"));
+            "ballerina/http/2/$value$FailoverClient/performFailoverAction"));
 
     public JvmTerminatorGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, LabelGenerator labelGen,
                             JvmErrorGen errorGen, PackageID packageID, JvmInstructionGen jvmInstructionGen,
