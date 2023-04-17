@@ -144,7 +144,8 @@ public class GroupByClauseTest {
             "testGroupByExpressionWithOrderBy",
             "testGroupByExpressionWithStreamOutput",
             "testGroupByExpressionWithTableOutput",
-            "testGroupByExpressionWithMapOutput"
+            "testGroupByExpressionWithMapOutput",
+            "testGroupByWithDoClause"
         };
     }
 }

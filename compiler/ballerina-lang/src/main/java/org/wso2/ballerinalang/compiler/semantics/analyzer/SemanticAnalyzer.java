@@ -4303,9 +4303,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         analyzeNode(node, data);
     }
 
-    public void analyzeNodeViaQuery(BLangNode node, SymbolEnv env) {
+    public void analyzeNode(BLangNode node, boolean withinQuery, SymbolEnv env) {
         AnalyzerData data = new AnalyzerData(env);
-        data.withinQuery = true;
+        data.withinQuery = withinQuery;
         analyzeNode(node, data);
     }
 
@@ -4315,10 +4315,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         analyzeNode(node, data);
     }
 
-    public void analyzeNodeViaQuery(BLangNode node, SymbolEnv env, Types.CommonAnalyzerData commonAnalyzerData) {
+    public void analyzeNode(BLangNode node, SymbolEnv env, boolean withinQuery,
+                            Types.CommonAnalyzerData commonAnalyzerData) {
         AnalyzerData data = new AnalyzerData(env);
         data.commonAnalyzerData = commonAnalyzerData;
-        data.withinQuery = true;
+        data.withinQuery = withinQuery;
         analyzeNode(node, data);
     }
 
@@ -4337,12 +4338,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     }
 
     // TODO: Need to check whether this is the best approach.
-    public void analyzeNodeViaQuery(BLangNode node, SymbolEnv env, Stack<SymbolEnv> prevEnvs,
+    public void analyzeNode(BLangNode node, SymbolEnv env, Stack<SymbolEnv> prevEnvs, boolean withinQuery,
                             Types.CommonAnalyzerData commonAnalyzerData) {
         AnalyzerData data = new AnalyzerData(env);
         data.prevEnvs = prevEnvs;
         data.commonAnalyzerData = commonAnalyzerData;
-        data.withinQuery = true;
+        data.withinQuery = withinQuery;
         analyzeNode(node, data);
     }
 

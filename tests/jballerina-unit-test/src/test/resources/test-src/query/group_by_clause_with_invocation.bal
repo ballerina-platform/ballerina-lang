@@ -479,6 +479,21 @@ function testGroupByExpressionWithMapOutput() {
 //     assertEquality([35, 11], sum);
 // }
 
+function testGroupByWithDoClause() {
+    // var input = [{name: "Saman", price1: 11, price2: 12}, 
+    //                 {name: "Saman", price1: 13, price2: 14}, 
+    //                 {name: "Kamal", price1: 15, price2: 16}, 
+    //                 {name: "Kamal", price1: 17, price2: 18}, 
+    //                 {name: "Saman", price1: 19, price2: 20}];
+    // int[] res = []; 
+    // _ = from var {name, price1, price2} in input
+    //         group by name 
+    //         do {
+    //             res.push(int:sum(price1) + int:sum(price2));
+    //         };
+    // assertEquality([69, 4], res);       
+}
+
 // TODO: Add tests with do clause
 // TODO: group by var _ = true
 

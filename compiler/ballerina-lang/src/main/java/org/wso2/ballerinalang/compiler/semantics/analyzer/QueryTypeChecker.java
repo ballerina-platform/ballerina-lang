@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.clauses.OrderKeyNode;
-import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -75,7 +74,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -92,8 +90,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
-
-import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
  * @since 2201.5.0
@@ -236,8 +232,8 @@ public class QueryTypeChecker extends TypeChecker {
         List<BType> collectionTypes = getCollectionTypes(clauses);
         BType completionType = getCompletionType(collectionTypes, Types.QueryConstructType.ACTION, data);
         // Analyze foreach node's statements.
-        semanticAnalyzer.analyzeNodeViaQuery(doClause.body, SymbolEnv.createBlockEnv(doClause.body,
-                commonAnalyzerData.queryEnvs.peek()), data.prevEnvs, commonAnalyzerData);
+        semanticAnalyzer.analyzeNode(doClause.body, SymbolEnv.createBlockEnv(doClause.body,
+                commonAnalyzerData.queryEnvs.peek()), data.prevEnvs, true, commonAnalyzerData);
         BType actualType = completionType == null ? symTable.nilType : completionType;
         data.resultType = types.checkType(doClause.pos, actualType, data.expType,
                         DiagnosticErrorCode.INCOMPATIBLE_TYPES);
@@ -698,7 +694,7 @@ public class QueryTypeChecker extends TypeChecker {
         letClause.env = letEnv;
         commonAnalyzerData.queryEnvs.push(letEnv);
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
-            semanticAnalyzer.analyzeNodeViaQuery((BLangNode) letVariable.definitionNode, letEnv, commonAnalyzerData);
+            semanticAnalyzer.analyzeNode((BLangNode) letVariable.definitionNode, letEnv, true, commonAnalyzerData);
         }
         for (Name variable : letEnv.scope.entries.keySet()) {
             data.queryVariables.add(variable.value);
@@ -787,7 +783,7 @@ public class QueryTypeChecker extends TypeChecker {
                 checkExpr(groupingKey.variableRef, groupByClause.env, data);
                 variable = groupingKey.variableRef.variableName.value;
             } else {
-                semanticAnalyzer.analyzeNodeViaQuery(groupingKey.variableDef, groupByClause.env,
+                semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env, true,
                         data.commonAnalyzerData);
                 variable = groupingKey.variableDef.var.name.value;
             }
@@ -807,13 +803,6 @@ public class QueryTypeChecker extends TypeChecker {
     @Override
     public void visit(BLangGroupingKey node, TypeChecker.AnalyzerData data) {
 
-    }
-
-    @Override
-    public void visit(BLangDo doNode, TypeChecker.AnalyzerData data) {
-        if (doNode.onFailClause != null) {
-            doNode.onFailClause.accept(this, data);
-        }
     }
 
     @Override

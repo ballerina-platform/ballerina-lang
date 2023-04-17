@@ -1542,11 +1542,6 @@ function testGroupByWithDoClause() {
                 };
     assertEquality([false, true], res);
 
-    // input = [{name: "Saman", price1: 11, price2: 12}, 
-    //             {name: "Saman", price1: 13, price2: 14}, 
-    //             {name: "Kamal", price1: 25, price2: 16}, 
-    //             {name: "Kamal", price1: 27, price2: 18}, 
-    //             {name: "Saman", price1: 19, price2: 20}];
     int[] arr = [];
     _ = from var {name, price1, price2} in input
                 group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
@@ -1664,6 +1659,7 @@ function testGroupByWithDoClause() {
             };
     assertEquality([12, 16], arr);
 
+    // Check after https://github.com/ballerina-platform/ballerina-lang/issues/40216
     // Rec[] input = [{name: "Saman", price1: [11, 12]}, 
     //                 {name: "Saman", price1: [19, 20]}];
     // // int[] arr = [];
@@ -1691,6 +1687,22 @@ function testGroupByWithDoClause() {
                 arr.push(i);
             };
     assertEquality([3, 2], arr);
+
+    // Check after https://github.com/ballerina-platform/ballerina-lang/issues/40228
+    // _ = from var {name, price1, price2} in input
+            // group by name
+    //         do {
+    //             var obj = object {
+    //                 [int...] p1 = [price1];
+    //             };
+    //         }; 
+
+    // Check after https://github.com/ballerina-platform/ballerina-lang/issues/40229
+    // _ = from var {name, price1, price2} in input
+    //         group by name
+    //         do {
+    //             _ = let var p1 = [price1] in p1;
+    //         };   
 }
 
 function foo1() returns int[] {
