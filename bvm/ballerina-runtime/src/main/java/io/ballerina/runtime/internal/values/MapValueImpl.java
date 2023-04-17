@@ -162,7 +162,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     /**
      * Retrieve the value for the given key from map.
-     * A {@link BallerinaException} will be thrown if the key does not exists.
+     * A {@link BError} will be thrown if the key does not exists.
      *
      * @param key key used to get the value
      * @return value associated with the key
@@ -178,7 +178,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     /**
      * Retrieve the value for the given key from map. If the key does not exist, but there exists a filler value for
      * the expected type, a new value will be created and added and then returned.
-     * A {@link BallerinaException} will be thrown if the key does not exists and a filler value does not exist.
+     * A {@link BError} will be thrown if the key does not exists and a filler value does not exist.
      *
      * @param key key used to get the value
      * @return value associated with the key
