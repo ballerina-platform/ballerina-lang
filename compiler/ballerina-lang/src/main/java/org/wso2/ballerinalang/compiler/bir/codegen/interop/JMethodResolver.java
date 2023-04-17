@@ -324,10 +324,12 @@ class JMethodResolver {
             } else {
                 errorMsgPart = "no return type expected but found '" + returnType + "'";
             }
-            throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
+            throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH, "No such Java method '" +
+                    jMethodRequest.methodName + "' which throws checked exception found in class '" +
+                    jMethodRequest.declaringClass + "' or " +
                     "Incompatible ballerina return type for Java method '" + jMethodRequest.methodName + "' which " +
                             "throws 'java.lang.RuntimeException' found in class '" +
-                            jMethodRequest.declaringClass.getName() + "': " + errorMsgPart);
+                            jMethodRequest.declaringClass + "': " + errorMsgPart);
         }
     }
 

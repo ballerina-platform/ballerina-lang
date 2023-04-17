@@ -513,11 +513,13 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
-                        "'Incompatible ballerina return type for Java method " +
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
+                        "'acceptIntErrorUnionReturnWhichThrowsUncheckedException' which throws checked exception " +
+                        "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods' or " +
+                        "Incompatible ballerina return type for Java method " +
                         "'acceptIntErrorUnionReturnWhichThrowsUncheckedException' which throws " +
                         "'java.lang.RuntimeException' found in class " +
-                        "'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
                         "expected 'int', found '(int|error)''",
                 "method_sig_not_match16.bal", 19, 1);
     }
@@ -531,11 +533,13 @@ public class NegativeValidationTest {
         compileResult.getDiagnostics();
         Assert.assertEquals(compileResult.getDiagnostics().length, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
-                        "'Incompatible ballerina return type for Java method " +
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH 'No such Java method " +
+                        "'acceptIntErrorUnionReturnWhichThrowsUncheckedException' which throws checked exception " +
+                        "found in class 'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods' or " +
+                        "Incompatible ballerina return type for Java method " +
                         "'acceptIntErrorUnionReturnWhichThrowsUncheckedException' which throws " +
                         "'java.lang.RuntimeException' found in class " +
-                        "'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "'class org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
                         "no return type expected but found 'error''",
                 "method_sig_not_match17.bal", 19, 1);
     }
