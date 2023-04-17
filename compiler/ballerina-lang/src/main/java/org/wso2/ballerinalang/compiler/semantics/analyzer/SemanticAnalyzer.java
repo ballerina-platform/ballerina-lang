@@ -591,8 +591,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
 
     private boolean analyzeBlockStmtFollowingIfWithoutElse(BLangStatement currentStmt, BLangStatement prevStatement,
                                                            SymbolEnv currentEnv, AnalyzerData data) {
-        if (currentStmt.getKind() == NodeKind.BLOCK && prevStatement != null && prevStatement.getKind() == NodeKind.IF
-                && ((BLangIf) prevStatement).elseStmt == null && data.notCompletedNormally) {
+        if (prevStatement == null || prevStatement.getKind() != NodeKind.IF) {
+            return false;
+        }
+        if (currentStmt.getKind() == NodeKind.BLOCK && ((BLangIf) prevStatement).elseStmt == null
+                && data.notCompletedNormally) {
             BLangIf ifStmt = (BLangIf) prevStatement;
             data.notCompletedNormally =
                     ConditionResolver.checkConstCondition(types, symTable, ifStmt.expr) == symTable.trueType;
@@ -604,7 +607,34 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             data.prevEnvs.pop();
             return true;
         }
+        return analyzeBlockStmtFollowingIfWithReturn(currentStmt, (BLangIf) prevStatement, currentEnv, data);
+    }
+
+    private boolean analyzeBlockStmtFollowingIfWithReturn(BLangStatement currentStmt, BLangIf ifStmt,
+                                                           SymbolEnv currentEnv, AnalyzerData data) {
+        if (ifStmt.bodyReturns) {
+            // Explicitly add block env since it's required for resetting the types
+            data.prevEnvs.push(currentEnv);
+            // Types are narrowed following an `if` statement, if it returns.
+            data.env = narrowForReturningIf(ifStmt, currentStmt, currentEnv);
+            analyzeStmt(currentStmt, data);
+            data.prevEnvs.pop();
+            return true;
+        }
         return false;
+    }
+
+    private SymbolEnv narrowForReturningIf(BLangIf ifStmt, BLangStatement currentStmt, SymbolEnv currentEnv) {
+        if (!ifStmt.bodyReturns) {
+            return currentEnv;
+        }
+        // Types are narrowed following an `if` statement, if it returns.
+        SymbolEnv env = typeNarrower.evaluateFalsity(ifStmt.expr, currentStmt, currentEnv, false);
+        if (ifStmt.elseStmt != null && ifStmt.elseStmt.getKind() == NodeKind.IF) {
+            // Types are narrowed following an `else` statement, if it returns.
+            env = narrowForReturningIf((BLangIf) ifStmt.elseStmt, currentStmt, env);
+        }
+        return env;
     }
 
     @Override
@@ -2828,7 +2858,12 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         data.narrowedTypeInfo = new HashMap<>();
 
         data.env = ifEnv;
+        data.ifWithReturn = false;
         analyzeStmt(ifNode.body, data);
+        if (data.ifWithReturn) {
+            ifNode.bodyReturns = true;
+            data.ifWithReturn = false;
+        }
 
         if (ifNode.expr.narrowedTypeInfo == null || ifNode.expr.narrowedTypeInfo.isEmpty()) {
             ifNode.expr.narrowedTypeInfo = data.narrowedTypeInfo;
@@ -4230,6 +4265,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                                    data.prevEnvs, data.commonAnalyzerData);
         validateWorkerAnnAttachments(returnNode.expr, data);
         data.notCompletedNormally = true;
+        data.ifWithReturn = true;
     }
 
     void analyzeStmt(BLangStatement stmtNode, AnalyzerData data) {
@@ -5033,6 +5069,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         BType expType;
         Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
         boolean notCompletedNormally;
+        boolean ifWithReturn;
         boolean breakFound;
         Types.CommonAnalyzerData commonAnalyzerData = new Types.CommonAnalyzerData();
         Stack<SymbolEnv> prevEnvs = new Stack<>();

@@ -37,6 +37,8 @@ public class BLangIf extends BLangStatement implements IfNode {
     public BLangBlockStmt body;
     public BLangStatement elseStmt;
 
+    public boolean bodyReturns = false;
+
     public BLangIf() {
     }
 
