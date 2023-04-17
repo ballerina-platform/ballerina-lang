@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.util.Unifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -204,6 +205,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
  */
 public class JvmTerminatorGen {
 
+
+
     private MethodVisitor mv;
     private BIRVarToJVMIndexMap indexMap;
     private LabelGenerator labelGen;
@@ -218,6 +221,17 @@ public class JvmTerminatorGen {
     private JvmTypeGen jvmTypeGen;
     private JvmCastGen jvmCastGen;
     private AsyncDataCollector asyncDataCollector;
+    HashSet<String> skipMethods = new HashSet<>(Arrays.asList("ballerina/test/0/execute/executeDataDrivenTestSet",
+            "ballerina/test/0/execute/executeAfterGroupFunctions",
+            "ballerina/test/0/execute/executeTests",
+            "ballerina/http/2/auth_desugar/getResourceAuthConfig",
+            "ballerina/http/2/$value$LoadBalanceClient/performLoadBalanceAction",
+            "ballerina/http/2/$value$FailoverClient/performFailoverAction",
+            "ballerina/http/2/$value$CircuitBreakerClient/prepareRollingWindow",
+            "ballerina/http/2/$value$CircuitBreakerClient/getTotalRequestsCount",
+            "ballerina/http/2/$value$CircuitBreakerClient/getCurrentFailureRatio",
+            "ballerina/log/2/natives/printLogFmt",
+            "ballerina/io/1/print/fprintln"));
 
     public JvmTerminatorGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, LabelGenerator labelGen,
                             JvmErrorGen errorGen, PackageID packageID, JvmInstructionGen jvmInstructionGen,
@@ -403,14 +417,11 @@ public class JvmTerminatorGen {
                              int stateVarIndex, int loopVarIndex, Label loopLabel, String moduleClassName) {
         int currentBBNumber = currentBB.number;
         int gotoBBNumber = gotoIns.targetBB.number;
-        if (currentBBNumber <= gotoBBNumber) {
+        if (currentBBNumber <= gotoBBNumber || skipMethods.contains(moduleClassName + "/" + funcName)) {
             Label gotoLabel = this.labelGen.getLabel(funcName + gotoIns.targetBB.id.value);
             this.mv.visitJumpInsn(GOTO, gotoLabel);
             return;
         }
-        mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
-        mv.visitLdcInsn(moduleClassName + "/" + funcName);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
         this.mv.visitInsn(ICONST_1);
         this.mv.visitVarInsn(ISTORE, loopVarIndex);
         this.mv.visitIntInsn(SIPUSH, gotoBBNumber);
