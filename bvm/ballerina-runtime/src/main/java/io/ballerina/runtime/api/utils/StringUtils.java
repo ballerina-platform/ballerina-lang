@@ -46,11 +46,11 @@ import java.util.List;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
-import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.parseExpressionStringVal;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.STRING_OPERATION_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
@@ -208,7 +208,10 @@ public class StringUtils {
         try {
             return parseExpressionStringVal(value, null);
         } catch (BallerinaException e) {
-            throw createError(e);
+            throw ErrorCreator.createError(STRING_OPERATION_ERROR, StringUtils.fromString(e.getMessage()));
+        } catch (BError bError) {
+            throw ErrorCreator.createError(STRING_OPERATION_ERROR,
+                    StringUtils.fromString(bError.getErrorMessage().getValue()));
         }
     }
 
