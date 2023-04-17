@@ -4348,7 +4348,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             default:
                 // check attachExpr before returning a semantic error.
                 for (BLangExpression attachExpr : cIExpr.argsExpr) {
-                    checkExpr(attachExpr, symTable.nilType, data);
+                    BType bType = checkExpr(attachExpr, symTable.nilType, data);
+                    if (bType == symTable.semanticError) {
+                        return bType;
+                    }
                 }
 
                 dlog.error(cIExpr.pos, DiagnosticErrorCode.CANNOT_INFER_OBJECT_TYPE_FROM_LHS, actualType);
