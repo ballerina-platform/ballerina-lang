@@ -5,7 +5,7 @@ public function test() {
         "east" => {
             fail error("error!");
         }
-    } on fail error [err] {
+    } on fail error error err {
         io:println(err);
     }
 }

@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -45,6 +46,7 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
@@ -57,9 +59,11 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "TRANSACTION_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "TRANSACTION_KEYWORD",
@@ -111,6 +115,7 @@
                 },
                 {
                   "kind": "ON_FAIL_CLAUSE",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ON_KEYWORD",
@@ -132,6 +137,7 @@
                     },
                     {
                       "kind": "TYPED_BINDING_PATTERN",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "VAR_TYPE_DESC",
@@ -149,6 +155,7 @@
                         },
                         {
                           "kind": "ERROR_BINDING_PATTERN",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "ERROR_KEYWORD"
@@ -160,33 +167,15 @@
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "NAMED_ARG_BINDING_PATTERN",
+                                  "kind": "CAPTURE_BINDING_PATTERN",
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "message",
+                                      "value": "m",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
                                           "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "EQUAL_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CAPTURE_BINDING_PATTERN",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "m"
                                         }
                                       ]
                                     }
@@ -196,11 +185,10 @@
                             },
                             {
                               "kind": "CLOSE_PAREN_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_CLOSE_PAREN_TOKEN"
                               ]
                             }
                           ]
@@ -313,6 +301,7 @@
             },
             {
               "kind": "TRANSACTION_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "TRANSACTION_KEYWORD",
@@ -445,6 +434,7 @@
                 },
                 {
                   "kind": "ON_FAIL_CLAUSE",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ON_KEYWORD",
@@ -466,6 +456,7 @@
                     },
                     {
                       "kind": "TYPED_BINDING_PATTERN",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "VAR_TYPE_DESC",
@@ -483,6 +474,7 @@
                         },
                         {
                           "kind": "ERROR_BINDING_PATTERN",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "ERROR_KEYWORD"
@@ -494,33 +486,15 @@
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "NAMED_ARG_BINDING_PATTERN",
+                                  "kind": "CAPTURE_BINDING_PATTERN",
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "message",
+                                      "value": "m",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
                                           "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "EQUAL_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CAPTURE_BINDING_PATTERN",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "m"
                                         }
                                       ]
                                     }
@@ -530,11 +504,10 @@
                             },
                             {
                               "kind": "CLOSE_PAREN_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_CLOSE_PAREN_TOKEN"
                               ]
                             }
                           ]
@@ -647,6 +620,7 @@
             },
             {
               "kind": "TRANSACTION_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "TRANSACTION_KEYWORD",
@@ -863,6 +837,7 @@
                 },
                 {
                   "kind": "ON_FAIL_CLAUSE",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ON_KEYWORD",
@@ -884,6 +859,7 @@
                     },
                     {
                       "kind": "TYPED_BINDING_PATTERN",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "VAR_TYPE_DESC",
@@ -901,6 +877,7 @@
                         },
                         {
                           "kind": "ERROR_BINDING_PATTERN",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "ERROR_KEYWORD"
@@ -912,33 +889,15 @@
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "NAMED_ARG_BINDING_PATTERN",
+                                  "kind": "CAPTURE_BINDING_PATTERN",
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "message",
+                                      "value": "m",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
                                           "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "EQUAL_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CAPTURE_BINDING_PATTERN",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "m"
                                         }
                                       ]
                                     }
@@ -948,11 +907,10 @@
                             },
                             {
                               "kind": "CLOSE_PAREN_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_CLOSE_PAREN_TOKEN"
                               ]
                             }
                           ]
@@ -1065,6 +1023,7 @@
             },
             {
               "kind": "TRANSACTION_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "TRANSACTION_KEYWORD",
@@ -1087,6 +1046,7 @@
                 },
                 {
                   "kind": "BLOCK_STATEMENT",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "OPEN_BRACE_TOKEN",
@@ -1099,9 +1059,11 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "TRANSACTION_STATEMENT",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "TRANSACTION_KEYWORD",
@@ -1120,6 +1082,7 @@
                             },
                             {
                               "kind": "BLOCK_STATEMENT",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "OPEN_BRACE_TOKEN",
@@ -1132,9 +1095,11 @@
                                 },
                                 {
                                   "kind": "LIST",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "TRANSACTION_STATEMENT",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "TRANSACTION_KEYWORD",
@@ -1239,6 +1204,7 @@
                                         },
                                         {
                                           "kind": "ON_FAIL_CLAUSE",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "ON_KEYWORD",
@@ -1260,6 +1226,7 @@
                                             },
                                             {
                                               "kind": "TYPED_BINDING_PATTERN",
+                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
                                                   "kind": "VAR_TYPE_DESC",
@@ -1277,6 +1244,7 @@
                                                 },
                                                 {
                                                   "kind": "ERROR_BINDING_PATTERN",
+                                                  "hasDiagnostics": true,
                                                   "children": [
                                                     {
                                                       "kind": "ERROR_KEYWORD"
@@ -1288,33 +1256,15 @@
                                                       "kind": "LIST",
                                                       "children": [
                                                         {
-                                                          "kind": "NAMED_ARG_BINDING_PATTERN",
+                                                          "kind": "CAPTURE_BINDING_PATTERN",
                                                           "children": [
                                                             {
                                                               "kind": "IDENTIFIER_TOKEN",
-                                                              "value": "message",
+                                                              "value": "m",
                                                               "trailingMinutiae": [
                                                                 {
                                                                   "kind": "WHITESPACE_MINUTIAE",
                                                                   "value": " "
-                                                                }
-                                                              ]
-                                                            },
-                                                            {
-                                                              "kind": "EQUAL_TOKEN",
-                                                              "trailingMinutiae": [
-                                                                {
-                                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                                  "value": " "
-                                                                }
-                                                              ]
-                                                            },
-                                                            {
-                                                              "kind": "CAPTURE_BINDING_PATTERN",
-                                                              "children": [
-                                                                {
-                                                                  "kind": "IDENTIFIER_TOKEN",
-                                                                  "value": "m"
                                                                 }
                                                               ]
                                                             }
@@ -1324,11 +1274,10 @@
                                                     },
                                                     {
                                                       "kind": "CLOSE_PAREN_TOKEN",
-                                                      "trailingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": " "
-                                                        }
+                                                      "isMissing": true,
+                                                      "hasDiagnostics": true,
+                                                      "diagnostics": [
+                                                        "ERROR_MISSING_CLOSE_PAREN_TOKEN"
                                                       ]
                                                     }
                                                   ]
@@ -1481,6 +1430,7 @@
                 },
                 {
                   "kind": "ON_FAIL_CLAUSE",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ON_KEYWORD",
@@ -1502,6 +1452,7 @@
                     },
                     {
                       "kind": "TYPED_BINDING_PATTERN",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "VAR_TYPE_DESC",
@@ -1519,6 +1470,7 @@
                         },
                         {
                           "kind": "ERROR_BINDING_PATTERN",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "ERROR_KEYWORD"
@@ -1530,33 +1482,15 @@
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "NAMED_ARG_BINDING_PATTERN",
+                                  "kind": "CAPTURE_BINDING_PATTERN",
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
-                                      "value": "message",
+                                      "value": "m",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
                                           "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "EQUAL_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CAPTURE_BINDING_PATTERN",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "m"
                                         }
                                       ]
                                     }
@@ -1566,11 +1500,10 @@
                             },
                             {
                               "kind": "CLOSE_PAREN_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_CLOSE_PAREN_TOKEN"
                               ]
                             }
                           ]

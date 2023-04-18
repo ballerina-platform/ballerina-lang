@@ -94,22 +94,22 @@ public class ForEachStatementTest extends AbstractStatementTest {
 
     @Test
     public void testForEachWithOnFailClauseHavingErrorBPWithVar() {
-        testFile("forEach-stmt/forEach_stmt_source_27", "forEach-stmt/forEach_stmt_assert_27.json");
+        testFile("forEach-stmt/forEach_stmt_source_27.bal", "forEach-stmt/forEach_stmt_assert_27.json");
     }
 
     @Test
     public void testForEachWithOnFailClauseHavingErrorBPWithType() {
-        testFile("forEach-stmt/forEach_stmt_source_28", "forEach-stmt/forEach_stmt_assert_28.json");
+        testFile("forEach-stmt/forEach_stmt_source_28.bal", "forEach-stmt/forEach_stmt_assert_28.json");
     }
 
     @Test
     public void testForEachWithOnFailClauseHavingErrorBPWithUserDefinedError() {
-        testFile("forEach-stmt/forEach_stmt_source_29", "forEach-stmt/forEach_stmt_assert_29.json");
+        testFile("forEach-stmt/forEach_stmt_source_29.bal", "forEach-stmt/forEach_stmt_assert_29.json");
     }
 
     @Test
     public void testForEachWithOnFailClauseHavingErrorBPWithUserDefinedErrorWithVar() {
-        testFile("forEach-stmt/forEach_stmt_source_30", "forEach-stmt/forEach_stmt_assert_30.json");
+        testFile("forEach-stmt/forEach_stmt_source_30.bal", "forEach-stmt/forEach_stmt_assert_30.json");
     }
 
     // Recovery tests

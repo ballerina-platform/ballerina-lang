@@ -13845,7 +13845,7 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         STNode typedBindingPattern = STNodeFactory.createEmptyNode();
         if (token.kind != SyntaxKind.OPEN_BRACE_TOKEN) {
-            typedBindingPattern = addTypedBp();
+            typedBindingPattern = parseTypedBindingPattern();
         }
         STNode blockStatement = parseBlockNode();
         endContext();
@@ -13853,17 +13853,11 @@ public class BallerinaParser extends AbstractParser {
                 blockStatement);
     }
 
-    private STNode addTypedBp() {
+    private STNode parseTypedBindingPattern() {
         STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
                 true, false, TypePrecedence.DEFAULT);
-        STToken token = peek();
-        if (token.kind == SyntaxKind.ERROR_KEYWORD) {
-            STNode errorBP = parseErrorBindingPattern();
-            return STNodeFactory.createTypedBindingPatternNode(typeDescriptor, errorBP);
-        }
-        STNode captureBP =
-                STNodeFactory.createCaptureBindingPatternNode(parseIdentifier(ParserRuleContext.VARIABLE_NAME));
-        return STNodeFactory.createTypedBindingPatternNode(typeDescriptor, captureBP);
+        STNode bindingPattern = parseBindingPattern();
+        return STNodeFactory.createTypedBindingPatternNode(typeDescriptor, bindingPattern);
     }
 
     /**

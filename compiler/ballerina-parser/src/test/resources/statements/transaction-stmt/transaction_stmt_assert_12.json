@@ -154,15 +154,41 @@
                           ]
                         },
                         {
-                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "kind": "ERROR_BINDING_PATTERN",
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
+                              "kind": "ERROR_KEYWORD",
                               "isMissing": true,
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
+                                "ERROR_MISSING_ERROR_KEYWORD"
+                              ]
+                            },
+                            {
+                              "kind": "OPEN_PAREN_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "m"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CLOSE_PAREN_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
                               ]
                             }
                           ]
@@ -171,170 +197,71 @@
                     },
                     {
                       "kind": "BLOCK_STATEMENT",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_BRACE_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_OPEN_BRACE_TOKEN"
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
                           ]
                         },
                         {
                           "kind": "LIST",
-                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "LOCAL_VAR_DECL",
-                              "hasDiagnostics": true,
+                              "kind": "CALL_STATEMENT",
                               "children": [
                                 {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "TYPED_BINDING_PATTERN",
-                                  "hasDiagnostics": true,
+                                  "kind": "FUNCTION_CALL",
                                   "children": [
                                     {
-                                      "kind": "PARENTHESISED_TYPE_DESC",
+                                      "kind": "QUALIFIED_NAME_REFERENCE",
                                       "children": [
                                         {
-                                          "kind": "OPEN_PAREN_TOKEN"
-                                        },
-                                        {
-                                          "kind": "SIMPLE_NAME_REFERENCE",
-                                          "children": [
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "io",
+                                          "leadingMinutiae": [
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "m"
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "        "
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_PAREN_TOKEN",
-                                          "trailingMinutiae": [
+                                          "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "println"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "OPEN_PAREN_TOKEN"
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "POSITIONAL_ARG",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "m"
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "MAPPING_BINDING_PATTERN",
-                                      "hasDiagnostics": true,
-                                      "children": [
-                                        {
-                                          "kind": "OPEN_BRACE_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "END_OF_LINE_MINUTIAE",
-                                              "value": "\n"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "LIST",
-                                          "hasDiagnostics": true,
-                                          "children": [
-                                            {
-                                              "kind": "FIELD_BINDING_PATTERN",
-                                              "hasDiagnostics": true,
-                                              "children": [
-                                                {
-                                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                                  "children": [
-                                                    {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "io",
-                                                      "leadingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": "        "
-                                                        }
-                                                      ]
-                                                    }
-                                                  ]
-                                                },
-                                                {
-                                                  "kind": "COLON_TOKEN"
-                                                },
-                                                {
-                                                  "kind": "ERROR_BINDING_PATTERN",
-                                                  "hasDiagnostics": true,
-                                                  "children": [
-                                                    {
-                                                      "kind": "ERROR_KEYWORD",
-                                                      "isMissing": true,
-                                                      "hasDiagnostics": true,
-                                                      "diagnostics": [
-                                                        "ERROR_MISSING_ERROR_KEYWORD"
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                      "children": [
-                                                        {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "println"
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "OPEN_PAREN_TOKEN"
-                                                    },
-                                                    {
-                                                      "kind": "LIST",
-                                                      "children": [
-                                                        {
-                                                          "kind": "CAPTURE_BINDING_PATTERN",
-                                                          "children": [
-                                                            {
-                                                              "kind": "IDENTIFIER_TOKEN",
-                                                              "value": "m"
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "CLOSE_PAREN_TOKEN"
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACE_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "EQUAL_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED"
-                                  ]
-                                },
-                                {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "isMissing": true
+                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
                                 },
@@ -546,15 +473,41 @@
                           ]
                         },
                         {
-                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "kind": "ERROR_BINDING_PATTERN",
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
+                              "kind": "ERROR_KEYWORD",
                               "isMissing": true,
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
+                                "ERROR_MISSING_ERROR_KEYWORD"
+                              ]
+                            },
+                            {
+                              "kind": "OPEN_PAREN_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "m"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CLOSE_PAREN_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
                               ]
                             }
                           ]
@@ -563,170 +516,71 @@
                     },
                     {
                       "kind": "BLOCK_STATEMENT",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_BRACE_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_OPEN_BRACE_TOKEN"
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
                           ]
                         },
                         {
                           "kind": "LIST",
-                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "LOCAL_VAR_DECL",
-                              "hasDiagnostics": true,
+                              "kind": "CALL_STATEMENT",
                               "children": [
                                 {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "TYPED_BINDING_PATTERN",
-                                  "hasDiagnostics": true,
+                                  "kind": "FUNCTION_CALL",
                                   "children": [
                                     {
-                                      "kind": "PARENTHESISED_TYPE_DESC",
+                                      "kind": "QUALIFIED_NAME_REFERENCE",
                                       "children": [
                                         {
-                                          "kind": "OPEN_PAREN_TOKEN"
-                                        },
-                                        {
-                                          "kind": "SIMPLE_NAME_REFERENCE",
-                                          "children": [
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "io",
+                                          "leadingMinutiae": [
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "m"
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "        "
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_PAREN_TOKEN",
-                                          "trailingMinutiae": [
+                                          "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "println"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "OPEN_PAREN_TOKEN"
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "POSITIONAL_ARG",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "m"
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "MAPPING_BINDING_PATTERN",
-                                      "hasDiagnostics": true,
-                                      "children": [
-                                        {
-                                          "kind": "OPEN_BRACE_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "END_OF_LINE_MINUTIAE",
-                                              "value": "\n"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "LIST",
-                                          "hasDiagnostics": true,
-                                          "children": [
-                                            {
-                                              "kind": "FIELD_BINDING_PATTERN",
-                                              "hasDiagnostics": true,
-                                              "children": [
-                                                {
-                                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                                  "children": [
-                                                    {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "io",
-                                                      "leadingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": "        "
-                                                        }
-                                                      ]
-                                                    }
-                                                  ]
-                                                },
-                                                {
-                                                  "kind": "COLON_TOKEN"
-                                                },
-                                                {
-                                                  "kind": "ERROR_BINDING_PATTERN",
-                                                  "hasDiagnostics": true,
-                                                  "children": [
-                                                    {
-                                                      "kind": "ERROR_KEYWORD",
-                                                      "isMissing": true,
-                                                      "hasDiagnostics": true,
-                                                      "diagnostics": [
-                                                        "ERROR_MISSING_ERROR_KEYWORD"
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                      "children": [
-                                                        {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "println"
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "OPEN_PAREN_TOKEN"
-                                                    },
-                                                    {
-                                                      "kind": "LIST",
-                                                      "children": [
-                                                        {
-                                                          "kind": "CAPTURE_BINDING_PATTERN",
-                                                          "children": [
-                                                            {
-                                                              "kind": "IDENTIFIER_TOKEN",
-                                                              "value": "m"
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "CLOSE_PAREN_TOKEN"
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACE_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "EQUAL_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED"
-                                  ]
-                                },
-                                {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "isMissing": true
+                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
                                 },
@@ -1022,15 +876,41 @@
                           ]
                         },
                         {
-                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "kind": "ERROR_BINDING_PATTERN",
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
+                              "kind": "ERROR_KEYWORD",
                               "isMissing": true,
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
+                                "ERROR_MISSING_ERROR_KEYWORD"
+                              ]
+                            },
+                            {
+                              "kind": "OPEN_PAREN_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "m"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CLOSE_PAREN_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
                               ]
                             }
                           ]
@@ -1039,170 +919,71 @@
                     },
                     {
                       "kind": "BLOCK_STATEMENT",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_BRACE_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_OPEN_BRACE_TOKEN"
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
                           ]
                         },
                         {
                           "kind": "LIST",
-                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "LOCAL_VAR_DECL",
-                              "hasDiagnostics": true,
+                              "kind": "CALL_STATEMENT",
                               "children": [
                                 {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "TYPED_BINDING_PATTERN",
-                                  "hasDiagnostics": true,
+                                  "kind": "FUNCTION_CALL",
                                   "children": [
                                     {
-                                      "kind": "PARENTHESISED_TYPE_DESC",
+                                      "kind": "QUALIFIED_NAME_REFERENCE",
                                       "children": [
                                         {
-                                          "kind": "OPEN_PAREN_TOKEN"
-                                        },
-                                        {
-                                          "kind": "SIMPLE_NAME_REFERENCE",
-                                          "children": [
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "io",
+                                          "leadingMinutiae": [
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "m"
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "        "
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_PAREN_TOKEN",
-                                          "trailingMinutiae": [
+                                          "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "println"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "OPEN_PAREN_TOKEN"
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "POSITIONAL_ARG",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "m"
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "MAPPING_BINDING_PATTERN",
-                                      "hasDiagnostics": true,
-                                      "children": [
-                                        {
-                                          "kind": "OPEN_BRACE_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "END_OF_LINE_MINUTIAE",
-                                              "value": "\n"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "LIST",
-                                          "hasDiagnostics": true,
-                                          "children": [
-                                            {
-                                              "kind": "FIELD_BINDING_PATTERN",
-                                              "hasDiagnostics": true,
-                                              "children": [
-                                                {
-                                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                                  "children": [
-                                                    {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "io",
-                                                      "leadingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": "        "
-                                                        }
-                                                      ]
-                                                    }
-                                                  ]
-                                                },
-                                                {
-                                                  "kind": "COLON_TOKEN"
-                                                },
-                                                {
-                                                  "kind": "ERROR_BINDING_PATTERN",
-                                                  "hasDiagnostics": true,
-                                                  "children": [
-                                                    {
-                                                      "kind": "ERROR_KEYWORD",
-                                                      "isMissing": true,
-                                                      "hasDiagnostics": true,
-                                                      "diagnostics": [
-                                                        "ERROR_MISSING_ERROR_KEYWORD"
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                      "children": [
-                                                        {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "println"
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "OPEN_PAREN_TOKEN"
-                                                    },
-                                                    {
-                                                      "kind": "LIST",
-                                                      "children": [
-                                                        {
-                                                          "kind": "CAPTURE_BINDING_PATTERN",
-                                                          "children": [
-                                                            {
-                                                              "kind": "IDENTIFIER_TOKEN",
-                                                              "value": "m"
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "CLOSE_PAREN_TOKEN"
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACE_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "EQUAL_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED"
-                                  ]
-                                },
-                                {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "isMissing": true
+                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
                                 },
@@ -1462,15 +1243,41 @@
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                                  "kind": "ERROR_BINDING_PATTERN",
                                                   "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "kind": "ERROR_KEYWORD",
                                                       "isMissing": true,
                                                       "hasDiagnostics": true,
                                                       "diagnostics": [
-                                                        "ERROR_MISSING_IDENTIFIER"
+                                                        "ERROR_MISSING_ERROR_KEYWORD"
+                                                      ]
+                                                    },
+                                                    {
+                                                      "kind": "OPEN_PAREN_TOKEN"
+                                                    },
+                                                    {
+                                                      "kind": "LIST",
+                                                      "children": [
+                                                        {
+                                                          "kind": "CAPTURE_BINDING_PATTERN",
+                                                          "children": [
+                                                            {
+                                                              "kind": "IDENTIFIER_TOKEN",
+                                                              "value": "m"
+                                                            }
+                                                          ]
+                                                        }
+                                                      ]
+                                                    },
+                                                    {
+                                                      "kind": "CLOSE_PAREN_TOKEN",
+                                                      "trailingMinutiae": [
+                                                        {
+                                                          "kind": "WHITESPACE_MINUTIAE",
+                                                          "value": " "
+                                                        }
                                                       ]
                                                     }
                                                   ]
@@ -1479,170 +1286,71 @@
                                             },
                                             {
                                               "kind": "BLOCK_STATEMENT",
-                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
                                                   "kind": "OPEN_BRACE_TOKEN",
-                                                  "isMissing": true,
-                                                  "hasDiagnostics": true,
-                                                  "diagnostics": [
-                                                    "ERROR_MISSING_OPEN_BRACE_TOKEN"
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "END_OF_LINE_MINUTIAE",
+                                                      "value": "\n"
+                                                    }
                                                   ]
                                                 },
                                                 {
                                                   "kind": "LIST",
-                                                  "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "LOCAL_VAR_DECL",
-                                                      "hasDiagnostics": true,
+                                                      "kind": "CALL_STATEMENT",
                                                       "children": [
                                                         {
-                                                          "kind": "LIST",
-                                                          "children": []
-                                                        },
-                                                        {
-                                                          "kind": "TYPED_BINDING_PATTERN",
-                                                          "hasDiagnostics": true,
+                                                          "kind": "FUNCTION_CALL",
                                                           "children": [
                                                             {
-                                                              "kind": "PARENTHESISED_TYPE_DESC",
+                                                              "kind": "QUALIFIED_NAME_REFERENCE",
                                                               "children": [
                                                                 {
-                                                                  "kind": "OPEN_PAREN_TOKEN"
-                                                                },
-                                                                {
-                                                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                                                  "children": [
+                                                                  "kind": "IDENTIFIER_TOKEN",
+                                                                  "value": "io",
+                                                                  "leadingMinutiae": [
                                                                     {
-                                                                      "kind": "IDENTIFIER_TOKEN",
-                                                                      "value": "m"
+                                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                                      "value": "                "
                                                                     }
                                                                   ]
                                                                 },
                                                                 {
-                                                                  "kind": "CLOSE_PAREN_TOKEN",
-                                                                  "trailingMinutiae": [
+                                                                  "kind": "COLON_TOKEN"
+                                                                },
+                                                                {
+                                                                  "kind": "IDENTIFIER_TOKEN",
+                                                                  "value": "println"
+                                                                }
+                                                              ]
+                                                            },
+                                                            {
+                                                              "kind": "OPEN_PAREN_TOKEN"
+                                                            },
+                                                            {
+                                                              "kind": "LIST",
+                                                              "children": [
+                                                                {
+                                                                  "kind": "POSITIONAL_ARG",
+                                                                  "children": [
                                                                     {
-                                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                                      "value": " "
+                                                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                                                      "children": [
+                                                                        {
+                                                                          "kind": "IDENTIFIER_TOKEN",
+                                                                          "value": "m"
+                                                                        }
+                                                                      ]
                                                                     }
                                                                   ]
                                                                 }
                                                               ]
                                                             },
                                                             {
-                                                              "kind": "MAPPING_BINDING_PATTERN",
-                                                              "hasDiagnostics": true,
-                                                              "children": [
-                                                                {
-                                                                  "kind": "OPEN_BRACE_TOKEN",
-                                                                  "trailingMinutiae": [
-                                                                    {
-                                                                      "kind": "END_OF_LINE_MINUTIAE",
-                                                                      "value": "\n"
-                                                                    }
-                                                                  ]
-                                                                },
-                                                                {
-                                                                  "kind": "LIST",
-                                                                  "hasDiagnostics": true,
-                                                                  "children": [
-                                                                    {
-                                                                      "kind": "FIELD_BINDING_PATTERN",
-                                                                      "hasDiagnostics": true,
-                                                                      "children": [
-                                                                        {
-                                                                          "kind": "SIMPLE_NAME_REFERENCE",
-                                                                          "children": [
-                                                                            {
-                                                                              "kind": "IDENTIFIER_TOKEN",
-                                                                              "value": "io",
-                                                                              "leadingMinutiae": [
-                                                                                {
-                                                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                                                  "value": "                "
-                                                                                }
-                                                                              ]
-                                                                            }
-                                                                          ]
-                                                                        },
-                                                                        {
-                                                                          "kind": "COLON_TOKEN"
-                                                                        },
-                                                                        {
-                                                                          "kind": "ERROR_BINDING_PATTERN",
-                                                                          "hasDiagnostics": true,
-                                                                          "children": [
-                                                                            {
-                                                                              "kind": "ERROR_KEYWORD",
-                                                                              "isMissing": true,
-                                                                              "hasDiagnostics": true,
-                                                                              "diagnostics": [
-                                                                                "ERROR_MISSING_ERROR_KEYWORD"
-                                                                              ]
-                                                                            },
-                                                                            {
-                                                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                                                              "children": [
-                                                                                {
-                                                                                  "kind": "IDENTIFIER_TOKEN",
-                                                                                  "value": "println"
-                                                                                }
-                                                                              ]
-                                                                            },
-                                                                            {
-                                                                              "kind": "OPEN_PAREN_TOKEN"
-                                                                            },
-                                                                            {
-                                                                              "kind": "LIST",
-                                                                              "children": [
-                                                                                {
-                                                                                  "kind": "CAPTURE_BINDING_PATTERN",
-                                                                                  "children": [
-                                                                                    {
-                                                                                      "kind": "IDENTIFIER_TOKEN",
-                                                                                      "value": "m"
-                                                                                    }
-                                                                                  ]
-                                                                                }
-                                                                              ]
-                                                                            },
-                                                                            {
-                                                                              "kind": "CLOSE_PAREN_TOKEN"
-                                                                            }
-                                                                          ]
-                                                                        }
-                                                                      ]
-                                                                    }
-                                                                  ]
-                                                                },
-                                                                {
-                                                                  "kind": "CLOSE_BRACE_TOKEN",
-                                                                  "isMissing": true,
-                                                                  "hasDiagnostics": true,
-                                                                  "diagnostics": [
-                                                                    "ERROR_MISSING_CLOSE_BRACE_TOKEN"
-                                                                  ]
-                                                                }
-                                                              ]
-                                                            }
-                                                          ]
-                                                        },
-                                                        {
-                                                          "kind": "EQUAL_TOKEN",
-                                                          "isMissing": true,
-                                                          "hasDiagnostics": true,
-                                                          "diagnostics": [
-                                                            "ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED"
-                                                          ]
-                                                        },
-                                                        {
-                                                          "kind": "SIMPLE_NAME_REFERENCE",
-                                                          "children": [
-                                                            {
-                                                              "kind": "IDENTIFIER_TOKEN",
-                                                              "isMissing": true
+                                                              "kind": "CLOSE_PAREN_TOKEN"
                                                             }
                                                           ]
                                                         },
@@ -1761,15 +1469,41 @@
                           ]
                         },
                         {
-                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "kind": "ERROR_BINDING_PATTERN",
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
+                              "kind": "ERROR_KEYWORD",
                               "isMissing": true,
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
+                                "ERROR_MISSING_ERROR_KEYWORD"
+                              ]
+                            },
+                            {
+                              "kind": "OPEN_PAREN_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "CAPTURE_BINDING_PATTERN",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "m"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CLOSE_PAREN_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
                               ]
                             }
                           ]
@@ -1778,170 +1512,71 @@
                     },
                     {
                       "kind": "BLOCK_STATEMENT",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_BRACE_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_OPEN_BRACE_TOKEN"
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
                           ]
                         },
                         {
                           "kind": "LIST",
-                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "LOCAL_VAR_DECL",
-                              "hasDiagnostics": true,
+                              "kind": "CALL_STATEMENT",
                               "children": [
                                 {
-                                  "kind": "LIST",
-                                  "children": []
-                                },
-                                {
-                                  "kind": "TYPED_BINDING_PATTERN",
-                                  "hasDiagnostics": true,
+                                  "kind": "FUNCTION_CALL",
                                   "children": [
                                     {
-                                      "kind": "PARENTHESISED_TYPE_DESC",
+                                      "kind": "QUALIFIED_NAME_REFERENCE",
                                       "children": [
                                         {
-                                          "kind": "OPEN_PAREN_TOKEN"
-                                        },
-                                        {
-                                          "kind": "SIMPLE_NAME_REFERENCE",
-                                          "children": [
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "io",
+                                          "leadingMinutiae": [
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "m"
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "        "
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_PAREN_TOKEN",
-                                          "trailingMinutiae": [
+                                          "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "println"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "OPEN_PAREN_TOKEN"
+                                    },
+                                    {
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "POSITIONAL_ARG",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "m"
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "MAPPING_BINDING_PATTERN",
-                                      "hasDiagnostics": true,
-                                      "children": [
-                                        {
-                                          "kind": "OPEN_BRACE_TOKEN",
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "END_OF_LINE_MINUTIAE",
-                                              "value": "\n"
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "LIST",
-                                          "hasDiagnostics": true,
-                                          "children": [
-                                            {
-                                              "kind": "FIELD_BINDING_PATTERN",
-                                              "hasDiagnostics": true,
-                                              "children": [
-                                                {
-                                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                                  "children": [
-                                                    {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "io",
-                                                      "leadingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": "        "
-                                                        }
-                                                      ]
-                                                    }
-                                                  ]
-                                                },
-                                                {
-                                                  "kind": "COLON_TOKEN"
-                                                },
-                                                {
-                                                  "kind": "ERROR_BINDING_PATTERN",
-                                                  "hasDiagnostics": true,
-                                                  "children": [
-                                                    {
-                                                      "kind": "ERROR_KEYWORD",
-                                                      "isMissing": true,
-                                                      "hasDiagnostics": true,
-                                                      "diagnostics": [
-                                                        "ERROR_MISSING_ERROR_KEYWORD"
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                      "children": [
-                                                        {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "println"
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "OPEN_PAREN_TOKEN"
-                                                    },
-                                                    {
-                                                      "kind": "LIST",
-                                                      "children": [
-                                                        {
-                                                          "kind": "CAPTURE_BINDING_PATTERN",
-                                                          "children": [
-                                                            {
-                                                              "kind": "IDENTIFIER_TOKEN",
-                                                              "value": "m"
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "CLOSE_PAREN_TOKEN"
-                                                    }
-                                                  ]
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "CLOSE_BRACE_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "EQUAL_TOKEN",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_VARIABLE_DECL_HAVING_BP_MUST_BE_INITIALIZED"
-                                  ]
-                                },
-                                {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "isMissing": true
+                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
                                 },

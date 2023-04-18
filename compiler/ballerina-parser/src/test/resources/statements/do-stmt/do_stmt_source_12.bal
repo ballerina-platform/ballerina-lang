@@ -1,10 +1,3 @@
-type SampleErrorData record {|
-    int userCode;
-    string userReason;
-|};
-
-type SampleError error<SampleErrorData>;
-
 public function test() {
     do {
         SampleError err = error("Transaction Failure", error("Database Error"), userCode = 20,
