@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
@@ -207,6 +208,18 @@ public class InstanceMethods {
 
     public BString getCurrentModuleAndOverloadParams(Environment env, InstanceMethods instanceMethods, long b) {
         return instanceMethods.getCurrentModule(env, b * 4);
+    }
+
+    public void balEnvAcceptingMethod(Environment env) {
+        Future balFuture = env.markAsync();
+        BString output = StringUtils.fromString("Hello World!");
+        balFuture.complete(output);
+    }
+
+    public void balEnvAcceptingMethodTwo(Environment env) {
+        Future balFuture = env.markAsync();
+        long output = 7;
+        balFuture.complete(output);
     }
 
 }

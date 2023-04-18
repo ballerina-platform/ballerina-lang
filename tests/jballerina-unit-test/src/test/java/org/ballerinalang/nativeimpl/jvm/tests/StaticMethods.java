@@ -788,4 +788,16 @@ public class StaticMethods {
     public static BString getResourceTwo(Environment env, BObject client, BTypedesc recordType) {
         return StringUtils.fromString("getResourceTwo");
     }
+
+    public static void balEnvAcceptingMethod(Environment env) {
+        Future balFuture = env.markAsync();
+        BString output = StringUtils.fromString("Hello World!");
+        balFuture.complete(output);
+    }
+
+    public static void balEnvAcceptingMethodTwo(Environment env) {
+        Future balFuture = env.markAsync();
+        long output = 7;
+        balFuture.complete(output);
+    }
 }

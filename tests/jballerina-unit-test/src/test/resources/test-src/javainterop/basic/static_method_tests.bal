@@ -390,3 +390,41 @@ function defaultDecimalArgsAddition(decimal a, decimal b = 10.05) returns (decim
 function defaultDecimalArgs(handle s, decimal d = -1) returns (anydata) = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
+
+function greetings() returns string = @java:Method {
+    name: "balEnvAcceptingMethod",
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+public client isolated class Client {
+    resource function get getResourceOne() returns string = @java:Method {
+        name: "balEnvAcceptingMethod",
+        'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    } external;
+
+    resource function get getResourceTwo() returns anydata = @java:Method {
+        name: "balEnvAcceptingMethod",
+        'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    } external;
+
+    resource function get getResourceThree() returns anydata = @java:Method {
+        name: "balEnvAcceptingMethodTwo",
+        'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    } external;
+}
+
+public function testBalEnvAcceptingMethodRetType() {
+
+    string stringResult = greetings();
+    test:assertEquals(stringResult, "Hello World!");
+
+    Client clientResult = new Client();
+    stringResult = clientResult->/getResourceOne();
+    test:assertEquals(stringResult, "Hello World!");
+
+    anydata anydataResult = clientResult->/getResourceTwo();
+    test:assertEquals(anydataResult, "Hello World!");
+
+    anydataResult = clientResult->/getResourceThree();
+    test:assertEquals(anydataResult, 7);
+}

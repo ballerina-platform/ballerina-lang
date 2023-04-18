@@ -238,6 +238,27 @@ function newByte(int val) returns handle = @java:Constructor {
    'class: "java.lang.Byte"
 } external;
 
+function greetings(handle receiver) returns string = @java:Method {
+    name: "balEnvAcceptingMethod",
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+function getFutureResult(handle receiver) returns int = @java:Method {
+    name: "balEnvAcceptingMethodTwo",
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+public function testBalEnvAcceptingMethodRetType(handle receiver) {
+    string stringResult = greetings(receiver);
+    test:assertEquals(stringResult, "Hello World!");
+
+    anydata anydataResult = greetings(receiver);
+    test:assertEquals(anydataResult, "Hello World!");
+
+    anydataResult = getFutureResult(receiver);
+    test:assertEquals(anydataResult, 7);
+}
+
 function assertEquals(anydata|error expected, anydata|error actual) {
     if isEqual(actual, expected) {
         return;
