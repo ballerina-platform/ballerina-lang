@@ -221,7 +221,6 @@ public class JvmTerminatorGen {
     private JvmTypeGen jvmTypeGen;
     private JvmCastGen jvmCastGen;
     private AsyncDataCollector asyncDataCollector;
-    HashSet<String> skipMethods = new HashSet<>();
 
     public JvmTerminatorGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, LabelGenerator labelGen,
                             JvmErrorGen errorGen, PackageID packageID, JvmInstructionGen jvmInstructionGen,
@@ -407,16 +406,16 @@ public class JvmTerminatorGen {
                              int stateVarIndex, int loopVarIndex, Label loopLabel, String moduleClassName) {
         int currentBBNumber = currentBB.number;
         int gotoBBNumber = gotoIns.targetBB.number;
-        if (currentBBNumber <= gotoBBNumber || skipMethods.contains(moduleClassName + "/" + funcName)) {
+//        if (currentBBNumber <= gotoBBNumber) {
             Label gotoLabel = this.labelGen.getLabel(funcName + gotoIns.targetBB.id.value);
             this.mv.visitJumpInsn(GOTO, gotoLabel);
-            return;
-        }
-        this.mv.visitInsn(ICONST_1);
-        this.mv.visitVarInsn(ISTORE, loopVarIndex);
-        this.mv.visitIntInsn(SIPUSH, gotoBBNumber);
-        this.mv.visitVarInsn(ISTORE, stateVarIndex);
-        this.mv.visitJumpInsn(GOTO, loopLabel);
+//            return;
+//        }
+//        this.mv.visitInsn(ICONST_1);
+//        this.mv.visitVarInsn(ISTORE, loopVarIndex);
+//        this.mv.visitIntInsn(SIPUSH, gotoBBNumber);
+//        this.mv.visitVarInsn(ISTORE, stateVarIndex);
+//        this.mv.visitJumpInsn(GOTO, loopLabel);
     }
 
     private void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset, int yieldLocationVarIndex,
