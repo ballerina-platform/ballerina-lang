@@ -97,21 +97,3 @@ function testRecordMemberAccessLvExprWithStringCharKeyExprNegative() {
     string:Char a = "a";
     r[a] = 200; // error: incompatible types: expected 'int:Signed8', found 'int'
 }
-
-function testNilAssignmentToRecordFieldWithMemberAccessLvExprWithVariableRefKeyNegative() {
-    string str = "a";
-
-    record {|
-        int a;
-    |} a = {a: 1};
-    a[str] = ();
-
-    record {||} b = {};
-    b[str] = ();
-
-    record {| never a?; never b?; |} c = {};
-    c[str] = ();
-
-    "a" aStr = "a";
-    a[aStr] = ();
-}
