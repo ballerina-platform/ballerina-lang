@@ -30,8 +30,12 @@ public class CommonUtils {
 
     public static String replaceVaryingString(String firstString, String endString, String content) {
         String modifiedContent = content;
-        int firstPos = modifiedContent.indexOf(firstString) + firstString.length();
-        int lastPos = modifiedContent.indexOf(endString, firstPos);
+        int firstPos = modifiedContent.indexOf(firstString);
+        int lastPos = -1;
+        if (firstPos >= 0) {
+            firstPos = firstPos + firstString.length();
+            lastPos = modifiedContent.indexOf(endString, firstPos);
+        }
         while (firstPos != -1) {
             modifiedContent = modifiedContent.substring(0, firstPos) + "*****" + modifiedContent.substring(lastPos);
             firstPos = modifiedContent.indexOf(firstString, firstPos);

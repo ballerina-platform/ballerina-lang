@@ -173,7 +173,7 @@ public class MockTest extends BaseTestCase {
         String output =
                 balClient.runMainAndReadStdOut("test", args, new HashMap<>(),
                         projectBasedTestsPath.resolve("object-mocking-tests").toString(), false);
-        String firstString = "Generating Test Report\n\t";
+        String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
 
