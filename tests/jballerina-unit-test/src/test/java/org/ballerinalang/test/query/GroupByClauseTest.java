@@ -123,7 +123,31 @@ public class GroupByClauseTest {
                 "testGroupByExpressionWithTableOutput",
                 "testGroupByExpressionWithMapOutput",
 
-                "testGroupByWithDoClause"
+                "testGroupByWithDoClause",
+
+                "testGroupByExpressionAndSelectWithNonGroupingKeys8",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys9",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys10",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys11",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys12",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys13",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys14",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys15",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys16",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys17",
+
+                "testGroupByVarDefsAndSelectWithNonGroupingKeys4",
+                "testGroupByVarDefsAndSelectWithNonGroupingKeys5",
+                "testGroupByVarDefsAndSelectWithNonGroupingKeys6",
+                "testGroupByVarDefsAndSelectWithNonGroupingKeys7",
+                "testGroupByVarDefsAndSelectWithNonGroupingKeys8",
+
+                "testGroupByVarDefsAndSelectWithNonGroupingKeysWhereClause1",
+                "testGroupByVarDefsAndSelectWithNonGroupingKeysWhereClause2",
+                "testGroupByVarDefsAndSelectWithNonGroupingKeysWhereClause3",
+
+                "testGroupByExpressionAndSelectWithNonGroupingKeys18",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys19"
         };
     }
 
