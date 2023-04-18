@@ -8,7 +8,6 @@ package io.ballerina.cli.cmd;
 //  5. Move OpenAPI to a separate gradle project and use
 
 import io.ballerina.cli.BLauncherCmd;
-import io.ballerina.cli.cmd.sub.SubToolCommand;
 import io.ballerina.cli.launcher.BallerinaCliCommands;
 import picocli.CommandLine;
 
@@ -37,7 +36,7 @@ class ToolCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--help", "-h", "?"}, usageHelp = true)
     private boolean helpFlag;
 
-    private final Map<String, SubToolCommand> subCommands = new HashMap<>();
+    private final Map<String, BLauncherCmd> subCommands = new HashMap<>();
 
 
     private CommandLine parentCmdParser;
@@ -61,12 +60,13 @@ class ToolCommand implements BLauncherCmd {
             System.out.println("Trying to pull tool: " + toolName);
 
             // TODO: Implement the pulling logic similar to bal pull. May be we can call pull command from here.
+            //  The tool org name and version are hardcoded for now
 
-            CommandUtil.addSubCommandsFromJarToCmdParser(toolName, this.parentCmdParser);
+            String jarPath = CommandUtil.getSubCommandJarPath(toolName, "ballerina", "1.0.0");
 
             // Save the path to the JAR file to a configuration file.
             try {
-                CommandUtil.saveJarFilePathToConfigFile(toolName);
+                CommandUtil.saveJarFilePathToConfigFile(toolName, jarPath);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
