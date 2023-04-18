@@ -74,6 +74,13 @@ set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%BALLERINA_HOME%\bre\lib\*
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%BALLERINA_HOME%\lib\tools\lang-server\lib\*
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%BALLERINA_HOME%\lib\tools\debug-adapter\lib\*
 
+set "SUB_TOOL_FILE=%BALLERINA_HOME%\sub-tools.properties"
+if exist "%SUB_TOOL_FILE%" (
+    for /f "tokens=1* delims==" %%a in (%SUB_TOOL_FILE%) do (
+        set "BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%%b"
+    )
+)
+
 set BALLERINA_CLI_HEIGHT=
 set BALLERINA_CLI_WIDTH=
 for /F "tokens=2 delims=:" %%a in ('mode con') do for %%b in (%%a) do (
