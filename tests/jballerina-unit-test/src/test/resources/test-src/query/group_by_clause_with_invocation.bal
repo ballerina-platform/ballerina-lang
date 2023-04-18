@@ -480,18 +480,116 @@ function testGroupByExpressionWithMapOutput() {
 // }
 
 function testGroupByWithDoClause() {
-    // var input = [{name: "Saman", price1: 11, price2: 12}, 
-    //                 {name: "Saman", price1: 13, price2: 14}, 
-    //                 {name: "Kamal", price1: 15, price2: 16}, 
-    //                 {name: "Kamal", price1: 17, price2: 18}, 
-    //                 {name: "Saman", price1: 19, price2: 20}];
-    // int[] res = []; 
+    var input = [{name: "Saman", price1: 11, price2: 12}, 
+                    {name: "Saman", price1: 13, price2: 14}, 
+                    {name: "Kamal", price1: 15, price2: 16}, 
+                    {name: "Kamal", price1: 17, price2: 18}, 
+                    {name: "Saman", price1: 19, price2: 20}];
+    int[] arr = []; 
+    _ = from var {name, price1, price2} in input
+            group by name
+            do {
+                arr.push(int:sum(price1) + int:sum(price2));
+            };
+    assertEquality([89, 66], arr);  
+
+    arr = [];
+    _ = from var {name, price1, price2} in input
+                group by name 
+                do {
+                    int x = min(100, price1);
+                    arr.push(x);
+                };
+    assertEquality([11, 15], arr);   
+
+    arr = [];
+    _ = from var {name, price1, price2} in input
+                group by name 
+                do {
+                    int x = sum(price1) + sum(price2);
+                    arr.push(x);
+                };
+    assertEquality([89, 66], arr);     
+
+    arr = [];
+    int x = 0;
+    _ = from var {name, price1, price2} in input
+                group by name 
+                do {
+                    x = sum(price1) + sum(price2);
+                    arr.push(x);
+                };
+    assertEquality([89, 66], arr); 
+
+// Check after https://github.com/ballerina-platform/ballerina-lang/issues/40181
+//     input = [{name: "Saman", price1: 11, price2: 12}, 
+//                 {name: "Saman", price1: 13, price2: 14}, 
+//                 {name: "Kamal", price1: 15, price2: 16}, 
+//                 {name: "Kamal", price1: 17, price2: 18}, 
+//                 {name: "Saman", price1: 19, price2: 20}];
+//     int[] prices = [];
+//     _ = from var {name, price1, price2} in input
+//                 group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
+//                 do {
+//                     foreach int p in 0...sum(price1) {
+//                         prices.push(p);
+//                     }
+//                 };
+//     assertEquality([11, 13, 15, 17, 19], prices); 
+
+    arr = [];
+    _ = from var {name, price1, price2} in input
+                group by name 
+                do {
+                    arr.push(int:sum(sum(price1), sum(price2)));
+                };
+    assertEquality([89, 66], arr); 
+    
+    // Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/40200
     // _ = from var {name, price1, price2} in input
     //         group by name 
     //         do {
-    //             res.push(int:sum(price1) + int:sum(price2));
+    //             match max(price1) {
+    //                 var a => {
+    //                     io:println("a");
+    //                 }
+    //             }
     //         };
-    // assertEquality([69, 4], res);       
+
+    arr = [];
+    _ = from var {name, price1, price2} in input
+            group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
+            do {
+                record {| int prices; |} r = {prices: sum(price1)};
+                arr.push(r.prices);
+            };
+    assertEquality([43, 32], arr);
+
+    arr = [];
+    _ = from var {name, price1, price2} in input
+            group by name
+            do {
+                int i = 0;
+                i += sum(price1);
+                arr.push(i);
+            };
+    assertEquality([43, 32], arr); 
+
+    // Check after https://github.com/ballerina-platform/ballerina-lang/issues/40228
+    // _ = from var {name, price1, price2} in input
+            // group by name
+    //         do {
+    //             var obj = object {
+    //                 int p1 = sum(price1);
+    //             };
+    //         }; 
+
+    // Check after https://github.com/ballerina-platform/ballerina-lang/issues/40229
+    // _ = from var {name, price1, price2} in input
+    //         group by name
+    //         do {
+    //             _ = let var p1 = sum(price1) in p1;
+    //         };      
 }
 
 // TODO: Add tests with do clause
