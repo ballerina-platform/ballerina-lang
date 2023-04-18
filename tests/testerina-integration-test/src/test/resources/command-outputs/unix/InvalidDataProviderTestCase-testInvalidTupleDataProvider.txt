@@ -7,7 +7,7 @@ Running Tests
 
 	invalid-data-provider-test3.bal
 
-		[fail] testInvalidTupleDataProvider:
+		[fail] testInvalidTupleDataProvider#0:
 
 		    [fail data provider for the function testInvalidTupleDataProvider]
 			error {ballerina/test:0}ExecutionError ("error("{ballerina/lang.function}IncompatibleArguments",message="arguments of incompatible types: argument list '(string,int)' cannot be passed to function expecting parameter list '(string,string)'")

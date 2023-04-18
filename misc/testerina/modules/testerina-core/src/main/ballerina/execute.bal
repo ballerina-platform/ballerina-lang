@@ -139,7 +139,7 @@ function executeDataDrivenTest(TestFunction testFunction, string suffix, TestTyp
 
     ExecutionError|boolean err = executeTestFunction(testFunction, suffix, testType, params);
     if err is ExecutionError {
-        reportData.onFailed(name = testFunction.name, message = "[fail data provider for the function " + testFunction.name
+        reportData.onFailed(name = testFunction.name, suffix = suffix, message = "[fail data provider for the function " + testFunction.name
             + "]\n" + getErrorMessage(err), testType = testType);
         exitCode = 1;
     }

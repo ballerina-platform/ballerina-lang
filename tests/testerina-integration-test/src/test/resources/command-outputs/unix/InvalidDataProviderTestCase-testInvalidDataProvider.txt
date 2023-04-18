@@ -8,7 +8,7 @@ Running Tests
 
 	invalid-data-provider-test.bal
 
-		[fail] testInvalidDataProvider:
+		[fail] testInvalidDataProvider#0:
 
 		    [fail data provider for the function testInvalidDataProvider]
 			error {ballerina/test:0}ExecutionError ("error("{ballerina/lang.function}IncompatibleArguments",message="arguments of incompatible types: argument list '(int)' cannot be passed to function expecting parameter list '(string)'")

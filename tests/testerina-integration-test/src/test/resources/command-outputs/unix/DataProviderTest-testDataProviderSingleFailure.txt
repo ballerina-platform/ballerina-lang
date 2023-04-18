@@ -12,7 +12,7 @@ Running Tests with Coverage
 		[pass] testDividingValuesNegative#4
 		[pass] testExecutionOfDataValueFailing
 
-		[fail] testDividingValuesNegative:
+		[fail] testDividingValuesNegative#2:
 
 		    [fail data provider for the function testDividingValuesNegative]
 			error {ballerina/test:0}ExecutionError ("error("{ballerina}DivisionByZero",message=" / by zero")
