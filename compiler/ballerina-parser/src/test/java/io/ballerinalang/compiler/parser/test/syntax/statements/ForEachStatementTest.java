@@ -117,7 +117,7 @@ public class ForEachStatementTest extends AbstractStatementTest {
     @Test
     public void testForEachStmtWithMissingClosingBraces() {
         testFile("forEach-stmt/forEach_stmt_source_04.bal",
-        "forEach-stmt/forEach_stmt_source_04.json");
+        "forEach-stmt/forEach_stmt_assert_04.json");
     }
 
     @Test
