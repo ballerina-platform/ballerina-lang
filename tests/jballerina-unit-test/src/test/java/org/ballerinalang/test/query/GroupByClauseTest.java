@@ -199,6 +199,12 @@ public class GroupByClauseTest {
                 "constructor or function invocation", 42, 33);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list " +
                 "constructor or function invocation", 45, 26);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '[int[]]', found 'seq int'",
+                101, 34);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '[int,int]', found 'seq int'",
+                106, 37);
+        BAssertUtil.validateError(negativeResult, i++, "record literal is not supported for record binding pattern",
+                115, 32);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 }

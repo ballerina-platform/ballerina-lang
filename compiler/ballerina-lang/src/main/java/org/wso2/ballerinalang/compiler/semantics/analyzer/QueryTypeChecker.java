@@ -820,9 +820,10 @@ public class QueryTypeChecker extends TypeChecker {
 
     public void visit(BLangInvocation iExpr, TypeChecker.AnalyzerData data) {
         // Check whether the invocation happens after group by and arguments contain sequence variables
-         if (checkInvocationAfterGroupBy(iExpr, data)) {
+         if (hasSequenceArgs(iExpr, data)) {
             // Do complete type checking for the invocation
             Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
+            // TODO: Add more tests related to pkg alias
             if (pkgAlias.value.isEmpty()) {
                 if (iExpr.expr != null) {
                     BType exprType = checkExpr(iExpr.expr, data);
@@ -909,6 +910,16 @@ public class QueryTypeChecker extends TypeChecker {
     }
 
     // Check the argument within sequence context.
+    private boolean hasSequenceArgs(BLangInvocation invocation, TypeChecker.AnalyzerData data) {
+        data.queryData.foundSeqVarInExpr = false;
+        for (BLangExpression arg : invocation.argExprs) {
+            if (arg.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                silentTypeCheckExpr(arg, symTable.noType, data);
+            }
+        }
+        return data.queryData.foundSeqVarInExpr;
+    }
+
     private void checkArg(BLangExpression arg, BType expectedType, TypeChecker.AnalyzerData data) {
         data.queryData.withinSequenceContext = effectiveSimpleVarRef(arg);
         checkTypeParamExpr(arg, expectedType, data);
@@ -1018,12 +1029,6 @@ public class QueryTypeChecker extends TypeChecker {
         }
 
         data.resultType = types.checkType(varRefExpr, actualType, data.expType);
-    }
-
-    private boolean checkInvocationAfterGroupBy(BLangInvocation invocation, TypeChecker.AnalyzerData data) {
-        data.queryData.foundSeqVarInExpr = false;
-        invocation.argExprs.forEach(arg -> silentTypeCheckExpr(arg, symTable.noType, data));
-        return data.queryData.foundSeqVarInExpr;
     }
 
     @Override

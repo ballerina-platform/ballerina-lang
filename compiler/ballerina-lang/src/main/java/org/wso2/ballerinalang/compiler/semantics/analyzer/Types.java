@@ -857,6 +857,10 @@ public class Types {
                 return isAssignable(seqType.elementType, ((BArrayType) target).eType, unresolvedTypes);
             }
             if (targetTag == TypeTags.TUPLE) {
+                BTupleType tupleType = (BTupleType) target;
+                if (tupleType.restType == null) {
+                    return false;
+                }
                 return isAssignable(seqType.elementType, ((BTupleType) target).restType, unresolvedTypes);
             }
         }

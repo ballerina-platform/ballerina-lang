@@ -96,14 +96,14 @@ function testTupleDestructure() {
                     [int, int...] x = [price]; // error
                 };
     _ = from var {name, price} in [{name: "Saman", price: 11}]
-                group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
+                group by name
                 do {
-                    [int[]] x = [price1];
+                    [int[]] x = [price];
                 };
     _ = from var {name, price} in [{name: "Saman", price: 11}]
-                group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
+                group by name
                 do {
-                    [int, int] x = [price1];
+                    [int, int] x = [price];
                 };
 }
 
