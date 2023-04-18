@@ -159,7 +159,8 @@ public class AddOperationTest {
                 "testStringXmlSubtypesAddition",
                 "testStringSubtypesAddition",
                 "testXmlSubtypesAddition",
-                "testNullableIntAddition"
+                "testNullableIntAddition",
+                "testXmlAdditionWithQueryExpressions"
         };
     }
 

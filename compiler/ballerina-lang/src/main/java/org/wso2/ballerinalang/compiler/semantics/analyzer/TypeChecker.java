@@ -4987,7 +4987,17 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 isOptionalFloatOrDecimal(referredExpType)) {
             rhsType = checkAndGetType(binaryExpr.rhsExpr, rhsExprEnv, binaryExpr, data);
         } else {
-            rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv, data);
+            if (binaryExpr.opKind == OperatorKind.ADD) {
+                BType silentType = checkExprSilent(nodeCloner
+                        .cloneNode(binaryExpr.rhsExpr), binaryExpr.expectedType, data);
+                if (silentType.tag == TypeTags.SEMANTIC_ERROR) {
+                    rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv, data);
+                } else {
+                    rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv, binaryExpr.expectedType, data);
+                }
+            } else {
+                rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv, data);
+            }
         }
 
         // Set error type as the actual type.

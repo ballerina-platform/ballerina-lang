@@ -405,8 +405,8 @@ function testQueryInXMLTemplateExpr() {
     var x7 = xml `<doc>${(from string s in ["a", "b", "c"] select xml `${s}z`)}</doc>`;
     test:assertEquals(x7.toString(), "<doc>azbzcz</doc>");
 
-    // var x8 = xml `<doc>${xml `foo` + (from string s in ["a", "b"] select xml `${s}z`)}</doc>`; // issue #36541
-    // test:assertEquals(x8.toString(), "<doc>fooazbz</doc>")
+    var x8 = xml `<doc>${xml `foo` + (from string s in ["a", "b"] select xml `${s}z`)}</doc>`; // issue #36541
+    test:assertEquals(x8.toString(), "<doc>fooazbz</doc>");
 }
 
 type XMLType xml:Comment|xml:ProcessingInstruction;
