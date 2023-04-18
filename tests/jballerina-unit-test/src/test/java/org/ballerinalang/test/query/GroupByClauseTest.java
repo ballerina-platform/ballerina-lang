@@ -17,9 +17,11 @@
  */
 package org.ballerinalang.test.query;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -38,6 +40,7 @@ public class GroupByClauseTest {
     public void setup() {
         resultWithListCtr = BCompileUtil.compile("test-src/query/group_by_clause_with_list_ctr.bal");
         resultWithInvocation = BCompileUtil.compile("test-src/query/group_by_clause_with_invocation.bal");
+        negativeResult = BCompileUtil.compile("test-src/query/group_by_clause_negative.bal");
     }
 
     @Test(dataProvider = "dataToTestGroupByClauseWithListCtr")
@@ -144,5 +147,31 @@ public class GroupByClauseTest {
             "testGroupByExpressionWithTableOutput",
             "testGroupByExpressionWithMapOutput"
         };
+    }
+
+    @Test
+    public void testNegativeCases() {
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "sequence variable cannot be used in a required argument",
+                23, 37);
+        BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list " +
+                "constructor or function invocation", 29, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'seq int'", 32, 28);
+        BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list " +
+                "constructor or function invocation", 32, 28);
+        BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list " +
+                "constructor or function invocation", 35, 25);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'seq int', found 'seq int'",
+                36, 20);
+        BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'int'", 39, 20);
+        BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list " +
+                "constructor or function invocation", 39, 20);
+        BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list " +
+                "constructor or function invocation", 42, 25);
+        BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list " +
+                "constructor or function invocation", 42, 33);
+        BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list " +
+                "constructor or function invocation", 45, 26);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 }
