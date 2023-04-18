@@ -1021,7 +1021,8 @@ public class FormattingTreeModifier extends TreeModifier {
     public OnFailClauseNode transform(OnFailClauseNode onFailClauseNode) {
         Token onKeyword = formatToken(onFailClauseNode.onKeyword(), 1, 0);
         Token failKeyword = formatToken(onFailClauseNode.failKeyword(), 1, 0);
-        TypedBindingPatternNode typeBindingPattern = formatNode(onFailClauseNode.typedBindingPattern().orElse(null), 1, 0);
+        TypedBindingPatternNode typeBindingPattern =
+                formatNode(onFailClauseNode.typedBindingPattern().orElse(null), 1, 0);
         BlockStatementNode blockStatement = formatNode(onFailClauseNode.blockStatement(),
                 env.trailingWS, env.trailingNL);
 
