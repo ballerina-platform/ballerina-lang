@@ -496,6 +496,7 @@ function testGroupByWithDoClause() {
 
 // TODO: Add tests with do clause
 // TODO: group by var _ = true
+// TODO: from va item ..., group by var x = item.price ...
 
 function testGroupByExpressionAndSelectWithGroupingKeys1() {
     var input = [{id: 1, price: 11}, {id: 1, price: 12}, {id: 2, price: 11}, {id: 1, price: 12}];

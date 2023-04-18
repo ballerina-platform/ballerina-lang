@@ -30,10 +30,12 @@ import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSequenceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -48,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -74,7 +77,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
@@ -90,6 +95,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
  * @since 2201.5.0
@@ -141,7 +148,6 @@ public class QueryTypeChecker extends TypeChecker {
     public void checkQueryType(BLangQueryExpr queryExpr, TypeChecker.AnalyzerData data) {
         AnalyzerData prevData = data.queryData;
         data.queryData = new AnalyzerData();
-        data.queryData.afterGroupBy = prevData.afterGroupBy;
 
         Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
 
@@ -797,7 +803,6 @@ public class QueryTypeChecker extends TypeChecker {
                     new BSequenceType(originalSymbol.getType()), originalSymbol.owner, originalSymbol.pos);
             groupByEnv.scope.define(name, sequenceSymbol);
         }
-        data.queryData.afterGroupBy = true;
     }
 
     @Override
@@ -863,7 +868,10 @@ public class QueryTypeChecker extends TypeChecker {
                     List<BVarSymbol> params = functionSymbol.params;
                     for (int i = 0; i < params.size(); i++) {
                         BLangExpression arg = iExpr.argExprs.get(i);
-                        checkTypeParamExpr(arg, params.get(i).type, data);
+                        checkArg(arg, params.get(i).type, data);
+                        if (arg.getBType().tag == TypeTags.SEQUENCE) {
+                            dlog.error(arg.pos, DiagnosticErrorCode.SEQUENCE_VARIABLE_CANNOT_BE_USED_IN_REQUIRED_ARG);
+                        }
                         iExpr.requiredArgs.add(arg);
                         argCount = i;
                     }
@@ -875,7 +883,7 @@ public class QueryTypeChecker extends TypeChecker {
                             iExpr.restArgs.add(argExpr);
                             if (argExprKind == NodeKind.SIMPLE_VARIABLE_REF) {
                                 if (silentTypeCheckExpr(argExpr, symTable.noType, data).tag == TypeTags.SEQUENCE) {
-                                    checkTypeParamExpr(argExpr, restParamType, data);
+                                    checkArg(argExpr, restParamType, data);
                                     continue;
                                 }
                             }
@@ -884,9 +892,9 @@ public class QueryTypeChecker extends TypeChecker {
                                 continue;
                             }
                             if (restParamType.tag == TypeTags.ARRAY) {
-                                checkTypeParamExpr(argExpr, ((BArrayType) restParamType).eType, data);
+                                checkArg(argExpr, ((BArrayType) restParamType).eType, data);
                             } else {
-                                checkTypeParamExpr(argExpr, restParamType, data);
+                                checkArg(argExpr, restParamType, data);
                             }
                         }
                     }
@@ -900,17 +908,133 @@ public class QueryTypeChecker extends TypeChecker {
          }
     }
 
+    // Check the argument within sequence context.
+    private void checkArg(BLangExpression arg, BType expectedType, TypeChecker.AnalyzerData data) {
+        data.queryData.withinSequenceContext = effectiveSimpleVarRef(arg);
+        checkTypeParamExpr(arg, expectedType, data);
+        data.queryData.withinSequenceContext = false;
+    }
+
+    private boolean effectiveSimpleVarRef(BLangExpression expr) {
+        // TODO: Improve this method to handle grouping-expr
+        NodeKind kind = expr.getKind();
+        return kind == NodeKind.SIMPLE_VARIABLE_REF;
+    }
+
+    // TODO: Combine this with the method in TypeChecker
+    public void visit(BLangSimpleVarRef varRefExpr, TypeChecker.AnalyzerData data) {
+        // Set error type as the actual type.
+        BType actualType = symTable.semanticError;
+
+        BLangIdentifier identifier = varRefExpr.variableName;
+        Name varName = names.fromIdNode(identifier);
+        if (varName == Names.IGNORE) {
+            varRefExpr.setBType(this.symTable.anyType);
+
+            // If the variable name is a wildcard('_'), the symbol should be ignorable.
+            varRefExpr.symbol = new BVarSymbol(0, true, varName,
+                    names.originalNameFromIdNode(identifier),
+                    data.env.enclPkg.symbol.pkgID, varRefExpr.getBType(), data.env.scope.owner,
+                    varRefExpr.pos, VIRTUAL);
+
+            data.resultType = varRefExpr.getBType();
+            return;
+        }
+
+        Name compUnitName = getCurrentCompUnit(varRefExpr);
+        BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(data.env, names.fromIdNode(varRefExpr.pkgAlias),
+                compUnitName);
+        varRefExpr.pkgSymbol = pkgSymbol;
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            varRefExpr.symbol = symTable.notFoundSymbol;
+            dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
+        }
+
+        if (pkgSymbol.tag == SymTag.XMLNS) {
+            actualType = symTable.stringType;
+        } else if (pkgSymbol != symTable.notFoundSymbol) {
+            BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(varRefExpr.pos, data.env,
+                    names.fromIdNode(varRefExpr.pkgAlias), varName);
+            // if no symbol, check same for object attached function
+            BLangType enclType = data.env.enclType;
+            if (symbol == symTable.notFoundSymbol && enclType != null && enclType.getBType().tsymbol.scope != null) {
+                Name objFuncName = Names.fromString(Symbols
+                        .getAttachedFuncSymbolName(enclType.getBType().tsymbol.name.value, varName.value));
+                symbol = symResolver.resolveStructField(varRefExpr.pos, data.env, objFuncName,
+                        enclType.getBType().tsymbol);
+            }
+
+            // TODO: call to isInLocallyDefinedRecord() is a temporary fix done to disallow local var references in
+            //  locally defined record type defs. This check should be removed once local var referencing is supported.
+            if (((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE)) {
+                BVarSymbol varSym = (BVarSymbol) symbol;
+                checkSelfReferences(varRefExpr.pos, data.env, varSym);
+                varRefExpr.symbol = varSym;
+                actualType = varSym.type;
+                markAndRegisterClosureVariable(symbol, varRefExpr.pos, data.env, data);
+            } else if ((symbol.tag & SymTag.SEQUENCE) == SymTag.SEQUENCE) {
+                varRefExpr.symbol = symbol;
+                actualType = symbol.type;
+                data.queryData.foundSeqVarInExpr = true;
+                if (!data.queryData.withinSequenceContext) {
+                    dlog.error(varRefExpr.pos,
+                            DiagnosticErrorCode.
+                                    SEQUENCE_VARIABLE_CAN_BE_USED_IN_SINGLE_ELEMENT_LIST_CTR_OR_FUNC_INVOCATION);
+                }
+            } else if ((symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
+                actualType = symbol.type.tag == TypeTags.TYPEDESC ? symbol.type : new BTypedescType(symbol.type, null);
+                varRefExpr.symbol = symbol;
+            } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
+                BConstantSymbol constSymbol = (BConstantSymbol) symbol;
+                varRefExpr.symbol = constSymbol;
+                BType symbolType = symbol.type;
+                BType expectedType = Types.getReferredType(data.expType);
+                if (symbolType != symTable.noType && expectedType.tag == TypeTags.FINITE ||
+                        (expectedType.tag == TypeTags.UNION && types.getAllTypes(expectedType, true).stream()
+                                .anyMatch(memType -> memType.tag == TypeTags.FINITE &&
+                                        types.isAssignable(symbolType, memType)))) {
+                    actualType = symbolType;
+                } else {
+                    actualType = constSymbol.literalType;
+                }
+
+                // If the constant is on the LHS, modifications are not allowed.
+                // E.g. m.k = "10"; // where `m` is a constant.
+                if (varRefExpr.isLValue || varRefExpr.isCompoundAssignmentLValue) {
+                    actualType = symTable.semanticError;
+                    dlog.error(varRefExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_CONSTANT_VALUE);
+                }
+            } else {
+                varRefExpr.symbol = symbol; // Set notFoundSymbol
+                logUndefinedSymbolError(varRefExpr.pos, varName.value);
+            }
+        }
+
+        // Check type compatibility
+        if (data.expType.tag == TypeTags.ARRAY && isArrayOpenSealedType((BArrayType) data.expType)) {
+            dlog.error(varRefExpr.pos, DiagnosticErrorCode.CANNOT_INFER_SIZE_ARRAY_SIZE_FROM_THE_CONTEXT);
+            data.resultType = symTable.semanticError;
+            return;
+        }
+
+        data.resultType = types.checkType(varRefExpr, actualType, data.expType);
+    }
+
     private boolean checkInvocationAfterGroupBy(BLangInvocation invocation, TypeChecker.AnalyzerData data) {
         data.queryData.foundSeqVarInExpr = false;
         invocation.argExprs.forEach(arg -> silentTypeCheckExpr(arg, symTable.noType, data));
-        return data.queryData.afterGroupBy && data.queryData.foundSeqVarInExpr;
+        return data.queryData.foundSeqVarInExpr;
     }
 
     @Override
     public void visit(BLangListConstructorExpr listConstructor, TypeChecker.AnalyzerData data) {
+        // TODO: Refactor this method
         BType expType = data.expType;
         if (expType.tag == TypeTags.NONE || expType.tag == TypeTags.READONLY) {
+            data.queryData.withinSequenceContext =
+                    listConstructor.exprs.size() == 1 && effectiveSimpleVarRef(listConstructor.exprs.get(0));
             BType inferredType = getInferredTupleType(listConstructor, expType, data);
+            data.queryData.withinSequenceContext = false;
             checkTupleWithSequence(inferredType);
             data.resultType = inferredType == symTable.semanticError ?
                     symTable.semanticError : types.checkType(listConstructor, inferredType, expType);
@@ -927,7 +1051,9 @@ public class QueryTypeChecker extends TypeChecker {
                     // Then check the expType is an array or tuple
                     // Then do the type check for element types
                     // This may cause to remove the type checking part for seq from Types.java
+                    data.queryData.withinSequenceContext = true;
                     checkExpr(expr, data.env, expType, data);
+                    data.queryData.withinSequenceContext = false;
                     data.resultType = new BTupleType(null, new ArrayList<>(0), ((BSequenceType) type).elementType, 0);
                     listConstructor.setBType(data.resultType);
                     return;
@@ -987,8 +1113,7 @@ public class QueryTypeChecker extends TypeChecker {
     public static class AnalyzerData {
         boolean queryCompletesEarly = false;
         HashSet<BType> completeEarlyErrorList = new HashSet<>();
-        boolean afterGroupBy = false;
         boolean foundSeqVarInExpr = false;
-        boolean withinArgument = false;
+        boolean withinSequenceContext = false;
     }
 }

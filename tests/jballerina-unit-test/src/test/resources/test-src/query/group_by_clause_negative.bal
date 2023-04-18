@@ -14,13 +14,44 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testSeqVariableInGroupExpr() {
-    var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
-    var prices = from var {name, price} in input
-                        group by name
-                        let var p = [(price)] // error: group-expr is not supported
-                        select p;
+import ballerina/lang.array;
+
+function testSeqVarAsRequiredArg() {
+    var input = [{name: "Saman", price: 11}, {name: "Kamal", price: 15}];
+    var res = from var {name, price} in input
+                group by name
+                select array:length(price); // error
 }
+
+function testSeqVarInInvalidPositions() {
+    var res1 = from var {name, price} in [{name: "Saman", price: 11}, {name: "Kamal", price: 15}]
+                group by name
+                select price; // error
+    int[] res2 = from var {name, price} in [{name: "Saman", price: 11}, {name: "Kamal", price: 15}]
+                    group by name
+                    select price; // error
+    res1 = from var {name, price} in [{name: "Saman", price: 11}, {name: "Kamal", price: 15}]
+            group by name
+            let var x = price // error
+            select x;
+    res1 = from var {name, price} in [{name: "Saman", price: 11}, {name: "Kamal", price: 15}]
+            group by name
+            select price + 23; // error
+    var res3 = from var {name, price1, price2} in [{name: "Saman", price1: 11, price2: 12}, {name: "Kamal", price1: 15, price2: 16}]
+                group by name
+                select [price1, price2]; // error
+    var res4 = from var {name, price1, price2} in [{name: "Saman", price1: 11, price2: 12}, {name: "Kamal", price1: 15, price2: 16}]
+                group by name
+                select [(price2)]; // error
+}
+
+// function testSeqVariableInGroupExpr() {
+//     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
+//     var prices = from var {name, price} in input
+//                         group by name
+//                         let var p = [(price)] // error: group-expr is not supported
+//                         select p;
+// }
 
 // function testGroupbyExpressionAndSelectWithNonGroupingKeys4() {
 //     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
@@ -50,20 +81,20 @@ function testSeqVariableInGroupExpr() {
 //                         select ([([price])]); // @output [[[11, 11]], [[12]]]
 // }
 
-function testGroupByExpressionAndSelectWithNonGroupingKeys9() {
-    var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
-    [int, int...][] prices = from var {name, price} in input
-                            group by name
-                            select [price]; // @output [[11, 12], [11]]
-    assertEquality([[11, 12], [11]], prices);
-}
+// function testGroupByExpressionAndSelectWithNonGroupingKeys9() {
+//     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
+//     [int, int...][] prices = from var {name, price} in input
+//                             group by name
+//                             select [price]; // @output [[11, 12], [11]]
+//     assertEquality([[11, 12], [11]], prices);
+// }
 
 function testTupleDestructure() {
     _ = from var {name, price} in [{name: "Saman", price: 11}]
                 group by name
                 do {
                     [int, int...] x = [price]; // error
-                };    
+                };
     _ = from var {name, price} in [{name: "Saman", price: 11}]
                 group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
                 do {
@@ -82,5 +113,5 @@ function testRecordDestructure() {
                 do {
                     int[] prices;
                     {prices} = {prices: [price]}; // error
-                };    
+                };
 }
