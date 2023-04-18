@@ -117,15 +117,17 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
-    public void testEnvironmentVariableBasedConfigurable() throws BallerinaTestException {
+    public void testFileEnvVariableBasedConfigurable() throws BallerinaTestException {
 
         // test config file location through `BAL_CONFIG_FILES` env variable
         String configFilePaths = Paths.get(testFileLocation, "config_files", "Config-A.toml") +
                 File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-B.toml");
         executeBalCommand("", "envVarPkg",
-                          addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE,
-                                                                          configFilePaths))));
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePaths))));
+    }
 
+    @Test
+    public void testDataEnvVariableBasedConfigurable() throws BallerinaTestException {
         // test configuration through `BAL_CONFIG_DATA` env variable
         String configData = "[envVarPkg] intVar = 42 floatVar = 3.5 stringVar = \"abc\" booleanVar = true " +
                 "decimalVar = 24.87 intArr = [1,2,3] floatArr = [9.0, 5.6] " +
@@ -134,7 +136,11 @@ public class ConfigurableTest extends BaseTest {
         executeBalCommand("", "envVarPkg",
                 addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
 
-        configData = "[envVarPkg]\nintVar = 42\nfloatVar = 3.5\nstringVar = \"abc\"\nbooleanVar = true\n" +
+    }
+
+    @Test
+    public void testDataEnvVariableBasedConfigurableWithNewLine() throws BallerinaTestException {
+        String configData = "[envVarPkg]\nintVar = 42\nfloatVar = 3.5\nstringVar = \"abc\"\nbooleanVar = true\n" +
                 "decimalVar = 24.87\nintArr = [1,2,3]\nfloatArr = [9.0, 5.6]\n" +
                 "stringArr = [\"red\", \"yellow\", \"green\"]\nbooleanArr = [true, false,false, true]\n" +
                 "decimalArr = [8.9, 4.5, 6.2]";
