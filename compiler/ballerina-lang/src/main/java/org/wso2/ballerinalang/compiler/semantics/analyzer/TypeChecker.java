@@ -3606,12 +3606,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     protected BType checkExprSilent(BLangExpression expr, BType expType, AnalyzerData data) {
+        return checkExprSilent(expr, data.env, expType, data);
+    }
+
+    protected BType checkExprSilent(BLangExpression expr, SymbolEnv env, BType expType, AnalyzerData data) {
         boolean prevNonErrorLoggingCheck = data.commonAnalyzerData.nonErrorLoggingCheck;
         data.commonAnalyzerData.nonErrorLoggingCheck = true;
         int errorCount = this.dlog.errorCount();
         this.dlog.mute();
 
-        BType type = checkExpr(expr, expType, data);
+        BType type = checkExpr(expr, env, expType, data);
 
         data.commonAnalyzerData.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         dlog.setErrorCount(errorCount);

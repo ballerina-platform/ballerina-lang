@@ -256,8 +256,7 @@ public class QueryTypeChecker extends TypeChecker {
         if (selectTypes.size() == 1) {
             List<BType> collectionTypes = getCollectionTypes(clauses);
             BType completionType = getCompletionType(collectionTypes, types.getQueryConstructType(queryExpr), data);
-            selectType = selectTypes.iterator().next();
-            selectType = checkExpr(selectExp, env, selectType, data);
+            selectType = checkExpr(selectExp, env, selectTypes.iterator().next(), data);
             if (queryExpr.isStream) {
                 return new BStreamType(TypeTags.STREAM, selectType, completionType, null);
             } else if (queryExpr.isTable) {
@@ -285,6 +284,11 @@ public class QueryTypeChecker extends TypeChecker {
             dlog.error(selectExp.pos, DiagnosticErrorCode.AMBIGUOUS_TYPES, selectTypes);
             return actualType;
         } else {
+            for (BType type : safeResultTypes) {
+                solveSelectTypeAndResolveType(queryExpr, selectExp, type, collectionNode.getBType(), selectTypes,
+                        resolvedTypes, env, data, false, true);
+            }
+
             return actualType;
         }
     }
@@ -292,23 +296,31 @@ public class QueryTypeChecker extends TypeChecker {
     void solveSelectTypeAndResolveType(BLangQueryExpr queryExpr, BLangExpression selectExp, BType expType,
                                        BType collectionType, Set<BType> selectTypes, List<BType> resolvedTypes,
                                        SymbolEnv env, TypeChecker.AnalyzerData data, boolean isReadonly) {
+        solveSelectTypeAndResolveType(queryExpr, selectExp, expType, collectionType, selectTypes, resolvedTypes, env,
+                data, isReadonly, false);
+    }
+
+    void solveSelectTypeAndResolveType(BLangQueryExpr queryExpr, BLangExpression selectExp, BType expType,
+                                       BType collectionType, Set<BType> selectTypes, List<BType> resolvedTypes,
+                                       SymbolEnv env, TypeChecker.AnalyzerData data, boolean isReadonly,
+                                       boolean isNonSilentCheck) {
         BType selectType, resolvedType;
         BType type = Types.getReferredType(expType);
         switch (type.tag) {
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) type).eType;
-                selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), elementType, data);
+                selectType = getSelectType(selectExp, env, elementType, data, isNonSilentCheck);
                 BType queryResultType = new BArrayType(selectType);
                 resolvedType = getResolvedType(queryResultType, type, isReadonly, env);
                 break;
             case TypeTags.TABLE:
-                selectType = checkExprSilent(nodeCloner.cloneNode(selectExp),
-                        types.getSafeType(((BTableType) type).constraint, true, true), data);
+                selectType = getSelectType(selectExp, env,
+                        types.getSafeType(((BTableType) type).constraint, true, true), data, isNonSilentCheck);
                 resolvedType = getResolvedType(symTable.tableType, type, isReadonly, env);
                 break;
             case TypeTags.STREAM:
-                selectType = checkExprSilent(nodeCloner.cloneNode(selectExp),
-                        types.getSafeType(((BStreamType) type).constraint, true, true), data);
+                selectType = getSelectType(selectExp, env,
+                        types.getSafeType(((BStreamType) type).constraint, true, true), data, isNonSilentCheck);
                 resolvedType = symTable.streamType;
                 break;
             case TypeTags.MAP:
@@ -320,7 +332,7 @@ public class QueryTypeChecker extends TypeChecker {
                 BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(memberType);
                 memberTypeList.add(new BTupleMember(memberType, varSymbol));
                 BTupleType newExpType = new BTupleType(null, memberTypeList);
-                selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), newExpType, data);
+                selectType = getSelectType(selectExp, env, newExpType, data, isNonSilentCheck);
                 resolvedType = getResolvedType(selectType, type, isReadonly, env);
                 break;
             case TypeTags.STRING:
@@ -329,7 +341,7 @@ public class QueryTypeChecker extends TypeChecker {
             case TypeTags.XML_ELEMENT:
             case TypeTags.XML_PI:
             case TypeTags.XML_TEXT:
-                selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), type, data);
+                selectType = getSelectType(selectExp, env, type, data, isNonSilentCheck);
                 resolvedType = selectType;
                 break;
             case TypeTags.INTERSECTION:
@@ -340,9 +352,11 @@ public class QueryTypeChecker extends TypeChecker {
             case TypeTags.NONE:
             default:
                 // contextually expected type not given (i.e var).
-                selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), type, data);
+                selectType = getSelectType(selectExp, env, type, data, isNonSilentCheck);
                 if (selectType != symTable.semanticError) {
-                    selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), type, data);
+                    selectType = checkExpr(nodeCloner.cloneNode(selectExp), env, type, data);
+                } else {
+                    selectType = checkExpr(nodeCloner.cloneNode(selectExp), env, data);
                 }
 
                 if (queryExpr.isMap) { // A query-expr that constructs a mapping must start with the map keyword.
@@ -368,6 +382,15 @@ public class QueryTypeChecker extends TypeChecker {
 
             resolvedTypes.add(resolvedType);
         }
+    }
+
+    private BType getSelectType(BLangExpression selectExp, SymbolEnv env, BType type, TypeChecker.AnalyzerData data,
+                                boolean isNonSilentCheck) {
+        if (isNonSilentCheck) {
+            return checkExpr(selectExp, env, type, data);
+        }
+
+        return checkExprSilent(nodeCloner.cloneNode(selectExp), env, type, data);
     }
 
     private BType getQueryTableType(BLangQueryExpr queryExpr, BType constraintType, BType resolvedType, SymbolEnv env) {
