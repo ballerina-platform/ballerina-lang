@@ -185,13 +185,13 @@ public class ParserTestFormatter extends FormatterTest {
                 "regexp_constructor_source_52.bal", "regexp_constructor_source_53.bal", "completion_source_07.bal",
                 "do_stmt_source_14.bal", "do_stmt_source_15.bal", "do_stmt_source_16.bal", "do_stmt_source_17.bal",
                 "forEach_stmt_source_31.bal", "foreach_stmt_source_32.bal", "forEach_stmt_source_33.bal",
-                "foreach_stmt_source_34.bal", "lock_stmt_source_15.bal", "lock_stmt_source_16.bal", "lock_stmt_source_17.bal",
-                "lock_stmt_source_18.bal", "match_stmt_source_28.bal", "match_stmt_source_29.bal",
-                "match_stmt_source_30.bal", "match_stmt_source_31.bal", "retry_stmt_source_12.bal",
-                "retry_stmt_source_13.bal", "retry_stmt_source_14.bal", "retry_stmt_source_15.bal",
-                "transaction_stmt_source_09.bal", "transaction_stmt_source_10.bal", "transaction_stmt_source_11.bal",
-                "transaction_stmt_source_12.bal", "while_stmt_source_11.bal", "while_stmt_source_12.bal",
-                "while_stmt_source_13.bal", "while_stmt_source_14.bal");
+                "foreach_stmt_source_34.bal", "lock_stmt_source_15.bal", "lock_stmt_source_16.bal",
+                "lock_stmt_source_17.bal", "lock_stmt_source_18.bal", "match_stmt_source_28.bal",
+                "match_stmt_source_29.bal", "match_stmt_source_30.bal", "match_stmt_source_31.bal",
+                "retry_stmt_source_12.bal", "retry_stmt_source_13.bal", "retry_stmt_source_14.bal",
+                "retry_stmt_source_15.bal", "transaction_stmt_source_09.bal", "transaction_stmt_source_10.bal",
+                "transaction_stmt_source_11.bal", "transaction_stmt_source_12.bal", "while_stmt_source_11.bal",
+                "while_stmt_source_12.bal", "while_stmt_source_13.bal", "while_stmt_source_14.bal");
     }
 
     @DataProvider(name = "test-file-provider")
