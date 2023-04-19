@@ -3125,17 +3125,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(onFailClauseNode.onKeyword());
         Token failKeyword =
                 modifyToken(onFailClauseNode.failKeyword());
-        TypeDescriptorNode typeDescriptor =
-                modifyNode(onFailClauseNode.typeDescriptor().orElse(null));
-        IdentifierToken failErrorName =
-                modifyNode(onFailClauseNode.failErrorName().orElse(null));
+        TypedBindingPatternNode typedBindingPattern =
+                modifyNode(onFailClauseNode.typedBindingPattern().orElse(null));
         BlockStatementNode blockStatement =
                 modifyNode(onFailClauseNode.blockStatement());
         return onFailClauseNode.modify(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement);
     }
 
@@ -3620,7 +3617,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 mostTimesMatchedDigit,
                 closeBraceToken);
     }
-  
+
+    @Override
     public MemberTypeDescriptorNode transform(
             MemberTypeDescriptorNode memberTypeDescriptorNode) {
         NodeList<AnnotationNode> annotations =

@@ -13843,17 +13843,21 @@ public class BallerinaParser extends AbstractParser {
         STNode onKeyword = parseOnKeyword();
         STNode failKeyword = parseFailKeyword();
         STToken token = peek();
-        STNode typeDescriptor = STNodeFactory.createEmptyNode();
-        STNode identifier = STNodeFactory.createEmptyNode();
+        STNode typedBindingPattern = STNodeFactory.createEmptyNode();
         if (token.kind != SyntaxKind.OPEN_BRACE_TOKEN) {
-            typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true, false,
-                    TypePrecedence.DEFAULT);
-            identifier = parseIdentifier(ParserRuleContext.VARIABLE_NAME);
+            typedBindingPattern = parseTypedBindingPattern();
         }
         STNode blockStatement = parseBlockNode();
         endContext();
-        return STNodeFactory.createOnFailClauseNode(onKeyword, failKeyword, typeDescriptor, identifier,
+        return STNodeFactory.createOnFailClauseNode(onKeyword, failKeyword, typedBindingPattern,
                 blockStatement);
+    }
+
+    private STNode parseTypedBindingPattern() {
+        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
+                true, false, TypePrecedence.DEFAULT);
+        STNode bindingPattern = parseBindingPattern();
+        return STNodeFactory.createTypedBindingPatternNode(typeDescriptor, bindingPattern);
     }
 
     /**

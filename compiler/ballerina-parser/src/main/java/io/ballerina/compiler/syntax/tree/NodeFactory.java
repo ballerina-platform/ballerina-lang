@@ -3039,8 +3039,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static OnFailClauseNode createOnFailClauseNode(
             Token onKeyword,
             Token failKeyword,
-            TypeDescriptorNode typeDescriptor,
-            IdentifierToken failErrorName,
+            TypedBindingPatternNode typedBindingPattern,
             BlockStatementNode blockStatement) {
         Objects.requireNonNull(onKeyword, "onKeyword must not be null");
         Objects.requireNonNull(failKeyword, "failKeyword must not be null");
@@ -3049,8 +3048,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stOnFailClauseNode = STNodeFactory.createOnFailClauseNode(
                 onKeyword.internalNode(),
                 failKeyword.internalNode(),
-                getOptionalSTNode(typeDescriptor),
-                getOptionalSTNode(failErrorName),
+                getOptionalSTNode(typedBindingPattern),
                 blockStatement.internalNode());
         return stOnFailClauseNode.createUnlinkedFacade();
     }
@@ -3517,7 +3515,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeBraceToken.internalNode());
         return stReBracedQuantifierNode.createUnlinkedFacade();
     }
-  
+
     public static MemberTypeDescriptorNode createMemberTypeDescriptorNode(
             NodeList<AnnotationNode> annotations,
             TypeDescriptorNode typeDescriptor) {

@@ -930,7 +930,7 @@ public abstract class NodeVisitor {
     public void visit(ReBracedQuantifierNode reBracedQuantifierNode) {
         visitSyntaxNode(reBracedQuantifierNode);
     }
-  
+
     public void visit(MemberTypeDescriptorNode memberTypeDescriptorNode) {
         visitSyntaxNode(memberTypeDescriptorNode);
     }
