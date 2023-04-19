@@ -168,11 +168,13 @@ public class GroupByClauseTest {
             "testGroupByExpressionAndSelectWithNonGroupingKeys4",
             "testGroupByExpressionAndSelectWithNonGroupingKeys5",
             "testGroupByExpressionAndSelectWithGroupingKeys1",
+            "testGroupByExpressionAndSelectWithGroupingKeys2",
             "testGroupByExpressionWithOrderBy",
             "testGroupByExpressionWithStreamOutput",
             "testGroupByExpressionWithTableOutput",
             "testGroupByExpressionWithMapOutput",
-            "testGroupByWithDoClause"
+            "testGroupByWithDoClause",
+            "testGroupByVarDefsAndSelectWithNonGroupingKeys1"
         };
     }
 

@@ -1697,7 +1697,7 @@ function testGroupByWithDoClause() {
     // Check after https://github.com/ballerina-platform/ballerina-lang/issues/40216
     // Rec[] input = [{name: "Saman", price1: [11, 12]}, 
     //                 {name: "Saman", price1: [19, 20]}];
-    // // int[] arr = [];
+    // int[] arr = [];
     // _ = from var {name, price1} in input
     //         group by name
     //         do {
@@ -1786,3 +1786,4 @@ function assertEquality(anydata expected, anydata actual) {
 // TODO: query expression in group by variable definition expression
 // TODO: Add tests to empty groups
 // TODO: 2nd from clause uses seq vars of first from clause
+// TODO: multiple grouping keys
