@@ -239,7 +239,7 @@ public class QueryTypeChecker extends TypeChecker {
         BType completionType = getCompletionType(collectionTypes, Types.QueryConstructType.ACTION, data);
         // Analyze foreach node's statements.
         semanticAnalyzer.analyzeNode(doClause.body, SymbolEnv.createBlockEnv(doClause.body,
-                commonAnalyzerData.queryEnvs.peek()), data.prevEnvs, true, commonAnalyzerData);
+                commonAnalyzerData.queryEnvs.peek()), data.prevEnvs, this, commonAnalyzerData);
         BType actualType = completionType == null ? symTable.nilType : completionType;
         data.resultType = types.checkType(doClause.pos, actualType, data.expType,
                         DiagnosticErrorCode.INCOMPATIBLE_TYPES);
@@ -700,7 +700,7 @@ public class QueryTypeChecker extends TypeChecker {
         letClause.env = letEnv;
         commonAnalyzerData.queryEnvs.push(letEnv);
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
-            semanticAnalyzer.analyzeNode((BLangNode) letVariable.definitionNode, letEnv, true, commonAnalyzerData);
+            semanticAnalyzer.analyzeNode((BLangNode) letVariable.definitionNode, letEnv, this, commonAnalyzerData);
         }
         for (Name variable : letEnv.scope.entries.keySet()) {
             data.queryVariables.add(variable.value);
@@ -789,7 +789,7 @@ public class QueryTypeChecker extends TypeChecker {
                 checkExpr(groupingKey.variableRef, groupByClause.env, data);
                 variable = groupingKey.variableRef.variableName.value;
             } else {
-                semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env, true,
+                semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env, this,
                         data.commonAnalyzerData);
                 variable = groupingKey.variableDef.var.name.value;
             }
@@ -932,7 +932,6 @@ public class QueryTypeChecker extends TypeChecker {
         return kind == NodeKind.SIMPLE_VARIABLE_REF;
     }
 
-    // TODO: Combine this with the method in TypeChecker
     public void visit(BLangSimpleVarRef varRefExpr, TypeChecker.AnalyzerData data) {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
