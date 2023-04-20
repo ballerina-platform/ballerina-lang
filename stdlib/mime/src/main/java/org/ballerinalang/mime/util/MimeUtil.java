@@ -19,7 +19,6 @@
 package org.ballerinalang.mime.util;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
@@ -43,7 +42,6 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Enumeration;
-import java.util.Random;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
