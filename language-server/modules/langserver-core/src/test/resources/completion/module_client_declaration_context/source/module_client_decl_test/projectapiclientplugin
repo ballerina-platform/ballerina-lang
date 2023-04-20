@@ -1,1 +1,0 @@
-{"args":{"name":"projectapiclientplugin"},"headers":{"x-forwarded-proto":"https","x-forwarded-port":"443","host":"postman-echo.com","x-amzn-trace-id":"Root=1-634cf0cb-5d437cca5f75e9324370028a","user-agent":"Java/11.0.8","accept":"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2"},"url":"https://postman-echo.com/get?name=projectapiclientplugin"}

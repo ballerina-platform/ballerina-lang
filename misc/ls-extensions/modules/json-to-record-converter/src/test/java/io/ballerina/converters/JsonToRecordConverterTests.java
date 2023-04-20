@@ -139,6 +139,8 @@ public class JsonToRecordConverterTests {
             .resolve("sample_10.bal");
     private final Path sample10TypeDescBal = RES_DIR.resolve("ballerina")
             .resolve("sample_10_type_desc.bal");
+    private final Path sample10WithoutConflictBal = RES_DIR.resolve("ballerina")
+            .resolve("sample_10_without_conflict.bal");
 
     private final Path sample11Json = RES_DIR.resolve("json")
             .resolve("sample_11.json");
@@ -333,7 +335,7 @@ public class JsonToRecordConverterTests {
         String jsonString = Files.readString(basicObjectJson);
 
         JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
-                false, false, false);
+                false, false, false, null);
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
         io.ballerina.jsonmapper.JsonToRecordResponse response =
                 (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
@@ -348,7 +350,7 @@ public class JsonToRecordConverterTests {
         String jsonString = Files.readString(nullObjectJson);
 
         JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
-                false, false, false);
+                false, false, false, null);
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
         io.ballerina.jsonmapper.JsonToRecordResponse response =
                 (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
@@ -363,7 +365,7 @@ public class JsonToRecordConverterTests {
         String jsonString = Files.readString(basicSchemaJson);
 
         JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
-                false, false, false);
+                false, false, false, null);
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
         io.ballerina.jsonmapper.JsonToRecordResponse response =
                 (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
@@ -378,7 +380,7 @@ public class JsonToRecordConverterTests {
         String jsonString = Files.readString(invalidSchemaJson);
 
         JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
-                false, false, false);
+                false, false, false, null);
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
         io.ballerina.jsonmapper.JsonToRecordResponse response =
                 (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
@@ -393,7 +395,7 @@ public class JsonToRecordConverterTests {
         String jsonString = Files.readString(invalidJson);
 
         JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
-                false, false, false);
+                false, false, false, null);
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
         io.ballerina.jsonmapper.JsonToRecordResponse response =
                 (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
@@ -410,7 +412,7 @@ public class JsonToRecordConverterTests {
         String jsonString = Files.readString(nullJson);
 
         JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
-                false, false, false);
+                false, false, false, null);
         CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
         io.ballerina.jsonmapper.JsonToRecordResponse response =
                 (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
@@ -419,6 +421,22 @@ public class JsonToRecordConverterTests {
         List<String> expectedCDiagnosticMessages =
                 List.of("[ERROR] Provided JSON is unsupported. It may be null or have missing types.");
         Assert.assertEquals(generatedDiagnosticMessages, expectedCDiagnosticMessages);
+    }
+
+    @Test(description = "Test JSON2Record endpoint for conflicting record names")
+    public void testJSON2RecordServiceConflictingRecNames() throws IOException, ExecutionException,
+            InterruptedException {
+        Endpoint serviceEndpoint = TestUtil.initializeLanguageSever();
+        String jsonString = Files.readString(sample10Json);
+
+        JsonToRecordRequest request = new JsonToRecordRequest(jsonString, null,
+                false, false, false, sample10Bal.toUri().toString());
+        CompletableFuture<?> result = serviceEndpoint.request(JsonToRecordService, request);
+        io.ballerina.jsonmapper.JsonToRecordResponse response =
+                (io.ballerina.jsonmapper.JsonToRecordResponse) result.get();
+        String generatedCodeBlock = response.getCodeBlock().replaceAll("\\s+", "");
+        String expectedCodeBlock = Files.readString(sample10WithoutConflictBal).replaceAll("\\s+", "");
+        Assert.assertEquals(generatedCodeBlock, expectedCodeBlock);
     }
 
     @Test(description = "Test null and empty array field type extraction")

@@ -1,0 +1,19 @@
+Code coverage is not yet supported with single bal files. Ignoring the flag and continuing the test run...
+warning: ignoring --includes flag since code coverage is not enabled
+Compiling source
+	failed-before-groups-test.bal
+
+Running Tests
+
+	failed-before-groups-test.bal
+	[fail] beforeGroupsFunc1[before test group function for the test]:
+	    Failed before group for g1
+		[pass] testFunction
+		[pass] testFunction4
+		[pass] testFunction5
+
+
+		3 passing
+		0 failing
+		2 skipped
+error: there are test failures

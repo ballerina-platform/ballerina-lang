@@ -4,6 +4,7 @@
     "character": 21
   },
   "source": "expression_context/source/mapping_expr_ctx_source69.bal",
+  "description": "Test completions in mapping constructor field name context with a similar type map in visible symbols (completion sorting with spread operator)",
   "items": [
     {
       "label": "readonly",
@@ -18,7 +19,7 @@
       "label": "map1",
       "kind": "Variable",
       "detail": "map<int>",
-      "sortText": "AB",
+      "sortText": "F",
       "insertText": "map1",
       "insertTextFormat": "Snippet"
     },
@@ -26,7 +27,7 @@
       "label": "map2",
       "kind": "Variable",
       "detail": "map<int>",
-      "sortText": "AB",
+      "sortText": "F",
       "insertText": "map2",
       "insertTextFormat": "Snippet"
     },

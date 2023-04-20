@@ -346,6 +346,31 @@ function testAnnotOnBoundMethod() {
     assertEquality(101, rec.i);
 }
 
+public type EntityConfig record {|
+    string[] key;
+|};
+
+public const annotation EntityConfig Entity on type;
+
+@Entity {
+    key: ["key1", "key2"]
+}
+type MedicalNeed record {
+
+};
+
+function testListExprInConstAnnot() {
+    EntityConfig? annot = MedicalNeed.@Entity;
+    assertTrue(annot is EntityConfig);
+
+    EntityConfig config = <EntityConfig> annot;
+    assertEquality(["key1", "key2"], config.key);
+}
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

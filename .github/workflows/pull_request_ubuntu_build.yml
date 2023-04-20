@@ -13,6 +13,7 @@ on:
       - 2201.[0-9]+.x
       - 2201.[0-9]+.[0-9]+-stage
       - native-build
+      - revert-client-decl-master
 
 jobs:
   ubuntu_build:
@@ -53,6 +54,9 @@ jobs:
           set-java-home: 'false'
 
       - name: Build with Gradle
+        env:
+          packageUser: ${{ github.actor }}
+          packagePAT: ${{ secrets.GITHUB_TOKEN }}
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &

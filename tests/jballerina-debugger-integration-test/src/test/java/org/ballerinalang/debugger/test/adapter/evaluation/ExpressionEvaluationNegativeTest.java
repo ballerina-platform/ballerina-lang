@@ -25,7 +25,8 @@ import org.testng.annotations.Test;
 
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.CUSTOM_ERROR;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.IMPORT_RESOLVING_ERROR;
-import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_ACCESS;
+import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.NAME_REF_RESOLVING_ERROR;
+import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.QUALIFIED_VARIABLE_RESOLVING_FAILED;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.REMOTE_METHOD_NOT_FOUND;
 import static org.ballerinalang.debugger.test.adapter.evaluation.EvaluationExceptionKind.UNSUPPORTED_EXPRESSION;
 
@@ -94,14 +95,24 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
 
     @Override
     @Test
-    public void variableReferenceEvaluationTest() throws BallerinaTestException {
+    public void nameReferenceEvaluationTest() throws BallerinaTestException {
+        // undefined name reference evaluation
+        debugTestRunner.assertEvaluationError(context, "unknown", String.format(NAME_REF_RESOLVING_ERROR.getString(),
+                "unknown"));
+
         // undefined constant evaluation
-        debugTestRunner.assertEvaluationError(context, "int:MAX", String.format(NON_PUBLIC_OR_UNDEFINED_ACCESS
+        debugTestRunner.assertEvaluationError(context, "int:MAX", String.format(QUALIFIED_VARIABLE_RESOLVING_FAILED
                 .getString(), "int", "MAX"));
 
         // undefined module evaluation
         debugTestRunner.assertEvaluationError(context, "foo:constant", String.format(IMPORT_RESOLVING_ERROR.getString(),
                 "foo"));
+    }
+
+    @Override
+    @Test(enabled = false)
+    public void builtInNameReferenceEvaluationTest() throws BallerinaTestException {
+        // Todo
     }
 
     @Override
@@ -424,23 +435,6 @@ public abstract class ExpressionEvaluationNegativeTest extends ExpressionEvaluat
                 "            expectedGradYear: expectedGradYear" +
                 "        };", String.format(EvaluationExceptionKind
                 .VARIABLE_NOT_FOUND.getString(), "undefinedList"));
-
-        // Query table without providing the contextual type
-        debugTestRunner.assertEvaluationError(context, "table key(id, name) from var customer in customerList" +
-                        "         select {" +
-                        "             id: customer.id," +
-                        "             name: customer.name," +
-                        "             noOfItems: customer.noOfItems" +
-                        "         }" +
-                        "         on conflict onConflictError;"
-                , "Failed to evaluate." + System.lineSeparator() +
-                        "Reason: compilation error(s) found while creating executables for evaluation: " +
-                        System.lineSeparator() +
-                        "field name 'id' used in key specifier is not found in table constraint type" +
-                                                      " 'map<(any|error)>'" +
-                        System.lineSeparator() +
-                        "field name 'name' used in key specifier is not found in table constraint type" +
-                                                      " 'map<(any|error)>'");
 
         // on conflict clauses usages with non-table returns
         debugTestRunner.assertEvaluationError(context, "from var customer in conflictedCustomerList" +

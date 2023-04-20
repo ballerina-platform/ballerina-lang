@@ -15,6 +15,14 @@
 // under the License.
 
 import ballerina/lang.runtime;
+import ballerina/test;
+
+int count = 0;
+
+function init() {
+   incrementCount();
+   assertCount(1);
+}
 
 public class ListenerObject1 {
 
@@ -25,11 +33,20 @@ public class ListenerObject1 {
     }
 
     public function 'start() returns error? {
+        incrementCount();
+        if (self.name == "DynamicListenerObject1") {
+            assertCount(2);
+        } else if (self.name == "ListenerObject1") {
+            assertCount(3);
+        }
     }
 
     public function gracefulStop() returns error? {
-        runtime:sleep(2);
-        if (self.name == "ModA") {
+        incrementCount();
+        future<int> f = start waitAndReturnInt(850);
+        int i = check wait f;
+        if (self.name == "ListenerObject1") {
+            assertCount(4);
             panic error("Stopped module A");
         }
     }
@@ -47,10 +64,12 @@ public class ListenerObject1 {
 public class ListenerObject2 {
     public function init() {}
 
-    public function 'start() returns error? {}
+    public function 'start() returns error? {
+    }
 
     public function gracefulStop() returns error? {
-        runtime:sleep(1);
+        future<int> f = start waitAndReturnInt(750);
+        int _ = check wait f;
     }
 
     public function immediateStop() returns error? {}
@@ -62,40 +81,31 @@ public class ListenerObject2 {
     }
 }
 
-public class ListenerObject3 {
-
-    private string name = "";
-
-    public function init(string name){
-        self.name = name;
-    }
-
-    public function 'start() returns error? {
-    }
-
-    public function gracefulStop() returns error? {
-    }
-
-    public function immediateStop() returns error? {
-    }
-
-    public function attach(service object {} s, string[]|string? name = ()) returns error? {
-    }
-
-    public function detach(service object {} s) returns error? {
-    }
-}
-
-final ListenerObject1 ep = new ListenerObject1("ModA");
-final ListenerObject2 lo2 = new ListenerObject2();
-final ListenerObject3 lo3 = new ListenerObject3("ListenerObject3");
+listener ListenerObject1 ep1 = new ListenerObject1("ListenerObject1");
+listener ListenerObject2 ep2 = new();
 
 public function main() {
-    runtime:registerListener(ep);
-    runtime:registerListener(lo2);
-    runtime:registerListener(lo3);
-    runtime:sleep(2);
-    runtime:deregisterListener(ep);
-    runtime:deregisterListener(lo2);
-    runtime:deregisterListener(lo3);
+    ListenerObject1 ep1 = new("DynamicListenerObject1");
+    checkpanic ep1.'start();
+    runtime:registerListener(ep1);
+
+    ListenerObject2 ep2 = new();
+    checkpanic ep2.'start();
+    runtime:registerListener(ep2);
+
+    runtime:deregisterListener(ep1);
+    runtime:deregisterListener(ep2);
+}
+
+function waitAndReturnInt(int i) returns int {
+    runtime:sleep(<decimal> i/1000);
+    return i;
+}
+
+public function incrementCount() {
+    count += 1;
+}
+
+public function assertCount(int val) {
+    test:assertEquals(count, val);
 }

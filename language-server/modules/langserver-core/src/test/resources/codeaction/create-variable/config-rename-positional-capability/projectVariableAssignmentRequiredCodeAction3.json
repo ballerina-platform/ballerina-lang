@@ -1,0 +1,60 @@
+{
+  "position": {
+    "line": 11,
+    "character": 4
+  },
+  "source": "testproject/modules/module1/module1.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 4
+            }
+          },
+          "newText": "module2:Country country = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "testproject/modules/module1/module1.bal",
+          {
+            "line": 11,
+            "character": 20
+          }
+        ]
+      },
+      "resolvable": false
+    },
+    {
+      "title": "Ignore return value",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 11,
+              "character": 4
+            },
+            "end": {
+              "line": 11,
+              "character": 4
+            }
+          },
+          "newText": "_ = "
+        }
+      ],
+      "resolvable": false
+    }
+  ]
+}

@@ -4,6 +4,7 @@
     "character": 10
   },
   "source": "action_node_context/source/client_resource_access_action_source8.bal",
+  "description": "",
   "items": [
     {
       "label": "post(string path, module1:RequestMessage message, string targetType)",
@@ -18,25 +19,6 @@
       "sortText": "CC",
       "filterText": "post",
       "insertText": "post(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "/path1/[string id1]/path2/[string... ids].post(string str, string... ids2)",
-      "kind": "Function",
-      "detail": "module1:Response",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource method.\n  \n**Params**  \n- `string` id1: Path parameter  \n- `string[]` ids: Rest path parameter  \n- `string` str: Argument  \n- `string[]` ids2: Rest argument  \n  \n**Return** `module1:Response`   \n- The response for the request  \n  \n"
-        }
-      },
-      "sortText": "CC",
-      "filterText": "path1|path2|post",
-      "insertText": "/path1/[${1:\"\"}]/path2/[${2:\"\"}].post(${3})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -101,6 +83,44 @@
       }
     },
     {
+      "label": "/path1/[string id1]/path2/[string... ids].post(string str, string... ids2)",
+      "kind": "Function",
+      "detail": "module1:Response",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource method.\n  \n**Params**  \n- `string` id1: Path parameter  \n- `string[]` ids: Rest path parameter  \n- `string` str: Argument  \n- `string[]` ids2: Rest argument  \n  \n**Return** `module1:Response`   \n- The response for the request  \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "path1|path2|post",
+      "insertText": "/path1/[${1:\"path\"}]/path2/[${2:\"path\"}].post(${3});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "/path1/<path>/path2/<path>.post(string str, string... ids2)",
+      "kind": "Function",
+      "detail": "module1:Response",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource method.\n  \n**Params**  \n- `string` id1: Path parameter  \n- `string[]` ids: Rest path parameter  \n- `string` str: Argument  \n- `string[]` ids2: Rest argument  \n  \n**Return** `module1:Response`   \n- The response for the request  \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "path1|path2|post",
+      "insertText": "/path1/${1:path}/path2/${2:path}.post(${3});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "/path3(module1:TargetType targetType)",
       "kind": "Function",
       "detail": "targetType|module1:ClientError",
@@ -112,7 +132,83 @@
       },
       "sortText": "CC",
       "filterText": "path3|get",
-      "insertText": "/path3(${1})",
+      "insertText": "/path3(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "/path4/[string pathParam](module1:TargetType targetType)",
+      "kind": "Function",
+      "detail": "targetType|module1:ClientError|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource function with multiple target types with java interoperability\n  \n**Params**  \n- `string` pathParam  \n- `module1:TargetType` targetType: Response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `targetType|module1:ClientError|error`   \n- The Response or the ClientError  \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "path4|get",
+      "insertText": "/path4/[${1:\"path\"}](${2});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "/path4/<path>(module1:TargetType targetType)",
+      "kind": "Function",
+      "detail": "targetType|module1:ClientError|error",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource function with multiple target types with java interoperability\n  \n**Params**  \n- `string` pathParam  \n- `module1:TargetType` targetType: Response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `targetType|module1:ClientError|error`   \n- The Response or the ClientError  \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "path4|get",
+      "insertText": "/path4/${1:path}(${2});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "/[string... path].post(module1:RequestMessage message, map<string|string[]>? headers, string? mediaType, module1:TargetType targetType)",
+      "kind": "Function",
+      "detail": "targetType|module1:ClientError",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource function with rest path praram with multiple target types with java interoperability\n  \n**Params**  \n- `string[]` path: Request path  \n- `module1:RequestMessage` message: An HTTP outbound request or any allowed payload  \n- `map<string|string[]>?` headers: The entity headers(Defaultable)  \n- `string?` mediaType: The MIME type header of the request entity(Defaultable)  \n- `module1:TargetType` targetType: HTTP response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `targetType|module1:ClientError`   \n- The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to  \nestablish the communication with the upstream server or a data binding failure  \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "post",
+      "insertText": "/[${1:\"path\"}].post(${2});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "/<path>.post(module1:RequestMessage message, map<string|string[]>? headers, string? mediaType, module1:TargetType targetType)",
+      "kind": "Function",
+      "detail": "targetType|module1:ClientError",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nSample resource function with rest path praram with multiple target types with java interoperability\n  \n**Params**  \n- `string[]` path: Request path  \n- `module1:RequestMessage` message: An HTTP outbound request or any allowed payload  \n- `map<string|string[]>?` headers: The entity headers(Defaultable)  \n- `string?` mediaType: The MIME type header of the request entity(Defaultable)  \n- `module1:TargetType` targetType: HTTP response or `anydata`, which is expected to be returned after data binding(Defaultable)  \n  \n**Return** `targetType|module1:ClientError`   \n- The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to  \nestablish the communication with the upstream server or a data binding failure  \n  \n"
+        }
+      },
+      "sortText": "CC",
+      "filterText": "post",
+      "insertText": "/${1:path}.post(${2});",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

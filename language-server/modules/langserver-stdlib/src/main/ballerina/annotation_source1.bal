@@ -87,7 +87,3 @@ public const annotation AnnotationType commonAnnotation2;
 public const annotation AnnotationType serviceRemoteFunctionAnnotation1 on service remote function;
 
 public const annotation serviceRemoteFunctionAnnotation2 on service remote function;
-
-public const annotation AnnotationType sourceClientDeclaration1 on source client;
-
-public const annotation sourceClientDeclaration2 on source client;

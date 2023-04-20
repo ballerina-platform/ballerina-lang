@@ -2,7 +2,7 @@ digraph "Initial" {
 	node [shape=record]
 	"$anon/." [label="<0.0.0> $anon/.:0.0.0"];
 	"foo/package_b" [label="<0.1.0> foo/package_b:0.1.0"];
-	"foo/package_c" [label="<0.1.0> foo/package_c:0.1.0"];
+	"foo/package_c" [unresolved="true",color="grey",label="<0.1.0> foo/package_c:0.1.0"];
 
 	// Edges
 	"$anon/.":"0.0.0" -> "foo/package_b":"0.1.0";
@@ -46,7 +46,7 @@ digraph "Initial" {
 	node [shape=record]
 	"$anon/." [label="<0.0.0> $anon/.:0.0.0"];
 	"foo/package_b" [label="<0.1.0> foo/package_b:0.1.0"];
-	"foo/package_c" [label="<0.1.0> foo/package_c:0.1.0"];
+	"foo/package_c" [unresolved="true",color="grey",label="<0.1.0> foo/package_c:0.1.0"];
 
 	// Edges
 	"$anon/.":"0.0.0" -> "foo/package_b":"0.1.0";

@@ -27,24 +27,33 @@ public class Client extends BClass {
 
     @Expose
     public List<Function> remoteMethods;
+    @Expose
+    public List<Function> resourceMethods;
 
     public Client(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
             List<Function> methods, boolean isReadOnly, boolean isIsolated) {
         super(name, description, isDeprecated, fields, methods, isReadOnly, isIsolated);
         this.remoteMethods = getRemoteMethods();
+        this.resourceMethods = getResourceMethods();
         this.otherMethods = getOtherMethods(methods);
     }
 
     @Override
     public List<Function> getOtherMethods(List<Function> methods) {
         return super.getOtherMethods(methods).stream()
-                .filter(function -> !function.isRemote)
+                .filter(function -> !function.isRemote && !function.isResource)
                 .collect(Collectors.toList());
     }
 
     public List<Function> getRemoteMethods() {
         return this.methods.stream()
                 .filter(function -> function.isRemote)
+                .collect(Collectors.toList());
+    }
+
+    public List<Function> getResourceMethods() {
+        return this.methods.stream()
+                .filter(function -> function.isResource)
                 .collect(Collectors.toList());
     }
 }

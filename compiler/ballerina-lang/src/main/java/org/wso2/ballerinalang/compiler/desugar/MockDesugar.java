@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -69,12 +70,14 @@ public class MockDesugar {
 
     private static final CompilerContext.Key<MockDesugar> MOCK_DESUGAR_KEY = new CompilerContext.Key<>();
     private static final String MOCK_FN_DELIMITER = "#";
+    private static final String MOCK_LEGACY_DELIMITER = "~";
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private BLangPackage bLangPackage;
     private BLangFunction originalFunction;
     private BInvokableSymbol importFunction;
     private String mockFnObjectName;
+    private String testPackageSymbol = "ballerina/test";
 
     public static final String MOCK_FUNCTION = "$MOCK_";
 
@@ -114,9 +117,17 @@ public class MockDesugar {
 
         // Get the set of functions to generate
         Set<String> mockFunctionSet = mockFunctionMap.keySet();
+        ArrayList<String> importsList = new ArrayList<>();
+        for (BLangImportPackage importPkg : pkgNode.getTestablePkg().getImports()) {
+            if (!importPkg.symbol.toString().contains(testPackageSymbol)) {
+                importsList.add(importPkg.symbol.toString());
+            }
+        }
 
         for (String function : mockFunctionSet) {
-            if (!function.contains("~")) {
+            if (function.contains(pkgNode.packageID.toString()) ? !function.split(pkgNode.packageID.toString())[1].
+                    startsWith(MOCK_LEGACY_DELIMITER) :
+                    !startsWithMockLegacyDelimiterForImportedMockFunctions(function, importsList)) {
                 pkgNode.getTestablePkg().functions.add(generateMockFunction(function));
             }
         }
@@ -380,6 +391,18 @@ public class MockDesugar {
         List<BLangCompilationUnit> compUnitList = this.bLangPackage.getTestablePkg().getCompilationUnits();
         BArrayType bArrayType = new BArrayType(symTable.stringType, null, -1, BArrayState.OPEN);
 
+        List<BLangCompilationUnit> modifiedcompUnitList = new ArrayList<>();
+        for (BLangCompilationUnit compUnit : compUnitList) {
+            List<TopLevelNode> topLevelNodes = compUnit.getTopLevelNodes();
+            for (TopLevelNode topLevelNode : topLevelNodes) {
+                if (topLevelNode instanceof BLangFunction) {
+                    modifiedcompUnitList.add(compUnit);
+                    break;
+                }
+            }
+        }
+        compUnitList = modifiedcompUnitList;
+
         BLangListConstructorExpr bLangListConstructorExpr =
                 ASTBuilderUtil.createListConstructorExpr(bLangPackage.pos, bArrayType);
 
@@ -552,5 +575,16 @@ public class MockDesugar {
         }
 
         return type;
+    }
+
+    private Boolean startsWithMockLegacyDelimiterForImportedMockFunctions(String mockFnName,
+                                                                          ArrayList<String> importsList) {
+        for (String importName : importsList) {
+            if (mockFnName.contains(importName) ? mockFnName.split(importName)[1].
+                    startsWith(MOCK_LEGACY_DELIMITER) : false) {
+                return true;
+            }
+        }
+        return false;
     }
 }

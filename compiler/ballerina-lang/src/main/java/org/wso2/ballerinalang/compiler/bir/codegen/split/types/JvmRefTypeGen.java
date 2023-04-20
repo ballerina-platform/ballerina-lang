@@ -63,12 +63,14 @@ public class JvmRefTypeGen {
         mv.visitLdcInsn(Utils.decodeIdentifier(typeRefType.tsymbol.name.value));
         String varName = jvmConstantsGen.getModuleConstantVar(typeRefType.tsymbol.pkgID);
         mv.visitFieldInsn(GETSTATIC, jvmConstantsGen.getModuleConstantClass(), varName, GET_MODULE);
+        mv.visitLdcInsn(jvmTypeGen.typeFlag(typeRefType.referredType));
+        jvmTypeGen.loadReadonlyFlag(mv, typeRefType.referredType);
         mv.visitMethodInsn(INVOKESPECIAL, TYPE_REF_TYPE_IMPL, JVM_INIT_METHOD, INIT_TYPE_REF, false);
     }
 
     public void populateTypeRef(MethodVisitor mv, BTypeReferenceType referenceType) {
         mv.visitTypeInsn(CHECKCAST, TYPE_REF_TYPE_IMPL);
-        jvmTypeGen.loadLocalType(mv, referenceType.referredType);
+        jvmTypeGen.loadType(mv, referenceType.referredType);
         mv.visitMethodInsn(INVOKEVIRTUAL, TYPE_REF_TYPE_IMPL, "setReferredType", TYPE_PARAMETER, false);
     }
 }

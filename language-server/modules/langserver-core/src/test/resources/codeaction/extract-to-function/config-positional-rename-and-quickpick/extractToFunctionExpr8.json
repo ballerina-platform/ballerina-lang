@@ -1,0 +1,90 @@
+{
+  "position": {
+    "line": 20,
+    "character": 18
+  },
+  "source": "extract_to_function_exprs_with_quickpick.bal",
+  "expected": [
+    {
+      "title": "Extract to function",
+      "kind": "refactor.extract",
+      "command": {
+        "title": "Extract to function",
+        "command": "ballerina.action.extract",
+        "arguments": [
+          "Extract to function",
+          "extract_to_function_exprs_with_quickpick.bal",
+          {
+            "r * r": [
+              {
+                "range": {
+                  "start": {
+                    "line": 20,
+                    "character": 30
+                  },
+                  "end": {
+                    "line": 20,
+                    "character": 30
+                  }
+                },
+                "newText": "\n\nfunction extracted(int r) returns int {\n    return r * r;\n}\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 20,
+                    "character": 13
+                  },
+                  "end": {
+                    "line": 20,
+                    "character": 18
+                  }
+                },
+                "newText": "extracted(r)"
+              }
+            ],
+            "r * r * float:PI": [
+              {
+                "range": {
+                  "start": {
+                    "line": 20,
+                    "character": 30
+                  },
+                  "end": {
+                    "line": 20,
+                    "character": 30
+                  }
+                },
+                "newText": "\n\nfunction extracted(int r) returns float {\n    return r * r * float:PI;\n}\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 20,
+                    "character": 13
+                  },
+                  "end": {
+                    "line": 20,
+                    "character": 29
+                  }
+                },
+                "newText": "extracted(r)"
+              }
+            ]
+          },
+          {
+            "r * r": {
+              "line": 20,
+              "character": 13
+            },
+            "r * r * float:PI": {
+              "line": 20,
+              "character": 13
+            }
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

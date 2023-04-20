@@ -49,7 +49,8 @@ public class TypeofOverLiteralExpressionTest {
         return new String[]{"typeDescOfExpressionsOfLiterals", "passTypeofToAFunction", "typeDescOfARecord",
                 "typeDescOrAObject", "passTypeofAsRestParams", "compareTypeOfValues", "typeDescOfLiterals",
                 "typeOfImmutableStructuralValues", "typeOfWithCloneReadOnly", "typeOfWithCloneWithTypeOnSameValue",
-                "typeOfWithCloneWithTypeOnDifferentValue", "typeOfWithEnsureTypeOnSameValue"};
+                "typeOfWithCloneWithTypeOnDifferentValue", "typeOfWithEnsureTypeOnSameValue",
+                "typeOfTypeReferenceTypeValues"};
     }
 
     @AfterClass

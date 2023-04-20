@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "int var1 \u003d ~10;\n    "
+          "newText": "int var1 = ~10;\n    "
         },
         {
           "range": {
@@ -41,7 +41,19 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInUnaryExpression.bal",
+          {
+            "line": 2,
+            "character": 17
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

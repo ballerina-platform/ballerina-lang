@@ -91,7 +91,8 @@ public class IsolationAnalysisTest {
                 "testIsolatedFunctionWithDefaultableParams",
                 "testAccessingFinalIsolatedObjectInIsolatedFunction",
                 "testIsolationOfBoundMethods",
-                "testFinalReadOnlyServiceAccessInIsolatedFunction"
+                "testFinalReadOnlyServiceAccessInIsolatedFunction",
+                "testFinalReadOnlyRawTemplateAccessInIsolatedFunction"
         };
     }
 

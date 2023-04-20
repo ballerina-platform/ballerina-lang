@@ -19,7 +19,6 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
     implementation project(':ballerina-runtime')
-    implementation project(':language-server:language-server-commons')
     implementation project(':identifier-util')
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.debug:0.12.0'
     implementation 'org.eclipse.lsp4j:org.eclipse.lsp4j.jsonrpc:0.12.0'

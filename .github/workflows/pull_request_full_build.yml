@@ -52,9 +52,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        level: [ 1, 2, 3, 4, 5, 6, 7, 8 ]
+        level: [ 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
 
     steps:
+      - name: Setup NodeJs
+        uses: actions/setup-node@v3
+        with:
+          node-version: 10.22.1
       - name: Download Ballerina Lang Artifacts
         uses: actions/download-artifact@v2
         with:
@@ -72,15 +76,15 @@ jobs:
           do git clone https://github.com/ballerina-platform/${module_name}.git; \
           done
 
-      - name: Checkout non-default branch
-        run: |
-          for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); \
-          do 
-            cd $module_name
-            git fetch origin
-            git checkout -t origin/update4 || :
-            cd ..
-          done
+#       - name: Checkout non-default branch
+#         run: |
+#           for module_name in $(jq -r '.standard_library| .[] | select(.level==${{ matrix.level }}) | .name' extensions.json); \
+#           do 
+#             cd $module_name
+#             git fetch origin
+#             git checkout -t origin/update4 || :
+#             cd ..
+#           done
 
       - name: Update Lang Version in Module
         run: |

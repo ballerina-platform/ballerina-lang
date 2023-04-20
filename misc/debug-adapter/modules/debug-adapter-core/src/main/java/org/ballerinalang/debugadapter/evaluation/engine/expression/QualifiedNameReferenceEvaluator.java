@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine.expression;
 
+import com.sun.jdi.Value;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -25,8 +26,12 @@ import org.ballerinalang.debugadapter.EvaluationContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.NameBasedTypeResolver;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.VariableUtils;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.EvaluationException.createEvaluationException;
@@ -35,6 +40,10 @@ import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.NON_PUBLIC_OR_UNDEFINED_ACCESS;
 import static org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind.QUALIFIED_VARIABLE_RESOLVING_FAILED;
 import static org.ballerinalang.debugadapter.evaluation.engine.EvaluationTypeResolver.isPublicSymbol;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_VALUE_CREATOR_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.CREATE_TYPEDESC_VALUE_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
 
 /**
  * Ballerina qualified name reference evaluator implementation.
@@ -69,10 +78,28 @@ public class QualifiedNameReferenceEvaluator extends Evaluator {
 
             // Validates whether the given module has a public variable, using semantic API.
             Optional<BExpressionValue> moduleVariable = searchForModuleVariable(moduleSymbol, modulePrefix);
-            if (moduleVariable.isEmpty()) {
+            if (moduleVariable.isPresent()) {
+                return moduleVariable.get();
+            }
+
+            NameBasedTypeResolver qualifiedTypeResolver = new NameBasedTypeResolver(evaluationContext);
+            try {
+                List<Value> resolvedTypes = qualifiedTypeResolver.resolve(modulePrefix + ":" + nameReference);
+                if (resolvedTypes.size() != 1) {
+                    throw createEvaluationException(QUALIFIED_VARIABLE_RESOLVING_FAILED, modulePrefix, nameReference);
+                }
+                Value type = resolvedTypes.get(0);
+                List<String> argTypeNames = new LinkedList<>();
+                argTypeNames.add(B_TYPE_CLASS);
+                RuntimeStaticMethod createTypeDescMethod = getRuntimeMethod(context,
+                        B_VALUE_CREATOR_CLASS, CREATE_TYPEDESC_VALUE_METHOD, argTypeNames);
+                List<Value> argValues = new LinkedList<>();
+                argValues.add(type);
+                createTypeDescMethod.setArgValues(argValues);
+                return new BExpressionValue(context, createTypeDescMethod.invokeSafely());
+            } catch (EvaluationException e) {
                 throw createEvaluationException(QUALIFIED_VARIABLE_RESOLVING_FAILED, modulePrefix, nameReference);
             }
-            return moduleVariable.get();
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {
@@ -111,10 +138,9 @@ public class QualifiedNameReferenceEvaluator extends Evaluator {
                 .map(symbol -> (VariableSymbol) symbol)
                 .findAny();
 
-        if (variableSymbol.isEmpty() || variableSymbol.get().getModule().isEmpty()) {
-            throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_ACCESS, modulePrefix, nameReference);
-        } else if (!isPublicSymbol(variableSymbol.get())) {
-            throw createEvaluationException(NON_PUBLIC_OR_UNDEFINED_ACCESS, modulePrefix, nameReference);
+        if (variableSymbol.isEmpty() || variableSymbol.get().getModule().isEmpty()
+                || !isPublicSymbol(variableSymbol.get())) {
+            return Optional.empty();
         }
 
         return VariableUtils.getModuleVariable(context, variableSymbol.get().getModule().get(), nameReference);

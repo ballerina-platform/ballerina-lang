@@ -1,0 +1,141 @@
+{
+  "position": {
+    "line": 22,
+    "character": 12
+  },
+  "source": "createVariable9.bal",
+  "expected": [
+    {
+      "title": "Create variable and type guard",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 22,
+              "character": 4
+            },
+            "end": {
+              "line": 22,
+              "character": 4
+            }
+          },
+          "newText": "HelloReply|E1 sayHello = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 22,
+              "character": 38
+            },
+            "end": {
+              "line": 22,
+              "character": 38
+            }
+          },
+          "newText": "\n    if sayHello is HelloReply {\n\n    }"
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariable9.bal",
+          {
+            "line": 22,
+            "character": 18
+          }
+        ]
+      },
+      "resolvable": false
+    },
+    {
+      "title": "Create variable and check error",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 22,
+              "character": 4
+            },
+            "end": {
+              "line": 22,
+              "character": 4
+            }
+          },
+          "newText": "HelloReply sayHello = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 22,
+              "character": 4
+            },
+            "end": {
+              "line": 22,
+              "character": 4
+            }
+          },
+          "newText": "check "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 21,
+              "character": 22
+            },
+            "end": {
+              "line": 21,
+              "character": 22
+            }
+          },
+          "newText": " returns error?"
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariable9.bal",
+          {
+            "line": 22,
+            "character": 15
+          }
+        ]
+      },
+      "resolvable": false
+    },
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 22,
+              "character": 4
+            },
+            "end": {
+              "line": 22,
+              "character": 4
+            }
+          },
+          "newText": "HelloReply|E1 sayHello = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariable9.bal",
+          {
+            "line": 22,
+            "character": 18
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

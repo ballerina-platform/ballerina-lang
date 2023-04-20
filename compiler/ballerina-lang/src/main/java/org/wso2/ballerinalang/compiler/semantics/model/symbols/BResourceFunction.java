@@ -18,8 +18,8 @@
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -35,34 +35,31 @@ public class BResourceFunction extends BAttachedFunction {
 
     public List<BVarSymbol> pathParams;
     public BVarSymbol restPathParam;
-    public List<Name> resourcePath;
     public Name accessor;
-    public BTupleType resourcePathType;
+    public List<BResourcePathSegmentSymbol> pathSegmentSymbols;
 
     public BResourceFunction(Name funcName, BInvokableSymbol symbol, BInvokableType type,
-                             List<Name> resourcePath, Name accessor, List<BVarSymbol> pathParams,
-                             BVarSymbol restPathParam, BTupleType resourcePathType, Location pos) {
+                             Name accessor, List<BVarSymbol> pathParams,
+                             BVarSymbol restPathParam, Location pos) {
         super(funcName, symbol, type, pos);
-        this.resourcePath = resourcePath;
         this.accessor = accessor;
         this.pathParams = pathParams;
         this.restPathParam = restPathParam;
-        this.resourcePathType = resourcePathType;
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("resource function ").append(accessor).append(" ");
-        List<String> resourcePathStrings = new ArrayList<>(resourcePath.size());
-        for (int i = 0; i < resourcePath.size(); i++) {
-            Name resourcePath = this.resourcePath.get(i);
-            if (resourcePath.value.equals("^") || resourcePath.value.equals("$^")) {
-                resourcePathStrings.add("[" + resourcePathType.tupleTypes.get(i) + "]");
-            } else if (resourcePath.value.equals("^^") || resourcePath.value.equals("$^^")) {
-                resourcePathStrings.add("[" + resourcePathType.restType + "...]");
+        int pathSegmentCount = pathSegmentSymbols.size();
+        List<String> resourcePathStrings = new ArrayList<>(pathSegmentCount);
+        for (BResourcePathSegmentSymbol pathSym : pathSegmentSymbols) {
+            if (pathSym.kind == SymbolKind.RESOURCE_PATH_PARAM_SEGMENT) {
+                resourcePathStrings.add("[" + pathSym.type + "]");
+            } else if (pathSym.kind == SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
+                resourcePathStrings.add("[" + pathSym.type + "...]");
             } else {
-                resourcePathStrings.add(resourcePath.value);
+                resourcePathStrings.add(pathSym.name.value);
             }
         }
         

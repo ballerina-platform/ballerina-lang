@@ -1,7 +1,0 @@
-[package]
-org = "lstest"
-name = "client_decl"
-version = "0.1.0"
-
-[build-options]
-observabilityIncluded = false

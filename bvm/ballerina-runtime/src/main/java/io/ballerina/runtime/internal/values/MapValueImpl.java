@@ -65,7 +65,6 @@ import java.util.stream.Collectors;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.JsonInternalUtils.mergeJson;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
@@ -94,6 +93,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     private static final long serialVersionUID = 1L;
     private BTypedesc typedesc;
     private Type type;
+    private Type referredType;
     private final Map<String, Object> nativeData = new HashMap<>();
     private Type iteratorNextReturnType;
 
@@ -106,23 +106,21 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     public MapValueImpl(Type type) {
         super();
-        this.type = getReferredType(type);
-        this.typedesc = getTypedescValue(type, this);
+        this.type = type;
+        this.referredType = getReferredType(type);
     }
 
     public MapValueImpl(Type type, BMapInitialValueEntry[] initialValues) {
         super();
-        this.type = getReferredType(type);
+        this.type = type;
+        this.referredType = getReferredType(type);
         populateInitialValues(initialValues);
-        if (!type.isReadOnly()) {
-            this.typedesc = new TypedescValueImpl(type);
-        }
     }
 
     public MapValueImpl() {
         super();
         type = PredefinedTypes.TYPE_MAP;
-        this.typedesc = getTypedescValue(type, this);
+        this.referredType = this.type;
     }
 
     public Long getIntValue(BString key) {
@@ -191,8 +189,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         Type expectedType = null;
 
         // The type should be a record or map for filling read.
-        if (this.type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            BRecordType recordType = (BRecordType) this.type;
+        if (this.referredType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            BRecordType recordType = (BRecordType) this.referredType;
             Map fields = recordType.getFields();
             if (fields.containsKey(key.toString())) {
                 expectedType = ((BField) fields.get(key.toString())).getFieldType();
@@ -205,7 +203,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 expectedType = recordType.restFieldType;
             }
         } else {
-            expectedType = ((BMapType) this.type).getConstrainedType();
+            expectedType = ((BMapType) this.referredType).getConstrainedType();
         }
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
@@ -298,18 +296,15 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     public void populateInitialValue(K key, V value) {
-        if (type.getTag() == TypeTags.MAP_TAG) {
-            MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) type);
+        if (referredType.getTag() == TypeTags.MAP_TAG) {
+            MapUtils.handleInherentTypeViolatingMapUpdate(value, (BMapType) referredType);
             putValue(key, value);
         } else {
             BString fieldName = (BString) key;
-            if (MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, (BRecordType) type, true)) {
+            if (MapUtils.handleInherentTypeViolatingRecordUpdate(this, fieldName, value, (BRecordType) referredType,
+                    true)) {
                 putValue(key, value);
             }
-        }
-
-        if (this.type.isReadOnly()) {
-            this.typedesc = createSingletonTypedesc(this);
         }
     }
 
@@ -352,6 +347,10 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         MapValueImpl<?, ?> mapValue = (MapValueImpl<?, ?>) o;
 
         if (mapValue.type.getTag() != this.type.getTag()) {
+            return false;
+        }
+
+        if (mapValue.referredType.getTag() != this.referredType.getTag()) {
             return false;
         }
 
@@ -524,13 +523,14 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         }
 
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
+        this.referredType = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.referredType);
 
         this.values().forEach(val -> {
             if (val instanceof RefValue) {
                 ((RefValue) val).freezeDirect();
             }
         });
-        this.typedesc = createSingletonTypedesc(this);
+        this.typedesc = null;
     }
 
     public String getJSONString() {
@@ -606,6 +606,9 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = getTypedescValue(type, this);
+        }
         return typedesc;
     }
 
@@ -620,11 +623,11 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     private void initializeIteratorNextReturnType() {
         Type type;
-        if (this.type.getTag() == PredefinedTypes.TYPE_MAP.getTag()) {
-            BMapType mapType = (BMapType) this.type;
+        if (this.referredType.getTag() == PredefinedTypes.TYPE_MAP.getTag()) {
+            BMapType mapType = (BMapType) this.referredType;
             type = mapType.getConstrainedType();
         } else {
-            BRecordType recordType = (BRecordType) this.type;
+            BRecordType recordType = (BRecordType) this.referredType;
             LinkedHashSet<Type> types = recordType.getFields().values().stream().map(Field::getFieldType)
                     .collect(Collectors.toCollection(LinkedHashSet::new));
             if (recordType.restFieldType != null) {

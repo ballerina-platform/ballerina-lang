@@ -78,7 +78,8 @@ public class SelectivelyImmutableTypeTest {
                 {"testReadOnlyIntersectionWithRecordThatHasAnOptionalNeverReadOnlyField"},
                 {"testReadOnlyIntersectionWithRecordThatHasANeverReadOnlyRestField"},
                 {"testTypeDefinitionForReadOnlyIntersectionWithBuiltinType"},
-                {"testIsReadonlyWithInBuiltUnionType"}
+                {"testIsReadonlyWithInBuiltUnionType"},
+                {"testReadOnlyIntersectionWithJsonAndAnydata"}
         };
     }
 
@@ -179,6 +180,18 @@ public class SelectivelyImmutableTypeTest {
                       355, 29);
         validateError(result, index++, "incompatible types: expected '(xml:Text|ImmutableXmlElement)', found " +
                 "'xml:Element'", 363, 12);
+        validateError(result, index++, "incompatible types: expected '(string|error)', found '(anydata & readonly)'",
+                      372, 22);
+        validateError(result, index++, "incompatible types: expected '(string|error)', found '(json & readonly)'", 375,
+                      22);
+        validateError(result, index++, "incompatible types: expected 'json & readonly', found '(anydata & readonly)'"
+                , 384, 25);
+        validateError(result, index++, "incompatible types: expected '(json & readonly)[]', found 'MyJson[]'", 403, 29);
+        validateError(result, index++, "incompatible types: expected '(MyJson & readonly)[]', found 'json[]'", 405, 31);
+        validateError(result, index++, "incompatible types: expected '(xml & readonly)[]', found " +
+                "'(json & readonly)[]'", 407, 28);
+        validateError(result, index++, "incompatible types: expected '(json & readonly)[]', found " +
+                "'(xml & readonly)[]'", 408, 29);
 
         assertEquals(result.getErrorCount(), index);
     }

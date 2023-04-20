@@ -49,6 +49,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
@@ -173,6 +174,8 @@ public class ClassSymbolTest {
                 {40, 21, 29, STRING, null},
                 {41, 17, 20, TYPE_REFERENCE, "Person2"},
                 {42, 9, 22, TYPE_REFERENCE, "Person2"},
+                {150, 12, 30, ARRAY, "string[]"},
+                {157, 12, 29, TYPE_REFERENCE, "PersonType"},
         };
     }
 

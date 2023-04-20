@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -40,8 +41,10 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -117,18 +120,20 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             types = CodeActionUtil.getPossibleTypes(foundType.get(), importEdits, context);
         }
         for (String type : types) {
-            if (typeNodeStr.isPresent() && typeNodeStr.get().equals(type)) {
+            String typeName = FunctionGenerator.processModuleIDsInText(new ImportsAcceptor(context), type, context);
+            if (typeNodeStr.isPresent() && typeNodeStr.get().equals(typeName)) {
                 // Skip suggesting same type
                 continue;
             }
             List<TextEdit> edits = new ArrayList<>();
-            edits.add(new TextEdit(PositionUtil.toRange(typeNode.get().lineRange()), type));
+            edits.add(new TextEdit(PositionUtil.toRange(typeNode.get().lineRange()), typeName));
             String commandTitle;
             if (variableNode.get().kind() == SyntaxKind.CONST_DECLARATION) {
-                commandTitle = String.format(CommandConstants.CHANGE_CONST_TYPE_TITLE, variableName.get(), type);
+                commandTitle = String.format(CommandConstants.CHANGE_CONST_TYPE_TITLE, variableName.get(), typeName);
             } else {
-                commandTitle = String.format(CommandConstants.CHANGE_VAR_TYPE_TITLE, variableName.get(), type);
+                commandTitle = String.format(CommandConstants.CHANGE_VAR_TYPE_TITLE, variableName.get(), typeName);
             }
+            edits.addAll(importEdits);
             actions.add(CodeActionUtil
                     .createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
         }
@@ -159,7 +164,8 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         return sNode.kind() == SyntaxKind.LOCAL_VAR_DECL
                 || sNode.kind() == SyntaxKind.MODULE_VAR_DECL
                 || sNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT
-                || sNode.kind() == SyntaxKind.CONST_DECLARATION;
+                || sNode.kind() == SyntaxKind.CONST_DECLARATION
+                || sNode.kind() == SyntaxKind.LET_VAR_DECL;
     }
 
     private Optional<String> getTypeNodeStr(Node node) {
@@ -202,6 +208,9 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                 return Optional.ofNullable(constDecl.typeDescriptor().orElse(null));
             case OBJECT_FIELD:
                 return Optional.of(((ObjectFieldNode) matchedNode).typeName());
+            case LET_VAR_DECL:
+                return Optional.ofNullable(((LetVariableDeclarationNode) matchedNode)
+                        .typedBindingPattern().typeDescriptor());
             default:
                 return Optional.empty();
         }
@@ -239,6 +248,10 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             case OBJECT_FIELD:
                 ObjectFieldNode objectFieldNode = (ObjectFieldNode) matchedNode;
                 return Optional.of(objectFieldNode.fieldName().text());
+            case LET_VAR_DECL:
+                LetVariableDeclarationNode variableDecl = (LetVariableDeclarationNode) matchedNode;
+                BindingPatternNode node = variableDecl.typedBindingPattern().bindingPattern();
+                return Optional.of(((CaptureBindingPatternNode) node).variableName().text());
             default:
                 return Optional.empty();
         }

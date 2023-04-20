@@ -1,0 +1,90 @@
+{
+  "position": {
+    "line": 11,
+    "character": 18
+  },
+  "source": "extractExprToConstantWithQuickPick.bal",
+  "expected": [
+    {
+      "title": "Extract to constant",
+      "kind": "refactor.extract",
+      "command": {
+        "title": "extract to constant",
+        "command": "ballerina.action.extract",
+        "arguments": [
+          "extract to constant",
+          "extractExprToConstantWithQuickPick.bal",
+          {
+            "4": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "const int CONST = 4;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 11,
+                    "character": 17
+                  },
+                  "end": {
+                    "line": 11,
+                    "character": 18
+                  }
+                },
+                "newText": "CONST"
+              }
+            ],
+            "4 * 5": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "const int CONST = 4 * 5;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 11,
+                    "character": 17
+                  },
+                  "end": {
+                    "line": 11,
+                    "character": 22
+                  }
+                },
+                "newText": "CONST"
+              }
+            ]
+          },
+          {
+            "4": {
+              "line": 12,
+              "character": 17
+            },
+            "4 * 5": {
+              "line": 12,
+              "character": 17
+            }
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

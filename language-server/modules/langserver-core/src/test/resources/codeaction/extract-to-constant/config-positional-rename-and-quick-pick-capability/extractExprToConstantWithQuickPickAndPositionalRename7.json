@@ -1,0 +1,122 @@
+{
+  "position": {
+    "line": 14,
+    "character": 22
+  },
+  "source": "extractExprToConstantWithQuickPick.bal",
+  "expected": [
+    {
+      "title": "Extract to constant",
+      "kind": "refactor.extract",
+      "command": {
+        "title": "extract to constant",
+        "command": "ballerina.action.extract",
+        "arguments": [
+          "extract to constant",
+          "extractExprToConstantWithQuickPick.bal",
+          {
+            "3.14": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "const float CONST = 3.14;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 14,
+                    "character": 25
+                  }
+                },
+                "newText": "CONST"
+              }
+            ],
+            "3.14 * 3": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "const float CONST = 3.14 * 3;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 14,
+                    "character": 29
+                  }
+                },
+                "newText": "CONST"
+              }
+            ],
+            "3.14 * 3 * 4": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "const float CONST = 3.14 * 3 * 4;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 14,
+                    "character": 21
+                  },
+                  "end": {
+                    "line": 14,
+                    "character": 33
+                  }
+                },
+                "newText": "CONST"
+              }
+            ]
+          },
+          {
+            "3.14": {
+              "line": 15,
+              "character": 21
+            },
+            "3.14 * 3": {
+              "line": 15,
+              "character": 21
+            },
+            "3.14 * 3 * 4": {
+              "line": 15,
+              "character": 21
+            }
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}
