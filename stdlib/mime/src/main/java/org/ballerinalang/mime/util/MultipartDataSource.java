@@ -111,6 +111,12 @@ public class MultipartDataSource implements RefValue {
             writeFinalBoundaryString(writer, parentBoundaryString);
         } catch (IOException e) {
             log.error("Error occurred while writing body parts to outputstream", e.getMessage());
+        } finally {
+            try {
+                writer.close();
+            } catch (IOException e) {
+                log.error("Error occurred while closing the writer", e.getMessage());
+            }
         }
     }
 
