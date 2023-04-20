@@ -65,16 +65,16 @@ public function random() returns float {
     return nextFloat();
 }
 
-isolated function nextFloat() returns float {
+function nextFloat() returns float {
     handle secureRandomObj = newSecureRandom();
     return nextFloatExtern(secureRandomObj);
 }
 
-isolated function newSecureRandom() returns handle = @java:Constructor {
+function newSecureRandom() returns handle = @java:Constructor {
     'class: "java.security.SecureRandom"
 } external;
 
-isolated function nextFloatExtern(handle secureRandomObj) returns float = @java:Method {
+function nextFloatExtern(handle secureRandomObj) returns float = @java:Method {
     name: "nextFloat",
     'class: "java.security.SecureRandom"
 } external;
