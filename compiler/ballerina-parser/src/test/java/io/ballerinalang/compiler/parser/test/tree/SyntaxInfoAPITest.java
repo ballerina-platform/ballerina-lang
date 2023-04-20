@@ -30,7 +30,7 @@ public class SyntaxInfoAPITest {
 
     @Test
     public void testKeywordCount() {
-        Assert.assertEquals(SyntaxInfo.keywords().size(), 100);
+        Assert.assertEquals(SyntaxInfo.keywords().size(), 99);
     }
 
     @Test
@@ -61,6 +61,11 @@ public class SyntaxInfoAPITest {
         Assert.assertFalse(SyntaxInfo.isKeyword("+"));
         Assert.assertFalse(SyntaxInfo.isKeyword(""));
         Assert.assertFalse(SyntaxInfo.isKeyword(" "));
+    }
+
+    @Test
+    public void testContextualKeywords() {
+        Assert.assertFalse(SyntaxInfo.isKeyword("re"));
     }
 
     @Test
