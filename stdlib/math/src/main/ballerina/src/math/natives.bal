@@ -62,12 +62,21 @@ function externPow(float a, float b) returns float = @java:Method {
 # 
 # + return - Selected random value
 public function random() returns float {
-    return externRandom();
+    return nextFloat();
 }
 
-function externRandom() returns float = @java:Method {
-    name: "random",
-    class: "java.lang.Math"
+isolated function nextFloat() returns float {
+    handle secureRandomObj = newSecureRandom();
+    return nextFloatExtern(secureRandomObj);
+}
+
+isolated function newSecureRandom() returns handle = @java:Constructor {
+    'class: "java.security.SecureRandom"
+} external;
+
+isolated function nextFloatExtern(handle secureRandomObj) returns float = @java:Method {
+    name: "nextFloat",
+    'class: "java.security.SecureRandom"
 } external;
 
 # Selects a random number between the given start(inclusive) and end(exclusive) values.
