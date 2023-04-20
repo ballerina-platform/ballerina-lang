@@ -290,6 +290,9 @@ public class TestCommand implements BLauncherCmd {
                     return;
                 }
             }
+            if (excludes != null && excludes.equals("")) {
+                this.outStream.println("warning: ignoring --excludes flag since given exclusion list is empty");
+            }
         } else {
             // Skip --includes flag if it is set without code coverage
             if (includes != null) {
@@ -354,8 +357,8 @@ public class TestCommand implements BLauncherCmd {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setNativeImage(nativeImage)
-                .setEnableCache(enableCache)
-                .build();
+                .setEnableCache(enableCache);
+
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

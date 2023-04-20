@@ -163,8 +163,8 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                     Optional<TypeSymbol> typeSymbol;
                     if (semanticModel.typeOf(lineRange).isPresent()) {
                         typeSymbol = semanticModel.typeOf(lineRange);
-                        Type.clearParentSymbols();
                         Type type = typeSymbol.map(Type::fromSemanticSymbol).orElse(null);
+                        Type.clearParentSymbols();
                         resolvedType.setType(type);
                         types.add(resolvedType);
                     }
@@ -200,8 +200,8 @@ public class BallerinaSymbolService implements ExtendedLanguageServerService {
                             .orElseThrow();
                     LinePosition linePosition = LinePosition.from(position.line(), position.offset());
                     Optional<Symbol> symbol = semanticModel.symbol(document, linePosition);
-                    Type.clearParentSymbols();
                     Type type = symbol.map(Type::fromSemanticSymbol).orElse(null);
+                    Type.clearParentSymbols();
                     resolvedType.setType(type);
                     types.add(resolvedType);
                 }
