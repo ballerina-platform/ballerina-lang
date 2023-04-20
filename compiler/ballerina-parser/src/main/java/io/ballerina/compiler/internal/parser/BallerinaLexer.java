@@ -1013,7 +1013,6 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.MATCH_KEYWORD);
             case LexerTerminals.CONFLICT:
                 return getSyntaxToken(SyntaxKind.CONFLICT_KEYWORD);
-
             case LexerTerminals.CLASS:
                 return getSyntaxToken(SyntaxKind.CLASS_KEYWORD);
             case LexerTerminals.CONFIGURABLE:

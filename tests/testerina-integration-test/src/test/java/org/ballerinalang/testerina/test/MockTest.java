@@ -65,6 +65,9 @@ public class MockTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("MockTest-testFunctionMocking.txt", output);
     }
 
@@ -81,6 +84,9 @@ public class MockTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("MockTest-testObjectMocking.txt", output);
     }
 
@@ -102,6 +108,9 @@ public class MockTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("MockTest-testFunctionMockingModuleLevel.txt", output);
     }
 
@@ -150,6 +159,9 @@ public class MockTest extends BaseTestCase {
     public void testFunctionMockingThenReturnWithNilReturnValue() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests-then-return-with-nil-ret-val"});
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("MockTest-testFunctionMockingThenReturnWithNilRetVal.txt",
                 output.replaceAll("\r\n|\r", "\n"));
     }
@@ -161,8 +173,12 @@ public class MockTest extends BaseTestCase {
         String output =
                 balClient.runMainAndReadStdOut("test", args, new HashMap<>(),
                         projectBasedTestsPath.resolve("object-mocking-tests").toString(), false);
-        String firstString = "Generating Test Report\n\t";
+        String firstString = "Generating Test Report";
         String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+
+        firstString = "tests.test_execute-generated_";
+        endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput(baseOutputFile, output);
     }
