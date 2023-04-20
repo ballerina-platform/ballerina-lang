@@ -38,11 +38,7 @@ import io.ballerina.shell.utils.Identifier;
 import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
@@ -52,12 +48,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -375,33 +366,38 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             String fileName = bufferFile.getName();
             String mainMethodClassName = fileName.substring(0, fileName.length() - TEMP_FILE_SUFFIX.length());
             JarResolver jarResolver = jBallerinaBackend.jarResolver();
-            if (importClassLoader == null) {
-                importClassLoader = getClassLoaderWithRequiredJarFilesForExecutionWithoutMainJar(jBallerinaBackend,
-                                                                                                jarResolver);
-            }
+            ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
+//            Collection<JarLibrary> jarFilePathsRequiredForExecution = jarResolver.getJarFilePathsRequiredForExecution();
 
-            ArrayList<URL> urlList = new ArrayList<>();
-            if (newImports.size() > 0) {
-                jarResolver.getJarFilePathsRequiredForExecution().stream()
-                        .filter(jarLibrary -> !jarLibrary.path().toString().contains("main"))
-                        .forEach(jarLibrary -> {
-                            try {
-                                urlList.add(new URL(jarLibrary.path().toUri().toURL().toString()));
-                            } catch (MalformedURLException e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
 
-                URL[] urlArr = new URL[urlList.size()];
-                urlArr = urlList.toArray(urlArr);
-                importClassLoader = URLClassLoader.newInstance(urlArr, importClassLoader);
-            }
-
-            ModuleName moduleName = project.currentPackage().getDefaultModule().moduleName();
-            PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
-                    project.currentPackage().packageId(), moduleName);
-            URL u = new URL(generatedJarLibrary.path().toUri().toURL().toString());
-            classLoader = URLClassLoader.newInstance(new URL[]{u}, importClassLoader);
+//            ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
+//            if (importClassLoader == null) {
+//                importClassLoader = getClassLoaderWithRequiredJarFilesForExecutionWithoutMainJar(jBallerinaBackend,
+//                                                                                                jarResolver);
+//            }
+//
+//            ArrayList<URL> urlList = new ArrayList<>();
+//            if (newImports.size() > 0) {
+//                jarResolver.getJarFilePathsRequiredForExecution().stream()
+//                        .filter(jarLibrary -> !jarLibrary.path().toString().contains("main"))
+//                        .forEach(jarLibrary -> {
+//                            try {
+//                                urlList.add(new URL(jarLibrary.path().toUri().toURL().toString()));
+//                            } catch (MalformedURLException e) {
+//                                throw new RuntimeException(e);
+//                            }
+//                        });
+//
+//                URL[] urlArr = new URL[urlList.size()];
+//                urlArr = urlList.toArray(urlArr);
+//                importClassLoader = URLClassLoader.newInstance(urlArr, importClassLoader);
+//            }
+//
+//            ModuleName moduleName = project.currentPackage().getDefaultModule().moduleName();
+//            PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
+//                    project.currentPackage().packageId(), moduleName);
+//            URL u = new URL(generatedJarLibrary.path().toUri().toURL().toString());
+//            classLoader = URLClassLoader.newInstance(new URL[]{u}, importClassLoader);
 
             // First run configure initialization
             // TODO: (#28662) After configurables can be supported, change this to that file location
@@ -409,21 +405,60 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                     new Class[]{String[].class, Path[].class, String.class}, new Object[]{new String[]{},
                             new Path[]{}, null});
             // Initialize the module
-            invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
-            // Start the module
-            invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_START_METHOD_NAME);
-            // Then call run method
-            Object failErrorMessage = invokeScheduledMethod(classLoader, mainMethodClassName, MODULE_RUN_METHOD_NAME);
-            if (failErrorMessage != null) {
-                errorStream.println("fail: " + failErrorMessage);
+
+            // replace with compilerResult approach
+//            invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
+//            // Start the module
+//            invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_START_METHOD_NAME);
+            PackageManifest packageManifest = project.currentPackage().manifest();
+            String initClassName = JarResolver.getQualifiedClassName(packageManifest.org().toString(),
+                    packageManifest.name().toString(),
+                    packageManifest.version().toString(),
+                    MODULE_INIT_CLASS_NAME);
+
+            Collection<JarLibrary> jarPathRequiredForExecution = jarResolver.getJarFilePathsRequiredForExecution();
+            StringBuilder classPath = new StringBuilder();
+            for (JarLibrary jarLibrary : jarPathRequiredForExecution) {
+                classPath.append(File.pathSeparator).append(jarLibrary.path());
             }
+
+            try {
+                final List<String> actualArgs = new ArrayList<>();
+                int index = 0;
+                actualArgs.add(index++, "java");
+//                for (String javaOpt : javaOpts) {
+//                    actualArgs.add(index++, javaOpt);
+//                }
+                actualArgs.add(index++, "-cp");
+                System.out.println(classPath.substring(0,classPath.length()));
+                actualArgs.add(index++, System.getProperty("java.class.path") + classPath);
+                actualArgs.add(index, initClassName);
+//                actualArgs.addAll(Arrays.asList(args));
+                final Runtime runtime = Runtime.getRuntime();
+                final Process process = runtime.exec(actualArgs.toArray(new String[0]));
+                String consoleError = getConsoleOutput(process.getErrorStream());
+                String consoleInput = getConsoleOutput(process.getInputStream());
+                process.waitFor();
+                int exitValue = process.exitValue();
+//                return new ExitDetails(exitValue, consoleInput, consoleError);
+                System.out.println(exitValue);
+            } catch (InterruptedException | IOException e) {
+                throw new RuntimeException("Main method invocation failed", e);
+            }
+
+            // Then call run method
+//            Object failErrorMessage = invokeScheduledMethod(classLoader, mainMethodClassName, MODULE_RUN_METHOD_NAME);
+//            if (failErrorMessage != null) {
+//                errorStream.println("fail: " + failErrorMessage);
+//            }
         } catch (InvokerPanicException panicError) {
             errorStream.println("panic: " + StringUtils.getErrorStringValue(panicError.getCause()));
             addErrorDiagnostic("Execution aborted due to unhandled runtime error.");
             throw panicError;
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
         }
+//        catch (MalformedURLException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     /* Invocation methods */
@@ -609,5 +644,12 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                 (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(urlList.toArray(new URL[0]),
                         ClassLoader.getSystemClassLoader())
         );
+    }
+
+    private static String getConsoleOutput(InputStream inputStream) {
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        StringJoiner sj = new StringJoiner(System.getProperty("line.separator"));
+        reader.lines().iterator().forEachRemaining(sj::add);
+        return sj.toString();
     }
 }
