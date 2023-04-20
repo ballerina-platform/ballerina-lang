@@ -31,7 +31,7 @@ public class XIDGenerator {
     private static final AtomicInteger formatIdIdGenerator = new AtomicInteger();
 
     private static byte[] randomBytes() {
-        final byte[] bytes = new byte[128];
+        final byte[] bytes = new byte[48];
         secureRand.nextBytes(bytes);
         return bytes;
     }
