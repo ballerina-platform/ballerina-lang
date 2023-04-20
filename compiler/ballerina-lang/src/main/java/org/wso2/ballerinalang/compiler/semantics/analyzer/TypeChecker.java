@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.identifier.Utils;
+import io.ballerina.projects.environment.Environment;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
@@ -3619,6 +3620,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             this.dlog.unmute();
         }
 
+        return type;
+    }
+
+    protected BType checkExprSilent(BLangExpression expr, SymbolEnv env, BType expType, AnalyzerData data) {
+        SymbolEnv prevEnv = data.env;
+        data.env = env;
+        BType type = checkExprSilent(nodeCloner.cloneNode(expr), expType, data);
+        data.env = prevEnv;
         return type;
     }
 
