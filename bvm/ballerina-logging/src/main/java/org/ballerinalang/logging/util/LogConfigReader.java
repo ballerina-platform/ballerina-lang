@@ -43,6 +43,12 @@ public class LogConfigReader {
                 logManager.readConfiguration(configStream);
             } catch (IOException e) {
                 stderr.println("error: failed to initialize logging");
+            } finally {
+                try {
+                    configStream.close();
+                } catch (IOException e) {
+                    stderr.println("error: failed to close logging");
+                }
             }
         } else {
             stderr.println("error: failed to initialize logging");
