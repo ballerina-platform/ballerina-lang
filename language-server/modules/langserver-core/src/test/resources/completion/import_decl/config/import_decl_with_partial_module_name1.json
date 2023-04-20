@@ -4,12 +4,13 @@
     "character": 22
   },
   "source": "import_decl/source/import_decl_with_partial_module_name1.bal",
+  "description": "",
   "items": [
     {
       "label": "module1",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "D",
       "insertText": "module1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -32,7 +33,7 @@
       "label": "lang.int",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.'int;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -55,7 +56,7 @@
       "label": "lang.boolean",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.'boolean;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -78,7 +79,7 @@
       "label": "lang.decimal",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.'decimal;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -101,7 +102,7 @@
       "label": "lang.runtime",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.runtime;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -124,7 +125,7 @@
       "label": "lang.future",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.'future;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -147,7 +148,7 @@
       "label": "lang.error",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.'error;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -170,7 +171,7 @@
       "label": "lang.regexp",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.regexp;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -193,7 +194,7 @@
       "label": "lang.transaction",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.'transaction;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -216,7 +217,7 @@
       "label": "lang.object",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.'object;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -239,7 +240,7 @@
       "label": "lang.function",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.'function;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -262,7 +263,7 @@
       "label": "lang.typedesc",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.'typedesc;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -285,7 +286,7 @@
       "label": "lang.table",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.'table;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -308,7 +309,7 @@
       "label": "lang.string",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.'string;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -331,7 +332,7 @@
       "label": "lang.test",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.test;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -354,7 +355,7 @@
       "label": "lang.value",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.value;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -377,7 +378,7 @@
       "label": "lang.xml",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.'xml;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -400,7 +401,7 @@
       "label": "jballerina.java",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "D",
       "insertText": "jballerina.java",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -423,7 +424,7 @@
       "label": "lang.stream",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.'stream;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -446,7 +447,7 @@
       "label": "lang.map",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.'map;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -469,7 +470,7 @@
       "label": "lang.array",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.array;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -492,7 +493,7 @@
       "label": "lang.float",
       "kind": "Module",
       "detail": "Module",
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "lang.'float;",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [

@@ -35,12 +35,12 @@ function testAnnotationOnTupleFields() {
     string k = "chiranS";
     [@annotOne {value: "10"} int, @annotOne {value: k} int, string...] x1 =  [1, 2, "hello", "world"];
     map<any> m1 = getAnonymousTupleAnnotations(typeof x1, "$field$.0");
-    map<any> m2 = getAnonymousTupleAnnotations(typeof x1, "$field$.1");
-    map<any> m3 = getAnonymousTupleAnnotations(typeof g1, "$field$.0");
-    map<any> m4 = getAnonymousTupleAnnotations(typeof g1, "$field$.1");
     assertEquality({value: "10"}, <map<anydata>>m1["annotOne"]);
+    map<any> m2 = getAnonymousTupleAnnotations(typeof x1, "$field$.1");
     assertEquality({value: "chiranS"}, <map<anydata>>m2["annotOne"]);
+    map<any> m3 = getAnonymousTupleAnnotations(typeof g1, "$field$.0");
     assertEquality({value: "10"}, <map<anydata>>m3["annotOne"]);
+    map<any> m4 = getAnonymousTupleAnnotations(typeof g1, "$field$.1");
     assertEquality({value: "k"}, <map<anydata>>m4["annotOne"]);
 }
 
@@ -54,12 +54,12 @@ function testAnnotationOnTupleFields2() {
     int age = 26;
     [@details {name: name, age: age} int, @details {name: "name", age: 0} int, string...] x1 =  [1, 2, "hello", "world"];
     map<any> m1 = getAnonymousTupleAnnotations(typeof x1, "$field$.0");
-    map<any> m2 = getAnonymousTupleAnnotations(typeof x1, "$field$.1");
-    map<any> m3 = getAnonymousTupleAnnotations(typeof g4, "$field$.0");
-    map<any> m4 = getAnonymousTupleAnnotations(typeof g4, "$field$.1");
     assertEquality({name: "chiranS", age: 26},  <map<anydata>>m1["details"]);
+    map<any> m2 = getAnonymousTupleAnnotations(typeof x1, "$field$.1");
     assertEquality({name: "name", age: 0},  <map<anydata>>m2["details"]);
+    map<any> m3 = getAnonymousTupleAnnotations(typeof g4, "$field$.0");    
     assertEquality({name: "foo", age: 15},  <map<anydata>>m3["details"]);
+    map<any> m4 = getAnonymousTupleAnnotations(typeof g4, "$field$.1");
     assertEquality({name: "name", age: 0},  <map<anydata>>m4["details"]);
 }
 
@@ -70,8 +70,8 @@ string gVar1 = "bar";
 function testAnnotationOnTupleWithGlobalVariable() {
     [@annotOne {value: gVar} int, int, string...] x1 =  [1, 2, "hello", "world"];
     map<any> m1 = getAnonymousTupleAnnotations(typeof x1, "$field$.0");
-    map<any> m2 = getAnonymousTupleAnnotations(typeof g2, "$field$.0");
     assertEquality({value: "foo"}, <map<anydata>>m1["annotOne"]);
+    map<any> m2 = getAnonymousTupleAnnotations(typeof g2, "$field$.0");
     assertEquality({value: "foo"}, <map<anydata>>m2["annotOne"]);
 }
 
@@ -81,14 +81,14 @@ function testMultipleAnnotationsOnLocalTuple() {
     string k = "chiranS";
     [@annotOne {value: "foo"} @annotTwo {value: "bar"} int, @details {name: k, age: 0} int, string...] x1 =  [1, 2, "hello", "world"];
     map<any> m1 = getAnonymousTupleAnnotations(typeof x1, "$field$.0");
-    map<any> m2 = getAnonymousTupleAnnotations(typeof x1, "$field$.1");
-    map<any> m3 = getAnonymousTupleAnnotations(typeof g3, "$field$.0");
-    map<any> m4 = getAnonymousTupleAnnotations(typeof g3, "$field$.1");
     assertEquality({value: "foo"}, <map<anydata>>m1["annotOne"]);
     assertEquality({value: "bar"}, <map<anydata>>m1["annotTwo"]);
+    map<any> m2 = getAnonymousTupleAnnotations(typeof x1, "$field$.1");
     assertEquality({name: "chiranS", age: 0},  <map<anydata>>m2["details"]);
+    map<any> m3 = getAnonymousTupleAnnotations(typeof g3, "$field$.0");
     assertEquality({value: "foo"}, <map<anydata>>m3["annotOne"]);
     assertEquality({value: "bar"}, <map<anydata>>m3["annotTwo"]);
+    map<any> m4 = getAnonymousTupleAnnotations(typeof g3, "$field$.1");
     assertEquality({name: "baz", age: 0},  <map<anydata>>m4["details"]);
 }
 
@@ -96,15 +96,15 @@ function() returns [int] x = function() returns [@annotOne {value: "foo"} int] {
 function() returns [int] x2 = function() returns [@annotOne {value: gVar1} @annotTwo {value: gVar2} int] {return [1];};
 function() returns [int, int] x3 = function() returns [@annotOne {value: gVar1} int, @details {name: "name", age: gVar3} int] {return [1, 1];};
 
-function testGlobalAnnotationsOnFunctionPointerReturnType() {
+function testTupleAnnotationsOnFunctionPointerReturnType() {
     map<any> m1 = getAnonymousTupleAnnotations(typeof x(), "$field$.0");
-    map<any> m2 = getAnonymousTupleAnnotations(typeof x2(), "$field$.0");
-    map<any> m3 = getAnonymousTupleAnnotations(typeof x3(), "$field$.0");
-    map<any> m4 = getAnonymousTupleAnnotations(typeof x3(), "$field$.1");
     assertEquality({value: "foo"}, <map<anydata>>m1["annotOne"]);
+    map<any> m2 = getAnonymousTupleAnnotations(typeof x2(), "$field$.0");
     assertEquality({value: "bar"}, <map<anydata>>m2["annotOne"]);
     assertEquality({value: "baz"}, <map<anydata>>m2["annotTwo"]);
+    map<any> m3 = getAnonymousTupleAnnotations(typeof x3(), "$field$.0");
     assertEquality({value: "bar"}, <map<anydata>>m3["annotOne"]);
+    map<any> m4 = getAnonymousTupleAnnotations(typeof x3(), "$field$.1");
     assertEquality({name: "name", age: 10}, <map<anydata>>m4["details"]);
 }
 
@@ -114,6 +114,16 @@ function testTupleMemberAnnotations1() returns [@annotOne {value: "foo"} int, @d
 
 function testTupleMemberAnnotations2() returns [@annotOne {value: gVar1} @annotTwo {value: gVar2} int] {
     return [1];
+}
+
+function testTupleMemberAnnotations() {
+    map<any> m1 = getAnonymousTupleAnnotations(typeof testTupleMemberAnnotations1(), "$field$.0");
+    assertEquality({value: "foo"}, <map<anydata>>m1["annotOne"]);
+    map<any> m2 = getAnonymousTupleAnnotations(typeof testTupleMemberAnnotations1(), "$field$.1");
+    assertEquality({name: "name", age: 10}, <map<anydata>>m2["details"]);
+    map<any> m3 = getAnonymousTupleAnnotations(typeof testTupleMemberAnnotations2(), "$field$.0");
+    assertEquality({value: "bar"}, <map<anydata>>m3["annotOne"]);
+    assertEquality({value: "baz"}, <map<anydata>>m3["annotTwo"]);
 }
 
 string gVar2 = "baz";
@@ -133,15 +143,15 @@ function func2() returns [@details {name: "name", age: gVar4} int, @annotTwo {va
 
 function testGlobalAnnotationsOnFunctionReturnType() {
     map<any> m1 = getAnonymousTupleAnnotations(typeof func(), "$field$.0");
-    map<any> m2 = getAnonymousTupleAnnotations(typeof func1(), "$field$.0");
-    map<any> m3 = getAnonymousTupleAnnotations(typeof func2(), "$field$.0");
-    map<any> m4 = getAnonymousTupleAnnotations(typeof func2(), "$field$.1");
     assertEquality({value: "foo"}, <map<anydata>>m1["annotOne"]);
+    map<any> m2 = getAnonymousTupleAnnotations(typeof func1(), "$field$.0");
     assertEquality({value: "foo"}, <map<anydata>>m2["annotOne"]);
     assertEquality({value: "baz"}, <map<anydata>>m2["annotTwo"]);
     assertEquality({value: "baz"}, <map<anydata>>m2["annotTwo"]);
     assertEquality({value: "baz"}, <map<anydata>>m2["annotTwo"]);
+    map<any> m3 = getAnonymousTupleAnnotations(typeof func2(), "$field$.0");
     assertEquality({name: "name", age: 15}, <map<anydata>>m3["details"]);
+    map<any> m4 = getAnonymousTupleAnnotations(typeof func2(), "$field$.1");
     assertEquality({value: "baz"}, <map<anydata>>m4["annotTwo"]);
 }
 
@@ -154,9 +164,8 @@ function func3([@annotOne {value: "foo"} int] a) {
 
 function func4([@annotOne {value: "foo"} int, @annotTwo {value: "foo"} @details {name: "name", age: gVar4} int] a) {
     map<any> m1 = getAnonymousTupleAnnotations(typeof a, "$field$.0");
-    map<any> m2 = getAnonymousTupleAnnotations(typeof a, "$field$.1");
-
     assertEquality({value: "foo"}, <map<anydata>>m1["annotOne"]);
+    map<any> m2 = getAnonymousTupleAnnotations(typeof a, "$field$.1");
     assertEquality({value: "foo"}, <map<anydata>>m2["annotTwo"]);
     assertEquality({name: "name", age: 15}, <map<anydata>>m2["details"]);
 }

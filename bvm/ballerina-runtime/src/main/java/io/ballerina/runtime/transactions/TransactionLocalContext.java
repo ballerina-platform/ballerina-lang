@@ -239,6 +239,14 @@ public class TransactionLocalContext {
         isTransactional = transactional;
     }
 
+    public Map<String, BallerinaTransactionContext> getTransactionContextStore() {
+        return transactionContextStore;
+    }
+
+    public void setTransactionContextStore(Map<String, BallerinaTransactionContext> transactionContextStore) {
+        this.transactionContextStore = transactionContextStore;
+    }
+
     /**
      * Carrier for transaction failure information.
      */

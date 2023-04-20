@@ -103,7 +103,7 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
                               new LogLeecher[]{testLog1, testLog2}, testFileLocation + "/testProject");
         testLog1.waitForText(5000);
-        testLog1.waitForText(5000);
+        testLog2.waitForText(5000);
 
         // Testing `bal test` command error log for configurables
         String errorMsg = "error: [Config.toml:(3:1,3:22)] configurable variable 'invalidMap' is expected to be of " +
