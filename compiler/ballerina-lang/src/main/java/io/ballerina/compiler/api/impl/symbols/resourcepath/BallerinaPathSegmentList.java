@@ -23,8 +23,8 @@ import io.ballerina.compiler.api.impl.symbols.resourcepath.util.BallerinaNamedPa
 import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.resourcepath.PathSegmentList;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -44,7 +44,7 @@ public class BallerinaPathSegmentList implements PathSegmentList {
     private final List<Name> internalSegments;
     private final List<BVarSymbol> internalPathParams;
     private final BVarSymbol internalPathRestParam;
-    private final BTupleType resourcePathType;
+    private final List<BResourcePathSegmentSymbol> pathSegmentSymbols;
     private final CompilerContext context;
 
     private List<PathParameterSymbol> pathParams;
@@ -53,11 +53,11 @@ public class BallerinaPathSegmentList implements PathSegmentList {
     private String signature;
 
     public BallerinaPathSegmentList(List<Name> segments, List<BVarSymbol> pathParams, BVarSymbol pathRestParam,
-                                    BTupleType resourcePathType, CompilerContext context) {
+                                    List<BResourcePathSegmentSymbol> pathSegmentSymbols, CompilerContext context) {
         this.internalSegments = segments;
         this.internalPathParams = pathParams;
         this.internalPathRestParam = pathRestParam;
-        this.resourcePathType = resourcePathType;
+        this.pathSegmentSymbols = pathSegmentSymbols;
         this.context = context;
     }
 
@@ -81,7 +81,7 @@ public class BallerinaPathSegmentList implements PathSegmentList {
                     break;
                 case "$^":
                     pathParams.add(
-                            symbolFactory.createPathParamSymbol(this.resourcePathType.getTupleTypes().get(i).tsymbol,
+                            symbolFactory.createPathParamSymbol(this.pathSegmentSymbols.get(i).getType().tsymbol,
                                     PathSegment.Kind.PATH_PARAMETER)
                     );
                     break;
