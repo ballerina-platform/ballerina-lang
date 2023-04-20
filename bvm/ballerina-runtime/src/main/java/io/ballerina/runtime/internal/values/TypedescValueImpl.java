@@ -92,10 +92,6 @@ public class TypedescValueImpl implements  TypedescValue {
         return instantiate(s, new BInitialValueEntry[0]);
     }
 
-    public MapValue getAnnotations() {
-        return annotations;
-    }
-
     @Override
     public Object instantiate(Strand s, BInitialValueEntry[] initialValues) {
         Type referredType = getReferredType(this.describingType);

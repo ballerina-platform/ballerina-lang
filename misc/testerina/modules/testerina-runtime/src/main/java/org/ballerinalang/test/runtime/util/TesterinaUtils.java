@@ -51,6 +51,8 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CL
 import static io.ballerina.runtime.internal.launch.LaunchUtils.startTrapSignalHandler;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.ANON_ORG;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.IDENTIFIER_END_INDEX;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.IDENTIFIER_START_INDEX;
 
 /**
  * Utility methods.
@@ -92,13 +94,12 @@ public class TesterinaUtils {
      * Execute tests in build.
      *
      * @param sourceRootPath source root path
-     * @param testSuite      test meta data
-     * @param out
+     * @param testSuite test meta data
      */
     public static void executeTests(Path sourceRootPath, TestSuite testSuite, ClassLoader classLoader,
-                                    TestArguments args, PrintStream out) throws RuntimeException {
+                                    TestArguments args, String[] cliArgs, PrintStream out) throws RuntimeException {
         try {
-            execute(testSuite, classLoader, args, out);
+            execute(testSuite, classLoader, args, cliArgs, out);
             cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
 //            if (testRunner.getTesterinaReport().isFailure()) {
 //                throw new RuntimeException("there are test failures");
@@ -113,7 +114,8 @@ public class TesterinaUtils {
         }
     }
 
-    private static void execute(TestSuite suite, ClassLoader classLoader, TestArguments args, PrintStream out) {
+    private static void execute(TestSuite suite, ClassLoader classLoader, TestArguments args, String[] cliArgs,
+                                PrintStream out) {
         String initClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
                 suite.getTestPackageID(),
                 suite.getVersion(),
@@ -158,13 +160,13 @@ public class TesterinaUtils {
         startTrapSignalHandler();
 
         // This will init and start the test module.
-        startSuite(suite, initScheduler, initClazz, configClazz, testExecuteClazz, args);
+        startSuite(suite, initScheduler, initClazz, configClazz, testExecuteClazz, args, cliArgs);
         // Call module stop and test stop function
         stopSuite(scheduler, initClazz);
     }
 
     private static void startSuite(TestSuite suite, Scheduler initScheduler, Class<?> initClazz,
-                            Class<?> configClazz, Class<?> testExecuteClazz, TestArguments args) {
+                            Class<?> configClazz, Class<?> testExecuteClazz, TestArguments args, String[] cliArgs) {
         TesterinaFunction init = new TesterinaFunction(initClazz, INIT_FUNCTION_NAME, initScheduler);
         TesterinaFunction start = new TesterinaFunction(initClazz, START_FUNCTION_NAME, initScheduler);
         TesterinaFunction configInit = new TesterinaFunction(configClazz, "$configureInit", initScheduler);
@@ -173,7 +175,7 @@ public class TesterinaUtils {
         // properly.
 
         Object response = configInit.directInvoke(new Class[]{String[].class, Path[].class, String.class},
-                new Object[]{new String[]{}, getConfigPaths(suite), null});
+                new Object[]{cliArgs, getConfigPaths(suite), null});
         if (response instanceof Throwable) {
             throw new BallerinaTestException("configurable initialization for test suite failed due to " +
                     formatErrorMessage((Throwable) response), (Throwable) response);
@@ -516,5 +518,43 @@ public class TesterinaUtils {
 
     private static String cleanupClassName(String className) {
         return className.replace(GENERATE_OBJECT_CLASS_PREFIX, ".");
+    }
+
+    public static String decodeIdentifier(String encodedIdentifier) {
+        if (encodedIdentifier == null) {
+            return encodedIdentifier;
+        }
+        StringBuilder sb = new StringBuilder();
+        int index = 0;
+        while (index < encodedIdentifier.length()) {
+            if (encodedIdentifier.charAt(index) == '$' && index + 4 < encodedIdentifier.length()) {
+                if (isUnicodePoint(encodedIdentifier, index)) {
+                    sb.append((char) Integer.parseInt(encodedIdentifier.substring(index + IDENTIFIER_START_INDEX,
+                            index + IDENTIFIER_END_INDEX)));
+                    index += IDENTIFIER_END_INDEX;
+                } else {
+                    sb.append(encodedIdentifier.charAt(index));
+                    index++;
+                }
+            } else {
+                sb.append(encodedIdentifier.charAt(index));
+                index++;
+            }
+        }
+        return sb.toString();
+    }
+
+    private static boolean isUnicodePoint(String encodedName, int index) {
+        return (containsOnlyDigits(encodedName.substring(index + IDENTIFIER_START_INDEX,
+                index + IDENTIFIER_END_INDEX)));
+    }
+
+    private static boolean containsOnlyDigits(String digitString) {
+        for (int i = 0; i < digitString.length(); i++) {
+            if (!Character.isDigit(digitString.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 }

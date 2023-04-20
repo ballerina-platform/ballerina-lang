@@ -207,10 +207,19 @@ public class RegExpFactory {
                 continue;
             }
             if (charAtom != null) {
-                charAtoms[i] = translateCharInCharacterClass((String) charAtom);
+                charAtoms[i] = translateVisitor(charAtom);
             }
         }
         return charClass;
+    }
+
+    private static Object translateVisitor(Object node) {
+        if (node instanceof RegExpLiteralCharOrEscape) {
+            return translateLiteralCharOrEscape((RegExpLiteralCharOrEscape) node);
+        } else if (node instanceof String) {
+            return translateCharInCharacterClass((String) node);
+        }
+        return node;
     }
 
     private static String translateCharInCharacterClass(String originalValue) {

@@ -31,29 +31,17 @@ import java.io.IOException;
  */
 public class DeprecateCommandTest extends BaseCommandTest {
 
-    @Test(description = "Test deprecate without package version")
-    public void testDeprecationWithoutVersion() throws IOException {
-        DeprecateCommand deprecationCommand = new DeprecateCommand(printStream, printStream, false);
-        new CommandLine(deprecationCommand).parseArgs("mynewdil/deppack", "--message", "for testing");
-        deprecationCommand.execute();
-
-        String buildLog = readOutput(true);
-        String actual = buildLog.replaceAll("\r", "");
-        Assert.assertTrue(actual.contains("ballerina: invalid package. Provide the package with the version."));
-        Assert.assertTrue(actual.contains("bal deprecate {<org-name>/<package-name>:<version>} [OPTIONS]"));
-    }
-
     @Test(description = "Test deprecate with invalid org name")
     public void testDeprecationWithInvalidOrg() throws IOException {
         DeprecateCommand deprecationCommand = new DeprecateCommand(printStream, printStream, false);
-        new CommandLine(deprecationCommand).parseArgs("my-newdil/deppack:0.1.0", "--message", "for testing");
+        new CommandLine(deprecationCommand).parseArgs("my-newdil/deppack:1.0.1", "--message", "for testing");
         deprecationCommand.execute();
 
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
-        Assert.assertTrue(actual.contains("ballerina: invalid package organization. Only alphanumerics and " +
-                "underscores are allowed in organization name. Provide a valid package organization."));
-        Assert.assertTrue(actual.contains("bal deprecate {<org-name>/<package-name>:<version>} [OPTIONS]"));
+        Assert.assertTrue(actual.contains("ballerina: invalid organization name. Organization name can only contain " +
+                "alphanumeric values with lower case letters and cannot start with numeric values, " +
+                "org_name = my-newdil"));
     }
 
     @Test(description = "Test deprecate with invalid package name")
@@ -64,10 +52,7 @@ public class DeprecateCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
-        Assert.assertTrue(actual.contains("ballerina: invalid package name. Only alphanumerics, underscores and " +
-                "periods are allowed in a package name and the maximum length is 256 characters. " +
-                "Provide a valid package name."));
-        Assert.assertTrue(actual.contains("bal deprecate {<org-name>/<package-name>:<version>} [OPTIONS]"));
+        Assert.assertTrue(actual.contains("ballerina: invalid package name provided"));
     }
 
     @Test(description = "Test deprecate with invalid version")
@@ -78,7 +63,20 @@ public class DeprecateCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
-        Assert.assertTrue(actual.contains("ballerina: invalid package. Provide a valid package version."));
+        Assert.assertTrue(actual.contains("ballerina: invalid request received. error occurred finding package"));
+    }
+
+    @Test(description = "Test deprecate with invalid message")
+    public void testDeprecationWithInvalidMessage() throws IOException {
+        DeprecateCommand deprecationCommand = new DeprecateCommand(printStream, printStream, false);
+        new CommandLine(deprecationCommand).parseArgs("mynewdil/deppack:xxx", "--message", "this is a test message \n" +
+                "with multiple lines");
+        deprecationCommand.execute();
+
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertTrue(actual.contains("ballerina: invalid deprecation message. " +
+                "The message cannot contain non-space whitespace or back slash characters."));
         Assert.assertTrue(actual.contains("bal deprecate {<org-name>/<package-name>:<version>} [OPTIONS]"));
     }
 
@@ -90,7 +88,7 @@ public class DeprecateCommandTest extends BaseCommandTest {
 
         String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
-        Assert.assertTrue(actual.contains("warning: ignoring '--message' flag since this is an undo request"));
+        Assert.assertTrue(actual.contains("warning: ignoring --message flag since this is an undo request"));
     }
 
     @Test(description = "Test deprecate with too many args")
