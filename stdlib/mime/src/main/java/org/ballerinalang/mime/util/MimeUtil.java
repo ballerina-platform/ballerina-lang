@@ -41,7 +41,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.util.Enumeration;
+import java.util.Random;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
@@ -432,7 +434,8 @@ public class MimeUtil {
      * @return a boundary string
      */
     public static String getNewMultipartDelimiter() {
-        return Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
+        SecureRandom random = new SecureRandom();
+        return Long.toHexString(random.nextLong());
     }
 
     /**
