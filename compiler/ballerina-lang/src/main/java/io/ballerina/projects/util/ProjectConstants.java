@@ -31,6 +31,7 @@ public class ProjectConstants {
     public static final String DEPENDENCIES_TOML = "Dependencies.toml";
     public static final String COMPILER_PLUGIN_TOML = "CompilerPlugin.toml";
     public static final String SETTINGS_TOML = "Settings.toml";
+    public static final String BAL_TOOLS_TOML = "bal-tools.toml";
     public static final String CLOUD_TOML = "Cloud.toml";
     public static final String CONFIGURATION_TOML = "Config.toml";
     public static final String SETTINGS_FILE_NAME = "Settings.toml";
@@ -67,6 +68,7 @@ public class ProjectConstants {
     public static final String GENERATED_MODULES_ROOT = "generated";
     public static final String LIB_DIR = "lib";
     public static final String COMPILER_PLUGIN_DIR = "compiler-plugin";
+    public static final String TOOL_DIR = "tool";
 
     public static final String BALA_DIR_NAME = "bala";
     public static final String BALA_CACHE_DIR_NAME = "bala_cache";

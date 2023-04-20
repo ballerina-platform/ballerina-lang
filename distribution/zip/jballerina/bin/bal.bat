@@ -74,10 +74,13 @@ set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%BALLERINA_HOME%\bre\lib\*
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%BALLERINA_HOME%\lib\tools\lang-server\lib\*
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%BALLERINA_HOME%\lib\tools\debug-adapter\lib\*
 
-set "SUB_TOOL_FILE=%BALLERINA_HOME%\sub-tools.properties"
-if exist "%SUB_TOOL_FILE%" (
-    for /f "tokens=1* delims==" %%a in (%SUB_TOOL_FILE%) do (
-        set "BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%%b"
+set "BAL_TOOLS_FILE=%USERPROFILE%\.ballerina\bal-tools.toml"
+if exist "%BAL_TOOLS_FILE%" (
+    for /f "delims=" %%i in ('type "%BAL_TOOLS_FILE%" ^| findstr /C:"path ="') do (
+        for /f "tokens=2 delims==\" %%j in ("%%i") do (
+            set "path=%%j"
+            set "BALLERINA_CLASSPATH=%BALLERINA_CLASSPATH%;!path!"
+        )
     )
 )
 

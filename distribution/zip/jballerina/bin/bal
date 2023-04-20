@@ -195,12 +195,15 @@ do
     BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$j
 done
 
-SUB_TOOL_FILE="$BALLERINA_HOME/sub-tools.properties"
-if [ -e "$SUB_TOOL_FILE" ]; then
-    while IFS='=' read -r key value
-    do
-      BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$value
-    done < "$SUB_TOOL_FILE"
+# Add bal tool jar files to the class path
+BAL_TOOLS_FILE="$HOME/.ballerina/bal-tools.toml"
+if [ -e "$BAL_TOOLS_FILE" ]; then
+    while IFS='=' read -r line; do
+        if echo "$line" | grep -q "path ="; then
+            path=$(echo "$line" | cut -d '"' -f 2)
+            BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$path
+        fi
+    done < "$BAL_TOOLS_FILE"
 fi
 
 # For Cygwin, switch paths to Windows format before running java

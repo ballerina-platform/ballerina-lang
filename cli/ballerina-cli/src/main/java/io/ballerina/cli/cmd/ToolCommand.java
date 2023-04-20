@@ -1,78 +1,258 @@
-package io.ballerina.cli.cmd;
+/*
+ *  Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 
-// TODO:
-//  1. Help text
-//  2. How to persist once added ***
-//  3. How to remove once added
-//  4. How to list
-//  5. Move OpenAPI to a separate gradle project and use
+package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.BallerinaCliCommands;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
+import org.ballerinalang.central.client.exceptions.CentralClientException;
+import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
+import org.wso2.ballerinalang.compiler.util.Names;
 import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashMap;
+import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 
 import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
+import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectUtils.validatePackageName;
+import static java.nio.file.Files.createDirectories;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
- * This class represents the "tool" command, and it holds arguments and flags specified by the user.
+ * This class represents the "bal tool" command.
  *
- * @since 0.8.1
+ * @since 2201.6.0
  */
 @CommandLine.Command(name = TOOL_COMMAND, description = "Ballerina tool command")
 public
 class ToolCommand implements BLauncherCmd {
+    // TODO: Remove TOOL_ORG_NAME and use what is there in the dir structure once pulled. Can be ballerina or ballerinax
+    private static final String TOOL_ORG_NAME = "ballerina";
+    private static final String PULL_COMMAND = "pull";
+    private static final String UPDATE_COMMAND = "update";
+    private static final String LIST_COMMAND = "list";
+    private static final String SEARCH_COMMAND = "search";
+    private static final String UNINSTALL_COMMAND = "uninstall";
+
     private final boolean exitWhenFinish;
     private PrintStream errStream;
 
     @CommandLine.Parameters(description = "Command name")
-    private List<String> toolCommands;
+    private List<String> argList;
 
     @CommandLine.Option(names = {"--help", "-h", "?"}, usageHelp = true)
     private boolean helpFlag;
 
-    private final Map<String, BLauncherCmd> subCommands = new HashMap<>();
-
-
-    private CommandLine parentCmdParser;
+    private String toolId;
+    private String version;
 
     public ToolCommand() {
         this.errStream = System.err;
         this.exitWhenFinish = true;
     }
 
+    public ToolCommand(PrintStream errStream, boolean exitWhenFinish) {
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+    }
+
     @Override
     public void execute() {
-        System.out.println("Starting tool command logic...");
-
-        if (helpFlag || toolCommands == null) {
-            errStream.println("Ballerina Tool Command Help:");
+        if (helpFlag) {
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND);
+            errStream.println(commandUsageInfo);
             return;
         }
 
-        if (toolCommands.size() == 2 && toolCommands.get(0).equals("pull")) {
-            String toolName = toolCommands.get(1);
-            System.out.println("Trying to pull tool: " + toolName);
-
-            // TODO: Implement the pulling logic similar to bal pull. May be we can call pull command from here.
-            //  The tool org name and version are hardcoded for now
-
-            String jarPath = CommandUtil.getSubCommandJarPath(toolName, "ballerina", "1.0.0");
-
-            // Save the path to the JAR file to a configuration file.
-            try {
-                CommandUtil.saveJarFilePathToConfigFile(toolName, jarPath);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            System.out.println("Saved sub command: " + toolName);
+        if (argList == null || argList.isEmpty()) {
+            CommandUtil.printError(this.errStream, "no sub-command given", "bal tool <sub-command> [args]", false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
         }
+
+        String command = argList.get(0);
+        switch (command) {
+            case PULL_COMMAND:
+                handlePullCommand();
+                break;
+            case UPDATE_COMMAND:
+                handleUpdateCommand();
+                break;
+            case LIST_COMMAND:
+                handleListCommand();
+                break;
+            case SEARCH_COMMAND:
+                handleSearchCommand();
+                break;
+            case UNINSTALL_COMMAND:
+                handleUninstallCommand();
+                break;
+            default:
+                CommandUtil.printError(this.errStream, "invalid sub-command given", "bal tool <sub-command> [args]",
+                        false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                break;
+        }
+    }
+
+    private void handlePullCommand() {
+        if (argList.size() < 2) {
+            CommandUtil.printError(this.errStream, "no tool id given", "bal tool pull <tool-id>[:<version>]", false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        if (argList.size() > 2) {
+            CommandUtil.printError(
+                    this.errStream, "too many arguments", "bal tool pull <tool-id>[:<version>]", false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        String toolIdAndVersion = argList.get(1);
+        String[] toolInfo = toolIdAndVersion.split(":");
+        if (toolInfo.length == 2) {
+            toolId = toolInfo[0];
+            version = toolInfo[1];
+        } else if (toolInfo.length == 1) {
+            toolId = toolIdAndVersion;
+            version = Names.EMPTY.getValue();
+        } else {
+            CommandUtil.printError(errStream, "invalid tool id",
+                    "bal tool pull <tool-id>[:<version>]", false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        if (!validatePackageName(toolId)) {
+            CommandUtil.printError(errStream, "invalid tool id",
+                    "bal tool pull <tool-id>[:<version>]", false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        if (Names.EMPTY.getValue().equals(version)) {
+            try {
+                SemanticVersion.from(version);
+            } catch (ProjectException e) {
+                CommandUtil.printError(errStream, "invalid tool version. " + e.getMessage(),
+                        "bal tool pull <tool-id>[:<version>]", false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+        }
+        Path packagePathInBalaCache = ProjectUtils.createAndGetHomeReposPath()
+                .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+                .resolve(ProjectConstants.BALA_DIR_NAME)
+                .resolve(TOOL_ORG_NAME).resolve(toolId);
+        // create directory path in bala cache
+        try {
+            createDirectories(packagePathInBalaCache);
+        } catch (IOException e) {
+            CommandUtil.exitError(this.exitWhenFinish);
+            throw createLauncherException(
+                    "unexpected error occurred while creating tool repository in bala cache: " + e.getMessage());
+        }
+
+        // TODO: remove the hard coded org name once we have an API for tool pulling.
+        for (String supportedPlatform : SUPPORTED_PLATFORMS) {
+            try {
+                boolean hasCompilationErrors = mockPullToolFromCentral(supportedPlatform, packagePathInBalaCache);
+//                boolean hasCompilationErrors = pullToolFromCentral(supportedPlatform, packagePathInBalaCache);
+                if (hasCompilationErrors) {
+                    CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+                String jarPath = CommandUtil.getSubCommandJarPath(TOOL_ORG_NAME, toolId, version);
+                if (jarPath == null) {
+                    CommandUtil.printError(this.errStream, "tool jar not found", null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+                CommandUtil.appendJarFilePathToBalToolsTomlFile(toolId, version, jarPath);
+            } catch (PackageAlreadyExistsException e) {
+                errStream.println(e.getMessage());
+                CommandUtil.exitError(this.exitWhenFinish);
+            } catch (CentralClientException e) {
+                errStream.println("unexpected error occurred while pulling tool:" + e.getMessage());
+                CommandUtil.exitError(this.exitWhenFinish);
+            }
+        }
+    }
+
+    private void handleUpdateCommand() {
+        // TODO: complete
+    }
+
+    private void handleListCommand() {
+        // TODO: read and list all the commands in the bal-tools.toml file. id:version
+        //  bal tool list
+    }
+
+    private void handleSearchCommand() {
+        // TODO: make a central API call and return the results.
+        //  bal tool search <search-term>
+    }
+
+    private void handleUninstallCommand() {
+        // TODO: remove from bal-tools.toml file and delete the jar file
+        //  bal tool uninstall <tool-id>
+    }
+
+//    private boolean pullToolFromCentral(String supportedPlatform, Path packagePathInBalaCache)
+//            throws CentralClientException {
+//        Settings settings;
+//        try {
+//            settings = RepoUtils.readSettings();
+//            // Ignore Settings.toml diagnostics in the pull command
+//        } catch (SettingsTomlException e) {
+//            // Ignore 'Settings.toml' parsing errors and return empty Settings object
+//            settings = Settings.from();
+//        }
+//        CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+//                initializeProxy(settings.getProxy()),
+//                getAccessTokenOfCLI(settings));
+//        // TODO: replace with the correct API call once we have an API for tool pulling.
+//        client.pullPackage(TOOL_ORG_NAME, toolId, version, packagePathInBalaCache, supportedPlatform,
+//                RepoUtils.getBallerinaVersion(), false);
+//        if (version.equals(Names.EMPTY.getValue())) {
+//            List<String> versions = client.getPackageVersions(TOOL_ORG_NAME, toolId, supportedPlatform,
+//                    RepoUtils.getBallerinaVersion());
+//            version = CommandUtil.getLatestVersion(versions);
+//        }
+//        return CommandUtil.pullDependencyPackages(TOOL_ORG_NAME, toolId, version);
+//    }
+
+    // TODO: remove once the pull tool API is available.
+    private boolean mockPullToolFromCentral(String supportedPlatform, Path packagePathInBalaCache)
+            throws CentralClientException {
+        if (version.equals(Names.EMPTY.getValue())) {
+            version = "1.0.0";
+        }
+        // do nothing
+        return false;
     }
 
     @Override
@@ -92,6 +272,5 @@ class ToolCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
     }
 }
