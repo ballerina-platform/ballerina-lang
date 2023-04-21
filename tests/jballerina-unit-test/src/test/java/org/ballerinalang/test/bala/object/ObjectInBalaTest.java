@@ -421,10 +421,9 @@ public class ObjectInBalaTest {
         int i = 0;
         BAssertUtil.validateError(result, i++, "missing required parameter 'addVal' in call to 'new()'", 8, 12);
         BAssertUtil.validateError(result, i++, "missing required parameter 'addVal' in call to 'new()'", 12, 33);
-        BAssertUtil.validateError(result, i++, "cannot infer type of the object from 'other'", 13, 19);
-        BAssertUtil.validateError(result, i++, "invalid variable definition; can not infer the assignment type.",
-                13, 19);
-        BAssertUtil.validateError(result, i++, "cannot infer type of the object from 'error'", 14, 21);
+        BAssertUtil.validateError(result, i++, "invalid variable definition; can not infer the assignment type.", 13, 19);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected '()', found 'int'", 13, 24);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected '()', found 'int'", 14, 26);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

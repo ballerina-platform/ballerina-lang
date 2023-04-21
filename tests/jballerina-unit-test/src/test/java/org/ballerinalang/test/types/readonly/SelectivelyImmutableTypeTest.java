@@ -145,6 +145,7 @@ public class SelectivelyImmutableTypeTest {
 
         validateError(result, index++, "invalid intersection type with 'readonly', 'NeverReadOnlyClass' can never be " +
                 "'readonly'", 276, 5);
+        validateError(result, index++, "incompatible types: expected '()', found 'future<int>'", 276, 46);
         validateError(result, index++, "cannot initialize abstract object '(ReadOnlyClass & readonly)'", 279, 32);
         validateError(result, index++, "cannot initialize abstract object '(ReadOnlyClass & readonly)'", 282, 36);
         validateError(result, index++, "cannot initialize abstract object '(NonReadOnlyClass & readonly)'", 289, 35);

@@ -56,6 +56,7 @@ public class ShadowingNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Student'", 117, 1);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Person'", 126, 6);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'Vehicle'", 134, 5);
+        BAssertUtil.validateError(compileResult, index++, "cannot infer type of the object from 'other'", 134, 23);
         BAssertUtil.validateError(compileResult, index++, "unknown type 'returnVal'", 139, 40);
         BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'Foo'", 147, 6);
         assertEquals(index, compileResult.getErrorCount());

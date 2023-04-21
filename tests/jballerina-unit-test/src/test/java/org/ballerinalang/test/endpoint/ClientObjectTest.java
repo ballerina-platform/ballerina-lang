@@ -99,6 +99,9 @@ public class ClientObjectTest {
         BAssertUtil.validateError(compileResult, errIdx++, "unknown type 'XXX'", 59, 5);
         BAssertUtil
                 .validateError(compileResult, errIdx++,
+                        "cannot infer type of the object from 'other'", 59, 13);
+        BAssertUtil
+                .validateError(compileResult, errIdx++,
                         "invalid remote method call: expected a client object, but found 'other'", 61, 13);
         BAssertUtil
                 .validateError(compileResult, errIdx++,
