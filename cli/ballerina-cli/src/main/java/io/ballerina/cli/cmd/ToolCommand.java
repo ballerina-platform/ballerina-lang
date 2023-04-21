@@ -152,7 +152,7 @@ class ToolCommand implements BLauncherCmd {
             return;
         }
 
-        if (Names.EMPTY.getValue().equals(version)) {
+        if (!Names.EMPTY.getValue().equals(version)) {
             try {
                 SemanticVersion.from(version);
             } catch (ProjectException e) {
