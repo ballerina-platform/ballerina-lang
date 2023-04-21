@@ -142,7 +142,7 @@ public interface BDecimal {
      * @return      value kind
      * @deprecated  use {@link #decimalValue()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     DecimalValueKind getValueKind();
 
     /**

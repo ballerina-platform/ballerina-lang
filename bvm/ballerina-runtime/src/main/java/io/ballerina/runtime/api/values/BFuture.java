@@ -42,7 +42,7 @@
       * @return     strand
       * @deprecated
       */
-     @Deprecated
+     @Deprecated(since = "2201.6.0", forRemoval = true)
      Strand getStrand();
 
      /**

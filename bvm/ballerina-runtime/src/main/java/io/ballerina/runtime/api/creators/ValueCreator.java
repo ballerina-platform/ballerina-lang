@@ -306,7 +306,7 @@ public class ValueCreator {
      * @return          decimal value
      * @deprecated      use {@link #createDecimalValue(String)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     public static BDecimal createDecimalValue(String value, DecimalValueKind valueKind) {
         return new DecimalValue(value, valueKind);
     }
@@ -342,7 +342,7 @@ public class ValueCreator {
      * @return           created {@code StreamingJsonValue}
      * @deprecated
      */
-    @Deprecated
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     public static BStreamingJson createStreamingJsonValue(JsonDataSource datasource) {
         return new StreamingJsonValue(datasource);
     }

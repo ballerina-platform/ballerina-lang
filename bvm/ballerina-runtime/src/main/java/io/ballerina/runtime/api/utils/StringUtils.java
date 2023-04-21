@@ -168,7 +168,7 @@ public class StringUtils {
      * @return          String value of the value
      * @deprecated      use {@link #getStringValue(Object)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     public static String getStringValue(Object value, BLink parent) {
         return getStringVal(value, parent);
     }
@@ -192,7 +192,7 @@ public class StringUtils {
      * @return          String value of the value in expression style
      * @deprecated      use {@link #getExpressionStringValue(Object)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     public static String getExpressionStringValue(Object value, BLink parent) {
         return getExpressionStringVal(value, parent);
     }
@@ -223,7 +223,7 @@ public class StringUtils {
      * @return      Ballerina value represented by Ballerina expression syntax
      * @deprecated  use {@link #parseExpressionStringValue(String)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     public static Object parseExpressionStringValue(String value, BLink parent) throws BallerinaException {
         return parseExpressionStringVal(value, parent);
     }

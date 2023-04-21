@@ -34,8 +34,12 @@ import java.util.HashMap;
  */
 public interface BObject extends RefValue {
 
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     Object call(Strand strand, String funcName, Object... args);
 
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     BFuture start(Strand strand, String funcName, Object... args);
 
     /**

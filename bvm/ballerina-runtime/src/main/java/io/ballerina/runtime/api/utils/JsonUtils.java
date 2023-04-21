@@ -299,7 +299,7 @@ public class JsonUtils {
      * @return                  json value
      * @deprecated              use {@link #convertToJson(Object)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     public static Object convertToJson(Object value, List<TypeValuePair> unresolvedValues) {
         return convertToJsonType(value, unresolvedValues);
     }
