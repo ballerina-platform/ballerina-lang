@@ -41,7 +41,7 @@ import java.util.List;
  */
 public abstract class SnippetFactory extends DiagnosticReporter {
     /**
-     * Creates a snippets from the given node.
+     * Creates snippets from the given node.
      * This will throw and error if the resultant snippet is an erroneous snippet.
      *
      * @param nodes Root node to create snippet from.
@@ -57,7 +57,7 @@ public abstract class SnippetFactory extends DiagnosticReporter {
     }
 
     /**
-     * Creates a snippets from the given node.
+     * Creates snippets from the given node.
      * This will throw and error if the resultant snippet is an erroneous snippet.
      *
      * @param node Root node to create snippet from.
@@ -112,7 +112,7 @@ public abstract class SnippetFactory extends DiagnosticReporter {
     public abstract ImportDeclarationSnippet createImportSnippet(Node node);
 
     /**
-     * Create a variable declaration snippets from the given node.
+     * Create variable declaration snippets from the given node.
      * Returns null if snippet cannot be created.
      *
      * @param node Root node to create snippet from.
