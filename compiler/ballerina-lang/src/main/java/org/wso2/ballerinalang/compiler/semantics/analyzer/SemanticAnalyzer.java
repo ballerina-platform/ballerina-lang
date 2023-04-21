@@ -3870,6 +3870,11 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         SymbolEnv onFailEnv = SymbolEnv.createBlockEnv(onFailClause.body, data.env);
         VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
         if (onFailVarDefNode != null) {
+            BLangVariable variableNode = (BLangVariable) onFailVarDefNode.getVariable();
+            if (variableNode.getKind() != NodeKind.VARIABLE && variableNode.getKind() != NodeKind.ERROR_VARIABLE) {
+                dlog.error(variableNode.pos, DiagnosticErrorCode.INVALID_BINDING_PATTERN_IN_ON_FAIL);
+                return;
+            }
             // Check on-fail node's variables and set types.
             handleForeachDefinitionVariables(onFailVarDefNode, symTable.errorType,
                     onFailClause.isDeclaredWithVar, true, onFailEnv);
