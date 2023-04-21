@@ -80,7 +80,9 @@ public class VarDeclrSemanticTest {
         int indx = 0;
         validateError(result, indx++, "unknown type 'L'", 20, 26);
         validateError(result, indx++, "missing open parenthesis token", 21, 1);
-        validateError(result, indx++, "incompatible types: expected '()', found 'typedesc<ballerina/lang.test:0.0.0:Caller>'", 21,5);
+        validateError(result, indx++,
+                "incompatible types: expected '()', found 'typedesc<ballerina/lang.test:0.0.0:Caller>'",
+                21, 5);
         validateError(result, indx++, "missing comma token", 21, 17);
         validateError(result, indx++, "intervening whitespaces are not allowed in qualified identifier", 21, 30);
         validateError(result, indx++, "missing close parenthesis token", 22, 1);

@@ -79,7 +79,8 @@ public class PackageImportTest {
                 1);
         BAssertUtil.validateError(result, i++, "undefined module 'http'", "file-negative2.bal", 3, 5);
         BAssertUtil.validateError(result, i++, "unknown type 'Client'", "file-negative2.bal", 3, 5);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected '()', found 'string'", "file-negative2.bal", 3, 34);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected '()', found 'string'",
+                "file-negative2.bal", 3, 34);
         BAssertUtil.validateError(result, i++, "undefined function 'println'", "file-negative2.bal", 4, 5);
         BAssertUtil.validateError(result, i++, "undefined module 'io'", "file-negative2.bal", 4, 5);
         BAssertUtil.validateError(result, i++, "undefined module 'io'", "file-negative2.bal", 5, 18);
