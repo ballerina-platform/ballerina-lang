@@ -1,0 +1,30 @@
+NAME
+       ballerina-tool - Manage tools provided by Ballerina
+
+SYNOPSIS
+       bal tool <sub-command> [args]
+
+
+DESCRIPTION
+       # COMPLETE THIS
+
+COMMANDS
+        pull
+            Pull a Ballerina tool from Ballerina Central
+            # COMPLETE THIS
+        update
+            Update a Ballerina tool to the latest version
+        list
+            List all the Ballerina tools available locally
+        search
+            Search Ballerina Central for Ballerina tools
+        uninstall
+            Uninstall a Ballerina tool
+
+EXAMPLES
+       Pull a tool from the Ballerina Central.
+           $ bal tool pull openapi
+
+       Pull a specific version of a tool from the Ballerina Central.
+           $ bal tool pull openapi:1.5.0
+       # COMPLETE THIS
