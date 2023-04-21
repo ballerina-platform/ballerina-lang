@@ -41,6 +41,7 @@ import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.XmlAttributesType;
 import io.ballerina.runtime.api.types.XmlType;
 import io.ballerina.runtime.internal.IteratorUtils;
@@ -175,10 +176,10 @@ public class PredefinedTypes {
     public static final MapType TYPE_DETAIL;
     public static final Type TYPE_ERROR_DETAIL;
     public static final ErrorType TYPE_ERROR;
-    public static final BUnionType TYPE_CLONEABLE;
+    public static final UnionType TYPE_CLONEABLE;
 
-    public static final BUnionType TYPE_JSON_DECIMAL;
-    public static final BUnionType TYPE_JSON_FLOAT;
+    public static final UnionType TYPE_JSON_DECIMAL;
+    public static final UnionType TYPE_JSON_FLOAT;
 
     public static final RecordType STRING_ITR_NEXT_RETURN_TYPE =
             IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_STRING_CHAR);
