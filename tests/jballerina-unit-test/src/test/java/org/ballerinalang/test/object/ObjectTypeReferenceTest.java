@@ -54,6 +54,7 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Employee1' is not an object", 32,
                 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 48, 6);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'Foo'", 52, 1);
         BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the method 'getName' of class 'Manager2'", 73, 1);
         BAssertUtil.validateError(negativeResult, i++,

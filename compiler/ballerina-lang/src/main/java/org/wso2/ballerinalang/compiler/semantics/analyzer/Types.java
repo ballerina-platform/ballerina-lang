@@ -5088,7 +5088,7 @@ public class Types {
     private BType getTypeIntersection(IntersectionContext intersectionContext, BType lhsType, BType rhsType,
                                      SymbolEnv env,
                                      LinkedHashSet<BType> visitedTypes) {
-        List<BType> rhsTypeComponents = getAllTypes(rhsType, false);
+        List<BType> rhsTypeComponents = getAllTypes(rhsType, true);
         LinkedHashSet<BType> intersection = new LinkedHashSet<>(rhsTypeComponents.size());
         for (BType rhsComponent : rhsTypeComponents) {
             BType it = getIntersection(intersectionContext, lhsType, env, rhsComponent,
