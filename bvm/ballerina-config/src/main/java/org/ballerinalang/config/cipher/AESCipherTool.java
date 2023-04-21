@@ -54,7 +54,7 @@ public class AESCipherTool {
     private static final String ALGORITHM_AES = "AES";
     private static final String ALGORITHM_SHA_256 = "SHA-256";
     //private static final int IV_SIZE = 96;
-    private static final int IV_SIZE = 16;
+    private static final int IV_SIZE = 12;
     private static final int SECRET_KEY_LENGTH = 16; // TODO: Make this 32 again after switching to Java 9
 
     private final SecretKey secretKey;
