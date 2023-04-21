@@ -39,6 +39,7 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BClientType;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import io.ballerina.runtime.internal.values.ObjectValue;
 
 import java.util.List;
 import java.util.Map;
@@ -60,7 +61,7 @@ public class ObjectMock {
      * @param objectValue mock object to impersonate the type
      * @return mock object of provided type
      */
-    public static BObject mock(BTypedesc bTypedesc, BObject objectValue) {
+    public static BObject mock(BTypedesc bTypedesc, ObjectValue objectValue) {
         ObjectType objectValueType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
         if (!objectValueType.getName().contains(MockConstants.DEFAULT_MOCK_OBJ_ANON)) {
             // handle user-defined mock object

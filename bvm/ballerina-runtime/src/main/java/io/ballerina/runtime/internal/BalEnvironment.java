@@ -15,10 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.runtime.api;
+package io.ballerina.runtime.internal;
 
+import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.types.Parameter;
+import io.ballerina.runtime.internal.scheduling.State;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.Optional;
 
@@ -28,21 +32,47 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface Environment {
+public class BalEnvironment implements Environment {
+
+    private final Strand strand;
+    private BalFuture future;
+    private Module currentModule;
+    private String funcName;
+    private Parameter[] funcPathParams;
+
+    public BalEnvironment(Strand strand) {
+        this.strand = strand;
+    }
+
+    public BalEnvironment(Strand strand, Module currentModule) {
+        this.strand = strand;
+        this.currentModule = currentModule;
+        future = new BalFuture(this.strand);
+    }
+
+    public BalEnvironment(Strand strand, Module currentModule, String funcName, Parameter[] funcPathParams) {
+        this(strand, currentModule);
+        this.funcName = funcName;
+        this.funcPathParams = funcPathParams;
+    }
 
     /**
      * Returns the Ballerina function name for the corresponding external interop method.
      *
      * @return function name
      */
-    String getFunctionName();
+    public String getFunctionName() {
+        return funcName;
+    }
 
     /**
      * Returns an array consisting of the path parameters of the resource function defined as external.
      *
      * @return array of {@link Parameter}
      */
-    Parameter[] getFunctionPathParameters();
+    public Parameter[] getFunctionPathParameters() {
+        return funcPathParams;
+    }
 
     /**
      * Mark the current executing strand as async. Execution of Ballerina code after the current
@@ -52,23 +82,33 @@ public interface Environment {
      *
      * @return BalFuture which will resume the current strand when completed.
      */
-    Future markAsync();
+    public BalFuture markAsync() {
+        strand.blockedOnExtern = true;
+        strand.setState(State.BLOCK_AND_YIELD);
+        return future;
+    }
 
-    Runtime getRuntime();
+    public BalRuntime getRuntime() {
+        return new BalRuntime(strand.scheduler);
+    }
 
     /**
      * Gets current module {@link Module}.
      *
      * @return module of the environment.
      */
-    Module getCurrentModule();
+    public Module getCurrentModule() {
+        return currentModule;
+    }
 
     /**
      * Gets the strand id. This will be generated on strand initialization.
      *
      * @return Strand id.
      */
-    int getStrandId();
+    public int getStrandId() {
+        return strand.getId();
+    }
 
     /**
      * Gets the strand name. This will be optional. Strand name can be either name given in strand annotation or async
@@ -76,14 +116,18 @@ public interface Environment {
      *
      * @return Optional strand name.
      */
-    Optional<String> getStrandName();
+    public Optional<String> getStrandName() {
+        return strand.getName();
+    }
 
     /**
      * Gets {@link StrandMetadata}.
      *
      * @return metadata of the strand.
      */
-    StrandMetadata getStrandMetadata();
+    public StrandMetadata getStrandMetadata() {
+        return strand.getMetadata();
+    }
 
     /**
      * Sets given local key value pair in strand.
@@ -91,7 +135,9 @@ public interface Environment {
      * @param key   string key
      * @param value value to be store in the strand
      */
-    void setStrandLocal(String key, Object value);
+    public void setStrandLocal(String key, Object value) {
+        strand.setProperty(key, value);
+    }
 
     /**
      * Gets the value stored in the strand on given key.
@@ -99,5 +145,7 @@ public interface Environment {
      * @param key key
      * @return value stored in the strand.
      */
-    Object getStrandLocal(String key);
+    public Object getStrandLocal(String key) {
+        return strand.getProperty(key);
+    }
 }
