@@ -20,6 +20,8 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.HandleValue;
@@ -33,6 +35,9 @@ import io.ballerina.runtime.internal.values.ObjectValue;
 public class InstanceMethods {
 
     private Integer counter = 0;
+
+    public InstanceMethods() {
+    }
 
     public void increaseCounterByOne() {
         this.counter = this.counter + 1;
@@ -209,4 +214,11 @@ public class InstanceMethods {
         return instanceMethods.getCurrentModule(env, b * 4);
     }
 
+    public long getResource(BString p1, BString p2) {
+        return 5;
+    }
+
+    public BString getResourceWithBundledPaths(Environment env, BObject self, BArray paths, long i) {
+        return StringUtils.fromString("resource method input: " + i);
+    }
 }

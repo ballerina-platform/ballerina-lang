@@ -271,12 +271,20 @@ public class InteropMethodGen {
         List<BIRNode.BIRFunctionParameter> birFuncParams = birFunc.parameters;
 
         int birFuncParamIndex = 0;
+        int bReceiverParamIndex = 0;
+        boolean isJavaInstanceMethod = jMethod.kind == JMethodKind.METHOD && !jMethod.isStatic();
         // Load receiver which is the 0th parameter in the birFunc
-        if (jMethod.kind == JMethodKind.METHOD && !jMethod.isStatic()) {
-            BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
+        if (isJavaInstanceMethod) {
+            int pathParamCount = 0;
+            for (BIRNode.BIRFunctionParameter birFuncParam : birFuncParams) {
+                if (birFuncParam.isPathParameter) {
+                    pathParamCount++;
+                }
+            }
+            bReceiverParamIndex = pathParamCount;
+            BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(bReceiverParamIndex);
             BIROperand argRef = new BIROperand(birFuncParam);
             args.add(argRef);
-            birFuncParamIndex = 1;
         }
 
         JType varArgType = null;
@@ -292,6 +300,10 @@ public class InteropMethodGen {
 
         int paramCount = birFuncParams.size();
         while (birFuncParamIndex < paramCount) {
+            if (birFuncParamIndex == bReceiverParamIndex && isJavaInstanceMethod) {
+                birFuncParamIndex++;
+                continue;
+            }
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
             BType bPType = birFuncParam.type;
             BIROperand argRef = new BIROperand(birFuncParam);
