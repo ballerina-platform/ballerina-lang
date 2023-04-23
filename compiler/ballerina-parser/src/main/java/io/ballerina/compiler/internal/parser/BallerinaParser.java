@@ -13853,6 +13853,17 @@ public class BallerinaParser extends AbstractParser {
                 blockStatement);
     }
 
+    /**
+     * Parse typed binding pattern.
+     * <p>
+     * <code>
+     * typed-binding-pattern := inferable-type-descriptor binding-pattern
+     * <br/>
+     * inferable-type-descriptor := type-descriptor | var
+     * </code>
+     *
+     * @return Typed binding pattern node
+     */
     private STNode parseTypedBindingPattern() {
         STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
                 true, false, TypePrecedence.DEFAULT);

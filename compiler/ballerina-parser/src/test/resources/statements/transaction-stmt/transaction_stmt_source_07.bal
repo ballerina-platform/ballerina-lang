@@ -1,19 +1,13 @@
 function foo() {
     transaction {
     } on fail SampleError error(message, cause, userCode = code, userReason = reason) {
-        io:println(message);
-        io:println(cause);
-        io:println(code);
-        io:println(reason);
+        int a = code
     }
 
     transaction {
         int a = 5;
     } on fail SampleError error(message, cause, userCode = code, userReason = reason) {
-        io:println(message);
-        io:println(cause);
-        io:println(code);
-        io:println(reason);
+        int a = code
     }
 
     transaction {
@@ -23,10 +17,7 @@ function foo() {
             }
         }
     } on fail SampleError error(message, cause, userCode = code, userReason = reason) {
-        io:println(message);
-        io:println(cause);
-        io:println(code);
-        io:println(reason);
+        int a = code
     }
 
     transaction {
@@ -34,16 +25,10 @@ function foo() {
             transaction {
                 string b;
             } on fail SampleError error(message, cause, userCode = code, userReason = reason) {
-                io:println(message);
-                io:println(cause);
-                io:println(code);
-                io:println(reason);
+                int a = code
             }
         }
     } on fail SampleError error(message, cause, userCode = code, userReason = reason) {
-        io:println(message);
-        io:println(cause);
-        io:println(code);
-        io:println(reason);
+        int a = code
     }
 }

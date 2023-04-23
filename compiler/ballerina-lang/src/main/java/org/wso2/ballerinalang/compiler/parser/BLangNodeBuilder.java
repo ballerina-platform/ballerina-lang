@@ -3921,7 +3921,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                                 Optional.empty(), Optional.empty());
                 onFailClause.isDeclaredWithVar =
                         typedBindingPatternNode.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
-            markVariableWithFlag((BLangVariable) variableDefinitionNode.getVariable(), Flag.FINAL);
+                markVariableWithFlag((BLangVariable) variableDefinitionNode.getVariable(), Flag.FINAL);
                 onFailClause.variableDefinitionNode = variableDefinitionNode;
             }
         });

@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.parser.test.syntax.statements;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -76,6 +77,49 @@ public class LockStatementTest extends AbstractStatementTest {
                 "lock-stmt/lock_stmt_assert_14.json");
     }
 
+    @DataProvider(name = "onFailClauseOtherBPTestDataProvider")
+    public Object[][] onFailClauseOtherBPTestDataProvider() {
+        return new Object[][]{
+                {"lock-stmt/lock_stmt_source_19.bal", "lock-stmt/lock_stmt_assert_19.json"},
+                {"lock-stmt/lock_stmt_source_20.bal", "lock-stmt/lock_stmt_assert_20.json"},
+                {"lock-stmt/lock_stmt_source_21.bal", "lock-stmt/lock_stmt_assert_21.json"},
+                {"lock-stmt/lock_stmt_source_22.bal", "lock-stmt/lock_stmt_assert_22.json"}
+        };
+    }
+
+    @Test(dataProvider = "onFailClauseOtherBPTestDataProvider")
+    public void testLockOnFailClauseWithOtherBP(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
+    }
+
+    @DataProvider(name = "onFailClauseErrorBPWithFieldBPTestDataProvider")
+    public Object[][] onFailClauseErrorBPWithFieldBPTestDataProvider() {
+        return new Object[][]{
+                {"lock-stmt/lock_stmt_source_23.bal", "lock-stmt/lock_stmt_assert_23.json"},
+                {"lock-stmt/lock_stmt_source_24.bal", "lock-stmt/lock_stmt_assert_24.json"},
+                {"lock-stmt/lock_stmt_source_25.bal", "lock-stmt/lock_stmt_assert_25.json"}
+        };
+    }
+
+    @Test(dataProvider = "onFailClauseErrorBPWithFieldBPTestDataProvider")
+    public void testLockOnFailClausHavingErrorBPWithFieldBP(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
+    }
+
+    @DataProvider(name = "onFailClauseErrorBPWithOtherTypeDescTestDataProvider")
+    public Object[][] onFailClauseErrorBPWithOtherTypeDescTestDataProvider() {
+        return new Object[][]{
+                {"lock-stmt/lock_stmt_source_26.bal", "lock-stmt/lock_stmt_assert_26.json"},
+                {"lock-stmt/lock_stmt_source_27.bal", "lock-stmt/lock_stmt_assert_27.json"},
+                {"lock-stmt/lock_stmt_source_28.bal", "lock-stmt/lock_stmt_assert_38.json"}
+        };
+    }
+
+    @Test(dataProvider = "onFailClauseErrorBPWithOtherTypeDescTestDataProvider")
+    public void testLockOnFailClausHavingErrorBPWithOtherTypeDesc(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
+    }
+
     // Recovery tests
 
     @Test
@@ -102,12 +146,19 @@ public class LockStatementTest extends AbstractStatementTest {
         "lock-stmt/lock_stmt_assert_07.json");
     }
 
-    @Test
-    public void testLockOnFailClauseRecovery() {
-        testFile("lock-stmt/lock_stmt_source_09.bal", "lock-stmt/lock_stmt_assert_09.json");
-        testFile("lock-stmt/lock_stmt_source_15.bal", "lock-stmt/lock_stmt_assert_15.json");
-        testFile("lock-stmt/lock_stmt_source_16.bal", "lock-stmt/lock_stmt_assert_16.json");
-        testFile("lock-stmt/lock_stmt_source_17.bal", "lock-stmt/lock_stmt_assert_17.json");
-        testFile("lock-stmt/lock_stmt_source_18.bal", "lock-stmt/lock_stmt_assert_18.json");
+    @DataProvider(name = "onFailClauseRecoveryTestDataProvider")
+    public Object[][] onFailClauseRecoveryTestDataProvider() {
+        return new Object[][]{
+                {"lock-stmt/lock_stmt_source_09.bal", "lock-stmt/lock_stmt_assert_09.json"},
+                {"lock-stmt/lock_stmt_source_15.bal", "lock-stmt/lock_stmt_assert_15.json"},
+                {"lock-stmt/lock_stmt_source_16.bal", "lock-stmt/lock_stmt_assert_16.json"},
+                {"lock-stmt/lock_stmt_source_17.bal", "lock-stmt/lock_stmt_assert_17.json"},
+                {"lock-stmt/lock_stmt_source_18.bal", "lock-stmt/lock_stmt_assert_18.json"}
+        };
+    }
+
+    @Test(dataProvider = "onFailClauseRecoveryTestDataProvider")
+    public void testLockOnFailClauseRecovery(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
     }
 }

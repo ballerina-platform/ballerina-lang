@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.parser.test.syntax.statements;
 
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -117,6 +118,112 @@ public class TransactionStatementTest extends AbstractStatementTest {
                 "transaction-stmt/transactional_worker_assert_01.json");
     }
 
+    @DataProvider(name = "retryOnFailClauseOtherBPTestDataProvider")
+    public Object[][] retryOnFailClauseOtherBPTestDataProvider() {
+        return new Object[][]{
+                {"transaction-stmt/retry_stmt_source_16.bal",
+                        "transaction-stmt/retry_stmt_assert_16.json"},
+                {"transaction-stmt/retry_stmt_source_17.bal",
+                        "transaction-stmt/retry_stmt_assert_17.json"},
+                {"transaction-stmt/retry_stmt_source_18.bal",
+                        "transaction-stmt/retry_stmt_assert_18.json"},
+                {"transaction-stmt/retry_stmt_source_19.bal",
+                        "transaction-stmt/retry_stmt_assert_19.json"}
+        };
+    }
+
+    @Test(dataProvider = "retryOnFailClauseOtherBPTestDataProvider")
+    public void testRetryOnFailClauseWithOtherBP(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
+    }
+
+    @DataProvider(name = "retryOnFailClauseErrorBPWithFieldBPTestDataProvider")
+    public Object[][] retryOnFailClauseErrorBPWithFieldBPTestDataProvider() {
+        return new Object[][]{
+                {"transaction-stmt/retry_stmt_source_20.bal",
+                        "transaction-stmt/retry_stmt_assert_20.json"},
+                {"transaction-stmt/retry_stmt_source_21.bal",
+                        "transaction-stmt/retry_stmt_assert_21json"},
+                {"transaction-stmt/retry_stmt_source_22.bal",
+                        "transaction-stmt/retry_stmt_assert_22.json"}
+        };
+    }
+
+    @Test(dataProvider = "retryOnFailClauseErrorBPWithFieldBPTestDataProvider")
+    public void testRetryOnFailClausHavingErrorBPWithFieldBP(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
+    }
+
+    @DataProvider(name = "retryOnFailClauseErrorBPWithOtherTypeDescTestDataProvider")
+    public Object[][] retryOnFailClauseErrorBPWithOtherTypeDescTestDataProvider() {
+        return new Object[][]{
+                {"transaction-stmt/retry_stmt_source_23.bal",
+                        "transaction-stmt/retry_stmt_assert_23.json"},
+                {"transaction-stmt/retry_stmt_source_24.bal",
+                        "transaction-stmt/retry_stmt_assert_24.json"},
+                {"transaction-stmt/retry_stmt_source_25.bal",
+                        "transaction-stmt/retry_stmt_assert_25.json"}
+        };
+    }
+
+    @Test(dataProvider = "retryOnFailClauseErrorBPWithOtherTypeDescTestDataProvider")
+    public void testRetryOnFailClausHavingErrorBPWithOtherTypeDesc(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
+    }
+
+    @DataProvider(name = "transactionOnFailClauseOtherBPTestDataProvider")
+    public Object[][] transactionOnFailClauseOtherBPTestDataProvider() {
+        return new Object[][]{
+                {"transaction-stmt/transaction_stmt_source_13.bal",
+                        "transaction-stmt/transaction_stmt_assert_13.json"},
+                {"transaction-stmt/transaction_stmt_source_14.bal",
+                        "transaction-stmt/transaction_stmt_assert_14.json"},
+                {"transaction-stmt/transaction_stmt_source_15.bal",
+                        "transaction-stmt/transaction_stmt_assert_15.json"},
+                {"transaction-stmt/transaction_stmt_source_16.bal",
+                        "transaction-stmt/transaction_stmt_assert_16.json"}
+        };
+    }
+
+    @Test(dataProvider = "transactionOnFailClauseOtherBPTestDataProvider")
+    public void testTransactionOnFailClauseWithOtherBP(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
+    }
+
+    @DataProvider(name = "transactionOnFailClauseErrorBPWithFieldBPTestDataProvider")
+    public Object[][] transactionOnFailClauseErrorBPWithFieldBPTestDataProvider() {
+        return new Object[][]{
+                {"transaction-stmt/transaction_stmt_source_17.bal",
+                        "transaction-stmt/transaction_stmt_assert_17.json"},
+                {"transaction-stmt/transaction_stmt_source_18.bal",
+                        "transaction-stmt/transaction_stmt_assert_18.json"},
+                {"transaction-stmt/transaction_stmt_source_19.bal",
+                        "transaction-stmt/transaction_stmt_assert_19.json"}
+        };
+    }
+
+    @Test(dataProvider = "transactionOnFailClauseErrorBPWithFieldBPTestDataProvider")
+    public void testTransactionOnFailClausHavingErrorBPWithFieldBP(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
+    }
+
+    @DataProvider(name = "transactionOnFailClauseErrorBPWithOtherTypeDescTestDataProvider")
+    public Object[][] transactionOnFailClauseErrorBPWithOtherTypeDescTestDataProvider() {
+        return new Object[][]{
+                {"transaction-stmt/transaction_stmt_source_20.bal",
+                        "transaction-stmt/transaction_stmt_assert_20.json"},
+                {"transaction-stmt/transaction_stmt_source_21.bal",
+                        "transaction-stmt/transaction_stmt_assert_21.json"},
+                {"transaction-stmt/transaction_stmt_source_22.bal",
+                        "transaction-stmt/transaction_stmt_assert_22.json"}
+        };
+    }
+
+    @Test(dataProvider = "transactionOnFailClauseErrorBPWithOtherTypeDescTestDataProvider")
+    public void testTransactionOnFailClausHavingErrorBPWithOtherTypeDesc(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
+    }
+
     // Recovery tests
 
     @Test
@@ -139,21 +246,35 @@ public class TransactionStatementTest extends AbstractStatementTest {
         testFile("transaction-stmt/retry_stmt_source_04.bal", "transaction-stmt/retry_stmt_assert_04.json");
     }
 
-    @Test
-    public void testTransactionOnFailClauseRecovery() {
-        testFile("transaction-stmt/transaction_stmt_source_04.bal", "transaction-stmt/transaction_stmt_assert_04.json");
-        testFile("transaction-stmt/transaction_stmt_source_09.bal", "transaction-stmt/transaction_stmt_assert_09.json");
-        testFile("transaction-stmt/transaction_stmt_source_10.bal", "transaction-stmt/transaction_stmt_assert_10.json");
-        testFile("transaction-stmt/transaction_stmt_source_11.bal", "transaction-stmt/transaction_stmt_assert_11.json");
-        testFile("transaction-stmt/transaction_stmt_source_12.bal", "transaction-stmt/transaction_stmt_assert_12.json");
+    @DataProvider(name = "transactionOnFailClauseRecoveryTestDataProvider")
+    public Object[][] transactionOnFailClauseRecoveryTestDataProvider() {
+        return new Object[][]{
+                {"transaction-stmt/transaction_stmt_source_04.bal", "transaction-stmt/transaction_stmt_assert_04.json"},
+                {"transaction-stmt/transaction_stmt_source_09.bal", "transaction-stmt/transaction_stmt_assert_09.json"},
+                {"transaction-stmt/transaction_stmt_source_10.bal", "transaction-stmt/transaction_stmt_assert_10.json"},
+                {"transaction-stmt/transaction_stmt_source_11.bal", "transaction-stmt/transaction_stmt_assert_11.json"},
+                {"transaction-stmt/transaction_stmt_source_12.bal", "transaction-stmt/transaction_stmt_assert_12.json"}
+        };
     }
 
-    @Test
-    public void testRetryOnFailClauseRecovery() {
-        testFile("transaction-stmt/retry_stmt_source_06.bal", "transaction-stmt/retry_stmt_assert_06.json");
-        testFile("transaction-stmt/retry_stmt_source_12.bal", "transaction-stmt/retry_stmt_assert_12.json");
-        testFile("transaction-stmt/retry_stmt_source_13.bal", "transaction-stmt/retry_stmt_assert_13.json");
-        testFile("transaction-stmt/retry_stmt_source_14.bal", "transaction-stmt/retry_stmt_assert_14.json");
-        testFile("transaction-stmt/retry_stmt_source_15.bal", "transaction-stmt/retry_stmt_assert_15.json");
+    @Test(dataProvider = "transactionOnFailClauseRecoveryTestDataProvider")
+    public void testTransactionOnFailClauseRecovery(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
+    }
+
+    @DataProvider(name = "retryOnFailClauseRecoveryTestDataProvider")
+    public Object[][] retryOnFailClauseRecoveryTestDataProvider() {
+        return new Object[][]{
+                {"transaction-stmt/retry_stmt_source_06.bal", "transaction-stmt/retry_stmt_assert_06.json"},
+                {"transaction-stmt/retry_stmt_source_12.bal", "transaction-stmt/retry_stmt_assert_12.json"},
+                {"transaction-stmt/retry_stmt_source_13.bal", "transaction-stmt/retry_stmt_assert_13.json"},
+                {"transaction-stmt/retry_stmt_source_14.bal", "transaction-stmt/retry_stmt_assert_14.json"},
+                {"transaction-stmt/retry_stmt_source_15.bal", "transaction-stmt/retry_stmt_assert_15.json"}
+        };
+    }
+
+    @Test(dataProvider = "retryOnFailClauseRecoveryTestDataProvider")
+    public void testRetryOnFailClauseRecovery(String sourceFile, String assertFile) {
+        testFile(sourceFile, assertFile);
     }
 }
