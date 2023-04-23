@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.XMLComment;
 import org.ballerinalang.jvm.values.XMLItem;
@@ -93,8 +92,12 @@ public class XMLTreeBuilder {
     }
 
     private void handleXMLStreamException(Exception e) {
-        // todo: do e.getMessage contain all the information? verify
-        throw new BallerinaException(e.getMessage(), e);
+        String reason = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
+        String errMsg = "failed to parse xml";
+        if (reason != null) {
+            errMsg += ": " + reason;
+        }
+        throw BallerinaErrors.createError(StringUtils.fromString(errMsg));
     }
 
     public XMLValue parse() {

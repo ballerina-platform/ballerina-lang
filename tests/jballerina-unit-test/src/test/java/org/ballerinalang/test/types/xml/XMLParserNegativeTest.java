@@ -45,7 +45,7 @@ public class XMLParserNegativeTest {
         return new Object[][]{
                 {"<book name=\"irshad<\"></book>" , "Unexpected '<'  in attribute value\n" +
                         " at [row,col {unknown-source}]: [1,19]"},
-                {"<!-- comments cannot have -- in it -->" , "[com.ctc.wstx.exc.WstxLazyException] String '--' not " +
+                {"<!-- comments cannot have -- in it -->" , "String '--' not " +
                         "allowed in comment (missing '>'?)\n at [row,col {unknown-source}]: [1,4]"},
                 {"<-note>irshad</-note>", "Unexpected character '-' (code 45) in prolog, after '<'.\n" +
                         " at [row,col {unknown-source}]: [1,2]"},
