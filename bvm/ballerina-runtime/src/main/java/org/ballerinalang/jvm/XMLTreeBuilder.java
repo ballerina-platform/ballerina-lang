@@ -93,11 +93,10 @@ public class XMLTreeBuilder {
 
     private void handleXMLStreamException(Exception e) {
         String reason = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
-        String errMsg = "failed to parse xml";
-        if (reason != null) {
-            errMsg += ": " + reason;
+        if (reason == null) {
+            reason = "xml parsing error";
         }
-        throw BallerinaErrors.createError(StringUtils.fromString(errMsg));
+        throw BallerinaErrors.createError(StringUtils.fromString(reason));
     }
 
     public XMLValue parse() {
