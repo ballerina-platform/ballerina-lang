@@ -18,6 +18,7 @@
 
 package io.ballerina.cli.utils;
 
+import io.ballerina.projects.BalToolsManifest;
 import org.ballerinalang.central.client.model.Package;
 
 import java.io.PrintStream;
@@ -36,6 +37,47 @@ public class PrintUtils {
     private static PrintStream outStream = System.out;
 
     private PrintUtils() {
+    }
+
+    /**
+     * Print locally available tool information as a table in the CLI.
+     *
+     * @param tools       List of tools
+     */
+    public static void printLocalTools(List<BalToolsManifest.Tool> tools, String terminalWidth) {
+        int rightMargin = 3;
+        int width = Integer.parseInt(terminalWidth) - rightMargin;
+        int maxToolIdNameLength = 0;
+        for (BalToolsManifest.Tool tool: tools) {
+            if (maxToolIdNameLength < tool.id().length()) {
+                maxToolIdNameLength = tool.id().length();
+            }
+        }
+        int versionColWidth = 15;
+        int padding = 2;
+        int minimumToolIdColWidth = 20;
+        int remainingWidth = Math.max(minimumToolIdColWidth, width - versionColWidth);
+        int toolIdColWidth = Math.max(minimumToolIdColWidth, Math.min(maxToolIdNameLength, remainingWidth)) + padding;
+
+        printListLocalTableHeader(toolIdColWidth, versionColWidth);
+
+        for (BalToolsManifest.Tool tool: tools) {
+            printInCLI("|" + tool.id(), toolIdColWidth);
+            printInCLI(tool.version(), versionColWidth);
+            outStream.println();
+        }
+        outStream.println();
+        outStream.println(tools.size() + " tools found");
+    }
+
+    private static void printListLocalTableHeader(int toolIdColWidth, int versionColWidth) {
+        printInCLI("|TOOL ID", toolIdColWidth);
+        printInCLI("VERSION", versionColWidth);
+        outStream.println();
+
+        printCharacter("|-", toolIdColWidth, "-", true);
+        printCharacter("-", versionColWidth, "-", true);
+        outStream.println();
     }
 
     /**
@@ -59,8 +101,9 @@ public class PrintUtils {
         int versionColWidth = getColWidth(remainingWidth, versionColFactor, nameColFactor, descColFactor);
         int minDescColWidth = 60;
 
-        printTitle();
-        printTableHeader(dateColWidth, versionColWidth, nameColWidth, descColWidth, minDescColWidth, authorsColWidth);
+        printBallerinaCentralTitle();
+        printPackageSearchTableHeader(
+                dateColWidth, versionColWidth, nameColWidth, descColWidth, minDescColWidth, authorsColWidth);
 
         for (Package aPackage : packages) {
             printPackage(aPackage, dateColWidth, versionColWidth, authorsColWidth, nameColWidth, descColWidth,
@@ -114,9 +157,9 @@ public class PrintUtils {
     }
 
     /**
-     * Print the tile.
+     * Print the ballerina central tile.
      */
-    private static void printTitle() {
+    private static void printBallerinaCentralTitle() {
         outStream.println();
         outStream.println("Ballerina Central");
         outStream.println("=================");
@@ -176,7 +219,7 @@ public class PrintUtils {
     }
 
     /**
-     * Print table header.
+     * Print table header for the package search.
      *
      * @param dateColWidth    date column width
      * @param versionColWidth version column width
@@ -185,8 +228,8 @@ public class PrintUtils {
      * @param minDescColWidth minimum description column width
      * @param authorsColWidth authors column width
      */
-    private static void printTableHeader(int dateColWidth, int versionColWidth, int nameColWidth, int descColWidth,
-            int minDescColWidth, int authorsColWidth) {
+    private static void printPackageSearchTableHeader(int dateColWidth, int versionColWidth, int nameColWidth,
+                                                      int descColWidth, int minDescColWidth, int authorsColWidth) {
         printHeadingRow(dateColWidth, versionColWidth, nameColWidth, descColWidth, minDescColWidth, authorsColWidth);
         printDashRow(dateColWidth, versionColWidth, nameColWidth, descColWidth, minDescColWidth, authorsColWidth);
     }

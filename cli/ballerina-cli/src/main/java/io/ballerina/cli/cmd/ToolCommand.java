@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.BallerinaCliCommands;
+import io.ballerina.cli.utils.PrintUtils;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
 import io.ballerina.projects.ProjectException;
@@ -30,12 +31,14 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -66,6 +69,9 @@ class ToolCommand implements BLauncherCmd {
 
     private final boolean exitWhenFinish;
     private final PrintStream errStream;
+
+    Path balToolsTomlPath = Path.of(
+            System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, BAL_TOOLS_TOML);
 
     @CommandLine.Parameters(description = "Command name")
     private List<String> argList;
@@ -237,14 +243,18 @@ class ToolCommand implements BLauncherCmd {
     }
 
     private void handleListCommand() {
-        // TODO: read and list all the commands in the bal-tools.toml file. id:version
-        //  bal tool list
         if (argList.size() > 1) {
             CommandUtil.printError(
                     this.errStream, "too many arguments", "bal tool list", false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
+        List<BalToolsManifest.Tool> tools = listBalToolsTomlFile();
+        if (tools.isEmpty()) {
+            errStream.println("no tools found locally");
+            return;
+        }
+        PrintUtils.printLocalTools(tools, RepoUtils.getTerminalWidth());
     }
 
     private void handleSearchCommand() {
@@ -330,12 +340,16 @@ class ToolCommand implements BLauncherCmd {
     }
 
     private void updateBalToolsTomlFile(String toolId, String version, String jarPath) {
-        Path balToolsTomlPath = Path.of(
-                System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, BAL_TOOLS_TOML);
         BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
         BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml)
                 .addTool(toolId, version, jarPath)
                 .build();
         balToolsToml.modify(balToolsManifest);
+    }
+
+    private List<BalToolsManifest.Tool> listBalToolsTomlFile() {
+        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+        return new ArrayList<>(balToolsManifest.tools().values());
     }
 }

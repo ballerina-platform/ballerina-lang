@@ -18,6 +18,10 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.projects.BalToolsToml;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -32,6 +36,8 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
  *
  * @since 2201.6.0
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(BalToolsToml.class)
 public class ToolCommandTest extends BaseCommandTest {
     @Test(description = "Test tool command with the help flag")
     public void testToolCommandWithHelpFlag() throws IOException {
@@ -112,6 +118,26 @@ public class ToolCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-pull-with-invalid-tool-version.txt"));
     }
+
+    @Test(description = "Test tool list sub-command with arguments")
+    public void testToolListSubCommandWithArgs() throws IOException {
+        ToolCommand toolCommand = new ToolCommand(printStream, false);
+        new CommandLine(toolCommand).parseArgs("list", "arg");
+        toolCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-list-with-args.txt"));
+
+        toolCommand = new ToolCommand(printStream, false);
+        new CommandLine(toolCommand).parseArgs("list", "arg1", "arg2");
+        toolCommand.execute();
+        buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-list-with-args.txt"));
+    }
+
+    // 1. List with an argument
+    // 2. List without a bal-tools.toml file
+    // 3. List with an empty bal-tools.toml
+    // 4. List with a bal-tools.toml filled.
 
     // TODO: add tests for search, list, uninstall
     // TODO: look if it is possible to mock central API calls and add positive test cases here
