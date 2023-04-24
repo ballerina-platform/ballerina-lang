@@ -2980,8 +2980,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                            SOURCE);
 
         if (restParam == null) {
-            bRecordType.sealed = true;
-            bRecordType.restFieldType = symTable.noType;
+            bRecordType.restFieldType = symTable.anydataType;
         } else if (restParam.getBType() == symTable.semanticError) {
             bRecordType.restFieldType = symTable.mapType;
         } else {
