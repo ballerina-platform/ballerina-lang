@@ -124,7 +124,33 @@ public class GroupByClauseTest {
                 "testGroupByExpressionWithStreamOutput",
                 "testGroupByExpressionWithStringOutput1",
                 "testGroupByExpressionWithTableOutput",
-                "testGroupByExpressionWithMapOutput"
+                "testGroupByExpressionWithMapOutput",
+
+                "testGroupByWithDoClause",
+
+                "testGroupByExpressionAndSelectWithNonGroupingKeys8",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys9",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys10",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys11",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys12",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys13",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys14",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys15",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys16",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys17",
+
+                "testGroupByVarDefsAndSelectWithNonGroupingKeys4",
+                "testGroupByVarDefsAndSelectWithNonGroupingKeys5",
+                "testGroupByVarDefsAndSelectWithNonGroupingKeys6",
+                "testGroupByVarDefsAndSelectWithNonGroupingKeys7",
+                "testGroupByVarDefsAndSelectWithNonGroupingKeys8",
+
+                "testGroupByVarDefsAndSelectWithNonGroupingKeysWhereClause1",
+                "testGroupByVarDefsAndSelectWithNonGroupingKeysWhereClause2",
+                "testGroupByVarDefsAndSelectWithNonGroupingKeysWhereClause3",
+
+                "testGroupByExpressionAndSelectWithNonGroupingKeys18",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys19"
         };
     }
 
@@ -142,10 +168,13 @@ public class GroupByClauseTest {
             "testGroupByExpressionAndSelectWithNonGroupingKeys4",
             "testGroupByExpressionAndSelectWithNonGroupingKeys5",
             "testGroupByExpressionAndSelectWithGroupingKeys1",
+            "testGroupByExpressionAndSelectWithGroupingKeys2",
             "testGroupByExpressionWithOrderBy",
             "testGroupByExpressionWithStreamOutput",
             "testGroupByExpressionWithTableOutput",
-            "testGroupByExpressionWithMapOutput"
+            "testGroupByExpressionWithMapOutput",
+            "testGroupByWithDoClause",
+            "testGroupByVarDefsAndSelectWithNonGroupingKeys1"
         };
     }
 
@@ -172,6 +201,12 @@ public class GroupByClauseTest {
                 "constructor or function invocation", 42, 33);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list " +
                 "constructor or function invocation", 45, 26);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '[int[]]', found 'seq int'",
+                101, 34);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '[int,int]', found 'seq int'",
+                106, 37);
+        BAssertUtil.validateError(negativeResult, i++, "record literal is not supported for record binding pattern",
+                115, 32);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 }

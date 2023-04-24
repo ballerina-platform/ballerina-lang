@@ -24,6 +24,20 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys1() {
                         group by name
                         select int:sum(price);
     assertEquality([35, 11], sum);
+    sum = from var {name, price} in input
+                        group by name
+                        let var x = int:sum(price)
+                        select x;
+    assertEquality([35, 11], sum);
+    sum = from var {name, price} in input
+                        group by name
+                        let var x = sum(price)
+                        select x;
+    assertEquality([35, 11], sum);
+    var r = from var {name, price} in input
+                        group by name
+                        select {price: int:sum(price)};
+    assertEquality([{price: 35}, {price: 11}], r);
 //     sum = from var {name, price} in input
 //                         group by name
 //                         select int:sum(price + 2);
@@ -193,6 +207,27 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys5() {
                     group by name
                     select int:sum(int:max(2, price2), int:max(2, price1));
     assertEquality([23, 23, 43], xx);
+}
+
+function testGroupByVarDefsAndSelectWithNonGroupingKeys1() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 9}];
+    int[] prices = from var {name, price1, price2} in input
+                        group by int n = price1 + price2
+                        select sum(price1); // @output [[11, 10], [11, 10], [10]]
+    assertEquality([21, 21, 10], prices);
+    prices = from var {name, price1, price2} in input
+                        group by int n1 = price1 + price2, int n2 = price1 - price2
+                        select sum(price1); // @output [[11, 10], [11, 10], [10]]
+    assertEquality([11, 11, 10, 10, 10], prices);
+    prices = from var {name, price1, price2} in input
+                        group by int n1 = price1 + price2, int n2 = price1 - price2
+                        where n1 == 22
+                        select sum(price1); // @output [[11, 10], [11, 10], [10]]
+    assertEquality([11, 10], prices);    
 }
 
 function testGroupByExpressionWithOrderBy() {
@@ -479,9 +514,136 @@ function testGroupByExpressionWithMapOutput() {
 //     assertEquality([35, 11], sum);
 // }
 
-// TODO: Add tests with do clause
-// TODO: group by var _ = true
-// TODO: from va item ..., group by var x = item.price ...
+function testGroupByWithDoClause() {
+    var input = [{name: "Saman", price1: 11, price2: 12}, 
+                    {name: "Saman", price1: 13, price2: 14}, 
+                    {name: "Kamal", price1: 15, price2: 16}, 
+                    {name: "Kamal", price1: 17, price2: 18}, 
+                    {name: "Saman", price1: 19, price2: 20}];
+    int[] arr = []; 
+    _ = from var {name, price1, price2} in input
+            group by name
+            do {
+                arr.push(int:sum(price1) + int:sum(price2));
+            };
+    assertEquality([89, 66], arr);  
+
+    arr = [];
+    _ = from var {name, price1, price2} in input
+            group by name
+            do {
+                arr.push(int:sum(...[price1]) + int:sum(...[price2]));
+            };
+    assertEquality([89, 66], arr);  
+
+    arr = [];
+    _ = from var {name, price1, price2} in input
+                group by name 
+                do {
+                    int x = min(100, price1);
+                    arr.push(x);
+                };
+    assertEquality([11, 15], arr);   
+
+    arr = [];
+    _ = from var {name, price1, price2} in input
+                group by name 
+                do {
+                    int x = sum(price1) + sum(price2);
+                    arr.push(x);
+                };
+    assertEquality([89, 66], arr);     
+
+    arr = [];
+    int x = 0;
+    _ = from var {name, price1, price2} in input
+                group by name 
+                do {
+                    x = sum(price1) + sum(price2);
+                    arr.push(x);
+                };
+    assertEquality([89, 66], arr); 
+
+// Check after https://github.com/ballerina-platform/ballerina-lang/issues/40181
+//     input = [{name: "Saman", price1: 11, price2: 12}, 
+//                 {name: "Saman", price1: 13, price2: 14}, 
+//                 {name: "Kamal", price1: 15, price2: 16}, 
+//                 {name: "Kamal", price1: 17, price2: 18}, 
+//                 {name: "Saman", price1: 19, price2: 20}];
+//     int[] prices = [];
+//     _ = from var {name, price1, price2} in input
+//                 group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
+//                 do {
+//                     foreach int p in 0...sum(price1) {
+//                         prices.push(p);
+//                     }
+//                 };
+//     assertEquality([11, 13, 15, 17, 19], prices); 
+
+    arr = [];
+    _ = from var {name, price1, price2} in input
+                group by name 
+                do {
+                    arr.push(int:sum(sum(price1), sum(price2)));
+                };
+    assertEquality([89, 66], arr); 
+    
+    // Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/40200
+    // _ = from var {name, price1, price2} in input
+    //         group by name 
+    //         do {
+    //             match max(price1) {
+    //                 var a => {
+    //                     io:println("a");
+    //                 }
+    //             }
+    //         };
+
+    arr = [];
+    _ = from var {name, price1, price2} in input
+            group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
+            do {
+                record {| int prices; |} r = {prices: sum(price1)};
+                arr.push(r.prices);
+            };
+    assertEquality([43, 32], arr);
+
+    arr = [];
+    _ = from var {name, price1, price2} in input
+            group by name
+            do {
+                int i = 0;
+                i += sum(price1);
+                arr.push(i);
+            };
+    assertEquality([43, 32], arr); 
+
+    // Check after https://github.com/ballerina-platform/ballerina-lang/issues/40228
+    // _ = from var {name, price1, price2} in input
+            // group by name
+    //         do {
+    //             var obj = object {
+    //                 int p1 = sum(price1);
+    //             };
+    //         }; 
+
+    // Check after https://github.com/ballerina-platform/ballerina-lang/issues/40229
+    // _ = from var {name, price1, price2} in input
+    //         group by name
+    //         do {
+    //             _ = let var p1 = sum(price1) in p1;
+    //         };      
+
+    int[][] arr1 = [];
+    _ = from var {name, price1, price2} in input
+                group by name 
+                do {
+                    int[] y = from var _ in input
+                                select sum(price1);
+                    arr1.push(y);
+                };
+    assertEquality([[43, 43, 43, 43, 43], [32, 32, 32, 32, 32]], arr1);
+}
 
 function testGroupByExpressionAndSelectWithGroupingKeys1() {
     var input = [{id: 1, price: 11}, {id: 1, price: 12}, {id: 2, price: 11}, {id: 1, price: 12}];
@@ -495,9 +657,29 @@ function testGroupByExpressionAndSelectWithGroupingKeys1() {
     assertEquality([1, 2], xx);
 }
 
+function testGroupByExpressionAndSelectWithGroupingKeys2() {
+    var input = [{name: "Saman", price: [11, 12]}, 
+                    {name: "Saman", price: [11, 12]}, 
+                    {name: "Kamal", price: [15, 16]}, 
+                    {name: "Kamal", price: [17, 18]}, 
+                    {name: "Saman", price: [19, 20]}];
+    var x = from var {name, price} in input
+                group by name, price 
+                select int:sum(...price);
+    assertEquality([23, 31, 35, 39], x);
+    x = from var {name, price} in input
+            group by name, var p = price 
+            select int:sum(...p);
+    assertEquality([23, 31, 35, 39], x);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
     }
     panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }
+
+// TODO: group by var _ = true
+// TODO: from va item ..., group by var x = item.price ...
+// TODO: sum(price1 + 2)

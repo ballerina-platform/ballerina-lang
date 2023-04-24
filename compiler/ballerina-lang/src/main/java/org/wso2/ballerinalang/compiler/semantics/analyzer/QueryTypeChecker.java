@@ -78,7 +78,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -240,7 +239,7 @@ public class QueryTypeChecker extends TypeChecker {
         BType completionType = getCompletionType(collectionTypes, Types.QueryConstructType.ACTION, data);
         // Analyze foreach node's statements.
         semanticAnalyzer.analyzeNode(doClause.body, SymbolEnv.createBlockEnv(doClause.body,
-                commonAnalyzerData.queryEnvs.peek()), data.prevEnvs, commonAnalyzerData);
+                commonAnalyzerData.queryEnvs.peek()), data.prevEnvs, this, commonAnalyzerData);
         BType actualType = completionType == null ? symTable.nilType : completionType;
         data.resultType = types.checkType(doClause.pos, actualType, data.expType,
                         DiagnosticErrorCode.INCOMPATIBLE_TYPES);
@@ -701,7 +700,7 @@ public class QueryTypeChecker extends TypeChecker {
         letClause.env = letEnv;
         commonAnalyzerData.queryEnvs.push(letEnv);
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
-            semanticAnalyzer.analyzeNode((BLangNode) letVariable.definitionNode, letEnv, commonAnalyzerData);
+            semanticAnalyzer.analyzeNode((BLangNode) letVariable.definitionNode, letEnv, this, commonAnalyzerData);
         }
         for (Name variable : letEnv.scope.entries.keySet()) {
             data.queryVariables.add(variable.value);
@@ -790,7 +789,7 @@ public class QueryTypeChecker extends TypeChecker {
                 checkExpr(groupingKey.variableRef, groupByClause.env, data);
                 variable = groupingKey.variableRef.variableName.value;
             } else {
-                semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env,
+                semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env, this,
                         data.commonAnalyzerData);
                 variable = groupingKey.variableDef.var.name.value;
             }
@@ -812,13 +811,6 @@ public class QueryTypeChecker extends TypeChecker {
     }
 
     @Override
-    public void visit(BLangDo doNode, TypeChecker.AnalyzerData data) {
-        if (doNode.onFailClause != null) {
-            doNode.onFailClause.accept(this, data);
-        }
-    }
-
-    @Override
     public void visit(BLangCheckedExpr checkedExpr, TypeChecker.AnalyzerData data) {
         visitCheckAndCheckPanicExpr(checkedExpr, data);
         if (checkedExpr.equivalentErrorTypeList != null) {
@@ -828,9 +820,10 @@ public class QueryTypeChecker extends TypeChecker {
 
     public void visit(BLangInvocation iExpr, TypeChecker.AnalyzerData data) {
         // Check whether the invocation happens after group by and arguments contain sequence variables
-         if (checkInvocationAfterGroupBy(iExpr, data)) {
+         if (hasSequenceArgs(iExpr, data)) {
             // Do complete type checking for the invocation
             Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
+            // TODO: Add more tests related to pkg alias
             if (pkgAlias.value.isEmpty()) {
                 if (iExpr.expr != null) {
                     BType exprType = checkExpr(iExpr.expr, data);
@@ -917,19 +910,28 @@ public class QueryTypeChecker extends TypeChecker {
     }
 
     // Check the argument within sequence context.
+    private boolean hasSequenceArgs(BLangInvocation invocation, TypeChecker.AnalyzerData data) {
+        data.queryData.foundSeqVarInExpr = false;
+        for (BLangExpression arg : invocation.argExprs) {
+            if (arg.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                silentTypeCheckExpr(arg, symTable.noType, data);
+            }
+        }
+        return data.queryData.foundSeqVarInExpr;
+    }
+
     private void checkArg(BLangExpression arg, BType expectedType, TypeChecker.AnalyzerData data) {
         data.queryData.withinSequenceContext = effectiveSimpleVarRef(arg);
         checkTypeParamExpr(arg, expectedType, data);
         data.queryData.withinSequenceContext = false;
     }
-    
+
     private boolean effectiveSimpleVarRef(BLangExpression expr) {
         // TODO: Improve this method to handle grouping-expr
         NodeKind kind = expr.getKind();
         return kind == NodeKind.SIMPLE_VARIABLE_REF;
     }
 
-    // TODO: Combine this with the method in TypeChecker
     public void visit(BLangSimpleVarRef varRefExpr, TypeChecker.AnalyzerData data) {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
@@ -1028,12 +1030,6 @@ public class QueryTypeChecker extends TypeChecker {
         data.resultType = types.checkType(varRefExpr, actualType, data.expType);
     }
 
-    private boolean checkInvocationAfterGroupBy(BLangInvocation invocation, TypeChecker.AnalyzerData data) {
-        data.queryData.foundSeqVarInExpr = false;
-        invocation.argExprs.forEach(arg -> silentTypeCheckExpr(arg, symTable.noType, data));
-        return data.queryData.foundSeqVarInExpr;
-    }
-
     @Override
     public void visit(BLangListConstructorExpr listConstructor, TypeChecker.AnalyzerData data) {
         // TODO: Refactor this method
@@ -1053,6 +1049,12 @@ public class QueryTypeChecker extends TypeChecker {
             if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BType type = silentTypeCheckExpr(expr, symTable.noType, data);
                 if (type.tag == TypeTags.SEQUENCE) {
+                    // TODO: There is another type of doing this
+                    // First check the expr with expType = noType
+                    // Use the result type to generate the type of list-ctr
+                    // Then check the expType is an array or tuple
+                    // Then do the type check for element types
+                    // This may cause to remove the type checking part for seq from Types.java
                     data.queryData.withinSequenceContext = true;
                     checkExpr(expr, data.env, expType, data);
                     data.queryData.withinSequenceContext = false;
