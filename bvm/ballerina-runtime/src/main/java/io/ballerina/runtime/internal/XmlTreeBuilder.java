@@ -97,9 +97,6 @@ public class XmlTreeBuilder {
 
     private void handleXMLStreamException(Exception e) {
         String reason = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
-        if (reason == null) {
-            reason = "xml parsing error";
-        }
         throw ErrorCreator.createError(StringUtils.fromString(reason));
     }
 
