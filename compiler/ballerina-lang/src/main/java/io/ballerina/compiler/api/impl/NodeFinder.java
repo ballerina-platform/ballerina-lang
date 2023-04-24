@@ -20,6 +20,7 @@ package io.ballerina.compiler.api.impl;
 
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.model.clauses.GroupingKeyNode;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
@@ -58,19 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingP
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.*;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -1474,6 +1463,16 @@ class NodeFinder extends BaseVisitor {
         lookupNode(reFlagExpression.questionMark);
         lookupNode(reFlagExpression.flagsOnOff);
         lookupNode(reFlagExpression.colon);
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        lookupNodes(groupByClause.getGroupingKeyList());
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKeyClause) {
+        lookupNode((BLangNode) groupingKeyClause.getGroupingKey());
     }
 
     private boolean setEnclosingNode(BLangNode node, Location pos) {
