@@ -402,10 +402,11 @@ public class SymbolLookupTest {
         Document srcFile = getDocumentForSingleSource(project);
         List<Symbol> visibleSymbols = model.visibleSymbols(srcFile, LinePosition.from(20, 4));
         List<String> expectedModuleSymbols = List.of("ht", "obj");
-        assertTrue(expectedModuleSymbols.stream()
-                .allMatch(s -> visibleSymbols.stream().anyMatch(symbol -> symbol.getName().isPresent()
-                        && symbol.getName().get().equals(s)
-                        && symbol.kind() == MODULE)));
+        for (String expectedModuleSymbol : expectedModuleSymbols) {
+            assertTrue(visibleSymbols.stream().anyMatch(symbol -> symbol.getName().isPresent()
+                    && symbol.getName().get().equals(expectedModuleSymbol)
+                    && symbol.kind() == MODULE), "Module symbol not found: " + expectedModuleSymbol);
+        }
     }
 
     private String createSymbolString(Symbol symbol) {
