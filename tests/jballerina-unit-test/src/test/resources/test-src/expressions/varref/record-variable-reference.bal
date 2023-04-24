@@ -38,7 +38,7 @@ function testVariableAssignment() returns [string, boolean, int, string] {
 }
 
 function getPerson() returns Person {
-    return {name: "Peter", married: true, age: {age:12, format: "Y"}, extra:  ["ds", 4]};
+    return {name: "Peter", married: true, age: {age: 12, format: "Y"}, extra: ["ds", 4]};
 }
 
 type Foo record {
@@ -191,8 +191,8 @@ function testRestParameterType() returns boolean {
     map<anydata|error> other1 = {};
     map<any> other2 = {};
 
-    IntRestRecord rec1 = { name: "A", married: true, "age": 19, "token": 200 };
-    { name, ...other1 } = rec1;
+    IntRestRecord rec1 = {name: "A", married: true, "age": 19, "token": 200};
+    {name, ...other1} = rec1;
 
     any a1 = other1;
 
@@ -293,7 +293,7 @@ function testReadOnlyRecordWithMappingBindingPatternInDestructuringAssignment() 
     string y;
 
     {x, y} = f1;
-    assertEquality(<int[]> [1, 2], x);
+    assertEquality(<int[]>[1, 2], x);
     assertEquality("s1", y);
 
     readonly & record {
@@ -304,15 +304,15 @@ function testReadOnlyRecordWithMappingBindingPatternInDestructuringAssignment() 
     int[] & readonly x2;
     string y2;
     {a, b: {x: x2, y: y2}} = r;
-    assertEquality(<int[]> [12, 34, 56], a);
-    assertEquality(<int[]> [1, 2], x2);
+    assertEquality(<int[]>[12, 34, 56], a);
+    assertEquality(<int[]>[1, 2], x2);
     assertEquality("s1", y2);
 
     int[] c;
     int[] d;
     {a: c, b: {x: d, y: y2}} = r;
-    assertEquality(<int[]> [12, 34, 56], c);
-    assertEquality(<int[]> [1, 2], d);
+    assertEquality(<int[]>[12, 34, 56], c);
+    assertEquality(<int[]>[1, 2], d);
     assertEquality("s1", y2);
 }
 
@@ -367,6 +367,23 @@ function testMappingBindingWithSingleNameFieldBinding() {
 
     {b} = w;
     assertEquality("bar4", b);
+}
+
+function testMappingBindingPatternInsideTupleBinding() {
+    [record {int a; int b;}] r1 = [{a: 1, b: 2}];
+
+        int a;
+        int b;
+
+        [{a, b}] = r1;
+        [record {int a; int b;}] v = r1;
+
+        [Some, Some] r2 = [{var1: "A", var2: "B"}, {var1: "C", var2: "D"}];
+
+        string y1;
+        string y2;
+
+        [{var1: y1}, {var1: y2}] = r2;
 }
 
 function assertEquality(anydata expected, anydata actual) {
