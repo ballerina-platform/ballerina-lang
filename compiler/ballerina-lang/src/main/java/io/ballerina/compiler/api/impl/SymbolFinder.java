@@ -20,6 +20,7 @@ package io.ballerina.compiler.api.impl;
 
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.model.clauses.GroupingKeyNode;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolOrigin;
@@ -67,6 +68,8 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPatt
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -700,6 +703,13 @@ class SymbolFinder extends BaseVisitor {
     public void visit(BLangOrderByClause orderByClause) {
         for (OrderKeyNode key : orderByClause.orderByKeyList) {
             lookupNode((BLangNode) key);
+        }
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        for (GroupingKeyNode key : groupByClause.getGroupingKeyList()) {
+            lookupNode((BLangNode) key.getGroupingKey());
         }
     }
 
