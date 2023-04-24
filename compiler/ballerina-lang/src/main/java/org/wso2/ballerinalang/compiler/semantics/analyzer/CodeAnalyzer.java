@@ -3357,6 +3357,7 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                             onFailVarNode.getBType());
                 }
             }
+            analyzeNode((BLangNode) onFailClause.getVariableDefinitionNode().getVariable().getTypeNode(), data);
         }
         data.errorTypes.pop();
         analyzeNode(onFailClause.body, data);

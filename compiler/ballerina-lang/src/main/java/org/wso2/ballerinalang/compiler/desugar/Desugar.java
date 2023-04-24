@@ -27,6 +27,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.ballerinalang.model.symbols.VariableSymbol;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -5151,6 +5152,26 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
     }
+    private void handleErrorBP(BLangErrorVariable varNode, BLangBlockStmt onFailBody, BLangFail fail) {
+        BLangErrorVariable errorVar = ASTBuilderUtil.createErrorVariable(varNode.pos,
+                varNode.getBType(), rewrite(fail.expr, env), varNode.message, varNode.cause, varNode.restDetail,
+                varNode.detail);
+
+        BLangErrorVariableDef errorVarDef = ASTBuilderUtil.createErrorVariableDef(onFailClause.pos, errorVar);
+
+        BLangStatement stmt = rewrite(errorVarDef, env);
+        onFailBody.stmts.add(0, stmt);
+    }
+
+    private void handleCaptureBP(BLangSimpleVariable varNode, BLangBlockStmt onFailBody, BLangFail fail) {
+        BVarSymbol onFailErrorVariableSymbol = varNode.symbol;
+        BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
+                onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
+                onFailErrorVariableSymbol);
+        BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
+        env.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
+        onFailBody.stmts.add(0, errorVarDef);
+    }
 
     private BLangFail createOnFailInvocation(BLangOnFailClause onFailClause, BLangFail fail) {
         BLangBlockStmt onFailBody = ASTBuilderUtil.createBlockStmt(onFailClause.pos);
@@ -5160,14 +5181,12 @@ public class Desugar extends BLangNodeVisitor {
         VariableDefinitionNode onFailVarDefNode = onFailClause.variableDefinitionNode;
 
         if (onFailVarDefNode != null) {
-            BVarSymbol onFailErrorVariableSymbol =
-                    ((BLangSimpleVariableDef) onFailVarDefNode).var.symbol;
-            BLangSimpleVariable errorVar = ASTBuilderUtil.createVariable(onFailErrorVariableSymbol.pos,
-                    onFailErrorVariableSymbol.name.value, onFailErrorVariableSymbol.type, rewrite(fail.expr, env),
-                    onFailErrorVariableSymbol);
-            BLangSimpleVariableDef errorVarDef = ASTBuilderUtil.createVariableDef(onFailClause.pos, errorVar);
-            env.scope.define(onFailErrorVariableSymbol.name, onFailErrorVariableSymbol);
-            onFailBody.stmts.add(0, errorVarDef);
+            BLangVariable variableNode = (BLangVariable) onFailVarDefNode.getVariable();
+            if (variableNode.getKind() == NodeKind.ERROR_VARIABLE) {
+                handleErrorBP((BLangErrorVariable) variableNode, onFailBody, fail);
+            } else {
+                handleCaptureBP((BLangSimpleVariable) variableNode, onFailBody, fail);
+            }
         }
 
         if (onFailClause.isInternal && fail.exprStmt != null) {

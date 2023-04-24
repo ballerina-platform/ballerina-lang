@@ -2269,9 +2269,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangErrorVariable bLangErrorVariable) {
         analyzeNode(bLangErrorVariable.typeNode, env);
         populateUnusedVariableMapForNonSimpleBindingPatternVariables(this.unusedLocalVariables, bLangErrorVariable);
-        this.currDependentSymbolDeque.push(bLangErrorVariable.symbol);
-        analyzeNode(bLangErrorVariable.expr, env);
-        this.currDependentSymbolDeque.pop();
+        // When we visit this path from on fail clause the symbol is null
+        if (bLangErrorVariable.symbol != null) {
+            this.currDependentSymbolDeque.push(bLangErrorVariable.symbol);
+            analyzeNode(bLangErrorVariable.expr, env);
+            this.currDependentSymbolDeque.pop();
+        }
     }
 
     @Override
