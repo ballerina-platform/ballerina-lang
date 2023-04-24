@@ -20,8 +20,11 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.BallerinaCliCommands;
+import io.ballerina.projects.BalToolsManifest;
+import io.ballerina.projects.BalToolsToml;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.internal.BalToolsManifestBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -29,15 +32,20 @@ import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException
 import org.wso2.ballerinalang.compiler.util.Names;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
+import static io.ballerina.projects.util.ProjectConstants.HOME_REPO_DEFAULT_DIRNAME;
 import static io.ballerina.projects.util.ProjectUtils.validatePackageName;
 import static java.nio.file.Files.createDirectories;
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
 /**
@@ -57,7 +65,7 @@ class ToolCommand implements BLauncherCmd {
     private static final String UNINSTALL_COMMAND = "uninstall";
 
     private final boolean exitWhenFinish;
-    private PrintStream errStream;
+    private final PrintStream errStream;
 
     @CommandLine.Parameters(description = "Command name")
     private List<String> argList;
@@ -76,6 +84,25 @@ class ToolCommand implements BLauncherCmd {
     public ToolCommand(PrintStream errStream, boolean exitWhenFinish) {
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
+    }
+
+    @Override
+    public String getName() {
+        return BallerinaCliCommands.TOOL;
+    }
+
+    @Override
+    public void printLongDesc(StringBuilder out) {
+        out.append("  bal tool\n");
+    }
+
+    @Override
+    public void printUsage(StringBuilder out) {
+        out.append("  bal tool\n");
+    }
+
+    @Override
+    public void setParentCmdParser(CommandLine parentCmdParser) {
     }
 
     @Override
@@ -185,13 +212,13 @@ class ToolCommand implements BLauncherCmd {
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;
                 }
-                String jarPath = CommandUtil.getSubCommandJarPath(TOOL_ORG_NAME, toolId, version);
+                String jarPath = getSubCommandJarPath(TOOL_ORG_NAME, toolId, version);
                 if (jarPath == null) {
                     CommandUtil.printError(this.errStream, "tool jar not found", null, false);
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;
                 }
-                CommandUtil.appendJarFilePathToBalToolsTomlFile(toolId, version, jarPath);
+                updateBalToolsTomlFile(toolId, version, jarPath);
             } catch (PackageAlreadyExistsException e) {
                 errStream.println(e.getMessage());
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -203,12 +230,21 @@ class ToolCommand implements BLauncherCmd {
     }
 
     private void handleUpdateCommand() {
-        // TODO: complete
+        // Change this when update command is supported.
+        CommandUtil.printError(this.errStream, "invalid sub-command given", "bal tool <sub-command> [args]",
+                false);
+        CommandUtil.exitError(this.exitWhenFinish);
     }
 
     private void handleListCommand() {
         // TODO: read and list all the commands in the bal-tools.toml file. id:version
         //  bal tool list
+        if (argList.size() > 1) {
+            CommandUtil.printError(
+                    this.errStream, "too many arguments", "bal tool list", false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
     }
 
     private void handleSearchCommand() {
@@ -255,22 +291,51 @@ class ToolCommand implements BLauncherCmd {
         return false;
     }
 
-    @Override
-    public String getName() {
-        return BallerinaCliCommands.TOOL;
+    private String getSubCommandJarPath(String orgName, String toolName, String version) {
+        Path versionedPackagePathInBala = ProjectUtils.createAndGetHomeReposPath()
+                .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(orgName).resolve(toolName).resolve(version);
+        File versionedPackageInBala = new File(String.valueOf(versionedPackagePathInBala));
+
+        if (versionedPackageInBala.exists() && versionedPackageInBala.isDirectory()) {
+            File[] platformDirs = versionedPackageInBala.listFiles();
+            if (platformDirs == null) {
+                return null;
+            }
+            for (File platformDir : platformDirs) {
+                if (platformDir.isDirectory() && platformDir.getName().equals(ANY_PLATFORM)
+                        || Arrays.asList(SUPPORTED_PLATFORMS).contains(platformDir.getName())) {
+                    Path libDirPath = platformDir.toPath().resolve(ProjectConstants.TOOL_DIR)
+                            .resolve(CommandUtil.LIBS_DIR);
+                    File libDir = new File(String.valueOf(libDirPath));
+                    if (libDir.exists() && libDir.isDirectory()) {
+                        File[] jarFiles = libDir.listFiles();
+                        if (jarFiles == null) {
+                            return null;
+                        }
+                        for (File jarFile : jarFiles) {
+                            if (isValidJarFile(jarFile)) {
+                                return jarFile.getAbsolutePath();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
-    @Override
-    public void printLongDesc(StringBuilder out) {
-        out.append("  bal tool\n");
+    private boolean isValidJarFile(File file) {
+        return file.isFile() && file.getName().endsWith(".jar");
     }
 
-    @Override
-    public void printUsage(StringBuilder out) {
-        out.append("  bal tool\n");
-    }
-
-    @Override
-    public void setParentCmdParser(CommandLine parentCmdParser) {
+    private void updateBalToolsTomlFile(String toolId, String version, String jarPath) {
+        Path balToolsTomlPath = Path.of(
+                System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, BAL_TOOLS_TOML);
+        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml)
+                .addTool(toolId, version, jarPath)
+                .build();
+        balToolsToml.modify(balToolsManifest);
     }
 }

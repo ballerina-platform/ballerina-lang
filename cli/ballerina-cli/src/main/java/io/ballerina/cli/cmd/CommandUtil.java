@@ -46,12 +46,7 @@ import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -59,7 +54,6 @@ import java.io.PrintStream;
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -69,7 +63,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -81,10 +74,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
-import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
-import static io.ballerina.projects.util.ProjectConstants.HOME_REPO_DEFAULT_DIRNAME;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
 import static io.ballerina.projects.util.ProjectUtils.deleteDirectory;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
@@ -960,86 +951,6 @@ public class CommandUtil {
      */
     private static String removeLastCharacter(String str) {
         return str.substring(0, str.length() - 1);
-    }
-
-    static String getSubCommandJarPath(String orgName, String toolName, String version) {
-        Path versionedPackagePathInBala = ProjectUtils.createAndGetHomeReposPath()
-                .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
-                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(orgName).resolve(toolName).resolve(version);
-        File versionedPackageInBala = new File(String.valueOf(versionedPackagePathInBala));
-
-        if (versionedPackageInBala.exists() && versionedPackageInBala.isDirectory()) {
-            File[] platformDirs = versionedPackageInBala.listFiles();
-            if (platformDirs == null) {
-                return null;
-            }
-            for (File platformDir : platformDirs) {
-                if (platformDir.isDirectory() && platformDir.getName().equals(ANY_PLATFORM)
-                        || Arrays.asList(SUPPORTED_PLATFORMS).contains(platformDir.getName())) {
-                    Path libDirPath = platformDir.toPath().resolve(ProjectConstants.TOOL_DIR).resolve(LIBS_DIR);
-                    File libDir = new File(String.valueOf(libDirPath));
-                    if (libDir.exists() && libDir.isDirectory()) {
-                        File[] jarFiles = libDir.listFiles();
-                        if (jarFiles == null) {
-                            return null;
-                        }
-                        for (File jarFile : jarFiles) {
-                            if (isValidJarFile(jarFile)) {
-                                return jarFile.getAbsolutePath();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private static boolean isValidJarFile(File file) {
-        return file.isFile() && file.getName().endsWith(".jar");
-    }
-
-    static void appendJarFilePathToBalToolsTomlFile(String toolName, String version, String jarPath) {
-        StringBuilder content = readBalToolsToml();
-        content.append("[[tool]]\n");
-        content.append("id = \"").append(toolName).append("\"\n");
-        content.append("path = \"").append(jarPath).append("\"\n");
-        content.append("version = \"").append(version).append("\"\n\n");
-        writeBalToolsToml(content);
-    }
-
-    private static StringBuilder readBalToolsToml() {
-        Path balToolsTomlPath = Path.of(System.getProperty(USER_HOME), HOME_REPO_DEFAULT_DIRNAME, BAL_TOOLS_TOML);
-        StringBuilder content = new StringBuilder();
-        if (!balToolsTomlPath.toFile().exists()) {
-            try {
-                Files.createFile(balToolsTomlPath);
-            } catch (IOException e) {
-                throw new RuntimeException("Error while creating bal-tools.toml :" + e);
-            }
-        }
-        try (BufferedReader reader = new BufferedReader(
-                new FileReader(balToolsTomlPath.toString(), Charset.defaultCharset()))) {
-            String line = reader.readLine();
-            while (line != null) {
-                content.append(line).append("\n");
-                line = reader.readLine();
-            }
-        } catch (IOException e) {
-            throw new RuntimeException("Error while reading bal-tools.toml :" + e);
-        }
-        return content;
-    }
-
-
-    private static void writeBalToolsToml(StringBuilder content) {
-        Path balToolsTomlPath = Path.of(System.getProperty(USER_HOME), HOME_REPO_DEFAULT_DIRNAME, BAL_TOOLS_TOML);
-        try (BufferedWriter writer = new BufferedWriter(
-                new FileWriter(String.valueOf(balToolsTomlPath), Charset.defaultCharset()))) {
-            writer.write(content.toString());
-        } catch (IOException e) {
-            throw new RuntimeException("Error while updating bal-tools.toml :" + e);
-        }
     }
 
     /**
