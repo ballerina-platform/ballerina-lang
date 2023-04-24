@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Represents a completion item.
  *
- * @since 2201.6.0
+ * @since 2201.7.0
  */
 public class CompletionItem {
     /**
@@ -35,12 +35,6 @@ public class CompletionItem {
      * When omitted or empty, the label is used as the insert text for this item.
      */
     private String insertText;
-
-    /**
-     * A string that should be used when filtering a set of completion items. 
-     * When omitted or empty, the label is used as the filter text for this item.
-     */
-    private String filterText;
     
     public CompletionItem(String label, String insertText, Priority priority) {
         this.label = label;
@@ -54,14 +48,6 @@ public class CompletionItem {
 
     public String getLabel() {
         return label;
-    }
-    
-    public String getFilterText() {
-        return filterText;
-    }
-
-    public void setFilterText(String filterText) {
-        this.filterText = filterText;
     }
 
     public Priority getPriority() {

@@ -84,6 +84,112 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
 
 #### `CompletionItem`
 
+```java
+/**
+ * Represents a completion item.
+ *
+ * @since 2201.7.0
+ */
+public class CompletionItem {
+    /**
+     * The label of this completion item. By default, also the text that is inserted when selecting
+     * this completion.
+     */
+    private String label;
+    
+    /**
+     * Indicates the priority(sorted position) of the completion item.
+     */
+    private Priority priority;
+
+    /**
+     * An optional array of additional text edits that are applied when selecting this completion. 
+     * Edits must not overlap (including the same insert position) with the main edit nor with themselves.
+     * Additional text edits should be used to change text unrelated to the 
+     * current cursor position (for example adding an import statement at the top of the file if the completion
+     * item will insert a qualified type).
+     */
+    private List<TextEdit> additionalTextEdits;
+
+    /**
+     * A string that should be inserted a document when selecting this completion. 
+     * When omitted or empty, the label is used as the insert text for this item.
+     */
+    private String insertText;
+    
+    public CompletionItem(String label, String insertText, Priority priority) {
+        this.label = label;
+        this.insertText = insertText;
+        this.priority = priority;
+    }
+
+    public String getInsertText() {
+        return insertText;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+    
+    public String getFilterText() {
+        return filterText;
+    }
+
+    public void setFilterText(String filterText) {
+        this.filterText = filterText;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setAdditionalTextEdits(List<TextEdit> additionalTextEdits) {
+        this.additionalTextEdits = additionalTextEdits;
+    }
+
+    public List<TextEdit> getAdditionalTextEdits() {
+        return additionalTextEdits;
+    }
+
+    /**
+     * Represents the priority of the completion item. If priority is high the completion item
+     * will be sorted to the top of the completion item list. If low a default priority based on
+     * the completion item kind (Snippet) will be assigned.
+     */
+    public enum Priority {
+        HIGH,
+        LOW
+    }
+    /**
+     * Represents a text edit that is applied along with the completion item.
+     */
+    static class TextEdit {
+        private String newText;
+        private LinePosition start;
+        private LinePosition end;
+
+        public TextEdit(String newText, LinePosition start, LinePosition end) {
+            this.newText = newText;
+            this.start = start;
+            this.end = end;
+        }
+
+        public String getNewText() {
+            return newText;
+        }
+
+        public LinePosition getStart() {
+            return start;
+        }
+
+        public LinePosition getEnd() {
+            return end;
+        }
+    }
+
+}
+```
+
 A completion item has several properties. As a compiler plugin developer, you can define the following properties of a completion item:
 
 - `label`: The label of the completion item. This is the text displayed in the list of completion items.
@@ -92,6 +198,7 @@ A completion item has several properties. As a compiler plugin developer, you ca
 
 - `priority`: The priority of this item defines the order in which the items are shown to the user. If the priority is high the item will be shown before the item will be grouped at the top of the completion item list.
 
+- `additionalTextEdits`: An optional array of additional text edits that are applied when selecting this completion.
 
 ## Example
 We are going to develop a package called `lstest/package_comp_plugin_with_completions`. We will develop a compiler plugin called `SampleCompilerPluginWithCompletionProvider` with this package. 
@@ -244,9 +351,72 @@ version="0.1.0"
 
 3. Check if you get the following completion item when you trigger for completion items in the depicted cursor position.
 
-[completions](images/compiler-plugin-completions.png)
+[completions](./images/compiler-plugin-completions-1.png)
 
 Step 4: Unit testing
 
-In unit testing, we have to test list of completion items given the cursor position on a source file.
+In unit testing, we have to test the list of completion items given the cursor position on a source file. 
 
+While you can decide how exactly is to perform the checks, we suggest using the following methods.
+
+```java
+public class CompletionTestUtils {
+    
+
+    /**
+     * Get completions for the provided cursor position in the provided source file.
+     *
+     * @param filePath  Source file path
+     * @param cursorPos Cursor position
+     * @param project   Project
+     * @return List of CompletionItem for the cursor position
+     */
+    public static List<io.ballerina.projects.plugins.completion.CompletionItem> getCompletions(Path filePath, LinePosition cursorPos, Project project) {
+        Package currentPackage = project.currentPackage();
+        PackageCompilation compilation = currentPackage.getCompilation();
+        // Completion manager is our interface to obtaining completions and executing them
+        CompletionManager completionManager = compilation.getCompletionManager();
+
+
+        DocumentId documentId = project.documentId(filePath);
+        Document document = currentPackage.getDefaultModule().document(documentId);
+        SemanticModel semanticModel = compilation.getSemanticModel(documentId.moduleId());
+
+        //Position information
+        TextDocument textDocument = document.textDocument();
+        int cursorPositionInTree = textDocument.textPositionFrom(LinePosition.from(cursorPos.line(), cursorPos.offset()));
+        TextRange range = TextRange.from(cursorPositionInTree, 0);
+        NonTerminalNode nodeAtCursor = ((ModulePartNode) document.syntaxTree().rootNode()).findNode(range);
+
+        //Create the completion context
+        CompletionContextImpl completionContext = CompletionContextImpl.from(filePath.toUri().toString(),
+                filePath, cursorPos, cursorPositionInTree, nodeAtCursor, document, semanticModel);
+        CompletionResult result = completionManager.completions(completionContext);
+
+        return result.getCompletionItems();
+    }
+}
+```
+
+This method accepts the source file path, cursor position and the project as arguments. You can get rid of the `project`
+argument and use `ProjectLoader.loadProject()` with the source file path as a parameter to load the project.
+
+Once you have the list of completion items, you can simply check for the _label_, _insertText_, and _priority_.
+
+Here's an example:
+```jshelllanguage
+
+    List<io.ballerina.projects.plugins.completion.CompletionItem> expectedList = getExpectedList();
+    // Get completions for cursor position and assert 
+    List <io.ballerina.projects.plugins.completion.CompletionItem> completionItems = CompletionUtils.getCodeActions(filePath, cursorPos, project);
+    Assert.assertTrue(completionItems.size() > 0, "Expect at least 1 completion item");
+
+    // Compare expected completion item list and received completion item list
+    for (int i = 0; i < expectedList.size(); i++) {
+        io.ballerina.projects.plugins.completion.CompletionItem expectedItem = expectedList.get(i);
+        io.ballerina.projects.plugins.completion.CompletionItem actualItem = completionItems.get(i);
+        Assert.assertEquals(actualItem.label(), expectedItem.label(), "Label mismatch");
+        Assert.assertEquals(actualItem.insertText(), expectedItem.insertText(), "Insert text mismatch");
+        Assert.assertEquals(actualItem.priority(), expectedItem.priority(), "Priority mismatch");
+    }
+```
