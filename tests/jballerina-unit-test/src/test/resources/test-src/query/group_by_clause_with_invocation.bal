@@ -25,6 +25,10 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys1() {
                         select int:sum(price);
     assertEquality([35, 11], sum);
     sum = from var {name, price} in input
+                        group by var _ = true, name
+                        select int:sum(price);
+    assertEquality([35, 11], sum);
+    sum = from var {name, price} in input
                         group by name
                         let var x = int:sum(price)
                         select x;
@@ -753,35 +757,35 @@ function testMultipleGroupBy() {
                     {name: "Amal", price1: 10, price2: 13}];
 
     var res1 = from var {name, price1, price2} in input
-              group by name
-              let var minPrice2 = int:min(200, price2)
-              select from var x in [price1]
-                        let int y = x + minPrice2
-                        group by var _ = true
-                        select int:sum(y);   
+                group by name
+                let var minPrice2 = int:min(200, price2)
+                select from var x in [price1]
+                          let int y = x + minPrice2
+                          group by var _ = true
+                          select int:sum(y);   
     assertEquality([[44], [57], [23]], res1);
 
     var res2 = from var {name, price1, price2} in input
-              group by name
-              let var minPrice2 = int:min(200, price2)
-              select (from var x in [price1]
-                        let int y = x + minPrice2
-                        group by var _ = true
-                        select sum(y))[0]; 
+                group by name
+                let var minPrice2 = int:min(200, price2)
+                select (from var x in [price1]
+                          let int y = x + minPrice2
+                          group by var _ = true
+                          select sum(y))[0]; 
     assertEquality([44, 57, 23], res2);
 
     var res3 = from var {name, price1, price2} in input
-              group by name
-              let var minPrice2 = int:min(200, price2)
-              let var zz = from var x in [price1] let int y = x + minPrice2 group by var _ = true select sum(y)
-              select zz; 
+                group by name
+                let var minPrice2 = int:min(200, price2)
+                let var zz = from var x in [price1] let int y = x + minPrice2 group by var _ = true select sum(y)
+                select zz; 
     assertEquality([[44], [57], [23]], res3);
 
     var res4 = from var {name, price1, price2} in input
-              group by name
-              let var minPrice2 = int:min(200, price2)
-              let var zz = (from var x in [price1] let int y = x + minPrice2 group by var _ = true select sum(y))[0]
-              select zz; 
+                group by name
+                let var minPrice2 = int:min(200, price2)
+                let var zz = (from var x in [price1] let int y = x + minPrice2 group by var _ = true select sum(y))[0]
+                select zz; 
     assertEquality([44, 57, 23], res4);
 
     var res5 = from var {name, price1, price2} in input
@@ -803,4 +807,3 @@ function assertEquality(anydata expected, anydata actual) {
 }
 
 // TODO: sum(price1 + 2)
-// TODO: group var _ = true, price

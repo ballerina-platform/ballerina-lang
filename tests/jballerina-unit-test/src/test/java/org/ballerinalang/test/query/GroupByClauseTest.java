@@ -155,7 +155,8 @@ public class GroupByClauseTest {
                 "testGroupByVarDefsAndSelectWithGroupingKeys11",
                 "testGroupByVarDefsAndSelectWithNonGroupingKeys9",
 
-                "testMultipleGroupBy"
+                "testMultipleGroupBy",
+                "testOptionalFieldsInInput"
         };
     }
 

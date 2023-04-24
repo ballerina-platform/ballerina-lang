@@ -23,6 +23,12 @@ function testGroupByExpressionAndSelectWithGroupingKeys1() {
                         select name; // @output ["Saman", "Kamal"]
     assertEquality(["Saman", "Kamal"], names);
 
+    names = [];
+    names = from var {name} in input
+                group by name, var _ = 2
+                select name; // @output ["Saman", "Kamal"]
+    assertEquality(["Saman", "Kamal"], names);
+
     var x = from var {name} in input
                 group by var _ = true
                 select [name]; // @output ["Saman", "Saman", "Kamal"]
@@ -1969,6 +1975,25 @@ function testMultipleGroupBy() {
     assertEquality([["Saman", "Saman", "Kamal", "Kamal", "Kamal", "Amal"]], res7);
 }
 
+function testOptionalFieldsInInput() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 9},
+                    {name: "Amal", price2: 13}];
+
+    var res1 = from record {|string name; int price1?; int price2;|} rec in input
+                group by var n = rec.name
+                select n;    
+    assertEquality(["Saman", "Kamal", "Amal"], res1);
+
+    var res2 = from var rec in input
+                group by var n = rec.name
+                select n;
+    assertEquality(["Saman", "Kamal", "Amal"], res2);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
@@ -1977,8 +2002,11 @@ function assertEquality(anydata expected, anydata actual) {
 }
 
 // TODO: Add test cases readonly types
-// TODO: query expression in group by variable definition expression
 // TODO: Add tests to empty groups
 // TODO: 2nd from clause uses seq vars of first from clause
 // TODO: optional fiels in input
 // TODO: from var {name: namex, price1, price2} group by namex
+
+// from var {name, maths, science} in input
+// group by name
+// select {name: name, maths: avg:(maths), science: avg:(science)}
