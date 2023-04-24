@@ -1,6 +1,6 @@
 package io.ballerina.projects.plugins.completion;
 
-import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.TextEdit;
 
 import java.util.List;
 
@@ -71,31 +71,4 @@ public class CompletionItem {
         HIGH,
         LOW
     }
-    /**
-     * Represents a text edit that is applied along with the completion item.
-     */
-    static class TextEdit {
-        private String newText;
-        private LinePosition start;
-        private LinePosition end;
-
-        public TextEdit(String newText, LinePosition start, LinePosition end) {
-            this.newText = newText;
-            this.start = start;
-            this.end = end;
-        }
-
-        public String getNewText() {
-            return newText;
-        }
-
-        public LinePosition getStart() {
-            return start;
-        }
-
-        public LinePosition getEnd() {
-            return end;
-        }
-    }
-
 }

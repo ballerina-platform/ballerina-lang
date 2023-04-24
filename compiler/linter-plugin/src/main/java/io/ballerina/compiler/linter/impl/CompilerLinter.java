@@ -32,6 +32,7 @@ public class CompilerLinter extends CompilerPlugin {
 
     @Override
     public void init(CompilerPluginContext pluginContext) {
+
         registerCodeActions(pluginContext);
     }
 

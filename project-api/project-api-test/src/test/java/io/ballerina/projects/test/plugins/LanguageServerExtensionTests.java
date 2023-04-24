@@ -46,6 +46,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextEdit;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -182,5 +183,10 @@ public class LanguageServerExtensionTests {
         Assert.assertEquals(completionItem.getInsertText(), insertText);
         Assert.assertEquals(completionItem.getLabel(), label);
         Assert.assertEquals(completionItem.getPriority(), CompletionItem.Priority.HIGH);
+
+        Assert.assertFalse(completionItem.getAdditionalTextEdits().isEmpty());
+        TextEdit edit = completionItem.getAdditionalTextEdits().get(0);
+        Assert.assertTrue(edit.text().equals("#Sample service with foo resource" +
+                CompletionUtil.LINE_BREAK) && edit.range().startOffset() == 113 && edit.range().length() == 0);
     }
 }

@@ -12,7 +12,22 @@
       "detail": "Snippet",
       "sortText": "AP",
       "insertText": "resource function ${1:get} ${2:foo}(${3}) returns ${4:string} {\n\treturn ${5:\"\"};\n}",
-      "insertTextFormat": "Snippet"
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 0
+            },
+            "end": {
+              "line": 4,
+              "character": 0
+            }
+          },
+          "newText": "#Sample service with foo resource\n"
+        }
+      ]
     },
     {
       "label": "StrandData",

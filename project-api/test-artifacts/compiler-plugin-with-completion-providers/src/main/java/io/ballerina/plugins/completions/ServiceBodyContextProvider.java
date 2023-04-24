@@ -8,6 +8,8 @@ import io.ballerina.projects.plugins.completion.CompletionContext;
 import io.ballerina.projects.plugins.completion.CompletionException;
 import io.ballerina.projects.plugins.completion.CompletionItem;
 import io.ballerina.projects.plugins.completion.CompletionUtil;
+import io.ballerina.tools.text.TextEdit;
+import io.ballerina.tools.text.TextRange;
 
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +46,14 @@ public class ServiceBodyContextProvider extends AbstractCompletionProvider<Servi
         String label = "resource function get foo() returns string";
 
         CompletionItem completionItem = new CompletionItem(label, insertText, CompletionItem.Priority.HIGH);
+
+        //Additional text edit to add documentation for service if not present
+        if (node.metadata().isEmpty() || node.metadata().get().documentationString().isEmpty()) {
+            String documentation = "#Sample service with foo resource" + CompletionUtil.LINE_BREAK;
+            TextRange textRange = TextRange.from(node.textRange().startOffset(), 0);
+            TextEdit textEdit = TextEdit.from(textRange, documentation);
+            completionItem.setAdditionalTextEdits(List.of(textEdit));
+        }
         return List.of(completionItem);
     }
 }

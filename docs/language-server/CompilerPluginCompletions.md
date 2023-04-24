@@ -160,33 +160,6 @@ public class CompletionItem {
         HIGH,
         LOW
     }
-    /**
-     * Represents a text edit that is applied along with the completion item.
-     */
-    static class TextEdit {
-        private String newText;
-        private LinePosition start;
-        private LinePosition end;
-
-        public TextEdit(String newText, LinePosition start, LinePosition end) {
-            this.newText = newText;
-            this.start = start;
-            this.end = end;
-        }
-
-        public String getNewText() {
-            return newText;
-        }
-
-        public LinePosition getStart() {
-            return start;
-        }
-
-        public LinePosition getEnd() {
-            return end;
-        }
-    }
-
 }
 ```
 
@@ -198,7 +171,7 @@ A completion item has several properties. As a compiler plugin developer, you ca
 
 - `priority`: The priority of this item defines the order in which the items are shown to the user. If the priority is high the item will be shown before the item will be grouped at the top of the completion item list.
 
-- `additionalTextEdits`: An optional array of additional text edits that are applied when selecting this completion.
+- `additionalTextEdits`: An optional array of additional text edits that are applied when selecting this completion.Edits must not overlap (including the same insert position) with the main edit nor with themselves. Additional text edits should be used to change text unrelated to the  current cursor position (for example adding an import statement at the top of the file if the completion item will insert a qualified type).
 
 ## Example
 We are going to develop a package called `lstest/package_comp_plugin_with_completions`. We will develop a compiler plugin called `SampleCompilerPluginWithCompletionProvider` with this package. 
@@ -404,11 +377,12 @@ argument and use `ProjectLoader.loadProject()` with the source file path as a pa
 Once you have the list of completion items, you can simply check for the _label_, _insertText_, and _priority_.
 
 Here's an example:
+
 ```jshelllanguage
 
-    List<io.ballerina.projects.plugins.completion.CompletionItem> expectedList = getExpectedList();
+import java.awt.*;List < io.ballerina.projects.plugins.completion.CompletionItem > expectedList = getExpectedList();
     // Get completions for cursor position and assert 
-    List <io.ballerina.projects.plugins.completion.CompletionItem> completionItems = CompletionUtils.getCodeActions(filePath, cursorPos, project);
+    List < io.ballerina.projects.plugins.completion.CompletionItem > completionItems = CompletionUtils.getCodeActions(filePath, cursorPos, project);
     Assert.assertTrue(completionItems.size() > 0, "Expect at least 1 completion item");
 
     // Compare expected completion item list and received completion item list
@@ -418,5 +392,18 @@ Here's an example:
         Assert.assertEquals(actualItem.label(), expectedItem.label(), "Label mismatch");
         Assert.assertEquals(actualItem.insertText(), expectedItem.insertText(), "Insert text mismatch");
         Assert.assertEquals(actualItem.priority(), expectedItem.priority(), "Priority mismatch");
+
+        // Check additional text edits if present
+        if (!expectedItem.additionalTextEdits().isEmpty()) {
+            Assert.assertTrue(actualItem.additionalTextEdits().size() == expectedItem.additionalTextEdits().size(),
+                    "Additional text edits size size should mactch");
+            for (int i = 0; i < actualItem.additionalTextEdits().size(); i++) {
+                TextEdit actualEdit = actualItem.additionalTextEdits().get(i);
+                TextEdit expectedEdit = expectedItem.additionalTextEdits().get(i);
+                Assert.assertTrue(edit.text().equals(expectedEdit.text()) 
+                        && actualEdit.range().startOffset() == expectedEdit.range().startOffset() 
+                        && actualEdit.range().length() == expectedEdit.range().length());
+            }
+        }
     }
 ```
