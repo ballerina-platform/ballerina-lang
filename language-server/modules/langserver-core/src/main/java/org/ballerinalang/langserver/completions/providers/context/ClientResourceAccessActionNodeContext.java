@@ -44,6 +44,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -181,14 +182,14 @@ public class ClientResourceAccessActionNodeContext
                     break;
                 }
             }
-            
+
             separatorIndex += 1;
         }
         return resourcePathSegments;
     }
 
     private static boolean hasTrailingNewLineMinutiae(Node segment) {
-        return !segment.trailingMinutiae().isEmpty() 
+        return !segment.trailingMinutiae().isEmpty()
                 && StreamSupport.stream(segment.trailingMinutiae().spliterator(), false)
                 .anyMatch(minutiae -> minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE);
     }
@@ -211,6 +212,19 @@ public class ClientResourceAccessActionNodeContext
                 completionItem.getCompletionItem().setSortText(sortText);
             });
             return;
+        }
+
+        if (isInResourceMethodParameterContext(node, context) && context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            Optional<TypeSymbol> expectedType = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(),
+                            PositionUtil.getLinePosition(context.getCursorPosition()));
+            if (expectedType.isPresent()) {
+                completionItems.forEach(completionItem -> {
+                    completionItem.getCompletionItem().setSortText(SortingUtil.genSortTextByAssignability(context,
+                            completionItem, expectedType.get()));
+                });
+                return;
+            }
         }
 
         super.sort(context, node, completionItems);
