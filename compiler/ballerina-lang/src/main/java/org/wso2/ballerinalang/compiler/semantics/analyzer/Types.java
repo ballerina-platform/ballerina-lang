@@ -1536,7 +1536,11 @@ public class Types {
             case TypeTags.XML_PI:
                 return true;
             case TypeTags.ARRAY:
-                BType elementType = ((BArrayType) type).eType;
+                BArrayType arrayType = (BArrayType) type;
+                BType elementType = arrayType.eType;
+                if (elementType == symTable.semanticError && arrayType.mutableType != null) {
+                    elementType = arrayType.mutableType.eType;
+                }
                 return isInherentlyImmutableType(elementType) ||
                         isSelectivelyImmutableType(elementType, unresolvedTypes, forceCheck, packageID);
             case TypeTags.TUPLE:
@@ -1567,7 +1571,11 @@ public class Types {
                 }
                 return true;
             case TypeTags.MAP:
-                BType constraintType = ((BMapType) type).constraint;
+                BMapType mapType = (BMapType) type;
+                BType constraintType = mapType.constraint;
+                if (constraintType == symTable.semanticError && mapType.mutableType != null) {
+                    constraintType = mapType.mutableType.constraint;
+                }
                 return isInherentlyImmutableType(constraintType) ||
                         isSelectivelyImmutableType(constraintType, unresolvedTypes, forceCheck, packageID);
             case TypeTags.OBJECT:
@@ -1582,12 +1590,21 @@ public class Types {
                 }
                 return true;
             case TypeTags.TABLE:
-                BType tableConstraintType = ((BTableType) type).constraint;
+                BTableType tableType = (BTableType) type;
+                BType tableConstraintType = tableType.constraint;
+                if (tableConstraintType == symTable.semanticError && tableType.mutableType != null) {
+                    tableConstraintType = tableType.mutableType.constraint;
+                }
                 return isInherentlyImmutableType(tableConstraintType) ||
                         isSelectivelyImmutableType(tableConstraintType, unresolvedTypes, forceCheck, packageID);
             case TypeTags.UNION:
                 boolean readonlyIntersectionExists = false;
-                for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                BUnionType unionType = (BUnionType) type;
+                LinkedHashSet<BType> memberTypes = unionType.getMemberTypes();
+                if (memberTypes.isEmpty() && unionType.mutableType != null) {
+                    memberTypes = unionType.mutableType.getMemberTypes();
+                }
+                for (BType memberType : memberTypes) {
                     if (isInherentlyImmutableType(memberType) ||
                             isSelectivelyImmutableType(memberType, unresolvedTypes, forceCheck, packageID)) {
                         readonlyIntersectionExists = true;

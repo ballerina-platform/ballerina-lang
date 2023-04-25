@@ -55,7 +55,7 @@ public class ConstantExpressionTest {
         BAssertUtil.validateError(compileResult1, i++, "operator '~' not defined for 'false'", 33, 22);
         BAssertUtil.validateError(compileResult1, i++, "operator '-' not defined for 'true'", 35, 21);
         BAssertUtil.validateError(compileResult1, i++, "operator '~' not defined for 'false'", 37, 22);
-        BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[C, A, B]'", 39, 1);
+        BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[A, B, C]'", 39, 1);
         BAssertUtil.validateError(compileResult1, i++, "undefined symbol 'A'", 40, 15);
         BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[E, F]'", 44, 1);
         BAssertUtil.validateError(compileResult1, i++, "undefined symbol 'E'", 45, 17);
