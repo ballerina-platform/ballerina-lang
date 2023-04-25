@@ -400,7 +400,7 @@ public class SymbolLookupTest {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_module_alias_test.bal");
         SemanticModel model = getDefaultModulesSemanticModel(project);
         Document srcFile = getDocumentForSingleSource(project);
-        List<Symbol> visibleSymbols = model.visibleSymbols(srcFile, LinePosition.from(20, 4));
+        List<Symbol> visibleSymbols = model.visibleSymbols(srcFile, LinePosition.from(19, 25));
         List<String> expectedModuleSymbols = List.of("ht", "obj");
         ArrayList<Object> symbols = new ArrayList<>();
         for (Symbol visibleSymbol : visibleSymbols) {
