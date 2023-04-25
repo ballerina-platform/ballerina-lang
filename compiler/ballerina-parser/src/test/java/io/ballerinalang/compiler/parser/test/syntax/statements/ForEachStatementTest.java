@@ -249,7 +249,8 @@ public class ForEachStatementTest extends AbstractStatementTest {
                 {"forEach-stmt/forEach_stmt_source_31.bal", "forEach-stmt/forEach_stmt_assert_31.json"},
                 {"forEach-stmt/forEach_stmt_source_32.bal", "forEach-stmt/forEach_stmt_assert_32.json"},
                 {"forEach-stmt/forEach_stmt_source_33.bal", "forEach-stmt/forEach_stmt_assert_33.json"},
-                {"forEach-stmt/forEach_stmt_source_34.bal", "forEach-stmt/forEach_stmt_assert_34.json"}
+                {"forEach-stmt/forEach_stmt_source_34.bal", "forEach-stmt/forEach_stmt_assert_34.json"},
+                {"forEach-stmt/forEach_stmt_source_45.bal", "forEach-stmt/forEach_stmt_assert_45.json"}
         };
     }
 

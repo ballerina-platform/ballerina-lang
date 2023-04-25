@@ -124,7 +124,8 @@ public class WhileStatementTest extends AbstractStatementTest {
                 {"while-stmt/while_stmt_source_11.bal", "while-stmt/while_stmt_assert_11.json"},
                 {"while-stmt/while_stmt_source_12.bal", "while-stmt/while_stmt_assert_12.json"},
                 {"while-stmt/while_stmt_source_13.bal", "while-stmt/while_stmt_assert_13.json"},
-                {"while-stmt/while_stmt_source_14.bal", "while-stmt/while_stmt_assert_14.json"}
+                {"while-stmt/while_stmt_source_14.bal", "while-stmt/while_stmt_assert_14.json"},
+                {"while-stmt/while_stmt_source_25.bal", "while-stmt/while_stmt_assert_25.json"}
         };
     }
 

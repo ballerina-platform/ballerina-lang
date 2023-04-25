@@ -1,7 +1,6 @@
 public function test() {
-    lock {
+    retry {
         fail error("error!");
-    } on fail error (m) {
-        io:println(m);
+    } on fail = {
     }
 }

@@ -1,7 +1,6 @@
 public function test() {
-    lock {
+    foreach var v in membersList {
         fail error("error!");
-    } on fail error (m) {
-        io:println(m);
+    } on fail = {
     }
 }

@@ -183,7 +183,9 @@ public class MatchStatementTest extends AbstractStatementTest {
                 {"match-stmt/match_stmt_source_28.bal", "match-stmt/match_stmt_assert_28.json"},
                 {"match-stmt/match_stmt_source_29.bal", "match-stmt/match_stmt_assert_29.json"},
                 {"match-stmt/match_stmt_source_30.bal", "match-stmt/match_stmt_assert_30.json"},
-                {"match-stmt/match_stmt_source_31.bal", "match-stmt/match_stmt_assert_31.json"}
+                {"match-stmt/match_stmt_source_31.bal", "match-stmt/match_stmt_assert_31.json"},
+                {"match-stmt/match_stmt_source_42.bal", "match-stmt/match_stmt_assert_42.json"}
+
         };
     }
 

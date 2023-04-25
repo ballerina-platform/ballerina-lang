@@ -126,7 +126,8 @@ public class DoStatementTest extends AbstractStatementTest {
                 {"do-stmt/do_stmt_source_14.bal", "do-stmt/do_stmt_assert_14.json"},
                 {"do-stmt/do_stmt_source_15.bal", "do-stmt/do_stmt_assert_15.json"},
                 {"do-stmt/do_stmt_source_16.bal", "do-stmt/do_stmt_assert_16.json"},
-                {"do-stmt/do_stmt_source_17.bal", "do-stmt/do_stmt_assert_17.json"}
+                {"do-stmt/do_stmt_source_17.bal", "do-stmt/do_stmt_assert_17.json"},
+                {"do-stmt/do_stmt_source_28.bal", "do-stmt/do_stmt_assert_28.json"}
         };
     }
 

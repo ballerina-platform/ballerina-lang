@@ -153,7 +153,8 @@ public class LockStatementTest extends AbstractStatementTest {
                 {"lock-stmt/lock_stmt_source_15.bal", "lock-stmt/lock_stmt_assert_15.json"},
                 {"lock-stmt/lock_stmt_source_16.bal", "lock-stmt/lock_stmt_assert_16.json"},
                 {"lock-stmt/lock_stmt_source_17.bal", "lock-stmt/lock_stmt_assert_17.json"},
-                {"lock-stmt/lock_stmt_source_18.bal", "lock-stmt/lock_stmt_assert_18.json"}
+                {"lock-stmt/lock_stmt_source_18.bal", "lock-stmt/lock_stmt_assert_18.json"},
+                {"lock-stmt/lock_stmt_source_19.bal", "lock-stmt/lock_stmt_assert_19.json"}
         };
     }
 

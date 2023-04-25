@@ -1,13 +1,11 @@
 function foo() {
     transaction {
-    } on fail error (m) {
-        io:println(m);
+    } on fail = {
     }
 
     transaction {
         int a = 5;
-    } on fail error (m) {
-        io:println(m);
+    } on fail = {
     }
 
     transaction {
@@ -16,19 +14,16 @@ function foo() {
                 string b;
             }
         }
-    } on fail error (m) {
-        io:println(m);
+    } on fail = {
     }
 
     transaction {
         transaction {
             transaction {
                 string b;
-            } on fail error (m) {
-                io:println(m);
+            } on fail = {
             }
         }
-    } on fail error (m) {
-        io:println(m);
+    } on fail = {
     }
 }

@@ -253,7 +253,8 @@ public class TransactionStatementTest extends AbstractStatementTest {
                 {"transaction-stmt/transaction_stmt_source_09.bal", "transaction-stmt/transaction_stmt_assert_09.json"},
                 {"transaction-stmt/transaction_stmt_source_10.bal", "transaction-stmt/transaction_stmt_assert_10.json"},
                 {"transaction-stmt/transaction_stmt_source_11.bal", "transaction-stmt/transaction_stmt_assert_11.json"},
-                {"transaction-stmt/transaction_stmt_source_12.bal", "transaction-stmt/transaction_stmt_assert_12.json"}
+                {"transaction-stmt/transaction_stmt_source_12.bal", "transaction-stmt/transaction_stmt_assert_12.json"},
+                {"transaction-stmt/transaction_stmt_source_23.bal", "transaction-stmt/transaction_stmt_assert_23.json"}
         };
     }
 
@@ -269,7 +270,8 @@ public class TransactionStatementTest extends AbstractStatementTest {
                 {"transaction-stmt/retry_stmt_source_12.bal", "transaction-stmt/retry_stmt_assert_12.json"},
                 {"transaction-stmt/retry_stmt_source_13.bal", "transaction-stmt/retry_stmt_assert_13.json"},
                 {"transaction-stmt/retry_stmt_source_14.bal", "transaction-stmt/retry_stmt_assert_14.json"},
-                {"transaction-stmt/retry_stmt_source_15.bal", "transaction-stmt/retry_stmt_assert_15.json"}
+                {"transaction-stmt/retry_stmt_source_15.bal", "transaction-stmt/retry_stmt_assert_15.json"},
+                {"transaction-stmt/retry_stmt_source_26.bal", "transaction-stmt/retry_stmt_assert_26.json"}
         };
     }
 
