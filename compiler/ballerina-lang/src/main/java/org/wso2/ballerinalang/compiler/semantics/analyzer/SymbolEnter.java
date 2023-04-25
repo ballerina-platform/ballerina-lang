@@ -43,7 +43,6 @@ import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
-import org.wso2.ballerinalang.compiler.parser.NodeCloner;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -438,17 +437,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Sort type definitions with precedence, before defining their members.
         pkgNode.typeDefinitions.sort(getTypePrecedenceComparator());
         typeAndClassDefs.sort(getTypePrecedenceComparator());
-
-        // Add distinct type information
-//        defineDistinctClassAndObjectDefinitions(typeAndClassDefs);
-
-        // Define type def fields (if any)
-//        defineFields(typeAndClassDefs, pkgEnv);
-//        populateTypeToTypeDefMap(typeAndClassDefs);
-//        defineDependentFields(typeAndClassDefs, pkgEnv);
-
-        // Calculate error intersections types.
-//        defineIntersectionTypes(pkgEnv);
 
         // Define error details.
         defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
