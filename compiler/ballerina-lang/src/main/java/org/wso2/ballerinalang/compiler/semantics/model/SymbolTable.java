@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler.semantics.model;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.PredefinedType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
@@ -116,12 +118,12 @@ public class SymbolTable {
     public final BType noType = new BNoType(TypeTags.NONE);
     public final BType nilType = new BNilType();
     public final BType neverType = new BNeverType();
-    public final BType intType = new BType(TypeTags.INT, null, Flags.READONLY);
-    public final BType byteType = new BType(TypeTags.BYTE, null, Flags.READONLY);
-    public final BType floatType = new BType(TypeTags.FLOAT, null, Flags.READONLY);
-    public final BType decimalType = new BType(TypeTags.DECIMAL, null, Flags.READONLY);
-    public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY);
-    public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY);
+    public final BType intType = new BType(TypeTags.INT, null, Flags.READONLY, PredefinedType.INT);
+    public final BType byteType = new BType(TypeTags.BYTE, null, Flags.READONLY, PredefinedType.BYTE);
+    public final BType floatType = new BType(TypeTags.FLOAT, null, Flags.READONLY, PredefinedType.FLOAT);
+    public final BType decimalType = new BType(TypeTags.DECIMAL, null, Flags.READONLY, PredefinedType.DECIMAL);
+    public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY, PredefinedType.STRING);
+    public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY, PredefinedType.BOOLEAN);
 
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BMapType mapType = new BMapType(TypeTags.MAP, anyType, null);
@@ -162,13 +164,16 @@ public class SymbolTable {
     public BObjectType iterableType;
 
     // builtin subtypes
-    public final BIntSubType signed32IntType = new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32);
-    public final BIntSubType signed16IntType = new BIntSubType(TypeTags.SIGNED16_INT, Names.SIGNED16);
-    public final BIntSubType signed8IntType = new BIntSubType(TypeTags.SIGNED8_INT, Names.SIGNED8);
-    public final BIntSubType unsigned32IntType = new BIntSubType(TypeTags.UNSIGNED32_INT, Names.UNSIGNED32);
-    public final BIntSubType unsigned16IntType = new BIntSubType(TypeTags.UNSIGNED16_INT, Names.UNSIGNED16);
-    public final BIntSubType unsigned8IntType = new BIntSubType(TypeTags.UNSIGNED8_INT, Names.UNSIGNED8);
-    public final BStringSubType charStringType = new BStringSubType(TypeTags.CHAR_STRING, Names.CHAR);
+    public final BIntSubType signed32IntType = new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32, SemTypes.SINT32);
+    public final BIntSubType signed16IntType = new BIntSubType(TypeTags.SIGNED16_INT, Names.SIGNED16, SemTypes.SINT16);
+    public final BIntSubType signed8IntType = new BIntSubType(TypeTags.SIGNED8_INT, Names.SIGNED8, SemTypes.SINT8);
+    public final BIntSubType unsigned32IntType = new BIntSubType(TypeTags.UNSIGNED32_INT, Names.UNSIGNED32,
+                                                                SemTypes.UINT32);
+    public final BIntSubType unsigned16IntType = new BIntSubType(TypeTags.UNSIGNED16_INT, Names.UNSIGNED16,
+                                                                SemTypes.UINT16);
+    public final BIntSubType unsigned8IntType = new BIntSubType(TypeTags.UNSIGNED8_INT, Names.UNSIGNED8,
+                                                                SemTypes.UINT8);
+    public final BStringSubType charStringType = new BStringSubType(TypeTags.CHAR_STRING, Names.CHAR, SemTypes.CHAR);
     public final BXMLSubType xmlElementType = new BXMLSubType(TypeTags.XML_ELEMENT, Names.XML_ELEMENT);
     public final BXMLSubType xmlPIType = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI);
     public final BXMLSubType xmlCommentType = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT);

@@ -57,24 +57,27 @@ public class BType implements ValueType {
     private SemType semtype;
 
     public BType(int tag, BTypeSymbol tsymbol) {
-        this.tag = tag;
-        this.tsymbol = tsymbol;
-        this.name = Names.EMPTY;
-        this.flags = 0;
+        this(tag, tsymbol, 0);
     }
 
     public BType(int tag, BTypeSymbol tsymbol, long flags) {
-        this.tag = tag;
-        this.tsymbol = tsymbol;
-        this.name = Names.EMPTY;
-        this.flags = flags;
+        this(tag, tsymbol, Names.EMPTY, flags);
     }
 
     public BType(int tag, BTypeSymbol tsymbol, Name name, long flags) {
+        this(tag, tsymbol, name, flags, null);
+    }
+
+    public BType(int tag, BTypeSymbol tsymbol, long flags, SemType semType) {
+        this(tag, tsymbol, Names.EMPTY, flags, semType);
+    }
+
+    public BType(int tag, BTypeSymbol tsymbol, Name name, long flags, SemType semType) {
         this.tag = tag;
         this.tsymbol = tsymbol;
         this.name = name;
         this.flags = flags;
+        this.semtype = semType;
     }
 
     public SemType getSemtype() {

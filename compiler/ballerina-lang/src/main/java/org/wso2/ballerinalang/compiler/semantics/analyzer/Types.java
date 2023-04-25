@@ -20,6 +20,10 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.Context;
+import io.ballerina.types.Env;
+import io.ballerina.types.SemType;
+import io.ballerina.types.SemTypes;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -172,6 +176,8 @@ public class Types {
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private int recordCount = 0;
     private SymbolEnv env;
+    private Context cx;
+
     private boolean ignoreObjectTypeIds = false;
     private static final String BASE_16 = "base16";
 
@@ -205,6 +211,7 @@ public class Types {
                                                             symTable.xmlPIType, symTable.xmlTextType);
         this.unifier = new Unifier();
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.cx = Context.from(new Env());
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -832,7 +839,43 @@ public class Types {
         return result;
     }
 
+    private boolean isSemTypeEnabled(BType bType) {
+        switch (bType.tag) {
+            case TypeTags.NEVER:
+            case TypeTags.NIL:
+            case TypeTags.BOOLEAN:
+            case TypeTags.FLOAT:
+            case TypeTags.DECIMAL:
+            case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.UNSIGNED8_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.FINITE:
+                return true;
+            case TypeTags.TYPEREFDESC:
+                return isSemTypeEnabled(getReferredType(bType));
+            default:
+                return false;
+        }
+    }
+
+    private boolean isSemTypeEnabled(BType source, BType target) {
+        return isSemTypeEnabled(source) && isSemTypeEnabled(target);
+    }
+
     private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
+        SemType sourceSemType = source.getSemtype();
+        SemType targetSemType = target.getSemtype();
+
+        if (sourceSemType != null && targetSemType != null && isSemTypeEnabled(source, target)) {
+            return SemTypes.isSubtype(cx, sourceSemType, targetSemType);
+        }
 
         if (isSameType(source, target)) {
             return true;

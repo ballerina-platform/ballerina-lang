@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -555,6 +556,20 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
 
         validateDistinctType(typeNode, resultType);
+
+        if (typeNode.semType != null) {
+            // For type definitions, we will have the semType resolved already
+            resultType.setSemtype(typeNode.semType);
+        } else {
+            try {
+                SemType s = symbolEnter.resolveTypeDesc(env.enclPkg.semtypeEnv, env.enclPkg.modTable, null, 0,
+                        typeNode);
+                resultType.setSemtype(s);
+            } catch (Exception e) {
+                // Do nothing
+                // TODO: semType: remove once all types are supported
+            }
+        }
 
         typeNode.setBType(resultType);
         return resultType;
