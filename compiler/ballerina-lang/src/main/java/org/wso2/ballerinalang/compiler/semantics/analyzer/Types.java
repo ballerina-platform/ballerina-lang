@@ -1545,7 +1545,11 @@ public class Types {
                         isSelectivelyImmutableType(elementType, unresolvedTypes, forceCheck, packageID);
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
-                for (BType memberType : tupleType.getTupleTypes()) {
+                List<BType> tupleMemberTypes = tupleType.getTupleTypes();
+                if (tupleMemberTypes.isEmpty() && tupleType.mutableType != null) {
+                    tupleMemberTypes = tupleType.mutableType.getTupleTypes();
+                }
+                for (BType memberType : tupleMemberTypes) {
                     if (!isInherentlyImmutableType(memberType) &&
                             !isSelectivelyImmutableType(memberType, unresolvedTypes, forceCheck, packageID)) {
                         return false;
@@ -1561,7 +1565,11 @@ public class Types {
                         isSelectivelyImmutableType(tupRestType, unresolvedTypes, forceCheck, packageID);
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) type;
-                for (BField field : recordType.fields.values()) {
+                LinkedHashMap<String, BField> recordFields = recordType.fields;
+                if (recordFields.isEmpty() && recordType.mutableType != null) {
+                    recordFields = recordType.mutableType.fields;
+                }
+                for (BField field : recordFields.values()) {
                     BType fieldType = field.type;
                     if (!Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
                             !isInherentlyImmutableType(fieldType) &&
@@ -1580,8 +1588,11 @@ public class Types {
                         isSelectivelyImmutableType(constraintType, unresolvedTypes, forceCheck, packageID);
             case TypeTags.OBJECT:
                 BObjectType objectType = (BObjectType) type;
-
-                for (BField field : objectType.fields.values()) {
+                LinkedHashMap<String, BField> objectFields = objectType.fields;
+                if (objectFields.isEmpty() && objectType.mutableType != null) {
+                    objectFields = objectType.mutableType.fields;
+                }
+                for (BField field : objectFields.values()) {
                     BType fieldType = field.type;
                     if (!isInherentlyImmutableType(fieldType) &&
                             !isSelectivelyImmutableType(fieldType, unresolvedTypes, forceCheck, packageID)) {
