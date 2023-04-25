@@ -3,7 +3,7 @@ public function test() {
     while i < 3 {
         i = i + 1;
         fail error("error!");
-    } on fail error error err {
-        io:println(err);
-    }
+    } on fail error error err{
+io:println(err);
 }
+         }

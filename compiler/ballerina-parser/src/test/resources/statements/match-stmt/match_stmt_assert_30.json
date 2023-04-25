@@ -375,7 +375,13 @@
                           "kind": "ERROR_TYPE_DESC",
                           "children": [
                             {
-                              "kind": "ERROR_KEYWORD"
+                              "kind": "ERROR_KEYWORD",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },

@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -45,6 +46,7 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
@@ -57,9 +59,11 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "TRANSACTION_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "TRANSACTION_KEYWORD",
@@ -111,6 +115,7 @@
                 },
                 {
                   "kind": "ON_FAIL_CLAUSE",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ON_KEYWORD",
@@ -287,6 +292,7 @@
                     },
                     {
                       "kind": "BLOCK_STATEMENT",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_BRACE_TOKEN",
@@ -299,267 +305,86 @@
                         },
                         {
                           "kind": "LIST",
+                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "CALL_STATEMENT",
+                              "kind": "LOCAL_VAR_DECL",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "FUNCTION_CALL",
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "TYPED_BINDING_PATTERN",
                                   "children": [
                                     {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "kind": "INT_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "io",
+                                          "kind": "INT_KEYWORD",
                                           "leadingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "        "
                                             }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "POSITIONAL_ARG",
-                                          "children": [
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "message"
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CLOSE_PAREN_TOKEN"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "SEMICOLON_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CALL_STATEMENT",
-                              "children": [
-                                {
-                                  "kind": "FUNCTION_CALL",
-                                  "children": [
-                                    {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "io",
-                                          "leadingMinutiae": [
+                                          ],
+                                          "trailingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "POSITIONAL_ARG",
-                                          "children": [
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "cause"
-                                                }
-                                              ]
+                                              "value": " "
                                             }
                                           ]
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "CLOSE_PAREN_TOKEN"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "SEMICOLON_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CALL_STATEMENT",
-                              "children": [
-                                {
-                                  "kind": "FUNCTION_CALL",
-                                  "children": [
-                                    {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "kind": "CAPTURE_BINDING_PATTERN",
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "io",
-                                          "leadingMinutiae": [
+                                          "value": "a",
+                                          "trailingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "POSITIONAL_ARG",
-                                          "children": [
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "code"
-                                                }
-                                              ]
+                                              "value": " "
                                             }
                                           ]
                                         }
                                       ]
-                                    },
-                                    {
-                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
                                 },
                                 {
-                                  "kind": "SEMICOLON_TOKEN",
+                                  "kind": "EQUAL_TOKEN",
                                   "trailingMinutiae": [
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
                                     }
                                   ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CALL_STATEMENT",
-                              "children": [
+                                },
                                 {
-                                  "kind": "FUNCTION_CALL",
+                                  "kind": "SIMPLE_NAME_REFERENCE",
                                   "children": [
                                     {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
-                                      "children": [
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "code",
+                                      "trailingMinutiae": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "io",
-                                          "leadingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
                                         }
                                       ]
-                                    },
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "POSITIONAL_ARG",
-                                          "children": [
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "reason"
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
                                 },
                                 {
                                   "kind": "SEMICOLON_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_SEMICOLON_TOKEN"
                                   ]
                                 }
                               ]
@@ -589,6 +414,7 @@
             },
             {
               "kind": "TRANSACTION_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "TRANSACTION_KEYWORD",
@@ -721,6 +547,7 @@
                 },
                 {
                   "kind": "ON_FAIL_CLAUSE",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ON_KEYWORD",
@@ -897,6 +724,7 @@
                     },
                     {
                       "kind": "BLOCK_STATEMENT",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_BRACE_TOKEN",
@@ -909,267 +737,86 @@
                         },
                         {
                           "kind": "LIST",
+                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "CALL_STATEMENT",
+                              "kind": "LOCAL_VAR_DECL",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "FUNCTION_CALL",
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "TYPED_BINDING_PATTERN",
                                   "children": [
                                     {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "kind": "INT_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "io",
+                                          "kind": "INT_KEYWORD",
                                           "leadingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "        "
                                             }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "POSITIONAL_ARG",
-                                          "children": [
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "message"
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CLOSE_PAREN_TOKEN"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "SEMICOLON_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CALL_STATEMENT",
-                              "children": [
-                                {
-                                  "kind": "FUNCTION_CALL",
-                                  "children": [
-                                    {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "io",
-                                          "leadingMinutiae": [
+                                          ],
+                                          "trailingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "POSITIONAL_ARG",
-                                          "children": [
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "cause"
-                                                }
-                                              ]
+                                              "value": " "
                                             }
                                           ]
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "CLOSE_PAREN_TOKEN"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "SEMICOLON_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CALL_STATEMENT",
-                              "children": [
-                                {
-                                  "kind": "FUNCTION_CALL",
-                                  "children": [
-                                    {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "kind": "CAPTURE_BINDING_PATTERN",
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "io",
-                                          "leadingMinutiae": [
+                                          "value": "a",
+                                          "trailingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "POSITIONAL_ARG",
-                                          "children": [
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "code"
-                                                }
-                                              ]
+                                              "value": " "
                                             }
                                           ]
                                         }
                                       ]
-                                    },
-                                    {
-                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
                                 },
                                 {
-                                  "kind": "SEMICOLON_TOKEN",
+                                  "kind": "EQUAL_TOKEN",
                                   "trailingMinutiae": [
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
                                     }
                                   ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CALL_STATEMENT",
-                              "children": [
+                                },
                                 {
-                                  "kind": "FUNCTION_CALL",
+                                  "kind": "SIMPLE_NAME_REFERENCE",
                                   "children": [
                                     {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
-                                      "children": [
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "code",
+                                      "trailingMinutiae": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "io",
-                                          "leadingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
                                         }
                                       ]
-                                    },
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "POSITIONAL_ARG",
-                                          "children": [
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "reason"
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
                                 },
                                 {
                                   "kind": "SEMICOLON_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_SEMICOLON_TOKEN"
                                   ]
                                 }
                               ]
@@ -1199,6 +846,7 @@
             },
             {
               "kind": "TRANSACTION_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "TRANSACTION_KEYWORD",
@@ -1415,6 +1063,7 @@
                 },
                 {
                   "kind": "ON_FAIL_CLAUSE",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ON_KEYWORD",
@@ -1591,6 +1240,7 @@
                     },
                     {
                       "kind": "BLOCK_STATEMENT",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_BRACE_TOKEN",
@@ -1603,267 +1253,86 @@
                         },
                         {
                           "kind": "LIST",
+                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "CALL_STATEMENT",
+                              "kind": "LOCAL_VAR_DECL",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "FUNCTION_CALL",
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "TYPED_BINDING_PATTERN",
                                   "children": [
                                     {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "kind": "INT_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "io",
+                                          "kind": "INT_KEYWORD",
                                           "leadingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "        "
                                             }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "POSITIONAL_ARG",
-                                          "children": [
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "message"
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CLOSE_PAREN_TOKEN"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "SEMICOLON_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CALL_STATEMENT",
-                              "children": [
-                                {
-                                  "kind": "FUNCTION_CALL",
-                                  "children": [
-                                    {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "io",
-                                          "leadingMinutiae": [
+                                          ],
+                                          "trailingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "POSITIONAL_ARG",
-                                          "children": [
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "cause"
-                                                }
-                                              ]
+                                              "value": " "
                                             }
                                           ]
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "CLOSE_PAREN_TOKEN"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "SEMICOLON_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CALL_STATEMENT",
-                              "children": [
-                                {
-                                  "kind": "FUNCTION_CALL",
-                                  "children": [
-                                    {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "kind": "CAPTURE_BINDING_PATTERN",
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "io",
-                                          "leadingMinutiae": [
+                                          "value": "a",
+                                          "trailingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "POSITIONAL_ARG",
-                                          "children": [
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "code"
-                                                }
-                                              ]
+                                              "value": " "
                                             }
                                           ]
                                         }
                                       ]
-                                    },
-                                    {
-                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
                                 },
                                 {
-                                  "kind": "SEMICOLON_TOKEN",
+                                  "kind": "EQUAL_TOKEN",
                                   "trailingMinutiae": [
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
                                     }
                                   ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CALL_STATEMENT",
-                              "children": [
+                                },
                                 {
-                                  "kind": "FUNCTION_CALL",
+                                  "kind": "SIMPLE_NAME_REFERENCE",
                                   "children": [
                                     {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
-                                      "children": [
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "code",
+                                      "trailingMinutiae": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "io",
-                                          "leadingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
                                         }
                                       ]
-                                    },
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "POSITIONAL_ARG",
-                                          "children": [
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "reason"
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
                                 },
                                 {
                                   "kind": "SEMICOLON_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_SEMICOLON_TOKEN"
                                   ]
                                 }
                               ]
@@ -1893,6 +1362,7 @@
             },
             {
               "kind": "TRANSACTION_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "TRANSACTION_KEYWORD",
@@ -1915,6 +1385,7 @@
                 },
                 {
                   "kind": "BLOCK_STATEMENT",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "OPEN_BRACE_TOKEN",
@@ -1927,9 +1398,11 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "TRANSACTION_STATEMENT",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "TRANSACTION_KEYWORD",
@@ -1948,6 +1421,7 @@
                             },
                             {
                               "kind": "BLOCK_STATEMENT",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "OPEN_BRACE_TOKEN",
@@ -1960,9 +1434,11 @@
                                 },
                                 {
                                   "kind": "LIST",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "TRANSACTION_STATEMENT",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "TRANSACTION_KEYWORD",
@@ -2067,6 +1543,7 @@
                                         },
                                         {
                                           "kind": "ON_FAIL_CLAUSE",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "ON_KEYWORD",
@@ -2243,6 +1720,7 @@
                                             },
                                             {
                                               "kind": "BLOCK_STATEMENT",
+                                              "hasDiagnostics": true,
                                               "children": [
                                                 {
                                                   "kind": "OPEN_BRACE_TOKEN",
@@ -2255,267 +1733,86 @@
                                                 },
                                                 {
                                                   "kind": "LIST",
+                                                  "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "CALL_STATEMENT",
+                                                      "kind": "LOCAL_VAR_DECL",
+                                                      "hasDiagnostics": true,
                                                       "children": [
                                                         {
-                                                          "kind": "FUNCTION_CALL",
+                                                          "kind": "LIST",
+                                                          "children": []
+                                                        },
+                                                        {
+                                                          "kind": "TYPED_BINDING_PATTERN",
                                                           "children": [
                                                             {
-                                                              "kind": "QUALIFIED_NAME_REFERENCE",
+                                                              "kind": "INT_TYPE_DESC",
                                                               "children": [
                                                                 {
-                                                                  "kind": "IDENTIFIER_TOKEN",
-                                                                  "value": "io",
+                                                                  "kind": "INT_KEYWORD",
                                                                   "leadingMinutiae": [
                                                                     {
                                                                       "kind": "WHITESPACE_MINUTIAE",
                                                                       "value": "                "
                                                                     }
-                                                                  ]
-                                                                },
-                                                                {
-                                                                  "kind": "COLON_TOKEN"
-                                                                },
-                                                                {
-                                                                  "kind": "IDENTIFIER_TOKEN",
-                                                                  "value": "println"
-                                                                }
-                                                              ]
-                                                            },
-                                                            {
-                                                              "kind": "OPEN_PAREN_TOKEN"
-                                                            },
-                                                            {
-                                                              "kind": "LIST",
-                                                              "children": [
-                                                                {
-                                                                  "kind": "POSITIONAL_ARG",
-                                                                  "children": [
-                                                                    {
-                                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                                      "children": [
-                                                                        {
-                                                                          "kind": "IDENTIFIER_TOKEN",
-                                                                          "value": "message"
-                                                                        }
-                                                                      ]
-                                                                    }
-                                                                  ]
-                                                                }
-                                                              ]
-                                                            },
-                                                            {
-                                                              "kind": "CLOSE_PAREN_TOKEN"
-                                                            }
-                                                          ]
-                                                        },
-                                                        {
-                                                          "kind": "SEMICOLON_TOKEN",
-                                                          "trailingMinutiae": [
-                                                            {
-                                                              "kind": "END_OF_LINE_MINUTIAE",
-                                                              "value": "\n"
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "CALL_STATEMENT",
-                                                      "children": [
-                                                        {
-                                                          "kind": "FUNCTION_CALL",
-                                                          "children": [
-                                                            {
-                                                              "kind": "QUALIFIED_NAME_REFERENCE",
-                                                              "children": [
-                                                                {
-                                                                  "kind": "IDENTIFIER_TOKEN",
-                                                                  "value": "io",
-                                                                  "leadingMinutiae": [
+                                                                  ],
+                                                                  "trailingMinutiae": [
                                                                     {
                                                                       "kind": "WHITESPACE_MINUTIAE",
-                                                                      "value": "                "
-                                                                    }
-                                                                  ]
-                                                                },
-                                                                {
-                                                                  "kind": "COLON_TOKEN"
-                                                                },
-                                                                {
-                                                                  "kind": "IDENTIFIER_TOKEN",
-                                                                  "value": "println"
-                                                                }
-                                                              ]
-                                                            },
-                                                            {
-                                                              "kind": "OPEN_PAREN_TOKEN"
-                                                            },
-                                                            {
-                                                              "kind": "LIST",
-                                                              "children": [
-                                                                {
-                                                                  "kind": "POSITIONAL_ARG",
-                                                                  "children": [
-                                                                    {
-                                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                                      "children": [
-                                                                        {
-                                                                          "kind": "IDENTIFIER_TOKEN",
-                                                                          "value": "cause"
-                                                                        }
-                                                                      ]
+                                                                      "value": " "
                                                                     }
                                                                   ]
                                                                 }
                                                               ]
                                                             },
                                                             {
-                                                              "kind": "CLOSE_PAREN_TOKEN"
-                                                            }
-                                                          ]
-                                                        },
-                                                        {
-                                                          "kind": "SEMICOLON_TOKEN",
-                                                          "trailingMinutiae": [
-                                                            {
-                                                              "kind": "END_OF_LINE_MINUTIAE",
-                                                              "value": "\n"
-                                                            }
-                                                          ]
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "CALL_STATEMENT",
-                                                      "children": [
-                                                        {
-                                                          "kind": "FUNCTION_CALL",
-                                                          "children": [
-                                                            {
-                                                              "kind": "QUALIFIED_NAME_REFERENCE",
+                                                              "kind": "CAPTURE_BINDING_PATTERN",
                                                               "children": [
                                                                 {
                                                                   "kind": "IDENTIFIER_TOKEN",
-                                                                  "value": "io",
-                                                                  "leadingMinutiae": [
+                                                                  "value": "a",
+                                                                  "trailingMinutiae": [
                                                                     {
                                                                       "kind": "WHITESPACE_MINUTIAE",
-                                                                      "value": "                "
-                                                                    }
-                                                                  ]
-                                                                },
-                                                                {
-                                                                  "kind": "COLON_TOKEN"
-                                                                },
-                                                                {
-                                                                  "kind": "IDENTIFIER_TOKEN",
-                                                                  "value": "println"
-                                                                }
-                                                              ]
-                                                            },
-                                                            {
-                                                              "kind": "OPEN_PAREN_TOKEN"
-                                                            },
-                                                            {
-                                                              "kind": "LIST",
-                                                              "children": [
-                                                                {
-                                                                  "kind": "POSITIONAL_ARG",
-                                                                  "children": [
-                                                                    {
-                                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                                      "children": [
-                                                                        {
-                                                                          "kind": "IDENTIFIER_TOKEN",
-                                                                          "value": "code"
-                                                                        }
-                                                                      ]
+                                                                      "value": " "
                                                                     }
                                                                   ]
                                                                 }
                                                               ]
-                                                            },
-                                                            {
-                                                              "kind": "CLOSE_PAREN_TOKEN"
                                                             }
                                                           ]
                                                         },
                                                         {
-                                                          "kind": "SEMICOLON_TOKEN",
+                                                          "kind": "EQUAL_TOKEN",
                                                           "trailingMinutiae": [
                                                             {
-                                                              "kind": "END_OF_LINE_MINUTIAE",
-                                                              "value": "\n"
+                                                              "kind": "WHITESPACE_MINUTIAE",
+                                                              "value": " "
                                                             }
                                                           ]
-                                                        }
-                                                      ]
-                                                    },
-                                                    {
-                                                      "kind": "CALL_STATEMENT",
-                                                      "children": [
+                                                        },
                                                         {
-                                                          "kind": "FUNCTION_CALL",
+                                                          "kind": "SIMPLE_NAME_REFERENCE",
                                                           "children": [
                                                             {
-                                                              "kind": "QUALIFIED_NAME_REFERENCE",
-                                                              "children": [
+                                                              "kind": "IDENTIFIER_TOKEN",
+                                                              "value": "code",
+                                                              "trailingMinutiae": [
                                                                 {
-                                                                  "kind": "IDENTIFIER_TOKEN",
-                                                                  "value": "io",
-                                                                  "leadingMinutiae": [
-                                                                    {
-                                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                                      "value": "                "
-                                                                    }
-                                                                  ]
-                                                                },
-                                                                {
-                                                                  "kind": "COLON_TOKEN"
-                                                                },
-                                                                {
-                                                                  "kind": "IDENTIFIER_TOKEN",
-                                                                  "value": "println"
+                                                                  "kind": "END_OF_LINE_MINUTIAE",
+                                                                  "value": "\n"
                                                                 }
                                                               ]
-                                                            },
-                                                            {
-                                                              "kind": "OPEN_PAREN_TOKEN"
-                                                            },
-                                                            {
-                                                              "kind": "LIST",
-                                                              "children": [
-                                                                {
-                                                                  "kind": "POSITIONAL_ARG",
-                                                                  "children": [
-                                                                    {
-                                                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                                                      "children": [
-                                                                        {
-                                                                          "kind": "IDENTIFIER_TOKEN",
-                                                                          "value": "reason"
-                                                                        }
-                                                                      ]
-                                                                    }
-                                                                  ]
-                                                                }
-                                                              ]
-                                                            },
-                                                            {
-                                                              "kind": "CLOSE_PAREN_TOKEN"
                                                             }
                                                           ]
                                                         },
                                                         {
                                                           "kind": "SEMICOLON_TOKEN",
-                                                          "trailingMinutiae": [
-                                                            {
-                                                              "kind": "END_OF_LINE_MINUTIAE",
-                                                              "value": "\n"
-                                                            }
+                                                          "isMissing": true,
+                                                          "hasDiagnostics": true,
+                                                          "diagnostics": [
+                                                            "ERROR_MISSING_SEMICOLON_TOKEN"
                                                           ]
                                                         }
                                                       ]
@@ -2585,6 +1882,7 @@
                 },
                 {
                   "kind": "ON_FAIL_CLAUSE",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "ON_KEYWORD",
@@ -2761,6 +2059,7 @@
                     },
                     {
                       "kind": "BLOCK_STATEMENT",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_BRACE_TOKEN",
@@ -2773,267 +2072,86 @@
                         },
                         {
                           "kind": "LIST",
+                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "CALL_STATEMENT",
+                              "kind": "LOCAL_VAR_DECL",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "FUNCTION_CALL",
+                                  "kind": "LIST",
+                                  "children": []
+                                },
+                                {
+                                  "kind": "TYPED_BINDING_PATTERN",
                                   "children": [
                                     {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "kind": "INT_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "io",
+                                          "kind": "INT_KEYWORD",
                                           "leadingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "        "
                                             }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "POSITIONAL_ARG",
-                                          "children": [
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "message"
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CLOSE_PAREN_TOKEN"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "SEMICOLON_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CALL_STATEMENT",
-                              "children": [
-                                {
-                                  "kind": "FUNCTION_CALL",
-                                  "children": [
-                                    {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "io",
-                                          "leadingMinutiae": [
+                                          ],
+                                          "trailingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "POSITIONAL_ARG",
-                                          "children": [
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "cause"
-                                                }
-                                              ]
+                                              "value": " "
                                             }
                                           ]
                                         }
                                       ]
                                     },
                                     {
-                                      "kind": "CLOSE_PAREN_TOKEN"
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "SEMICOLON_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CALL_STATEMENT",
-                              "children": [
-                                {
-                                  "kind": "FUNCTION_CALL",
-                                  "children": [
-                                    {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
+                                      "kind": "CAPTURE_BINDING_PATTERN",
                                       "children": [
                                         {
                                           "kind": "IDENTIFIER_TOKEN",
-                                          "value": "io",
-                                          "leadingMinutiae": [
+                                          "value": "a",
+                                          "trailingMinutiae": [
                                             {
                                               "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "POSITIONAL_ARG",
-                                          "children": [
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "code"
-                                                }
-                                              ]
+                                              "value": " "
                                             }
                                           ]
                                         }
                                       ]
-                                    },
-                                    {
-                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
                                 },
                                 {
-                                  "kind": "SEMICOLON_TOKEN",
+                                  "kind": "EQUAL_TOKEN",
                                   "trailingMinutiae": [
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
                                     }
                                   ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CALL_STATEMENT",
-                              "children": [
+                                },
                                 {
-                                  "kind": "FUNCTION_CALL",
+                                  "kind": "SIMPLE_NAME_REFERENCE",
                                   "children": [
                                     {
-                                      "kind": "QUALIFIED_NAME_REFERENCE",
-                                      "children": [
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "code",
+                                      "trailingMinutiae": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "io",
-                                          "leadingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "println"
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
                                         }
                                       ]
-                                    },
-                                    {
-                                      "kind": "OPEN_PAREN_TOKEN"
-                                    },
-                                    {
-                                      "kind": "LIST",
-                                      "children": [
-                                        {
-                                          "kind": "POSITIONAL_ARG",
-                                          "children": [
-                                            {
-                                              "kind": "SIMPLE_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "reason"
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "CLOSE_PAREN_TOKEN"
                                     }
                                   ]
                                 },
                                 {
                                   "kind": "SEMICOLON_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_SEMICOLON_TOKEN"
                                   ]
                                 }
                               ]

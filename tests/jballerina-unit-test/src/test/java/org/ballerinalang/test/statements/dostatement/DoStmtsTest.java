@@ -49,17 +49,17 @@ public class DoStmtsTest {
     public void testNegative1() {
         int index = 0;
         BAssertUtil.validateError(negativeFile1, index++, "unreachable code", 15, 6);
-        BAssertUtil.validateWarning(negativeFile1, index++, "unused variable 'e'", 17, 4);
+        BAssertUtil.validateWarning(negativeFile1, index++, "unused variable 'e'", 17, 12);
         BAssertUtil.validateError(negativeFile1, index++, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 30, 4);
-        BAssertUtil.validateWarning(negativeFile1, index++, "unused variable 'e'", 30, 4);
-        BAssertUtil.validateWarning(negativeFile1, index++, "unused variable 'e'", 43, 4);
-        BAssertUtil.validateWarning(negativeFile1, index++, "unused variable 'e'", 57, 4);
+                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 30, 12);
+        BAssertUtil.validateWarning(negativeFile1, index++, "unused variable 'e'", 30, 12);
+        BAssertUtil.validateWarning(negativeFile1, index++, "unused variable 'e'", 43, 12);
+        BAssertUtil.validateWarning(negativeFile1, index++, "unused variable 'e'", 57, 12);
         BAssertUtil.validateError(negativeFile1, index++, "unreachable code", 60, 7);
         BAssertUtil.validateError(negativeFile1, index++, "unreachable code", 72, 3);
         BAssertUtil.validateError(negativeFile1, index++, "this function must return a result", 73, 1);
         BAssertUtil.validateError(negativeFile1, index++, "incompatible error definition type: " +
-                "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 90, 4);
+                "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 90, 12);
         Assert.assertEquals(negativeFile1.getDiagnostics().length, index);
     }
 

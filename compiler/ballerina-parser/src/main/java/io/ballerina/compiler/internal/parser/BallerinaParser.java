@@ -13829,6 +13829,18 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    private boolean isTypedBPPresent() {
+        SyntaxKind nextTokenKind = peek().kind;
+        if (nextTokenKind == SyntaxKind.OPEN_BRACE_TOKEN) {
+            return false;
+        } else if (isTypeStartingToken(nextTokenKind)) {
+            return true;
+        } else {
+            recover(peek(), ParserRuleContext.ON_FAIL_OPTIONAL_BINDING_PATTERN);
+            return isTypedBPPresent();
+        }
+    }
+
     /**
      * Parse on fail clause.
      * <p>
@@ -13842,9 +13854,8 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.ON_FAIL_CLAUSE);
         STNode onKeyword = parseOnKeyword();
         STNode failKeyword = parseFailKeyword();
-        STToken token = peek();
         STNode typedBindingPattern = STNodeFactory.createEmptyNode();
-        if (token.kind != SyntaxKind.OPEN_BRACE_TOKEN) {
+        if (isTypedBPPresent()) {
             typedBindingPattern = parseTypedBindingPattern();
         }
         STNode blockStatement = parseBlockNode();
@@ -13853,6 +13864,17 @@ public class BallerinaParser extends AbstractParser {
                 blockStatement);
     }
 
+    /**
+     * Parse typed binding pattern.
+     * <p>
+     * <code>
+     * typed-binding-pattern := inferable-type-descriptor binding-pattern
+     * <br/>
+     * inferable-type-descriptor := type-descriptor | var
+     * </code>
+     *
+     * @return Typed binding pattern node
+     */
     private STNode parseTypedBindingPattern() {
         STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
                 true, false, TypePrecedence.DEFAULT);

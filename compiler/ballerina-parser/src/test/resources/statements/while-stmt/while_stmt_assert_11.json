@@ -446,13 +446,7 @@
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "err",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "value": "err"
                                 }
                               ]
                             },
@@ -495,10 +489,6 @@
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
-                                },
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "        "
                                 },
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
@@ -590,10 +580,6 @@
                                   "value": "\n"
                                 },
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
-                                },
-                                {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
@@ -632,6 +618,12 @@
                         },
                         {
                           "kind": "CLOSE_BRACE_TOKEN",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "         "
+                            }
+                          ],
                           "trailingMinutiae": [
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
