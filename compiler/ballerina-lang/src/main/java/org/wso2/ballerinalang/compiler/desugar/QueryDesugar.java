@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -2329,6 +2330,12 @@ public class QueryDesugar extends BLangNodeVisitor {
     public void visit(BLangFromClause fromClause) {
         this.queryEnv = fromClause.env;
         this.acceptNode(fromClause.collection);
+        VariableNode var = fromClause.variableDefinitionNode.getVariable();
+        // TODO: Extend this for other variables kinds such as record, list.
+        if (var.getKind() == NodeKind.VARIABLE) {
+            BLangSimpleVariable simpleVar = (BLangSimpleVariable) fromClause.variableDefinitionNode.getVariable();
+            identifiers.put(simpleVar.name.value, simpleVar.symbol);
+        }
         //we don't have to reset the env to the prev env because from clause is the init clause for the query
     }
 
