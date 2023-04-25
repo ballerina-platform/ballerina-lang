@@ -106,6 +106,7 @@ public enum SyntaxKind {
     UNDERSCORE_KEYWORD(252, "_"),
     NOT_IS_KEYWORD(253, "!is"),
     GROUP_KEYWORD(254, "group"),
+    COLLECT_KEYWORD(255, "group"),
 
     // Type keywords
     INT_KEYWORD(300, "int"),
@@ -480,6 +481,8 @@ public enum SyntaxKind {
     GROUPING_KEY_VAR_DECLARATION(3091),
     GROUPING_KEY_VAR_NAME(3092),
     GROUP_BY_CLAUSE(3093),
+    COLLECT_CLAUSE(3094),
+
 
     // XML
     XML_ELEMENT(4000),

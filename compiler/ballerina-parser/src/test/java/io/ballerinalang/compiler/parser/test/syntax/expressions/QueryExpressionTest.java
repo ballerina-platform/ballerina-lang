@@ -352,4 +352,13 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
         test("from int a in b group by order d select e", "query-expr/query_expr_assert_108.json");
         test("from int a in b group @ by c select e", "query-expr/query_expr_assert_109.json");
     }
+
+    @Test
+    public void testQueryWithCollectKeyword() {
+        testFile("query-expr/query_expr_source_115.bal", "query-expr/query_expr_assert_115.json");
+        testFile("query-expr/query_expr_source_116.bal", "query-expr/query_expr_assert_116.json");
+        testFile("query-expr/query_expr_source_117.bal", "query-expr/query_expr_assert_117.json");
+        testFile("query-expr/query_expr_source_118.bal", "query-expr/query_expr_assert_118.json");
+        testFile("query-expr/query_expr_source_119.bal", "query-expr/query_expr_assert_119.json");
+    }
 }

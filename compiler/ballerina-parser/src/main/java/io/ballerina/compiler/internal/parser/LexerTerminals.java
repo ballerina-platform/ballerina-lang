@@ -103,6 +103,7 @@ public class LexerTerminals {
     public static final String ORDER = "order";
     public static final String GROUP = "group";
     public static final String BY = "by";
+    public static final String COLLECT = "collect";
     public static final String ASCENDING = "ascending";
     public static final String DESCENDING = "descending";
     public static final String CLASS = "class";

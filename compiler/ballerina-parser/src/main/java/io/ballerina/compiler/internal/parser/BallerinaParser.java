@@ -6013,6 +6013,7 @@ public class BallerinaParser extends AbstractParser {
             case WHERE_KEYWORD:
             case LET_KEYWORD:
             case SELECT_KEYWORD:
+            case COLLECT_KEYWORD:
             case DO_KEYWORD:
             case COLON_TOKEN:
             case ON_KEYWORD:
@@ -11868,6 +11869,7 @@ public class BallerinaParser extends AbstractParser {
         List<STNode> clauses = new ArrayList<>();
         STNode intermediateClause;
         STNode selectClause = null;
+        STNode collectClause = null;
         while (!isEndOfIntermediateClause(peek().kind)) {
             intermediateClause = parseIntermediateClause(isRhsExpr, allowActions);
             if (intermediateClause == null) {
@@ -11879,14 +11881,20 @@ public class BallerinaParser extends AbstractParser {
                 selectClause = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(selectClause, intermediateClause,
                         DiagnosticErrorCode.ERROR_MORE_CLAUSES_AFTER_SELECT_CLAUSE);
                 continue;
-            }
-
-            if (intermediateClause.kind != SyntaxKind.SELECT_CLAUSE) {
-                clauses.add(intermediateClause);
+            } else if (collectClause != null) {
+                collectClause = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(collectClause, intermediateClause,
+                        DiagnosticErrorCode.ERROR_MORE_CLAUSES_AFTER_COLLECT_CLAUSE);
                 continue;
             }
 
-            selectClause = intermediateClause;
+            if (intermediateClause.kind == SyntaxKind.SELECT_CLAUSE) {
+                selectClause = intermediateClause;
+            } else if (intermediateClause.kind == SyntaxKind.COLLECT_CLAUSE) {
+                collectClause = intermediateClause;
+            } else {
+                clauses.add(intermediateClause);
+                continue;
+            }
 
             if (isNestedQueryExpr() || !isValidIntermediateQueryStart(peek().kind)) {
                 // Break the loop for,
@@ -11902,7 +11910,7 @@ public class BallerinaParser extends AbstractParser {
             return parseQueryAction(queryConstructType, queryPipeline, selectClause);
         }
 
-        if (selectClause == null) {
+        if (selectClause == null && collectClause == null) {
             STNode selectKeyword = SyntaxErrors.createMissingToken(SyntaxKind.SELECT_KEYWORD);
             STNode expr = STNodeFactory
                     .createSimpleNameReferenceNode(SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
@@ -11925,8 +11933,8 @@ public class BallerinaParser extends AbstractParser {
         STNode onConflictClause = parseOnConflictClause(isRhsExpr);
 
 //        this.tokenReader.endKeywordMode();
-        return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline, selectClause,
-                onConflictClause);
+        return STNodeFactory.createQueryExpressionNode(queryConstructType, queryPipeline,
+                selectClause == null ? collectClause : selectClause, onConflictClause);
     }
 
     /**
@@ -11977,6 +11985,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseLetClause(isRhsExpr, allowActions);
             case SELECT_KEYWORD:
                 return parseSelectClause(isRhsExpr, allowActions);
+            case COLLECT_KEYWORD:
+                return parseCollectClause(isRhsExpr);
             case JOIN_KEYWORD:
             case OUTER_KEYWORD:
                 return parseJoinClause(isRhsExpr);
@@ -11996,6 +12006,24 @@ public class BallerinaParser extends AbstractParser {
             default:
                 recover(peek(), ParserRuleContext.QUERY_PIPELINE_RHS);
                 return parseIntermediateClause(isRhsExpr, allowActions);
+        }
+    }
+
+    private STNode parseCollectClause(boolean isRhsExpr) {
+        startContext(ParserRuleContext.COLLECT_CLAUSE);
+        STNode collectKeyword = parseCollectKeyword();
+        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        endContext();
+        return STNodeFactory.createCollectClauseNode(collectKeyword, expression);
+    }
+
+    private STNode parseCollectKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.COLLECT_KEYWORD) {
+            return consume();
+        } else {
+            recover(token, ParserRuleContext.COLLECT_KEYWORD);
+            return parseSelectKeyword();
         }
     }
 
