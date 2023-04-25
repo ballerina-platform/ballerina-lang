@@ -47,8 +47,7 @@ public class XMLSecurityTest {
         }
     }
 
-    // ToDo: Fix https://github.com/ballerina-platform/ballerina-lang/issues/40115
-    @Test (timeOut = 10000, expectedExceptions = ErrorValue.class, enabled = false)
+    @Test (timeOut = 10000, expectedExceptions = ErrorValue.class)
     public void testEntityExpansion() {
         String xmlString = "<?xml version=\"1.0\"?>\n" +
                 "<!DOCTYPE lolz [\n" +

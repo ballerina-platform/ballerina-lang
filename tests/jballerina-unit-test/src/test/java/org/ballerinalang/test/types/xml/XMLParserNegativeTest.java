@@ -43,7 +43,7 @@ public class XMLParserNegativeTest {
     @DataProvider(name = "xmlValues")
     public Object[][] xmlValues() {
         return new Object[][]{
-                {"<book name=\"irshad<\"></book>" , "Unexpected '<'  in attribute value\n" +
+                {"<book name=\"irshad<\"></book>" , "Unexpected character '<' (code 60) in attribute value\n" +
                         " at [row,col {unknown-source}]: [1,19]"},
                 {"<!-- comments cannot have -- in it -->" , "[com.ctc.wstx.exc.WstxLazyException] String '--' not " +
                         "allowed in comment (missing '>'?)\n at [row,col {unknown-source}]: [1,4]"},
