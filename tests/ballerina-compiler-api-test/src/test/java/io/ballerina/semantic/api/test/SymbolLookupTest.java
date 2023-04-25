@@ -401,7 +401,7 @@ public class SymbolLookupTest {
         SemanticModel model = getDefaultModulesSemanticModel(project);
         Document srcFile = getDocumentForSingleSource(project);
         List<Symbol> visibleSymbols = model.visibleSymbols(srcFile, LinePosition.from(19, 25));
-        List<String> expectedModuleSymbols = List.of("ht", "obj");
+        List<String> expectedModuleSymbols = List.of("obj", "sys", "regexp", "'array");
         ArrayList<Object> symbols = new ArrayList<>();
         for (Symbol visibleSymbol : visibleSymbols) {
             if (visibleSymbol.kind() == MODULE

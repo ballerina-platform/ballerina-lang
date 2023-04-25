@@ -15,7 +15,9 @@
 // under the License.
 
 import ballerina/lang.'object as obj
-import ballerina/http as ht;
+import ballerina/io as sys;
+import ballerina/lang.regexp as regexp;
+import ballerina/lang.array as 'array;
 
 function testFunction() {
 }
