@@ -369,21 +369,38 @@ function testMappingBindingWithSingleNameFieldBinding() {
     assertEquality("bar4", b);
 }
 
-function testMappingBindingPatternInsideTupleBinding() {
+function testMappingBindingPatternInListBindingPattern() {
     [record {int a; int b;}] r1 = [{a: 1, b: 2}];
+    [record {int a; int b; stream<int> c;}] r2 = [{a: 1, b: 2, c: new}];
+    [Some, Some] r3 = [{var1: "A", var2: "B"}, {var1: "C", var2: "D"}];
 
-        int a;
-        int b;
+    int a;
+    int b;
 
-        [{a, b}] = r1;
-        [record {int a; int b;}] v = r1;
+    [{a, b}] = r1;
+    [record {int a; int b;}] v = r1;
 
-        [Some, Some] r2 = [{var1: "A", var2: "B"}, {var1: "C", var2: "D"}];
+    string xVar1;
+    string xVar2;
 
-        string y1;
-        string y2;
+    [{var1: xVar1}, {var1: xVar2}] = r3;
+    [{a, b}] = r2;
 
-        [{var1: y1}, {var1: y2}] = r2;
+    string fname;
+    string lname;
+    string id;
+    int age;
+    string nextId;
+
+    [{id, fname, lname}, {id: nextId, age}] = [{id: "u1001", fname: "John", lname: "doe"}, {id: "xVar", age: 10}];
+
+    int p1;
+    int p2;
+    int p3;
+    int p4;
+    int p5;
+
+    [[{p1, p2}], [[{p3, p4}], {p5}]] = [[{p1: 10, p2: 12}], [[{p3: 13, p4: 14}], {p5: 15}]];
 }
 
 function assertEquality(anydata expected, anydata actual) {
