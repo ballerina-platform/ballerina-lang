@@ -45,7 +45,7 @@ public class QueryExpressionNode extends ExpressionNode {
         return childInBucket(2);
     }
 
-    public Node collectClause() {
+    public Node finalClause() {
         return childInBucket(2);
     }
 

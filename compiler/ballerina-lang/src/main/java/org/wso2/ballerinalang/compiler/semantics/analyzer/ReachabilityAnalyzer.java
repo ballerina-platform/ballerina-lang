@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.SimpleBLangNodeAnalyzer;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
@@ -519,6 +520,11 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         resetUnreachableBlock(data);
         analyzeReachability(onFailClause, data);
         data.statementReturnsPanicsOrFails = currentStatementReturns && data.statementReturnsPanicsOrFails;
+    }
+
+    @Override
+    public void visit(BLangCollectClause node, AnalyzerData data) {
+
     }
 
     @Override

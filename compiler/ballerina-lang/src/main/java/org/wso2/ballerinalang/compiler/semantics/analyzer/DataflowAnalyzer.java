@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
@@ -1631,6 +1632,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangSelectClause selectClause) {
         analyzeNode(selectClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangCollectClause bLangCollectClause) {
+//        analyzeNode(bLangCollectClause.expression, env);
+        // TODO: Implement this to remove unused variable error
     }
 
     @Override

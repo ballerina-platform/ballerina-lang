@@ -100,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingP
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
@@ -3339,6 +3340,11 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
     @Override
     public void visit(BLangSelectClause selectClause, AnalyzerData data) {
         analyzeExpr(selectClause.expression, data);
+    }
+
+    @Override
+    public void visit(BLangCollectClause node, AnalyzerData data) {
+
     }
 
     @Override

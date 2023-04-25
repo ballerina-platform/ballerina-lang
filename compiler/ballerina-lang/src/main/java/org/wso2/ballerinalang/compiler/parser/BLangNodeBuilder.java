@@ -39,6 +39,7 @@ import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeList;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
+import io.ballerina.compiler.syntax.tree.CollectClauseNode;
 import io.ballerina.compiler.syntax.tree.CommitActionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
@@ -323,6 +324,7 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBinding
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
@@ -3892,8 +3894,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             queryExpr.queryClauseList.add(clauseNode.apply(this));
         }
 
-        BLangSelectClause selectClause = (BLangSelectClause) queryExprNode.selectClause().apply(this);
-        queryExpr.queryClauseList.add(selectClause);
+        queryExpr.queryClauseList.add(queryExprNode.finalClause().apply(this));
 
         Optional<OnConflictClauseNode> onConflict = queryExprNode.onConflictClause();
         onConflict.ifPresent(onConflictClauseNode -> queryExpr.queryClauseList.add(onConflictClauseNode.apply(this)));
@@ -3918,6 +3919,14 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         queryExpr.isTable = isTable;
         queryExpr.isMap = isMap;
         return queryExpr;
+    }
+
+    @Override
+    public BLangNode transform(CollectClauseNode selectClauseNode) {
+        BLangCollectClause collectClause = (BLangCollectClause) TreeBuilder.createCollectClauseNode();
+        collectClause.pos = getPosition(selectClauseNode);
+        collectClause.expression = createExpression(selectClauseNode.expression());
+        return collectClause;
     }
 
     public BLangNode transform(OnFailClauseNode onFailClauseNode) {

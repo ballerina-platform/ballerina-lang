@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBinding
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
@@ -509,6 +510,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangSelectClause selectClause) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangCollectClause collectClause) {
         throw new AssertionError();
     }
 
