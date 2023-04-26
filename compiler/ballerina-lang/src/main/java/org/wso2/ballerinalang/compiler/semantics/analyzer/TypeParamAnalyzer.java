@@ -334,7 +334,7 @@ public class TypeParamAnalyzer {
                     addCyclicArrayMapTableOfMapMembers(cloneableType);
                     cloneableType.flags = flags;
 
-                    cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, refType.tsymbol.flags, Names.CLONEABLE,
+                    cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, refType.tsymbol.flags, symbol.name,
                             refType.tsymbol.pkgID, cloneableType, refType.tsymbol.owner, type.tsymbol.pos,
                             BUILTIN);
                     ((BTypeDefinitionSymbol) symbol).referenceType.referredType = cloneableType;
