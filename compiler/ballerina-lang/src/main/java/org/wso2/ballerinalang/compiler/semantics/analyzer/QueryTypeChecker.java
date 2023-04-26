@@ -292,7 +292,7 @@ public class QueryTypeChecker extends TypeChecker {
     void solveSelectTypeAndResolveType(BLangQueryExpr queryExpr, BLangExpression selectExp, List<BType> expTypes,
                                        BType collectionType, List<BType> selectTypes, List<BType> resolvedTypes,
                                        SymbolEnv env, TypeChecker.AnalyzerData data, boolean isReadonly) {
-        List<BType> possibleSelectTypes = new ArrayList<>();
+        LinkedHashSet<BType> possibleSelectTypes = new LinkedHashSet<>();
         List<BType> possibleResolvedTypes = new ArrayList<>();
         LinkedHashSet<BType> errorTypes = new LinkedHashSet<>();
         for (BType expType : expTypes) {
@@ -356,6 +356,11 @@ public class QueryTypeChecker extends TypeChecker {
                         errorTypes.add(type);
                         continue;
                     }
+
+                    if (types.isAssignable(selectType, type)) {
+                        selectType = type;
+                    }
+
                     resolvedType = selectType;
                     break;
                 case TypeTags.INTERSECTION:
