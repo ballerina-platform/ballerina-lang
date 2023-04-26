@@ -64,7 +64,7 @@ function processConfigAnnotation(string name, function f) returns boolean {
 
         testRegistry.addFunction(name = name, executableFunction = f, params = params, before = config.before,
             after = config.after, groups = config.groups, diagnostics = diagnostics, dependsOn = config.dependsOn,
-            enabled = enabled, dependsOnCount = config.dependsOn.length(), config = config);
+            enabled = enabled, dependsOnCount = config.dependsOn.length(), parallelizable = config.parallelizable, config = config);
         return true;
     }
     return false;
@@ -144,8 +144,8 @@ function hasTest(string name) returns boolean {
                 if (filter.includes(WILDCARD)) {
                     boolean|error wildCardMatch = matchWildcard(testName, filter);
                     if (wildCardMatch is boolean && wildCardMatch && matchModuleName(filter)) {
-                            return true;
-                    } 
+                        return true;
+                    }
                 }
             }
             return false;

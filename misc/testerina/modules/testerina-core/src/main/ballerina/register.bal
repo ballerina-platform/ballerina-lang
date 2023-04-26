@@ -39,6 +39,8 @@ type TestFunction record {|
     int dependsOnCount = 0;
     TestFunction[] dependents = [];
     boolean visited = false;
+    boolean isInExecutionQueue = false;
+    boolean parallelizable = true;
     TestConfig? config = ();
 |};
 
@@ -92,48 +94,71 @@ class GroupRegistry {
     }
 }
 
-class GroupStatusRegistry {
+isolated class GroupStatusRegistry {
     private final map<int> enabledTests = {};
     private final map<int> totalTests = {};
     private final map<int> executedTests = {};
     private final map<boolean> skip = {};
 
-    function firstExecuted(string group) returns boolean => self.executedTests.get(group) > 0;
-
-    function lastExecuted(string group) returns boolean => self.executedTests.get(group) == self.enabledTests.get(group);
-
-    function incrementTotalTest(string group, boolean enabled) {
-        if self.totalTests.hasKey(group) {
-            self.totalTests[group] = self.totalTests.get(group) + 1;
-        } else {
-            self.totalTests[group] = 1;
+    isolated function firstExecuted(string group) returns boolean {
+        lock {
+            return self.executedTests.get(group) > 0;
         }
-        if enabled {
-            self.skip[group] = false;
-            if self.enabledTests.hasKey(group) {
-                self.enabledTests[group] = self.enabledTests.get(group) + 1;
+    }
+    isolated function lastExecuted(string group) returns boolean {
+        lock {
+
+            return self.executedTests.get(group) == self.enabledTests.get(group);
+        }
+    }
+
+    isolated function incrementTotalTest(string group, boolean enabled) {
+        lock {
+            if self.totalTests.hasKey(group) {
+                self.totalTests[group] = self.totalTests.get(group) + 1;
             } else {
-                self.enabledTests[group] = 1;
-                self.executedTests[group] = 0;
+                self.totalTests[group] = 1;
+            }
+            if enabled {
+                self.skip[group] = false;
+                if self.enabledTests.hasKey(group) {
+                    self.enabledTests[group] = self.enabledTests.get(group) + 1;
+                } else {
+                    self.enabledTests[group] = 1;
+                    self.executedTests[group] = 0;
+                }
             }
         }
     }
 
-    function incrementExecutedTest(string group) {
-        if self.executedTests.hasKey(group) {
-            self.executedTests[group] = self.executedTests.get(group) + 1;
-        } else {
-            self.executedTests[group] = 1;
+    isolated function incrementExecutedTest(string group) {
+        lock {
+            if self.executedTests.hasKey(group) {
+                self.executedTests[group] = self.executedTests.get(group) + 1;
+            } else {
+                self.executedTests[group] = 1;
+            }
         }
     }
 
-    function setSkipAfterGroup(string group) {
-        self.skip[group] = true;
+    isolated function setSkipAfterGroup(string group) {
+        lock {
+            self.skip[group] = true;
+        }
     }
 
-    function getSkipAfterGroup(string group) returns boolean => self.skip.get(group);
+    isolated function getSkipAfterGroup(string group) returns boolean {
+        lock {
+            return self.skip.get(group);
+        }
+    }
 
-    function getGroupsList() returns string[] => self.totalTests.keys();
+    isolated function getGroupsList() returns string[] {
+        lock {
+            return self.totalTests.keys().clone();
+        }
+    }
+
 }
 
 isolated function testFunctionsSort(TestFunction testFunction) returns string => testFunction.name;

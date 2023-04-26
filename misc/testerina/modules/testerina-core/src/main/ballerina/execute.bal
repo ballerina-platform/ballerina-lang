@@ -1,3 +1,5 @@
+import ballerina/lang.runtime;
+
 // Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -14,9 +16,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-boolean shouldSkip = false;
+isolated boolean shouldSkip = false;
 boolean shouldAfterSuiteSkip = false;
-int exitCode = 0;
+isolated int exitCode = 0;
+TestFunction[] parallelTestExecutionList = [];
+TestFunction[] serialTestExecutionList = [];
+isolated int unAllocatedTestWorkers = 1;
 
 public function startSuite() {
     // exit if setTestOptions has failed
@@ -37,11 +42,15 @@ public function startSuite() {
 
         error? err = orderTests();
         if err is error {
-            exitCode = 1;
+            enableExit();
             println(err.message());
         } else {
             executeBeforeSuiteFunctions();
-            executeTests();
+            err = executeTests();
+            if err is error {
+                enableExit();
+                println(err.message());
+            }
             executeAfterSuiteFunctions();
             reportGenerators.forEach(reportGen => reportGen(reportData));
         }
@@ -50,29 +59,74 @@ public function startSuite() {
 }
 
 function exitOnError() {
-    if exitCode > 0 {
-        panic (error(""));
+    lock {
+        if exitCode > 0 {
+            panic (error(""));
+        }
     }
 }
 
-function executeTests() {
+function executeTests() returns error? {
+    decimal startTime = currentTimeInMillis();
     foreach TestFunction testFunction in testRegistry.getFunctions() {
-        executeTest(testFunction);
+        if testFunction.parallelizable {
+            parallelTestExecutionList.push(testFunction);
+        } else {
+            serialTestExecutionList.push(testFunction);
+        }
+
     }
+
+    while true {
+        if (parallelTestExecutionList.length() == 0 && getAvailableWorkerCount() == testWorkers
+            && serialTestExecutionList.length() == 0) {
+            break;
+        }
+
+        if (getAvailableWorkerCount() != 0) {
+
+            if parallelTestExecutionList.length() == 0 && serialTestExecutionList.length() == 0 {
+                runtime:sleep(0.0001);
+                continue;
+
+            }
+
+            if (serialTestExecutionList.length() != 0 && getAvailableWorkerCount() == testWorkers) {
+
+                TestFunction testFunction = serialTestExecutionList.remove(0);
+                allocateWorker();
+                future<error?> serialWaiter = start executeTest(testFunction);
+                any _ = check wait serialWaiter;
+
+            } else if parallelTestExecutionList.length() != 0 && serialTestExecutionList.length() == 0 {
+                TestFunction testFunction = parallelTestExecutionList.remove(0);
+                allocateWorker();
+                future<(error?)> parallelWaiter = start executeTest(testFunction);
+                runtime:sleep(0.0001);
+                if isDataDrivenTest(testFunction) {
+                    any _ = check wait parallelWaiter;
+                }
+
+            }
+        } else {
+            runtime:sleep(0.0001);
+        }
+    }
+    // println("Test execution time :" + (currentTimeInMillis() - startTime).toString() + "ms");
 }
 
-function executeTest(TestFunction testFunction) {
+function executeTest(TestFunction testFunction) returns error? {
     if !testFunction.enabled {
+        releaseWorker();
         return;
     }
     error? diagnoseError = testFunction.diagnostics;
     if diagnoseError is error {
-        reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(testFunction));
-        exitCode = 1;
-        return;
-    }
-    if testFunction.dependsOnCount > 1 {
-        testFunction.dependsOnCount -= 1;
+        lock {
+            reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(testFunction));
+        }
+        enableExit();
+        releaseWorker();
         return;
     }
 
@@ -80,14 +134,16 @@ function executeTest(TestFunction testFunction) {
     executeBeforeEachFunctions();
 
     boolean shouldSkipDependents = false;
-    if !testFunction.skip && !shouldSkip {
+    if !testFunction.skip && !getShouldSkip() {
         if (isDataDrivenTest(testFunction)) {
-            executeDataDrivenTestSet(testFunction);
+            check executeDataDrivenTestSet(testFunction);
         } else {
             shouldSkipDependents = executeNonDataDrivenTest(testFunction);
         }
     } else {
-        reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
+        lock {
+            reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
+        }
         shouldSkipDependents = true;
     }
 
@@ -97,37 +153,94 @@ function executeTest(TestFunction testFunction) {
 
     if shouldSkipDependents {
         testFunction.dependents.forEach(function(TestFunction dependent) {
-            dependent.skip = true;
+            lock {
+                dependent.skip = true;
+            }
         });
     }
-    testFunction.dependents.forEach(dependent => executeTest(dependent));
+    testFunction.dependents.forEach(dependent => checkExecutionReadiness(dependent));
+    releaseWorker();
+    // isSerialTestExecution = !isSerialTestExecution && !testFunction.parallelizable;
 }
 
-function executeDataDrivenTestSet(TestFunction testFunction) {
-    DataProviderReturnType? params = testFunction.params;
-    if params is map<AnyOrError[]> {
-        foreach [string, AnyOrError[]] entry in params.entries() {
-            boolean beforeFailed = executeBeforeFunction(testFunction);
-            if (beforeFailed) {
-                reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
+function checkExecutionReadiness(TestFunction testFunction) {
+    lock {
+        testFunction.dependsOnCount -= 1;
+        if testFunction.dependsOnCount == 0 && testFunction.isInExecutionQueue != true {
+            testFunction.isInExecutionQueue = true;
+            if testFunction.parallelizable {
+                parallelTestExecutionList.push(testFunction);
             } else {
-                executeDataDrivenTest(testFunction, entry[0], DATA_DRIVEN_MAP_OF_TUPLE, entry[1]);
-                var _ = executeAfterFunction(testFunction);
+                serialTestExecutionList.push(testFunction);
             }
         }
+    }
+}
+
+function executeDataDrivenTestSet(TestFunction testFunction) returns error? {
+    DataProviderReturnType? params = testFunction.params;
+    string[] keys = [];
+    AnyOrError[][] values = [];
+    TestType testType = DATA_DRIVEN_MAP_OF_TUPLE;
+    if params is map<AnyOrError[]> {
+        foreach [string, AnyOrError[]] entry in params.entries() {
+            keys.push(entry[0]);
+            values.push(entry[1]);
+        }
     } else if params is AnyOrError[][] {
+        testType = DATA_DRIVEN_TUPLE_OF_TUPLE;
         int i = 0;
         foreach AnyOrError[] entry in params {
-            boolean beforeFailed = executeBeforeFunction(testFunction);
-            if (beforeFailed) {
-                reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
-            } else {
-                executeDataDrivenTest(testFunction, i.toString(), DATA_DRIVEN_TUPLE_OF_TUPLE, entry);
-                var _ = executeAfterFunction(testFunction);
-            }
+            keys.push(i.toString());
+            values.push(entry);
             i += 1;
         }
     }
+
+    boolean isIntialJob = true;
+
+    while true {
+        if keys.length() == 0 {
+            break;
+        }
+
+        if isIntialJob || getAvailableWorkerCount() > 0 {
+            string key = keys.remove(0);
+            AnyOrError[] value = values.remove(0);
+
+            if !isIntialJob {
+                allocateWorker();
+            }
+
+            future<()> serialWaiter = start prepareDataDrivenTest(testFunction, key, value, testType);
+
+            if !testFunction.parallelizable {
+                any _ = check wait serialWaiter;
+            }
+
+        }
+
+        isIntialJob = false;
+
+        if getAvailableWorkerCount() == 0 {
+            runtime:sleep(0.0001);
+            continue;
+        }
+    }
+    allocateWorker();
+}
+
+function prepareDataDrivenTest(TestFunction testFunction, string key, AnyOrError[] value, TestType testType) {
+    boolean beforeFailed = executeBeforeFunction(testFunction);
+    if (beforeFailed) {
+        lock {
+            reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
+        }
+    } else {
+        executeDataDrivenTest(testFunction, key, testType, value);
+        var _ = executeAfterFunction(testFunction);
+    }
+    releaseWorker();
 }
 
 function executeDataDrivenTest(TestFunction testFunction, string suffix, TestType testType, AnyOrError[] params) {
@@ -137,9 +250,11 @@ function executeDataDrivenTest(TestFunction testFunction, string suffix, TestTyp
 
     ExecutionError|boolean err = executeTestFunction(testFunction, suffix, testType, params);
     if err is ExecutionError {
-        reportData.onFailed(name = testFunction.name, message = "[fail data provider for the function " + testFunction.name
+        lock {
+            reportData.onFailed(name = testFunction.name, message = "[fail data provider for the function " + testFunction.name
             + "]\n" + getErrorMessage(err), testType = testType);
-        exitCode = 1;
+            enableExit();
+        }
     }
 }
 
@@ -148,14 +263,20 @@ function executeNonDataDrivenTest(TestFunction testFunction) returns boolean {
     boolean beforeFailed = executeBeforeFunction(testFunction);
     if (beforeFailed) {
         testFunction.skip = true;
-        reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
+        lock {
+            reportData.onSkipped(name = testFunction.name, testType = getTestType(testFunction));
+        }
         return true;
     }
     ExecutionError|boolean output = executeTestFunction(testFunction, "", GENERAL_TEST);
     if output is ExecutionError {
         failed = true;
-        reportData.onFailed(name = testFunction.name, message = output.message(), testType = GENERAL_TEST);
-    } else if output {
+        lock {
+            reportData.onFailed(name = testFunction.name, message = output.message(), testType = GENERAL_TEST);
+        }
+    }
+
+    else if output {
         failed = true;
     }
     boolean afterFailed = executeAfterFunction(testFunction);
@@ -163,14 +284,15 @@ function executeNonDataDrivenTest(TestFunction testFunction) returns boolean {
         return true;
     }
     return failed;
+
 }
 
 function executeBeforeSuiteFunctions() {
     ExecutionError? err = executeFunctions(beforeSuiteRegistry.getFunctions());
     if err is ExecutionError {
-        shouldSkip = true;
+        enableShouldSkip();
         shouldAfterSuiteSkip = true;
-        exitCode = 1;
+        enableExit();
         printExecutionError(err, "before test suite function");
     }
 }
@@ -178,35 +300,35 @@ function executeBeforeSuiteFunctions() {
 function executeAfterSuiteFunctions() {
     ExecutionError? err = executeFunctions(afterSuiteRegistry.getFunctions(), shouldAfterSuiteSkip);
     if err is ExecutionError {
-        exitCode = 1;
+        enableExit();
         printExecutionError(err, "after test suite function");
     }
 }
 
 function executeBeforeEachFunctions() {
-    ExecutionError? err = executeFunctions(beforeEachRegistry.getFunctions(), shouldSkip);
+    ExecutionError? err = executeFunctions(beforeEachRegistry.getFunctions(), getShouldSkip());
     if err is ExecutionError {
-        shouldSkip = true;
-        exitCode = 1;
+        enableShouldSkip();
+        enableExit();
         printExecutionError(err, "before each test function for the test");
     }
 }
 
 function executeAfterEachFunctions() {
-    ExecutionError? err = executeFunctions(afterEachRegistry.getFunctions(), shouldSkip);
+    ExecutionError? err = executeFunctions(afterEachRegistry.getFunctions(), getShouldSkip());
     if err is ExecutionError {
-        shouldSkip = true;
-        exitCode = 1;
+        enableShouldSkip();
+        enableExit();
         printExecutionError(err, "after each test function for the test");
     }
 }
 
 function executeBeforeFunction(TestFunction testFunction) returns boolean {
     boolean failed = false;
-    if testFunction.before is function && !shouldSkip && !testFunction.skip {
+    if testFunction.before is function && !getShouldSkip() && !testFunction.skip {
         ExecutionError? err = executeFunction(<function>testFunction.before);
         if err is ExecutionError {
-            exitCode = 1;
+            enableExit();
             printExecutionError(err, "before test function for the test");
             failed = true;
         }
@@ -216,10 +338,10 @@ function executeBeforeFunction(TestFunction testFunction) returns boolean {
 
 function executeAfterFunction(TestFunction testFunction) returns boolean {
     boolean failed = false;
-    if testFunction.after is function && !shouldSkip && !testFunction.skip {
+    if testFunction.after is function && !getShouldSkip() && !testFunction.skip {
         ExecutionError? err = executeFunction(<function>testFunction.after);
         if err is ExecutionError {
-            exitCode = 1;
+            enableExit();
             printExecutionError(err, "after test function for the test");
             failed = true;
         }
@@ -231,11 +353,11 @@ function executeBeforeGroupFunctions(TestFunction testFunction) {
     foreach string group in testFunction.groups {
         TestFunction[]? beforeGroupFunctions = beforeGroupsRegistry.getFunctions(group);
         if beforeGroupFunctions != () && !groupStatusRegistry.firstExecuted(group) {
-            ExecutionError? err = executeFunctions(beforeGroupFunctions, shouldSkip);
+            ExecutionError? err = executeFunctions(beforeGroupFunctions, getShouldSkip());
             if err is ExecutionError {
                 testFunction.skip = true;
                 groupStatusRegistry.setSkipAfterGroup(group);
-                exitCode = 1;
+                enableExit();
                 printExecutionError(err, "before test group function for the test");
             }
         }
@@ -247,9 +369,9 @@ function executeAfterGroupFunctions(TestFunction testFunction) {
         TestFunction[]? afterGroupFunctions = afterGroupsRegistry.getFunctions(group);
         if afterGroupFunctions != () && groupStatusRegistry.lastExecuted(group) {
             ExecutionError? err = executeFunctions(afterGroupFunctions,
-                shouldSkip || groupStatusRegistry.getSkipAfterGroup(group));
+                getShouldSkip() || groupStatusRegistry.getSkipAfterGroup(group));
             if err is ExecutionError {
-                exitCode = 1;
+                enableExit();
                 printExecutionError(err, "after test group function for the test");
             }
         }
@@ -340,14 +462,18 @@ function executeTestFunction(TestFunction testFunction, string suffix, TestType 
     any|error output = params == () ? trap function:call(testFunction.executableFunction)
         : trap function:call(testFunction.executableFunction, ...params);
     if output is TestError {
-        exitCode = 1;
-        reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output), testType = testType);
+        enableExit();
+        lock {
+            reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output), testType = testType);
+        }
         return true;
     } else if output is any {
-        reportData.onPassed(name = testFunction.name, suffix = suffix, testType = testType);
+        lock {
+            reportData.onPassed(name = testFunction.name, suffix = suffix, testType = testType);
+        }
         return false;
     } else {
-        exitCode = 1;
+        enableExit();
         return error(getErrorMessage(output), functionName = testFunction.name);
     }
 }
@@ -355,7 +481,7 @@ function executeTestFunction(TestFunction testFunction, string suffix, TestType 
 function executeFunction(TestFunction|function testFunction) returns ExecutionError? {
     any|error output = trap function:call(testFunction is function ? testFunction : testFunction.executableFunction);
     if output is error {
-        exitCode = 1;
+        enableExit();
         return error(getErrorMessage(output), functionName = testFunction is function ? "" : testFunction.name);
     }
 }
@@ -432,3 +558,40 @@ function nestedEnabledDependentsAvailable(TestFunction[] dependents) returns boo
     }
     return nestedEnabledDependentsAvailable(queue);
 }
+
+isolated function allocateWorker() {
+    lock {
+        unAllocatedTestWorkers -= 1;
+    }
+}
+
+isolated function releaseWorker() {
+    lock {
+        unAllocatedTestWorkers += 1;
+    }
+}
+
+isolated function getAvailableWorkerCount() returns int {
+    lock {
+        return unAllocatedTestWorkers;
+    }
+}
+
+isolated function enableShouldSkip() {
+    lock {
+        shouldSkip = true;
+    }
+}
+
+isolated function getShouldSkip() returns boolean {
+    lock {
+        return shouldSkip;
+    }
+}
+
+isolated function enableExit() {
+    lock {
+        exitCode = 1;
+    }
+}
+

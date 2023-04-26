@@ -86,6 +86,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.FILE_NAME_PERI
 import static java.util.Objects.requireNonNull;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.CACHE_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.CLASS_EXTENSION;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DEFAULT_TEST_WORKERS;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT_REPLACER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.HYPHEN;
@@ -134,12 +135,13 @@ public class RunNativeImageTestTask implements Task {
     private boolean isRerunTestExecution;
     private String singleExecTests;
     private boolean listGroups;
+    private int testWorkers;
 
     TestReport testReport;
 
     public RunNativeImageTestTask(PrintStream out, boolean rerunTests, String groupList,
                                   String disableGroupList, String testList, String includes, String coverageFormat,
-                                  Map<String, Module> modules, boolean listGroups) {
+                                  Map<String, Module> modules, boolean listGroups, int workers) {
         this.out = out;
         this.isRerunTestExecution = rerunTests;
 
@@ -153,6 +155,12 @@ public class RunNativeImageTestTask implements Task {
             singleExecTests = testList;
         }
         this.listGroups = listGroups;
+
+        if (workers <= 0) {
+            testWorkers = DEFAULT_TEST_WORKERS;
+        } else {
+            testWorkers = workers;
+        }
     }
 
 
@@ -539,6 +547,7 @@ public class RunNativeImageTestTask implements Task {
             cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
             cmdArgs.add(Boolean.toString(isRerunTestExecution));
             cmdArgs.add(Boolean.toString(listGroups));                              // 8
+            cmdArgs.add(Integer.toString(testWorkers));
 
             builder.command(cmdArgs.toArray(new String[0]));
             process = builder.start();

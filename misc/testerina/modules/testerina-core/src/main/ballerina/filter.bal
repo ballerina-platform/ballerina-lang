@@ -25,10 +25,12 @@ boolean hasFilteredTests = false;
 string targetPath = "";
 boolean terminate = false;
 boolean listGroups = false;
+int testWorkers = 1;
 
 public function setTestOptions(string inTargetPath, string inPackageName, string inModuleName, string inReport,
         string inCoverage, string inGroups, string inDisableGroups, string inTests, string inRerunFailed,
-        string inListGroups) {
+        string inListGroups, string inTestWorkers) {
+
     targetPath = inTargetPath;
     packageName = inPackageName;
     moduleName = inModuleName;
@@ -38,12 +40,16 @@ public function setTestOptions(string inTargetPath, string inPackageName, string
     boolean testReport = parseBooleanInput(inReport, "test-report");
     boolean codeCoverage = parseBooleanInput(inCoverage, "code-coverage");
     listGroups = parseBooleanInput(inListGroups, "list-groups");
+    testWorkers = parseIntegerInput(inTestWorkers, "testWorkers");
+    lock {
+        unAllocatedTestWorkers = testWorkers;
+    }
 
     if rerunFailed {
         error? err = parseRerunJson();
         if err is error {
             println("error: " + err.message());
-            exitCode = 1;
+            enableExit();
             return;
         }
         hasFilteredTests = true;
@@ -94,6 +100,16 @@ function parseBooleanInput(string input, string variableName) returns boolean {
         return false;
     }
     return booleanVariable;
+}
+
+function parseIntegerInput(string input, string variableName) returns int {
+    int|error intVariable = int:fromString(input);
+    if intVariable is error {
+        println(string `Invalid '${variableName}' parameter: ${intVariable.message()}`);
+        terminate = true;
+        return 0;
+    }
+    return intVariable;
 }
 
 function parseRerunJson() returns error? {

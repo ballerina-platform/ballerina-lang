@@ -27,13 +27,14 @@ import io.ballerina.runtime.internal.scheduling.Strand;
  */
 public class TestArguments {
 
-    private static final int ARGUMENTS_NUMBER = 10;
+    private static final int ARGUMENTS_NUMBER = 11;
 
     private final Class<?>[] argTypes;
     private final Object[] argValues;
 
     public TestArguments(String targetPath, String packageName, String moduleName, String report, String coverage,
-                         String groups, String disableGroups,  String tests, String rerunFailed, String listGroups) {
+                         String groups, String disableGroups, String tests, String rerunFailed, String listGroups,
+                         String testWorkers) {
 
         argTypes = new Class[ARGUMENTS_NUMBER + 1];
         argValues = new Object[ARGUMENTS_NUMBER + 1];
@@ -51,6 +52,7 @@ public class TestArguments {
         assignValues(7, tests);
         assignValues(8, rerunFailed);
         assignValues(9, listGroups);
+        assignValues(10, testWorkers);
     }
 
     public Class<?>[] getArgTypes() {

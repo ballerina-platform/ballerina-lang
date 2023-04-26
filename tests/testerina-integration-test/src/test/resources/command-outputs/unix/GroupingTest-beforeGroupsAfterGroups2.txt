@@ -6,13 +6,30 @@ Compiling source
 Running Tests
 
 	before-groups-after-groups-test2.bal
+	[fail] afterSuiteFunc[after test suite function]:
+	    Assertion Failed!
+ 
+expected: '123456787'
+actual	: '123467587'
+ 
+Diff	:
+
+--- actual
++++ expected 
+ 
+ @@ -1,1 +1,1 @@ 
+ 
+ -123467587
++123456787
+
 		[pass] testFunction
 		[pass] testFunction2
-		[pass] testFunction3
 		[pass] testFunction4
+		[pass] testFunction3
 		[pass] testFunction5
 
 
 		5 passing
 		0 failing
 		0 skipped
+error: there are test failures

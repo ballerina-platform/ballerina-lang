@@ -13,7 +13,7 @@ Running Tests
 	    Assertion Failed!
  
 expected: 'beforetest3afterEach'
-actual	: 'beforeafterEachafterEachtest3afterEach'
+actual	: 'beforeafterEachtest3afterEachafterEach'
  
 Diff	:
 
@@ -22,7 +22,7 @@ Diff	:
  
  @@ -1,1 +1,1 @@ 
  
- -beforeafterEachafterEachtest3afterEach
+ -beforeafterEachtest3afterEachafterEach
 +beforetest3afterEach
 
 		[pass] test3

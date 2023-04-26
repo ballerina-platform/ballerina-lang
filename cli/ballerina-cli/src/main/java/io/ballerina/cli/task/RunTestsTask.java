@@ -66,6 +66,7 @@ import static io.ballerina.cli.utils.TestUtils.generateCoverage;
 import static io.ballerina.cli.utils.TestUtils.generateTesterinaReports;
 import static io.ballerina.cli.utils.TestUtils.loadModuleStatusFromFile;
 import static io.ballerina.cli.utils.TestUtils.writeToTestSuiteJson;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.DEFAULT_TEST_WORKERS;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_FN_DELIMITER;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY_DELIMITER;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
@@ -92,14 +93,22 @@ public class RunTestsTask implements Task {
     private Map<String, Module> coverageModules;
     private boolean listGroups;
 
+    private int testWorkers;
+
     TestReport testReport;
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                         String disableGroupList, String testList, String includes, String coverageFormat,
-                        Map<String, Module> modules, boolean listGroups)  {
+                        Map<String, Module> modules, boolean listGroups, int workers)  {
         this.out = out;
         this.err = err;
         this.isRerunTestExecution = rerunTests;
+
+        if (workers <= 0) {
+            testWorkers = DEFAULT_TEST_WORKERS;
+        } else {
+            testWorkers = workers;
+        }
 
         if (disableGroupList != null) {
             this.disableGroupList = disableGroupList;
@@ -305,6 +314,7 @@ public class RunTestsTask implements Task {
         cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
         cmdArgs.add(Boolean.toString(isRerunTestExecution));
         cmdArgs.add(Boolean.toString(listGroups));
+        cmdArgs.add(Integer.toString(testWorkers));
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();

@@ -86,4 +86,6 @@ public class TesterinaConstants {
 
     public static final String MOCK_FN_DELIMITER = "#";
     public static final String MOCK_LEGACY_DELIMITER = "~";
+
+    public static final int DEFAULT_TEST_WORKERS = 1;
 }
