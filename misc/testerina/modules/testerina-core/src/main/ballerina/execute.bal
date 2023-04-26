@@ -15,7 +15,8 @@
 // under the License.
 
 import ballerina/lang.'error as langError;
-boolean shouldSkip = false;
+import ballerina/lang.runtime;
+
 isolated boolean shouldSkip = false;
 boolean shouldAfterSuiteSkip = false;
 isolated int exitCode = 0;
@@ -253,7 +254,7 @@ function executeDataDrivenTest(TestFunction testFunction, string suffix, TestTyp
         lock {
             reportData.onFailed(name = testFunction.name, suffix = suffix, message = "[fail data provider for the function " + testFunction.name
                 + "]\n" + getErrorMessage(err), testType = testType);
-                enableExit();
+            enableExit();
         }
     }
 }

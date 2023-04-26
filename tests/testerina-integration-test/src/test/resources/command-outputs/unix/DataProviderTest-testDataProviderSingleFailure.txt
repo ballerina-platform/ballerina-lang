@@ -19,13 +19,9 @@ Running Tests with Coverage
 				callableName: testDividingValuesNegative moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 191
 				callableName: testDividingValuesNegative$lambda14$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 17
 			",functionName="testDividingValuesNegative")
-				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 353
-				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 140
-				callableName: executeDataDrivenTestSet moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 127
-				callableName: executeTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 87
-				callableName: executeTests moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 62
-				callableName: startSuite moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 46
-				callableName: __execute__ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 26
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 477
+				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 252
+				callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 241
 			
 
 

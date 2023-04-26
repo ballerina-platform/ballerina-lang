@@ -7,21 +7,26 @@ Running Tests
 
 	before-groups-after-groups-test2.bal
 	[fail] afterSuiteFunc[after test suite function]:
-	    Assertion Failed!
- 
-expected: '123456787'
-actual	: '123467587'
- 
-Diff	:
-
---- actual
-+++ expected 
- 
- @@ -1,1 +1,1 @@ 
- 
- -123467587
-+123456787
-
+	    error {ballerina/test:0}TestError ("Assertion Failed!
+		 
+		expected: '123456787'
+		actual	: '123467587'
+		 
+		Diff	:
+		
+		--- actual
+		+++ expected 
+		 
+		 @@ -1,1 +1,1 @@ 
+		 
+		 -123467587
+		+123456787
+		")
+			callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
+			callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
+			callableName: afterSuiteFunc  fileName: before-groups-after-groups-test2.bal lineNumber: 80
+			callableName: afterSuiteFunc$lambda9$  fileName: before-groups-after-groups-test2.bal lineNumber: 91
+		
 		[pass] testFunction
 		[pass] testFunction2
 		[pass] testFunction4
