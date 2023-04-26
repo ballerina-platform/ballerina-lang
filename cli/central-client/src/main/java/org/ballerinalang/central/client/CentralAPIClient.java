@@ -84,8 +84,8 @@ import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
 import static org.ballerinalang.central.client.Utils.getBearerToken;
+import static org.ballerinalang.central.client.Utils.getRemoteRepo;
 import static org.ballerinalang.central.client.Utils.isApplicationJsonContentType;
-
 /**
  * {@code CentralAPIClient} is a client for the Central API.
  *
@@ -337,9 +337,10 @@ public class CentralAPIClient {
                     .addFormDataPart("bala-file", fileName,
                             RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
                     .build();
-
+            String remoteRepo = getRemoteRepo();
+            String projectRepo = balaPath.toString().split(name)[0] + name;
             ProgressRequestBody balaFileReqBodyWithProgressBar = new ProgressRequestBody(balaFileReqBody,
-                    packageSignature + " [project repo -> central]", this.outStream);
+                    packageSignature + " [" + projectRepo + " -> " + remoteRepo + "]", this.outStream);
 
             // If OutStream is disabled, then pass `balaFileReqBody` only
             Request pushRequest = getNewRequest(supportedPlatform, ballerinaVersion)
@@ -780,8 +781,11 @@ public class CentralAPIClient {
         // PackageInfo is already validated to support the format org-name/package-name:version
         Package existingPackage = getPackage(packageInfo.split("/")[0], packageInfo.split("/")[1].split(":")[0],
                 packageInfo.split("/")[1].split(":")[1], supportedPlatform, ballerinaVersion);
+
+        String packageValue = packageInfo.endsWith(":*") ? packageInfo.substring(0, packageInfo.length() - 2) :
+                packageInfo;
         if (isUndo && !existingPackage.getDeprecated()) {
-            this.outStream.println("package " + packageInfo + " is not marked as deprecated in central");
+            this.outStream.println("package " + packageValue + " is not marked as deprecated in central");
             return;
         }
 
@@ -820,13 +824,13 @@ public class CentralAPIClient {
                         if (packageResponse.getDeprecated()) {
                             if (existingPackage.getDeprecated()) {
                                 this.outStream.println("deprecation message is successfully updated for the package "
-                                        + packageInfo + " in central");
+                                        + packageValue + " in central");
                             } else {
-                                this.outStream.println("package " + packageInfo
+                                this.outStream.println("package " + packageValue
                                         + " marked as deprecated in central successfully");
                             }
                         } else {
-                            this.outStream.println("deprecation of the package " + packageInfo +
+                            this.outStream.println("deprecation of the package " + packageValue +
                                     " is successfully undone in central");
                         }
                     }
@@ -858,7 +862,7 @@ public class CentralAPIClient {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             String errorMsg = isUndo ? ERR_PACKAGE_UN_DEPRECATE : ERR_PACKAGE_DEPRECATE;
-                            throw new CentralClientException(errorMsg + "'" + packageInfo +
+                            throw new CentralClientException(errorMsg + "'" + packageValue +
                                     "' reason:" + error.getMessage());
                         }
                     }
@@ -866,7 +870,7 @@ public class CentralAPIClient {
             }
         } catch (IOException e) {
             String errorMsg = isUndo ? ERR_PACKAGE_UN_DEPRECATE : ERR_PACKAGE_DEPRECATE;
-            throw new CentralClientException(errorMsg + "'" + packageInfo + "'. reason: " + e.getMessage());
+            throw new CentralClientException(errorMsg + "'" + packageValue + "'. reason: " + e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {

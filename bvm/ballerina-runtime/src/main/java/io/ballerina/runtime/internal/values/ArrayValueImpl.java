@@ -174,7 +174,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Override
     public BTypedesc getTypedesc() {
         if (this.typedesc == null) {
-            this.typedesc = getTypedescValue(arrayType, this);
+            this.typedesc = getTypedescValue(type, this);
         }
         return typedesc;
     }

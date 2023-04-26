@@ -8,22 +8,30 @@ Running Tests
 
 	skip-when-before-fails.bal
 	[fail] [before test function for the test]:
-	     / by zero
-	[fail] afterSuite[after test suite function]:
-	    Assertion Failed!
- 
-expected: 'beforetest3afterEach'
-actual	: 'beforeafterEachtest3afterEachafterEach'
- 
-Diff	:
+	    error("{ballerina}DivisionByZero",message=" / by zero")
+			callableName: before  fileName: skip-when-before-fails.bal lineNumber: 28
+			callableName: before$lambda6$  fileName: skip-when-before-fails.bal lineNumber: 32
 
---- actual
-+++ expected 
- 
- @@ -1,1 +1,1 @@ 
- 
- -beforeafterEachtest3afterEachafterEach
-+beforetest3afterEach
+	[fail] afterSuite[after test suite function]:
+	    error {ballerina/test:0}TestError ("Assertion Failed!
+
+		expected: 'beforetest3afterEach'
+		actual	: 'beforeafterEachtest3afterEachafterEach'
+
+		Diff	:
+
+		--- actual
+		+++ expected
+
+		 @@ -1,1 +1,1 @@
+
+		 -beforeafterEachtest3afterEachafterEach
+		+beforetest3afterEach
+		")
+			callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
+			callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
+			callableName: afterSuite  fileName: skip-when-before-fails.bal lineNumber: 54
+			callableName: afterSuite$lambda5$  fileName: skip-when-before-fails.bal lineNumber: 61
 
 		[pass] test3
 

@@ -43,4 +43,10 @@ public class CentralClientConstants {
     static final String IS_DEPRECATED = "isdeprecated";
     static final String DEPRECATE_MESSAGE = "deprecatemessage";
     public static final String ENABLE_OUTPUT_STREAM = "enableOutputStream";
+    static final String PRODUCTION_REPO = "central.ballerina.io";
+    static final String STAGING_REPO = "staging-central.ballerina.io";
+    static final String DEV_REPO = "dev-central.ballerina.io";
+    public static final String BALLERINA_STAGE_CENTRAL = "BALLERINA_STAGE_CENTRAL";
+    public static final String BALLERINA_DEV_CENTRAL = "BALLERINA_DEV_CENTRAL";
+
 }

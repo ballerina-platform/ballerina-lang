@@ -582,8 +582,10 @@ public class Package {
                     this.compilationOptions, this.moduleContextMap, DependencyGraph.emptyGraph());
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
 
-            DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().getResolution()
-                    .dependencyGraph();
+            CompilationOptions offlineCompOptions = CompilationOptions.builder().setOffline(true).build();
+            offlineCompOptions = offlineCompOptions.acceptTheirs(project.currentPackage().compilationOptions());
+            DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage()
+                    .getResolution(offlineCompOptions).dependencyGraph();
             cleanPackageCache(this.dependencyGraph, newDepGraph);
             return this.project.currentPackage();
         }

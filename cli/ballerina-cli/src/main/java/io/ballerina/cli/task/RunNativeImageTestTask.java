@@ -291,9 +291,6 @@ public class RunNativeImageTestTask implements Task {
         report = project.buildOptions().testReport();
         coverage = project.buildOptions().codeCoverage();
 
-        if (coverage) {
-            this.out.println("WARNING: Code coverage generation is not supported with Ballerina native test");
-        }
 
         if (report) {
             testReport = new TestReport();
@@ -363,6 +360,10 @@ public class RunNativeImageTestTask implements Task {
             testSuiteMapEntries.add(testSuiteMap);
         }
 
+        if (!hasTests) {
+            out.println("\tNo tests found");
+        }
+
         // If the function mocking does not exist, combine all test suite map entries
         if (!isMockFunctionExist && testSuiteMapEntries.size() != 0) {
             HashMap<String, TestSuite> testSuiteMap = testSuiteMapEntries.remove(0);
@@ -418,6 +419,9 @@ public class RunNativeImageTestTask implements Task {
                             String moduleName = testSuiteEntry.getKey();
                             ModuleStatus moduleStatus = TestUtils.loadModuleStatusFromFile(
                                     testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
+                            if (moduleStatus == null) {
+                                continue;
+                            }
 
                             if (!moduleName.equals(project.currentPackage().packageName().toString())) {
                                 moduleName = ModuleName.from(project.currentPackage().packageName(),
