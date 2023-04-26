@@ -40,7 +40,6 @@ public class LogConfigReader {
         try (InputStream configStream = this.getClass().getClassLoader().getResourceAsStream("logging.properties")) {
             if (configStream != null) {
                 logManager.readConfiguration(configStream);
-                configStream.close();
             } else {
                 stderr.println("error: failed to initialize logging");
             }
