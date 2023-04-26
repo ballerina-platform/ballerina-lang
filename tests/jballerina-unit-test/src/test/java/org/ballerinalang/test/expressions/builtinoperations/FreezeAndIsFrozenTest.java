@@ -486,13 +486,14 @@ public class FreezeAndIsFrozenTest {
                               "(PersonObj|PersonObjTwo),PersonObjTwo]'",
                 39, 9);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected '(readonly|xml|...[]|map<...>|table<map<...>>)', found 'Department'", 44, 9);
+                "incompatible types: expected '(readonly|xml|...[]|map<...>|table<map<...>>)', found 'Department'",
+                44, 9);
         validateError(semanticsNegativeResult, index++,
                       "incompatible types: expected '(readonly|xml|...[]|map<...>|table<map<...>>)', found 'map<" +
                               "(string|PersonObj)>'", 49, 32);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected '(readonly|xml|...[]|map<...>|table<map<...>>)', found 'map<[(string|PersonObj)," +
-                        "(FreezeAllowedDepartment|float)]>'", 52, 26);
+                "incompatible types: expected '(readonly|xml|...[]|map<...>|table<map<...>>)', found " +
+                        "'map<[(string|PersonObj),(FreezeAllowedDepartment|float)]>'", 52, 26);
         validateError(semanticsNegativeResult, index++,
                       "incompatible types: expected '(readonly|xml|...[]|map<...>|table<map<...>>)', found '" +
                               "(boolean|PersonObj|float)?[]'", 55, 39);
@@ -500,19 +501,19 @@ public class FreezeAndIsFrozenTest {
                       "incompatible types: expected '(readonly|xml|...[]|map<...>|table<map<...>>)', found '" +
                               "(boolean|PersonObj|float)?[]'", 57, 16);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected '(readonly|xml|...[]|map<...>|table<map<...>>)', found '[(string|PersonObj),"
-                + "(FreezeAllowedDepartment|float)]'", 60, 60);
+                "incompatible types: expected '(readonly|xml|...[]|map<...>|table<map<...>>)', found " +
+                        "'[(string|PersonObj),(FreezeAllowedDepartment|float)]'", 60, 60);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected '(readonly|xml|...[]|map<...>|table<map<...>>)', found " +
                         "'FreezeAllowedDepartment'", 63, 35);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected '(readonly|xml|...[]|map<...>|table<map<...>>)', found '(string|PersonObj)'", 66
-                , 27);
+                "incompatible types: expected '(readonly|xml|...[]|map<...>|table<map<...>>)', " +
+                        "found '(string|PersonObj)'", 66, 27);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'any', found 'error'", 71, 9);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected '(readonly|xml|...[]|map<...>|table<map<...>>)', found 'map<(string|PersonObj)" +
-                        ">'", 81, 39);
+                "incompatible types: expected '(readonly|xml|...[]|map<...>|table<map<...>>)', " +
+                        "found 'map<(string|PersonObj)>'", 81, 39);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected '(readonly|xml|...[]|map<...>|table<map<...>>)', found '" +
                         "(string|stream<int>|float)?[]'", 92, 47);

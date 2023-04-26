@@ -41,10 +41,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -64,10 +65,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
@@ -75,10 +75,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -86,8 +86,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
@@ -213,7 +213,6 @@ public class TypeResolver {
 
         for (BLangNode def : moduleDefs) {
             resolvingTypes = new Stack<>();
-
             if (def.getKind() == NodeKind.CLASS_DEFN) {
                 intersectionTypeList = new HashMap<>();
                 extracted(pkgEnv, modTable, (BLangClassDefinition) def);
@@ -233,7 +232,6 @@ public class TypeResolver {
             }
         }
         modTable.clear();
-//        cleanup();
     }
 
     private BType extracted(SymbolEnv pkgEnv, Map<String, BLangNode> modTable, BLangClassDefinition classDefinition) {
@@ -249,7 +247,7 @@ public class TypeResolver {
         symEnter.defineDistinctClassAndObjectDefinitionIndividual(classDefinition);
 
         // Define the class fields
-        defineField(classDefinition, modTable, pkgEnv);
+        defineField(classDefinition, pkgEnv);
         resolvedClassDef.add(classDefinition);
         BObjectType classDefType = (BObjectType) classDefinition.getBType();
         resolvingStructureTypes.remove(classDefType);
@@ -258,13 +256,13 @@ public class TypeResolver {
         return classDefType;
     }
 
-    public void defineField(BLangNode typeDefNode, Map<String, BLangNode> mod, SymbolEnv pkgEn) {
+    public void defineField(BLangNode typeDefNode, SymbolEnv pkgEn) {
         if (typeDefNode.getKind() == NodeKind.CLASS_DEFN) {
             BLangClassDefinition classDefinition = (BLangClassDefinition) typeDefNode;
             if (symEnter.isObjectCtor(classDefinition)) {
                 return;
             }
-            defineFieldsOfClassDef(classDefinition, mod, pkgEn);
+            defineFieldsOfClassDef(classDefinition, pkgEn);
             symEnter.defineReferencedFieldsOfClassDef(classDefinition, pkgEn);
         } else if (typeDefNode.getKind() == NodeKind.TYPE_DEFINITION) {
             symEnter.defineFields((BLangTypeDefinition) typeDefNode, pkgEn);
@@ -272,7 +270,7 @@ public class TypeResolver {
         }
     }
 
-    public void defineFieldsOfClassDef(BLangClassDefinition classDefinition, Map<String, BLangNode> mod, SymbolEnv env) {
+    public void defineFieldsOfClassDef(BLangClassDefinition classDefinition, SymbolEnv env) {
         SymbolEnv typeDefEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
         BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) classDefinition.symbol;
         BObjectType objType = (BObjectType) tSymbol.type;
@@ -334,8 +332,8 @@ public class TypeResolver {
                 symEnter.getOrigin(className, flags), classDefinition.isServiceDecl);
         tSymbol.originalName = classOrigName;
         tSymbol.scope = new Scope(tSymbol);
-        tSymbol.markdownDocumentation = symEnter.getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
-
+        tSymbol.markdownDocumentation =
+                symEnter.getMarkdownDocAttachment(classDefinition.markdownDocumentationAttachment);
 
         long typeFlags = 0;
 
@@ -493,7 +491,8 @@ public class TypeResolver {
         }
     }
 
-    private BType resolveTypeDefinition(SymbolEnv symEnv, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth) {
+    private BType resolveTypeDefinition(SymbolEnv symEnv, Map<String, BLangNode> mod,
+                                        BLangTypeDefinition defn, int depth) {
         if (defn.getBType() != null) {
             // Already defined.
             return defn.getBType();
@@ -594,7 +593,7 @@ public class TypeResolver {
         if (moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
             BLangTypeDefinition typeDefinition = (BLangTypeDefinition) moduleLevelDef;
             BType resolvedType = resolveTypeDefinition(pkgEnv, modTable, typeDefinition, currentDepth);
-//            symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(typeDefinition); // temporary disable due to intersections
+//            symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(typeDefinition);
             if (resolvedType == symTable.semanticError || resolvedType == symTable.noType) {
                 return resolvedType;
             }
@@ -848,7 +847,8 @@ public class TypeResolver {
                     Name pkgAlias = names.fromIdNode(sizeReference.pkgAlias);
                     Name typeName = names.fromIdNode(sizeReference.variableName);
 
-                    BSymbol sizeSymbol = symResolver.lookupMainSpaceSymbolInPackage(size.pos, symEnv, pkgAlias, typeName);
+                    BSymbol sizeSymbol =
+                            symResolver.lookupMainSpaceSymbolInPackage(size.pos, symEnv, pkgAlias, typeName);
                     sizeReference.symbol = sizeSymbol;
 
                     if (symTable.notFoundSymbol == sizeSymbol) {
@@ -1081,7 +1081,7 @@ public class TypeResolver {
         symEnter.populateTypeToTypeDefMap(typeAndClassDefs);
 //        symEnter.defineDependentFields(typeAndClassDefs, symEnv);
         currentDepth++;
-        defineField(typeDefOrObject, mod, symEnv);
+        defineField(typeDefOrObject, symEnv);
     }
 
     private BType resolveTypeDesc(BLangFunctionTypeNode td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth,
@@ -1584,7 +1584,7 @@ public class TypeResolver {
         if (moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
             BLangTypeDefinition typeDefinition = (BLangTypeDefinition) moduleLevelDef;
             BType resolvedType = resolveTypeDefinition(symEnv, mod, typeDefinition, depth);
-//            symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(typeDefinition); // temporary disable due to intersections
+//            symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(typeDefinition);
             if (resolvedType == symTable.semanticError || resolvedType == symTable.noType) {
                 return resolvedType;
             }
@@ -1638,7 +1638,7 @@ public class TypeResolver {
     private void replaceUnaryExprWithNumericLiteral(BLangFiniteTypeNode finiteTypeNode) {
         BLangExpression value;
         NodeKind valueKind;
-        for(int i = 0; i < finiteTypeNode.valueSpace.size(); i++) {
+        for (int i = 0; i < finiteTypeNode.valueSpace.size(); i++) {
             value = finiteTypeNode.valueSpace.get(i);
             valueKind = value.getKind();
 
@@ -1684,7 +1684,8 @@ public class TypeResolver {
         }
     }
 
-    private BType resolveTypeDesc(BLangTableTypeNode td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth, BLangTypeDefinition typeDefinition) {
+    private BType resolveTypeDesc(BLangTableTypeNode td, SymbolEnv symEnv, Map<String, BLangNode> mod,
+                                  int depth, BLangTypeDefinition typeDefinition) {
         currentDepth = depth;
         if (td.defn != null) {
             return td.defn.getMutableType();
@@ -1708,7 +1709,8 @@ public class TypeResolver {
         tableType.constraint = constraintType;
 
         if (td.tableKeyTypeConstraint != null) {
-            tableType.keyTypeConstraint = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.tableKeyTypeConstraint.keyType);//resolveTypeNode(td.tableKeyTypeConstraint.keyType, data, symEnv);
+            tableType.keyTypeConstraint =
+                    resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.tableKeyTypeConstraint.keyType);
             tableType.keyPos = td.tableKeyTypeConstraint.pos;
         } else if (td.tableKeySpecifier != null) {
             BLangTableKeySpecifier tableKeySpecifier = td.tableKeySpecifier;
@@ -1759,7 +1761,8 @@ public class TypeResolver {
 
     public BType visitBuiltInTypeNode(BLangType typeNode, SymbolResolver.AnalyzerData data, TypeKind typeKind) {
         Name typeName = names.fromTypeKind(typeKind);
-        BSymbol typeSymbol = symResolver.lookupMemberSymbol(typeNode.pos, symTable.rootScope, data.env, typeName, SymTag.TYPE);
+        BSymbol typeSymbol =
+                symResolver.lookupMemberSymbol(typeNode.pos, symTable.rootScope, data.env, typeName, SymTag.TYPE);
         if (typeSymbol == symTable.notFoundSymbol) {
             dlog.error(typeNode.pos, data.diagCode, typeName);
         }
@@ -1798,7 +1801,8 @@ public class TypeResolver {
         BSymbol typeDefSymbol = Symbols.createTypeDefinitionSymbol(Flags.asMask(typeDefinition.flagSet),
                 names.fromIdNode(typeDefinition.name), env.enclPkg.packageID, resolvedType, env.scope.owner,
                 typeDefinition.name.pos, symEnter.getOrigin(typeDefinition.name.value));
-        typeDefSymbol.markdownDocumentation = symEnter.getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
+        typeDefSymbol.markdownDocumentation =
+                symEnter.getMarkdownDocAttachment(typeDefinition.markdownDocumentationAttachment);
         BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_REF, typeDefSymbol.flags, typeDefSymbol.name,
                 typeDefSymbol.pkgID, typeDefSymbol.type, typeDefSymbol.owner, typeDefSymbol.pos, typeDefSymbol.origin);
         typeSymbol.markdownDocumentation = typeDefSymbol.markdownDocumentation;
@@ -1852,7 +1856,8 @@ public class TypeResolver {
         boolean isIntersectionTypeWithNonNullEffectiveTypeSymbol =
                 isIntersectionType && effectiveDefinedType != null && effectiveDefinedType.tsymbol != null;
 
-        if (isIntersectionTypeWithNonNullEffectiveTypeSymbol && !types.isInherentlyImmutableType(effectiveDefinedType)) {
+        if (isIntersectionTypeWithNonNullEffectiveTypeSymbol
+                && !types.isInherentlyImmutableType(effectiveDefinedType)) {
             BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
             effectiveTypeSymbol.name = typeDefSymbol.name;
             effectiveTypeSymbol.pkgID = typeDefSymbol.pkgID;
@@ -2064,7 +2069,8 @@ public class TypeResolver {
             constantSymbol.type.tsymbol.flags |= typeDef.symbol.flags;
         }
 
-        constantSymbol.markdownDocumentation = symEnter.getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
+        constantSymbol.markdownDocumentation =
+                symEnter.getMarkdownDocAttachment(constant.markdownDocumentationAttachment);
         if (symEnter.isDeprecated(constant.annAttachments)) {
             constantSymbol.flags |= Flags.DEPRECATED;
         }

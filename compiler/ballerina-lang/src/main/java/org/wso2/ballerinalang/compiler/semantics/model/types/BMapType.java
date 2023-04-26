@@ -35,7 +35,6 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
     public BType constraint;
 
     private BIntersectionType intersectionType = null;
-    private boolean resolvingToString = false;
 
     public BMapType mutableType;
 

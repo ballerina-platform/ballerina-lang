@@ -42,7 +42,6 @@ public class BArrayType extends BType implements ArrayType {
     public BArrayState state = BArrayState.OPEN;
 
     private BIntersectionType intersectionType = null;
-    private boolean resolvingToString = false;
 
     public BArrayType mutableType;
 

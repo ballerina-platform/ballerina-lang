@@ -767,7 +767,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 for (int tag = TypeTags.FLOAT; tag <= TypeTags.DECIMAL; tag++) {
                     BType unionMember =
                             getAndSetAssignableUnionMember(literalExpr, unionType, symTable.getTypeFromTag(tag), data);
-                    if (unionMember == symTable.floatType && !types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
+                    if (unionMember == symTable.floatType &&
+                            !types.validateFloatLiteral(literalExpr.pos, numericLiteral)) {
                         return symTable.semanticError;
                     } else if (unionMember != symTable.noType) {
                         return unionMember;

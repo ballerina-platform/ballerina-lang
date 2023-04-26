@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -67,9 +68,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -89,8 +89,8 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -1112,8 +1112,8 @@ public class ImmutableTypeCloner {
                             continue;
                         }
 
-                        BType immutableMemberType = getImmutableType(loc, types, memberType, env, pkgID, env.scope.owner,
-                                symTable, anonymousModelHelper, names, new HashSet<>());
+                        BType immutableMemberType = getImmutableType(loc, types, memberType, env, pkgID,
+                                env.scope.owner, symTable, anonymousModelHelper, names, new HashSet<>());
                         bUnionType.add(immutableMemberType);
                     }
                     return;
