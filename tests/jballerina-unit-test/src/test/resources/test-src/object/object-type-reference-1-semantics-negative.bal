@@ -53,6 +53,28 @@ type Foo object {
     *Foo;
 };
 
+// Indirect circular references
+type A object {
+    *B;
+};
+
+type B object {
+    *C;
+};
+
+type C object {
+    *D;
+    *E;
+};
+
+type D object {
+    *A;
+};
+
+type E object {
+    *C;
+};
+
 // Test errors for unimplemented methods
 type Person2 object {
     public int age;

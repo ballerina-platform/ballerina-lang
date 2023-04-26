@@ -136,7 +136,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDI
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
 
 /**
- * @since 2201.4.0
+ * @since 2201.7.0
  */
 
 public class TypeResolver {
@@ -188,7 +188,7 @@ public class TypeResolver {
         this.unknownTypeRefs = new HashSet<>();
     }
 
-    private void cleanup() {
+    public void cleanup() {
         unknownTypeRefs.clear();
     }
 
@@ -213,6 +213,7 @@ public class TypeResolver {
 
         for (BLangNode def : moduleDefs) {
             resolvingTypes = new Stack<>();
+
             if (def.getKind() == NodeKind.CLASS_DEFN) {
                 intersectionTypeList = new HashMap<>();
                 extracted(pkgEnv, modTable, (BLangClassDefinition) def);
@@ -232,7 +233,7 @@ public class TypeResolver {
             }
         }
         modTable.clear();
-        cleanup();
+//        cleanup();
     }
 
     private BType extracted(SymbolEnv pkgEnv, Map<String, BLangNode> modTable, BLangClassDefinition classDefinition) {
@@ -571,6 +572,13 @@ public class TypeResolver {
         }
     }
 
+    public boolean isNotUnknownTypeRef(BLangUserDefinedType td) {
+        Location pos = td.pos;
+        LocationData locationData = new LocationData(td.typeName.value, pos.lineRange().startLine().line(),
+                pos.lineRange().startLine().offset());
+        return unknownTypeRefs.add(locationData);
+    }
+
     public BType validateModuleLevelDef(String name, Name pkgAlias, Name typeName, BLangUserDefinedType td) {
         BLangNode moduleLevelDef = modTable.get(name);
         if (moduleLevelDef == null) {
@@ -578,13 +586,10 @@ public class TypeResolver {
                 return symTable.semanticError;
             }
 
-            Location pos = td.pos;
-            LocationData locationData = new LocationData(name, pos.lineRange().startLine().line(),
-                    pos.lineRange().startLine().offset());
-            if (unknownTypeRefs.add(locationData)) {
-                dlog.error(pos, DiagnosticErrorCode.UNKNOWN_TYPE, name);
+            if (isNotUnknownTypeRef(td)) {
+                dlog.error(td.pos, DiagnosticErrorCode.UNKNOWN_TYPE, name);
             }
-            return null;
+            return symTable.semanticError;
         }
         if (moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
             BLangTypeDefinition typeDefinition = (BLangTypeDefinition) moduleLevelDef;
@@ -925,15 +930,16 @@ public class TypeResolver {
         BTupleType tupleType = new BTupleType(tupleTypeSymbol, memberTypes);
         tupleTypeSymbol.type = tupleType;
         BTypeDefinition defn = new BTypeDefinition(tupleType);
-//        BIntersectionType immutableType = new BIntersectionType(null, null, null);
-//        defn.setImmutableType(immutableType);
         td.defn = defn;
         td.setBType(tupleType);
         resolvingTypes.push(tupleType);
 
-        for (BLangType memberTypeNode : td.getMemberTypeNodes()) {
-            BType type = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, memberTypeNode);
-            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
+        for (BLangSimpleVariable memberNode: td.getMemberNodes()) {
+            BType type = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, memberNode.typeNode);
+            SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(td, new Scope(tupleTypeSymbol), symEnv);
+            symEnter.defineNode(memberNode, tupleEnv);
+            BVarSymbol varSymbol = new BVarSymbol(memberNode.getBType().flags, memberNode.symbol.name,
+                    memberNode.symbol.pkgID, memberNode.getBType(), memberNode.symbol.owner, memberNode.pos, SOURCE);
             memberTypes.add(new BTupleMember(type, varSymbol));
         }
 
@@ -1329,6 +1335,7 @@ public class TypeResolver {
                 type.setNullable(true);
             }
         }
+        type.setOriginalMemberTypes(memberTypes);
         memberTypes.clear();
         memberTypes.addAll(flattenMemberTypes);
     }

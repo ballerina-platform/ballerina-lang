@@ -78,14 +78,15 @@ public class ClassTest {
     public void classDefNegative() {
         CompileResult negative = BCompileUtil.compile("test-src/klass/class_def_negative_test.bal");
         int i = 0;
+        BAssertUtil.validateError(negative, i++, "invalid cyclic type reference in 'C'", 28, 1);
         BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
-                "function get name() returns (string)' of class 'ServiceClass'", 21, 1);
+                "function get name() returns (string)' of class 'ServiceClass'", 36, 1);
         BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
-                "function get name() returns (string)' of class 'ClientClass'", 29, 1);
+                "function get name() returns (string)' of class 'ClientClass'", 44, 1);
         BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
-                "function get name() returns (string)' of class 'ClientClass2'", 37, 1);
+                "function get name() returns (string)' of class 'ClientClass2'", 52, 1);
         BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
-                "function get name() returns (string)' of class 'ClientClass3'", 41, 1);
+                "function get name() returns (string)' of class 'ClientClass3'", 56, 1);
         Assert.assertEquals(negative.getErrorCount(), i);
     }
 

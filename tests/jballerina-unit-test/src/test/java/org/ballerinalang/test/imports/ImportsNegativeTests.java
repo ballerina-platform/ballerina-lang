@@ -40,8 +40,7 @@ public class ImportsNegativeTests {
         validateError(result, index++, "cannot resolve module 'unknown/module'", 1, 1);
         validateError(result, index++, "undefined module 'module'", 4, 5);
         validateError(result, index++, "unknown type 'foo'", 4, 5);
-        validateError(result, index++, "invalid intersection type with 'readonly', 'testorg/invalidimport:1.0.0:R' " +
-                "can never be 'readonly'", 8, 5);
+        validateError(result, index++, "incompatible types: expected 'testorg/invalidimport:1.0.0:R', found 'int'", 8, 24);
         assertEquals(result.getErrorCount(), index);
     }
 
@@ -52,7 +51,6 @@ public class ImportsNegativeTests {
         validateError(result, index++, "undefined function 'max'", 18, 12);
         validateError(result, index++, "undefined function 'min'", 22, 12);
         validateError(result, index++, "undefined function 'concat'", 24, 12);
-        validateError(result, index++, "incompatible types: 'object:Listener' is not an object", 28, 6);
         validateError(result, index++, "unknown type 'Listener'", 28, 6);
         validateError(result, index++, "unknown type 'CallStackElement'", 51, 30);
         assertEquals(result.getErrorCount(), index);

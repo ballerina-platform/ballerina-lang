@@ -55,25 +55,23 @@ public class ObjectTypeReferenceTest {
                 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 48, 6);
         BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'Foo'", 52, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A'", 57, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'C'", 65, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                "no implementation found for the method 'getName' of class 'Manager2'", 73, 1);
+                "no implementation found for the method 'getName' of class 'Manager2'", 95, 1);
         BAssertUtil.validateError(negativeResult, i++,
-                "no implementation found for the method 'getSalary' of class 'Manager2'", 73, 1);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an object", 79, 6);
-        BAssertUtil.validateError(negativeResult, i++, "redeclared type reference 'Person1'", 89, 6);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Baz' is not an object", 97, 6);
-        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 97, 6);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Tar' is not an object", 101, 6);
-        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Tar'", 101, 6);
-        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'xyz'", 122, 6);
-        BAssertUtil.validateError(negativeResult, i++, "included field 'body' of type 'object { string a; }' cannot" +
-                " be overridden by a field of type 'other': expected a subtype of 'object { string a; }'", 149, 5);
-        BAssertUtil.validateError(negativeResult, i++, "unknown type 'O2'", 149, 5);
+                "no implementation found for the method 'getSalary' of class 'Manager2'", 95, 1);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an object", 101, 6);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared type reference 'Person1'", 111, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 119, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Tar'", 123, 6);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'xyz'", 144, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'O2'", 171, 5);
         BAssertUtil.validateError(negativeResult, i++, "included field 'body' of type 'object { byte[] a; }' cannot " +
-                "be overridden by a field of type 'O5': expected a subtype of 'object { byte[] a; }'", 164, 5);
+                "be overridden by a field of type 'O5': expected a subtype of 'object { byte[] a; }'", 186, 5);
         BAssertUtil.validateError(negativeResult, i++, "included field 'body' of type 'object { int:Unsigned8 i; }' " +
                 "cannot be overridden by a field of type 'O8': expected a subtype of 'object { int:Unsigned8 i; }'",
-                                  183, 5);
+                                  205, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -113,7 +111,6 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "only type references are allowed as type inclusions",
                 18, 6);
         BAssertUtil.validateError(negativeResult, i++, "only type references are allowed as type inclusions", 20, 6);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'YYY' is not an object", 29, 6);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'YYY'", 29, 6);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }

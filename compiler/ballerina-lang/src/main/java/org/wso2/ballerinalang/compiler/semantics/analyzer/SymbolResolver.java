@@ -1725,7 +1725,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
 
         if (env.logErrors && symbol == symTable.notFoundSymbol) {
             if (!missingNodesHelper.isMissingNode(pkgAlias) && !missingNodesHelper.isMissingNode(typeName) &&
-                    !symbolEnter.isUnknownTypeRef(userDefinedTypeNode)) {
+                    !symbolEnter.isUnknownTypeRef(userDefinedTypeNode)
+                    && typeResolver.isNotUnknownTypeRef(userDefinedTypeNode)) {
                 dlog.error(userDefinedTypeNode.pos, data.diagCode, typeName);
             }
             return symTable.semanticError;
@@ -1748,8 +1749,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             return type;
         }
 
-        type = typeResolver.validateModuleLevelDef(name, pkgAlias, typeName, userDefinedTypeNode);
-        return type != null ? type : symbol.type;
+        return typeResolver.validateModuleLevelDef(name, pkgAlias, typeName, userDefinedTypeNode);
     }
 
     public ParameterizedTypeInfo getTypedescParamValueType(List<BLangSimpleVariable> params,
