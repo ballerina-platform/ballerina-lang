@@ -112,3 +112,42 @@ function errorFunction4(int|float a, ints|float b) {
     int _ = a + b;  
     int _ = b + b; 
 }
+
+function testAdditiveExprWithUnionOperandBelongingToSingleBasicTypeNegative() {
+    string|("a"|"b") a = "a";
+    _ = a + 1;
+    _ = 1 + a;
+    _ = a + a; // OK
+
+    ("a"|"b")|string b = "a";
+    _ = b + 1;
+    _ = 1 + b;
+    _ = b + b; // OK
+
+    string|string:Char c = "s";
+    _ = c + 1;
+    _ = 1f + c;
+    _ = c + c; // OK
+
+    string|string d = "";
+    _ = d + 1;
+    _ = 1 + d;
+    _ = d + d; // OK
+
+    (1|2)|int e = 1;
+    _ = e + "";
+    _ = "" + e;
+    _ = e + e; // OK
+
+    xml:Element|xml:Text f = xml ``;
+    _ = f + 1;
+    _ = 1 + f;
+    _ = f + f; // OK
+
+    _ = a + e;
+    _ = a + f; // OK
+    _ = e + a;
+    _ = e + f;
+    _ = f + a; // OK
+    _ = f + e;
+}

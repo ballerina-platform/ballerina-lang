@@ -253,7 +253,7 @@ public class TestSingleFileProject {
 
         Assert.assertEquals(
                 compilation.diagnosticResult().diagnostics().stream().findFirst().get().location().lineRange()
-                        .filePath(), "main_with_error.bal");
+                        .fileName(), "main_with_error.bal");
     }
 
     @Test

@@ -33,7 +33,6 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
-import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigValue;
@@ -69,7 +68,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.ballerina.identifier.Utils.decodeIdentifier;
 import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.checkEffectiveTomlType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveType;
@@ -89,7 +87,6 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_TABLE_KEY_NOT_PROVIDED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_UNUSED_VALUE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_UNION_VALUE_AMBIGUOUS_TARGET;
 
 /**
  * Toml value provider for configurable implementation.
@@ -637,26 +634,13 @@ public class TomlProvider implements ConfigProvider {
     private void validateUnionValue(TomlNode tomlValue, String variableName, BUnionType unionType) {
         visitedNodes.add(tomlValue);
         Object balValue = Utils.getBalValueFromToml(tomlValue, visitedNodes, unionType, invalidTomlLines, variableName);
-        List<Type> convertibleTypes = new ArrayList<>();
-        for (Type type : unionType.getMemberTypes()) {
-            Type convertibleType = TypeConverter.getConvertibleType(balValue, type, variableName, false,
-                    new ArrayList<>(), new ArrayList<>(), false);
-            if (convertibleType != null) {
-                convertibleTypes.add(convertibleType);
-            }
-        }
-
-        if (convertibleTypes.size() > 1 &&
-                !(balValue instanceof BArray && unionType.getTag() == TypeTags.ANYDATA_TAG)) {
-            invalidTomlLines.add(tomlValue.location().lineRange());
-            throw new ConfigException(CONFIG_UNION_VALUE_AMBIGUOUS_TARGET, getLineRange(tomlValue),
-                    variableName, decodeIdentifier(unionType.toString()));
-        }
-
-        if (convertibleTypes.isEmpty()) {
+        Type convertibleType = TypeConverter.getConvertibleType(balValue, unionType, variableName, new HashSet<>(),
+                new ArrayList<>(), false);
+        if (convertibleType == null) {
             throwTypeIncompatibleError(tomlValue, variableName, unionType);
         }
-        Type type = getEffectiveType(convertibleTypes.get(0));
+        Type type = getEffectiveType(convertibleType);
+
         if (isSimpleType(type.getTag()) || isXMLType(type)) {
             return;
         }

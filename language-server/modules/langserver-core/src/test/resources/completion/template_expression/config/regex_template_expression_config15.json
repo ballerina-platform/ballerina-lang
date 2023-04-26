@@ -1,0 +1,50 @@
+{
+  "position": {
+    "line": 20,
+    "character": 31
+  },
+  "source": "template_expression/source/regex_template_expression_source9.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "u",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "Lu",
+      "insertText": "Lu",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "l",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "Ll",
+      "insertText": "Ll",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "t",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "Lt",
+      "insertText": "Lt",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "m",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "Lm",
+      "insertText": "Lm",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "o",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "Lo",
+      "insertText": "Lo",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -75,15 +75,17 @@ import static org.ballerinalang.central.client.CentralClientConstants.APPLICATIO
 import static org.ballerinalang.central.client.CentralClientConstants.AUTHORIZATION;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_PLATFORM;
 import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
+import static org.ballerinalang.central.client.CentralClientConstants.DEPRECATE_MESSAGE;
 import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
+import static org.ballerinalang.central.client.CentralClientConstants.IS_DEPRECATED;
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
 import static org.ballerinalang.central.client.Utils.getBearerToken;
+import static org.ballerinalang.central.client.Utils.getRemoteRepo;
 import static org.ballerinalang.central.client.Utils.isApplicationJsonContentType;
-
 /**
  * {@code CentralAPIClient} is a client for the Central API.
  *
@@ -96,6 +98,8 @@ public class CentralAPIClient {
     private static final String TRIGGERS = "triggers";
     private static final String RESOLVE_DEPENDENCIES = "resolve-dependencies";
     private static final String RESOLVE_MODULES = "resolve-modules";
+    private static final String DEPRECATE = "deprecate";
+    private static final String UN_DEPRECATE = "undeprecate";
     private static final String ERR_CANNOT_FIND_PACKAGE = "error: could not connect to remote repository to find " +
             "package: ";
     private static final String ERR_CANNOT_FIND_VERSIONS = "error: could not connect to remote repository to find " +
@@ -106,6 +110,8 @@ public class CentralAPIClient {
     private static final String ERR_CANNOT_GET_CONNECTOR = "error: failed to find connector: ";
     private static final String ERR_CANNOT_GET_TRIGGERS = "error: failed to find triggers: ";
     private static final String ERR_CANNOT_GET_TRIGGER = "error: failed to find the trigger: ";
+    private static final String ERR_PACKAGE_DEPRECATE = "error: failed to deprecate the package: ";
+    private static final String ERR_PACKAGE_UN_DEPRECATE = "error: failed to undo deprecation of the package: ";
     private static final String ERR_PACKAGE_RESOLUTION = "error: while connecting to central: ";
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     // System property name for enabling central verbose
@@ -331,9 +337,10 @@ public class CentralAPIClient {
                     .addFormDataPart("bala-file", fileName,
                             RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
                     .build();
-
+            String remoteRepo = getRemoteRepo();
+            String projectRepo = balaPath.toString().split(name)[0] + name;
             ProgressRequestBody balaFileReqBodyWithProgressBar = new ProgressRequestBody(balaFileReqBody,
-                    packageSignature + " [project repo -> central]", this.outStream);
+                    packageSignature + " [" + projectRepo + " -> " + remoteRepo + "]", this.outStream);
 
             // If OutStream is disabled, then pass `balaFileReqBody` only
             Request pushRequest = getNewRequest(supportedPlatform, ballerinaVersion)
@@ -470,6 +477,15 @@ public class CentralAPIClient {
                 // get redirect url from "location" header field
                 Optional<String> balaUrl = Optional.ofNullable(packagePullResponse.header(LOCATION));
                 Optional<String> balaFileName = Optional.ofNullable(packagePullResponse.header(CONTENT_DISPOSITION));
+                Optional<String> deprecationFlag = Optional.ofNullable(packagePullResponse.header(IS_DEPRECATED));
+                Optional<String> deprecationMsg = Optional.ofNullable(packagePullResponse.header(DEPRECATE_MESSAGE));
+
+                boolean isDeprecated = deprecationFlag.isPresent() && Boolean.parseBoolean(deprecationFlag.get());
+                String deprecationMessage = deprecationMsg.isPresent() ? deprecationMsg.get() : "";
+                if (!isBuild && isDeprecated) {
+                    outStream.println("WARNING [" + name + "] " + packageSignature + " is deprecated due to : "
+                            + deprecationMessage);
+                }
 
                 if (balaUrl.isPresent() && balaFileName.isPresent()) {
                     Request downloadBalaRequest = getNewRequest(supportedPlatform, ballerinaVersion)
@@ -487,6 +503,7 @@ public class CentralAPIClient {
                     if (balaDownloadResponse.code() == HTTP_OK) {
                         boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
                         createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org, name, isNightlyBuild,
+                                isDeprecated ? deprecationMessage : null,
                                 balaUrl.get(), balaFileName.get(), enableOutputStream ? outStream : null, logFormatter);
                         return;
                     } else {
@@ -745,6 +762,115 @@ public class CentralAPIClient {
             throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "'.");
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "'. reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * Deprecate a package in registry.
+     */
+    public void deprecatePackage(String packageInfo, String deprecationMsg, String supportedPlatform,
+                                 String ballerinaVersion, Boolean isUndo) throws CentralClientException {
+        // Get existing package details
+        // PackageInfo is already validated to support the format org-name/package-name:version
+        Package existingPackage = getPackage(packageInfo.split("/")[0], packageInfo.split("/")[1].split(":")[0],
+                packageInfo.split("/")[1].split(":")[1], supportedPlatform, ballerinaVersion);
+
+        String packageValue = packageInfo.endsWith(":*") ? packageInfo.substring(0, packageInfo.length() - 2) :
+                packageInfo;
+        if (isUndo && !existingPackage.getDeprecated()) {
+            this.outStream.println("package " + packageValue + " is not marked as deprecated in central");
+            return;
+        }
+
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
+        try {
+            RequestBody requestBody;
+            String requestURL;
+            if (isUndo) {
+                requestURL = this.baseUrl + "/" + PACKAGES + "/" + UN_DEPRECATE + "/" +
+                        packageInfo.replace(":", "/");
+                requestBody = RequestBody.create(JSON, "{}");
+            } else {
+                requestBody = RequestBody.create(JSON, "{\"message\": \"" + deprecationMsg + "\"}");
+                requestURL = this.baseUrl + "/" + PACKAGES + "/" + DEPRECATE + "/" +
+                        packageInfo.replace(":", "/");
+            }
+
+            Request deprecationReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .put(requestBody)
+                    .url(requestURL)
+                    .addHeader(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(ACCEPT, APPLICATION_JSON)
+                    .build();
+
+            Call httpRequestCall = client.newCall(deprecationReq);
+            Response deprecationResponse = httpRequestCall.execute();
+
+            body = Optional.ofNullable(deprecationResponse.body());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
+                    // If deprecation was successful
+                    if (deprecationResponse.code() == HTTP_OK) {
+                        Package packageResponse = new Gson().fromJson(body.get().string(), Package.class);
+                        if (packageResponse.getDeprecated()) {
+                            if (existingPackage.getDeprecated()) {
+                                this.outStream.println("deprecation message is successfully updated for the package "
+                                        + packageValue + " in central");
+                            } else {
+                                this.outStream.println("package " + packageValue
+                                        + " marked as deprecated in central successfully");
+                            }
+                        } else {
+                            this.outStream.println("deprecation of the package " + packageValue +
+                                    " is successfully undone in central");
+                        }
+                    }
+
+                    // Unauthorized access token
+                    if (deprecationResponse.code() == HTTP_UNAUTHORIZED) {
+                        handleUnauthorizedResponse(body);
+                    }
+
+                    // If deprecation request was sent wrongly
+                    if (deprecationResponse.code() == HTTP_BAD_REQUEST) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException(error.getMessage());
+                        }
+                    }
+
+                    // If deprecation request was sent wrongly
+                    if (deprecationResponse.code() == HTTP_NOT_FOUND) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException(error.getMessage());
+                        }
+                    }
+
+                    // If error occurred at remote repository
+                    if (deprecationResponse.code() == HTTP_INTERNAL_ERROR ||
+                            deprecationResponse.code() == HTTP_UNAVAILABLE) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            String errorMsg = isUndo ? ERR_PACKAGE_UN_DEPRECATE : ERR_PACKAGE_DEPRECATE;
+                            throw new CentralClientException(errorMsg + "'" + packageValue +
+                                    "' reason:" + error.getMessage());
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            String errorMsg = isUndo ? ERR_PACKAGE_UN_DEPRECATE : ERR_PACKAGE_DEPRECATE;
+            throw new CentralClientException(errorMsg + "'" + packageValue + "'. reason: " + e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {

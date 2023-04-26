@@ -335,7 +335,7 @@ public class StringUtils {
         if (exprValue.startsWith("xml")) {
             String xml = exprValue.substring(exprValue.indexOf('`') + 1,
                     exprValue.lastIndexOf('`')).trim();
-            return BalStringUtils.parseXmlExpressionStringValue(xml, parent);
+            return BalStringUtils.parseXmlExpressionStringValue(xml);
         }
         if (exprValue.startsWith("re")) {
             String regexp = exprValue.substring(exprValue.indexOf('`') + 1,

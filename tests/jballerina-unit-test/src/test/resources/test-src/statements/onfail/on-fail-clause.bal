@@ -38,7 +38,6 @@ function testOnFailEdgeTestcases() {
     testOnFailWithinInLineServiceObj();
     assertTrue(testOnFailInAnonFunctionExpr() is ());
     testNoPossibleFailureWithOnFail();
-    testVarRefValueUpdate();
 }
 
 function testUnreachableCodeWithIf(){
@@ -587,18 +586,6 @@ function testOnFailInAnonFunctionExpr() returns error? {
         }
     });
     assertEquality((<error>result2).detail().get("message"), "'string' value 'a2' cannot be converted to 'int'");
-}
-
-function testVarRefValueUpdate() {
-    int i = 0;
-    do {
-        i += 1;
-        _ = check getCheckError();
-        i += 1;
-    } on fail {
-        i = i - 1;
-    }
-    assertEquality(0, i);
 }
 
 //-------------------------------------------------------------------------------

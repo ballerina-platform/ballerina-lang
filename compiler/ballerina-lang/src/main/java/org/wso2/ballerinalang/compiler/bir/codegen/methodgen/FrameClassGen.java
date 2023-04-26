@@ -80,8 +80,8 @@ public class FrameClassGen {
         String frameClassName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(packageID),
                                                                  func.name.value, attachedType);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        if (func.pos != null && func.pos.lineRange().filePath() != null) {
-            cw.visitSource(func.pos.lineRange().filePath(), null);
+        if (func.pos != null && func.pos.lineRange().fileName() != null) {
+            cw.visitSource(func.pos.lineRange().fileName(), null);
         }
         cw.visit(V1_8, Opcodes.ACC_PUBLIC + ACC_SUPER, frameClassName, null, OBJECT,
                 new String[]{FUNCTION_FRAME});
