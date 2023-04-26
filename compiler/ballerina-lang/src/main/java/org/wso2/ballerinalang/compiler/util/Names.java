@@ -126,7 +126,8 @@ public class Names {
     public static final Name XML_PI = new Name(STRING_XML_PI);
     public static final Name XML_COMMENT = new Name(STRING_XML_COMMENT);
     public static final Name XML_TEXT = new Name(STRING_XML_TEXT);
-
+    public static final Name REGEXP_TYPE = new Name(STRING_REGEXP);
+    
     // Names related to transactions.
     public static final Name TRANSACTION_PACKAGE = new Name("transactions");
     public static final Name TRANSACTION_INFO_RECORD = new Name("Info");
@@ -150,8 +151,6 @@ public class Names {
     // Module Versions
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
     public static final Name DEFAULT_MAJOR_VERSION = new Name("0");
-
-    public static final Name CLIENT = new Name("client");
 
     public CompilerContext context;
 

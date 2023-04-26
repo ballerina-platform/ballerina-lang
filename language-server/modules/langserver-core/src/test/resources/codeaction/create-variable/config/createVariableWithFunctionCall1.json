@@ -24,7 +24,7 @@
         }
       ],
       "command": {
-        "title": "Rename Variable",
+        "title": "Rename variable",
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariableWithFunctionCall1.bal",
@@ -52,7 +52,7 @@
         }
       ],
       "command": {
-        "title": "Rename Variable",
+        "title": "Rename variable",
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariableWithFunctionCall1.bal",

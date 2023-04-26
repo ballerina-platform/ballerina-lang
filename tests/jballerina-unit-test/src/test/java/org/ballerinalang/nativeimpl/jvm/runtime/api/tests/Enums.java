@@ -19,6 +19,8 @@
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
@@ -27,10 +29,15 @@ import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTypedesc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,7 +49,7 @@ import java.util.Set;
  */
 public class Enums {
 
-    private static final Module enumModule = new Module("testorg", "runtime_api.enum", "1");
+    private static final Module enumModule = new Module("testorg", "values.enum", "1");
 
     public static BArray createEnumArray(BString enumName) {
         List<Type> memberTypes = new ArrayList<>(2);
@@ -56,6 +63,37 @@ public class Enums {
                 SymbolFlags.READONLY | SymbolFlags.ENUM);
         ArrayType arrayType = TypeCreator.createArrayType(unionType);
         return ValueCreator.createArrayValue(arrayType);
+    }
+
+    public static void testFiniteTypeUnionElements(BTypedesc t, BArray elements) {
+        Set<String> members = new HashSet<>();
+        members.addAll(Arrays.asList(elements.getStringArray()));
+        BError notFiniteTypeError = ErrorCreator.createError(
+                StringUtils.fromString("union member type is not a finite type"));
+        BError matchError = ErrorCreator.createError(
+                StringUtils.fromString("type name does not match given names"));
+
+        Type describingType = TypeUtils.getReferredType(t.getDescribingType());
+        if (describingType.getTag() == TypeTags.UNION_TAG) {
+            UnionType unionType = (UnionType) describingType;
+            for (Type memberType : unionType.getMemberTypes()) {
+                if (memberType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                    String typeName = memberType.getName();
+                    if (members.contains(typeName)) {
+                        members.remove(typeName);
+                    } else {
+                        throw matchError;
+                    }
+                } else {
+                    throw notFiniteTypeError;
+                }
+            }
+            if (!members.isEmpty()) {
+                throw ErrorCreator.createError(StringUtils.fromString("all union member type names are not provided"));
+            }
+        } else {
+            throw ErrorCreator.createError(StringUtils.fromString("given type is not a union type"));
+        }
     }
 
     public static void addToEnumArray(BArray array, BString value) {

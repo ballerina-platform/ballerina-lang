@@ -184,3 +184,22 @@ function testListConstructorSpreadOp() {
     int[] y2 = [...x2, 4];
     int[] y3 = [...y1, 5];
 }
+
+function testRegexpExp() {
+    string:RegExp r1 = re `[a-z]`;
+    string:RegExp r2 = re `((c)(d))`;
+    string:RegExp r3 = re `[bB].tt[a-z]*`;
+    string:RegExp r4 = re `[bB].${r3}`;
+}
+
+type O record {|
+    int[] items = [];
+|};
+
+public function findRefsIn() {
+    O o = {};
+
+     into.items.'map(item => item.quantity * menu.get(item.item))
+            .reduce(function (int val1, int val2) => val1 + val2, 0);
+
+}

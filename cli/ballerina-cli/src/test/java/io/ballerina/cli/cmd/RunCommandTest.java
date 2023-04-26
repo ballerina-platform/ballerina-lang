@@ -65,7 +65,7 @@ public class RunCommandTest extends BaseCommandTest {
         RunCommand runCommand = new RunCommand(validBalFilePath, printStream, false);
         // name of the file as argument
         new CommandLine(runCommand).setEndOfOptionsDelimiter("").setUnmatchedOptionsArePositionalParams(true)
-                .parse(validBalFilePath.toString(), "--", tempFile.toString());
+                .parseArgs(validBalFilePath.toString(), "--", tempFile.toString());
 
         Assert.assertFalse(tempFile.toFile().exists());
         runCommand.execute();
@@ -84,11 +84,11 @@ public class RunCommandTest extends BaseCommandTest {
         Path validBalFilePath = this.testResources.resolve("valid-run-bal-file").resolve("xyz.bal");
         RunCommand runCommand = new RunCommand(validBalFilePath, printStream, false);
         // non existing bal file
-        new CommandLine(runCommand).parse(validBalFilePath.toString());
+        new CommandLine(runCommand).parseArgs(validBalFilePath.toString());
         runCommand.execute();
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.replaceAll("\r", "")
-                .contains("The file does not exist: " + validBalFilePath.toString()));
+                .contains("The file does not exist: " + validBalFilePath));
 
     }
 
@@ -98,7 +98,7 @@ public class RunCommandTest extends BaseCommandTest {
         Path balFilePath = this.testResources.resolve("bal-file-with-syntax-error").resolve("hello_world.bal");
         RunCommand runCommand = new RunCommand(balFilePath, printStream, false);
         // non existing bal file
-        new CommandLine(runCommand).parse(balFilePath.toString());
+        new CommandLine(runCommand).parseArgs(balFilePath.toString());
         try {
             runCommand.execute();
         } catch (BLauncherException e) {
@@ -112,7 +112,7 @@ public class RunCommandTest extends BaseCommandTest {
         Path balFilePath = this.testResources.resolve("bal-project-with-syntax-error");
         RunCommand runCommand = new RunCommand(balFilePath, printStream, false);
         // non existing bal file
-        new CommandLine(runCommand).parse(balFilePath.toString());
+        new CommandLine(runCommand).parseArgs(balFilePath.toString());
         try {
             runCommand.execute();
         } catch (BLauncherException e) {
@@ -129,7 +129,7 @@ public class RunCommandTest extends BaseCommandTest {
         RunCommand runCommand = new RunCommand(projectPath, printStream, false);
         // name of the file as argument
         new CommandLine(runCommand).setEndOfOptionsDelimiter("").setUnmatchedOptionsArePositionalParams(true)
-                .parse(projectPath.toString(), "--", tempFile.toString());
+                .parseArgs(projectPath.toString(), "--", tempFile.toString());
 
         Assert.assertFalse(tempFile.toFile().exists());
         runCommand.execute();
@@ -148,7 +148,7 @@ public class RunCommandTest extends BaseCommandTest {
         RunCommand runCommand = new RunCommand(projectPath, printStream, false);
         // name of the file as argument
         new CommandLine(runCommand).setEndOfOptionsDelimiter("").setUnmatchedOptionsArePositionalParams(true)
-                .parse("--", tempFile.toString());
+                .parseArgs("--", tempFile.toString());
 
         Assert.assertFalse(tempFile.toFile().exists());
         runCommand.execute();
@@ -167,7 +167,7 @@ public class RunCommandTest extends BaseCommandTest {
         RunCommand runCommand = new RunCommand(projectPath, printStream, false);
         // name of the file as argument
         new CommandLine(runCommand).setEndOfOptionsDelimiter("").setUnmatchedOptionsArePositionalParams(true)
-                .parse(projectPath.toString(), tempFile.toString());
+                .parseArgs(projectPath.toString(), tempFile.toString());
         try {
             runCommand.execute();
         } catch (BLauncherException e) {
@@ -181,7 +181,7 @@ public class RunCommandTest extends BaseCommandTest {
         // set valid source root
         RunCommand runCommand = new RunCommand(projectPath, printStream, false);
         // name of the file as argument
-        new CommandLine(runCommand).parse(projectPath.toString());
+        new CommandLine(runCommand).parseArgs(projectPath.toString());
 
         // No assertions required since the command will fail upon expected behavior
         runCommand.execute();
@@ -203,7 +203,7 @@ public class RunCommandTest extends BaseCommandTest {
 
         String args = "--offline";
         new CommandLine(runCommand).setEndOfOptionsDelimiter("").setUnmatchedOptionsArePositionalParams(true)
-                .parse(projectPath.toString(), args, tempFile.toString());
+                .parseArgs(projectPath.toString(), args, tempFile.toString());
 
         try {
             runCommand.execute();
@@ -256,7 +256,7 @@ public class RunCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", String.valueOf(projectPath));
         // set valid source root
         RunCommand runCommand = new RunCommand(projectPath, printStream, false);
-        new CommandLine(runCommand).parse();
+        new CommandLine(runCommand).parseArgs();
         runCommand.execute();
     }
 
@@ -309,5 +309,18 @@ public class RunCommandTest extends BaseCommandTest {
                 .resolve("foo-package_a-0.1.0.jar").toFile().exists());
 
         ProjectUtils.deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Run an empty package")
+    public void testRunEmptyPackage() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyPackage");
+        System.setProperty("user.dir", projectPath.toString());
+
+        RunCommand runCommand = new RunCommand(projectPath, printStream, false);
+        new CommandLine(runCommand).parseArgs();
+        runCommand.execute();
+
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-empty-package.txt"));
     }
 }

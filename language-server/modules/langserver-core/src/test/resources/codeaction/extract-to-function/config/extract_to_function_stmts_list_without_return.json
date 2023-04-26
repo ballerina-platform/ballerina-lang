@@ -14,34 +14,46 @@
     {
       "title": "Extract to function",
       "kind": "refactor.extract",
-      "edits":[
+      "edits": [
         {
-          "range":{
-            "start":{
-              "line":4,
-              "character":1
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 1
             },
-            "end":{
-              "line":4,
-              "character":1
+            "end": {
+              "line": 4,
+              "character": 1
             }
           },
-          "newText":"\n\nfunction extracted() {\n    doSomething(2);\n    doSomething(3);\n}"
+          "newText": "\n\nfunction extracted() {\n    doSomething(2);\n    doSomething(3);\n}"
         },
         {
-          "range":{
-            "start":{
-              "line":2,
-              "character":4
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
             },
-            "end":{
-              "line":3,
-              "character":19
+            "end": {
+              "line": 3,
+              "character": 19
             }
           },
-          "newText":"extracted();"
+          "newText": "extracted();"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_stmts_list_without_return.bal",
+          {
+            "line": 2,
+            "character": 4
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

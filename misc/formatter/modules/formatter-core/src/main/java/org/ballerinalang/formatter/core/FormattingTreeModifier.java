@@ -37,7 +37,6 @@ import io.ballerina.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerina.compiler.syntax.tree.ClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.CommitActionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
@@ -118,12 +117,12 @@ import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
 import io.ballerina.compiler.syntax.tree.MatchClauseNode;
 import io.ballerina.compiler.syntax.tree.MatchGuardNode;
 import io.ballerina.compiler.syntax.tree.MatchStatementNode;
+import io.ballerina.compiler.syntax.tree.MemberTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.MetadataNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
-import io.ballerina.compiler.syntax.tree.ModuleClientDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -608,6 +607,16 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
+    public MemberTypeDescriptorNode transform(MemberTypeDescriptorNode member) {
+        NodeList<AnnotationNode> annotations = formatNodeList(member.annotations(), 1, 0, 1, 0);
+        TypeDescriptorNode type = formatNode(member.typeDescriptor(), env.trailingWS, env.trailingNL);
+        return member.modify()
+                .withAnnotations(annotations)
+                .withTypeDescriptor(type)
+                .apply();
+    }
+
+    @Override
     public RecordFieldWithDefaultValueNode transform(RecordFieldWithDefaultValueNode recordField) {
         MetadataNode metadata = formatNode(recordField.metadata().orElse(null), 0, 1);
         Token readonlyKeyword = formatNode(recordField.readonlyKeyword().orElse(null), 1, 0);
@@ -729,9 +738,20 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public ParenthesizedArgList transform(ParenthesizedArgList parenthesizedArgList) {
-        Token openParenToken = formatToken(parenthesizedArgList.openParenToken(), 0, 0);
+        int parenTrailingNL = 0;
+        if (hasNonWSMinutiae(parenthesizedArgList.openParenToken().trailingMinutiae())) {
+            parenTrailingNL++;
+        }
+        Token openParenToken = formatToken(parenthesizedArgList.openParenToken(), 0, parenTrailingNL);
+        boolean shouldIndent = parenTrailingNL > 0 || shouldIndentParenthesizedArgs(parenthesizedArgList.arguments());
+        if (shouldIndent) {
+            indent();
+        }
         SeparatedNodeList<FunctionArgumentNode> arguments = formatSeparatedNodeList(parenthesizedArgList
-                .arguments(), 0, 0, 0, 0, true);
+                .arguments(), 0, 0, 0, shouldIndent ? 1 : 0, true);
+        if (shouldIndent) {
+            unindent();
+        }
         Token closeParenToken = formatToken(parenthesizedArgList.closeParenToken(), env.trailingWS, env.trailingNL);
 
         return parenthesizedArgList.modify()
@@ -3624,46 +3644,6 @@ public class FormattingTreeModifier extends TreeModifier {
         return formatToken(token, env.trailingWS, env.trailingNL);
     }
 
-
-    @Override
-    public ModuleClientDeclarationNode transform(
-            ModuleClientDeclarationNode moduleClientDeclarationNode) {
-        NodeList<AnnotationNode> annotations = formatNodeList(moduleClientDeclarationNode.annotations(), 1, 0, 1, 0);
-        Token clientKeyword = formatToken(moduleClientDeclarationNode.clientKeyword(), 1, 0);
-        BasicLiteralNode clientUri = formatNode(moduleClientDeclarationNode.clientUri(), 1, 0);
-        Token asKeyword = formatToken(moduleClientDeclarationNode.asKeyword(), 1, 0);
-        IdentifierToken clientPrefix = formatNode(moduleClientDeclarationNode.clientPrefix(), 0, 0);
-        Token semicolonToken = formatToken(moduleClientDeclarationNode.semicolonToken(), env.trailingWS,
-                                           env.trailingNL);
-        return moduleClientDeclarationNode.modify()
-                .withAnnotations(annotations)
-                .withClientKeyword(clientKeyword)
-                .withClientUri(clientUri)
-                .withAsKeyword(asKeyword)
-                .withClientPrefix(clientPrefix)
-                .withSemicolonToken(semicolonToken)
-                .apply();
-    }
-
-    @Override
-    public ClientDeclarationNode transform(ClientDeclarationNode clientDeclarationNode) {
-        NodeList<AnnotationNode> annotations = formatNodeList(clientDeclarationNode.annotations(), 1, 0, 1, 0);
-        Token clientKeyword = formatToken(clientDeclarationNode.clientKeyword(), 1, 0);
-        BasicLiteralNode clientUri = formatNode(clientDeclarationNode.clientUri(), 1, 0);
-        Token asKeyword = formatToken(clientDeclarationNode.asKeyword(), 1, 0);
-        IdentifierToken prefix = formatNode(clientDeclarationNode.clientPrefix(), 0, 0);
-        Token semicolonToken = formatToken(clientDeclarationNode.semicolonToken(), env.trailingWS, env.trailingNL);
-
-        return clientDeclarationNode.modify()
-                .withAnnotations(annotations)
-                .withClientKeyword(clientKeyword)
-                .withClientUri(clientUri)
-                .withAsKeyword(asKeyword)
-                .withClientPrefix(prefix)
-                .withSemicolonToken(semicolonToken)
-                .apply();
-    }
-
     // ------------------------------------- Set of private helper methods -------------------------------------
 
     /**
@@ -4018,18 +3998,8 @@ public class FormattingTreeModifier extends TreeModifier {
 
         for (int index = 0; index < size; index++) {
             T oldNode = nodeList.get(index);
-            if (allowInAndMultiLine) {
-                if (hasNonWSMinutiae(oldNode.trailingMinutiae())) {
-                    indent();
-                }
-            }
             T newNode = formatListItem(itemTrailingWS, itemTrailingNL, listTrailingWS, listTrailingNL, size,
                     index, oldNode);
-            if (allowInAndMultiLine) {
-                if (hasNonWSMinutiae(oldNode.trailingMinutiae())) {
-                    unindent();
-                }
-            }
             newNodes[2 * index] = newNode;
             if (oldNode != newNode) {
                 nodeModified = true;
@@ -4584,6 +4554,17 @@ public class FormattingTreeModifier extends TreeModifier {
                     || hasNonWSMinutiae(member.leadingMinutiae())
                     || hasNonWSMinutiae(member.trailingMinutiae())
                     || member.toSourceCode().contains(System.lineSeparator())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private <T extends Node> boolean shouldIndentParenthesizedArgs(SeparatedNodeList<T> nodeList) {
+        int size = nodeList.size();
+
+        for (int index = 0; index < size - 1; index++) {
+            if (hasNonWSMinutiae(nodeList.getSeparator(index).trailingMinutiae())) {
                 return true;
             }
         }

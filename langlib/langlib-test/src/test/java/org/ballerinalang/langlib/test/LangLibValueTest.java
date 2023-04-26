@@ -363,14 +363,22 @@ public class LangLibValueTest {
                 "testCloneWithTypeDecimalToIntSubType", "testCloneWithTypeTupleToJSON",
                 "testCloneWithTypeImmutableStructuredTypes", "testCloneWithTypeWithFiniteArrayTypeFromIntArray",
                 "testCloneWithTypeWithFiniteType", "testCloneWithTypeWithUnionOfFiniteType",
-                "testCloneWithTypeWithFiniteArrayTypeFromIntArray",
+                "testCloneWithTypeWithFiniteArrayTypeFromIntArray", "testCloneWithTypeToArrays",
                 "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray",
                 "testCloneWithTypeWithUnionTypeArrayFromIntArray",
                 "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative", "testConvertJsonToNestedRecordsWithErrors",
                 "testCloneWithTypeNestedStructuredTypesNegative", "testCloneWithTypeJsonToRecordRestField",
-                "testCloneWithTypeWithAmbiguousUnion",
-                "testCloneWithTypeWithTuples",
-                "testCloneWithTypeToUnion"
+                "testCloneWithTypeWithAmbiguousUnion", "testCloneWithTypeXmlToUnion",
+                "testCloneWithTypeWithTuples", "testCloneWithTypeToJson",
+                "testCloneWithTypeToUnion",
+                "testCloneWithTypeTable",
+                "testCloneWithTypeOnRegExp",
+                "testCloneWithTypeOnRegExpNegative",
+                "testCloneWithTypeWithXML", "testConversionsBetweenXml",
+                "testCloneWithTypeRecordWithXMLField",
+                "testConvertToUnionWithAmbiguousMemberTypes",
+                "testCloneWithTypeTableToAnydata", "testUnionNestedTypeConversionErrors",
+                "testCloneWithTypeToUnionOfTypeReference", "testCloneWithTypeToTableNegative"
         };
     }
 
@@ -440,7 +448,8 @@ public class LangLibValueTest {
                 { "testFromJsonWithTypeWithTypeReferences" },
                 { "testFromJsonWithTypeNestedRecordsNegative" },
                 { "testFromJsonWithTypeOnRegExp" },
-                { "testFromJsonWithTypeOnRegExpNegative" }
+                { "testFromJsonWithTypeOnRegExpNegative" },
+                {"testFromJsonWithTypeToUnionOfTypeReference"}
         };
     }
 

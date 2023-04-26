@@ -18,6 +18,7 @@
 
 package org.ballerinalang.testerina.compiler;
 
+import com.google.gson.Gson;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
@@ -35,9 +36,20 @@ import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.projects.ProjectException;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -276,5 +288,29 @@ public class TesterinaCompilerPluginUtils {
 
         return NodeFactory.createPositionalArgumentNode(
                 NodeFactory.createSimpleNameReferenceNode(NodeFactory.createIdentifierToken(argName)));
+    }
+
+    public static void writeCacheMapAsJson(Map map, Path path, String fileName) {
+        if (!Files.exists(path)) {
+            try {
+                Files.createDirectories(path);
+            } catch (IOException e) {
+                throw new ProjectException("couldn't create cache directories : " + e.toString());
+            }
+        }
+
+        Path jsonFilePath = Paths.get(path.toString(), fileName);
+        File jsonFile = new File(jsonFilePath.toString());
+        try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
+            try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
+                Gson gson = new Gson();
+                String json = gson.toJson(map);
+                writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+            } catch (IOException e) {
+                throw new ProjectException("couldn't write cache data to the file : " + e.toString());
+            }
+        } catch (IOException e) {
+            throw new ProjectException("couldn't write cache data to the file : " + e.toString());
+        }
     }
 }

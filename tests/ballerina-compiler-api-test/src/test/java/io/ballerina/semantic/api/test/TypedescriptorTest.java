@@ -1259,7 +1259,7 @@ public class TypedescriptorTest {
                                 LinePosition linePosition = lineRange.startLine();
                                 return val.equals(
                                         new SymbolInfo(linePosition.line(), linePosition.offset(),
-                                                lineRange.filePath(), sym.kind(), sym.getName().get(),
+                                                lineRange.fileName(), sym.kind(), sym.getName().get(),
                                                 ((BallerinaSymbol) sym).getInternalSymbol().owner.toString()));
                             }),
                     "Symbol not found: " + val);

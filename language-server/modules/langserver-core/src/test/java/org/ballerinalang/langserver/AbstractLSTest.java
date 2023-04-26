@@ -90,7 +90,7 @@ public abstract class AbstractLSTest {
         setupLanguageServer(builder);
         this.serviceEndpoint = builder.build();
     }
-    
+
     protected void setupLanguageServer(TestUtil.LanguageServerBuilder builder) {
     }
 
@@ -105,8 +105,8 @@ public abstract class AbstractLSTest {
     }
 
     protected static List<Package> getPackages(Map<String, String> projects,
-                                             WorkspaceManager workspaceManager,
-                                             LanguageServerContext context)
+                                               WorkspaceManager workspaceManager,
+                                               LanguageServerContext context)
             throws WorkspaceDocumentException, IOException {
         List<Package> packages = new ArrayList<>();
         for (Map.Entry<String, String> entry : projects.entrySet()) {

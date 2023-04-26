@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * Represents an implementation of the resource method symbol.
@@ -71,7 +72,8 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
 
         BObjectTypeSymbol classSymbol = (BObjectTypeSymbol) this.internalSymbol.owner;
         BResourceFunction resourceFn = getBResourceFunction(classSymbol.attachedFuncs, this.internalSymbol);
-        List<Name> internalResPath = resourceFn.resourcePath;
+        List<Name> internalResPath = resourceFn.pathSegmentSymbols.stream().map(s -> s.name)
+                                     .collect(Collectors.toList());
 
         if (internalResPath.isEmpty()) {
             throw new IllegalStateException("Resource path is empty in resource function: " + resourceFn.toString());

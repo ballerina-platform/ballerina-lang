@@ -15,7 +15,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nReturns the code point of a character in a string.\n  \n**Params**  \n- `int` index: an index in parameter `str`  \n  \n**Return** `int`   \n- the Unicode code point of the character at parameter `index` in parameter `str`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "getCodePoint",
       "insertText": "getCodePoint(${1})",
       "insertTextFormat": "Snippet",
@@ -34,7 +34,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTests whether a string includes another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Return** `boolean`   \n- `true` if there is an occurrence of parameter `substr` in parameter `str` at an index >= parameter `startIndex`,  \nor `false` otherwise  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "includes",
       "insertText": "includes(${1})",
       "insertTextFormat": "Snippet",
@@ -53,7 +53,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConcatenates zero or more strings.\n  \n  \n  \n**Return** `string`   \n- concatenation of all of the parameter `strs`; empty string if parameter `strs` is empty  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "concat",
       "insertText": "concat(${1})",
       "insertTextFormat": "Snippet",
@@ -72,7 +72,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTests whether two strings are the same, ignoring the case of ASCII characters.\n\nA character in the range a-z is treated the same as the corresponding character in the range A-Z.\n  \n**Params**  \n- `string` str2: the second string to be compared  \n  \n**Return** `boolean`   \n- true if parameter `str1` is the same as parameter `str2`, treating upper-case and lower-case  \nASCII letters as the same; false, otherwise  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "equalsIgnoreCaseAscii",
       "insertText": "equalsIgnoreCaseAscii(${1})",
       "insertTextFormat": "Snippet",
@@ -91,7 +91,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nReturns a substring of a string.\n  \n**Params**  \n- `int` startIndex: the starting index, inclusive  \n- `int` endIndex: the ending index, exclusive(Defaultable)  \n  \n**Return** `string`   \n- substring consisting of characters with index >= `startIndex` and < `endIndex`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "substring",
       "insertText": "substring(${1})",
       "insertTextFormat": "Snippet",
@@ -110,7 +110,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nFinds the last occurrence of one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching backwards from(Defaultable)  \n  \n**Return** `int?`   \n- index of the last occurrence of parameter `substr` in parameter `str` that is <= parameter `startIndex`,  \nor `()` if there is no such occurrence  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "lastIndexOf",
       "insertText": "lastIndexOf(${1})",
       "insertTextFormat": "Snippet",
@@ -129,7 +129,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTests whether a string ends with another string.\n  \n**Params**  \n- `string` substr: the ending string  \n  \n**Return** `boolean`   \n- true if parameter `str` ends with parameter `substr`; false otherwise  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "endsWith",
       "insertText": "endsWith(${1})",
       "insertTextFormat": "Snippet",
@@ -148,7 +148,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nJoins zero or more strings together with a separator.\n  \n**Params**  \n- `string[]` strs: strings to be joined  \n  \n**Return** `string`   \n- a string consisting of all of parameter `strs` concatenated in order  \nwith parameter `separator` in between them  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "'join",
       "insertText": "'join(${1})",
       "insertTextFormat": "Snippet",
@@ -167,7 +167,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nFinds the first occurrence of one string in another string.\n  \n**Params**  \n- `string` substr: the string to search for  \n- `int` startIndex: index to start searching from(Defaultable)  \n  \n**Return** `int?`   \n- index of the first occurrence of parameter `substr` in parameter `str` that is >= parameter `startIndex`,  \nor `()` if there is no such occurrence  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "indexOf",
       "insertText": "indexOf(${1})",
       "insertTextFormat": "Snippet",
@@ -186,7 +186,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nLexicographically compares strings using their Unicode code points.\n\nThis orders strings in a consistent and well-defined way,\nbut the ordering will often not be consistent with cultural expectations\nfor sorted order.\n  \n**Params**  \n- `string` str2: the second string to be compared  \n  \n**Return** `int`   \n- an int that is less than, equal to or greater than zero,  \naccording as parameter `str1` is less than, equal to or greater than parameter `str2`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "codePointCompare",
       "insertText": "codePointCompare(${1})",
       "insertTextFormat": "Snippet",
@@ -205,7 +205,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTests whether a string starts with another string.\n  \n**Params**  \n- `string` substr: the starting string  \n  \n**Return** `boolean`   \n- true if parameter `str` starts with parameter `substr`; false otherwise  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "startsWith",
       "insertText": "startsWith(${1})",
       "insertTextFormat": "Snippet",
@@ -224,7 +224,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen parameter `v` is a structural value, the inherent type of the value to be constructed\ncomes from parameter `t`. When parameter `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `cloneWithType` operation is recursively applied to each member of parameter `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable.\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members\n  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Return** `t|error`   \n- a new value that belongs to parameter `t`, or an error if this cannot be done  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "cloneWithType",
       "insertText": "cloneWithType(${1})",
       "insertTextFormat": "Snippet",
@@ -243,7 +243,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a string in JSON format to a user-specified type.\n\nThis is a combination of function `fromJsonString` followed by function `fromJsonWithType`.\n  \n**Params**  \n- `typedesc<anydata>` t: type to convert to(Defaultable)  \n  \n**Return** `t|error`   \n- value belonging to type parameter `t` or error if this cannot be done  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "fromJsonStringWithType",
       "insertText": "fromJsonStringWithType(${1})",
       "insertTextFormat": "Snippet",
@@ -262,7 +262,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value of type json to a user-specified type.\n\nThis works the same as function `cloneWithType`,\nexcept that it also does the inverse of the conversions done by `toJson`.\n  \n**Params**  \n- `typedesc<anydata>` t: type to convert to(Defaultable)  \n  \n**Return** `t|error`   \n- value belonging to type parameter `t` or error if this cannot be done  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "fromJsonWithType",
       "insertText": "fromJsonWithType(${1})",
       "insertTextFormat": "Snippet",
@@ -281,7 +281,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nMerges two `json` values.\n\nThe merge of parameter `j1` with parameter `j2` is defined as follows:\n- if parameter `j1` is `()`, then the result is parameter `j2`\n- if parameter `j2` is `()`, then the result is parameter `j1`\n- if parameter `j1` is a mapping and parameter `j2` is a mapping, then for each entry [k, j] in parameter `j2`, set `j1[k]` to the merge of `j1[k]` with `j`\n- if `j1[k]` is undefined, then set `j1[k]` to `j`\n- if any merge fails, then the merge of parameter `j1` with parameter `j2` fails\n- otherwise, the result is parameter `j1`.\n- otherwise, the merge fails\nIf the merge fails, then parameter `j1` is unchanged.\n  \n**Params**  \n- `json` j2: json value  \n  \n**Return** `json|error`   \n- the merge of parameter `j1` with parameter `j2` or an error if the merge fails  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "mergeJson",
       "insertText": "mergeJson(${1})",
       "insertTextFormat": "Snippet",
@@ -300,7 +300,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "ensureType",
       "insertText": "ensureType(${1})",
       "insertTextFormat": "Snippet",
@@ -319,7 +319,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nRepresents a string as an array of bytes using UTF-8.\n  \n  \n  \n**Return** `byte[]`   \n- UTF-8 byte array  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "toBytes",
       "insertText": "toBytes()",
       "insertTextFormat": "Snippet"
@@ -334,7 +334,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nReturns the length of the string.\n  \n  \n  \n**Return** `int`   \n- the number of characters (code points) in parameter `str`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "length",
       "insertText": "length()",
       "insertTextFormat": "Snippet"
@@ -349,7 +349,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConverts a string to an array of code points.\n  \n  \n  \n**Return** `int[]`   \n- an array with a code point for each character of parameter `str`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "toCodePointInts",
       "insertText": "toCodePointInts()",
       "insertTextFormat": "Snippet"
@@ -364,7 +364,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConverts occurrences of a-z to A-Z.\n\nOther characters are left unchanged.\n  \n  \n  \n**Return** `string`   \n- parameter `str` with any occurrences of a-z converted to A-Z  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "toUpperAscii",
       "insertText": "toUpperAscii()",
       "insertTextFormat": "Snippet"
@@ -379,7 +379,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nReturns an iterator over the string.\n\nThe iterator will yield the substrings of length 1 in order.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|string:Char value;|}?;}`   \n- a new iterator object  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "iterator",
       "insertText": "iterator()",
       "insertTextFormat": "Snippet"
@@ -394,7 +394,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nRemoves ASCII white space characters from the start and end of a string.\n\nThe ASCII white space characters are 0x9...0xD, 0x20.\n  \n  \n  \n**Return** `string`   \n- parameter `str` with leading or trailing ASCII white space characters removed  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "trim",
       "insertText": "trim()",
       "insertTextFormat": "Snippet"
@@ -409,7 +409,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConverts occurrences of A-Z to a-z.\n\nOther characters are left unchanged.\n  \n  \n  \n**Return** `string`   \n- parameter `str` with any occurrences of A-Z converted to a-z  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "toLowerAscii",
       "insertText": "toLowerAscii()",
       "insertTextFormat": "Snippet"
@@ -424,7 +424,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nParses a string in JSON format and returns the the value that it represents.\n\nNumbers in the JSON string are converted into Ballerina values of type\ndecimal except in the following two cases:\nif the JSON number starts with `-` and is numerically equal to zero, then it is\nconverted into float value of `-0.0`;\notherwise, if the JSON number is syntactically an integer and is in the range representable\nby a Ballerina int, then it is converted into a Ballerina int.\nA JSON number is considered syntactically an integer if it contains neither\na decimal point nor an exponent.\n\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Return** `json|error`   \n- `str` parsed to json or error  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "fromJsonString",
       "insertText": "fromJsonString()",
       "insertTextFormat": "Snippet"
@@ -439,7 +439,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nParses and evaluates a subset of Ballerina expression syntax.\n\nThe subset of Ballerina expression syntax supported is that produced\nby toBalString when applied to an anydata value.\n  \n  \n  \n**Return** `anydata|error`   \n- the result of evaluating the parsed expression, or  \nan error if the string cannot be parsed  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "fromBalString",
       "insertText": "fromBalString()",
       "insertTextFormat": "Snippet"
@@ -454,7 +454,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nParses a string in JSON format, using float to represent numbers.\n\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Return** `value:JsonFloat|error`   \n- parameter `str` parsed to JsonFloat or error  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "fromJsonFloatString",
       "insertText": "fromJsonFloatString()",
       "insertTextFormat": "Snippet"
@@ -469,7 +469,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nParses a string in JSON format, using decimal to represent numbers.\n\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Return** `value:JsonDecimal|error`   \n- parameter `str` parsed to JsonDecimal or error  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "fromJsonDecimalString",
       "insertText": "fromJsonDecimalString()",
       "insertTextFormat": "Snippet"
@@ -484,7 +484,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "cloneReadOnly",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
@@ -499,7 +499,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "toBalString",
       "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
@@ -514,7 +514,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value of type `anydata` to `json`.\n\nThis does a deep copy of parameter `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\nThis panics if parameter `v` has cycles.\n  \n  \n  \n**Return** `json`   \n- representation of `v` as value of type json  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "toJson",
       "insertText": "toJson()",
       "insertTextFormat": "Snippet"
@@ -529,7 +529,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nTests whether a value is read-only, i.e., immutable.\n\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Return** `boolean`   \n- true if read-only, false otherwise  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "isReadOnly",
       "insertText": "isReadOnly()",
       "insertTextFormat": "Snippet"
@@ -544,7 +544,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "clone",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
@@ -559,7 +559,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
@@ -574,7 +574,7 @@
           "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the string that represents a anydata value in JSON format.\n\nparameter `v` is first converted to `json` as if by the function `toJson`.\n  \n  \n  \n**Return** `string`   \n- string representation of parameter `v` converted to `json`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
@@ -589,7 +589,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nAdds padding to the start of a string.\nAdds sufficient `padChar` characters at the start of `str` to make its length be `len`.\nIf the length of `str` is >= `len`, returns `str`.\n  \n**Params**  \n- `int` len: the length of the string to be returned  \n- `string:Char` padChar: the character to use for padding `str`; defaults to a space character(Defaultable)  \n  \n**Return** `string`   \n- `str` padded with `padChar`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "padStart",
       "insertText": "padStart(${1})",
       "insertTextFormat": "Snippet",
@@ -608,7 +608,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nAdds padding to the end of a string.\nAdds sufficient `padChar` characters to the end of `str` to make its length be `len`.\nIf the length of `str` is >= `len`, returns `str`.\n  \n**Params**  \n- `int` len: the length of the string to be returned  \n- `string:Char` padChar: the character to use for padding `str`; defaults to a space character(Defaultable)  \n  \n**Return** `string`   \n- `str` padded with `padChar`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "padEnd",
       "insertText": "padEnd(${1})",
       "insertTextFormat": "Snippet",
@@ -627,7 +627,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nPads a string with zeros.\nThe zeros are added at the start of the string, after a `+` or `-` sign if there is one.\nSufficient zero characters are added to `str` to make its length be `len`.\nIf the length of `str` is >= `len`, returns `str`.\n  \n**Params**  \n- `int` len: the length of the string to be returned  \n- `string:Char` zeroChar: the character to use for the zero; defaults to ASCII zero `0`(Defaultable)  \n  \n**Return** `string`   \n- `str` padded with zeros  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "padZero",
       "insertText": "padZero(${1})",
       "insertTextFormat": "Snippet",
@@ -646,7 +646,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTrue if there is a match for `re` anywhere in `str`  \n**Params**  \n- `string:RegExp` re  \n- `int` startIndex(Defaultable)  \n  \n**Return** `boolean`   \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "includesMatch",
       "insertText": "includesMatch(${1})",
       "insertTextFormat": "Snippet",
@@ -665,7 +665,7 @@
           "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nTrue if there is a match of `re` against all of `str`.\nUse `includesMatch` to test whether `re` matches somewhere in `str`.  \n**Params**  \n- `string:RegExp` re  \n  \n**Return** `boolean`   \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "matches",
       "insertText": "matches(${1})",
       "insertTextFormat": "Snippet",

@@ -4,6 +4,7 @@
     "character": 28
   },
   "source": "extract_to_function_exprs_indexed_expr.bal",
+  "description": "Extract to function for expressions, cursor inside the container expression inside the indexed expression",
   "expected": [
     {
       "title": "Extract to function",
@@ -35,8 +36,19 @@
           },
           "newText": "extracted(testArr)"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_indexed_expr.bal",
+          {
+            "line": 2,
+            "character": 25
+          }
+        ]
+      },
+      "resolvable": false
     }
-  ],
-  "description": "Extract to function for expressions, cursor inside the container expression inside the indexed expression"
+  ]
 }

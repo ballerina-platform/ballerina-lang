@@ -10,6 +10,7 @@
     }
   },
   "source": "extract_to_function_stmts_if_else_stmt_inside_nested_while_stmts.bal",
+  "description": "Extract to function for if else statements, checks when (specially the formatting) the statement is inside nested loops",
   "expected": [
     {
       "title": "Extract to function",
@@ -42,8 +43,18 @@
           "newText": "extracted();"
         }
       ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_stmts_if_else_stmt_inside_nested_while_stmts.bal",
+          {
+            "line": 3,
+            "character": 12
+          }
+        ]
+      },
       "resolvable": false
     }
-  ],
-  "description": "Extract to function for if else statements, checks when (specially the formatting) the statement is inside nested loops"
+  ]
 }

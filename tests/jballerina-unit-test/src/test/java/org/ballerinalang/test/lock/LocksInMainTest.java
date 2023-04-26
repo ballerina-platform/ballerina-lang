@@ -134,6 +134,31 @@ public class LocksInMainTest {
                                   18, 9);
     }
 
+    @Test(description = "Test worker lock negative cases")
+    public void testWorkerSendReceiveInLockNegativeCases() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/lock/locks_in_worker_send_receive_negative.bal");
+        assertEquals(compileResult.getErrorCount(), 6);
+        BAssertUtil.validateError(compileResult, 0,
+                "using send action within the lock statement is not allowed to prevent possible deadlocks",
+                24, 13);
+        BAssertUtil.validateError(compileResult, 1,
+                "using receive action within the lock statement is not allowed to prevent possible deadlocks",
+                32, 21);
+        BAssertUtil.validateError(compileResult, 2,
+                "using send action within the lock statement is not allowed to prevent possible deadlocks",
+                43, 9);
+        BAssertUtil.validateError(compileResult, 4,
+                "using receive action within the lock statement is not allowed to prevent possible deadlocks",
+                44, 22);
+        BAssertUtil.validateError(compileResult, 5,
+                "using receive action within the lock statement is not allowed to prevent possible deadlocks",
+                51, 19);
+        BAssertUtil.validateError(compileResult, 6,
+                "using send action within the lock statement is not allowed to prevent possible deadlocks",
+                53, 13);
+    }
+
     @Test()
     public void testPanicIfInLockConcurrently() {
         BRunUtil.invoke(parallelCompileResult, "testPanicIfInLockConcurrently");

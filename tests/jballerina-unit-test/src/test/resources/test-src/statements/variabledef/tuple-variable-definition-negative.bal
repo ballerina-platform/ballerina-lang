@@ -128,3 +128,17 @@ function testTupleVarDeclWithInvalidTypeReferenceType() {
     Ints [a, b] = i;
     IntsOrStrings [c, d] = i;
 }
+
+type ReadOnlyTuple readonly & [int[], string];
+
+function testReadOnlyListWithListBindingPatternInVarDeclNegative() {
+    ReadOnlyTuple t1 = [[1, 2], "s1"];
+    [string[] & readonly, string] [a, b] = t1;
+
+    ReadOnlyTuple [c, d] = t1;
+    int[] arr = [];
+    c = arr;
+
+    var [e, _] = t1;
+    e = arr;
+}

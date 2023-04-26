@@ -131,6 +131,7 @@ const boolean CUB = !(true);
 const map<int> CUE = {
     a: -1
 };
+const int CUI5 = -int:MAX_VALUE;
 
 function testConstUnaryExpressions() {
     assertEqual(CUI1, -10);
@@ -142,9 +143,45 @@ function testConstUnaryExpressions() {
     assertEqual(CUD, -15.5d);
     assertEqual(CUB, false);
     assertEqual(CUE["a"], -1);
+    assertEqual(CUI5, -9223372036854775807);
 }
 
-function assertEqual(int|float|decimal|boolean actual, int|float|decimal|boolean expected) {
+const float X1 = 5.5;
+const float ANS1 = X1 % 0;
+const float ANS2 = X1 % 1.1;  // 1.0999999999999996
+const float ANS3 = 5 % float:NaN;
+const float ANS4 = float:NaN % 5;
+const float ANS5 = float:Infinity % 5;
+const float ANS6 = 5 % float:Infinity;
+
+const decimal ANS7 = 5 % 2;
+const decimal ANS8 = 100 % 9.999999999999999999999999999999999e6144;
+
+function testConstRemainderOperation() {
+    assertEqual(ANS1.toString(), "NaN");
+    assertEqual(ANS2, 1.0999999999999996);
+    assertEqual(ANS3.toString(), "NaN");
+    assertEqual(ANS4.toString(), "NaN");
+    assertEqual(ANS5.toString(), "NaN");
+    assertEqual(ANS6, 5.0);
+
+    assertEqual(ANS7.toString(), "1");
+    assertEqual(ANS8.toString(), "100");
+}
+
+const decimal ANS11 = 1.000000000000000000000000000000000e-6143 * 1e-1;
+const decimal ANS12 = 1.000000000000000000000000000000000e-6143 * 1e-100;
+const decimal ANS13 = -1.000000000000000000000000000000000e-6143 * 1e-1;
+const decimal ANS14 = -1.000000000000000000000000000000000e-6143 * 1e-150;
+
+function testConstDecimalSubnormals() {
+    assertEqual(ANS11.toString(), "0");
+    assertEqual(ANS12.toString(), "0");
+    assertEqual(ANS13.toString(), "0");
+    assertEqual(ANS14.toString(), "0");
+}
+
+function assertEqual(int|float|decimal|boolean|string actual, int|float|decimal|boolean|string expected) {
     if (actual != expected) {
         panic error(string `Assertion error: expected ${expected} found ${actual}`);
     }

@@ -584,4 +584,12 @@ public class LangLibTableTest {
                 "testLengthWithEmptyKeyedKeyLessTbl"
         };
     }
+
+    @Test
+    public void testTableIterationAfterPut() {
+        BRunUtil.invoke(compileResult, "testTableIterationAfterPut1");
+        BRunUtil.invoke(compileResult, "testTableIterationAfterPut2");
+        BRunUtil.invoke(compileResult, "testTableIterationAfterPut3");
+        BRunUtil.invoke(compileResult, "testTableIterationAfterPut4");
+    }
 }

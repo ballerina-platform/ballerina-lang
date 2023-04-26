@@ -34,14 +34,10 @@ import javax.annotation.Nonnull;
  *
  * @since 1.2.0
  */
-public class HoverContextImpl extends AbstractDocumentServiceContext implements HoverContext {
+public class HoverContextImpl extends PositionedOperationContextImpl implements HoverContext {
 
     private Token tokenAtCursor;
-
-    private final Position cursorPosition;
-
-    private int cursorPositionInTree = -1;
-
+    
     private NonTerminalNode nodeAtCursor;
 
     HoverContextImpl(LSOperation operation,
@@ -50,8 +46,7 @@ public class HoverContextImpl extends AbstractDocumentServiceContext implements 
                      Position cursorPosition,
                      LanguageServerContext serverContext,
                      CancelChecker cancelChecker) {
-        super(operation, fileUri, wsManager, serverContext, cancelChecker);
-        this.cursorPosition = cursorPosition;
+        super(operation, fileUri, cursorPosition, wsManager, serverContext, cancelChecker);
     }
 
     @Override
@@ -67,25 +62,7 @@ public class HoverContextImpl extends AbstractDocumentServiceContext implements 
 
         return this.tokenAtCursor;
     }
-
-    @Override
-    public void setCursorPositionInTree(int offset) {
-        if (this.cursorPositionInTree > -1) {
-            throw new RuntimeException("Setting the cursor offset more than once is not allowed");
-        }
-        this.cursorPositionInTree = offset;
-    }
-
-    @Override
-    public int getCursorPositionInTree() {
-        return this.cursorPositionInTree;
-    }
-
-    @Override
-    public Position getCursorPosition() {
-        return this.cursorPosition;
-    }
-
+    
     @Override
     public void setNodeAtCursor(NonTerminalNode node) {
         if (this.nodeAtCursor != null) {

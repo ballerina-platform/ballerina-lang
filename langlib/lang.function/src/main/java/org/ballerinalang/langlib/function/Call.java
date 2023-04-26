@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Parameter;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -51,7 +52,7 @@ public class Call {
                                                                       "1.0.0", "call");
 
     public static Object call(BFunctionPointer<Object, Object> func, Object... args) {
-        BFunctionType functionType = (BFunctionType) func.getType();
+        BFunctionType functionType = (BFunctionType) TypeUtils.getReferredType(func.getType());
         List<Type> paramTypes = new LinkedList<>();
         List<Type> argTypes = new LinkedList<>();
         List<Object> argsList = new java.util.ArrayList<>();

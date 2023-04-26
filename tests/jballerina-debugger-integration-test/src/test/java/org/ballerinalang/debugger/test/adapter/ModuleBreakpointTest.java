@@ -79,6 +79,26 @@ public class ModuleBreakpointTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo2.getLeft(), debugTestRunner.testBreakpoints.get(1));
     }
 
+    @Test(description = "Test to verify breakpoint hits within the test sources of non-default modules")
+    public void testMultipleBreakpointsInNonDefaultModuleTests() throws BallerinaTestException {
+        Path nonDefaultModuleTestPath = debugTestRunner.testProjectPath
+                .resolve("modules")
+                .resolve("math")
+                .resolve("tests")
+                .resolve("math_tests.bal");
+
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(nonDefaultModuleTestPath, 21));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(nonDefaultModuleTestPath, 22));
+
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.TEST);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(0));
+
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(1));
+    }
+
     @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         debugTestRunner.terminateDebugSession();

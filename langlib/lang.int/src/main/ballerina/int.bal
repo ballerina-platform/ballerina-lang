@@ -15,6 +15,8 @@
 // under the License.
 
 import ballerina/jballerina.java;
+import ballerina/lang.'object;
+import ballerina/lang.__internal as internal;
 
 # Built-in subtype that allows signed integers that can be represented in 32 bits using two's complement.
 # This allows an int between -2^31 and 2^31 - 1 inclusive,
@@ -81,6 +83,13 @@ public const int UNSIGNED8_MAX_VALUE = 255;
 
 # Returns the absolute value of an int value.
 #
+# ```ballerina
+# int n = -25;
+# n.abs() ⇒ 25
+# 
+# int:abs(-30) ⇒ 30
+# ```
+#
 # + n - int value to be operated on
 # + return - absolute value of parameter `n`
 public isolated function abs(int n) returns int = @java:Method {
@@ -90,6 +99,16 @@ public isolated function abs(int n) returns int = @java:Method {
 
 # Returns sum of zero or more int values.
 #
+# ```ballerina
+# int:sum(10, 20, 30, 40) ⇒ 100
+# 
+# int[] marks = [50, 65, 78, 95];
+# int:sum(...marks) ⇒ 288
+# 
+# int num = 24;
+# num.sum(38, 15, 97, 27) ⇒ 201
+# ```
+# 
 # + ns - int values to sum
 # + return - sum of all of parameter `ns`; 0 if parameter `ns` is empty
 public isolated function sum(int... ns) returns int = @java:Method {
@@ -99,6 +118,16 @@ public isolated function sum(int... ns) returns int = @java:Method {
 
 # Returns the maximum of one or more int values.
 #
+# ```ballerina
+# int:max(50, 20, 30, 70, 65) ⇒ 70
+# 
+# [int, int, int] scores = [52, 95, 76];
+# int:max(...scores) ⇒ 95
+# 
+# int n = 18;
+# n.max(25, 30, 4, 15) ⇒ 30
+# ```
+# 
 # + n - first int value
 # + ns - other int values
 # + return - maximum value of value of parameter `n` and all of parameter `ns`
@@ -108,6 +137,16 @@ public isolated function max(int n, int... ns) returns int = @java:Method {
 } external;
 
 # Returns the minimum of one or more int values.
+#
+# ```ballerina
+# int:min(45, 25, 30, 75, 50) ⇒ 25
+# 
+# [int, int, int, int] points = [21, 12, 48, 14];
+# int:min(...points) ⇒ 12
+# 
+# int m = 23;
+# m.min(12, 43, 7, 19) ⇒ 7
+# ```
 #
 # + n - first int value
 # + ns - other int values
@@ -123,6 +162,14 @@ public isolated function min(int n, int... ns) returns int = @java:Method {
 # The first character may be `+` or `-`.
 # This is the inverse of function ``value:toString`` applied to an `int`.
 #
+# ```ballerina
+# int:fromString("76") ⇒ 76
+# 
+# int:fromString("-120") ⇒ -120
+# 
+# int:fromString("0xFFFF") ⇒ error
+# ```
+#
 # + s - string representation of a integer value
 # + return - int representation of the argument or error
 public isolated function fromString(string s) returns int|error = @java:Method {
@@ -135,6 +182,12 @@ public isolated function fromString(string s) returns int|error = @java:Method {
 # There is no `0x` prefix. Lowercase letters a-f are used.
 # Negative numbers will have a `-` prefix. No sign for
 # non-negative numbers.
+#
+# ```ballerina
+# 26.toHexString() ⇒ 1a
+# 
+# int:toHexString(-158) ⇒ -9e
+# ```
 #
 # + n - int value
 # + return - hexadecimal string representation of int value
@@ -150,9 +203,46 @@ public isolated function toHexString(int n) returns string = @java:Method {
 # No `0x` or `0X` prefix is allowed.
 # Returns an error if the parameter `s` is not in an allowed format.
 #
+# ```ballerina
+# int:fromHexString("1A5F") ⇒ 6751
+# 
+# int:fromHexString("-2b4a") ⇒ -11082
+# 
+# int:fromHexString("1Y4K") ⇒ error
+# ```
+#
 # + s - hexadecimal string representation of int value
 # + return - int value or error
 public isolated function fromHexString(string s) returns int|error = @java:Method {
     'class: "org.ballerinalang.langlib.integer.FromHexString",
     name: "fromHexString"
 } external;
+
+# Returns an iterable object that iterates over a range of integers.
+# The integers returned by the iterator belong to the set S,
+# where S is `{ rangeStart + step*i such that i >= 0 }`.
+# When `step > 0`, the members of S that are `< rangeEnd` are returned in increasing order.
+# When `step < 0`, the members of S that are `> rangeEnd` are returned in decreasing order.
+# When `step = 0`, the function panics.
+# + rangeStart - the first integer to be returned by the iterator
+# + rangeEnd - the exclusive limit on the integers returned by the iterator
+# + step - the difference between successive integers returned by the iterator;
+#    a positive value gives an increasing sequence; a negative value gives
+#    a decreasing sequence
+# + return - an iterable object
+public isolated function range(int rangeStart, int rangeEnd, int step) returns object {
+    *object:Iterable;
+    public isolated function iterator() returns object {
+        public isolated function next() returns record {|
+            int value;
+        |}?;
+    };
+} {
+    if (step == 0) {
+        panic error("step cannot be 0");
+    }
+    int direction = step > 0 ? -1 : 1;
+    internal:__IntRange intRange = new (rangeStart, rangeEnd + direction, step);
+    return intRange;
+}
+

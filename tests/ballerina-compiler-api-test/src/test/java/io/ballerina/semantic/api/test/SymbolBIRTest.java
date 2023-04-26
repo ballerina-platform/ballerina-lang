@@ -22,6 +22,8 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
@@ -97,6 +99,29 @@ public class SymbolBIRTest {
         srcFile = getDocumentForSingleSource(project);
     }
 
+    @Test(dataProvider = "FunctionTypePosProvider")
+    public void test(int line, int col, String signature) {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_function_types_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), FUNCTION);
+
+        FunctionTypeSymbol functionTypeSymbol = ((FunctionSymbol) symbol.get()).typeDescriptor();
+        assertEquals(functionTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "FunctionTypePosProvider")
+    private Object[][] getFunctionTypePos() {
+        return new Object[][] {
+                {19, 24, "function (function (int x, float... y) returns string fn) returns int"},
+                {23, 16, "function (function (int x, function (string s, int... t) returns float fA)" +
+                        " returns string fn) returns ()"},
+        };
+    }
+
     // Tests if the field symbols of a record type defined in testorg/testproject are accessible
     @Test(dataProvider = "RecordFieldImports")
     public void testRecordFieldSymbol(int line, int col, String fieldName, TypeDescKind typeKind, boolean isOptional,
@@ -149,12 +174,13 @@ public class SymbolBIRTest {
         BallerinaModule fooModule = (BallerinaModule) symbolsInScope.stream()
                 .filter(sym -> sym.getName().get().equals("testproject")).findAny().get();
         SemanticAPITestUtils.assertList(fooModule.functions(), List.of("loadHuman", 
-                "testAnonTypeDefSymbolsIsNotVisible", "add"));
+                "testAnonTypeDefSymbolsIsNotVisible", "add", "testFnA", "testFnB"));
         SemanticAPITestUtils.assertList(fooModule.constants(), List.of("RED", "GREEN", "BLUE", "PI", "TRUE", "FALSE"));
         
         SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), List.of("HumanObj", "ApplicationResponseError", 
                 "Person", "BasicType", "Digit", "FileNotFoundError", "EofError", "Error", "Pet", "Student", "Cat", 
-                "Annot", "Detail", "Service"));
+                "Annot", "Detail", "Service", "FnTypeA", "FnTypeB"));
+
         
         SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj", "Human"));
         SemanticAPITestUtils.assertList(fooModule.enums(), List.of("Colour"));

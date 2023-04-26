@@ -1,0 +1,154 @@
+{
+  "position": {
+    "line": 8,
+    "character": 21
+  },
+  "source": "extractExprToConstantWithQuickPick.bal",
+  "expected": [
+    {
+      "title": "Extract to constant",
+      "kind": "refactor.extract",
+      "command": {
+        "title": "extract to constant",
+        "command": "ballerina.action.extract",
+        "arguments": [
+          "extract to constant",
+          "extractExprToConstantWithQuickPick.bal",
+          {
+            "10": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "const int CONST = 10;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 20
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 22
+                  }
+                },
+                "newText": "CONST"
+              }
+            ],
+            "10 / 2": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "const int CONST = 10 / 2;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 20
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 26
+                  }
+                },
+                "newText": "CONST"
+              }
+            ],
+            "10 / 2 + 20": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "const int CONST = 10 / 2 + 20;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 20
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 31
+                  }
+                },
+                "newText": "CONST"
+              }
+            ],
+            "10 / 2 + 20 + 30": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 0,
+                    "character": 0
+                  }
+                },
+                "newText": "const int CONST = 10 / 2 + 20 + 30;\n"
+              },
+              {
+                "range": {
+                  "start": {
+                    "line": 8,
+                    "character": 20
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 36
+                  }
+                },
+                "newText": "CONST"
+              }
+            ]
+          },
+          {
+            "10": {
+              "line": 9,
+              "character": 20
+            },
+            "10 / 2": {
+              "line": 9,
+              "character": 20
+            },
+            "10 / 2 + 20": {
+              "line": 9,
+              "character": 20
+            },
+            "10 / 2 + 20 + 30": {
+              "line": 9,
+              "character": 20
+            }
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

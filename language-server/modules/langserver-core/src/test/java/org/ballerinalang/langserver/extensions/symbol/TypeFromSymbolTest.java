@@ -63,7 +63,7 @@ public class TypeFromSymbolTest {
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
 
         ResolvedTypeForSymbol type = typesFromSymbolResponse.getTypes().get(0);
-        Assert.assertTrue(isPositionsEquals(position, type.getRequestedPosition()));
+        Assert.assertTrue(SymbolServiceTestUtil.isPositionsEquals(position, type.getRequestedPosition()));
         Assert.assertEquals(type.getType().name, "Output");
         Assert.assertTrue(type.getType() instanceof RecordType);
 
@@ -87,7 +87,7 @@ public class TypeFromSymbolTest {
         Assert.assertNotNull(typesFromSymbolResponse.getTypes());
 
         ResolvedTypeForSymbol type = typesFromSymbolResponse.getTypes().get(0);
-        Assert.assertTrue(isPositionsEquals(position, type.getRequestedPosition()));
+        Assert.assertTrue(SymbolServiceTestUtil.isPositionsEquals(position, type.getRequestedPosition()));
         Assert.assertTrue(type.getType() instanceof RecordType);
 
         RecordType outerRecordType = (RecordType) type.getType();
@@ -99,6 +99,26 @@ public class TypeFromSymbolTest {
 
         RecordType innerRecordType = (RecordType) arrayType.memberType;
         Assert.assertEquals(innerRecordType.fields.size(), 3);
+
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+    }
+
+    @Test(description = "type info retrieved for a let variable")
+    public void testTypeForLetVarDeclaration() throws IOException, ExecutionException, InterruptedException {
+        Path inputFile = LSExtensionTestUtil.createTempFile(typeFromSymbolBalFile);
+        URI uri = URI.create(inputFile.toUri().toString());
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+
+        LinePosition position = LinePosition.from(67, 73);
+        LinePosition[] positions = {position};
+        TypesFromSymbolResponse typesFromSymbolResponse = LSExtensionTestUtil.getTypeFromSymbol(
+                uri, positions, this.serviceEndpoint);
+
+        Assert.assertNotNull(typesFromSymbolResponse.getTypes());
+
+        ResolvedTypeForSymbol type = typesFromSymbolResponse.getTypes().get(0);
+        Assert.assertTrue(SymbolServiceTestUtil.isPositionsEquals(position, type.getRequestedPosition()));
+        Assert.assertTrue(type.getType() instanceof PrimitiveType);
 
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
     }
@@ -122,25 +142,25 @@ public class TypeFromSymbolTest {
         Assert.assertEquals(typesFromSymbolResponse.getTypes().size(), positions.length);
 
         ResolvedTypeForSymbol type1 = typesFromSymbolResponse.getTypes().get(0);
-        Assert.assertTrue(isPositionsEquals(position1, type1.getRequestedPosition()));
+        Assert.assertTrue(SymbolServiceTestUtil.isPositionsEquals(position1, type1.getRequestedPosition()));
         Assert.assertTrue(type1.getType() instanceof RecordType);
         Assert.assertEquals(type1.getType().name, "Input");
 
         ResolvedTypeForSymbol type2 = typesFromSymbolResponse.getTypes().get(1);
-        Assert.assertTrue(isPositionsEquals(position2, type2.getRequestedPosition()));
+        Assert.assertTrue(SymbolServiceTestUtil.isPositionsEquals(position2, type2.getRequestedPosition()));
         Assert.assertTrue(type2.getType() instanceof RecordType);
         Assert.assertEquals(type2.getType().name, "Input2");
 
         ResolvedTypeForSymbol type3 = typesFromSymbolResponse.getTypes().get(2);
-        Assert.assertTrue(isPositionsEquals(position3, type3.getRequestedPosition()));
+        Assert.assertTrue(SymbolServiceTestUtil.isPositionsEquals(position3, type3.getRequestedPosition()));
         Assert.assertTrue(type3.getType() instanceof RecordType);
 
         ResolvedTypeForSymbol type4 = typesFromSymbolResponse.getTypes().get(3);
-        Assert.assertTrue(isPositionsEquals(position4, type4.getRequestedPosition()));
+        Assert.assertTrue(SymbolServiceTestUtil.isPositionsEquals(position4, type4.getRequestedPosition()));
         Assert.assertTrue(type4.getType() instanceof ArrayType);
 
         ResolvedTypeForSymbol type5 = typesFromSymbolResponse.getTypes().get(4);
-        Assert.assertTrue(isPositionsEquals(position5, type5.getRequestedPosition()));
+        Assert.assertTrue(SymbolServiceTestUtil.isPositionsEquals(position5, type5.getRequestedPosition()));
         Assert.assertTrue(type5.getType() instanceof PrimitiveType);
 
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
@@ -169,10 +189,5 @@ public class TypeFromSymbolTest {
         Assert.assertEquals(typesFromSymbolResponse.getTypes().size(), 0);
 
         TestUtil.closeDocument(this.serviceEndpoint, inputFile);
-    }
-
-    public static boolean isPositionsEquals(LinePosition expectedPosition, LinePosition actualPosition) {
-        return expectedPosition.line() == actualPosition.line()
-                && expectedPosition.offset() == actualPosition.offset();
     }
 }

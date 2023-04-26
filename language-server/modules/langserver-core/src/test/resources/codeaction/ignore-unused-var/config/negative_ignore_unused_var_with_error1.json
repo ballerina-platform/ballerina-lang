@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 1,
+    "character": 16
+  },
+  "source": "negative_ignore_unused_var_with_error1.bal",
+  "expected": [
+    {
+      "title": "Ignore unused variable"
+    }
+  ]
+}

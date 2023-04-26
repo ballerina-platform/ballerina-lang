@@ -10,6 +10,7 @@
     }
   },
   "source": "extract_to_function_stmts_match_stmt_without_return_stmt.bal",
+  "description": "Extract to function for match statement, check when there are no return statements within",
   "expected": [
     {
       "title": "Extract to function",
@@ -42,8 +43,18 @@
           "newText": "int localVar = extracted(param);"
         }
       ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_stmts_match_stmt_without_return_stmt.bal",
+          {
+            "line": 1,
+            "character": 4
+          }
+        ]
+      },
       "resolvable": false
     }
-  ],
-  "description": "Extract to function for match statement, check when there are no return statements within"
+  ]
 }

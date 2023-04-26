@@ -786,8 +786,8 @@ public class DebugTestRunner {
             result.setVariablesReference(evaluateResp.getVariablesReference());
             return result;
         } catch (Exception e) {
-            LOGGER.warn("Error occurred when fetching debug hit variables", e);
-            throw new BallerinaTestException("Error occurred when fetching debug hit variables", e);
+            LOGGER.warn("Error occurred when evaluating expression", e);
+            throw new BallerinaTestException("Error occurred when evaluating expression", e);
         }
     }
 

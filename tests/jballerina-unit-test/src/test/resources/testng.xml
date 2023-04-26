@@ -95,7 +95,6 @@
             <package name="org.ballerinalang.test.statements.assign.*"/>
             <package name="org.ballerinalang.test.statements.block.*"/>
             <package name="org.ballerinalang.test.statements.breakstatement.*"/>
-            <package name="org.ballerinalang.test.statements.clientdeclstmt.*"/>
             <package name="org.ballerinalang.test.statements.comment.*"/>
             <package name="org.ballerinalang.test.statements.compoundassignment.*"/>
             <package name="org.ballerinalang.test.statements.continuestatement.*"/>

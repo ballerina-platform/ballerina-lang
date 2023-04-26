@@ -50,7 +50,7 @@
         }
       ],
       "command": {
-        "title": "Rename Variable",
+        "title": "Rename variable",
         "command": "ballerina.action.rename",
         "arguments": [
           "testproject/main.bal",
@@ -117,7 +117,7 @@
         }
       ],
       "command": {
-        "title": "Rename Variable",
+        "title": "Rename variable",
         "command": "ballerina.action.rename",
         "arguments": [
           "testproject/main.bal",
@@ -158,7 +158,7 @@
         }
       ],
       "command": {
-        "title": "Rename Variable",
+        "title": "Rename variable",
         "command": "ballerina.action.rename",
         "arguments": [
           "testproject/main.bal",

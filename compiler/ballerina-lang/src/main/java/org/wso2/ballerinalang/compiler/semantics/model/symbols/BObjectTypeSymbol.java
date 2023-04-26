@@ -21,6 +21,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -37,10 +38,12 @@ public class BObjectTypeSymbol extends BStructureTypeSymbol {
     // This is a cache of the functions referred through the type references
     public List<BAttachedFunction> referencedFunctions;
     public BAttachedFunction generatedInitializerFunc;
+    public Scope resourcePathSegmentScope;
 
-    public BObjectTypeSymbol(int symTag, long flags, Name name, PackageID pkgID, BType type,
+    public BObjectTypeSymbol(long symTag, long flags, Name name, PackageID pkgID, BType type,
                              BSymbol owner, Location pos, SymbolOrigin origin) {
         super(SymbolKind.OBJECT, symTag, flags, name, pkgID, type, owner, pos, origin);
         this.referencedFunctions = new ArrayList<>();
+        this.resourcePathSegmentScope = new Scope(this);
     }
 }

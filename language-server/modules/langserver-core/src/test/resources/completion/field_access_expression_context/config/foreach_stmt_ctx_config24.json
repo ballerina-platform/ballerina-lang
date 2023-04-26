@@ -4,6 +4,7 @@
     "character": 6
   },
   "source": "field_access_expression_context/source/foreach_stmt_ctx_source22.bal",
+  "description": "",
   "items": [
     {
       "label": "ballerina/lang.test",
@@ -150,54 +151,6 @@
       ]
     },
     {
-      "label": "boolean",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "CR",
-      "insertText": "boolean",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "decimal",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "CR",
-      "insertText": "decimal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "CR",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "float",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "CR",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "future",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "CR",
-      "insertText": "future",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "int",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "CR",
-      "insertText": "int",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "map",
       "kind": "Unit",
       "detail": "type",
@@ -222,14 +175,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "string",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "CR",
-      "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "table",
       "kind": "Unit",
       "detail": "type",
@@ -243,22 +188,6 @@
       "detail": "type",
       "sortText": "CR",
       "insertText": "transaction",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "typedesc",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "CR",
-      "insertText": "typedesc",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "xml",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "CR",
-      "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
     {
@@ -320,10 +249,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns a string with the character data of an xml value.\n\nThe character data of an xml value is as follows:\n* the character data of a text item is a string with one character for each\ncharacter information item represented by the text item;\n* the character data of an element item is the character data of its children;\n* the character data of a comment item is the empty string;\n* the character data of a processing instruction item is the empty string;\n* the character data of an empty xml sequence is the empty string;\n* the character data of the concatenation of two xml sequences x1 and x2 is the\nconcatenation of the character data of x1 and the character data of x2.\n  \n  \n  \n**Return** `string`   \n- a string consisting of all the character data of parameter `x`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns a string with the character data of an xml value.\n\nThe character data of an xml value is as follows:\n* the character data of a text item is a string with one character for each\ncharacter information item represented by the text item;\n* the character data of an element item is the character data of its children;\n* the character data of a comment item is the empty string;\n* the character data of a processing instruction item is the empty string;\n* the character data of an empty xml sequence is the empty string;\n* the character data of the concatenation of two xml sequences x1 and x2 is the\nconcatenation of the character data of x1 and the character data of x2.\n\n```ballerina\nxml x = xml `<book>Jane Eyre</book>`;\nx.data() ⇒ Jane Eyre\n```\n  \n  \n  \n**Return** `string`   \n- a string consisting of all the character data of parameter `x`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "data",
       "insertText": "data()",
       "insertTextFormat": "Snippet"
@@ -335,7 +264,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function (xml:ItemType item) returns ()` func: a function to apply to each item in parameter `x`"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence.\n\nEach item is represented as a singleton value.\n\n```ballerina\nxml books = xml `<book>Sherlock Holmes</book><book>Invisible Man</book>`;\nxml titles = xml ``;\nbooks.forEach(function (xml xmlItem) {\n    titles += xml `<novel>${xmlItem.data()}</novel>`;\n});\ntitles ⇒ <novel>Sherlock Holmes</novel><novel>Invisible Man</novel>\n```\n  \n**Params**  \n- `function (xml:ItemType item) returns ()` func: a function to apply to each item in parameter `x`"
         }
       },
       "sortText": "CD",
@@ -354,7 +283,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns number of xml items in an xml value.\n  \n  \n  \n**Return** `int`   \n- number of xml items in parameter `x`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns number of xml items in an xml value.\n\n```ballerina\nxml `<book><title>Sherlock Holmes</title></book><!--Novel-->`.length() ⇒ 2\n```\n  \n  \n  \n**Return** `int`   \n- number of xml items in parameter `x`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -369,7 +298,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects the items from an xml sequence for which a function returns true.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function (xml:ItemType item) returns boolean` func: a predicate to apply to each item to test whether it should be selected  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- new xml sequence containing items in parameter `x` for which function `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects the items from an xml sequence for which a function returns true.\n\nEach item is represented as a singleton value.\n\n```ballerina\nxml x = xml `<novel>Sherlock Holemes</novel><play>Hamlet</play><novel>Invisible Man</novel><play>Romeo and Juliet</play>`;\nx.filter(x => x is xml:Element && x.getName() == \"play\") ⇒ <play>Hamlet</play><play>Romeo and Juliet</play>\n```\n  \n**Params**  \n- `function (xml:ItemType item) returns boolean` func: a predicate to apply to each item to test whether it should be selected  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- new xml sequence containing items in parameter `x` for which function `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "CD",
@@ -388,7 +317,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns an iterator over the xml items of an xml sequence.\n\n# Each item is represented by an xml singleton.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|xml:Element value;|}?;}`   \n- iterator object  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns an iterator over the xml items of an xml sequence.\n\n# Each item is represented by an xml singleton.\n\n```ballerina\nobject {\n    public isolated function next() returns record {|xml value;|}?;\n} iterator = xml `<student><name>John</name></student><student><name>Peter</name></student>`.iterator();\niterator.next() ⇒ {\"value\":`<student><name>John</name></student>`}\n```\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|xml:Element value;|}?;}`   \n- iterator object  \n  \n"
         }
       },
       "sortText": "CD",
@@ -403,7 +332,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nStrips the insignificant parts of the an xml value.\n\nComment items, processing instruction items are considered insignificant.\nAfter removal of comments and processing instructions, the text is grouped into\nthe biggest possible chunks (i.e., only elements cause division into multiple chunks)\nand a chunk is considered insignificant if the entire chunk is whitespace.\n  \n  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- `x` with insignificant parts removed  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nStrips the insignificant parts of the an xml value.\n\nComment items, processing instruction items are considered insignificant.\nAfter removal of comments and processing instructions, the text is grouped into\nthe biggest possible chunks (i.e., only elements cause division into multiple chunks)\nand a chunk is considered insignificant if the entire chunk is whitespace.\n\n```ballerina\nxml x = xml `<?publication year=\"1604\"?><!--This is a play-->\n                  <book author=\"William Shakespeare\"><title>Othello</title></book>`;\nx.strip() ⇒ <book author=\"William Shakespeare\"><title>Othello</title></book>\n```\n  \n  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- `x` with insignificant parts removed  \n  \n"
         }
       },
       "sortText": "CD",
@@ -418,7 +347,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns a subsequence of an xml value.\n  \n**Params**  \n- `int` startIndex: start index, inclusive  \n- `int` endIndex: end index, exclusive(Defaultable)  \n  \n**Return** `xml<xml:Element>`   \n- a subsequence of parameter `x` consisting of items with index >= parameter `startIndex` and < parameter `endIndex`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns a subsequence of an xml value.\n\n```ballerina\nxml x = xml `<book>HTML</book><book>Invisible Man</book><book>David Copperfield</book><book>Jane Eyre</book>`;\nx.slice(2) ⇒ <book>David Copperfield</book><book>Jane Eyre</book>\nx.slice(1, 3) ⇒ <book>Invisible Man</book><book>David Copperfield</book>\n```\n  \n**Params**  \n- `int` startIndex: start index, inclusive  \n- `int` endIndex: end index, exclusive(Defaultable)  \n  \n**Return** `xml<xml:Element>`   \n- a subsequence of parameter `x` consisting of items with index >= parameter `startIndex` and < parameter `endIndex`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -437,7 +366,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns the children of elements in an xml value.\n\nWhen parameter `x` is of type `Element`, it is equivalent to function `getChildren`.\nThis is equivalent to `elements(x).map(getChildren)`.\n  \n  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- xml sequence containing the children of each element x concatenated in order  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns the children of elements in an xml value.\n\nWhen parameter `x` is of type `Element`, it is equivalent to function `getChildren`.\nThis is equivalent to `elements(x).map(getChildren)`.\n\n```ballerina\nxml x = xml `<books><book><title>Hamlet</title></book><book><title>Macbeth</title></book></books>`;\nx.children() ⇒ <book><title>Hamlet</title></book><book><title>Macbeth</title></book>\n```\n  \n  \n  \n**Return** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- xml sequence containing the children of each element x concatenated in order  \n  \n"
         }
       },
       "sortText": "CD",
@@ -452,7 +381,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns the item of an xml sequence with given index.\n\nThis differs from `x[i]` in that it panics if\nparameter `x` does not have an item with index parameter `i`.\n  \n**Params**  \n- `int` i: the index  \n  \n**Return** `xml:Element`   \n- the item with index parameter `i` in parameter `x`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nReturns the item of an xml sequence with given index.\n\nThis differs from `x[i]` in that it panics if\nparameter `x` does not have an item with index parameter `i`.\n\n```ballerina\nxml x = xml `<book><title>Macbeth</title></book><book><title>Hamlet</title></book>`;\nx.get(1) ⇒ <book><title>Hamlet</title></book>\nx.get(15) ⇒ panic\n```\n  \n**Params**  \n- `int` i: the index  \n  \n**Return** `xml:Element`   \n- the item with index parameter `i` in parameter `x`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -471,7 +400,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects elements from an xml value.\n\nIf parameter `nm` is `()`, selects all elements;\notherwise, selects only elements whose expanded name is parameter `nm`.\n  \n**Params**  \n- `string?` nm: the expanded name of the elements to be selected, or `()` for all elements(Defaultable)  \n  \n**Return** `xml<xml:Element>`   \n- an xml sequence consisting of all the element items in parameter `x` whose expanded name is parameter `nm`,  \nor, if parameter `nm` is `()`, all element items in parameter `x`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects elements from an xml value.\n\nIf parameter `nm` is `()`, selects all elements;\notherwise, selects only elements whose expanded name is parameter `nm`.\n\n```ballerina\nxml x = xml `<!--Mystery--><novel>Sherlock Holmes</novel><!--Drama--><play>Hamlet</play>\n            <novel>Jane Eyre</novel><play>Macbeth</play>`;\nx.elements() ⇒ <novel>Sherlock Holmes</novel><play>Hamlet</play><novel>Jane Eyre</novel><play>Macbeth</play>\nx.elements(\"novel\") ⇒ <novel>Sherlock Holmes</novel><novel>Jane Eyre</novel>\n```\n  \n**Params**  \n- `string?` nm: the expanded name of the elements to be selected, or `()` for all elements(Defaultable)  \n  \n**Return** `xml<xml:Element>`   \n- an xml sequence consisting of all the element items in parameter `x` whose expanded name is parameter `nm`,  \nor, if parameter `nm` is `()`, all element items in parameter `x`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -490,7 +419,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects all the items in a sequence that are of type `xml:Text`.\n  \n  \n  \n**Return** `xml:Text`   \n- an xml sequence consisting of selected text items  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects all the items in a sequence that are of type `xml:Text`.\n\n```ballerina\nxml x = xml `John<!-- middle name --><mname>Alex</mname> Doe`;\nx.text() ⇒ John Doe\n```\n  \n  \n  \n**Return** `xml:Text`   \n- an xml sequence consisting of selected text items  \n  \n"
         }
       },
       "sortText": "CD",
@@ -505,7 +434,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects element children of an xml value.\n\nThis is equivalent to `children(x).elements(nm)`.\n  \n**Params**  \n- `string?` nm: the expanded name of the elements to be selected, or `()` for all elements(Defaultable)  \n  \n**Return** `xml<xml:Element>`   \n- an xml sequence consisting of child elements of elements in parameter `x`; if parameter `nm`  \nis `()`, returns a sequence of all such elements;  \notherwise, include only elements whose expanded name is parameter `nm`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nSelects element children of an xml value.\n\nThis is equivalent to `children(x).elements(nm)`.\n\n```ballerina\nxml x = xml `<book><play>Hamlet</play></book><book><novel>Macbeth</novel></book>`;\nx.elementChildren() ⇒ <play>Hamlet</play><novel>Macbeth</novel>\nx.elementChildren(\"novel\") ⇒ <novel>Macbeth</novel>\n```\n  \n**Params**  \n- `string?` nm: the expanded name of the elements to be selected, or `()` for all elements(Defaultable)  \n  \n**Return** `xml<xml:Element>`   \n- an xml sequence consisting of child elements of elements in parameter `x`; if parameter `nm`  \nis `()`, returns a sequence of all such elements;  \notherwise, include only elements whose expanded name is parameter `nm`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -524,10 +453,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen parameter `v` is a structural value, the inherent type of the value to be constructed\ncomes from parameter `t`. When parameter `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `cloneWithType` operation is recursively applied to each member of parameter `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable.\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members\n  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Return** `t|error`   \n- a new value that belongs to parameter `t`, or an error if this cannot be done  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen parameter `v` is a structural value, the inherent type of the value to be constructed\ncomes from parameter `t`. When parameter `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `cloneWithType` operation is recursively applied to each member of parameter `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable.\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members\n\n```ballerina\nanydata[] arr = [1, 2, 3, 4];\nint[] intArray = check arr.cloneWithType();\nintArray ⇒ [1,2,3,4]\narr === intArray ⇒ false\ntype Vowels string:Char[];\nstring[] vowels = [\"a\", \"e\", \"i\", \"o\", \"u\"];\nvowels.cloneWithType(Vowels) ⇒ [\"a\",\"e\",\"i\",\"o\",\"u\"]\nvowels.cloneWithType(string) ⇒ error\n```\n  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Return** `t|error`   \n- a new value that belongs to parameter `t`, or an error if this cannot be done  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "BD",
       "filterText": "cloneWithType",
       "insertText": "cloneWithType(${1})",
       "insertTextFormat": "Snippet",
@@ -543,7 +472,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n\n```ballerina\nint[] arr = [1, 2, 3, 4];\nint[] & readonly immutableClone = arr.cloneReadOnly();\nimmutableClone ⇒ [1,2,3,4]\nimmutableClone is readonly ⇒ true \n```\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -558,10 +487,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n\n```ballerina\ndecimal value = 12.12d;\nvalue.toBalString() ⇒ 12.12d\nanydata[] data = [1, \"Sam\", 12.3f, 12.12d, {value: 12}];\ndata.toBalString() ⇒ [1,\"Sam\",12.3,12.12d,{\"value\":12}]\n```\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "toBalString",
       "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
@@ -573,7 +502,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value of type `anydata` to `json`.\n\nThis does a deep copy of parameter `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\nThis panics if parameter `v` has cycles.\n  \n  \n  \n**Return** `json`   \n- representation of `v` as value of type json  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value of type `anydata` to `json`.\n\nThis does a deep copy of parameter `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\nThis panics if parameter `v` has cycles.\n\n```ballerina\nanydata student = {name: \"Jo\", age: 11};\nstudent.toJson() ⇒ {\"name\":\"Jo\",\"age\":11}\nanydata[] array = [];\narray.push(array);\narray.toJson() ⇒ panic\n```\n  \n  \n  \n**Return** `json`   \n- representation of `v` as value of type json  \n  \n"
         }
       },
       "sortText": "CD",
@@ -588,7 +517,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nTests whether a value is read-only, i.e., immutable.\n\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Return** `boolean`   \n- true if read-only, false otherwise  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nTests whether a value is read-only, i.e., immutable.\n\nReturns true if read-only, false otherwise.\n\n```ballerina\nint[] scores = <readonly> [21, 12, 33, 45, 81];\nscores.isReadOnly() ⇒ true\nstring[] sports = [\"cricket\", \"football\", \"rugby\"];\nsports.isReadOnly() ⇒ false\n```\n  \n  \n  \n**Return** `boolean`   \n- true if read-only, false otherwise  \n  \n"
         }
       },
       "sortText": "CD",
@@ -603,7 +532,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n\n```ballerina\nint[] arr = [1, 2, 3, 4];\nint[] clone = arr.clone();\nclone ⇒ [1,2,3,4]\narr === clone ⇒ false\n```\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -618,10 +547,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n\n```ballerina\njson student = {name: \"Jo\", subjects: [\"CS1212\", \"CS2021\"]};\njson[] subjects = check student.subjects.ensureType();\nsubjects ⇒ [\"CS1212\",\"CS2021\"]\nanydata vowel = \"I\";\nvowel.ensureType(string:Char) ⇒ I;\nvowel.ensureType(int) ⇒ error\n```\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "BD",
       "filterText": "ensureType",
       "insertText": "ensureType(${1})",
       "insertTextFormat": "Snippet",
@@ -637,10 +566,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n\n```ballerina\ndecimal value = 12.12d;\nvalue.toString() ⇒ 12.12\nanydata[] data = [1, \"Sam\", 12.3f, 12.12d, {value: 12}];\ndata.toString() ⇒ [1,\"Sam\",12.3,12.12,{\"value\":12}]\n```\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
@@ -652,10 +581,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the string that represents a anydata value in JSON format.\n\nparameter `v` is first converted to `json` as if by the function `toJson`.\n  \n  \n  \n**Return** `string`   \n- string representation of parameter `v` converted to `json`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the string that represents a anydata value in JSON format.\n\nparameter `v` is first converted to `json` as if by the function `toJson`.\n\n```ballerina\nanydata marks = {\"Alice\": 90, \"Bob\": 85, \"Jo\": 91};\nmarks.toJsonString() ⇒ {\"Alice\":90, \"Bob\":85, \"Jo\":91}\n```\n  \n  \n  \n**Return** `string`   \n- string representation of parameter `v` converted to `json`  \n  \n"
         }
       },
-      "sortText": "CD",
+      "sortText": "AD",
       "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
@@ -667,7 +596,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence, and returns an xml sequence of the results.\n\nEach item is represented as a singleton value.\n  \n**Params**  \n- `function (xml:ItemType item) returns xml:XmlType` func: a function to apply to each child or `item`  \n  \n**Return** `xml<xml:XmlType>`   \n- new xml value containing result of applying parameter `func` to each child or `item`  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.0.0_  \n  \nApplies a function to each item in an xml sequence, and returns an xml sequence of the results.\n\nEach item is represented as a singleton value.\n\n```ballerina\nxml x = xml `<book>Hamlet</book><book>Macbeth</book>`;\nx.map(function (xml xmlContent) returns xml => \n  xml `<book kind=\"play\">${xmlContent.children()}</book>`\n) ⇒ <book kind=\"play\">Hamlet</book><book kind=\"play\">Macbeth</book>\n```\n  \n**Params**  \n- `function (xml:ItemType item) returns xml:XmlType` func: a function to apply to each child or `item`  \n  \n**Return** `xml<xml:XmlType>`   \n- new xml value containing result of applying parameter `func` to each child or `item`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -776,14 +705,6 @@
       ]
     },
     {
-      "label": "function",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "CR",
-      "insertText": "function",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.regexp",
       "kind": "Module",
       "detail": "Module",
@@ -806,6 +727,86 @@
           "newText": "import ballerina/lang.regexp;\n"
         }
       ]
+    },
+    {
+      "label": "decimal",
+      "kind": "TypeParameter",
+      "detail": "Decimal",
+      "sortText": "CR",
+      "insertText": "decimal",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "error",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "AP",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xml",
+      "kind": "TypeParameter",
+      "detail": "Xml",
+      "sortText": "CR",
+      "insertText": "xml",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "boolean",
+      "kind": "TypeParameter",
+      "detail": "Boolean",
+      "sortText": "CR",
+      "insertText": "boolean",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "future",
+      "kind": "TypeParameter",
+      "detail": "Future",
+      "sortText": "CR",
+      "insertText": "future",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "int",
+      "kind": "TypeParameter",
+      "detail": "Int",
+      "sortText": "CR",
+      "insertText": "int",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "float",
+      "kind": "TypeParameter",
+      "detail": "Float",
+      "sortText": "CR",
+      "insertText": "float",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "TypeParameter",
+      "detail": "Function",
+      "sortText": "CR",
+      "insertText": "function",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "string",
+      "kind": "TypeParameter",
+      "detail": "String",
+      "sortText": "CR",
+      "insertText": "string",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "typedesc",
+      "kind": "TypeParameter",
+      "detail": "Typedesc",
+      "sortText": "CR",
+      "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

@@ -321,18 +321,18 @@
                                           "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "kind": "RE_LITERAL_CHAR",
                                               "value": "A"
                                             },
                                             {
                                               "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
                                               "children": [
                                                 {
-                                                  "kind": "RE_CHAR_SET_ATOM_NO_DASH",
+                                                  "kind": "RE_LITERAL_CHAR",
                                                   "value": "B"
                                                 },
                                                 {
-                                                  "kind": "RE_CHAR_SET_ATOM_NO_DASH",
+                                                  "kind": "RE_LITERAL_CHAR",
                                                   "value": "C"
                                                 }
                                               ]
@@ -441,18 +441,18 @@
                                           "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "kind": "RE_LITERAL_CHAR",
                                               "value": "A"
                                             },
                                             {
                                               "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
                                               "children": [
                                                 {
-                                                  "kind": "RE_CHAR_SET_ATOM_NO_DASH",
+                                                  "kind": "RE_LITERAL_CHAR",
                                                   "value": "B"
                                                 },
                                                 {
-                                                  "kind": "RE_CHAR_SET_ATOM_NO_DASH",
+                                                  "kind": "RE_LITERAL_CHAR",
                                                   "value": "C"
                                                 }
                                               ]
@@ -558,7 +558,7 @@
                                           "kind": "BITWISE_XOR_TOKEN"
                                         },
                                         {
-                                          "kind": "RE_CHAR_SET_ATOM",
+                                          "kind": "RE_LITERAL_CHAR",
                                           "value": "-"
                                         },
                                         {
@@ -660,11 +660,11 @@
                                           "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "kind": "RE_LITERAL_CHAR",
                                               "value": "-"
                                             },
                                             {
-                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "kind": "RE_LITERAL_CHAR",
                                               "value": "-"
                                             }
                                           ]

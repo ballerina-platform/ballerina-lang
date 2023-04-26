@@ -4,6 +4,7 @@
     "character": 20
   },
   "source": "extract_to_function_exprs_typecast_expr.bal",
+  "description": "Extract to function for expressions, cursor inside the type cast param of type cast expression",
   "expected": [
     {
       "title": "Extract to function",
@@ -36,8 +37,18 @@
           "newText": "extracted(testFloat)"
         }
       ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_typecast_expr.bal",
+          {
+            "line": 2,
+            "character": 18
+          }
+        ]
+      },
       "resolvable": false
     }
-  ],
-  "description": "Extract to function for expressions, cursor inside the type cast param of type cast expression"
+  ]
 }

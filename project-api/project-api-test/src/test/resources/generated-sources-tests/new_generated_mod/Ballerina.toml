@@ -1,0 +1,7 @@
+[package]
+org = "dilhashanazeer"
+name = "new_generated_mod"
+version = "0.1.0"
+
+[build-options]
+observabilityIncluded = true

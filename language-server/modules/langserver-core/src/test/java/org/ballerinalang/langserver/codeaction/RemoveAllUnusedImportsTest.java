@@ -46,6 +46,7 @@ public class RemoveAllUnusedImportsTest extends AbstractCodeActionTest {
         return new Object[][]{
                 {"remove_all_unused_imports_config1.json"},
                 {"remove_all_unused_imports_config2.json"},
+                {"remove_all_unused_imports_redeclared_imports1.json"},
         };
     }
 }

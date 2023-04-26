@@ -22,10 +22,14 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.values.BallerinaConstantValue;
 import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
+import io.ballerina.compiler.api.symbols.MemberTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.api.values.ConstantValue;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
@@ -106,5 +110,41 @@ public class ConstAnnotationAttachmentSymbolTest {
         assertEquals(((BallerinaConstantValue) permMap.get("a")).valueType().typeKind(), TypeDescKind.INT);
         assertEquals(((BallerinaConstantValue) permMap.get("b")).value(), 2L);
         assertEquals(((BallerinaConstantValue) permMap.get("b")).valueType().typeKind(), TypeDescKind.INT);
+    }
+
+    @Test
+    public void testAnnotInTupleMembers1() {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(22, 5));
+        assertTrue(symbol.isPresent());
+        TypeSymbol typeSymbol = ((TypeDefinitionSymbol) symbol.get()).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), TypeDescKind.TUPLE);
+        TupleTypeSymbol tupleSymbol = (TupleTypeSymbol) typeSymbol;
+
+        // tuple members
+        List<MemberTypeSymbol> members = tupleSymbol.members();
+        members.forEach(member -> {
+            List<AnnotationAttachmentSymbol> attachments = member.annotAttachments();
+            assertEquals(attachments.size(), 1);
+            AnnotationAttachmentSymbol annotAtt = attachments.get(0);
+            assertEquals(annotAtt.typeDescriptor().getName().get(), "member");
+        });
+    }
+
+    @Test
+    public void testAnnotInTupleMembers2() {
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(25, 32));
+        assertTrue(symbol.isPresent());
+        TypeSymbol typeSymbol = ((VariableSymbol) symbol.get()).typeDescriptor();
+        assertEquals(typeSymbol.typeKind(), TypeDescKind.TUPLE);
+        TupleTypeSymbol tupleSymbol = (TupleTypeSymbol) typeSymbol;
+
+        // tuple members
+        List<MemberTypeSymbol> members = tupleSymbol.members();
+        members.forEach(member -> {
+            List<AnnotationAttachmentSymbol> attachments = member.annotAttachments();
+            assertEquals(attachments.size(), 1);
+            AnnotationAttachmentSymbol annotAtt = attachments.get(0);
+            assertEquals(annotAtt.typeDescriptor().getName().get(), "Annot");
+        });
     }
 }

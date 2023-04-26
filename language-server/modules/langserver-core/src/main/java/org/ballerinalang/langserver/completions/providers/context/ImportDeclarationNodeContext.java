@@ -27,10 +27,12 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -38,6 +40,8 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextEdit;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -79,6 +83,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             (3) import abc.xy<cursor>
             (4) import org/mod<cursor>
             (5) import org/mod v<cursor>
+            (6) import org/mod.<cursor>
             
             Suggests org names and the module names within the same directory
          */
@@ -98,20 +103,19 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             contextScope = ContextScope.OTHER;
         } else if (onSuggestAsKeyword(ctx, node)) {
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_AS.get()));
-            contextScope = ContextScope.SCOPE1;
+            contextScope = ContextScope.AS_KW;
         } else if (node.orgName().isPresent()) {
             /*
             Covers case (4)
              */
-            String orgName = node.orgName().get().orgName().text();
-            completionItems.addAll(this.moduleNameContextCompletions(ctx, orgName));
-            contextScope = ContextScope.SCOPE2;
+            completionItems.addAll(this.moduleNameContextCompletions(ctx, node));
+            contextScope = ContextScope.MODULE_NAME;
         } else {
             /*
             Covers cases (1) to (3)
              */
             completionItems.addAll(this.orgNameContextCompletions(ctx));
-            contextScope = ContextScope.SCOPE3;
+            contextScope = ContextScope.ORG_NAME;
         }
 
         this.sort(ctx, node, completionItems, contextScope);
@@ -128,22 +132,34 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             return;
         }
 
-        if (metaData[0] == ContextScope.SCOPE2) {
+        if (metaData[0] == ContextScope.MODULE_NAME) {
+            String modulePart = null;
+            // If the module name of the import declaration has more than one part (eg: abc.xyz), we take the module
+            // part until the last dot (eg: xyz) and compare that with the label when sorting completion items.
+            if (node.moduleName().size() > 1) {
+                StringBuilder modName = new StringBuilder();
+                for (int i = 0; i < node.moduleName().size() - 1; i++) {
+                    modName.append(node.moduleName().get(i).text());
+                    modName.append(".");
+                }
+                modulePart = modName.toString();
+            }
             /*
             Sorts only the completions when the org name is ballerina
             Context covered:
             (1) import ballerina/<cursor
             (2) import ballerina/a<cursor
+            (3) import ballerina/lang.<cursor>
              */
             for (LSCompletionItem completion : cItems) {
                 CompletionItem cItem = completion.getCompletionItem();
                 String label = cItem.getLabel();
-                cItem.setSortText(genSortText(this.rankModuleName(label)));
+                cItem.setSortText(genSortText(this.rankModuleName(label, modulePart)));
             }
             return;
         }
 
-        if (metaData[0] == ContextScope.SCOPE3) {
+        if (metaData[0] == ContextScope.ORG_NAME) {
             for (LSCompletionItem completion : cItems) {
                 CompletionItem cItem = completion.getCompletionItem();
                 String label = cItem.getLabel();
@@ -155,15 +171,27 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         super.sort(context, node, cItems, metaData);
     }
 
-    private int rankModuleName(String label) {
-        if (label.startsWith(LANGLIB_MODULE_PREFIX)) {
+    /**
+     * Ranks the module name based on the it's ballerina module, whether it's a langlib or starts with the module part
+     * user has already written.
+     *
+     * @param label      Module name
+     * @param modulePart The module name user has already written
+     * @return {@link Integer} rank
+     */
+    private int rankModuleName(String label, String modulePart) {
+        // If there's a module part partially written, check if the label starts with that.
+        if (modulePart != null && label.startsWith(modulePart)) {
             return 1;
         }
-        if (label.startsWith(BALLERINA_MODULE_PREFIX)) {
+        if (label.startsWith(LANGLIB_MODULE_PREFIX)) {
             return 2;
         }
+        if (label.startsWith(BALLERINA_MODULE_PREFIX)) {
+            return 3;
+        }
 
-        return 3;
+        return 4;
     }
 
     private int rankOrgName(String label) {
@@ -266,7 +294,27 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
     }
 
     private ArrayList<LSCompletionItem> moduleNameContextCompletions(BallerinaCompletionContext context,
-                                                                     String orgName) {
+                                                                     ImportDeclarationNode node) {
+        String orgName = node.orgName().get().orgName().text();
+        List<TextEdit> additionalEdits = new ArrayList<>();
+        // If the module name contains a dot, we should replace what's before the last dot to make sure a part
+        // of the module name is not repeated.
+        if (node.moduleName().size() > 1) {
+            // There can be 2 cases:
+            // 1) orgName/mod.xx<cursor>
+            // 2) orgName/mod.<cursor>
+            IdentifierToken lastModeNamePart = node.moduleName().get(node.moduleName().size() - 1);
+            LinePosition startPos = node.orgName().get().lineRange().endLine();
+            LinePosition endPos = lastModeNamePart.lineRange().endLine();
+            if (!lastModeNamePart.isMissing()) {
+                // Case (2) above
+                endPos = lastModeNamePart.lineRange().startLine();
+            }
+            Range editRange = new Range(PositionUtil.toPosition(startPos), PositionUtil.toPosition(endPos));
+            TextEdit removeModNameEdit = new TextEdit(editRange, "");
+            additionalEdits.add(removeModNameEdit);
+        }
+        
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<String> addedPkgNames = new ArrayList<>();
         LanguageServerContext serverContext = context.languageServercontext();
@@ -285,7 +333,9 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                 }
                 addedPkgNames.add(packageName);
                 // Do not add the semi colon at the end of the insert text since the user might type the as keyword
-                completionItems.add(getImportCompletion(context, packageName, insertText));
+                LSCompletionItem completionItem = getImportCompletion(context, packageName, insertText);
+                completionItem.getCompletionItem().setAdditionalTextEdits(additionalEdits);
+                completionItems.add(completionItem);
             }
         });
 
@@ -351,9 +401,9 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
     }
 
     private enum ContextScope {
-        SCOPE1,
-        SCOPE2,
-        SCOPE3,
+        AS_KW,
+        MODULE_NAME,
+        ORG_NAME,
         OTHER
     }
 }

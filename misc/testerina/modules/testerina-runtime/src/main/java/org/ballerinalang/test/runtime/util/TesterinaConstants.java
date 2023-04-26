@@ -25,6 +25,7 @@ package org.ballerinalang.test.runtime.util;
  */
 public class TesterinaConstants {
 
+    public static final String DOT_REPLACER = "$0046";
     public static final String BALLERINA_SOURCE_ROOT = "ballerina.source.root";
     public static final String TESTERINA_TEMP_DIR = ".testerina";
     public static final String TESTERINA_TEST_SUITE = "test_suit.json";
@@ -33,10 +34,28 @@ public class TesterinaConstants {
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
 
     public static final String ORIGINAL_FUNC_NAME_PREFIX = "$ORIG_";
+    public static final String MOCK_FUNC_NAME_PREFIX = "$MOCK_";
 
     public static final String TARGET_DIR_NAME = "target";
 
     public static final String DOT = ".";
+
+    public static final String IGNORE_PATTERN = "!";
+
+    public static final String FULLY_QULAIFIED_MODULENAME_SEPRATOR = ".";
+
+    public static final String STANDALONE_SRC_PACKAGENAME = ".";
+
+    public static final String HYPHEN = "-";
+    public static final String PATH_SEPARATOR = "/";
+
+    public static final String RELATIVE_PATH_PREFIX = "./";
+    public static final String JAR_EXTENSION = ".jar";
+    public static final String CLASS_EXTENSION = ".class";
+    public static final String TESTABLE = "testable";
+    public static final String MODIFIED = "mod";
+    public static final String CACHE_DIR = "cache";
+    public static final String JAVA_11_DIR = "java11";
     public static final String ANON_ORG = "$anon";
     public static final String WILDCARD = "*";
 
@@ -76,4 +95,8 @@ public class TesterinaConstants {
 
     public static final String MOCK_FN_DELIMITER = "#";
     public static final String MOCK_LEGACY_DELIMITER = "~";
+
+    public static final int IDENTIFIER_START_INDEX = 1;
+    public static final int IDENTIFIER_END_INDEX = 5;
+
 }

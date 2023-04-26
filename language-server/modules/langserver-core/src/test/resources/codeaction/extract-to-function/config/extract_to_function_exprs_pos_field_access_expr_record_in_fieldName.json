@@ -4,6 +4,7 @@
     "character": 28
   },
   "source": "extract_to_function_exprs_field_access_expr.bal",
+  "description": "Extract to function for expressions, cursor inside the field name of the field access expression of Record",
   "expected": [
     {
       "title": "Extract to function",
@@ -36,8 +37,18 @@
           "newText": "extracted(nimal)"
         }
       ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_exprs_field_access_expr.bal",
+          {
+            "line": 22,
+            "character": 21
+          }
+        ]
+      },
       "resolvable": false
     }
-  ],
-  "description": "Extract to function for expressions, cursor inside the field name of the field access expression of Record"
+  ]
 }

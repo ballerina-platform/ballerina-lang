@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 1,
+    "character": 25
+  },
+  "source": "fixReturnTypeInMain1.bal",
+  "expected": [
+    {
+      "title": "Change return type to 'error?'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 22
+            },
+            "end": {
+              "line": 0,
+              "character": 22
+            }
+          },
+          "newText": " returns error?"
+        }
+      ]
+    }
+  ]
+}

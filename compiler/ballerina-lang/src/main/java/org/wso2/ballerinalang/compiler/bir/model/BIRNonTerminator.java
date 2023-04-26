@@ -245,24 +245,27 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public final PackageID externalPackageId;
         public BIRTypeDefinition def;
         public final String objectName;
+        public final BType expectedType;
 
-        public NewInstance(Location pos, BIRTypeDefinition def, BIROperand lhsOp) {
+        public NewInstance(Location pos, BIRTypeDefinition def, BIROperand lhsOp, BType expectedType) {
             super(pos, InstructionKind.NEW_INSTANCE);
             this.lhsOp = lhsOp;
             this.def = def;
             this.objectName = null;
             this.externalPackageId = null;
             this.isExternalDef = false;
+            this.expectedType = expectedType;
         }
 
         public NewInstance(Location pos, PackageID externalPackageId, String objectName,
-                           BIROperand lhsOp) {
+                           BIROperand lhsOp, BType expectedType) {
             super(pos, InstructionKind.NEW_INSTANCE);
             this.objectName = objectName;
             this.lhsOp = lhsOp;
             this.def = null;
             this.externalPackageId = externalPackageId;
             this.isExternalDef = true;
+            this.expectedType = expectedType;
         }
 
         @Override
@@ -284,6 +287,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      * @since 0.980.0
      */
     public static class NewArray extends BIRNonTerminator {
+        public BIROperand typedescOp;
         public BIROperand sizeOp;
         public BType type;
         public List<BIRListConstructorEntry> values;
@@ -297,6 +301,12 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.values = values;
         }
 
+        public NewArray(Location location, BType type, BIROperand lhsOp, BIROperand typedescOp, BIROperand sizeOp,
+                        List<BIRListConstructorEntry> values) {
+            this(location, type, lhsOp, sizeOp, values);
+            this.typedescOp = typedescOp;
+        }
+
         @Override
         public void accept(BIRVisitor visitor) {
             visitor.visit(this);
@@ -304,8 +314,14 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
 
         @Override
         public BIROperand[] getRhsOperands() {
-            BIROperand[] operands = new BIROperand[values.size() + 1];
             int i = 0;
+            BIROperand[] operands;
+            if (typedescOp != null) {
+                operands = new BIROperand[values.size() + 2];
+                operands[i++] = typedescOp;
+            } else {
+                operands = new BIROperand[values.size() + 1];
+            }
             operands[i++] = sizeOp;
             for (BIRListConstructorEntry listValueEntry : values) {
                 operands[i++] = listValueEntry.exprOp;
@@ -808,12 +824,19 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewTypeDesc extends BIRNonTerminator {
         public final List<BIROperand> closureVars;
         public BType type;
+        public BIROperand annotations;
 
         public NewTypeDesc(Location pos, BIROperand lhsOp, BType type, List<BIROperand> closureVars) {
             super(pos, InstructionKind.NEW_TYPEDESC);
             this.closureVars = closureVars;
             this.lhsOp = lhsOp;
             this.type = type;
+        }
+
+        public NewTypeDesc(Location pos, BIROperand lhsOp, BType type, List<BIROperand> closureVars,
+                           BIROperand annotations) {
+            this(pos, lhsOp, type, closureVars);
+            this.annotations = annotations;
         }
 
         @Override

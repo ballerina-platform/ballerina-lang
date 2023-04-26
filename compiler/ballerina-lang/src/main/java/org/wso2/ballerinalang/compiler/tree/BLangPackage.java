@@ -70,7 +70,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<TopLevelNode> topLevelNodes;
     public List<BLangTestablePackage> testablePkgs;
     public List<BLangClassDefinition> classDefinitions;
-    public List<BLangClientDeclaration> clientDeclarations;
 
     // Parser Flags and Data
     public List<BSymbol> objAttachedFunctions;
@@ -104,7 +103,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.typeDefinitions = new ArrayList<>();
         this.annotations = new ArrayList<>();
         this.classDefinitions = new ArrayList<>();
-        this.clientDeclarations = new ArrayList<>();
 
         this.objAttachedFunctions = new ArrayList<>();
         this.topLevelNodes = new ArrayList<>();
@@ -132,11 +130,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public List<BLangXMLNS> getNamespaceDeclarations() {
         return xmlnsList;
-    }
-
-    @Override
-    public List<BLangClientDeclaration> getClientDeclarations() {
-        return this.clientDeclarations;
     }
 
     @Override

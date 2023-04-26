@@ -26,7 +26,7 @@
               "character": 0
             }
           },
-          "newText": "table\u003cEmployee\u003e key(name) var1 \u003d table [\n    { name: \"John\", salary: 100 },\n    { name: \"Jane\", salary: 200 }\n];\n"
+          "newText": "table<Employee> key(name) var1 = table [\n    { name: \"John\", salary: 100 },\n    { name: \"Jane\", salary: 200 }\n];\n"
         },
         {
           "range": {
@@ -41,7 +41,19 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInTableConstructor.bal",
+          {
+            "line": 6,
+            "character": 30
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

@@ -31,7 +31,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
  */
 public class BErrorTypeSymbol extends BTypeSymbol {
 
-    public BErrorTypeSymbol(int symTag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
+    public BErrorTypeSymbol(long symTag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                             Location pos, SymbolOrigin origin) {
         super(symTag, flags, name, pkgID, type, owner, pos, origin);
         this.kind = SymbolKind.ERROR;

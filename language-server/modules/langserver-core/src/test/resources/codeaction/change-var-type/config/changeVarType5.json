@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 4,
+    "character": 23
+  },
+  "source": "changeVarType2.bal",
+  "expected": [
+    {
+      "title": "Change variable 'clientResponse' type to 'module1:Response|anydata'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 4,
+              "character": 4
+            },
+            "end": {
+              "line": 4,
+              "character": 5
+            }
+          },
+          "newText": "module1:Response|anydata"
+        }
+      ]
+    }
+  ]
+}

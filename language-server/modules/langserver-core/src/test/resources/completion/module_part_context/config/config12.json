@@ -9,7 +9,7 @@
       "label": "object",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "B",
+      "sortText": "D",
       "filterText": "object",
       "insertText": "object ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "class",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "B",
+      "sortText": "D",
       "filterText": "class",
       "insertText": "class ",
       "insertTextFormat": "Snippet"
@@ -27,7 +27,7 @@
       "label": "class",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "A",
+      "sortText": "B",
       "filterText": "class",
       "insertText": "class ${1:className} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"

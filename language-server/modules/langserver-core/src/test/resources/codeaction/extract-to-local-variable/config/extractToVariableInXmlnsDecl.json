@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "xml:Element var1 \u003d xml `\u003ceg:doc\u003eHello\u003c/eg:doc\u003e`;\n    "
+          "newText": "xml:Element var1 = xml `<eg:doc>Hello</eg:doc>`;\n    "
         },
         {
           "range": {
@@ -41,7 +41,19 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInXmlnsDecl.bal",
+          {
+            "line": 3,
+            "character": 12
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

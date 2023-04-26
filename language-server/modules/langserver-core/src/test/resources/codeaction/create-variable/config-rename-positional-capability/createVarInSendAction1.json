@@ -1,0 +1,84 @@
+{
+  "position": {
+    "line": 9,
+    "character": 11
+  },
+  "source": "createVarInSendAction1.bal",
+  "expected": [
+    {
+      "title": "Create variable and type guard",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 8
+            },
+            "end": {
+              "line": 9,
+              "character": 8
+            }
+          },
+          "newText": "error? unionResult = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 15
+            },
+            "end": {
+              "line": 9,
+              "character": 15
+            }
+          },
+          "newText": "\n        if unionResult is error {\n\n        }"
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVarInSendAction1.bal",
+          {
+            "line": 9,
+            "character": 15
+          }
+        ]
+      },
+      "resolvable": false
+    },
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 9,
+              "character": 8
+            },
+            "end": {
+              "line": 9,
+              "character": 8
+            }
+          },
+          "newText": "error? unionResult = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVarInSendAction1.bal",
+          {
+            "line": 9,
+            "character": 15
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

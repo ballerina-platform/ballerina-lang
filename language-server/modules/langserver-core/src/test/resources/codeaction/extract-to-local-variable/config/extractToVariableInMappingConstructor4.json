@@ -42,6 +42,17 @@
           "newText": "var1"
         }
       ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInMappingConstructor2.bal",
+          {
+            "line": 4,
+            "character": 30
+          }
+        ]
+      },
       "resolvable": false
     }
   ]

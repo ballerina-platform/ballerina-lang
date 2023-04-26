@@ -20,6 +20,13 @@
       "insertText": "[[platform.java11.dependency]]"
     },
     {
+      "label": "platform.java11.repository",
+      "kind": "Snippet",
+      "detail": "Table Array",
+      "sortText": "C",
+      "insertText": "[[platform.java11.repository]]"
+    },
+    {
       "label": "groupId",
       "kind": "Snippet",
       "detail": "String",

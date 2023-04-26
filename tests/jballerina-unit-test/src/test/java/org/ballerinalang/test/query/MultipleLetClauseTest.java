@@ -27,6 +27,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -97,14 +98,20 @@ public class MultipleLetClauseTest {
         Assert.assertEquals(teacher2.get(StringUtils.fromString("age")).toString(), "30");
     }
 
-    @Test
-    public void testQueryExpressionWithinLetClause() {
-        BRunUtil.invoke(result, "testQueryExpressionWithinLetClause");
+    @DataProvider(name = "functionNameProvider")
+    public Object[] getFuncNames() {
+        return new Object[] {
+                "testQueryExpressionWithinLetClause",
+                "testwildcardBindingPatternInLetClause",
+                "testQueryInLetClauseAsAClosure1",
+                "testQueryInLetClauseAsAClosure2",
+                "testQueryInLetClauseAsAClosure3"
+        };
     }
 
-    @Test
-    public void testwildcardBindingPatternInLetClause() {
-        BRunUtil.invoke(result, "testwildcardBindingPatternInLetClause");
+    @Test(dataProvider = "functionNameProvider")
+    public void testLetClauseInQueryExpressions(String funcName) {
+        BRunUtil.invoke(result, funcName);
     }
 
     @AfterClass
