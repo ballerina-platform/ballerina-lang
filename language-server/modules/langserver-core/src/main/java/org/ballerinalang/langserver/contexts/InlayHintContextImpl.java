@@ -25,7 +25,7 @@ import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 /**
  * Inlay hint context implementation.
  *
- * @since 2201.x.x
+ * @since 2201.7.0
  */
 public class InlayHintContextImpl extends AbstractDocumentServiceContext implements InlayHintContext {
     InlayHintContextImpl(LSOperation operation,

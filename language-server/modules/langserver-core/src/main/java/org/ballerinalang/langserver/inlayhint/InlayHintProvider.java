@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 /**
  * Represents the Inlay Hint Provider.
  *
- * @since 2201.x.x
+ * @since 2201.7.0
  */
 public class InlayHintProvider {
     public static List<InlayHint> getInlayHint(InlayHintContext context) {

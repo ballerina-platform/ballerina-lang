@@ -18,7 +18,7 @@ package org.ballerinalang.langserver.commons;
 /**
  * Represents the inlay hint context.
  *
- * @since 2201.x.x
+ * @since 2201.7.0
  */
 public interface InlayHintContext extends DocumentServiceContext {
 }
