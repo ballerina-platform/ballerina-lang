@@ -289,7 +289,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.regexp:0.0.0_  \n  \nReturns the first match of a regular expression within a string.\n\n```ballerina\nstring:RegExp r = re `World`;\nr.find(\"Not A Match\") is () ⇒ true\nr.find(\"Hello World\") is regexp:Span ⇒ true\nr.find(\"Hello World\", 7) is regexp:Span ⇒ true\n```\n  \n**Params**  \n- `string` str: the string in which to look for a match of `re`  \n- `int` startIndex: the index within `str` at which to start looking for a match(Defaultable)  \n  \n**Return** `regexp:Span?`   \n- a `Span` describing the match, or nil if no match was found  \n  \n"
+          "value": "**Package:** _ballerina/lang.regexp:0.0.0_  \n  \nReturns the first match of a regular expression within a string.\n\n```ballerina\nstring:RegExp r = re `World`;\nr.find(\"Not A Match\") is () ⇒ true\nr.find(\"Hello World\") is regexp:Span ⇒ true\nr.find(\"Hello World\", 6) is regexp:Span ⇒ true\n```\n  \n**Params**  \n- `string` str: the string in which to look for a match of `re`  \n- `int` startIndex: the index within `str` at which to start looking for a match(Defaultable)  \n  \n**Return** `regexp:Span?`   \n- a `Span` describing the match, or nil if no match was found  \n  \n"
         }
       },
       "sortText": "CD",
@@ -327,7 +327,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.regexp:0.0.0_  \n  \nReturns the `Groups` of all the matches of a regular expression within a string.\nAfter one match is found, it looks for the next match starting where the previous\nmatch ended, so the list of matches will be non-overlapping.\n\n```ballerina\nstring:RegExp r = re `(([a-z]u)(bble))`;\nr.findAllGroups(\"Not A Match\").length() ⇒ 0\nr.findAllGroups(\"rubble, trouble, bubble, hubble\").length() ⇒ 3\nr.findAllGroups(\"rubble, trouble, bubble, hubble\", 7) ⇒ 2\n```\n  \n**Params**  \n- `string` str: the string in which to look for matches of `re`  \n- `int` startIndex: the index within `str` at which to start looking for matches(Defaultable)  \n  \n**Return** `regexp:Groups[]`   \n- a list containing a `Group` for each match found  \n  \n"
+          "value": "**Package:** _ballerina/lang.regexp:0.0.0_  \n  \nReturns the `Groups` of all the matches of a regular expression within a string.\nAfter one match is found, it looks for the next match starting where the previous\nmatch ended, so the list of matches will be non-overlapping.\n\n```ballerina\nstring:RegExp r = re `(([a-z]u)(bble))`;\nr.findAllGroups(\"Not A Match\").length() ⇒ 0\nr.findAllGroups(\"rubble, trouble, bubble, hubble\").length() ⇒ 3\nr.findAllGroups(\"rubble, trouble, bubble, hubble\", 7).length() ⇒ 2\n```\n  \n**Params**  \n- `string` str: the string in which to look for matches of `re`  \n- `int` startIndex: the index within `str` at which to start looking for matches(Defaultable)  \n  \n**Return** `regexp:Groups[]`   \n- a list containing a `Group` for each match found  \n  \n"
         }
       },
       "sortText": "CD",

@@ -4,6 +4,7 @@
     "character": 16
   },
   "source": "field_access_expression_context/source/foreach_stmt_ctx_source18.bal",
+  "description": "",
   "items": [
     {
       "label": "foreach",
@@ -64,7 +65,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nAdds a member to a table.\n\nIt will be added as the last member.\nIt panics if parameter `val` has the same key as an existing member of parameter `t`,\nor if parameter `val` is inconsistent with the inherent type of `t`.\n  \n**Params**  \n- `Employee` val: the member"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nAdds a member to a table.\n\nIt will be added as the last member.\nIt panics if parameter `val` has the same key as an existing member of parameter `t`,\nor if parameter `val` is inconsistent with the inherent type of `t`.\n\n```ballerina\ntable<record {|int id; string name;|}> employees = table [\n    {id: 1, name: \"Jo\"},\n    {id: 2, name: \"Sam\"}\n];\nemployees.add({id: 1, name: \"Pat\"});\nemployees ⇒ [{\"id\":1,\"name\":\"Jo\"},{\"id\":2,\"name\":\"Sam\"},{\"id\":1,\"name\":\"Pat\"}]\ntable<record {|readonly int id; string name;|}> key(id) students = table [\n    {id: 1, name: \"Jo\"},\n    {id: 2, name: \"Sam\"}\n];\nstudents.add({id: 3, name: \"Pat\"});\nstudents ⇒ [{\"id\":1,\"name\":\"Jo\"},{\"id\":2,\"name\":\"Sam\"},{\"id\":3,\"name\":\"Pat\"}]\nstudents.add({id: 1, name: \"James\"}) ⇒ panic\ntable<record {readonly int id;}> key(id) studentIds = students;\nstudentIds.add({id: 7}) ⇒ panic\n```\n  \n**Params**  \n- `Employee` val: the member"
         }
       },
       "sortText": "CD",
@@ -83,7 +84,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nCombines the members of a table using a combining function.\n\nThe combining function takes the combined value so far and a member of the table,\nand returns a new combined value.\n  \n**Params**  \n- `function (table:Type accum, table:MapType val) returns table:Type` func: combining function  \n- `table:Type` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `table:Type`   \n- result of combining the members of parameter `t` using parameter `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nCombines the members of a table using a combining function.\n\nThe combining function takes the combined value so far and a member of the table,\nand returns a new combined value.\n\n```ballerina\ntable<record {int id; int salary;}> employees = table [\n    {id: 1, salary: 1200},\n    {id: 2, salary: 1100},\n    {id: 3, salary: 800}\n];\nemployees.reduce(isolated function (int total, record {int id; int salary;} next) returns int => total + next.salary, 0) ⇒ 3100\n```\n  \n**Params**  \n- `function (table:Type accum, table:MapType val) returns table:Type` func: combining function  \n- `table:Type` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `table:Type`   \n- result of combining the members of parameter `t` using parameter `func`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -102,7 +103,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function to each member of a table.\n\nThe parameter `func` is applied to each member of parameter `t`.\n  \n**Params**  \n- `function (table:MapType val) returns ()` func: a function to apply to each member"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function to each member of a table.\n\nThe parameter `func` is applied to each member of parameter `t`.\n\n```ballerina\ntable<record {|string name; int salary;|}> employees = table [\n    {name: \"Jo\", salary: 1200},\n    {name: \"Emma\", salary: 800}\n];\nint total = 0;\nemployees.forEach(function(record {|string name; int salary;|} emp) {\n    total += emp.salary;\n});\ntotal ⇒ 2000\n```\n  \n**Params**  \n- `function (table:MapType val) returns ()` func: a function to apply to each member"
         }
       },
       "sortText": "CD",
@@ -121,7 +122,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nAdds a member to a table value, replacing any member with the same key value.\n\nIf parameter `val` replaces an existing member, it will have the same position\nin the order of the members as the existing member;\notherwise, it will be added as the last member.\nIt panics if parameter `val` is inconsistent with the inherent type of parameter `t`.\n  \n**Params**  \n- `Employee` val: the member"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nAdds a member to a table value, replacing any member with the same key value.\n\nIf parameter `val` replaces an existing member, it will have the same position\nin the order of the members as the existing member;\notherwise, it will be added as the last member.\nIt panics if parameter `val` is inconsistent with the inherent type of parameter `t`.\n\n```ballerina\ntable<record {|int id; string name;|}> employees = table [\n    {id: 1, name: \"Jo\"},\n    {id: 2, name: \"Sam\"}\n];\nemployees.put({id: 1, name: \"Pat\"});\nemployees ⇒ [{\"id\":1,\"name\":\"Jo\"},{\"id\":2,\"name\":\"Sam\"},{\"id\":1,\"name\":\"Pat\"}]\ntable<record {|readonly int id; string name;|}> key(id) students = table [\n    {id: 1, name: \"Jo\"},\n    {id: 2, name: \"Sam\"}\n];\nstudents.put({id: 3, name: \"Pat\"});\nstudents ⇒ [{\"id\":1,\"name\":\"Jo\"},{\"id\":2,\"name\":\"Sam\"},{\"id\":3,\"name\":\"Pat\"}]\nstudents.put({id: 1, name: \"Kane\"});\nstudents ⇒ [{\"id\":1,\"name\":\"Kane\"},{\"id\":2,\"name\":\"Sam\"},{\"id\":3,\"name\":\"Pat\"}]\ntable<record {readonly int id;}> key(id) studentIds = students;\nstudentIds.put({id: 7}) ⇒ panic\n```\n  \n**Params**  \n- `Employee` val: the member"
         }
       },
       "sortText": "CD",
@@ -140,7 +141,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen parameter `v` is a structural value, the inherent type of the value to be constructed\ncomes from parameter `t`. When parameter `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `cloneWithType` operation is recursively applied to each member of parameter `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable.\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members\n  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Return** `t|error`   \n- a new value that belongs to parameter `t`, or an error if this cannot be done  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConstructs a value with a specified type by cloning another value.\n\nWhen parameter `v` is a structural value, the inherent type of the value to be constructed\ncomes from parameter `t`. When parameter `t` is a union, it must be possible to determine which\nmember of the union to use for the inherent type by following the same rules\nthat are used by list constructor expressions and mapping constructor expressions\nwith the contextually expected type. If not, then an error is returned.\nThe `cloneWithType` operation is recursively applied to each member of parameter `v` using\nthe type descriptor that the inherent type requires for that member.\n\nLike the Clone abstract operation, this does a deep copy, but differs in\nthe following respects:\n- the inherent type of any structural values constructed comes from the specified\ntype descriptor rather than the value being constructed\n- the read-only bit of values and fields comes from the specified type descriptor\n- the graph structure of `v` is not preserved; the result will always be a tree;\nan error will be returned if `v` has cycles\n- immutable structural values are copied rather being returned as is; all\nstructural values in the result will be mutable.\n- numeric values can be converted using the NumericConvert abstract operation\n- if a record type descriptor specifies default values, these will be used\nto supply any missing members\n\n```ballerina\nanydata[] arr = [1, 2, 3, 4];\nint[] intArray = check arr.cloneWithType();\nintArray ⇒ [1,2,3,4]\narr === intArray ⇒ false\ntype Vowels string:Char[];\nstring[] vowels = [\"a\", \"e\", \"i\", \"o\", \"u\"];\nvowels.cloneWithType(Vowels) ⇒ [\"a\",\"e\",\"i\",\"o\",\"u\"]\nvowels.cloneWithType(string) ⇒ error\n```\n  \n**Params**  \n- `typedesc<anydata>` t: the type for the cloned to be constructed(Defaultable)  \n  \n**Return** `t|error`   \n- a new value that belongs to parameter `t`, or an error if this cannot be done  \n  \n"
         }
       },
       "sortText": "CD",
@@ -159,7 +160,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n\n```ballerina\njson student = {name: \"Jo\", subjects: [\"CS1212\", \"CS2021\"]};\njson[] subjects = check student.subjects.ensureType();\nsubjects ⇒ [\"CS1212\",\"CS2021\"]\nanydata vowel = \"I\";\nvowel.ensureType(string:Char) ⇒ I;\nvowel.ensureType(int) ⇒ error\n```\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
         }
       },
       "sortText": "CD",
@@ -178,7 +179,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function to each member of a table and returns a table of the result.\n  \n**Params**  \n- `function (table:MapType val) returns table:MapType1` func: a function to apply to each member  \n  \n**Return** `table<table:MapType1> key<never>`   \n- new table containing result of applying parameter `func` to each member  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nApplies a function to each member of a table and returns a table of the result.\n\n```ballerina\ntable<record {|int id; int math; int physics;|}> students = table [\n    {id: 1, math: 78, physics: 70},\n    {id: 2, math: 83, physics: 80}\n];\nstudents.map(student => {id: student.id, avg: (student.math + student.physics) / 2}) ⇒ [{\"id\":1,\"avg\":74},{\"id\":2,\"avg\":81}]\n```\n  \n**Params**  \n- `function (table:MapType val) returns table:MapType1` func: a function to apply to each member  \n  \n**Return** `table<table:MapType1> key<never>`   \n- new table containing result of applying parameter `func` to each member  \n  \n"
         }
       },
       "sortText": "CD",
@@ -197,7 +198,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nReturns number of members of a table.\n  \n  \n  \n**Return** `int`   \n- number of members in parameter `t`  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nReturns number of members of a table.\n\n```ballerina\ntable<record {|string name;|}> students = table [\n    {name: \"Jo\"},\n    {name: \"Smith\"}\n];\nstudents.length() ⇒ 2\n```\n  \n  \n  \n**Return** `int`   \n- number of members in parameter `t`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -212,7 +213,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nReturns an iterator over a table.\n\nThe iterator will iterate over the members of the table not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|Employee value;|}?;}`   \n- a new iterator object that will iterate over the members of parameter `t`  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nReturns an iterator over a table.\n\nThe iterator will iterate over the members of the table not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n\n```ballerina\nobject {\n    public isolated function next() returns record {|record {|string name;|} value;|}?;\n} iterator = table [\n    {name: \"Jo\"},\n    {name: \"Smith\"}\n].iterator();\niterator.next() ⇒ {\"value\":{\"name\":\"Jo\"}}\n```\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|Employee value;|}?;}`   \n- a new iterator object that will iterate over the members of parameter `t`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -227,7 +228,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nRemoves all members of a table.\n\nThis panics if any member cannot be removed.\n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nRemoves all members of a table.\n\nThis panics if any member cannot be removed.\n\n```ballerina\ntable<record {|string name;|}> students = table [\n    {name: \"Jo\"},\n    {name: \"Sam\"}\n];\nstudents.removeAll() is () ⇒ true\nstudents ⇒ []\ntable<record {|int score;|}> scores = <readonly> table [\n    {score: 30},\n    {score: 40}\n];\nscores.removeAll() ⇒ panic\n```\n  \n"
         }
       },
       "sortText": "CD",
@@ -242,7 +243,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nReturns a list of all the members of a table.\n  \n  \n  \n**Return** `Employee[]`   \n- an array whose members are the members of parameter `t`  \n  \n"
+          "value": "**Package:** _ballerina/lang.table:0.0.0_  \n  \nReturns a list of all the members of a table.\n\n```ballerina\ntable [\n    {code: \"CAN\", name: \"Canada\"},\n    {code: \"DNK\", name: \"Denmark\"},\n    {code: \"NPL\", name: \"Nepal\"}\n].toArray() ⇒ [{\"code\":\"CAN\",\"name\":\"Canada\"},{\"code\":\"DNK\",\"name\":\"Denmark\"},{\"code\":\"NPL\",\"name\":\"Nepal\"}]\n```\n  \n  \n  \n**Return** `Employee[]`   \n- an array whose members are the members of parameter `t`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -257,7 +258,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value that is read-only, i.e., immutable.\n\nIt corresponds to the ImmutableClone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n\n```ballerina\nint[] arr = [1, 2, 3, 4];\nint[] & readonly immutableClone = arr.cloneReadOnly();\nimmutableClone ⇒ [1,2,3,4]\nimmutableClone is readonly ⇒ true \n```\n  \n  \n  \n**Return** `value:CloneableType & readonly`   \n- immutable clone of parameter `v`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -272,7 +273,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n\n```ballerina\ndecimal value = 12.12d;\nvalue.toBalString() ⇒ 12.12d\nanydata[] data = [1, \"Sam\", 12.3f, 12.12d, {value: 12}];\ndata.toBalString() ⇒ [1,\"Sam\",12.3,12.12d,{\"value\":12}]\n```\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
       "sortText": "CD",
@@ -287,7 +288,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value of type `anydata` to `json`.\n\nThis does a deep copy of parameter `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\nThis panics if parameter `v` has cycles.\n  \n  \n  \n**Return** `json`   \n- representation of `v` as value of type json  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value of type `anydata` to `json`.\n\nThis does a deep copy of parameter `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\nThis panics if parameter `v` has cycles.\n\n```ballerina\nanydata student = {name: \"Jo\", age: 11};\nstudent.toJson() ⇒ {\"name\":\"Jo\",\"age\":11}\nanydata[] array = [];\narray.push(array);\narray.toJson() ⇒ panic\n```\n  \n  \n  \n**Return** `json`   \n- representation of `v` as value of type json  \n  \n"
         }
       },
       "sortText": "CD",
@@ -302,7 +303,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nTests whether a value is read-only, i.e., immutable.\n\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Return** `boolean`   \n- true if read-only, false otherwise  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nTests whether a value is read-only, i.e., immutable.\n\nReturns true if read-only, false otherwise.\n\n```ballerina\nint[] scores = <readonly> [21, 12, 33, 45, 81];\nscores.isReadOnly() ⇒ true\nstring[] sports = [\"cricket\", \"football\", \"rugby\"];\nsports.isReadOnly() ⇒ false\n```\n  \n  \n  \n**Return** `boolean`   \n- true if read-only, false otherwise  \n  \n"
         }
       },
       "sortText": "CD",
@@ -317,7 +318,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns a clone of a value.\n\nA clone is a deep copy that does not copy immutable subtrees.\nA clone can therefore safely be used concurrently with the original.\nIt corresponds to the Clone(v) abstract operation,\ndefined in the Ballerina Language Specification.\n\n```ballerina\nint[] arr = [1, 2, 3, 4];\nint[] clone = arr.clone();\nclone ⇒ [1,2,3,4]\narr === clone ⇒ false\n```\n  \n  \n  \n**Return** `value:CloneableType`   \n- clone of parameter `v`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -332,7 +333,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n\n```ballerina\ndecimal value = 12.12d;\nvalue.toString() ⇒ 12.12\nanydata[] data = [1, \"Sam\", 12.3f, 12.12d, {value: 12}];\ndata.toString() ⇒ [1,\"Sam\",12.3,12.12,{\"value\":12}]\n```\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
       "sortText": "CD",
@@ -347,7 +348,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the string that represents a anydata value in JSON format.\n\nparameter `v` is first converted to `json` as if by the function `toJson`.\n  \n  \n  \n**Return** `string`   \n- string representation of parameter `v` converted to `json`  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the string that represents a anydata value in JSON format.\n\nparameter `v` is first converted to `json` as if by the function `toJson`.\n\n```ballerina\nanydata marks = {\"Alice\": 90, \"Bob\": 85, \"Jo\": 91};\nmarks.toJsonString() ⇒ {\"Alice\":90, \"Bob\":85, \"Jo\":91}\n```\n  \n  \n  \n**Return** `string`   \n- string representation of parameter `v` converted to `json`  \n  \n"
         }
       },
       "sortText": "CD",
