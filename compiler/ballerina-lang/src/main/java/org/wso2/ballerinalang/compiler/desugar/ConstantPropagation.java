@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
@@ -973,6 +974,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangSelectClause selectClause) {
         selectClause.expression = rewrite(selectClause.expression);
         result = selectClause;
+    }
+
+    @Override
+    public void visit(BLangCollectClause collectClause) {
+        collectClause.expression = rewrite(collectClause.expression);
+        result = collectClause;
     }
 
     @Override

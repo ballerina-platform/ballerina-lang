@@ -169,15 +169,21 @@ public class QueryTypeChecker extends TypeChecker {
             data.prevEnvs.push(data.env);
         }
 
-        commonAnalyzerData.queryFinalClauses.push(queryExpr.getSelectClause());
+        BLangNode finalClause = queryExpr.getFinalClause();
+        commonAnalyzerData.queryFinalClauses.push(finalClause);
         data.queryVariables = new HashSet<>();
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         clauses.forEach(clause -> clause.accept(this, data));
         data.queryVariables.clear();
 
-        BType actualType = resolveQueryType(commonAnalyzerData.queryEnvs.peek(),
-                ((BLangSelectClause) commonAnalyzerData.queryFinalClauses.peek()).expression,
-                data.expType, queryExpr, clauses, data);
+        BType actualType;
+        if (finalClause.getKind() == NodeKind.SELECT) {
+            actualType = resolveQueryType(commonAnalyzerData.queryEnvs.peek(),
+                    ((BLangSelectClause) finalClause).expression, data.expType, queryExpr, clauses, data);
+        } else {
+            actualType = checkExpr(((BLangCollectClause) finalClause).expression, commonAnalyzerData.queryEnvs.peek(),
+                    data);
+        }
         actualType = (actualType == symTable.semanticError) ? actualType : types.checkType(queryExpr.pos,
                 actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         commonAnalyzerData.queryFinalClauses.pop();
@@ -736,6 +742,23 @@ public class QueryTypeChecker extends TypeChecker {
     }
 
     @Override
+    public void visit(BLangCollectClause collectClause, TypeChecker.AnalyzerData data) {
+        Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
+        SymbolEnv collectEnv = SymbolEnv.createTypeNarrowedEnv(collectClause, commonAnalyzerData.queryEnvs.pop());
+        collectClause.env = collectEnv;
+        commonAnalyzerData.queryEnvs.push(collectEnv);
+        
+        collectClause.nonGroupingKeys = new HashSet<>(data.queryVariables);
+        for (String var : collectClause.nonGroupingKeys) {
+            Name name = new Name(var);
+            BSymbol originalSymbol = symResolver.lookupSymbolInMainSpace(collectEnv, name);
+            BSequenceSymbol sequenceSymbol = new BSequenceSymbol(originalSymbol.flags, name, originalSymbol.pkgID,
+                    new BSequenceType(originalSymbol.getType()), originalSymbol.owner, originalSymbol.pos);
+            collectEnv.scope.define(name, sequenceSymbol);
+        }
+    }
+
+    @Override
     public void visit(BLangDoClause doClause, TypeChecker.AnalyzerData data) {
         Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
         SymbolEnv letEnv = SymbolEnv.createTypeNarrowedEnv(doClause, commonAnalyzerData.queryEnvs.pop());
@@ -1050,7 +1073,7 @@ public class QueryTypeChecker extends TypeChecker {
             if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BType type = silentTypeCheckExpr(expr, symTable.noType, data);
                 if (type.tag == TypeTags.SEQUENCE) {
-                    // TODO: There is another type of doing this
+                    // TODO: There is another way of doing this
                     // First check the expr with expType = noType
                     // Use the result type to generate the type of list-ctr
                     // Then check the expType is an array or tuple

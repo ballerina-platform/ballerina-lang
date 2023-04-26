@@ -27,6 +27,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Implementation of "collect" clause statement.
  *
@@ -40,12 +43,15 @@ public class BLangCollectClause extends BLangNode implements CollectClauseNode {
     // Semantic Data
     public SymbolEnv env;
 
+    // Non grouping keys are used to generate aggregated variables
+    public Set<String> nonGroupingKeys = new HashSet<>();
+
     public BLangCollectClause() {
     }
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.SELECT;
+        return NodeKind.COLLECT;
     }
 
     @Override
