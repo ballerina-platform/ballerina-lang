@@ -36,6 +36,9 @@ public class InlayHintContextImpl extends AbstractDocumentServiceContext impleme
         super(operation, fileUri, wsManager, serverContext, cancelChecker);
     }
 
+    /**
+     * Represents the inlay hint context Builder.
+     */
     public static class InlayHintContextBuilder extends AbstractContextBuilder<InlayHintContextBuilder> {
         public InlayHintContextBuilder(LanguageServerContext serverContext) {
             super(LSContextOperation.TXT_INLAY_HINT, serverContext);

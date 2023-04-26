@@ -154,6 +154,9 @@ public class InlayHintProvider {
         return parameterSymbols;
     }
 
+    /**
+     * Visitor to find function call and method call expression nodes.
+     */
     public static class InlayHintMethodTypeFinder extends NodeVisitor {
         List<NonTerminalNode> methodNameList = new ArrayList<>();
 
@@ -175,6 +178,9 @@ public class InlayHintProvider {
         }
     }
 
+    /**
+     * Visitor to find argument list and comma list of a function call or method call expression node.
+     */
     public static class InlayHintArgumentTypeFinder extends NodeVisitor {
         List<NonTerminalNode> argumentList = new ArrayList<>();
 
