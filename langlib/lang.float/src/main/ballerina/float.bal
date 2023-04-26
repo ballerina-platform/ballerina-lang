@@ -655,6 +655,7 @@ public isolated function toExpString(float x, int? fractionDigits) returns strin
 
 # Returns the average of its arguments.
 # Return NaN if there are no arguments,
+#
 # ```ballerina
 # float:avg(2, 2) ⇒ 2.0
 # ```

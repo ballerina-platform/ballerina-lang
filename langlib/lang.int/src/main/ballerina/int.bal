@@ -247,7 +247,6 @@ public isolated function range(int rangeStart, int rangeEnd, int step) returns o
 }
 
 # Returns the average of its arguments.
-# The result is returned as a decimal.
 #
 # ```ballerina
 # int:avg(10, 20, 30, 40) ⇒ 25.0

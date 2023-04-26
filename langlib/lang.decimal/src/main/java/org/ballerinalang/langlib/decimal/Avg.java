@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BDecimal;
 /**
  * Native implementation of lang.decimal:avg(decimal, decimal...).
  *
- * @since 2201.5.0
+ * @since 2201.6.0
  */
 public class Avg {
     public static BDecimal avg(BDecimal n, BDecimal[] ns) {

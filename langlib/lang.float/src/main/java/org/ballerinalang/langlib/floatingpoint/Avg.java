@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.floatingpoint;
 /**
  * Native implementation of lang.float:avg(float...).
  *
- * @since 2201.5.0
+ * @since 2201.6.0
  */
 public class Avg {
     public static double avg(double[] ns) {
