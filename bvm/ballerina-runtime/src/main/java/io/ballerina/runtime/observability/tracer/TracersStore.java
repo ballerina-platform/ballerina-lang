@@ -17,6 +17,8 @@
  */
 package io.ballerina.runtime.observability.tracer;
 
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.observability.tracer.spi.TracerProvider;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.propagation.ContextPropagators;
@@ -58,6 +60,10 @@ public class TracersStore {
      * @return trace implementations i.e: zipkin, jaeger
      */
     public Tracer getTracer(String serviceName) {
+        if (!isInitialized()) {
+            throw ErrorCreator.createError(StringUtils.fromString("error: tracer store is not initialized " +
+                    "due to observability has not been enabled"));
+        }
         Tracer tracer;
         if (store.containsKey(serviceName)) {
             tracer = store.get(serviceName);
