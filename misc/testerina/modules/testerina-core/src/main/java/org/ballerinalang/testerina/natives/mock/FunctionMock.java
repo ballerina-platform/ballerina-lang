@@ -12,6 +12,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.values.MapValueImpl;
+import org.ballerinalang.test.runtime.util.TesterinaUtils;
 import org.ballerinalang.testerina.natives.Executor;
 
 import java.lang.reflect.Method;
@@ -61,7 +62,8 @@ public class FunctionMock {
                 Object returnVal = MockRegistry.getInstance().getReturnValue(caseId);
                 if (returnVal instanceof BString) {
                     if (returnVal.toString().contains(MockConstants.FUNCTION_CALL_PLACEHOLDER)) {
-                        return callMockFunction(originalFunction, originalFunctionPackage,
+                        return callMockFunction(originalFunction.replaceAll("\\\\(.)", "$1"),
+                                originalFunctionPackage,
                                 mockFunctionClasses,
                                 returnVal.toString(), args);
                     } else if (returnVal.toString().equals(MockConstants.FUNCTION_CALLORIGINAL_PLACEHOLDER)) {
@@ -249,7 +251,7 @@ public class FunctionMock {
         Class<?> clazz = classLoader.loadClass(className);
 
         for (Method method : clazz.getDeclaredMethods()) {
-            if (methodName.equals(method.getName())) {
+            if (methodName.equals(TesterinaUtils.decodeIdentifier(method.getName()))) {
                 return method;
             }
         }

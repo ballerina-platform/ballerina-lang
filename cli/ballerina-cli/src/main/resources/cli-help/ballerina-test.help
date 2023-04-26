@@ -2,7 +2,7 @@ NAME
        ballerina-test - Run package tests
 
 SYNOPSIS
-       bal test [OPTIONS] [<package>|<source-file>]
+       bal test [OPTIONS] [<package>|<source-file>] [(-Ckey=value)...]
                
 
 DESCRIPTION
@@ -88,6 +88,11 @@ OPTIONS
             see https://ballerina.io/learn/test-ballerina-code/execute-tests/#generate-test-report-and-code-coverage.
 
 
+ARGUMENTS
+       (-Ckey=value)...
+           The list of configurable variables for the Ballerina program.
+
+
 EXAMPLES
        Run all the test functions in the current package.
            $ bal test
@@ -142,3 +147,6 @@ EXAMPLES
        Run the tests with the code coverage with directories excludes from coverage
        calculation with '**' and '*'.
            $ bal test --code-coverage --excludes=<source_path1/**>,<source_path2/*>
+
+       Run the test functions with values provided for configurable variables:
+           $ bal test -Cval1=add -Cval2=10 -Cval3=5

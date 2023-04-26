@@ -363,7 +363,7 @@ public class LangLibValueTest {
                 "testCloneWithTypeDecimalToIntSubType", "testCloneWithTypeTupleToJSON",
                 "testCloneWithTypeImmutableStructuredTypes", "testCloneWithTypeWithFiniteArrayTypeFromIntArray",
                 "testCloneWithTypeWithFiniteType", "testCloneWithTypeWithUnionOfFiniteType",
-                "testCloneWithTypeWithFiniteArrayTypeFromIntArray",
+                "testCloneWithTypeWithFiniteArrayTypeFromIntArray", "testCloneWithTypeToArrays",
                 "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray",
                 "testCloneWithTypeWithUnionTypeArrayFromIntArray",
                 "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative", "testConvertJsonToNestedRecordsWithErrors",
