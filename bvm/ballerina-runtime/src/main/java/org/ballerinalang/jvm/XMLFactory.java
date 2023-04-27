@@ -24,7 +24,6 @@ import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.util.StAXParserConfiguration;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.XMLComment;
 import org.ballerinalang.jvm.values.XMLItem;
@@ -76,10 +75,8 @@ public class XMLFactory {
 
             XMLTreeBuilder treeBuilder = new XMLTreeBuilder(xmlStr);
             return treeBuilder.parse();
-        } catch (ErrorValue e) {
-            throw e;
         } catch (Throwable e) {
-            throw BallerinaErrors.createError("failed to parse xml: " + e.getMessage());
+            throw BallerinaErrors.createError(StringUtils.fromString("failed to parse xml: " + e.getMessage()));
         }
     }
 
