@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
+import com.ctc.wstx.api.WstxOutputProperties;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLComment;
 import org.ballerinalang.jvm.values.XMLItem;
@@ -51,30 +52,20 @@ import javax.xml.stream.XMLStreamWriter;
 public class BallerinaXMLSerializer extends OutputStream {
     private static final XMLOutputFactory xmlOutputFactory;
     private static final String XMLNS = "xmlns";
-    private static final String XML_NAME_SPACE = "http://www.w3.org/XML/1998/namespace";
     private static final String EMPTY_STR = "";
-    private static final String PARSE_XML_OP = "parse xml";
-    private static final String XML = "xml";
+    public static final String PARSE_XML_OP = "parse xml";
+    public static final String XML = "xml";
     private static final String XML_NS_URI_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
-    private static final String OUTPUT_VALIDATE_PROPERTY = "com.ctc.wstx.outputValidateStructure";
-    private static final String OUTPUT_FACTORY = "com.ctc.wstx.stax.WstxOutputFactory";
-    private static final String AUTOMATIC_END_ELEMENTS = "com.ctc.wstx.automaticEndElements";
+    private static final String XML_NAME_SPACE = "http://www.w3.org/XML/1998/namespace";
 
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
     private int nsNumber;
     private boolean withinElement;
-    private static boolean isDefaultFactory = false;
 
     static {
         xmlOutputFactory = XMLOutputFactory.newInstance();
-        if (xmlOutputFactory.getClass().getName().equals(OUTPUT_FACTORY)) {
-            xmlOutputFactory.setProperty(OUTPUT_VALIDATE_PROPERTY, false);
-            xmlOutputFactory.setProperty(AUTOMATIC_END_ELEMENTS, false);
-        } else {
-            xmlOutputFactory.setProperty("escapeCharacters", false);
-            isDefaultFactory = true;
-        }
+        xmlOutputFactory.setProperty(WstxOutputProperties.P_OUTPUT_VALIDATE_STRUCTURE, false);
     }
 
     public BallerinaXMLSerializer(OutputStream outputStream) {
@@ -149,7 +140,7 @@ public class BallerinaXMLSerializer extends OutputStream {
     private void writeXMLText(XMLText xmlValue) throws XMLStreamException {
         // No need to escape xml text when they are within xml element or if it is not from default stream writer.
         // It's handled by xml stream  writer.
-        if (this.withinElement && !isDefaultFactory) {
+        if (this.withinElement) {
             String textValue = xmlValue.getTextValue();
             if (!textValue.isEmpty()) {
                 xmlStreamWriter.writeCharacters(textValue);
