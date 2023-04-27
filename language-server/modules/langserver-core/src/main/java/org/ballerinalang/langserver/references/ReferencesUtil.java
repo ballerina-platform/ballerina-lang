@@ -17,18 +17,12 @@ package org.ballerinalang.langserver.references;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
-import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
-import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
@@ -43,7 +37,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Utility class for go to definition functionality of language server.
@@ -104,31 +97,12 @@ public class ReferencesUtil {
         Range range = PositionUtil.getRangeFromLineRange(location.lineRange());
         Optional<NonTerminalNode> node = context.workspace().syntaxTree(filePath)
                 .map(syntaxTree -> CommonUtil.findNode(range, syntaxTree));
-        if (node.isEmpty() || node.get().kind() != SyntaxKind.REQUIRED_PARAM) {
+        if (node.isEmpty()) {
             return Collections.emptyList();
         }
 
-        Optional<SemanticModel> semanticModel = context.workspace().semanticModel(filePath);
-        Optional<FunctionDefinitionNode> fnDefNode = CodeActionUtil.getEnclosedFunction(node.get());
-        if (fnDefNode.isEmpty()) {
-            return Collections.emptyList();
-        }
-        
-        Optional<Node> documentationNode = fnDefNode.get().metadata()
-                .flatMap(metadataNode -> metadataNode.documentationString());
-        if (documentationNode.isEmpty() || documentationNode.get().kind() != SyntaxKind.MARKDOWN_DOCUMENTATION) {
-            return Collections.emptyList();
-        }
-
-        MarkdownDocumentationNode mdNode = (MarkdownDocumentationNode) documentationNode.get();
-        List<Location> paramLocations = mdNode.documentationLines().stream()
-                .filter(line -> line.kind() == SyntaxKind.MARKDOWN_PARAMETER_DOCUMENTATION_LINE)
-                .map(line -> (MarkdownParameterDocumentationLineNode) line)
-                .map(line -> line.parameterName())
-                .filter(token -> token.text().equals(symbol.getName().get()))
-                .map(paramToken -> paramToken.location())
-                .collect(Collectors.toList());
-        return paramLocations;
+        DocumentationReferenceFinder finder = new DocumentationReferenceFinder(symbol);
+        return node.get().apply(finder);
     }
     
     /**
