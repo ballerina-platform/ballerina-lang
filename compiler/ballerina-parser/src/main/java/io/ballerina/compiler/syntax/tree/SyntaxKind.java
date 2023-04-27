@@ -106,7 +106,7 @@ public enum SyntaxKind {
     UNDERSCORE_KEYWORD(252, "_"),
     NOT_IS_KEYWORD(253, "!is"),
     GROUP_KEYWORD(254, "group"),
-    COLLECT_KEYWORD(255, "group"),
+    COLLECT_KEYWORD(255, "collect"),
 
     // Type keywords
     INT_KEYWORD(300, "int"),

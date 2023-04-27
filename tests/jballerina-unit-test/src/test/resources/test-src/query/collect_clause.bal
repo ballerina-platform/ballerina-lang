@@ -14,12 +14,74 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// unction testIncompatibleQueryResultType1() {
-//     int x1 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
-//                 collect [x]; // error
-//     string[] x2 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
-//                     collect [x]; // error
-// }
+function testListConstructor() {
+    int[] x1 = from var {x} in [{"x": 2, "y": 3}, {"x": 4, "y": 5}]
+                collect [x];
+    assertEquality([2, 4], x1);
+    string[] x2 = from var {x} in [{"x": "2", "y": "3"}, {"x": "4", "y": "5"}]
+                    collect [x];
+    assertEquality(["2", "4"], x2);
+    int[] x3 = from var {x} in [{"x": 2, "y": 3}, {"x": 4, "y": 5}]
+                where x == 2
+                collect [x];
+    assertEquality([2], x3);
+    int[][] x4 = from var {x} in [{"x": 2, "y": 3}, {"x": 4, "y": 5}]
+                    collect [[x]];
+    assertEquality([[2, 4]], x4);
+    var x5 = from var {x} in [{"x": 2, "y": 3}, {"x": 4, "y": 5}]
+                collect [x];
+    assertEquality([2, 4], x5);
+    var x6 = from var {x, y} in [{"x": 2, "y": 3}, {"x": 4, "y": 5}]
+                collect [...[x], ...[y]];
+    assertEquality([2, 4, 3, 5], x6);
+    var x7 = from var {x, y} in [{"x": 2, "y": 3}, {"x": 4, "y": 5}, {"x": 6, "y": 7}]
+                collect [x].length();
+    assertEquality(3, x7);
+    var x8 = from var {x, y} in [{"x": 2, "y": 3}, {"x": 4, "y": 5}, {"x": 6, "y": 7}]
+                collect [x].filter(n => n > 2);
+    assertEquality([4, 6], x8);    
+    var x9 = from var {x, y} in [{"x": 2, "y": 3}, {"x": 4, "y": 5}, {"x": 6, "y": 7}]
+                collect [x].some(n => n > 2);
+    assertEquality(true, x9);
+    string[] x10 = from var {x} in [{"x": "2", "y": "3"}, {"x": "4", "y": "5"}, {"x": "2", "y": "3"}]
+                    collect [x];
+    assertEquality(["2", "4", "2"], x10);    
+    var x11 = from var {x, y} in [{"x": 2, "y": 3}, {"x": 4, "y": 5}]
+                let var sum = x + y
+                collect [sum];
+    assertEquality([5, 9], x11);    
+    var x12 = from var {x, y} in [{"x": 2, "y": 3}, {"x": 4, "y": 5}]
+                let var sum = x + y
+                collect [...[sum], ...[x]];
+    assertEquality([5, 9, 2, 4], x12);
+}
+
+function testInvocation() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 15, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 9, price2: 12},
+                    {name: "Kamal", price1: 13, price2: 9},
+                    {name: "Amal", price1: 30, price2: 13}];
+    var x1 = from var {name, price1} in input
+                collect int:sum(price1);
+    assertEquality(88, x1);
+    var x2 = from var {name, price1, price2} in input
+                collect int:sum(price1) + int:sum(price2);
+    assertEquality(158, x2);
+    var x3 = from var {name, price1} in input
+                collect sum(price1);
+    assertEquality(88, x3);
+    record { int sum; } x4 = from var {name, price1} in input
+                collect {"sum": sum(price1)};
+    assertEquality({"sum": 88}, x4);
+    var x5 = from var {name, price1} in input
+                collect {"sum": sum(price1)};
+    assertEquality({"sum": 88}, x5);
+    var x6 = from var {name, price1, price2} in input
+                collect {"sum": sum(price1) + sum(price2)};
+    assertEquality({"sum": 158}, x6);
+}
 
 // function testIncompatibleQueryResultType2() {
 //     string x1 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
@@ -103,3 +165,12 @@
 //     int _ = from var {salary} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
 //                 collect foo(salary, 2); // error
 // }
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}
+
+// TODO: let clause, where clause, group by clause ...

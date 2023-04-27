@@ -33,7 +33,7 @@ import java.util.Set;
 /**
  * Implementation of "collect" clause statement.
  *
- * @since 2201.5.0
+ * @since 2201.6.0
  */
 public class BLangCollectClause extends BLangNode implements CollectClauseNode {
 

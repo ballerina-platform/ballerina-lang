@@ -21,6 +21,11 @@ import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
 
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 2201.6.0
+ */
 public class CollectClauseNode extends ClauseNode {
 
     public CollectClauseNode(STNode internalNode, int position, NonTerminalNode parent) {

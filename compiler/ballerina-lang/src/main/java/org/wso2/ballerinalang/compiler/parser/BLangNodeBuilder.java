@@ -3922,10 +3922,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangNode transform(CollectClauseNode selectClauseNode) {
+    public BLangNode transform(CollectClauseNode collectClauseNode) {
         BLangCollectClause collectClause = (BLangCollectClause) TreeBuilder.createCollectClauseNode();
-        collectClause.pos = getPosition(selectClauseNode);
-        collectClause.expression = createExpression(selectClauseNode.expression());
+        collectClause.pos = getPosition(collectClauseNode);
+        collectClause.expression = createExpression(collectClauseNode.expression());
         return collectClause;
     }
 

@@ -180,12 +180,14 @@ public class QueryTypeChecker extends TypeChecker {
         if (finalClause.getKind() == NodeKind.SELECT) {
             actualType = resolveQueryType(commonAnalyzerData.queryEnvs.peek(),
                     ((BLangSelectClause) finalClause).expression, data.expType, queryExpr, clauses, data);
+            actualType = (actualType == symTable.semanticError) ? actualType : types.checkType(queryExpr.pos,
+                    actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         } else {
-            actualType = checkExpr(((BLangCollectClause) finalClause).expression, commonAnalyzerData.queryEnvs.peek(),
-                    data);
+            BLangExpression finalClauseExpr = ((BLangCollectClause) finalClause).expression;
+            BType queryType = checkExpr(finalClauseExpr, commonAnalyzerData.queryEnvs.peek(), data);
+            actualType = types.checkType(finalClauseExpr.pos, queryType, data.expType,
+                    DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
-        actualType = (actualType == symTable.semanticError) ? actualType : types.checkType(queryExpr.pos,
-                actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         commonAnalyzerData.queryFinalClauses.pop();
         commonAnalyzerData.queryEnvs.pop();
         if (!commonAnalyzerData.breakToParallelQueryEnv) {

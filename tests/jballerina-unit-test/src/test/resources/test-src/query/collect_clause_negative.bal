@@ -14,39 +14,39 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// unction testIncompatibleQueryResultType1() {
-//     int x1 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
-//                 collect [x]; // error
-//     string[] x2 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
-//                     collect [x]; // error
-// }
+function testIncompatibleQueryResultType1() {
+    int x1 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
+                collect [x]; // error
+    string[] x2 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
+                    collect [x]; // error
+}
 
-// function testIncompatibleQueryResultType2() {
-//     string x1 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
-//                     collect int:sum(x); // error
-//     int[] x2 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
-//                     collect int:sum(x); // error
-// }
+function testIncompatibleQueryResultType2() {
+    string x1 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
+                    collect int:sum(x); // error
+    int[] x2 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
+                    collect int:sum(x); // error
+}
 
-// function testIncompatibleParameterTypes() {
-//     int x1 = from var {x} in [{"x":"2", "y":"3"}, {"x":"4", "y":"5"}]
-//                 collect int:sum(x); // error
-//     string x2 = from var {x} in [{"x":"2", "y":"3"}, {"x":"4", "y":"5"}]
-//                     collect int:toHexString(x); // error
-//     string x3 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
-//                     collect ",".'join(x); // error
-//     string x4 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
-//                 collect string:'join(",", x);
-// }
+function testIncompatibleParameterTypes() {
+    int x1 = from var {x} in [{"x":"2", "y":"3"}, {"x":"4", "y":"5"}]
+                collect int:sum(x); // error
+    string x2 = from var {x} in [{"x":"2", "y":"3"}, {"x":"4", "y":"5"}]
+                    collect int:toHexString(x); // error
+    string x3 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
+                    collect ",".'join(x); // error
+    string x4 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
+                collect string:'join(",", x);
+}
 
-// function testInvalidExpressions1() {
-//     string x1 = from var {x} in [{"x":"2", "y":"3"}, {"x":"4", "y":"5"}]
-//                 collect x; // error
-//     int x2 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
-//                 collect x + 2; // error
-//     record {| int x; |} rec = from var {x, y} in [{"x":2, "y":3}, {"x":4, "y":5}]
-//                                 collect { x: [x] }; // error
-// }
+function testInvalidExpressions1() {
+    string x1 = from var {x} in [{"x":"2", "y":"3"}, {"x":"4", "y":"5"}]
+                collect x; // error
+    int x2 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
+                collect x + 2; // error
+    record {| int x; |} rec = from var {x, y} in [{"x":2, "y":3}, {"x":4, "y":5}]
+                                collect { x: [x] }; // error
+}
 
 // function testInvalidArgOrder() {
 //     int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
@@ -92,14 +92,16 @@
 //                 collect [foo(salary)]; // error
 // }
 
-// function testInvalidAssignment() {
-//     int[6] a = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect [salary]; // error
-//     record {| int[6] intArr; |} r = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                                         collect { intArr: [salary] }; // error
-// }
+function testInvalidAssignment() {
+    int[6] a = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
+                collect [salary]; // error
+    record {| int[6] intArr; |} r = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
+                                        collect { intArr: [salary] }; // error
+}
 
 // function testInvalidFunctionInvocations2() {
 //     int _ = from var {salary} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
 //                 collect foo(salary, 2); // error
 // }
+
+// TODO: multiple negative collect clauses
