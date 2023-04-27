@@ -455,7 +455,6 @@ public class BIRPackageSymbolEnter {
 
                     Name accessor = names.fromString(getStringCPEntryValue(dataInStream));
 
-
                     BResourceFunction resourceFunction = new BResourceFunction(names.fromString(funcName),
                             invokableSymbol, funcType, accessor, pathParams, restPathParam, symTable.builtinPos);
 

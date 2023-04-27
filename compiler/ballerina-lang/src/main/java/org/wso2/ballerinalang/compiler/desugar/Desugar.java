@@ -1167,13 +1167,16 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
         recordTypeNode.fields.addAll(recordTypeNode.includedFields);
+
+        BRecordTypeSymbol recordTypeSymbol = (BRecordTypeSymbol) recordTypeNode.getBType().tsymbol;
+
         for (BLangType type : recordTypeNode.typeRefs) {
-            if (type.getBType().tag != TypeTags.RECORD) {
-                continue;
+            if (type.getBType().tag == TypeTags.RECORD) {
+                BRecordTypeSymbol typeSymbol = (BRecordTypeSymbol) type.getBType().tsymbol;
+                recordTypeSymbol.defaultValues.putAll(typeSymbol.defaultValues);
             }
-            ((BRecordTypeSymbol) recordTypeNode.getBType().tsymbol).defaultValues.putAll(
-                                                          ((BRecordTypeSymbol) type.getBType().tsymbol).defaultValues);
         }
+
         for (BLangSimpleVariable bLangSimpleVariable : recordTypeNode.fields) {
             bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, env);
         }
@@ -5839,13 +5842,22 @@ public class Desugar extends BLangNodeVisitor {
     private List<String> getNamesOfUserSpecifiedRecordFields(List<RecordLiteralNode.RecordField> userSpecifiedFields) {
         List<String> fieldNames = new ArrayList<>();
         for (RecordLiteralNode.RecordField field : userSpecifiedFields) {
-            if (field.getKind() == NodeKind.RECORD_LITERAL_KEY_VALUE) {
+            if (field.isKeyValueField()) {
+                BLangRecordLiteral.BLangRecordKeyValueField keyValueField =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
                 BLangExpression key = ((BLangRecordLiteral.BLangRecordKeyValueField) field).key.expr;
                 if (key.getKind() == NodeKind.LITERAL) {
                     fieldNames.add(((BLangLiteral) key).value.toString());
                 } else if (key.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                     fieldNames.add(((BLangSimpleVarRef) key).variableName.value);
                 }
+            } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef varRefField = (BLangSimpleVarRef) field;
+                fieldNames.add(varRefField.variableName.value);
+            } else {
+                BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =
+                        (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
+                fieldNames.add(((BLangSimpleVarRef) spreadOpField.expr).variableName.value);
             }
         }
         return fieldNames;

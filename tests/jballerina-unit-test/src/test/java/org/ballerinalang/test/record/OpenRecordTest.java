@@ -77,24 +77,7 @@ public class OpenRecordTest {
 
     @Test(description = "Test default value of a record field")
     public void testDefaultValue() {
-        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testDefaultVal");
-
-        // Check default value of a field where the default value is set
-        Assert.assertTrue(returns.get(0) instanceof BString);
-        Assert.assertEquals(returns.get(0).toString(), "default first name");
-
-        // Check the default value of a field where the default value is not set
-        Assert.assertTrue(returns.get(1) instanceof BString);
-        Assert.assertEquals(returns.get(1).toString(), "");
-
-        Assert.assertTrue(returns.get(2) instanceof Long);
-        Assert.assertEquals(returns.get(2), 999L);
-
-        Assert.assertTrue(returns.get(3) instanceof Long);
-        Assert.assertEquals(returns.get(3), 10L);
-
-        Assert.assertTrue(returns.get(4) instanceof Long);
-        Assert.assertEquals(returns.get(4), 1L);
+        BRunUtil.invoke(compileResult, "testDefaultVal");
     }
 
     @Test(description = "Test default value of a nested record field")
@@ -475,6 +458,11 @@ public class OpenRecordTest {
     public void testLangFuncOnRecord() {
         Object returns = BRunUtil.invoke(compileResult, "testLangFuncOnRecord");
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("toJson")), 44L);
+    }
+
+    @Test
+    public void testTypeInclusionWithOpenRecord() {
+        BRunUtil.invoke(compileResult, "testTypeInclusionWithOpenRecord");
     }
 
     @Test

@@ -107,11 +107,15 @@ isolated function fn() returns int {
     return 10;
 }
 
-function testDefaultVal() returns [string, string, int, int, int] {
+function testDefaultVal() {
     Person p = {};
     Mat m = {};
     Mat m2 = {x: 1};
-    return [p.name, p.lname, p.age, m.x, m2.x];
+    assert("default first name", p.name);
+    assert("", p.lname);
+    assert(999, p.age);
+    assert(10, m.x);
+    assert(1, m2.x);
 }
 
 function testNestedFieldDefaultVal () returns [string, string, int] {
@@ -660,4 +664,30 @@ function testLangFuncOnRecord() returns json{
     Teacher p = {};
     json toJsonResult = p.toJson();
     return toJsonResult;
+}
+
+type R0 record {
+    int|string f = 1;
+};
+
+type R1 record {
+    *R0;
+    string f;
+};
+
+type Foo1 record {|
+    int a = 1250;
+|};
+
+type Bar1 record {|
+    *Foo;
+    byte a = 100;
+|};
+
+
+function testTypeInclusionWithOpenRecord() {
+    R1 r1 = {f : "hello"};
+    assert("hello", r1.f);
+    Bar1 b = {};
+    assert(100, b.a);
 }
