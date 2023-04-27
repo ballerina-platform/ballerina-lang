@@ -229,8 +229,7 @@ public class JvmTypeGen {
         for (BIRTypeDefinition typeDef : typeDefs) {
             BType bType = typeDef.type;
             int bTypeTag = bType.tag;
-            if (!(bTypeTag == TypeTags.RECORD || bTypeTag == TypeTags.ERROR || bTypeTag == TypeTags.OBJECT
-                    || bTypeTag == TypeTags.UNION || bTypeTag == TypeTags.TUPLE)) {
+            if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
                 // do not generate anything for other types (e.g.: finite type, type reference types etc.)
                 continue;
             }

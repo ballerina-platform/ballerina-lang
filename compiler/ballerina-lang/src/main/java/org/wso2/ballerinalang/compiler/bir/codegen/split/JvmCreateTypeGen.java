@@ -268,11 +268,9 @@ public class JvmCreateTypeGen {
             String name = optionalTypeDef.internalName.value;
             BType bType = optionalTypeDef.type;
             int bTypeTag = bType.tag;
-            if (!(bTypeTag == TypeTags.RECORD || bTypeTag == TypeTags.ERROR || bTypeTag == TypeTags.OBJECT
-                    || bTypeTag == TypeTags.UNION || bTypeTag == TypeTags.TUPLE)) {
-                        // do not generate anything for other types (e.g.: finite type, type reference types etc.)
-                        continue;
-                    } else {
+            if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
+                continue;
+            } else {
                 if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
                     mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPE_INSTANCES_METHOD + methodCount++,
                             VOID_METHOD_DESC,
@@ -280,7 +278,7 @@ public class JvmCreateTypeGen {
                     mv.visitCode();
                 }
             }
-            switch (bType.tag) {
+            switch (bTypeTag) {
                 case TypeTags.RECORD:
                     jvmRecordTypeGen.createRecordType(mv, (BRecordType) bType, typeOwnerClass, name);
                     break;
@@ -323,8 +321,7 @@ public class JvmCreateTypeGen {
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
             int bTypeTag = bType.tag;
-            if (!(bTypeTag == TypeTags.RECORD || bTypeTag == TypeTags.ERROR || bTypeTag == TypeTags.OBJECT
-                    || bTypeTag == TypeTags.UNION || bTypeTag == TypeTags.TUPLE)) {
+            if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
                 continue;
             }
 
