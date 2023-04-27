@@ -65,12 +65,12 @@ public class RenameTest extends AbstractRenameTest {
                 {"rename_in_mapping_binding_pattern1.json", "name2"},
                 {"rename_in_mapping_binding_pattern2.json", "pName"},
                 {"rename_in_mapping_binding_pattern3.json", "pName"},
+                {"rename_with_compilation_error.json", "NewTypeMap"},
 
                 // Invalid rename positions tests
                 {"rename_on_keyword1.json", "fn"},
                 {"rename_self.json", "this"},
                 {"rename_invalid_qname_ref.json", "io"},
-                {"rename_with_compilation_error.json", "NewTypeMap"},
                 {"rename_resource_method_path_segment.json", "path1"}
         };
     }
