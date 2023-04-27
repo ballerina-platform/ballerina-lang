@@ -136,10 +136,14 @@ public class ConfigurableTest extends BaseTest {
         LogLeecher errorLeecher6 = new LogLeecher("[BAL_CONFIG_DATA:(1:71,1:75)] missing new line", ERROR);
         LogLeecher errorLeecher7 = new LogLeecher("[BAL_CONFIG_DATA:(1:89,1:94)] missing new line", ERROR);
         LogLeecher errorLeecher8 = new LogLeecher("[BAL_CONFIG_DATA:(1:104,1:111)] missing new line", ERROR);
-        LogLeecher errorLeecher9 = new LogLeecher("error: value not provided for required configurable variable 'stringVar'", ERROR);
-        LogLeecher errorLeecher10 = new LogLeecher("error: value not provided for required configurable variable 'booleanVar'", ERROR);
-        LogLeecher errorLeecher11 = new LogLeecher("error: value not provided for required configurable variable 'intArr'", ERROR);
-        LogLeecher errorLeecher12 = new LogLeecher("error: value not provided for required configurable variable 'decimalArr'", ERROR);
+        LogLeecher errorLeecher9 = new LogLeecher("error: value not provided for required configurable variable" +
+                " 'stringVar'", ERROR);
+        LogLeecher errorLeecher10 = new LogLeecher("error: value not provided for required configurable variable" +
+                " 'booleanVar'", ERROR);
+        LogLeecher errorLeecher11 = new LogLeecher("error: value not provided for required configurable variable" +
+                " 'intArr'", ERROR);
+        LogLeecher errorLeecher12 = new LogLeecher("error: value not provided for required configurable variable" +
+                " 'decimalArr'", ERROR);
         // test configuration through `BAL_CONFIG_DATA` env variable
         String configData = "[envVarPkg] intVar = 42 floatVar = 3.5 stringVar = \"abc\" booleanVar = true " +
                 "decimalVar = 24.87 intArr = [1,2,3] floatArr = [9.0, 5.6]";
