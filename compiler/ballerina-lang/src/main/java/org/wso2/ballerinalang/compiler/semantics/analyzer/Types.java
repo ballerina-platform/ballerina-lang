@@ -6610,6 +6610,14 @@ public class Types {
             case TypeTags.TYPEREFDESC:
                 visitedTypeSet.add(type);
                 return isNeverTypeOrStructureTypeWithARequiredNeverMember(getReferredType(type), visitedTypeSet);
+            case UNION:
+                BUnionType unionType = (BUnionType) type;
+                for (BType memType : unionType.getMemberTypes()) {
+                    if (!isNeverTypeOrStructureTypeWithARequiredNeverMember(memType, visitedTypeSet)) {
+                        return false;
+                    }
+                }
+                return true;
             default:
                 return false;
         }

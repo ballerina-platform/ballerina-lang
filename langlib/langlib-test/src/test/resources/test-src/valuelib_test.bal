@@ -2914,8 +2914,149 @@ function testCloneWithTypeTableToAnydata() {
     test:assertValueEqual(result is readonly, true);
 }
 
+function testCloneWithTypeToArrays() {
+    string[2] lastNames = ["Alice", "Bob"];
+    string[] firstNames = ["Alice", "Bob"];
+
+    string[0]|error names = lastNames.cloneWithType();
+    test:assertTrue(names is error);
+    if (names is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", names.message());
+        test:assertValueEqual("'string[2]' value cannot be converted to 'string[0]': \n\t\t" +
+        "element count exceeds the target array size '0'", <string> checkpanic names.detail()["message"]);
+    }
+
+    names = firstNames.cloneWithType();
+    test:assertTrue(names is error);
+    if (names is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", names.message());
+        test:assertValueEqual("'string[]' value cannot be converted to 'string[0]': \n\t\t" +
+        "element count exceeds the target array size '0'", <string> checkpanic names.detail()["message"]);
+    }
+}
+
+type xml1 xml:ProcessingInstruction|xml:Text;
+
+type xml2 xml:Element & readonly;
+
+type xml3 xml:Element;
+
+type xml4 xml3;
+
+type xml5 xml<xml:ProcessingInstruction|xml:Text|xml:Comment>;
+
+type xml6 xml<xml:Element|(xml:ProcessingInstruction & readonly)|(xml:Comment & readonly)>;
+
+type xml7 xml<xml5|xml6> & readonly;
+
+type BigXml xml<xml1|xml2|xml4>;
+
 type ReadOnlyXmlElement xml:Element & readonly;
+
 type AnydataUnion int|anydata;
+
+type JsonUnion xml|json;
+
+type JsonUnion2 BigXml|json;
+
+function testCloneWithTypeXmlToUnion() {
+    xml z = xml `<a>1</a>`;
+    xml:Element|json z0 = checkpanic z.cloneWithType();
+    any result = z0;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(z0, xml `<a>1</a>`);
+
+    xml7 z00 = checkpanic z.cloneWithType();
+    result = z00;
+    test:assertValueEqual(result is readonly, true);
+    test:assertValueEqual(z00, xml `<a>1</a>`);
+
+    xml|json z1 = checkpanic z.cloneWithType();
+    result = z1;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(z1, xml `<a>1</a>`);
+
+    JsonUnion & readonly z2 = checkpanic z.cloneWithType();
+    result = z2;
+    test:assertValueEqual(result is readonly, true);
+    test:assertValueEqual(z2, xml `<a>1</a>`);
+
+    JsonUnion z3 = checkpanic z.cloneWithType();
+    result = z3;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(z3, xml `<a>1</a>`);
+
+    JsonUnion2 z4 = checkpanic z.cloneWithType();
+    result = z4;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(z4, xml `<a>1</a>`);
+
+    JsonUnion2 & readonly z5 = checkpanic z.cloneWithType();
+    result = z5;
+    test:assertValueEqual(result is readonly, true);
+    test:assertValueEqual(z5, xml `<a>1</a>`);
+
+    xml:Comment|json|error z6 = z.cloneWithType();
+    test:assertValueEqual(z6 is error, true);
+    if (z6 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", z6.message());
+        test:assertValueEqual("'lang.xml:Element' value cannot be converted to '(lang.xml:Comment|json)'",
+        <string>checkpanic z6.detail()["message"]);
+    }
+
+    xml xmlComment = xml `<!-- xml comment -->`;
+    JsonUnion2|error z7 = xmlComment.cloneWithType();
+    test:assertValueEqual(z7 is error, true);
+    if (z7 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", z7.message());
+        test:assertValueEqual("'lang.xml:Comment' value cannot be converted to '(BigXml|json)'",
+        <string>checkpanic z7.detail()["message"]);
+    }
+
+    xml x1 = xml `<book>The Lost World</book><!-- xml comment -->`;
+    xml<xml:Comment|xml:Element> y1 = checkpanic x1.cloneWithType();
+    result = y1;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(y1, x1);
+
+    xml<xml:Comment|xml:Element> & readonly y2 = checkpanic x1.cloneWithType();
+    result = y2;
+    test:assertValueEqual(result is readonly, true);
+    test:assertValueEqual(y2, x1);
+
+    xml<xml:Comment|(xml:Element & readonly)> y3 = checkpanic x1.cloneWithType();
+    result = y3;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(y3, x1);
+
+    xml x2 = xml `<?xml version="1.0" encoding="UTF-8"?><book>The Lost World</book>`;
+    xml<xml:Comment|xml:Element>|error y4 = x2.cloneWithType();
+    test:assertValueEqual(y4 is error, true);
+    if (y4 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", y4.message());
+        test:assertValueEqual("'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'"
+        + " value cannot be converted to 'xml<(lang.xml:Comment|lang.xml:Element)>'",
+        <string>checkpanic y4.detail()["message"]);
+    }
+
+    (xml<xml:Comment|xml:Element> & readonly)|error y5 = x2.cloneWithType();
+    test:assertValueEqual(y5 is error, true);
+    if (y5 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", y5.message());
+        test:assertValueEqual("'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'"
+        + " value cannot be converted to '(xml<(lang.xml:Comment|lang.xml:Element)> & readonly)'",
+        <string>checkpanic y5.detail()["message"]);
+    }
+
+    xml<xml:Comment|(xml:Element & readonly)>|error y6 = x2.cloneWithType();
+    test:assertValueEqual(y6 is error, true);
+    if (y6 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", y6.message());
+        test:assertValueEqual("'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'"
+        + " value cannot be converted to 'xml<(lang.xml:Comment|(lang.xml:Element & readonly))>'",
+        <string>checkpanic y6.detail()["message"]);
+    }
+}
 
 function testConversionsBetweenXml() {
     // xml to xml
@@ -2988,7 +3129,7 @@ function testConversionsBetweenXml() {
     test:assertValueEqual(x6_cloned1 is readonly, true);
 
     // xml with anydata
-    xml a  = xml `<a>1</a>`;
+    xml a = xml `<a>1</a>`;
     AnydataUnion & readonly a1 = checkpanic a.cloneWithType();
     any result = a1;
     test:assertValueEqual(result is readonly, true);
@@ -3356,6 +3497,114 @@ function testCloneWithTypeToTableNegative() {
     if (newestEmployees is error) {
         assertEquality("{ballerina/lang.value}ConversionError", newestEmployees.message());
         assertEquality(errMsg, <string> checkpanic newestEmployees.detail()["message"]);
+    }
+}
+
+type GraphQLQuery record {|
+    string operationName?;
+    string query?;
+    record {} variables?;
+|};
+
+type PositiveIntegersUpto5 1|2|3|4|5;
+
+type GraphQLQueries0 PositiveIntegersUpto5[];
+
+type GraphQLQueries1 GraphQLQuery[];
+
+type GraphQLQueries1Further GraphQLQueries1;
+
+type GraphQLQueries2 [int, GraphQLQuery...];
+
+type GraphQLQueries3 map<GraphQLQuery>;
+
+type GraphQLQueries4 record {|
+    GraphQLQuery a;
+|};
+
+type GraphQLQueries5 table<GraphQLQuery>;
+
+type GraphQLQueries6 GraphQLQueries5;
+
+function testCloneWithTypeToJson() {
+    GraphQLQueries0 payload0 = [1, 4, 2];
+    GraphQLQueries1 payload1 = [{query: "abc"}, {query: "xyz"}];
+    GraphQLQueries1Further payload1Further = [{query: "abc"}, {query: "xyz"}];
+    GraphQLQueries2 payload2 = [1, {query: "abc"}, {query: "xyz"}];
+    GraphQLQueries3 payload3 = {"a": {query: "abc"}, "b": {query: "xyz"}};
+    GraphQLQueries4 payload4 = {a: {query: "abc"}};
+    json stdJson0 = checkpanic payload0.cloneWithType();
+    json & readonly stdJson00 = checkpanic payload0.cloneWithType();
+    json stdJson1 = checkpanic payload1.cloneWithType();
+    json stdJson1Further = checkpanic payload1Further.cloneWithType();
+    json stdJson2 = checkpanic payload2.cloneWithType();
+    json stdJson3 = checkpanic payload3.cloneWithType();
+    json stdJson4 = checkpanic payload4.cloneWithType();
+
+    assertEquality(stdJson0, <json>[1, 4, 2]);
+    assertEquality(stdJson00, <json>[1, 4, 2]);
+    assertEquality(stdJson1, <json>[{query: "abc"}, {query: "xyz"}]);
+    assertEquality(stdJson1Further, <json>[{query: "abc"}, {query: "xyz"}]);
+    assertEquality(stdJson2, <json>[1, {query: "abc"}, {query: "xyz"}]);
+    assertEquality(stdJson3, <json>{"a": {query: "abc"}, "b": {query: "xyz"}});
+    assertEquality(stdJson4, <json>{a: {query: "abc"}});
+
+    GraphQLQueries1 payload5 = [{query: "abc"}, {query: "xyz", variables: {"nonJson": xml `<a>abc</a>`}}];
+    GraphQLQueries1Further payload5Further = [{query: "abc"}, {query: "xyz", variables: {"nonJson": xml `<a>abc</a>`}}];
+    GraphQLQueries2 payload6 = [1, {query: "abc"}, {query: "xyz", variables: {"nonJson": xml `<a>abc</a>`}}];
+    GraphQLQueries3 payload7 = {"a": {query: "abc"}, "b": {query: "xyz", variables: {"nonJson": xml `<a>abc</a>`}}};
+    GraphQLQueries4 payload8 = {a: {query: "abc", variables: {"nonJson": xml `<a>abc</a>`}}};
+    table<GraphQLQuery> payload9 = table [{query: "abc"}, {query: "xyz"}];
+    GraphQLQueries5 payload10 = table [{query: "abc"}, {query: "xyz"}];
+    GraphQLQueries6 payload11 = table [{query: "abc"}, {query: "xyz"}];
+
+    json|error stdJson5 = payload5.cloneWithType();
+    assertEquality(stdJson5 is error, true);
+    if (stdJson5 is error) {
+        assertEquality("'GraphQLQueries1' value cannot be converted to 'json'",
+        <string>checkpanic stdJson5.detail()["message"]);
+    }
+    json|error stdJson5Further = payload5Further.cloneWithType();
+    assertEquality(stdJson5Further is error, true);
+    if (stdJson5Further is error) {
+        assertEquality("'GraphQLQueries1Further' value cannot be converted to 'json'",
+        <string>checkpanic stdJson5Further.detail()["message"]);
+    }
+    json|error stdJson6 = payload6.cloneWithType();
+    assertEquality(stdJson6 is error, true);
+    if (stdJson6 is error) {
+        assertEquality("'GraphQLQueries2' value cannot be converted to 'json'",
+        <string>checkpanic stdJson6.detail()["message"]);
+    }
+    json|error stdJson7 = payload7.cloneWithType();
+    assertEquality(stdJson7 is error, true);
+    if (stdJson7 is error) {
+        assertEquality("'GraphQLQueries3' value cannot be converted to 'json'",
+        <string>checkpanic stdJson7.detail()["message"]);
+    }
+    json|error stdJson8 = payload8.cloneWithType();
+    assertEquality(stdJson8 is error, true);
+    if (stdJson8 is error) {
+        assertEquality("'GraphQLQueries4' value cannot be converted to 'json'",
+        <string>checkpanic stdJson8.detail()["message"]);
+    }
+    json|error stdJson9 = payload9.cloneWithType();
+    assertEquality(stdJson9 is error, true);
+    if (stdJson9 is error) {
+        assertEquality("'table<GraphQLQuery>' value cannot be converted to 'json'",
+        <string>checkpanic stdJson9.detail()["message"]);
+    }
+    json|error stdJson10 = payload10.cloneWithType();
+    assertEquality(stdJson10 is error, true);
+    if (stdJson10 is error) {
+        assertEquality("'GraphQLQueries5' value cannot be converted to 'json'",
+        <string>checkpanic stdJson10.detail()["message"]);
+    }
+    json|error stdJson11 = payload11.cloneWithType();
+    assertEquality(stdJson11 is error, true);
+    if (stdJson11 is error) {
+        assertEquality("'GraphQLQueries6' value cannot be converted to 'json'",
+        <string>checkpanic stdJson11.detail()["message"]);
     }
 }
 

@@ -2,7 +2,7 @@ NAME
        ballerina-run - Compile and run the current package
 
 SYNOPSIS
-       bal run [OPTIONS] [<package>|<source-file>|<jar-file>] [--] <args...>
+       bal run [OPTIONS] [<package>|<source-file>|<jar-file>] [-- <args...> <(-Ckey=value)...>]
 
 
 DESCRIPTION
@@ -64,6 +64,9 @@ ARGUMENTS
 
        args...
            The list of command-line arguments for the Ballerina program.
+           The arguments can be program arguments defined in the parameter
+           list of the 'main' function or configurable variables. Configurable
+           values can be provided with the syntax  '-C<key>=<value>'.
 
 
 EXAMPLES
@@ -79,3 +82,6 @@ EXAMPLES
        Run the 'main' function in the current package with three program args:
        add, 10, and 5.
            $ bal run -- add 10 5
+
+       Run the test functions with values provided for configurable variables:
+           $ bal run -- -Cval1=add -Cval2=10 -Cval3=5
