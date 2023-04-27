@@ -40,18 +40,16 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG
  * @since 2.0.0
  */
 public class ConfigToml {
-    private final Path filePath;
-    private final String content;
+    private Path filePath;
+    private String content;
     private TomlTableNode tomlAstNode;
 
     protected ConfigToml(Path filePath) {
         this.filePath = filePath;
-        this.content = null;
     }
 
     protected ConfigToml(String content) {
         this.content = content;
-        this.filePath = null;
     }
 
     public TomlTableNode tomlAstNode() {
