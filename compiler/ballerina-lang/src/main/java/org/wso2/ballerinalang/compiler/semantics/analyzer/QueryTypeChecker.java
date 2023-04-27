@@ -372,15 +372,13 @@ public class QueryTypeChecker extends TypeChecker {
                 case TypeTags.NONE:
                 default:
                     // contextually expected type not given (i.e var).
-                    selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), type, data);
-                    BType checkedType;
-                    if (selectType != symTable.semanticError) {
-                        checkedType = checkExpr(selectExp, env, type, data);
-                    } else {
+                    selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), env, type, data);
+                    BType checkedType = symTable.semanticError;
+                    if (selectType == symTable.semanticError) {
                         checkedType = checkExpr(selectExp, env, data);
                     }
 
-                    if (type.tag == TypeTags.NONE || type.tag == TypeTags.SEMANTIC_ERROR) {
+                    if (checkedType != symTable.semanticError && expTypes.size() == 1) {
                         selectType = checkedType;
                     }
 
