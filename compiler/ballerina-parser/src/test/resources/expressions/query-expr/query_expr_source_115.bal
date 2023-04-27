@@ -1,4 +1,5 @@
-function f1() {
-    _ = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
-            col [x];
+function testGroupBy() {
+    var buyers = from var {buyer, price} in orders
+        group by buyer, price
+        s
 }

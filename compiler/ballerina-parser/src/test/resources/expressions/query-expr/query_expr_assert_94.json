@@ -271,6 +271,7 @@
                           "children": [
                             {
                               "kind": "GROUP_BY_CLAUSE",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "GROUP_KEYWORD",
@@ -298,6 +299,7 @@
                                 },
                                 {
                                   "kind": "LIST",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "GROUPING_KEY_VAR_DECLARATION",
@@ -385,33 +387,27 @@
                                           ]
                                         }
                                       ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "WHERE_CLAUSE",
-                              "hasDiagnostics": true,
-                              "children": [
-                                {
-                                  "kind": "WHERE_KEYWORD",
-                                  "isMissing": true,
-                                  "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_WHERE_KEYWORD"
-                                  ]
-                                },
-                                {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
+                                    },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "price1",
-                                      "trailingMinutiae": [
+                                      "kind": "COMMA_TOKEN",
+                                      "isMissing": true,
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_MISSING_COMMA_TOKEN"
+                                      ]
+                                    },
+                                    {
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
                                         {
-                                          "kind": "END_OF_LINE_MINUTIAE",
-                                          "value": "\n"
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "price1",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "END_OF_LINE_MINUTIAE",
+                                              "value": "\n"
+                                            }
+                                          ]
                                         }
                                       ]
                                     }

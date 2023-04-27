@@ -12338,6 +12338,9 @@ public class BallerinaParser extends AbstractParser {
             case COMMA_TOKEN:
             case EOF_TOKEN:
                 return true;
+            case IDENTIFIER_TOKEN:
+                // A special case to improve group by key list end parsing.
+                return peek(3).kind != SyntaxKind.EQUAL_TOKEN;
             default:
                 return isQueryClauseStartToken(tokenKind);
         }
@@ -12390,7 +12393,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case COMMA_TOKEN:
-                return parseComma();
+                return consume();
             case EOF_TOKEN:
                 return null;
             default:
