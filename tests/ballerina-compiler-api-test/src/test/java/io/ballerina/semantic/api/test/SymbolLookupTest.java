@@ -401,16 +401,16 @@ public class SymbolLookupTest {
         SemanticModel model = getDefaultModulesSemanticModel(project);
         Document srcFile = getDocumentForSingleSource(project);
         List<Symbol> visibleSymbols = model.visibleSymbols(srcFile, LinePosition.from(19, 25));
-        List<String> expectedModuleSymbols = List.of("obj", "sys", "regexp", "'array");
-        ArrayList<Object> symbols = new ArrayList<>();
+        List<String> expectedModuleSymbols = List.of("obj", "tbl", "regexp", "'array");
+        int moduleSymbolsCount = 0;
         for (Symbol visibleSymbol : visibleSymbols) {
             if (visibleSymbol.kind() == MODULE
                     && visibleSymbol.getName().isPresent()
                     && expectedModuleSymbols.contains(visibleSymbol.getName().get())) {
-                symbols.add(visibleSymbol.getName().get());
+                moduleSymbolsCount++;
             }
         }
-        assertEquals(symbols.size(), 2);
+        assertEquals(moduleSymbolsCount, 2);
     }
 
     private String createSymbolString(Symbol symbol) {
