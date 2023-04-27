@@ -214,7 +214,8 @@ public class ClientResourceAccessActionNodeContext
             return;
         }
 
-        if (isInResourceMethodParameterContext(node, context) && context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+        if (isInResourceMethodParameterContext(node, context) && context.currentSemanticModel().isPresent()
+                && context.currentDocument().isPresent()) {
             Optional<TypeSymbol> expectedType = context.currentSemanticModel().get()
                     .expectedType(context.currentDocument().get(),
                             PositionUtil.getLinePosition(context.getCursorPosition()));

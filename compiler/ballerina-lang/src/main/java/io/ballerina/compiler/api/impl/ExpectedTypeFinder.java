@@ -456,7 +456,8 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         if (isWithinParenthesis(openParen, closeParen)
                 && bLangNode instanceof BLangTypeInit
                 && ((BLangTypeInit) bLangNode).initInvocation instanceof BLangInvocation
-                && (((BLangInvocation) ((BLangTypeInit) bLangNode).initInvocation).symbol instanceof BInvokableSymbol)) {
+                && (((BLangInvocation) ((BLangTypeInit) bLangNode).initInvocation).symbol
+                instanceof BInvokableSymbol)) {
             List<BVarSymbol> params = ((BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
                     initInvocation).symbol)).params;
             if (params.size() == 0) {
