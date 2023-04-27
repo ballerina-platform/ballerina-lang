@@ -1621,7 +1621,7 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangArrayLiteral astArrayLiteralExpr) {
         BType bType = astArrayLiteralExpr.getBType();
         if (bType.tag == TypeTags.TUPLE) {
-            visitTypedesc(astArrayLiteralExpr.pos, bType, Collections.emptyList());
+            visitTypedesc(astArrayLiteralExpr.pos, bType);
         }
         generateListConstructorExpr(astArrayLiteralExpr);
     }
@@ -1629,7 +1629,7 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleLiteral tupleLiteral) {
         BType type = tupleLiteral.getBType();
-        visitTypedesc(tupleLiteral.pos, type, Collections.emptyList());
+        visitTypedesc(tupleLiteral.pos, type);
         generateListConstructorExpr(tupleLiteral);
     }
 
@@ -1642,7 +1642,7 @@ public class BIRGen extends BLangNodeVisitor {
     public void visit(BLangJSONArrayLiteral jsonArrayLiteralExpr) {
         BType bType = jsonArrayLiteralExpr.getBType();
         if (bType.tag == TypeTags.TUPLE) {
-            visitTypedesc(jsonArrayLiteralExpr.pos, bType, Collections.emptyList());
+            visitTypedesc(jsonArrayLiteralExpr.pos, bType);
         }
         generateListConstructorExpr(jsonArrayLiteralExpr);
     }
