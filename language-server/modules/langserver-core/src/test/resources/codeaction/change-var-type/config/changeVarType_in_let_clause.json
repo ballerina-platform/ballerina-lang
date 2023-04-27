@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 13,
+    "character": 33
+  },
+  "source": "changeVarType_in_query_expr.bal",
+  "expected": [
+    {
+      "title": "Change variable \u0027newAge\u0027 type to \u0027int\u0027",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 13,
+              "character": 16
+            },
+            "end": {
+              "line": 13,
+              "character": 22
+            }
+          },
+          "newText": "int"
+        }
+      ]
+    }
+  ]
+}

@@ -78,6 +78,7 @@ public class LangLibRegexpTest {
                 "testEmptyRegexpFind",
                 "testRegexpFromString",
                 "testEmptyRegexpMatch",
+                "testTranslatingDiffNodesInCharClass"
         };
     }
 
