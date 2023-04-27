@@ -37,14 +37,13 @@ public class LogConfigReader {
 
     public LogConfigReader() {
         BLogManager logManager = (BLogManager) LogManager.getLogManager();
-        InputStream configStream = this.getClass().getClassLoader().getResourceAsStream("logging.properties");
-        if (configStream != null) {
-            try {
+        try (InputStream configStream = this.getClass().getClassLoader().getResourceAsStream("logging.properties")) {
+            if (configStream != null) {
                 logManager.readConfiguration(configStream);
-            } catch (IOException e) {
+            } else {
                 stderr.println("error: failed to initialize logging");
             }
-        } else {
+        } catch (IOException e) {
             stderr.println("error: failed to initialize logging");
         }
     }
