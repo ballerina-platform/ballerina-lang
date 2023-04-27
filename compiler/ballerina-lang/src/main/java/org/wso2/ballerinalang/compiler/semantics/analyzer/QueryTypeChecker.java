@@ -357,7 +357,8 @@ public class QueryTypeChecker extends TypeChecker {
                         continue;
                     }
 
-                    if (types.isAssignable(selectType, type)) {
+                    if (Types.getReferredType(selectType).getKind() == type.getKind()
+                            && (type.tag == TypeTags.XML || type.tag == TypeTags.STRING)) {
                         selectType = type;
                     }
 
@@ -372,11 +373,17 @@ public class QueryTypeChecker extends TypeChecker {
                 default:
                     // contextually expected type not given (i.e var).
                     selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), type, data);
+                    BType checkedType;
                     if (selectType != symTable.semanticError) {
-                        selectType = checkExpr(selectExp, env, type, data);
+                        checkedType = checkExpr(selectExp, env, type, data);
                     } else {
-                        selectType = checkExpr(selectExp, env, data);
+                        checkedType = checkExpr(selectExp, env, data);
                     }
+
+                    if (type.tag == TypeTags.NONE || type.tag == TypeTags.SEMANTIC_ERROR) {
+                        selectType = checkedType;
+                    }
+
                     if (queryExpr.isMap) { // A query-expr that constructs a mapping must start with the map keyword.
                         resolvedType = symTable.mapType;
                     } else {
@@ -385,6 +392,7 @@ public class QueryTypeChecker extends TypeChecker {
                     break;
             }
             if (selectType != symTable.semanticError) {
+
                 if (resolvedType.tag == TypeTags.STREAM) {
                     queryExpr.isStream = true;
                 }

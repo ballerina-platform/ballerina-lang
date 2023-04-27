@@ -116,9 +116,11 @@ public class QueryNegativeTests {
 
     @Test
     public void testAmbiguousTypesInUnionExpectedType() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/query/query_ambigious_type_negative.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/query/query_ambiguous_type_negative.bal");
         int index = 0;
-        validateError(compileResult, index++, "ambiguous type '[string:Char, string:Char]'", 27, 15);
+        validateError(compileResult, index++, "ambiguous type '[string:Char, string]'", 27, 58);
+        validateError(compileResult, index++, "ambiguous type '[string, string:Char]'", 28, 58);
+        validateError(compileResult, index++, "ambiguous type '[string, string:Char]'", 31, 103);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
