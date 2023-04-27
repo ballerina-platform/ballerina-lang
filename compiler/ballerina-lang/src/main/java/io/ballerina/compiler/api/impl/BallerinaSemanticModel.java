@@ -148,12 +148,8 @@ public class BallerinaSemanticModel implements SemanticModel {
 
         Set<DiagnosticState> statesSet = new HashSet<>(Arrays.asList(states));
         Set<Symbol> compiledSymbols = new HashSet<>();
-        List<Map.Entry<Name, List<Scope.ScopeEntry>>> objSymbols = new ArrayList<>();
         for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : scopeSymbols.entrySet()) {
             Name name = entry.getKey();
-            if (name.getValue().contains("obj")) {
-                objSymbols.add(entry);
-            }
             List<Scope.ScopeEntry> scopeEntries = entry.getValue();
             for (Scope.ScopeEntry scopeEntry : scopeEntries) {
                 addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name, symbolEnv, statesSet,

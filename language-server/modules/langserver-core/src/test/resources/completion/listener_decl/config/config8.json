@@ -152,14 +152,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "object",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "object",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "stream",
       "kind": "Unit",
       "detail": "type",

@@ -144,14 +144,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "object",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "C",
-      "insertText": "object",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "stream",
       "kind": "Unit",
       "detail": "type",

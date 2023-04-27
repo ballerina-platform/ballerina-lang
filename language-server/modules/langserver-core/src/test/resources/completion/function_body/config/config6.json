@@ -877,14 +877,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "float",
-      "kind": "TypeParameter",
-      "detail": "Float",
-      "sortText": "N",
-      "insertText": "float",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "function",
       "kind": "TypeParameter",
       "detail": "Function",
