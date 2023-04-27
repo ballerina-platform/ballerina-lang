@@ -88,3 +88,30 @@ function testSeqVarInInvalidPositions() {
 //                             select [price]; // @output [[11, 12], [11]]
 //     assertEquality([[11, 12], [11]], prices);
 // }
+
+function testTupleDestructure() {
+    _ = from var {name, price} in [{name: "Saman", price: 11}]
+                group by name
+                do {
+                    [int, int...] x = [price]; // error
+                };
+    _ = from var {name, price} in [{name: "Saman", price: 11}]
+                group by name
+                do {
+                    [int[]] x = [price];
+                };
+    _ = from var {name, price} in [{name: "Saman", price: 11}]
+                group by name
+                do {
+                    [int, int] x = [price];
+                };
+}
+
+function testRecordDestructure() {
+    _ = from var {name, price} in [{name: "Saman", price: 11}]
+                group by name
+                do {
+                    int[] prices;
+                    {prices} = {prices: [price]}; // error
+                };
+}
