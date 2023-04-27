@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'object as obj
-import ballerina/lang.table as tbl;
+import ballerina/lang.'table as tbl;
 import ballerina/lang.regexp as regexp;
 import ballerina/lang.array as 'array;
 

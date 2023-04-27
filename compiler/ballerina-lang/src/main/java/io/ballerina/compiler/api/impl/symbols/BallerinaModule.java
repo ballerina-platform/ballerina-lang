@@ -268,10 +268,7 @@ public class BallerinaModule extends BallerinaSymbol implements ModuleSymbol {
         }
 
         ModuleSymbol symbol = (ModuleSymbol) obj;
-        return this.id().equals(symbol.id())
-                && ((this.getName().isEmpty() && symbol.getName().isEmpty())
-                || (this.getName().isPresent() && symbol.getName().isPresent()
-                    && this.getName().get().equals(symbol.getName().get())));
+        return this.id().equals(symbol.id());
     }
 
     @Override

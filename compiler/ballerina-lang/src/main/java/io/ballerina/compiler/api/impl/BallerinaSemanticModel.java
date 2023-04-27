@@ -83,6 +83,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
@@ -147,8 +148,12 @@ public class BallerinaSemanticModel implements SemanticModel {
 
         Set<DiagnosticState> statesSet = new HashSet<>(Arrays.asList(states));
         Set<Symbol> compiledSymbols = new HashSet<>();
+        List<Map.Entry<Name, List<Scope.ScopeEntry>>> objSymbols = new ArrayList<>();
         for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : scopeSymbols.entrySet()) {
             Name name = entry.getKey();
+            if (name.getValue().contains("obj")) {
+                objSymbols.add(entry);
+            }
             List<Scope.ScopeEntry> scopeEntries = entry.getValue();
             for (Scope.ScopeEntry scopeEntry : scopeEntries) {
                 addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name, symbolEnv, statesSet,
@@ -569,7 +574,7 @@ public class BallerinaSemanticModel implements SemanticModel {
                 compiledSymbol = symbolFactory.getBCompiledSymbol(symbol, symbol.getOriginalName().getValue());
             }
 
-            if (compiledSymbol == null || compiledSymbols.contains(compiledSymbol)) {
+            if (compiledSymbol == null || checkAndUpdateModuleSymbols(compiledSymbols, compiledSymbol, symbol)) {
                 return;
             }
 
@@ -587,6 +592,21 @@ public class BallerinaSemanticModel implements SemanticModel {
             compiledSymbols.add(compiledSymbol);
         }
         addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, symbolEnv, states, compUnitName);
+    }
+
+    private boolean checkAndUpdateModuleSymbols(Set<Symbol> compiledSymbols, Symbol evaluatingSymbol, BSymbol symbol) {
+        boolean isContaining = compiledSymbols.contains(evaluatingSymbol);
+
+        if (evaluatingSymbol.kind() != MODULE) {
+            return isContaining;
+        }
+
+        if (((BPackageSymbol) symbol).importPrefix != null) {
+            compiledSymbols.remove(evaluatingSymbol);
+            return false;
+        }
+
+        return isContaining;
     }
 
     private boolean isWithinCurrentWorker(long symbolEnvScopeOwnerFlags, SymbolEnv enclEnv, BSymbol symbol) {

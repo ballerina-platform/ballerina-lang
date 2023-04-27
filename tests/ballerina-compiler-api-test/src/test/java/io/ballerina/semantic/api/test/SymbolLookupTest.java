@@ -401,7 +401,7 @@ public class SymbolLookupTest {
         SemanticModel model = getDefaultModulesSemanticModel(project);
         Document srcFile = getDocumentForSingleSource(project);
         List<Symbol> visibleSymbols = model.visibleSymbols(srcFile, LinePosition.from(19, 25));
-        List<String> expectedModuleSymbols = List.of("obj", "tbl", "regexp", "'array");
+        List<String> expectedModuleSymbols = List.of("obj", "tbl", "regexp");
         int moduleSymbolsCount = 0;
         for (Symbol visibleSymbol : visibleSymbols) {
             if (visibleSymbol.kind() == MODULE
@@ -410,7 +410,7 @@ public class SymbolLookupTest {
                 moduleSymbolsCount++;
             }
         }
-        assertEquals(moduleSymbolsCount, 2);
+        assertEquals(moduleSymbolsCount, expectedModuleSymbols.size());
     }
 
     private String createSymbolString(Symbol symbol) {
