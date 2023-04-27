@@ -200,7 +200,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             case LITERAL:
             case NUMERIC_LITERAL:
             case RECORD_LITERAL_EXPR:
-            case LIST_CONSTRUCTOR_EXPR:
+//            case LIST_CONSTRUCTOR_EXPR:
             case SIMPLE_VARIABLE_REF:
             case BINARY_EXPR:
             case GROUP_EXPR:
