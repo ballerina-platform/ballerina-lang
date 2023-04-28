@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -59,6 +60,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
@@ -74,6 +76,9 @@ import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_MAJOR_VERSION;
  * @since 2.0.0
  */
 public class BRunUtil {
+
+    private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
+            .contains("win");
 
     /**
      * Invoke a ballerina function.
@@ -302,18 +307,35 @@ public class BRunUtil {
             classPath.append(File.pathSeparator).append(jarLibrary.path());
         }
 
-        try {
-            final List<String> actualArgs = new ArrayList<>();
-            int index = 0;
-            actualArgs.add(index++, "java");
-            for (String javaOpt : javaOpts) {
-                actualArgs.add(index++, javaOpt);
-            }
-            actualArgs.add(index++, "-cp");
-            actualArgs.add(index++, System.getProperty("java.class.path") + classPath);
-            actualArgs.add(index, initClassName);
-            actualArgs.addAll(Arrays.asList(args));
+        final List<String> actualArgs = new ArrayList<>();
+        int index = 0;
+        actualArgs.add(index++, "java");
+        for (String javaOpt : javaOpts) {
+            actualArgs.add(index++, javaOpt);
+        }
+        actualArgs.add(index++, "-cp");
 
+        String classPathString = System.getProperty("java.class.path") + classPath;
+        // Create an argument file for windows to mitigate the long classpath issue.
+        if (isWindows) {
+            String classPathArgs = "classPathArgs";
+            File classPathArgsFile;
+            try {
+                classPathArgsFile = File.createTempFile(classPathArgs, ".txt");
+                FileWriter fileWriter = new FileWriter(classPathArgsFile);
+                fileWriter.write(classPathString);
+                fileWriter.close();
+                actualArgs.add(index++, "@" + classPathArgsFile.getAbsolutePath());
+            } catch (IOException e) {
+                throw new RuntimeException("Error while creating classpath arguments file: " + classPathArgs, e);
+            }
+        } else {
+            actualArgs.add(index++, classPathString);
+        }
+        actualArgs.add(index, initClassName);
+        actualArgs.addAll(Arrays.asList(args));
+
+        try {
             final Runtime runtime = Runtime.getRuntime();
             final Process process = runtime.exec(actualArgs.toArray(new String[0]));
             String consoleError = getConsoleOutput(process.getErrorStream());
