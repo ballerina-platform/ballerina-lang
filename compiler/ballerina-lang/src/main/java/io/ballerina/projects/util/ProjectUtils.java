@@ -186,7 +186,10 @@ public class ProjectUtils {
             ModulePartNode modulePartNode = document.syntaxTree().rootNode();
 
             for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
-                String orgName = importDcl.orgName().get().orgName().text();
+                String orgName = "";
+                if (importDcl.orgName().isPresent()) {
+                    orgName = importDcl.orgName().get().orgName().text();
+                }
                 SeparatedNodeList<IdentifierToken> identifierTokenList = importDcl.moduleName();
                 StringJoiner stringJoiner = new StringJoiner(".");
                 for (int i = 0; i < identifierTokenList.size(); i++) {
