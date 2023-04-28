@@ -75,15 +75,31 @@ function testXMLSequence() {
     test:assertEquals(x10.toString(), "<!--comment-->text1");
     xml<'xml:Element|'xml:ProcessingInstruction> x11 = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
     test:assertEquals(x11.toString(), "<root> text1<foo>100</foo><foo>200</foo></root><?foo ?>");
-    xml<'xml:Text>|xml<'xml:Comment> x13 = xml `<!--comment-->text1`;
-    test:assertEquals(x13.toString(), "<!--comment-->text1");
-    xml<xml<'xml:Text>>|xml<xml<'xml:Comment>> x14 = xml `<!--comment-->text1`;
-    test:assertEquals(x14.toString(), "<!--comment-->text1");
-    xml<'xml:Element>|'xml:Text x15 = xml `<root> text1<foo>100</foo><foo>200</foo></root> text1`;
-    test:assertEquals(x15.toString(), "<root> text1<foo>100</foo><foo>200</foo></root> text1");
     'xml:Text x16 = xml `text ${v1}`;
     test:assertEquals(x16.toString(), "text interpolation1");
+    
+    any x30 = xml `foo<e></e>`; 
+    test:assertEquals(x30.toString(), "foo<e></e>");
+    anydata x31 = xml `bar<e></e>`; 
+    test:assertEquals(x31.toString(), "bar<e></e>");
+    any|Template x32 = xml `foo<elem></elem>`;
+    test:assertEquals(x32.toString(), "foo<elem></elem>");
+    Template|any x33 = xml `bar<elem></elem>`; 
+    test:assertEquals(x33.toString(), "bar<elem></elem>");
+    xml|error x34 = xml `world<elem></elem>`;
+    if (x34 is xml) {
+        test:assertEquals(x34.toString(), "world<elem></elem>");
+    }
+    xml|xml<xml:Text>|xml:Text x35 = xml `hello<e></e>`;
+    test:assertEquals(x35.toString(), "hello<e></e>");
+    xml|xml<xml:Text|xml:Comment> x36 = xml `world<e></e>`;
+    test:assertEquals(x36.toString(), "world<e></e>");
 }
+
+public type Template object {
+    public string[] & readonly strings;
+    public anydata[] insertions;
+};
 
 function testXMLTextLiteral() returns [xml, xml, xml, xml, xml, xml] {
     string v1 = "11";

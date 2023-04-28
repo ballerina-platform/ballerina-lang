@@ -97,9 +97,9 @@ public class TesterinaUtils {
      * @param testSuite test meta data
      */
     public static void executeTests(Path sourceRootPath, TestSuite testSuite, ClassLoader classLoader,
-                                    TestArguments args, String[] cliArgs) throws RuntimeException {
+                                    TestArguments args, String[] cliArgs, PrintStream out) throws RuntimeException {
         try {
-            execute(testSuite, classLoader, args, cliArgs);
+            execute(testSuite, classLoader, args, cliArgs, out);
             cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
 //            if (testRunner.getTesterinaReport().isFailure()) {
 //                throw new RuntimeException("there are test failures");
@@ -114,7 +114,8 @@ public class TesterinaUtils {
         }
     }
 
-    private static void execute(TestSuite suite, ClassLoader classLoader, TestArguments args, String[] cliArgs) {
+    private static void execute(TestSuite suite, ClassLoader classLoader, TestArguments args, String[] cliArgs,
+                                PrintStream out) {
         String initClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
                 suite.getTestPackageID(),
                 suite.getVersion(),
@@ -135,6 +136,10 @@ public class TesterinaUtils {
             throw new BallerinaTestException("failed to load configuration class :" + configClassName);
         }
         String suiteExecuteFilePath = suite.getExecuteFilePath();
+        if (suiteExecuteFilePath.equals("")) {
+            out.println("\tNo tests found");
+            return;
+        }
         if (suite.getOrgName().equals(ANON_ORG) && suite.getTestPackageID().equals(DOT)) {
             suiteExecuteFilePath = suiteExecuteFilePath.replace(DOT, FILE_NAME_PERIOD_SEPARATOR);
         }

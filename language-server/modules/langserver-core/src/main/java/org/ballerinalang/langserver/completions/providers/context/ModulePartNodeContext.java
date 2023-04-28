@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
 import org.ballerinalang.langserver.completions.providers.context.util.ServiceTemplateGenerator;
@@ -88,7 +89,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                 currently the qualifier can be isolated/transactional/client.
             */
             completionItems.addAll(this.getCompletionItemsOnQualifiers(node, context));
-            Optional<Token> lastQualifier = getLastQualifier(context, node);
+            Optional<Token> lastQualifier = ModulePartNodeContextUtil.getLastQualifier(context, node);
             if (lastQualifier.isPresent() && lastQualifier.get().kind() == SyntaxKind.CONFIGURABLE_KEYWORD) {
                 resolvedContext = ResolvedContext.CONFIGURABLE_QUALIFIER;
             }
@@ -117,13 +118,17 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
                         Snippet.KW_FINAL, Snippet.KW_CONST, Snippet.KW_LISTENER, Snippet.KW_CLIENT,
                         Snippet.KW_VAR, Snippet.KW_ENUM, Snippet.KW_XMLNS, Snippet.KW_CLASS,
                         Snippet.KW_TRANSACTIONAL, Snippet.DEF_FUNCTION, Snippet.DEF_EXPRESSION_BODIED_FUNCTION,
-                        Snippet.DEF_MAIN_FUNCTION, Snippet.KW_CONFIGURABLE, Snippet.DEF_ANNOTATION,
+                        Snippet.KW_CONFIGURABLE, Snippet.DEF_ANNOTATION,
                         Snippet.DEF_RECORD, Snippet.STMT_NAMESPACE_DECLARATION, Snippet.DEF_OBJECT_SNIPPET,
                         Snippet.DEF_CLASS, Snippet.DEF_ENUM, Snippet.DEF_CLOSED_RECORD,
                         Snippet.DEF_ERROR_TYPE, Snippet.DEF_TABLE_TYPE_DESC, Snippet.DEF_TABLE_WITH_KEY_TYPE_DESC,
                         Snippet.DEF_STREAM, Snippet.DEF_SERVICE_COMMON
                 );
                 snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));
+                if (ModulePartNodeContextUtil.isMainFunctionUnavailable(context)) {
+                    LSCompletionItem mainCompletionItem = FunctionCompletionItemBuilder.buildMainFunction(context);
+                    completionItems.add(mainCompletionItem);
+                }
                 return completionItems;
             case SERVICE_KEYWORD:
             case CLIENT_KEYWORD:
@@ -133,7 +138,7 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
             case ISOLATED_KEYWORD:
                 if (qualKinds.contains(SyntaxKind.TRANSACTIONAL_KEYWORD)) {
                     completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
-                    completionItems.add(new SnippetCompletionItem(context, 
+                    completionItems.add(new SnippetCompletionItem(context,
                             Snippet.DEF_EXPRESSION_BODIED_FUNCTION.get()));
                     break;
                 }
@@ -180,31 +185,10 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
         if (qualifiers.isEmpty()) {
             return false;
         }
-        
+
         // If cursor is after the last qualifier, no problem
         Token lastQualifier = qualifiers.get(qualifiers.size() - 1);
         return lastQualifier.textRange().endOffset() < cursor;
-    }
-
-    /**
-     * Get the last qualifier of the node, but in the same line as the cursor. We have to consider the cursor's
-     * line here due to parser's behavior at the module context.
-     *
-     * @param context Completion context
-     * @param node    Node
-     * @return Optional last qualifier's token
-     */
-    private Optional<Token> getLastQualifier(BallerinaCompletionContext context, Node node) {
-        Position cursorPos = context.getCursorPosition();
-        // Get the qualifiers in the same line as the cursor
-        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node)
-                .stream()
-                .filter(qualifier -> qualifier.lineRange().endLine().line() == cursorPos.getLine())
-                .collect(Collectors.toList());
-        if (qualifiers.isEmpty()) {
-            return Optional.empty();
-        }
-        return Optional.of(qualifiers.get(qualifiers.size() - 1));
     }
 
     private List<LSCompletionItem> getModulePartContextItems(BallerinaCompletionContext context) {
