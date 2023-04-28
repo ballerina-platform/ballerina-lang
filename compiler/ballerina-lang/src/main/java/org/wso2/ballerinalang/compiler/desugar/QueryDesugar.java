@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -237,6 +238,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private SymbolEnv queryEnv;
     private boolean containsCheckExpr;
     private boolean withinQuery = false;
+    private boolean afterGroupBy = false;
     private boolean withinLambdaOrArrowFunc = false;
     private HashSet<BType> checkedErrorList;
 
@@ -1660,18 +1662,25 @@ public class QueryDesugar extends BLangNodeVisitor {
         List<BLangExpression> restArgs = invocation.restArgs;
         for (int i = 0; i < restArgs.size(); i++) {
             BLangExpression arg = restArgs.get(i);
-            if (arg.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                BLangSimpleVarRef varRef = (BLangSimpleVarRef) arg;
-                BSymbol symbol = varRef.symbol;
-                if (symbol != null && (symbol.tag & SymTag.SEQUENCE) == SymTag.SEQUENCE) {
-                    BType elementType = ((BSequenceType) symbol.type).elementType;
-                    BType type = symbol.type = new BTupleType(null, new ArrayList<>(0), elementType, 0);
-                    varRef.setBType(type);
-                    restArgs.set(i, createRestArgsExpression(varRef, type));
-                }
+            if (arg.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                continue;
             }
-            this.acceptNode(restArgs.get(i));
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) arg;
+            BSymbol symbol = varRef.symbol;
+            if (symbol == null || (symbol.tag & SymTag.SEQUENCE) != SymTag.SEQUENCE) {
+                continue;
+            }
+            BType type;
+            if (symbol.type.tag == TypeTags.SEQUENCE) {
+                BType elementType = ((BSequenceType) symbol.type).elementType;
+                type = symbol.type = new BTupleType(null, new ArrayList<>(0), elementType, 0);
+            } else {
+                type = symbol.type;
+            }
+            varRef.setBType(type);
+            restArgs.set(i, createRestArgsExpression(varRef, type));
         }
+        restArgs.forEach(this::acceptNode);
     }
 
     private BLangRestArgsExpression createRestArgsExpression(BLangSimpleVarRef expr, BType type) {
@@ -1830,7 +1839,8 @@ public class QueryDesugar extends BLangNodeVisitor {
                     }
                 }
                 identifiers.put(identifier, symbol);
-            } else if (identifiers.containsKey(identifier) && (withinLambdaOrArrowFunc || withinQuery)) {
+            } else if (identifiers.containsKey(identifier) && (withinLambdaOrArrowFunc || withinQuery)
+                    && !afterGroupBy) {
                 symbol = identifiers.get(identifier);
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
@@ -2302,9 +2312,12 @@ public class QueryDesugar extends BLangNodeVisitor {
         boolean prevWithinQuery = withinQuery;
         // This can be set to true directly since it's invoked only for nested queries.
         this.withinQuery = true;
+        boolean prevAfterGroupBy = this.afterGroupBy;
+        this.afterGroupBy = false;
         queryExpr.getQueryClauses().forEach(this::acceptNode);
         this.withinQuery = prevWithinQuery;
         this.queryEnv = prevQueryEnv;
+        this.afterGroupBy = prevAfterGroupBy;
     }
     
     @Override
@@ -2317,6 +2330,12 @@ public class QueryDesugar extends BLangNodeVisitor {
     public void visit(BLangFromClause fromClause) {
         this.queryEnv = fromClause.env;
         this.acceptNode(fromClause.collection);
+        VariableNode var = fromClause.variableDefinitionNode.getVariable();
+        // TODO: Extend this for other variables kinds such as record, list.
+        if (var.getKind() == NodeKind.VARIABLE) {
+            BLangSimpleVariable simpleVar = (BLangSimpleVariable) fromClause.variableDefinitionNode.getVariable();
+            identifiers.put(simpleVar.name.value, simpleVar.symbol);
+        }
         //we don't have to reset the env to the prev env because from clause is the init clause for the query
     }
 
@@ -2331,6 +2350,9 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLetClause letClause) {
+        for (BLangLetVariable letVar : letClause.letVarDeclarations) {
+            this.acceptNode((BLangNode) letVar.definitionNode);
+        }
     }
 
     @Override
@@ -2361,6 +2383,18 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangOrderByClause orderByClause) {
         orderByClause.orderByKeyList.forEach(key -> this.acceptNode(((BLangOrderKey) key).expression));
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        afterGroupBy = true;
+        groupByClause.groupingKeyList.forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKey) {
+        this.acceptNode(groupingKey.variableDef);
+        this.acceptNode(groupingKey.variableRef);
     }
 
     @Override

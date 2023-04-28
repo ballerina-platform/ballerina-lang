@@ -23,7 +23,7 @@ function testSeqVarAsRequiredArg() {
                 select array:length(price); // error
 }
 
-function testSeqVarInInvalidPositions() {
+function testSeqVarInInvalidPositions1() {
     var res1 = from var {name, price} in [{name: "Saman", price: 11}, {name: "Kamal", price: 15}]
                 group by name
                 select price; // error
@@ -114,4 +114,12 @@ function testRecordDestructure() {
                     int[] prices;
                     {prices} = {prices: [price]}; // error
                 };
+}
+
+function testSeqVarInInvalidPositions2() {
+    var input = [{name: "Saman", price1: 11}];
+    var xx = from var item in input
+                group by string name = item.name
+                let var x = item.price1 // error
+                select [item];     
 }
