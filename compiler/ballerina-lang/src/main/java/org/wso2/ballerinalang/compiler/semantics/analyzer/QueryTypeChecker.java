@@ -324,7 +324,7 @@ public class QueryTypeChecker extends TypeChecker {
                             true, true);
                     selectType = checkExprSilent(selectExp, env, streamConstraint, data);
                     if (selectType.tag == TypeTags.SEMANTIC_ERROR) {
-                        errorTypes.add(selectType);
+                        errorTypes.add(streamConstraint);
                         continue;
                     }
                     resolvedType = symTable.streamType;

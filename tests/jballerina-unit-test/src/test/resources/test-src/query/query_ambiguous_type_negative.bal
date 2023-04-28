@@ -19,7 +19,7 @@ type Book record {|
     string author;
 |};
 
-function testSimpleQueryExprForStringNegative() returns error? {
+function testQueryExprForAmbiguousTypes() returns error? {
     string:Char chr = "a";
     Book[] bookList = [];
     string[] strArr = ["a", "b", "c"];
@@ -35,4 +35,11 @@ function testSimpleQueryExprForStringNegative() returns error? {
                         <Author>${book.author}</Author>
                         <Title>${book.title}</Title>
                     </Book>`;
+}
+
+function testQueryExprForErrStream() returns error? {
+    int[] numList = [1, 2, 3];
+    string:Char chr = "a";
+    stream<int, error?> _ = stream from var i in numList select chr;
+    stream<int, error?>|string _ = stream from var i in numList select chr;
 }
