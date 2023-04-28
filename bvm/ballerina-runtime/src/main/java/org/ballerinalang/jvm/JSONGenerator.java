@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -67,7 +68,11 @@ public class JSONGenerator {
     }
 
     public JSONGenerator(OutputStream out, Charset charset) {
-        this(new BufferedWriter(new OutputStreamWriter(out, charset)));
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, charset))) {
+            this.writer = writer;
+        } catch (IOException e) {
+            throw new BallerinaException("error occurred while creating JSONGenerator: " + e.getMessage(), e);
+        }
     }
 
     public JSONGenerator(Writer writer) {
