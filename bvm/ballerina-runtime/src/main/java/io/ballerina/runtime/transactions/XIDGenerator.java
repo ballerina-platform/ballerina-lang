@@ -41,4 +41,7 @@ public class XIDGenerator {
         final byte[] globalTransactionId = randomBytes();
         return new XATransactionID(formatIdIdGenerator.incrementAndGet(), branchQualifier, globalTransactionId);
     }
+
+    private XIDGenerator() {
+    }
 }
