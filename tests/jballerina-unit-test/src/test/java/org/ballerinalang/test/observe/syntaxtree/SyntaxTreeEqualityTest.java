@@ -24,7 +24,6 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
 
@@ -38,7 +37,7 @@ public class SyntaxTreeEqualityTest {
     private static final String testPkgLocation = Paths.get("test-src", "syntaxtree").toFile().getPath();
 
     @Test
-    public void testSyntaxTreeEquality() throws URISyntaxException, IOException {
+    public void testSyntaxTreeEquality() throws IOException {
         String jsonFilePath = "syntax-tree/syntax-tree.json";
 
         // Build the package
