@@ -264,7 +264,7 @@ public class CompilationOptions {
         private Boolean exportOpenAPI;
         private Boolean exportComponentModel;
         private Boolean enableCache;
-        private Boolean semtype;
+        private Boolean semtype = true;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;

@@ -267,8 +267,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         CompilerOptions options = CompilerOptions.getInstance(context);
-//        symbolEnter.semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
-        symbolEnter.semtypeEnabled = true;
+        symbolEnter.semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
         return symbolEnter;
     }
 
