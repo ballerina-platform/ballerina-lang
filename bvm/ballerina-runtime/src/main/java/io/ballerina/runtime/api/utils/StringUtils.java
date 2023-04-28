@@ -375,15 +375,14 @@ public class StringUtils {
     }
 
     private static String stringToJson(BString value) {
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        JsonGenerator gen = new JsonGenerator(byteOut);
-        try {
+        try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream()) {
+            JsonGenerator gen = new JsonGenerator(byteOut);
             gen.writeString(value.getValue());
             gen.flush();
+            return byteOut.toString();
         } catch (IOException e) {
             throw new BallerinaException("Error in converting string value to a json string: " + e.getMessage(), e);
         }
-        return byteOut.toString();
     }
 
     private StringUtils() {
