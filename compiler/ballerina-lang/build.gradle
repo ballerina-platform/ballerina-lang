@@ -45,6 +45,7 @@ checkstyleMain {
     exclude 'io/ballerina/projects/internal/bala/BalaJson.java'
     exclude 'io/ballerina/projects/internal/bala/PackageJson.java'
     exclude 'io/ballerina/projects/internal/bala/CompilerPluginJson.java'
+    exclude 'io/ballerina/projects/internal/bala/BalToolJson.java'
     exclude 'org/ballerinalang/toml/model/Module.java'
     exclude 'org/ballerinalang/toml/model/Bala.java'
     exclude 'org/ballerinalang/toml/model/LockFile.java'

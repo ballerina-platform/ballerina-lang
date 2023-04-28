@@ -30,6 +30,7 @@ public class ProjectConstants {
     public static final String BALLERINA_TOML = "Ballerina.toml";
     public static final String DEPENDENCIES_TOML = "Dependencies.toml";
     public static final String COMPILER_PLUGIN_TOML = "CompilerPlugin.toml";
+    public static final String BAL_TOOL_TOML = "BalTool.toml";
     public static final String SETTINGS_TOML = "Settings.toml";
     public static final String BAL_TOOLS_TOML = "bal-tools.toml";
     public static final String CLOUD_TOML = "Cloud.toml";
@@ -42,6 +43,7 @@ public class ProjectConstants {
     public static final String PACKAGE_JSON = "package.json";
     public static final String BALA_JSON = "bala.json";
     public static final String COMPILER_PLUGIN_JSON = "compiler-plugin.json";
+    public static final String BAL_TOOL_JSON = "bal-tool.json";
     public static final String DEPENDENCY_GRAPH_JSON = "dependency-graph.json";
     public static final String DEPRECATED_META_FILE_NAME = "deprecated.txt";
     public static final String BUILD_FILE = "build";
