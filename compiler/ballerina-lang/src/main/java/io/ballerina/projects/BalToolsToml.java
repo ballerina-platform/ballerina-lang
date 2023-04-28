@@ -99,7 +99,7 @@ public class BalToolsToml {
         StringBuilder content = new StringBuilder();
         for (Map.Entry<String, BalToolsManifest.Tool> tool: balToolsManifest.tools().entrySet()) {
             content.append("[[tool]]\n");
-            content.append("id = \"").append(tool.getKey()).append("\"\n");
+            content.append("id = \"").append(tool.getValue().id()).append("\"\n");
             content.append("path = \"").append(tool.getValue().path()).append("\"\n");
             content.append("version = \"").append(tool.getValue().version()).append("\"\n\n");
         }

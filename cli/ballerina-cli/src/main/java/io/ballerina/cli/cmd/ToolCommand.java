@@ -40,7 +40,9 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
@@ -263,8 +265,63 @@ class ToolCommand implements BLauncherCmd {
     }
 
     private void handleUninstallCommand() {
-        // TODO: remove from bal-tools.toml file and delete the jar file
-        //  bal tool uninstall <tool-id>
+        if (argList.size() < 2) {
+            CommandUtil.printError(this.errStream, "no tool id given",
+                    "bal tool uninstall <tool-id>:[<version>]", false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        if (argList.size() > 2) {
+            CommandUtil.printError(
+                    this.errStream, "too many arguments", "bal tool uninstall <tool-id>:[<version>]", false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        String toolIdAndVersion = argList.get(1);
+        String[] toolInfo = toolIdAndVersion.split(":");
+        if (toolInfo.length == 2) {
+            toolId = toolInfo[0];
+            version = toolInfo[1];
+        } else if (toolInfo.length == 1) {
+            toolId = toolIdAndVersion;
+            version = Names.EMPTY.getValue();
+        } else {
+            CommandUtil.printError(errStream, "invalid tool id",
+                    "bal tool uninstall <tool-id>:[<version>]", false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        if (!validatePackageName(toolId)) {
+            CommandUtil.printError(errStream, "invalid tool id",
+                    "bal tool uninstall <tool-id>:[<version>]", false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        if (!Names.EMPTY.getValue().equals(version)) {
+            try {
+                SemanticVersion.from(version);
+            } catch (ProjectException e) {
+                CommandUtil.printError(errStream, "invalid tool version. " + e.getMessage(),
+                        "bal tool pull <tool-id>[:<version>]", false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+        }
+
+        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+        boolean uninstallSuccess;
+        if (Names.EMPTY.getValue().equals(version)) {
+            uninstallSuccess = uninstallAllToolVersions(balToolsManifest);
+        } else {
+            uninstallSuccess = uninstallSpecificToolVersion(balToolsManifest);
+        }
+        if (uninstallSuccess) {
+            balToolsToml.modify(balToolsManifest);
+        }
     }
 
 //    private boolean pullToolFromCentral(String supportedPlatform, Path packagePathInBalaCache)
@@ -351,5 +408,61 @@ class ToolCommand implements BLauncherCmd {
         BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
         BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
         return new ArrayList<>(balToolsManifest.tools().values());
+    }
+
+
+    private boolean uninstallAllToolVersions(BalToolsManifest balToolsManifest) {
+        boolean foundTools = false;
+
+        Iterator<BalToolsManifest.Tool> iter = balToolsManifest.tools().values().iterator();
+        while (iter.hasNext()) {
+            BalToolsManifest.Tool tool = iter.next();
+            if (tool.id().equals(toolId)) {
+                String mapId = tool.id() + ":" + tool.version();
+                boolean isDeleted = deletePackageCentralCache(tool.path());
+                if (!isDeleted) {
+                    CommandUtil.printError(
+                            errStream, "failed to delete the tool jar for the tool " + mapId, null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return false;
+                }
+                iter.remove();
+                foundTools = true;
+            }
+        }
+        if (!foundTools) {
+            CommandUtil.printError(errStream, "tool " + toolId + " does not exist locally", null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean uninstallSpecificToolVersion(BalToolsManifest balToolsManifest) {
+        String mapId = toolId + ":" + version;
+        // if version is specified remove only the given version.
+        if (balToolsManifest.tools().containsKey(mapId)) {
+            boolean isDeleted = deletePackageCentralCache(balToolsManifest.tools().get(mapId).path());
+            if (!isDeleted) {
+                CommandUtil.printError(errStream, "failed to delete the tool jar for the tool " + mapId,
+                        null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return false;
+            }
+            balToolsManifest.removeTool(mapId);
+        } else {
+            CommandUtil.printError(errStream, "tool " + mapId + " does not exist locally", null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean deletePackageCentralCache(String toolJarPath) {
+        Optional<Path> libsDir = Optional.ofNullable(Path.of(toolJarPath).getParent());
+        Optional<Path> toolsDir = libsDir.flatMap(p -> Optional.ofNullable(p.getParent()));
+        Optional<Path> platformDir = toolsDir.flatMap(p -> Optional.ofNullable(p.getParent()));
+        Optional<Path> versionDir = platformDir.flatMap(p -> Optional.ofNullable(p.getParent()));
+        return versionDir.filter(ProjectUtils::deleteDirectory).isPresent();
     }
 }

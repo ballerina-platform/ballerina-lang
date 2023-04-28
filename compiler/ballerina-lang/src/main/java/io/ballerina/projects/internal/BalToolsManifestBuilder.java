@@ -71,8 +71,8 @@ public class BalToolsManifestBuilder {
         return this;
     }
 
-    public BalToolsManifestBuilder removeTool(String id) {
-        balToolsManifest.removeTool(id);
+    public BalToolsManifestBuilder removeTool(String idAndVersion) {
+        balToolsManifest.removeTool(idAndVersion);
         return this;
     }
 
@@ -134,7 +134,7 @@ public class BalToolsManifestBuilder {
                 } catch (ProjectException ignore) {
                     continue;
                 }
-                tools.put(id, new BalToolsManifest.Tool(id, path, version));
+                tools.put(id + ":" + version, new BalToolsManifest.Tool(id, path, version));
             }
         }
         return tools;

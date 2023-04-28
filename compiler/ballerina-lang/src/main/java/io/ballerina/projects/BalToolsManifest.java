@@ -45,11 +45,11 @@ public class BalToolsManifest {
     }
 
     public void addTool(String id, String path, String version) {
-        tools.put(id, new Tool(id, path, version));
+        tools.put(id + ":" + version, new Tool(id, path, version));
     }
 
-    public void removeTool(String id) {
-        tools.remove(id);
+    public void removeTool(String idAndVersion) {
+        tools.remove(idAndVersion);
     }
 
     /**
