@@ -948,9 +948,11 @@ public class CommandUtil {
      *
      * @param template given string
      * @param packagePath given path
-     * @return error message if files exists
+     * @throws URISyntaxException if URI syntax exception occurred
+     * @throws IOException if IO exception occurred
      */
-    public static void checkTemplateFilesExists(String template, Path packagePath) throws URISyntaxException, IOException {
+    public static void checkTemplateFilesExists(String template, Path packagePath) throws URISyntaxException,
+            IOException {
         Path templateDir = getTemplatePath().resolve(template);
         if (template.equalsIgnoreCase("main")) {
             templateDir = getTemplatePath().resolve("default");
@@ -965,7 +967,7 @@ public class CommandUtil {
      *
      * @param packagePath given path
      * @param templatesPath given path
-     * @return error message if files exists
+     * @throws IOException if IO exception occurred
      */
     private static void checkFilesExists(Path packagePath, Path templatesPath) throws IOException {
         Stream<Path> paths = Files.list(templatesPath);
@@ -980,7 +982,6 @@ public class CommandUtil {
      * Check if common files of a package exist in a given path.
      *
      * @param packagePath given path
-     * @return error message if files exists
      */
     public static void checkPackageFilesExists(Path packagePath) {
         //.bal files

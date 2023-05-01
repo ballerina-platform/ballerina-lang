@@ -132,8 +132,7 @@ public class NewCommand implements BLauncherCmd {
             checkPackageFilesExists(absolutePackagePath);
             packageDirectory = absolutePackagePath;
             packageName = absolutePackagePath.getFileName().toString();
-        }
-        else {
+        } else {
             if (absolutePackagePath.getParent() == null) {
                 CommandUtil.printError(errStream,
                         "destination '" + absolutePackagePath + "' does not exist.",
