@@ -942,4 +942,107 @@ public class CommandUtil {
     private static String removeLastCharacter(String str) {
         return str.substring(0, str.length() - 1);
     }
+
+    /**
+     * Check if files of the given template exist in a given path.
+     *
+     * @param template given string
+     * @param packagePath given path
+     * @return error message if files exists
+     */
+    public static void checkTemplateFilesExists(String template, Path packagePath) throws URISyntaxException, IOException {
+        Path templateDir = getTemplatePath().resolve(template);
+        if (template.equalsIgnoreCase("main")) {
+            templateDir = getTemplatePath().resolve("default");
+            Path tempDirTest = getTemplatePath().resolve("main");
+            checkFilesExists(packagePath, tempDirTest);
+        }
+        checkFilesExists(packagePath, templateDir);
+    }
+
+    /**
+     * Check if a set of files in one location exists in another.
+     *
+     * @param packagePath given path
+     * @param templatesPath given path
+     * @return error message if files exists
+     */
+    private static void checkFilesExists(Path packagePath, Path templatesPath) throws IOException {
+        Stream<Path> paths = Files.list(templatesPath);
+        List<Path> templateFilePathList = paths.collect(Collectors.toList());
+        for (Path path : templateFilePathList) {
+            String fileName = path.getFileName().toString();
+            fileExists(packagePath, fileName);
+        }
+    }
+
+    /**
+     * Check if common files of a package exist in a given path.
+     *
+     * @param packagePath given path
+     * @return error message if files exists
+     */
+    public static void checkPackageFilesExists(Path packagePath) {
+        //.bal files
+        balFilesExists(packagePath);
+        //dependencies.toml
+        fileExists(packagePath, DEPENDENCIES_TOML);
+        //Package.md
+        fileExists(packagePath, ProjectConstants.PACKAGE_MD_FILE_NAME);
+        //Module.md
+        fileExists(packagePath, ProjectConstants.MODULE_MD_FILE_NAME);
+        //modules directory
+        ProjectUtils.deleteDirectory(packagePath.resolve(ProjectConstants.MODULES_ROOT));
+        //tests directory
+        ProjectUtils.deleteDirectory(packagePath.resolve(ProjectConstants.TEST_DIR_NAME));
+        //.gitignore
+        fileExists(packagePath, ProjectConstants.GITIGNORE_FILE_NAME);
+        //.devContainer
+        fileExists(packagePath, ProjectConstants.DEVCONTAINER);
+    }
+
+    /**
+     * Check if a file of the given name exists in a given path.
+     *
+     * @param packagePath given path
+     * @param fileName given string
+     * @return error message if files exists
+     */
+    private static void fileExists(Path packagePath, String fileName) {
+        Path filePath = packagePath.resolve(fileName);
+        if (Files.exists(filePath)) {
+            printError(errStream,
+                    fileName + " already exists in given directory. " +
+                            "Please use a different directory or remove existing files.",
+                    null,
+                    false);
+            getRuntime().exit(1);
+        }
+    }
+
+    /**
+     * Check if .bal files exist in a given path.
+     *
+     * @param packagePath given path
+     * @return error message if files exists
+     */
+    private static void balFilesExists(Path packagePath) {
+        try {
+            if (Files.walk(packagePath).anyMatch(path -> path.toString().endsWith(".bal"))) {
+                printError(errStream,
+                        "Existing .bal files found in " + packagePath + ". " +
+                                "Please use a different directory or remove existing files.",
+                        null,
+                        false);
+                getRuntime().exit(1);
+            }
+            } catch (IOException e) {
+                printError(errStream,
+                        "Error occured while checking for existing .bal files in " + packagePath,
+                        null,
+                        false);
+                getRuntime().exit(1);
+        }
+    }
 }
+

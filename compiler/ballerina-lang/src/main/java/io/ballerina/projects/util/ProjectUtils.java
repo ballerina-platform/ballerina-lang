@@ -947,6 +947,25 @@ public class ProjectUtils {
     }
 
     /**
+     * Delete the given type of files from the given directory.
+     *
+     * @param packagePath Directory to delete.
+     * @param fileType file type to delete
+     */
+    public static void deleteFilesOfType(Path packagePath, String fileType) throws IOException {
+        Files.walk(packagePath)
+                .filter(path -> path.toString().endsWith(fileType))
+                .forEach(path -> {
+                    try {
+                        Files.deleteIfExists(path);
+                    } catch (IOException e) {
+                        throw new ProjectException("Failed to delete files: " +
+                                e.getMessage(), e);
+                    }
+                });
+    }
+
+    /**
      * Read build file from given path.
      *
      * @param buildJsonPath build file path
