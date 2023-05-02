@@ -1994,6 +1994,79 @@ function testOptionalFieldsInInput() {
     assertEquality(["Saman", "Kamal", "Amal"], res2);
 }
 
+function testMultipleGroupByInSameQuery() {
+    var input1 = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 9},
+                    {name: "Amal", price1: 11, price2: 13},
+                    {name: "Amal", price1: 11, price2: 15}];
+    
+    var x1 = from var {name, price1, price2} in input1
+                group by name
+                group by var p1 = [price1]
+                select [name];
+    assertEquality([["Saman", "Amal"], ["Kamal"]], x1);
+
+    var x2 = from var {name, price1, price2} in input1
+                group by price1
+                group by price1
+                select price1;
+    assertEquality([11, 10], x2);
+
+    var x3 = from var {name, price1, price2} in input1
+                group by price1
+                let var n = [name]
+                group by price1
+                select [n];
+    assertEquality([[["Saman", "Saman", "Amal", "Amal"]], [["Kamal", "Kamal", "Kamal"]]], x3);
+
+    var input2 = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 11},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Amal", price1: 12, price2: 13},
+                    {name: "Amal", price1: 12, price2: 15}];    
+
+    var x4 = from var {name, price1, price2} in input2
+                group by price1
+                let var n = [name]
+                group by var p2 = [price2]
+                select [n];
+    assertEquality([[["Saman", "Saman"], ["Kamal", "Kamal"]], [["Amal", "Amal"]]], x4);
+
+    var x5 = from var {name, price1, price2} in input2
+                group by price1
+                let var n1 = [name]
+                group by var p2 = [price2]
+                let var n2 = [n1]
+                group by p2
+                select [n2];
+    assertEquality([[[["Saman", "Saman"], ["Kamal", "Kamal"]]], [[["Amal", "Amal"]]]], x5);
+
+    var x6 = from var {name, price1, price2} in input2
+                group by price1
+                let var n = [name]
+                group by n
+                select n;
+    assertEquality([["Saman", "Saman"], ["Kamal", "Kamal"], ["Amal", "Amal"]], x6);
+
+    var input3 = [{name: "Saman", price1: 11, price2: 12},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Amal", price1: 12, price2: 13},
+                    {name: "Amal", price1: 12, price2: 15}];   
+
+    var x7 = from var {name, price1, price2} in input3
+                group by price1, price2
+                let var n = [name]
+                group by var _ = price1 + price2
+                select [n];
+    assertEquality([[["Saman", "Saman", "Kamal"]], [["Kamal"]], [["Amal"]], [["Amal"]]], x7);    
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

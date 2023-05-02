@@ -783,6 +783,7 @@ public class QueryTypeChecker extends TypeChecker {
         SymbolEnv groupByEnv = SymbolEnv.createTypeNarrowedEnv(groupByClause, data.commonAnalyzerData.queryEnvs.pop());
         groupByClause.env = groupByEnv;
         data.commonAnalyzerData.queryEnvs.push(groupByEnv);
+        groupByClause.nonGroupingKeys = new HashSet<>(data.queryVariables);
         for (BLangGroupingKey groupingKey : groupByClause.groupingKeyList) {
             String variable;
             if (groupingKey.variableRef != null) {
@@ -792,10 +793,10 @@ public class QueryTypeChecker extends TypeChecker {
                 semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env, this,
                         data.commonAnalyzerData);
                 variable = groupingKey.variableDef.var.name.value;
+                data.queryVariables.add(variable);
             }
-            data.queryVariables.remove(variable);
+            groupByClause.nonGroupingKeys.remove(variable);
         }
-        groupByClause.nonGroupingKeys = new HashSet<>(data.queryVariables);
         for (String var : groupByClause.nonGroupingKeys) {
             Name name = new Name(var);
             BSymbol originalSymbol = symResolver.lookupSymbolInMainSpace(groupByEnv, name);

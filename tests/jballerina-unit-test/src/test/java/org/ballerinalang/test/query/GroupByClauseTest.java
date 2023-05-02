@@ -156,7 +156,8 @@ public class GroupByClauseTest {
                 "testGroupByVarDefsAndSelectWithNonGroupingKeys9",
 
                 "testMultipleGroupBy",
-                "testOptionalFieldsInInput"
+                "testOptionalFieldsInInput",
+                "testMultipleGroupByInSameQuery"
         };
     }
 
