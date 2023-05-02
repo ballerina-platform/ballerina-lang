@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.natives.mock;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
@@ -283,7 +284,12 @@ public class ObjectMock {
 
             // register return value for member field
             String fieldName = caseObj.getStringValue(StringUtils.fromString("fieldName")).toString();
-
+            if (!validateFieldAccessIsPublic(objectType, fieldName)) {
+                String detail = "member field should be public to be mocked. " +
+                        "The provided field '" + fieldName + "' is not public";
+                return ErrorCreator.createError(StringUtils.fromString(MockConstants.NON_PUBLIC_MEMBER_FIELD_ERROR),
+                        StringUtils.fromString(detail));
+            }
             if (!validateFieldValue(returnVal, objectType.getFields().get(fieldName).getFieldType())) {
                 String detail = "return value provided does not match the type of '" + fieldName + "'";
                 return ErrorCreator.createError(
@@ -296,6 +302,10 @@ public class ObjectMock {
             MockRegistry.getInstance().registerCase(mockObj, fieldName, null, returnVal);
         }
         return null;
+    }
+
+    private static boolean validateFieldAccessIsPublic(ObjectType objectType, String fieldName) {
+        return SymbolFlags.isFlagOn(objectType.getFields().get(fieldName).getFlags(), SymbolFlags.PUBLIC);
     }
 
     /**
