@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.internal;
 
-import io.ballerina.runtime.api.Environment;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
@@ -52,18 +51,6 @@ public class BalRuntime implements Runtime {
 
     public BalRuntime(Scheduler scheduler) {
         this.scheduler = scheduler;
-    }
-
-    /**
-     * Gets the instance of ballerina runtime.
-     *
-     * @return Ballerina runtime instance.
-     * @deprecated use {@link Environment#getRuntime()} instead.
-     */
-    @Deprecated
-    public static BalRuntime getCurrentRuntime() {
-        Strand strand = Scheduler.getStrand();
-        return new BalRuntime(strand.scheduler);
     }
 
     /**
