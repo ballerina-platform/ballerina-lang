@@ -31,7 +31,7 @@ import java.util.Map;
  *
  * @since 1.0.0
  */
-public interface Runtime {
+public abstract class Runtime {
 
     /**
      * Invoke Object method asynchronously and sequentially. This method will ensure that the object methods are
@@ -52,7 +52,7 @@ public interface Runtime {
      * This method needs to be called if object.getType().isIsolated() or
      * object.getType().isIsolated(methodName) returns false.
      */
-    BFuture invokeMethodAsyncSequentially(BObject object, String methodName, String strandName,
+    public abstract BFuture invokeMethodAsyncSequentially(BObject object, String methodName, String strandName,
                                           StrandMetadata metadata, Callback callback, Map<String, Object> properties,
                                           Type returnType, Object... args);
 
@@ -75,7 +75,7 @@ public interface Runtime {
      * This method needs to be called if both object.getType().isIsolated() and
      * object.getType().isIsolated(methodName) returns true.
      */
-    BFuture invokeMethodAsyncConcurrently(BObject object, String methodName, String strandName,
+    public abstract BFuture invokeMethodAsyncConcurrently(BObject object, String methodName, String strandName,
                                           StrandMetadata metadata, Callback callback, Map<String, Object> properties,
                                           Type returnType, Object... args);
 
@@ -105,8 +105,9 @@ public interface Runtime {
      * object.getType().isIsolated(methodName) returns true.
      */
     @Deprecated
-    BFuture invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
-                              Callback callback, Map<String, Object> properties, Type returnType, Object... args);
+    public abstract BFuture invokeMethodAsync(BObject object, String methodName, String strandName,
+                                              StrandMetadata metadata, Callback callback,
+                                              Map<String, Object> properties, Type returnType, Object... args);
 
     /**
      * Invoke Object method asynchronously. This will schedule the function and block the strand.
@@ -127,12 +128,12 @@ public interface Runtime {
      * object.getType().isIsolated(methodName) returns true.
      */
     @Deprecated
-    Object invokeMethodAsync(BObject object, String methodName, String strandName, StrandMetadata metadata,
-                             Callback callback, Object... args);
+    public abstract Object invokeMethodAsync(BObject object, String methodName, String strandName,
+                                             StrandMetadata metadata, Callback callback, Object... args);
 
-    void registerListener(BObject listener);
+    public abstract void registerListener(BObject listener);
 
-    void deregisterListener(BObject listener);
+    public abstract void deregisterListener(BObject listener);
 
-    void registerStopHandler(BFunctionPointer<?, ?> stopHandler);
+    public abstract void registerStopHandler(BFunctionPointer<?, ?> stopHandler);
 }

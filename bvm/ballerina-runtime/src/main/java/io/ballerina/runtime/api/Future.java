@@ -23,7 +23,7 @@ package io.ballerina.runtime.api;
  *
  * @since 2.0.0
  */
-public interface Future {
+public abstract class Future {
 
-    void complete(Object returnValue);
+    public abstract void complete(Object returnValue);
 }

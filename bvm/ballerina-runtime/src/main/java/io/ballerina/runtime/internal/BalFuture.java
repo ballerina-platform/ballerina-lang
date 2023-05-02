@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @since 2201.6.0
  */
-public class BalFuture implements Future {
+public class BalFuture extends Future {
     private final Strand strand;
     private final AtomicBoolean visited = new AtomicBoolean();
 

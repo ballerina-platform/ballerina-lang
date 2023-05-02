@@ -33,7 +33,7 @@ import java.util.Optional;
  *
  * @since 2201.6.0
  */
-public class BalEnvironment implements Environment {
+public class BalEnvironment extends Environment {
 
     private final Strand strand;
     private BalFuture future;

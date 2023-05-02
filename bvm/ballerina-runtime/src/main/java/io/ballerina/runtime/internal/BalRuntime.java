@@ -45,7 +45,7 @@ import java.util.function.Function;
  *
  * @since 2201.6.0
  */
-public class BalRuntime implements Runtime {
+public class BalRuntime extends Runtime {
 
     private final Scheduler scheduler;
 

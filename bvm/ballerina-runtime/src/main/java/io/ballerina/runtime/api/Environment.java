@@ -28,21 +28,21 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface Environment {
+public abstract class Environment {
 
     /**
      * Returns the Ballerina function name for the corresponding external interop method.
      *
      * @return function name
      */
-    String getFunctionName();
+    public abstract String getFunctionName();
 
     /**
      * Returns an array consisting of the path parameters of the resource function defined as external.
      *
      * @return array of {@link Parameter}
      */
-    Parameter[] getFunctionPathParameters();
+    public abstract Parameter[] getFunctionPathParameters();
 
     /**
      * Mark the current executing strand as async. Execution of Ballerina code after the current
@@ -52,23 +52,23 @@ public interface Environment {
      *
      * @return {@link Future} which will resume the current strand when completed.
      */
-    Future markAsync();
+    public abstract Future markAsync();
 
-    Runtime getRuntime();
+    public abstract Runtime getRuntime();
 
     /**
      * Gets current module {@link Module}.
      *
      * @return module of the environment.
      */
-    Module getCurrentModule();
+    public abstract Module getCurrentModule();
 
     /**
      * Gets the strand id. This will be generated on strand initialization.
      *
      * @return Strand id.
      */
-    int getStrandId();
+    public abstract int getStrandId();
 
     /**
      * Gets the strand name. This will be optional. Strand name can be either name given in strand annotation or async
@@ -76,14 +76,14 @@ public interface Environment {
      *
      * @return Optional strand name.
      */
-    Optional<String> getStrandName();
+    public abstract Optional<String> getStrandName();
 
     /**
      * Gets {@link StrandMetadata}.
      *
      * @return metadata of the strand.
      */
-    StrandMetadata getStrandMetadata();
+    public abstract StrandMetadata getStrandMetadata();
 
     /**
      * Sets given local key value pair in strand.
@@ -91,7 +91,7 @@ public interface Environment {
      * @param key   string key
      * @param value value to be store in the strand
      */
-    void setStrandLocal(String key, Object value);
+    public abstract void setStrandLocal(String key, Object value);
 
     /**
      * Gets the value stored in the strand on given key.
@@ -99,5 +99,5 @@ public interface Environment {
      * @param key key
      * @return value stored in the strand.
      */
-    Object getStrandLocal(String key);
+    public abstract Object getStrandLocal(String key);
 }
