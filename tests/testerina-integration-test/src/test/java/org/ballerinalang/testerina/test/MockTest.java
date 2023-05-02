@@ -183,6 +183,19 @@ public class MockTest extends BaseTestCase {
         AssertionUtils.assertOutput(baseOutputFile, output);
     }
 
+    @Test
+    public void testObjectMocking_NonPublicField() throws BallerinaTestException, IOException {
+        String[] args = mergeCoverageArgs(new String[]{"--tests",
+                "non_public_field_mock:testNonPublicMemberFieldMock"});
+        String output =
+                balClient.runMainAndReadStdOut("test", args, new HashMap<>(),
+                        projectBasedTestsPath.resolve("non-public-field-mock").toString(), false);
+        String firstString = "Generating Test Report";
+        String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput("MockTest-testObjectMocking_NonPublicField.txt", output);
+    }
+
     @DataProvider(name = "testNegativeCases")
     public static Object[][] negativeCases() {
         return new Object[][] {
