@@ -43,7 +43,7 @@ public final class VariableCompletionItemBuilder {
     public static CompletionItem build(VariableSymbol varSymbol, String label, String type) {
         CompletionItem item = new CompletionItem();
         item.setLabel(label);
-        String insertText = CommonUtil.escapeEscapeCharsInIdentifier(label);
+        String insertText = CommonUtil.escapeSpecialCharsInInsertText(label);
         item.setInsertText(insertText);
         item.setDetail((type.equals("")) ? ItemResolverConstants.NONE : type);
         setMeta(item, varSymbol);
