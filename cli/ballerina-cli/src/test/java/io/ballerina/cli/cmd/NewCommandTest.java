@@ -166,9 +166,9 @@ public class NewCommandTest extends BaseCommandTest {
     @DataProvider(name = "directoriesWithExistingBalFiles")
     public Object[][] provideDirectoriesWithExistingBalFiles() {
         return new Object[][] {
-                { testResources.resolve(ProjectConstants.DIRECTORIES_WITH_EXISTING_PACKAGE_FILES).
+                { testResources.resolve(ProjectConstants.EXISTING_PACKAGE_FILES_DIR).
                         resolve("directoryWithBalFiles")},
-                { testResources.resolve(ProjectConstants.DIRECTORIES_WITH_EXISTING_PACKAGE_FILES).
+                { testResources.resolve(ProjectConstants.EXISTING_PACKAGE_FILES_DIR).
                         resolve("directoryWithBalFilesInSubDir")}
                 };
     }
@@ -188,10 +188,10 @@ public class NewCommandTest extends BaseCommandTest {
     @DataProvider(name = "directoriesWithExistingPackageFiles")
     public Object[][] provideDirectoriesWithExistingPackageFiles() {
         return new Object[][] {
-                { testResources.resolve(ProjectConstants.DIRECTORIES_WITH_EXISTING_PACKAGE_FILES).
+                { testResources.resolve(ProjectConstants.EXISTING_PACKAGE_FILES_DIR).
                         resolve("directoryWithPackageFiles1"),
                         "Dependencies.toml, Package.md, modules, .gitignore, .devcontainer.json" },
-                { testResources.resolve(ProjectConstants.DIRECTORIES_WITH_EXISTING_PACKAGE_FILES).
+                { testResources.resolve(ProjectConstants.EXISTING_PACKAGE_FILES_DIR).
                         resolve("directoryWithPackageFiles2"),
                         "Module.md, tests, .devcontainer.json" }
         };
@@ -199,7 +199,8 @@ public class NewCommandTest extends BaseCommandTest {
 
     @Test(description = "Create a new project in an existing directory containing package files",
             dataProvider = "directoriesWithExistingPackageFiles")
-    public void testNewCommandInExistingDirectoryWithExistingPackageFiles(Path dirPath, String existing) throws IOException {
+    public void testNewCommandInExistingDirectoryWithExistingPackageFiles(Path dirPath, String existing)
+            throws IOException {
         System.setProperty(USER_NAME, "testuserorg");
         String[] args = {dirPath.toString()};
         NewCommand newCommand = new NewCommand(printStream, false);
@@ -257,8 +258,8 @@ public class NewCommandTest extends BaseCommandTest {
         System.setProperty(USER_NAME, "testuserorg");
         System.setProperty("user.dir", tmpDir.toAbsolutePath().toString());
         String packagePath = "./relative_project_name";
-        String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
-        if (OS.contains("win")) {
+        String systemOs = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+        if (systemOs.contains("win")) {
             packagePath = ".\\relative_project_name";
         }
         String[] args = {packagePath};

@@ -117,6 +117,6 @@ public class ProjectConstants {
     public static final String CENTRAL_REPOSITORY_CACHE_NAME = "central.ballerina.io";
     public static final String DEPENDENCIES_TOML_VERSION = "2";
     public static final String BALLERINA_ORG = "ballerina";
-    public static final String DIRECTORIES_WITH_EXISTING_PACKAGE_FILES = "directories-with-existing-package-files-for-bal-new";
+    public static final String EXISTING_PACKAGE_FILES_DIR = "directories-with-existing-package-files-for-bal-new";
     public static final String CONFIG_ARGS_PATTERN = "-C[\\w\\W]+=([\\w\\W]+)";
 }
