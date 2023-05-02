@@ -283,8 +283,8 @@ public abstract class AbstractArrayValue implements ArrayValue {
 
     @Override
     public String getJSONString() {
-        try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream()) {
-            JSONGenerator gen = new JSONGenerator(byteOut);
+        try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+             JSONGenerator gen = new JSONGenerator(byteOut)) {
             gen.serialize(this);
             gen.flush();
             return byteOut.toString();
