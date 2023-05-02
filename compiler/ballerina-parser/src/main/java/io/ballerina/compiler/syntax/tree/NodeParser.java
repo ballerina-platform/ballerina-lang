@@ -20,6 +20,9 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.BallerinaParser;
 import io.ballerina.compiler.internal.parser.ParserFactory;
 
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.BACKTICK_TOKEN;
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.RE_KEYWORD;
+
 /**
  * Parses a given input and produces a {@code Node}.
  *
@@ -169,5 +172,18 @@ public class NodeParser {
     public static LetVariableDeclarationNode parseLetVarDeclaration(String text, boolean allowActions) {
         BallerinaParser parser = ParserFactory.getParser(text);
         return parser.parseAsLetVarDeclaration(allowActions).createUnlinkedFacade();
+    }
+
+    /**
+     * Parses the input as a regexp pattern.
+     *
+     * @param text the input
+     * @return an {@code ExpressionNode}
+     */
+    public static ExpressionNode parseRegexpPattern(String text) {
+        String regexpStr = RE_KEYWORD.stringValue() + BACKTICK_TOKEN.stringValue() + text
+                            + BACKTICK_TOKEN.stringValue();
+        BallerinaParser parser = ParserFactory.getParser(regexpStr);
+        return parser.parseAsRegexpExpression().createUnlinkedFacade();
     }
 }

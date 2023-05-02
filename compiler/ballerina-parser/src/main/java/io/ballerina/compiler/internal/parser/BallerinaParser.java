@@ -191,6 +191,20 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Completely parses a given input as regexp.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsRegexpExpression() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.VAR_DECL_STMT);
+        STNode regexpExpr = parseRegExpTemplateExpression();
+
+        regexpExpr = invalidateRestAndAddToTrailingMinutiae(regexpExpr);
+        return regexpExpr;
+    }
+
+    /**
      * Completely parses a given input as an action or expression.
      *
      * @return Parsed node
