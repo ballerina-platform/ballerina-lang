@@ -448,7 +448,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         boolean isBalToolTomlChange = filePath.endsWith(ProjectConstants.BAL_TOOL_TOML);
         if (fileEvent.getType() == FileChangeType.Created &&
                 (isBallerinaSourceChange || isBallerinaTomlChange || isCloudTomlChange || isCompilerPluginTomlChange
-                        || isBalToolTomlChange )
+                        || isBalToolTomlChange)
                 && hasDocumentOrToml(filePath, project)) {
             // Document might already exists when text/didOpen hits before workspace/didChangeWatchedFiles,
             // Thus, return silently
