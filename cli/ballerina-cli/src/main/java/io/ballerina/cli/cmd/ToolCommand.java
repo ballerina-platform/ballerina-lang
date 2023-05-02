@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -209,6 +208,11 @@ class ToolCommand implements BLauncherCmd {
             throw createLauncherException(
                     "unexpected error occurred while creating tool repository in bala cache: " + e.getMessage());
         }
+        if (isToolLocallyAvailable(toolIdAndVersion)) {
+            CommandUtil.printError(this.errStream, "tool is already pulled", null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
 
         // TODO: remove the hard coded org name once we have an API for tool pulling.
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
@@ -220,13 +224,14 @@ class ToolCommand implements BLauncherCmd {
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;
                 }
-                String jarPath = getSubCommandJarPath(TOOL_ORG_NAME, toolId, version);
-                if (jarPath == null) {
+                String toolPathInCentralCache = getToolPathInCentralCache(TOOL_ORG_NAME, toolId, version);
+                if (toolPathInCentralCache == null) {
                     CommandUtil.printError(this.errStream, "tool jar not found", null, false);
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;
                 }
-                updateBalToolsTomlFile(toolId, version, jarPath);
+                updateBalToolsTomlFile(toolId, version, toolPathInCentralCache);
+                errStream.println(toolIdAndVersion + " pulled successfully");
             } catch (PackageAlreadyExistsException e) {
                 errStream.println(e.getMessage());
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -321,6 +326,7 @@ class ToolCommand implements BLauncherCmd {
         }
         if (uninstallSuccess) {
             balToolsToml.modify(balToolsManifest);
+            errStream.println(toolIdAndVersion + " uninstalled successfully");
         }
     }
 
@@ -358,48 +364,22 @@ class ToolCommand implements BLauncherCmd {
         return false;
     }
 
-    private String getSubCommandJarPath(String orgName, String toolName, String version) {
-        Path versionedPackagePathInBala = ProjectUtils.createAndGetHomeReposPath()
+    private String getToolPathInCentralCache(String orgName, String toolName, String version) {
+        Path platformPath = ProjectUtils.createAndGetHomeReposPath()
                 .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
-                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(orgName).resolve(toolName).resolve(version);
-        File versionedPackageInBala = new File(String.valueOf(versionedPackagePathInBala));
-
-        if (versionedPackageInBala.exists() && versionedPackageInBala.isDirectory()) {
-            File[] platformDirs = versionedPackageInBala.listFiles();
-            if (platformDirs == null) {
-                return null;
-            }
-            for (File platformDir : platformDirs) {
-                if (platformDir.isDirectory() && platformDir.getName().equals(ANY_PLATFORM)
-                        || Arrays.asList(SUPPORTED_PLATFORMS).contains(platformDir.getName())) {
-                    Path libDirPath = platformDir.toPath().resolve(ProjectConstants.TOOL_DIR)
-                            .resolve(CommandUtil.LIBS_DIR);
-                    File libDir = new File(String.valueOf(libDirPath));
-                    if (libDir.exists() && libDir.isDirectory()) {
-                        File[] jarFiles = libDir.listFiles();
-                        if (jarFiles == null) {
-                            return null;
-                        }
-                        for (File jarFile : jarFiles) {
-                            if (isValidJarFile(jarFile)) {
-                                return jarFile.getAbsolutePath();
-                            }
-                        }
-                    }
-                }
-            }
+                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(orgName).resolve(toolName).resolve(version)
+                .resolve(ANY_PLATFORM);
+        File platformDir = platformPath.toFile();
+        if (platformDir.exists() && platformDir.isDirectory()) {
+            return platformPath.toString();
         }
         return null;
     }
 
-    private boolean isValidJarFile(File file) {
-        return file.isFile() && file.getName().endsWith(".jar");
-    }
-
-    private void updateBalToolsTomlFile(String toolId, String version, String jarPath) {
+    private void updateBalToolsTomlFile(String toolId, String version, String toolPathInCentralCache) {
         BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
         BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml)
-                .addTool(toolId, version, jarPath)
+                .addTool(toolId, version, toolPathInCentralCache)
                 .build();
         balToolsToml.modify(balToolsManifest);
     }
@@ -410,6 +390,11 @@ class ToolCommand implements BLauncherCmd {
         return new ArrayList<>(balToolsManifest.tools().values());
     }
 
+    private boolean isToolLocallyAvailable(String toolIdAndVersion) {
+        BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
+        BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
+        return balToolsManifest.tools().containsKey(toolIdAndVersion);
+    }
 
     private boolean uninstallAllToolVersions(BalToolsManifest balToolsManifest) {
         boolean foundTools = false;
@@ -458,11 +443,8 @@ class ToolCommand implements BLauncherCmd {
         return true;
     }
 
-    private boolean deletePackageCentralCache(String toolJarPath) {
-        Optional<Path> libsDir = Optional.ofNullable(Path.of(toolJarPath).getParent());
-        Optional<Path> toolsDir = libsDir.flatMap(p -> Optional.ofNullable(p.getParent()));
-        Optional<Path> platformDir = toolsDir.flatMap(p -> Optional.ofNullable(p.getParent()));
-        Optional<Path> versionDir = platformDir.flatMap(p -> Optional.ofNullable(p.getParent()));
+    private boolean deletePackageCentralCache(String platformPath) {
+        Optional<Path> versionDir = Optional.ofNullable(Path.of(platformPath).getParent());
         return versionDir.filter(ProjectUtils::deleteDirectory).isPresent();
     }
 }

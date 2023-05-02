@@ -79,7 +79,9 @@ if exist "%BAL_TOOLS_FILE%" (
     for /f "delims=" %%i in ('type "%BAL_TOOLS_FILE%" ^| findstr /C:"path ="') do (
         for /f "tokens=2 delims==\" %%j in ("%%i") do (
             set "path=%%j"
-            set "BALLERINA_CLASSPATH=%BALLERINA_CLASSPATH%;!path!"
+            for %%f in ("%path%\tool\libs\*.jar") do (
+                set "BALLERINA_CLASSPATH=%BALLERINA_CLASSPATH%;%%~f"
+            )
         )
     )
 )
