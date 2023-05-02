@@ -26,7 +26,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * This class contain safe assignment error return type related test cases.
+ * This class has test cases for checked expression error return types.
  */
 public class CheckedExprErrorReturnTypeTest {
 
