@@ -233,7 +233,7 @@ public class BalRuntime implements Runtime {
 
     private void validateArgs(BObject object, String methodName) {
         if (object == null) {
-            throw ErrorCreator.createError(StringUtils.fromString("invalid object"));
+            throw ErrorCreator.createError(StringUtils.fromString("object cannot be null"));
         }
         if (methodName == null) {
             throw ErrorCreator.createError(StringUtils.fromString("method name cannot be null"));
