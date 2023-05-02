@@ -1,6 +1,6 @@
-// Copyright (c) 2023 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2023 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -42,10 +42,6 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys1() {
                         group by name
                         select {price: int:sum(price)};
     assertEquality([{price: 35}, {price: 11}], r);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select int:sum(price + 2);
-//     assertEquality([35, 11], sum);
     sum = from var {name, price} in input
                         group by name
                         select int:sum(...[price]);
@@ -95,10 +91,6 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys2() {
                         group by name
                         select int:sum(price);
     assertEquality([35, 11], sum);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select int:sum(price + 2);
-//     assertEquality([35, 11], sum);
     sum = from var {name, price} in input
                         group by name
                         select int:sum(...[price]);
@@ -391,48 +383,152 @@ function testGroupByExpressionWithMapOutput() {
     assertEquality(res2, {"Saman": 26, "Kamal": 32, "Amal": 30});
 }
 
-// function testGroupByExpressionAndSelectWithNonGroupingKeys2() {
-//     var input = [{name: "Saman", price1: 11, price2: 11},
-//                     {name: "Saman", price1: 11, price2: 12},
-//                     {name: "Kamal", price1: 10, price2: 13},
-//                     {name: "Kamal", price1: 10, price2: 12},
-//                     {name: "Kamal", price1: 10, price2: 9},
-//                     {name: "Amal", price1: 10, price2: 13}];
+function testMultipleGroupByInSameQuery() {
+    var input1 = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 9},
+                    {name: "Amal", price1: 11, price2: 13},
+                    {name: "Amal", price1: 11, price2: 15}];
+    
+    var x1 = from var {name, price1, price2} in input1
+                group by name
+                group by var p1 = [price1]
+                select string:'join("_", name);
+    assertEquality(["__Saman_Amal", "__Kamal"], x1);
 
-//     int[] sum = from var {name, price1, price2} in input
-//                     group by name
-//                     select sum(price1 + price2);
-//     // int[] sum = from var {name, price1, price2} in input
-//     //                 group by name
-//     //                 select sum(...[price1] + ...[price2]); // negative test case
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select sum(price1 + price2);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select sum(price1 + price2 + 3);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select int:sum(price1 + price2 + 3);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select 5.sum(price1 + price2 + 3);
-//     // sum = from var {_, price1, price2} in input
-//     //         group by var _ = true
-//     //         select int:sum(price1, price2); // error
-//     assertEquality([35, 11], sum);
-//     // sum = from var {_, price1, price2} in input
-//     //         group by var _ = true
-//     //         select 5.sum(...[price1], ...[price2]); // error
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select 5.sum(23, ...[price2]);
-//     assertEquality([35, 11], sum);
-// }
+    var x2 = from var {name, price1, price2} in input1
+                group by price1
+                group by price1
+                select int:sum(price1);
+    assertEquality([11, 10], x2);
+
+    var x3 = from var {name, price1, price2} in input1
+                group by price1
+                let var n = string:'join(",", name)
+                group by price1
+                select string:'join("_", n);
+    assertEquality(["__,,Saman,Saman,Amal,Amal","__,,Kamal,Kamal,Kamal"], x3);
+
+    var input2 = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 11},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Amal", price1: 12, price2: 13},
+                    {name: "Amal", price1: 12, price2: 15}];    
+
+    var x4 = from var {name, price1, price2} in input2
+                group by price1
+                group by var p2 = [price2]
+                select sum(price1);
+    assertEquality([21, 12], x4);
+
+    var x5 = from var {name, price1, price2} in input2
+                group by price1
+                let var n1 = string:'join("_", name)
+                group by var p2 = sum(price2)
+                let var n2 = string:'join(" ", n1)
+                group by p2
+                select string:'join("@", n2);
+    assertEquality(["@@  __Saman_Saman __Kamal_Kamal", "@@  __Amal_Amal"], x5);
+
+    var x6 = from var {name, price1, price2} in input2
+                group by price1
+                let var n = [name]
+                group by n
+                select string:'join("@", ...n);
+    assertEquality(["Saman@Saman", "Kamal@Kamal", "Amal@Amal"], x6);
+
+    var input3 = [{name: "Saman", price1: 11, price2: 12},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Amal", price1: 12, price2: 13},
+                    {name: "Amal", price1: 12, price2: 15}];   
+
+    var x7 = from var {name, price1, price2} in input3
+                group by price1, price2
+                let var n = string:'join("@", name)
+                group by var _ = price1 + price2
+                select string:'join("_", n);
+    assertEquality(["__@@Saman@Saman@Kamal","__@@Kamal","__@@Amal","__@@Amal"], x7);    
+
+    var x8 = from var {name, price1, price2} in input3
+                group by price1, price2
+                let var s = string:'join("@", name)
+                group by var _ = from var {name: n, price1: p1, price2: p2} in input3 group by n select int:sum(p1)
+                select string:'join("_", s);
+    assertEquality(["__@@Saman@Saman@Kamal_@@Kamal_@@Amal_@@Amal"], x8); 
+}
+
+type RecOpt record {|
+    string name;
+    int price1;
+    int price2?;
+|};
+
+type INTTUPLE typedesc<[int...]>;
+
+function testOptionalFieldInput() returns error? {
+    RecOpt[] input1 = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 15, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 9, price2: 12},
+                    {name: "Kamal", price1: 13, price2: 9},
+                    {name: "Amal", price1: 14},
+                    {name: "Amali", price1: 14}];
+
+    var x1 = from var {name, price1, price2} in input1
+                group by price2
+                select string:'join(",", name);
+    assertEquality([",,Saman", ",,Saman,Kamal", ",,Kamal", ",,Kamal", ",,Amal,Amali"], x1);
+
+    RecOpt[] input2 = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 15, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 9, price2: 12},
+                    {name: "Kamal", price1: 13},
+                    {name: "Amal", price1: 14},
+                    {name: "Amali", price1: 14}];
+
+    var x2 = from var {name, price1, price2} in input2
+                        group by name
+                        let var p2 = [price2]
+                        where p2.length() > 0
+                        let var p3 = check p2.cloneWithType(INTTUPLE)
+                        select int:sum(...p3);
+    assertEquality([23, 25], x2);
+
+    var x4 = from var {name, price1, price2} in input2
+                        group by name
+                        let var p2 = [price2]
+                        where p2.length() > 0
+                        let var p3 = <[int...] & readonly> p2.cloneReadOnly()
+                        select int:sum(...p3);
+    assertEquality([23, 25], x4);
+
+    var x5 = from var {name, price1, price2} in input2
+                        group by name
+                        let var p2 = [price2]
+                        where p2.length() > 0
+                        let [int...] p3 = check p2.cloneReadOnly().ensureType()
+                        select int:sum(...p3);
+    assertEquality([23, 25], x5);
+
+    var x6 = from var {name, price1, price2} in input2
+                        group by name
+                        let var p2 = [price2]
+                        where p2.length() > 0
+                        let var p3 = check p2.cloneReadOnly().ensureType(INTTUPLE)
+                        select int:sum(...p3);
+    assertEquality([23, 25], x6);
+
+    var x3 = from var {name, price1, price2} in input1
+                group by price2
+                select sum(price1);    
+    assertEquality([11, 24, 10, 13, 28], x3); 
+}
 
 // function testGroupByExpressionAndSelectWithNonGroupingKeys3() {
 //     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}, {name: "Saman", price: 12}];
@@ -805,5 +901,3 @@ function assertEquality(anydata expected, anydata actual) {
     }
     panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }
-
-// TODO: sum(price1 + 2)
