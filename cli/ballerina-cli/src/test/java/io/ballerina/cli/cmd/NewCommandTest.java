@@ -38,6 +38,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Locale;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
@@ -162,13 +163,21 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(devcontainerContent.contains(RepoUtils.getBallerinaVersion()));
     }
 
+    @DataProvider(name = "directoriesWithExistingBalFiles")
+    public Object[][] provideDirectoriesWithExistingBalFiles() {
+        return new Object[][] {
+                { testResources.resolve(ProjectConstants.DIRECTORIES_WITH_EXISTING_PACKAGE_FILES).
+                        resolve("directoryWithBalFiles")},
+                { testResources.resolve(ProjectConstants.DIRECTORIES_WITH_EXISTING_PACKAGE_FILES).
+                        resolve("directoryWithBalFilesInSubDir")}
+                };
+    }
+
     @Test(description = "Create a new project in an existing directory containing bal files",
-            dependsOnMethods = {"testNewCommandInExistingDirectory"})
-    public void testNewCommandInExistingDirectoryWithExistingBalFiles() throws IOException {
+            dataProvider = "directoriesWithExistingBalFiles")
+    public void testNewCommandInExistingDirectoryWithExistingBalFiles(Path directoryPath) throws IOException {
         System.setProperty(USER_NAME, "testuserorg");
-        Path packageDir = tmpDir.resolve("Existing_dir_name");
-        Files.deleteIfExists(packageDir.resolve(ProjectConstants.BALLERINA_TOML));
-        String[] args = {packageDir.toString()};
+        String[] args = {directoryPath.toString()};
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
@@ -176,130 +185,28 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Existing .bal files found"));
     }
 
-    @Test(description = "Create a new project in an existing directory containing a Dependencies.toml file",
-            dependsOnMethods = {"testNewCommandInExistingDirectory",
-            "testNewCommandInExistingDirectoryWithExistingBalFiles"})
-    public void testNewCommandInExistingDirectoryWithExistingDependenciesToml() throws IOException {
-        System.setProperty(USER_NAME, "testuserorg");
-        Path packageDir = tmpDir.resolve("Existing_dir_name");
-        ProjectUtils.deleteFilesOfType(packageDir, ".bal");
-        String[] args = {packageDir.toString()};
-        NewCommand newCommand = new NewCommand(printStream, false);
-        new CommandLine(newCommand).parseArgs(args);
-        newCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("Dependencies.toml already exists in given directory"));
+    @DataProvider(name = "directoriesWithExistingPackageFiles")
+    public Object[][] provideDirectoriesWithExistingPackageFiles() {
+        return new Object[][] {
+                { testResources.resolve(ProjectConstants.DIRECTORIES_WITH_EXISTING_PACKAGE_FILES).
+                        resolve("directoryWithPackageFiles1"),
+                        "Dependencies.toml, Package.md, modules, .gitignore, .devcontainer.json" },
+                { testResources.resolve(ProjectConstants.DIRECTORIES_WITH_EXISTING_PACKAGE_FILES).
+                        resolve("directoryWithPackageFiles2"),
+                        "Module.md, tests, .devcontainer.json" }
+        };
     }
 
-    @Test(description = "Create a new project in an existing directory containing a Package.md file",
-            dependsOnMethods = {"testNewCommandInExistingDirectory",
-                    "testNewCommandInExistingDirectoryWithExistingBalFiles",
-                    "testNewCommandInExistingDirectoryWithExistingDependenciesToml"})
-    public void testNewCommandInExistingDirectoryWithExistingPackageMd() throws IOException {
+    @Test(description = "Create a new project in an existing directory containing package files",
+            dataProvider = "directoriesWithExistingPackageFiles")
+    public void testNewCommandInExistingDirectoryWithExistingPackageFiles(Path dirPath, String existing) throws IOException {
         System.setProperty(USER_NAME, "testuserorg");
-        Path packageDir = tmpDir.resolve("Existing_dir_name");
-        Files.deleteIfExists(packageDir.resolve(ProjectConstants.DEPENDENCIES_TOML));
-        String[] args = {packageDir.toString()};
+        String[] args = {dirPath.toString()};
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("Package.md already exists in given directory"));
-    }
-
-    @Test(description = "Create a new project in an existing directory containing a Module.md file",
-            dependsOnMethods = {"testNewCommandInExistingDirectory",
-                    "testNewCommandInExistingDirectoryWithExistingBalFiles",
-                    "testNewCommandInExistingDirectoryWithExistingDependenciesToml",
-                    "testNewCommandInExistingDirectoryWithExistingPackageMd"})
-    public void testNewCommandInExistingDirectoryWithExistingModuleMd() throws IOException {
-        System.setProperty(USER_NAME, "testuserorg");
-        Path packageDir = tmpDir.resolve("Existing_dir_name");
-        Files.deleteIfExists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
-        String[] args = {packageDir.toString()};
-        NewCommand newCommand = new NewCommand(printStream, false);
-        new CommandLine(newCommand).parseArgs(args);
-        newCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("Module.md already exists in given directory"));
-    }
-
-    @Test(description = "Create a new project in an existing directory containing a Module.md file",
-            dependsOnMethods = {"testNewCommandInExistingDirectory",
-                    "testNewCommandInExistingDirectoryWithExistingBalFiles",
-                    "testNewCommandInExistingDirectoryWithExistingDependenciesToml",
-                    "testNewCommandInExistingDirectoryWithExistingPackageMd",
-                    "testNewCommandInExistingDirectoryWithExistingModuleMd"})
-    public void testNewCommandInExistingDirectoryWithExistingModulesDir() throws IOException {
-        System.setProperty(USER_NAME, "testuserorg");
-        Path packageDir = tmpDir.resolve("Existing_dir_name");
-        Files.deleteIfExists(packageDir.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
-        String[] args = {packageDir.toString()};
-        NewCommand newCommand = new NewCommand(printStream, false);
-        new CommandLine(newCommand).parseArgs(args);
-        newCommand.execute();
-
-        Assert.assertTrue(readOutput().contains("Modules already exists in given directory"));
-    }
-
-    @Test(description = "Create a new project in an existing directory containing a Module.md file",
-            dependsOnMethods = {"testNewCommandInExistingDirectory",
-                    "testNewCommandInExistingDirectoryWithExistingBalFiles",
-                    "testNewCommandInExistingDirectoryWithExistingDependenciesToml",
-                    "testNewCommandInExistingDirectoryWithExistingPackageMd",
-                    "testNewCommandInExistingDirectoryWithExistingModuleMd",
-                    "testNewCommandInExistingDirectoryWithExistingModulesDir"})
-    public void testNewCommandInExistingDirectoryWithExistingTestsDir() throws IOException {
-        System.setProperty(USER_NAME, "testuserorg");
-        Path packageDir = tmpDir.resolve("Existing_dir_name");
-        ProjectUtils.deleteDirectory(packageDir.resolve(ProjectConstants.MODULES_ROOT));
-        String[] args = {packageDir.toString()};
-        NewCommand newCommand = new NewCommand(printStream, false);
-        new CommandLine(newCommand).parseArgs(args);
-        newCommand.execute();
-
-        Assert.assertTrue(readOutput().contains(" Tests already exists in given directory"));
-    }
-
-    @Test(description = "Create a new project in an existing directory containing a Module.md file",
-            dependsOnMethods = {"testNewCommandInExistingDirectory",
-                    "testNewCommandInExistingDirectoryWithExistingBalFiles",
-                    "testNewCommandInExistingDirectoryWithExistingDependenciesToml",
-                    "testNewCommandInExistingDirectoryWithExistingPackageMd",
-                    "testNewCommandInExistingDirectoryWithExistingModuleMd",
-                    "testNewCommandInExistingDirectoryWithExistingModulesDir",
-                    "testNewCommandInExistingDirectoryWithExistingTestsDir"})
-    public void testNewCommandInExistingDirectoryWithExistingGitignore() throws IOException {
-        System.setProperty(USER_NAME, "testuserorg");
-        Path packageDir = tmpDir.resolve("Existing_dir_name");
-        Files.deleteIfExists(packageDir.resolve(ProjectConstants.TEST_DIR_NAME));
-        String[] args = {packageDir.toString()};
-        NewCommand newCommand = new NewCommand(printStream, false);
-        new CommandLine(newCommand).parseArgs(args);
-        newCommand.execute();
-
-        Assert.assertTrue(readOutput().contains(" .gitignore already exists in given directory"));
-    }
-
-    @Test(description = "Create a new project in an existing directory containing a Module.md file",
-            dependsOnMethods = {"testNewCommandInExistingDirectory",
-                    "testNewCommandInExistingDirectoryWithExistingBalFiles",
-                    "testNewCommandInExistingDirectoryWithExistingDependenciesToml",
-                    "testNewCommandInExistingDirectoryWithExistingPackageMd",
-                    "testNewCommandInExistingDirectoryWithExistingModuleMd",
-                    "testNewCommandInExistingDirectoryWithExistingModulesDir",
-                    "testNewCommandInExistingDirectoryWithExistingTestsDir",
-                    "testNewCommandInExistingDirectoryWithExistingGitignore"})
-    public void testNewCommandInExistingDirectoryWithExistingDevcontainer() throws IOException {
-        System.setProperty(USER_NAME, "testuserorg");
-        Path packageDir = tmpDir.resolve("Existing_dir_name");
-        Files.deleteIfExists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME));
-        String[] args = {packageDir.toString()};
-        NewCommand newCommand = new NewCommand(printStream, false);
-        new CommandLine(newCommand).parseArgs(args);
-        newCommand.execute();
-
-        Assert.assertTrue(readOutput().contains(" .devcontainer.json already exists in given directory"));
+        Assert.assertTrue(readOutput().contains("Existing " + existing + " file/directory(s) were found"));
     }
 
     @Test(description = "Create a new project inside an existing directory with an invalid name")
@@ -342,6 +249,56 @@ public class NewCommandTest extends BaseCommandTest {
 
         Assert.assertTrue(Files.exists(packageDir.resolve(".devcontainer.json")));
         String devcontainerContent = Files.readString(packageDir.resolve(".devcontainer.json"));
+        Assert.assertTrue(devcontainerContent.contains(RepoUtils.getBallerinaVersion()));
+    }
+
+    @Test(description = "Create a new project with a relative path given as a parameter")
+    public void testNewCommandWithRelativePath() throws IOException {
+        System.setProperty(USER_NAME, "testuserorg");
+        System.setProperty("user.dir", tmpDir.toAbsolutePath().toString());
+        String packagePath = "./relative_project_name";
+        String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+        if (OS.contains("win")) {
+            packagePath = ".\\relative_project_name";
+        }
+        String[] args = {packagePath};
+        Path packageDir = Paths.get(packagePath);
+        NewCommand newCommand = new NewCommand(printStream, false);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+        // Check with spec
+        // project_name/
+        // - Ballerina.toml
+        // - main.bal
+
+        Path currentDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        Path relativeToCurrentDir = Paths.get(currentDir.toString(), packagePath.toString()).normalize();
+        Assert.assertTrue(Files.exists(relativeToCurrentDir));
+        Assert.assertTrue(Files.exists(relativeToCurrentDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String name = Paths.get(args[0]).getFileName().toString();
+        String tomlContent = Files.readString(
+                relativeToCurrentDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
+        String expectedContent = "[package]\n" +
+                "org = \"testuserorg\"\n" +
+                "name = \"" + name + "\"\n" +
+                "version = \"0.1.0\"\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
+                "observabilityIncluded = true\n";
+        Assert.assertEquals(tomlContent.trim(), expectedContent.trim());
+
+        Assert.assertTrue(Files.exists(relativeToCurrentDir.resolve("main.bal")));
+        Assert.assertFalse(Files.exists(relativeToCurrentDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(relativeToCurrentDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
+        String gitignoreContent = Files.readString(
+                relativeToCurrentDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
+        String expectedGitignoreContent = "target\ngenerated\n" +
+                "Config.toml\n";
+        Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
+        Assert.assertTrue(readOutput().contains("Created new package"));
+
+        Assert.assertTrue(Files.exists(relativeToCurrentDir.resolve(".devcontainer.json")));
+        String devcontainerContent = Files.readString(relativeToCurrentDir.resolve(".devcontainer.json"));
         Assert.assertTrue(devcontainerContent.contains(RepoUtils.getBallerinaVersion()));
     }
 
