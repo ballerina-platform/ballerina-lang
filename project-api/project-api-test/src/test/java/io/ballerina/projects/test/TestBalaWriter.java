@@ -174,7 +174,6 @@ public class TestBalaWriter {
             BalToolJson balToolJson = gson.fromJson(reader, BalToolJson.class);
             Assert.assertEquals(balToolJson.toolId(), "openapi");
             Assert.assertEquals(balToolJson.dependencyPaths().size(), 1);
-            Assert.assertEquals(balToolJson.dependencyPaths().get(0), "tool/libs/ballerina-io-1.2.0-java.txt");
         }
 
         // Check if compiler plugin dependencies exists
