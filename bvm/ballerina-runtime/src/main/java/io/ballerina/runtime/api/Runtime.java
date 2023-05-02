@@ -23,6 +23,9 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.internal.BalRuntime;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.Map;
 
@@ -32,6 +35,19 @@ import java.util.Map;
  * @since 1.0.0
  */
 public abstract class Runtime {
+
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
+    /**
+     * Gets the instance of Ballerina runtime.
+     *
+     * @return      Ballerina runtime instance.
+     * @deprecated  use {@link Environment#getRuntime()} instead.
+     */
+    @Deprecated(forRemoval = true)
+    public static Runtime getCurrentRuntime() {
+        Strand strand = Scheduler.getStrand();
+        return new BalRuntime(strand.scheduler);
+    }
 
     /**
      * Invoke Object method asynchronously and sequentially. This method will ensure that the object methods are

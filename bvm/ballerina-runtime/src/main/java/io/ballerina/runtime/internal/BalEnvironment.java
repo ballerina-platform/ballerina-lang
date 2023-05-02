@@ -89,6 +89,11 @@ public class BalEnvironment extends Environment {
         return future;
     }
 
+    /**
+     * Gets the instance of Ballerina runtime.
+     *
+     * @return Ballerina runtime instance.
+     */
     public BalRuntime getRuntime() {
         return new BalRuntime(strand.scheduler);
     }

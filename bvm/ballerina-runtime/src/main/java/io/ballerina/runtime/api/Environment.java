@@ -54,6 +54,11 @@ public abstract class Environment {
      */
     public abstract Future markAsync();
 
+    /**
+     * Gets the instance of Ballerina runtime.
+     *
+     * @return Ballerina runtime instance.
+     */
     public abstract Runtime getRuntime();
 
     /**
