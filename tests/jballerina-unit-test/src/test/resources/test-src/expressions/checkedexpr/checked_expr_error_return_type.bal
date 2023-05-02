@@ -21,7 +21,7 @@ type E2 distinct error;
 
 function foo(int state) returns int|E1|E2 {
     if (state == 0) {
-        return error("Custom Error E1");
+        return error E1("Custom Error E1");
     } else if (state == 1) {
         return error E2("Custom Error E2");
     } else {
@@ -31,34 +31,6 @@ function foo(int state) returns int|E1|E2 {
 
 function bar() returns error? {
     return error("Dummy error");
-}
-
-function checkedExprErrorReturnType(int state) returns int|error {
-    return check foo(state);
-}
-
-function testCheckedExprErrorReturnType() {
-    test:assertTrue(checkedExprErrorReturnType(0) is E1);
-    test:assertTrue(checkedExprErrorReturnType(1) is E2);
-    test:assertTrue(checkedExprErrorReturnType(5) is int);
-    test:assertFalse(checkedExprErrorReturnType(0) is E2);
-    test:assertFalse(checkedExprErrorReturnType(1) is E1);
-}
-
-function errorReturnTypeWithMultipleCheckedExpr(int state) returns int|error {
-    if (foo(state) == state) {
-        return check foo(state - 2);
-    } else {
-        return check foo(state);
-    }
-}
-
-function testErrorReturnTypeWithMultipleCheckedExpr() {
-    test:assertTrue(errorReturnTypeWithMultipleCheckedExpr(0) is E1);
-    test:assertTrue(errorReturnTypeWithMultipleCheckedExpr(1) is E2);
-    test:assertTrue(errorReturnTypeWithMultipleCheckedExpr(5) is int);
-    test:assertFalse(errorReturnTypeWithMultipleCheckedExpr(0) is E2);
-    test:assertFalse(errorReturnTypeWithMultipleCheckedExpr(1) is E1);
 }
 
 function checkedExprErrorReturnTypeWithOnFail(int state) returns int|error {

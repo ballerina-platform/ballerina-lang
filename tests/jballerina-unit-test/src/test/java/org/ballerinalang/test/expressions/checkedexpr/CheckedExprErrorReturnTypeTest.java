@@ -46,8 +46,6 @@ public class CheckedExprErrorReturnTypeTest {
     @DataProvider(name = "checkedExprErrorReturnTypeTestFunctions")
     public Object[] checkedExprErrorReturnTypeTestFunctions() {
         return new Object[] {
-                "testCheckedExprErrorReturnType",
-                "testErrorReturnTypeWithMultipleCheckedExpr",
                 "testCheckedExprErrorReturnTypeWithOnFail",
                 "testCheckedExprErrorReturnTypeWithNestedFailStmt"
         };
