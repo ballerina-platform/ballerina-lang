@@ -47,6 +47,7 @@ public class KeyValueTest {
 
     @Test
     public void testKeys() throws IOException {
+
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/key-value/keys.toml");
 
@@ -80,6 +81,7 @@ public class KeyValueTest {
 
     @Test
     public void testBasicValues() throws IOException {
+
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/key-value/values.toml");
         Toml read = Toml.read(inputStream);
@@ -206,6 +208,7 @@ public class KeyValueTest {
 
     @Test
     public void testArrayValues() throws IOException {
+
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/key-value/array.toml");
         Toml read = Toml.read(inputStream);
@@ -305,6 +308,7 @@ public class KeyValueTest {
 
     @Test
     public void testDottedKey() throws IOException {
+
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/key-value/dotted.toml");
         Toml read = Toml.read(inputStream);
@@ -387,6 +391,7 @@ public class KeyValueTest {
 
     @Test
     public void testInlineTables() throws IOException {
+
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/key-value/inline-tables.toml");
         Toml read = Toml.read(inputStream);
@@ -433,8 +438,10 @@ public class KeyValueTest {
         TomlValueNode lsatVal = ((TomlKeyValueNode) entries.get("last")).value();
         Assert.assertEquals(((TomlStringValueNode) lsatVal).getValue(), "Supun");
     }
+
     @Test
     public void testQuotedIdentifiers() throws IOException {
+
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("syntax/key-value/quoted-identifier.toml");
         Toml read = Toml.read(inputStream);
@@ -443,7 +450,7 @@ public class KeyValueTest {
 
         TomlKeyValueNode tomlKeyValueNode = (TomlKeyValueNode) read.rootNode().entries().get("\"foo.bar\"");
         Assert.assertEquals(tomlKeyValueNode.value().toNativeValue(), "value");
-        Assert.assertEquals(tomlKeyValueNode.key().name(),"\"foo.bar\"");
-        Assert.assertEquals(tomlKeyValueNode.key().originalName(),"foo.bar");
+        Assert.assertEquals(tomlKeyValueNode.key().name(), "\"foo.bar\"");
+        Assert.assertEquals(tomlKeyValueNode.key().originalName(), "foo.bar");
     }
 }
