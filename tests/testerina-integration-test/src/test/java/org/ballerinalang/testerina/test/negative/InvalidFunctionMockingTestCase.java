@@ -22,6 +22,7 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.BaseTestCase;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
+import org.ballerinalang.testerina.test.utils.CommonUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -107,6 +108,9 @@ public class InvalidFunctionMockingTestCase extends BaseTestCase {
     public void testMockingFunctionWithIncompatibleTypes() throws BallerinaTestException, IOException {
         String projectPath = projectBasedTestsPath.resolve("incompatible-type-mock").toString();
         String output = balClient.runMainAndReadStdOut("test", new String[0], new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("InvalidFunctionMockingTestCase-testMockingFunctionWithIncompatibleTypes.txt",
                 output.replaceAll("(?m)^[ \t]*\r?\n", "\n").replaceAll("\r\n|\r|\n", "\n"));
     }

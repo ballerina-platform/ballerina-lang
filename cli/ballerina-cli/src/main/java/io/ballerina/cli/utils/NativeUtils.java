@@ -80,23 +80,29 @@ public class NativeUtils {
             TestSuite testSuite = entry.getValue();
             String name = testSuite.getPackageID();
 
+            Map<String, String> testUtilityFunctions = testSuiteMap.get(moduleName).getTestUtilityFunctions();
             //Add init class
-            ReflectConfigClass testInitRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, name, version,
-                    MODULE_INIT_CLASS_NAME));
+            if (testUtilityFunctions.containsKey(TEST_EXEC_FUNCTION)) {
+                ReflectConfigClass testInitRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, name, version,
+                        MODULE_INIT_CLASS_NAME));
 
-            testInitRefConfClz.addReflectConfigClassMethod(
-                    new ReflectConfigClassMethod(
-                            "main",
-                            new String[]{"java.lang.String[]"}
-                    )
-            );
+                testInitRefConfClz.addReflectConfigClassMethod(
+                        new ReflectConfigClassMethod(
+                                "main",
+                                new String[]{"java.lang.String[]"}
+                        )
+                );
 
-            testInitRefConfClz.addReflectConfigClassMethod(
-                    new ReflectConfigClassMethod(
-                            "$getTestExecutionState",
-                            new String[]{}
-                    )
-            );
+                testInitRefConfClz.addReflectConfigClassMethod(
+                        new ReflectConfigClassMethod(
+                                "$getTestExecutionState",
+                                new String[]{}
+                        )
+                );
+
+                //Add all class values to the array
+                classList.add(testInitRefConfClz);
+            }
 
             //Add classes with $MOCK_function methods (mock function case)
             if (!testSuiteMap.get(moduleName).getMockFunctionNamesMap().isEmpty()) {
@@ -107,9 +113,6 @@ public class NativeUtils {
                 functionMockingEntryClz.setUnsafeAllocated(true);
                 classList.add(functionMockingEntryClz);
             }
-
-            //Add all class values to the array
-            classList.add(testInitRefConfClz);
 
             //Add classes corresponding to test documents
             Path mockedFunctionClassPath = nativeConfigPath.resolve("mocked-func-class-map.json");

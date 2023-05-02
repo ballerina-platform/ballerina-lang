@@ -88,9 +88,9 @@ public class TesterinaUtils {
      * @param testSuite test meta data
      */
     public static int executeTests(Path sourceRootPath, TestSuite testSuite,
-                                    ClassLoader classLoader, String[] args) throws RuntimeException {
+                                    ClassLoader classLoader, String[] args, PrintStream out) throws RuntimeException {
         try {
-            int exitStatus = execute(testSuite, classLoader, args);
+            int exitStatus = execute(testSuite, classLoader, args, out);
             cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
             return exitStatus;
         } catch (BallerinaTestException e) {
@@ -103,7 +103,7 @@ public class TesterinaUtils {
         }
     }
 
-    private static int execute(TestSuite suite, ClassLoader classLoader, String[] args) {
+    private static int execute(TestSuite suite, ClassLoader classLoader, String[] args, PrintStream out) {
         String initClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
                 suite.getTestPackageID(),
                 suite.getVersion(),
@@ -113,6 +113,11 @@ public class TesterinaUtils {
             initClazz = classLoader.loadClass(initClassName);
         } catch (Throwable e) {
             throw new BallerinaTestException("failed to load init class :" + initClassName);
+        }
+        String suiteExecuteFilePath = suite.getExecuteFilePath();
+        if (suiteExecuteFilePath.equals("")) {
+            out.println("\tNo tests found");
+            return 0;
         }
 
         // This will run the main method of the test module.

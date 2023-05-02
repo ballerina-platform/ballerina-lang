@@ -147,13 +147,10 @@ public class BTestMain {
 
     private static int startTestSuit(Path sourceRootPath, TestSuite testSuite, ClassLoader classLoader,
                                      String[] args) {
-        int exitStatus = 0;
         try {
-            exitStatus = TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader, args);
+            return TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader, args, out);
         } catch (RuntimeException e) {
-            exitStatus = 1;
-        } finally {
-            return exitStatus;
+            return 1;
         }
     }
 
