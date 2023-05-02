@@ -206,7 +206,12 @@ public class DependencyManifestBuilder {
             if (distributionVersionString == null) {
                 return null;
             }
-            return SemanticVersion.from(distributionVersionString);
+            try {
+                return SemanticVersion.from(distributionVersionString);
+            } catch (ProjectException ignore) {
+                // Ignore the exception and return null
+                return null;
+            }
         }
         return null;
     }
