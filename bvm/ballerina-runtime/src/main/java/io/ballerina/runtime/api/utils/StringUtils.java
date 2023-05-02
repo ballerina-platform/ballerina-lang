@@ -375,8 +375,8 @@ public class StringUtils {
     }
 
     private static String stringToJson(BString value) {
-        try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream()) {
-            JsonGenerator gen = new JsonGenerator(byteOut);
+        try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+             JsonGenerator gen = new JsonGenerator(byteOut)) {
             gen.writeString(value.getValue());
             gen.flush();
             return byteOut.toString();

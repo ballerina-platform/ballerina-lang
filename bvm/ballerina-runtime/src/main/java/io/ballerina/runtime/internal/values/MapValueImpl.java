@@ -534,8 +534,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     public String getJSONString() {
-        try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream()) {
-            JsonGenerator gen = new JsonGenerator(byteOut);
+        try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+             JsonGenerator gen = new JsonGenerator(byteOut)) {
             gen.serialize(this);
             gen.flush();
             return byteOut.toString();
