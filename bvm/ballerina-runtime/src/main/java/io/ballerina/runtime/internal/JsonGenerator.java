@@ -20,7 +20,6 @@ package io.ballerina.runtime.internal;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -70,11 +69,7 @@ public class JsonGenerator {
     }
 
     public JsonGenerator(OutputStream out, Charset charset) {
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, charset))) {
-            this.writer = writer;
-        } catch (IOException e) {
-            throw new BallerinaException("error occurred while creating JSONGenerator: " + e.getMessage(), e);
-        }
+        this(new BufferedWriter(new OutputStreamWriter(out, charset)));
     }
 
     public JsonGenerator(Writer writer) {
