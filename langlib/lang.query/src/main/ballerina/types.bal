@@ -684,6 +684,13 @@ class _GroupByFunction {
 
     private function convertToStream(table<RowGroupedData> key(groupingKey) tbl) returns stream<_Frame> {
         _Frame[] groupedFrames = [];
+        if tbl.length() == 0 {
+            _Frame groupedFrame = {};
+            foreach var nonGroupingKey in self.nonGroupingKeys {
+                groupedFrame[nonGroupingKey] = [];
+            }  
+            groupedFrames.push(groupedFrame);          
+        }
         foreach var entry in tbl {
             _Frame groupedFrame = {};
             _Frame firstFrame = entry.frames[0];

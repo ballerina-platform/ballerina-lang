@@ -45,6 +45,7 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     public boolean isStream = false;
     public boolean isTable = false;
     public boolean isMap = false;
+    public boolean hasCollect = false;
 
     @Override
     public BLangSelectClause getSelectClause() {

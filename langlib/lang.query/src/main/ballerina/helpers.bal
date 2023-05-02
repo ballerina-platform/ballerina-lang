@@ -113,6 +113,14 @@ function createArray(stream<Type, CompletionType> strm, Type[] arr) returns Type
     return arr;
 }
 
+function collectQuery(stream<Type, CompletionType> strm) returns Type|error {
+    record {| Type value; |}|error? v = strm.next();
+    if v is record {| Type value; |} {
+        return v.value;
+    }
+    return v;
+}
+
 function toXML(stream<Type, CompletionType> strm, boolean isReadOnly) returns xml|error {
     xml result = 'xml:concat();
     record {| Type value; |}|CompletionType v = strm.next();

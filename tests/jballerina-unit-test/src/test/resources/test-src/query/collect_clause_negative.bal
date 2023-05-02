@@ -37,6 +37,8 @@ function testIncompatibleParameterTypes() {
                     collect ",".'join(x); // error
     string x4 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
                 collect string:'join(",", x);
+    var x5 = from var {x} in [{"x":"2", "y":"3"}, {"x":"4", "y":"5"}]
+                    collect string.'join(",", x); // error
 }
 
 function testInvalidExpressions1() {

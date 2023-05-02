@@ -8505,29 +8505,11 @@ public class Desugar extends BLangNodeVisitor {
         this.desugarToReturn = true;
         BLangNode finalClause = queryExpr.getFinalClause();
         if (finalClause.getKind() == NodeKind.COLLECT) {
+            queryExpr.hasCollect = true;
             replaceCollectWithGroupByAndSelect(queryExpr, (BLangCollectClause) finalClause);
-            // Since the collect clause is replaced by select clause, the type should be changed to an array type.
-            BType originalQueryResultType = queryExpr.getBType();
-            BArrayType arrayType = new BArrayType(originalQueryResultType);
-            queryExpr.setBType(arrayType);
-            queryExpr.expectedType = arrayType;
-
-            BLangStatementExpression stmtExpr = queryDesugar.desugar(queryExpr, env, getVisibleXMLNSStmts(env));
-
-            Location pos = queryExpr.pos;
-            BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(pos);
-            BLangSimpleVariableDef groupBySelectResult =
-                    createVarDef("$groupBySelectResult$", arrayType, stmtExpr, pos);
-            blockStmt.addStatement(groupBySelectResult);
-            BLangStatementExpression collectResult = ASTBuilderUtil.createStatementExpression(blockStmt,
-                    createIndexBasedAccessExpr(originalQueryResultType, pos, createIntLiteral(0),
-                            groupBySelectResult.var.symbol, null));
-            collectResult.setBType(originalQueryResultType);
-            result = rewrite(collectResult, env);
-        } else {
-            BLangStatementExpression stmtExpr = queryDesugar.desugar(queryExpr, env, getVisibleXMLNSStmts(env));
-            result = rewrite(stmtExpr, env);
         }
+        BLangStatementExpression stmtExpr = queryDesugar.desugar(queryExpr, env, getVisibleXMLNSStmts(env));
+        result = rewrite(stmtExpr, env);
         this.isVisitingQuery = prevIsVisitingQuery;
         this.desugarToReturn = prevDesugarToReturn;
     }

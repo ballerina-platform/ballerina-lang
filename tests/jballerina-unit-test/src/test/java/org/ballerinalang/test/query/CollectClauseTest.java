@@ -50,7 +50,8 @@ public class CollectClauseTest {
     public Object[] dataToTestCollectClause() {
         return new Object[] {
             "testListConstructor",
-            "testInvocation"
+            "testInvocation",
+            "testEmptyGroups"
         };
     }
 
@@ -65,13 +66,14 @@ public class CollectClauseTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'seq string'", 35, 45);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string[]', found 'seq int'", 37, 39);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string[]', found 'seq int'", 39, 43);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'seq string'", 44, 25);
-        BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list constructor or function invocation", 44, 25);
-        BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'int'", 46, 25);
+        BAssertUtil.validateError(negativeResult, i++, "undefined function 'join'", 41, 29);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'seq string'", 46, 25);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list constructor or function invocation", 46, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int x; |}', found 'record {| [int...] x; |}'", 48, 41);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[6]', found '[int...]'", 97, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int[6] intArr; |}', found 'record {| [int...] intArr; |}'", 99, 49);
+        BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'int'", 48, 25);
+        BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list constructor or function invocation", 48, 25);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int x; |}', found 'record {| [int...] x; |}'", 50, 41);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[6]', found '[int...]'", 99, 25);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int[6] intArr; |}', found 'record {| [int...] intArr; |}'", 101, 49);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 }

@@ -1789,3 +1789,9 @@ function assertEquality(anydata expected, anydata actual) {
 // TODO: multiple grouping keys
 // TODO: string langlib function tests ex: join
 // TODO: tests with multiple group by
+// TODO:                 group by name
+                // group by var x = [price]
+// TODO:                 group by name
+                // let var x = [price]
+                // group by var y = x[0]
+// TODO: use a client

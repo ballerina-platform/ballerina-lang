@@ -212,6 +212,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
     private static final Name QUERY_CONSUME_STREAM_FUNCTION = new Name("consumeStream");
     private static final Name QUERY_TO_ARRAY_FUNCTION = new Name("toArray");
+    private static final Name COLLECT_QUERY_FUNCTION = new Name("collectQuery");
     private static final Name QUERY_TO_STRING_FUNCTION = new Name("toString");
     private static final Name QUERY_TO_XML_FUNCTION = new Name("toXML");
     private static final Name QUERY_ADD_TO_TABLE_FUNCTION = new Name("addToTable");
@@ -301,7 +302,10 @@ public class QueryDesugar extends BLangNodeVisitor {
             result = getStreamFunctionVariableRef(queryBlock,
                     QUERY_ADD_TO_MAP_FUNCTION, Lists.of(streamRef, mapLiteral, onConflictExpr, isReadonly), pos);
             onConflictExpr = null;
-        } else {
+        } else if (queryExpr.hasCollect) {
+            result = getStreamFunctionVariableRef(queryBlock, COLLECT_QUERY_FUNCTION, Lists.of(streamRef), pos);
+        }
+        else {
             BType refType = Types.getReferredType(queryExpr.getBType());
             if (isXml(refType)) {
                 if (types.isSubTypeOfReadOnly(refType, env)) {

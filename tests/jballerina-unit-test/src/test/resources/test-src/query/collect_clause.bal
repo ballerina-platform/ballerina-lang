@@ -81,6 +81,48 @@ function testInvocation() {
     var x6 = from var {name, price1, price2} in input
                 collect {"sum": sum(price1) + sum(price2)};
     assertEquality({"sum": 158}, x6);
+    var x7 = from var {name, price1} in input
+                collect min(200, price1);    
+    assertEquality(9, x7);
+    var x8 = from var {name, price1} in input
+                collect min(-1, price1);    
+    assertEquality(-1, x8);
+    var x9 = from var {name, price1} in input
+                collect [int:sum(price1)];
+    assertEquality([88], x9);
+    var x10 = from var {name, price} in [{name: "Saman", price: 1}, {name: "Amal", price: 2}, {name: "Saman", price: 3}]
+                collect string:'join("_", name);
+    assertEquality("Saman_Amal_Saman", x10);
+    var x11 = from var {name, price} in [{name: "Saman", price: 1}, {name: "Amal", price: 2}, {name: "Saman", price: 3}]
+                collect 'join("_", name);
+    assertEquality("Saman_Amal_Saman", x11);
+}
+
+function testEmptyGroups() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 15, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 9, price2: 12},
+                    {name: "Kamal", price1: 13, price2: 9},
+                    {name: "Amal", price1: 30, price2: 13}];
+    var x1 = from var {name, price1} in input
+                where name == "X"
+                collect [name];
+    assertEquality([], x1);
+    assertEquality(0, x1.length());
+    var x2 = from var {name, price1} in input
+                where name == "X"
+                collect int:sum(price1);
+    assertEquality(0, x2);
+    var x3 = from var {name, price1} in input
+                where name == "X"
+                collect sum(price1);
+    assertEquality(0, x3);
+    var x4 = from var {name, price1} in input
+                where name == "X"
+                collect string:'join(",", name);
+    assertEquality("", x4);    
+    assertEquality(0, x4.length());    
 }
 
 // function testIncompatibleQueryResultType2() {
@@ -174,3 +216,6 @@ function assertEquality(anydata expected, anydata actual) {
 }
 
 // TODO: let clause, where clause, group by clause ...
+// TODO: test group by collect combinations
+// TODO: _ = map/stream/string/table from var …
+				// collect …; // compile time error

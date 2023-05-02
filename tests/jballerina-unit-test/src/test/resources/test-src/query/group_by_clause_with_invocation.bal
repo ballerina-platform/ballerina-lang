@@ -673,6 +673,16 @@ function testGroupByExpressionAndSelectWithGroupingKeys2() {
     assertEquality([23, 31, 35, 39], x);
 }
 
+// Fix this after https://github.com/ballerina-platform/ballerina-lang/issues/40325
+// function testLambdaFunction() {
+//     var input = [{name: "Saman", price: 1}, {name: "Amal", price: 2}, {name: "Saman", price: 3}];
+
+//     var x = from var {name, price} in input
+//                 let var func = function (int x) returns int {return price + x;}
+//                 group by var x = func(price)
+//                 select [x, [price]];
+// }
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
