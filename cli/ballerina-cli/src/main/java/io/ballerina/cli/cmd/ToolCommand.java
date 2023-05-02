@@ -23,6 +23,7 @@ import io.ballerina.cli.launcher.BallerinaCliCommands;
 import io.ballerina.cli.utils.PrintUtils;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
@@ -365,13 +366,17 @@ class ToolCommand implements BLauncherCmd {
     }
 
     private String getToolPathInCentralCache(String orgName, String toolName, String version) {
-        Path platformPath = ProjectUtils.createAndGetHomeReposPath()
+        Path versionPath = ProjectUtils.createAndGetHomeReposPath()
                 .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
-                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(orgName).resolve(toolName).resolve(version)
-                .resolve(ANY_PLATFORM);
-        File platformDir = platformPath.toFile();
-        if (platformDir.exists() && platformDir.isDirectory()) {
-            return platformPath.toString();
+                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(orgName).resolve(toolName).resolve(version);
+        File anyPlatformDir = versionPath.resolve(ANY_PLATFORM).toFile();
+        File java11PlatformDir = versionPath.resolve(JvmTarget.JAVA_11.code()).toFile();
+
+        if (anyPlatformDir.exists() && anyPlatformDir.isDirectory()) {
+            return anyPlatformDir.toString();
+        }
+        if (java11PlatformDir.exists() && java11PlatformDir.isDirectory()) {
+            return java11PlatformDir.toString();
         }
         return null;
     }
