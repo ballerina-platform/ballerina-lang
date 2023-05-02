@@ -23,8 +23,8 @@ import io.ballerina.runtime.api.types.Parameter;
 import java.util.Optional;
 
 /**
- * When this class is used as the first argument of an interop method, Ballerina will inject an instance of the class
- * when calling. That instance can be used to communicate with currently executing Ballerina runtime.
+ * When this interface is used as the first argument of an interop method, Ballerina will inject an instance of
+ * the class when calling. That instance can be used to communicate with currently executing Ballerina runtime.
  *
  * @since 2.0.0
  */
@@ -46,11 +46,11 @@ public interface Environment {
 
     /**
      * Mark the current executing strand as async. Execution of Ballerina code after the current
-     * interop will stop until given BalFuture is completed. However the java thread will not be blocked
+     * interop will stop until given Ballerina Future is completed. However the java thread will not be blocked
      * and will be reused for running other Ballerina code in the meantime. Therefore callee of this method
-     * must return as soon as possible to avoid starvation of ballerina code execution.
+     * must return as soon as possible to avoid starvation of Ballerina code execution.
      *
-     * @return BalFuture which will resume the current strand when completed.
+     * @return {@link Future} which will resume the current strand when completed.
      */
     Future markAsync();
 

@@ -98,7 +98,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ADD_METHO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BIG_DECIMAL;
@@ -611,7 +611,7 @@ public class JvmTerminatorGen {
         boolean hasBalEnvParam = jMethodVMSig.startsWith(BAL_ENV_PARAM);
 
         if (hasBalEnvParam) {
-            mv.visitTypeInsn(NEW, BAL_ENV);
+            mv.visitTypeInsn(NEW, BAL_ENV_CLASS);
             mv.visitInsn(DUP);
             this.mv.visitVarInsn(ALOAD, localVarOffset); // load the strand
             // load the current Module
@@ -619,7 +619,7 @@ public class JvmTerminatorGen {
             // load function name
             mv.visitLdcInsn(func.name.getValue());
             this.jvmTypeGen.loadFunctionPathParameters(mv, (BInvokableTypeSymbol) func.type.tsymbol);
-            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD, INIT_BAL_ENV_WITH_FUNC_NAME, false);
+            mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV_CLASS, JVM_INIT_METHOD, INIT_BAL_ENV_WITH_FUNC_NAME, false);
         }
 
         if (callIns.receiver != null) {

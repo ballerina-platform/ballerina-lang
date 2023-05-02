@@ -1,16 +1,17 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- * WSO2 Inc. licenses this file to you under the Apache License,
+ * Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com) All Rights Reserved.
+ *
+ * WSO2 LLC. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
+ * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
@@ -41,9 +42,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * External API to be used by the interop users to control Ballerina runtime behavior.
+ * Internal implementation of the API used by the interop users to control Ballerina runtime behavior.
  *
- * @since 1.0.0
+ * @since 2201.6.0
  */
 public class BalRuntime implements Runtime {
 
@@ -244,7 +245,7 @@ public class BalRuntime implements Runtime {
     }
 
     private void validateArgs(BObject object, String methodName) {
-        if (object instanceof ObjectValue) {
+        if (object == null) {
             throw ErrorCreator.createError(StringUtils.fromString("invalid object"));
         }
         if (methodName == null) {
