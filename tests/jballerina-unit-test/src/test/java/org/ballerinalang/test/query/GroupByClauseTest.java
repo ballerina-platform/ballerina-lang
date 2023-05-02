@@ -150,7 +150,13 @@ public class GroupByClauseTest {
                 "testGroupByVarDefsAndSelectWithNonGroupingKeysWhereClause3",
 
                 "testGroupByExpressionAndSelectWithNonGroupingKeys18",
-                "testGroupByExpressionAndSelectWithNonGroupingKeys19"
+                "testGroupByExpressionAndSelectWithNonGroupingKeys19",
+
+                "testGroupByVarDefsAndSelectWithGroupingKeys11",
+                "testGroupByVarDefsAndSelectWithNonGroupingKeys9",
+
+                "testMultipleGroupBy",
+                "testOptionalFieldsInInput"
         };
     }
 
@@ -174,7 +180,11 @@ public class GroupByClauseTest {
             "testGroupByExpressionWithTableOutput",
             "testGroupByExpressionWithMapOutput",
             "testGroupByWithDoClause",
-            "testGroupByVarDefsAndSelectWithNonGroupingKeys1"
+            "testGroupByVarDefsAndSelectWithNonGroupingKeys1",
+
+            "testGroupByVarDefsAndSelectWithNonGroupingKeys2",
+            "testGroupByExpressionAndSelectWithNonGroupingKeys6",
+            "testMultipleGroupBy"
         };
     }
 
@@ -207,6 +217,10 @@ public class GroupByClauseTest {
                 106, 37);
         BAssertUtil.validateError(negativeResult, i++, "record literal is not supported for record binding pattern",
                 115, 32);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
+                        "'seq record {| string name; int price1; |}' does not support field access", 123, 29);
+        BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
+                "list constructor or function invocation", 123, 29);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 }

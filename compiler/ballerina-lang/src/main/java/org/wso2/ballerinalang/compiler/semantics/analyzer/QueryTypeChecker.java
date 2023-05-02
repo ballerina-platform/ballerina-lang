@@ -863,7 +863,8 @@ public class QueryTypeChecker extends TypeChecker {
             iExpr.argExprs.add(0, iExpr.expr);
         } else {
             BType firstArgType = silentTypeCheckExpr(iExpr.argExprs.get(0), symTable.noType, data);
-            invocationType = firstArgType.tag == TypeTags.SEQUENCE ? ((BSequenceType) firstArgType).elementType : firstArgType;
+            invocationType =
+                    firstArgType.tag == TypeTags.SEQUENCE ? ((BSequenceType) firstArgType).elementType : firstArgType;
         }
         Name funcName = names.fromIdNode(iExpr.name);
         BSymbol symbol = symResolver.lookupLangLibMethod(invocationType, funcName, data.env);

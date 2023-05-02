@@ -78,7 +78,7 @@ public class CollectClauseNode extends ClauseNode {
     /**
      * This is a generated tree node modifier utility.
      *
-     * @since 2.0.0
+     * @since 2201.6.0
      */
     public static class CollectClauseNodeModifier {
         private final CollectClauseNode oldNode;

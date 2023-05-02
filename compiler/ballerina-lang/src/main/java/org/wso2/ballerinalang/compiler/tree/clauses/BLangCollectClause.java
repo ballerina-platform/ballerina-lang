@@ -37,12 +37,8 @@ import java.util.Set;
  */
 public class BLangCollectClause extends BLangNode implements CollectClauseNode {
 
-    // BLangNodes
     public BLangExpression expression;
-
-    // Semantic Data
     public SymbolEnv env;
-
     // Non grouping keys are used to generate aggregated variables
     public Set<String> nonGroupingKeys = new HashSet<>();
 
