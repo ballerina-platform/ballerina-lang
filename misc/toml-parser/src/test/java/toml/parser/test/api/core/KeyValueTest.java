@@ -433,4 +433,17 @@ public class KeyValueTest {
         TomlValueNode lsatVal = ((TomlKeyValueNode) entries.get("last")).value();
         Assert.assertEquals(((TomlStringValueNode) lsatVal).getValue(), "Supun");
     }
+    @Test
+    public void testQuotedIdentifiers() throws IOException {
+        InputStream inputStream = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream("syntax/key-value/quoted-identifier.toml");
+        Toml read = Toml.read(inputStream);
+        String value = ((TomlStringValueNode) read.get("foo.bar").get()).getValue();
+        Assert.assertEquals(value, "value1");
+
+        TomlKeyValueNode tomlKeyValueNode = (TomlKeyValueNode) read.rootNode().entries().get("\"foo.bar\"");
+        Assert.assertEquals(tomlKeyValueNode.value().toNativeValue(), "value");
+        Assert.assertEquals(tomlKeyValueNode.key().name(),"\"foo.bar\"");
+        Assert.assertEquals(tomlKeyValueNode.key().originalName(),"foo.bar");
+    }
 }

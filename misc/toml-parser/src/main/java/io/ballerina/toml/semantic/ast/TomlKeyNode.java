@@ -55,6 +55,14 @@ public class TomlKeyNode extends TomlNode {
         return String.join(".", list);
     }
 
+    public String originalName() {
+        List<String> list = new ArrayList<>(keys.size());
+        for (TomlKeyEntryNode keyEntryNode : keys) {
+            list.add(keyEntryNode.name().toString());
+        }
+        return String.join(".", list);
+    }
+
     @Override
     public String toString() {
         return "TomlKeyNode{" + "keys=" + name() + '}';
