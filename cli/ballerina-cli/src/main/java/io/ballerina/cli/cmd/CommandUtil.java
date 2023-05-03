@@ -92,6 +92,9 @@ public class CommandUtil {
     public static final String DEVCONTAINER = "devcontainer";
     public static final String NEW_CMD_DEFAULTS = "new_cmd_defaults";
     public static final String CREATE_CMD_TEMPLATES = "create_cmd_templates";
+    public static final String DEFAULT_TEMPLATE = "default";
+    public static final String MAIN_TEMPLATE = "main";
+    public static final String FILE_STRING_SEPARATOR = ", ";
     private static FileSystem jarFs;
     private static Map<String, String> env;
     private static PrintStream errStream;
@@ -822,9 +825,9 @@ public class CommandUtil {
      */
     public static void applyTemplate(Path modulePath, String template) throws IOException, URISyntaxException {
         Path templateDir = getTemplatePath().resolve(template);
-        if (template.equalsIgnoreCase("main")) {
-            templateDir = getTemplatePath().resolve("default");
-            Path tempDirTest = getTemplatePath().resolve("main");
+        if (template.equalsIgnoreCase(MAIN_TEMPLATE)) {
+            templateDir = getTemplatePath().resolve(DEFAULT_TEMPLATE);
+            Path tempDirTest = getTemplatePath().resolve(MAIN_TEMPLATE);
             Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
             Files.walkFileTree(tempDirTest, new FileUtils.Copy(tempDirTest, modulePath));
         } else {
@@ -954,9 +957,9 @@ public class CommandUtil {
     public static String checkTemplateFilesExists(String template, Path packagePath) throws URISyntaxException,
             IOException {
         Path templateDir = getTemplatePath().resolve(template);
-        if (template.equalsIgnoreCase("main")) {
-            templateDir = getTemplatePath().resolve("default");
-            Path tempDirTest = getTemplatePath().resolve("main");
+        if (template.equalsIgnoreCase(MAIN_TEMPLATE)) {
+            templateDir = getTemplatePath().resolve(DEFAULT_TEMPLATE);
+            Path tempDirTest = getTemplatePath().resolve(MAIN_TEMPLATE);
             checkFilesExists(packagePath, tempDirTest);
         }
         return checkFilesExists(packagePath, templateDir);
@@ -976,7 +979,7 @@ public class CommandUtil {
         for (Path path : templateFilePathList) {
             String fileName = path.getFileName().toString();
             if (Files.exists(packagePath.resolve(fileName))) {
-                existingFiles += fileName + ", ";
+                existingFiles += fileName + FILE_STRING_SEPARATOR;
             }
         }
         return existingFiles;
@@ -995,7 +998,7 @@ public class CommandUtil {
 
         for (String file : packageFiles) {
             if (Files.exists(packagePath.resolve(file))) {
-                existingFiles += file + ", ";
+                existingFiles += file + FILE_STRING_SEPARATOR;
             }
         }
         return existingFiles;
@@ -1008,7 +1011,7 @@ public class CommandUtil {
      * @return error message if files exists
      */
     public static boolean balFilesExists(Path packagePath) throws IOException {
-        if (Files.walk(packagePath).anyMatch(path -> path.toString().endsWith(".bal"))) {
+        if (Files.walk(packagePath).anyMatch(path -> path.toString().endsWith(ProjectConstants.BLANG_SOURCE_EXT))) {
             return true;
         }
         return false;

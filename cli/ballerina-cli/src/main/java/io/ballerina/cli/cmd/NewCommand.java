@@ -30,6 +30,7 @@ import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -112,10 +113,13 @@ public class NewCommand implements BLauncherCmd {
         Path argPath = Paths.get(argList.get(0));
         Path packagePath = argPath;
         Path currentDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        Path relativeToCurrentDir = Paths.get(currentDir.toString(), packagePath.toString()).normalize();
-
-        if (Files.exists(relativeToCurrentDir) || Files.exists(relativeToCurrentDir.getParent())) {
-            packagePath = relativeToCurrentDir;
+        try {
+            Path relativeToCurrentDir = Paths.get(currentDir.toString(), packagePath.toString()).normalize();
+            if (Files.exists(relativeToCurrentDir) || Files.exists(relativeToCurrentDir.getParent())) {
+                packagePath = relativeToCurrentDir;
+            }
+        } catch (InvalidPathException ignored) {
+            // If the path is not a valid path, use the given path as it is.
         }
 
         CommandUtil.setPrintStream(errStream);
