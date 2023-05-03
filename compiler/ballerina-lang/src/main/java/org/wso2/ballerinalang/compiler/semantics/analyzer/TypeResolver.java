@@ -157,7 +157,7 @@ public class TypeResolver {
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
 
-    private List<BLangTypeDefinition> resolvingtypeDefinitions = new ArrayList<>();
+    private List<BLangTypeDefinition> resolvingTypeDefinitions = new ArrayList<>();
     private HashMap<BIntersectionType, BLangIntersectionTypeNode> intersectionTypeList;
     public HashSet<BLangConstant> resolvedConstants = new HashSet<>();
     private ArrayList<BLangConstant> resolvingConstants = new ArrayList<>();
@@ -508,11 +508,11 @@ public class TypeResolver {
         defn.cycleDepth = depth;
         boolean hasAlreadyVisited = false;
 
-        if (resolvingtypeDefinitions.contains(defn)) {
+        if (resolvingTypeDefinitions.contains(defn)) {
             // Type definition has a cyclic reference.
-            for (int i = resolvingtypeDefinitions.size() - 1; i >= 0; i--) {
-                resolvingtypeDefinitions.get(i).hasCyclicReference = true;
-                if (resolvingtypeDefinitions.get(i) == defn) {
+            for (int i = resolvingTypeDefinitions.size() - 1; i >= 0; i--) {
+                resolvingTypeDefinitions.get(i).hasCyclicReference = true;
+                if (resolvingTypeDefinitions.get(i) == defn) {
                     break;
                 }
             }
@@ -520,7 +520,7 @@ public class TypeResolver {
         } else {
             // Add the type into resolvingtypeDefinitions list.
             // This is used to identify types which have cyclic references.
-            resolvingtypeDefinitions.add(defn);
+            resolvingTypeDefinitions.add(defn);
         }
 
         // Resolve the type
@@ -532,7 +532,7 @@ public class TypeResolver {
 
         if (!hasAlreadyVisited) {
             // Remove the typeDefinition from currently resolving typeDefinition map.
-            resolvingtypeDefinitions.remove(defn);
+            resolvingTypeDefinitions.remove(defn);
         }
 
         if (defn.getBType() == null) {
@@ -1960,6 +1960,7 @@ public class TypeResolver {
             dlog.error(constant.pos, DiagnosticErrorCode.CONSTANT_CYCLIC_REFERENCE,
                     (this.resolvingConstants).stream().map(constNode -> constNode.symbol)
                             .collect(Collectors.toList()));
+            constant.setBType(symTable.semanticError);
             return;
         }
         resolvingConstants.add(constant);
@@ -2030,9 +2031,9 @@ public class TypeResolver {
         data.modTable = modTable;
         data.expType = staticType;
         // Type check and resolve the constant expression.
-        BType inferredExpType = constantTypeChecker.checkConstExpr(constant.expr, staticType, data);
+        BType resolvedType = constantTypeChecker.checkConstExpr(constant.expr, staticType, data);
 
-        if (inferredExpType == symTable.semanticError) {
+        if (resolvedType == symTable.semanticError) {
             // Constant expression contains errors.
             constant.setBType(symTable.semanticError);
             constantSymbol.type = symTable.semanticError;
@@ -2040,12 +2041,12 @@ public class TypeResolver {
             return;
         }
 
-        if (inferredExpType.tag == TypeTags.FINITE) {
-            inferredExpType.tsymbol.originalName = names.originalNameFromIdNode(constant.name);
+        if (resolvedType.tag == TypeTags.FINITE) {
+            resolvedType.tsymbol.originalName = names.originalNameFromIdNode(constant.name);
         }
 
         // Get immutable type for the narrowed type.
-        BType intersectionType = ImmutableTypeCloner.getImmutableType(constant.pos, types, inferredExpType, symEnv,
+        BType intersectionType = ImmutableTypeCloner.getImmutableType(constant.pos, types, resolvedType, symEnv,
                 symEnv.scope.owner.pkgID, symEnv.scope.owner, symTable, anonymousModelHelper, names,
                 new HashSet<>());
 
@@ -2085,7 +2086,7 @@ public class TypeResolver {
         }
         // Add the symbol to the enclosing scope.
         BLangTypeDefinition typeDefinition = findTypeDefinition(symEnv.enclPkg.typeDefinitions,
-                inferredExpType.tsymbol.name.value);
+                resolvedType.tsymbol.name.value);
         if (typeDefinition != null && constant.associatedTypeDefinition == null) {
             constant.associatedTypeDefinition = typeDefinition;
         }

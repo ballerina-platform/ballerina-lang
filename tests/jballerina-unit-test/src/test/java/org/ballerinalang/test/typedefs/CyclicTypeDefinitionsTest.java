@@ -64,7 +64,8 @@ public class CyclicTypeDefinitionsTest {
                 {"recursiveTupleArrayCloneTest"},
                 {"testRecursiveTupleWithRestType"},
                 {"testUnionWithCyclicTuplesHashCode"},
-                {"testCloneOnRecursiveTuples"}
+                {"testCloneOnRecursiveTuples"},
+                {"testCyclicTuples"}
         };
     }
 

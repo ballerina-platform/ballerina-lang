@@ -45,3 +45,6 @@ const float E = F;
 const float F = E;
 
 const int CONST4 = -9223372036854775808; // -9223372036854775808 is out of range
+
+const T CONST5 = 3 + 5;
+type T CONST5;

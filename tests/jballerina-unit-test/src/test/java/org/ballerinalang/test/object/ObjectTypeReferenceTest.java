@@ -104,6 +104,17 @@ public class ObjectTypeReferenceTest {
     }
 
     @Test
+    public void testCyclicDependencyReferencesObjectTypeReferenceNegative() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-cyclic-dependency" +
+                "-negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'Foo'", 18, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A'", 23, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'C'", 31, 1);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @Test
     public void testSimpleObjectTypeReferenceSemanticsNegative_2() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-2-semantics" +
                 "-negative.bal");

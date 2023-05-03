@@ -343,6 +343,26 @@ function testCloneOnRecursiveTuples() {
     test:assertFalse(list_readonly === list);
 }
 
+type Q1 [Q1];
+type Q2 [Q2, Q2];
+type Q3 [Q3, Q3...];
+type Q4 [Q4, Q4, Q4...];
+type Q5 [Q5]|[Q5, Q5]|[Q5...]|[Q5, Q5...]|[Q5, Q5, Q5...];
+type Q6 [Q1];
+type Q7 [Q1, Q2, Q3, Q4, Q5, Q6, Q7];
+type Q8 [Q1?];
+
+function testCyclicTuples() {
+    Q1? q1 = ();
+    Q2? q2 = ();
+    Q3? q3 = ();
+    Q4? q4 = ();
+    Q5? q5 = ();
+    Q6? q6 = ();
+    Q7? q7 = ();
+    Q8 q8 = [];
+}
+
 function assertTrue(anydata actual) {
     assert(true, actual);
 }
