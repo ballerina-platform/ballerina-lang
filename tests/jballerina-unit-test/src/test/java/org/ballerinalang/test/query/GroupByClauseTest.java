@@ -251,7 +251,11 @@ public class GroupByClauseTest {
         BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'seq int'", 145, 26);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list constructor or function invocation", 145, 26);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list constructor or function invocation", 145, 35);
+        BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 148, 36);
         BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after rest argument", 151, 39);
+        BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 154, 37);
+        BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 154, 40);
+        BAssertUtil.validateError(negativeResult, i++, "sequence variable cannot be used in a required argument", 157, 37);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 }

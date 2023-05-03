@@ -806,6 +806,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCS4047", "seq.var.cannot.be.used.in.required.arg"),
     SEQUENCE_VARIABLE_CAN_BE_USED_IN_SINGLE_ELEMENT_LIST_CTR_OR_FUNC_INVOCATION(
             "BCS4048", "seq.var.used.in.single.element.list.ctr.or.func.invocation"),
+    SEQ_ARG_FOLLOWED_BY_ANOTHER_SEQ_ARG("BCS4049", "seq.arg.followed.by.another.seq.arg"),
     ;
 
     private String diagnosticId;

@@ -877,26 +877,32 @@ public class QueryTypeChecker extends TypeChecker {
                         iExpr.requiredArgs.add(arg);
                         argCount = i;
                     }
+                    boolean foundSeqRestArg = false;
                     for (int i = argCount; i < iExpr.argExprs.size(); i++) {
+                        BLangExpression argExpr = iExpr.argExprs.get(i);
                         if (functionSymbol.restParam != null) {
-                            BLangExpression argExpr = iExpr.argExprs.get(i);
-                            BType restParamType = functionSymbol.restParam.type;
-                            NodeKind argExprKind = argExpr.getKind();
-                            iExpr.restArgs.add(argExpr);
-                            if (argExprKind == NodeKind.SIMPLE_VARIABLE_REF) {
-                                if (silentTypeCheckExpr(argExpr, symTable.noType, data).tag == TypeTags.SEQUENCE) {
-                                    checkArg(argExpr, restParamType, data);
+                            if (foundSeqRestArg) {
+                                dlog.error(argExpr.pos, DiagnosticErrorCode.SEQ_ARG_FOLLOWED_BY_ANOTHER_SEQ_ARG);
+                            } else {
+                                BType restParamType = functionSymbol.restParam.type;
+                                NodeKind argExprKind = argExpr.getKind();
+                                iExpr.restArgs.add(argExpr);
+                                if (argExprKind == NodeKind.SIMPLE_VARIABLE_REF) {
+                                    if (silentTypeCheckExpr(argExpr, symTable.noType, data).tag == TypeTags.SEQUENCE) {
+                                        foundSeqRestArg = true;
+                                        checkArg(argExpr, restParamType, data);
+                                        continue;
+                                    }
+                                }
+                                if (argExprKind == NodeKind.REST_ARGS_EXPR) {
+                                    checkTypeParamExpr(argExpr, restParamType, data);
                                     continue;
                                 }
-                            }
-                            if (argExprKind == NodeKind.REST_ARGS_EXPR) {
-                                checkTypeParamExpr(argExpr, restParamType, data);
-                                continue;
-                            }
-                            if (restParamType.tag == TypeTags.ARRAY) {
-                                checkArg(argExpr, ((BArrayType) restParamType).eType, data);
-                            } else {
-                                checkArg(argExpr, restParamType, data);
+                                if (restParamType.tag == TypeTags.ARRAY) {
+                                    checkArg(argExpr, ((BArrayType) restParamType).eType, data);
+                                } else {
+                                    checkArg(argExpr, restParamType, data);
+                                }
                             }
                         }
                     }

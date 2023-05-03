@@ -149,4 +149,14 @@ function testSeqVarInInvalidPositions4() {
     sum = from var {name, price1, price2} in input
             group by var _ = true
             select 5.sum(...[price1], ...[price2]); // error
+    sum = from var {name, price1, price2} in input
+            group by var _ = true
+            select 5.sum(2, price1, 3, 4); // error
+    int[] l = from var {name, price1, price2} in input
+                group by var _ = true
+                select array:length(price1); // error            
+    // TODO: Check this error
+    // int[] sum = from var {name, price1, price2} in input
+    //         group by var _ = true
+    //         select int:min(n = 200, price1); // error            
 }
