@@ -26,17 +26,19 @@ import io.ballerina.projects.BalToolsToml;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
+import io.ballerina.projects.Settings;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -45,11 +47,11 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
-import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
 import static io.ballerina.projects.util.ProjectConstants.HOME_REPO_DEFAULT_DIRNAME;
+import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
+import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.projects.util.ProjectUtils.validatePackageName;
-import static java.nio.file.Files.createDirectories;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
@@ -62,7 +64,6 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
 public
 class ToolCommand implements BLauncherCmd {
     // TODO: Remove TOOL_ORG_NAME and use what is there in the dir structure once pulled. Can be ballerina or ballerinax
-    private static final String TOOL_ORG_NAME = "ballerina";
     private static final String PULL_COMMAND = "pull";
     private static final String UPDATE_COMMAND = "update";
     private static final String LIST_COMMAND = "list";
@@ -82,6 +83,8 @@ class ToolCommand implements BLauncherCmd {
     private boolean helpFlag;
 
     private String toolId;
+    private String org;
+    private String pkgName;
     private String version;
 
     public ToolCommand() {
@@ -197,18 +200,11 @@ class ToolCommand implements BLauncherCmd {
                 return;
             }
         }
-        Path packagePathInBalaCache = ProjectUtils.createAndGetHomeReposPath()
+
+        Path balaCacheDirPath = ProjectUtils.createAndGetHomeReposPath()
                 .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
-                .resolve(ProjectConstants.BALA_DIR_NAME)
-                .resolve(TOOL_ORG_NAME).resolve(toolId);
-        // create directory path in bala cache
-        try {
-            createDirectories(packagePathInBalaCache);
-        } catch (IOException e) {
-            CommandUtil.exitError(this.exitWhenFinish);
-            throw createLauncherException(
-                    "unexpected error occurred while creating tool repository in bala cache: " + e.getMessage());
-        }
+                .resolve(ProjectConstants.BALA_DIR_NAME);
+
         if (isToolLocallyAvailable(toolIdAndVersion)) {
             CommandUtil.printError(this.errStream, "tool is already pulled", null, false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -218,20 +214,16 @@ class ToolCommand implements BLauncherCmd {
         // TODO: remove the hard coded org name once we have an API for tool pulling.
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             try {
-                boolean hasCompilationErrors = mockPullToolFromCentral(supportedPlatform, packagePathInBalaCache);
-//                boolean hasCompilationErrors = pullToolFromCentral(supportedPlatform, packagePathInBalaCache);
-                if (hasCompilationErrors) {
-                    CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
-                    CommandUtil.exitError(this.exitWhenFinish);
-                    return;
-                }
-                String toolPathInCentralCache = getToolPathInCentralCache(TOOL_ORG_NAME, toolId, version);
+//                boolean hasCompilationErrors = mockPullToolFromCentral(supportedPlatform, packagePathInBalaCache);
+                pullToolFromCentral(supportedPlatform, balaCacheDirPath);
+
+                String toolPathInCentralCache = getToolPathInCentralCache();
                 if (toolPathInCentralCache == null) {
                     CommandUtil.printError(this.errStream, "tool jar not found", null, false);
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;
                 }
-                updateBalToolsTomlFile(toolId, version, toolPathInCentralCache);
+                updateBalToolsTomlFile(toolPathInCentralCache);
                 errStream.println(toolIdAndVersion + " pulled successfully");
             } catch (PackageAlreadyExistsException e) {
                 errStream.println(e.getMessage());
@@ -331,44 +323,40 @@ class ToolCommand implements BLauncherCmd {
         }
     }
 
-//    private boolean pullToolFromCentral(String supportedPlatform, Path packagePathInBalaCache)
-//            throws CentralClientException {
-//        Settings settings;
-//        try {
-//            settings = RepoUtils.readSettings();
-//            // Ignore Settings.toml diagnostics in the pull command
-//        } catch (SettingsTomlException e) {
-//            // Ignore 'Settings.toml' parsing errors and return empty Settings object
-//            settings = Settings.from();
-//        }
-//        CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-//                initializeProxy(settings.getProxy()),
-//                getAccessTokenOfCLI(settings));
-//        // TODO: replace with the correct API call once we have an API for tool pulling.
-//        client.pullPackage(TOOL_ORG_NAME, toolId, version, packagePathInBalaCache, supportedPlatform,
-//                RepoUtils.getBallerinaVersion(), false);
-//        if (version.equals(Names.EMPTY.getValue())) {
-//            List<String> versions = client.getPackageVersions(TOOL_ORG_NAME, toolId, supportedPlatform,
-//                    RepoUtils.getBallerinaVersion());
-//            version = CommandUtil.getLatestVersion(versions);
-//        }
-//        return CommandUtil.pullDependencyPackages(TOOL_ORG_NAME, toolId, version);
-//    }
-
-    // TODO: remove once the pull tool API is available.
-    private boolean mockPullToolFromCentral(String supportedPlatform, Path packagePathInBalaCache)
-            throws CentralClientException {
-        if (version.equals(Names.EMPTY.getValue())) {
-            version = "1.0.0";
+    private void pullToolFromCentral(String supportedPlatform, Path balaCacheDirPath) throws CentralClientException {
+        Settings settings;
+        try {
+            settings = RepoUtils.readSettings();
+            // Ignore Settings.toml diagnostics in the pull command
+        } catch (SettingsTomlException e) {
+            // Ignore 'Settings.toml' parsing errors and return empty Settings object
+            settings = Settings.from();
         }
-        // do nothing
-        return false;
+        CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                initializeProxy(settings.getProxy()),
+                getAccessTokenOfCLI(settings));
+        String[] toolInfo = client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
+                RepoUtils.getBallerinaVersion(), false);
+        org = toolInfo[0];
+        pkgName = toolInfo[1];
+        version = toolInfo[2];
     }
 
-    private String getToolPathInCentralCache(String orgName, String toolName, String version) {
+    // TODO: remove once the pull tool API is available.
+//    private boolean mockPullToolFromCentral(String supportedPlatform, Path packagePathInBalaCache)
+//            throws CentralClientException {
+//        if (version.equals(Names.EMPTY.getValue())) {
+//            version = "1.0.0";
+//        }
+//        org = "ballerina";
+//        // do nothing
+//        return false;
+//    }
+
+    private String getToolPathInCentralCache() {
         Path versionPath = ProjectUtils.createAndGetHomeReposPath()
                 .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
-                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(orgName).resolve(toolName).resolve(version);
+                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(org).resolve(pkgName).resolve(version);
         File anyPlatformDir = versionPath.resolve(ANY_PLATFORM).toFile();
         File java11PlatformDir = versionPath.resolve(JvmTarget.JAVA_11.code()).toFile();
 
@@ -381,7 +369,7 @@ class ToolCommand implements BLauncherCmd {
         return null;
     }
 
-    private void updateBalToolsTomlFile(String toolId, String version, String toolPathInCentralCache) {
+    private void updateBalToolsTomlFile(String toolPathInCentralCache) {
         BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
         BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml)
                 .addTool(toolId, version, toolPathInCentralCache)

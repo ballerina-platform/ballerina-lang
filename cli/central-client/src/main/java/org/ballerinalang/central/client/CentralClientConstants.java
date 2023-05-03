@@ -36,6 +36,9 @@ public class CentralClientConstants {
     static final String ACCEPT_ENCODING = "Accept-Encoding";
     static final String USER_AGENT = "User-Agent";
     static final String LOCATION = "Location";
+    static final String ORGANIZATION = "Organization";
+    static final String VERSION = "Version";
+    static final String PACKAGE_NAME = "Name";
     static final String ACCEPT = "Accept";
     static final String CONTENT_DISPOSITION = "Content-Disposition";
     static final String APPLICATION_OCTET_STREAM = "application/octet-stream";

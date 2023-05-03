@@ -79,7 +79,10 @@ import static org.ballerinalang.central.client.CentralClientConstants.DEPRECATE_
 import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.CentralClientConstants.IS_DEPRECATED;
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
+import static org.ballerinalang.central.client.CentralClientConstants.ORGANIZATION;
+import static org.ballerinalang.central.client.CentralClientConstants.PACKAGE_NAME;
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
+import static org.ballerinalang.central.client.CentralClientConstants.VERSION;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
@@ -94,6 +97,7 @@ import static org.ballerinalang.central.client.Utils.isApplicationJsonContentTyp
 public class CentralAPIClient {
 
     private static final String PACKAGES = "packages";
+    public static final String TOOLS = "tools";
     private static final String CONNECTORS = "connectors";
     private static final String TRIGGERS = "triggers";
     private static final String RESOLVE_DEPENDENCIES = "resolve-dependencies";
@@ -565,6 +569,154 @@ public class CentralAPIClient {
             }
         }
     }
+
+    /**
+     * Pull a package from central.
+     *
+     * @param toolId                    The id of the tool.
+     * @param version                   The version of the package.
+     * @param balaCacheDirPath    The package path in Bala cache.
+     * @param supportedPlatform         The supported platform.
+     * @param ballerinaVersion          The ballerina version.
+     * @param isBuild                   If build option is enabled or not.
+     * @throws CentralClientException   Central Client exception.
+     */
+    public String[] pullTool(String toolId, String version, Path balaCacheDirPath, String supportedPlatform,
+                         String ballerinaVersion, boolean isBuild) throws CentralClientException {
+        String resourceUrl = "/" + TOOLS + "/" + toolId;
+        boolean enableOutputStream =
+                Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
+        String toolSignature = toolId;
+
+        // TODO: remove once mocking is done
+        String url = "https://09edc8a7-fa97-48d7-b07a-b7709ce6101d.mock.pstmn.io" + resourceUrl;
+//        String url = this.baseUrl + resourceUrl;
+        // append version to url if available
+        if (null != version && !version.isEmpty()) {
+            url += "/" + version;
+            toolSignature += ":" + version;
+        } else {
+            url += "/*";
+            toolSignature += ":*";
+        }
+
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
+        try {
+            LogFormatter logFormatter = new LogFormatter();
+            if (isBuild) {
+                logFormatter = new BuildLogFormatter();
+            }
+
+            Request packagePullReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+                    .url(url)
+                    .addHeader(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
+                    .build();
+            logRequestInitVerbose(packagePullReq);
+            Call packagePullReqCall = client.newCall(packagePullReq);
+            Response packagePullResponse = packagePullReqCall.execute();
+            logRequestConnectVerbose(packagePullReq, resourceUrl);
+
+            body = Optional.ofNullable(packagePullResponse.body());
+            String pkgPullResBodyContent = null;
+            if (body.isPresent()) {
+                pkgPullResBodyContent = body.get().string();
+            }
+            logResponseVerbose(packagePullResponse, pkgPullResBodyContent);
+
+            // 302   - Package is found
+            if (packagePullResponse.code() == HTTP_MOVED_TEMP) {
+                // get redirect url from "location" header field
+                Optional<String> balaUrl = Optional.ofNullable(packagePullResponse.header(LOCATION));
+                Optional<String> balaFileName = Optional.ofNullable(packagePullResponse.header(CONTENT_DISPOSITION));
+                Optional<String> org = Optional.ofNullable(packagePullResponse.header(ORGANIZATION));
+                Optional<String> pkgName = Optional.ofNullable(packagePullResponse.header(PACKAGE_NAME));
+                Optional<String> latestVersion = Optional.ofNullable(packagePullResponse.header(VERSION));
+
+                if (balaUrl.isPresent() && balaFileName.isPresent() && org.isPresent() && latestVersion.isPresent()
+                        && pkgName.isPresent()) {
+                    Request downloadBalaRequest = getNewRequest(supportedPlatform, ballerinaVersion)
+                            .get()
+                            .url(balaUrl.get())
+                            .header(ACCEPT_ENCODING, IDENTITY)
+                            .addHeader(CONTENT_DISPOSITION, balaFileName.get())
+                            .build();
+                    logRequestInitVerbose(downloadBalaRequest);
+                    Call downloadBalaRequestCall = client.newCall(downloadBalaRequest);
+                    Response balaDownloadResponse = downloadBalaRequestCall.execute();
+                    logRequestConnectVerbose(downloadBalaRequest, balaUrl.get());
+                    logResponseVerbose(balaDownloadResponse, null);
+
+                    Path packagePathInBalaCache = balaCacheDirPath.resolve(org.get()).resolve(pkgName.get());
+
+                    if (balaDownloadResponse.code() == HTTP_OK) {
+                        boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
+                        createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org.get(), pkgName.get(),
+                                isNightlyBuild, null, balaUrl.get(), balaFileName.get(),
+                                enableOutputStream ? outStream : null, logFormatter);
+                        return new String[]{org.get(), pkgName.get(), latestVersion.get()};
+                    } else {
+                        String errorMessage = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + toolSignature +
+                                "'. BALA content download from '" + balaUrl.get() + "' failed.");
+                        handleResponseErrors(balaDownloadResponse, errorMessage);
+                    }
+                } else {
+                    String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + toolSignature +
+                            "' from the remote repository '" + url + "'. reason: bala file location is missing.");
+                    throw new CentralClientException(errorMsg);
+                }
+            }
+
+            // Unauthorized access token
+            if (packagePullResponse.code() == HTTP_UNAUTHORIZED) {
+                handleUnauthorizedResponse(body);
+            }
+
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
+                    // If request sent is invalid or when tool is not found
+                    if (packagePullResponse.code() == HTTP_BAD_REQUEST ||
+                            packagePullResponse.code() == HTTP_NOT_FOUND) {
+                        Error error = new Gson().fromJson(pkgPullResBodyContent, Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException("error: " + error.getMessage());
+                        }
+                    }
+
+                    //  When error occurred at remote repository
+                    if (packagePullResponse.code() == HTTP_INTERNAL_ERROR ||
+                            packagePullResponse.code() == HTTP_UNAVAILABLE) {
+                        Error error = new Gson().fromJson(pkgPullResBodyContent, Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            String errorMsg =
+                                    logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + toolSignature +
+                                            "' from" +
+                                            " the remote repository '" + url +
+                                            "'. reason: " + error.getMessage());
+                            throw new CentralClientException(errorMsg);
+                        }
+                    }
+                }
+            }
+
+            String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + toolSignature +
+                    "' from the remote repository '" + url + "'.");
+            throw new CentralClientException(errorMsg);
+        } catch (IOException e) {
+            throw new CentralClientException(e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
 
     /**
      * Resolve Package Names of modules.
