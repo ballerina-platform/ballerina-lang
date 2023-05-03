@@ -21,7 +21,6 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
@@ -81,15 +80,7 @@ public class XmlFactory {
             XmlTreeBuilder treeBuilder = new XmlTreeBuilder(xmlStr);
             return treeBuilder.parse();
         } catch (Throwable e) {
-            String reason = "failed to parse xml";
-            String errorMessage = e.getMessage();
-            if (errorMessage == null) {
-                BError bError = ErrorCreator.createError(StringUtils.fromString(reason));
-                bError.setStackTrace(e.getStackTrace());
-                throw bError;
-            } else {
-                throw ErrorCreator.createError(StringUtils.fromString(reason + ": " + errorMessage));
-            }
+            throw ErrorCreator.createError(StringUtils.fromString(("failed to parse xml: " + e.getMessage())));
         }
     }
 
