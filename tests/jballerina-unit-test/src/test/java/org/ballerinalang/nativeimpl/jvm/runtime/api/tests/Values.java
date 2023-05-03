@@ -57,7 +57,6 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
-import io.ballerina.runtime.internal.types.BObjectType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.types.BTupleType;
