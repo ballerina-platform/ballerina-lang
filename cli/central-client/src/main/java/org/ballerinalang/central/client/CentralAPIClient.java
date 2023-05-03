@@ -781,8 +781,11 @@ public class CentralAPIClient {
         // PackageInfo is already validated to support the format org-name/package-name:version
         Package existingPackage = getPackage(packageInfo.split("/")[0], packageInfo.split("/")[1].split(":")[0],
                 packageInfo.split("/")[1].split(":")[1], supportedPlatform, ballerinaVersion);
+
+        String packageValue = packageInfo.endsWith(":*") ? packageInfo.substring(0, packageInfo.length() - 2) :
+                packageInfo;
         if (isUndo && !existingPackage.getDeprecated()) {
-            this.outStream.println("package " + packageInfo + " is not marked as deprecated in central");
+            this.outStream.println("package " + packageValue + " is not marked as deprecated in central");
             return;
         }
 
@@ -821,13 +824,13 @@ public class CentralAPIClient {
                         if (packageResponse.getDeprecated()) {
                             if (existingPackage.getDeprecated()) {
                                 this.outStream.println("deprecation message is successfully updated for the package "
-                                        + packageInfo + " in central");
+                                        + packageValue + " in central");
                             } else {
-                                this.outStream.println("package " + packageInfo
+                                this.outStream.println("package " + packageValue
                                         + " marked as deprecated in central successfully");
                             }
                         } else {
-                            this.outStream.println("deprecation of the package " + packageInfo +
+                            this.outStream.println("deprecation of the package " + packageValue +
                                     " is successfully undone in central");
                         }
                     }
@@ -859,7 +862,7 @@ public class CentralAPIClient {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             String errorMsg = isUndo ? ERR_PACKAGE_UN_DEPRECATE : ERR_PACKAGE_DEPRECATE;
-                            throw new CentralClientException(errorMsg + "'" + packageInfo +
+                            throw new CentralClientException(errorMsg + "'" + packageValue +
                                     "' reason:" + error.getMessage());
                         }
                     }
@@ -867,7 +870,7 @@ public class CentralAPIClient {
             }
         } catch (IOException e) {
             String errorMsg = isUndo ? ERR_PACKAGE_UN_DEPRECATE : ERR_PACKAGE_DEPRECATE;
-            throw new CentralClientException(errorMsg + "'" + packageInfo + "'. reason: " + e.getMessage());
+            throw new CentralClientException(errorMsg + "'" + packageValue + "'. reason: " + e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {

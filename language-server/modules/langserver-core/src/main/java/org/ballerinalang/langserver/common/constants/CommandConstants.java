@@ -82,6 +82,8 @@ public class CommandConstants {
 
     public static final String CHANGE_MODULE_PREFIX_TITLE = "Change module prefix to '%s'";
 
+    public static final String REMOVE_MODULE_ALIAS = "Remove module alias";
+
     public static final String CREATE_VARIABLE_TITLE = "Create variable";
 
     public static final String IGNORE_RETURN_TITLE = "Ignore return value";

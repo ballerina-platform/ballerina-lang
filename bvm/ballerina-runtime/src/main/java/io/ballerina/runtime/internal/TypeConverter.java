@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -634,6 +635,12 @@ public class TypeConverter {
             return false;
         }
         ArrayValue source = (ArrayValue) sourceValue;
+        int targetSize = targetType.getSize();
+        long sourceSize = source.getLength();
+        if (targetType.getState() == ArrayType.ArrayState.CLOSED && targetSize < sourceSize) {
+            addErrorMessage(0, errors, "element count exceeds the target array size '" + targetSize + "'");
+            return false;
+        }
         Type targetTypeElementType = TypeUtils.getReferredType(targetType.getElementType());
         Type sourceType = source.getType();
         if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
@@ -642,8 +649,6 @@ public class TypeConverter {
                 return true;
             }
         }
-        int targetSize = targetType.getSize();
-        long sourceSize = source.getLength();
         if (!TypeChecker.hasFillerValue(targetType) && sourceSize < targetSize) {
             addErrorMessage(0, errors, "array cannot be expanded to size '" + targetSize + "' because, the target " +
                     "type '" + targetType + "' does not have a filler value");
