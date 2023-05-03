@@ -6003,9 +6003,18 @@ public class Types {
                 return true;
             case TypeTags.MAP:
                 return isAllowedConstantType(((BMapType) type).constraint);
+            case TypeTags.RECORD:
+                for (BField field : ((BRecordType) type).fields.values()) {
+                    if (!isAllowedConstantType(field.type)) {
+                        return false;
+                    }
+                }
+                return true;
             case TypeTags.FINITE:
                 BLangExpression finiteValue = ((BFiniteType) type).getValueSpace().toArray(new BLangExpression[0])[0];
                 return isAllowedConstantType(finiteValue.getBType());
+            case TypeTags.INTERSECTION:
+                return isAllowedConstantType(((BIntersectionType) type).effectiveType);
             case TypeTags.TYPEREFDESC:
                 return isAllowedConstantType(((BTypeReferenceType) type).referredType);
             default:

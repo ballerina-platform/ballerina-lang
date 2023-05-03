@@ -806,6 +806,10 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 this.anonTypeNameSuffixes.push(key.toString());
                 BType keyValueType = checkConstExpr(exprToCheck, expType, data);
                 this.anonTypeNameSuffixes.pop();
+                if (keyValueType == symTable.semanticError) {
+                    containErrors = true;
+                    continue;
+                }
                 BLangExpression keyExpr = key.expr;
 
                 // Add the resolved field.
@@ -834,6 +838,10 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     exprToCheck = nodeCloner.cloneNode(varNameField);
                 }
                 BType varRefType = checkConstExpr(exprToCheck, expType, data);
+                if (varRefType == symTable.semanticError) {
+                    containErrors = true;
+                    continue;
+                }
                 if (!addFields(inferredFields, Types.getReferredType(varRefType), getKeyName(varNameField),
                         varNameField.pos, recordSymbol, false)) {
                     containErrors = true;
@@ -2029,9 +2037,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             return false;
         }
         long flags = recordSymbol.flags | Flags.REQUIRED;
-//        flags.add(Flag.REQUIRED); // All the fields in constant mapping types should be required fields.
-
-        BVarSymbol fieldSymbol = new BVarSymbol(recordSymbol.flags, fieldName, recordSymbol.pkgID , keyValueType,
+        BVarSymbol fieldSymbol = new BVarSymbol(flags, fieldName, recordSymbol.pkgID , keyValueType,
                 recordSymbol, symTable.builtinPos, VIRTUAL);
         fields.put(fieldName.value, new BField(fieldName, null, fieldSymbol));
         return true;

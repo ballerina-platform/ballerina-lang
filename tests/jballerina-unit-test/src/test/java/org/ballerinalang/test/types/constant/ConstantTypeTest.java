@@ -63,16 +63,14 @@ public class ConstantTypeTest {
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 34, 15);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3.0f', found 'float'", 35, 15);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3.0d', found 'float'", 36, 15);
-        // Activate this after fixing #33889
-//        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 37, 15);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '3', found 'int'", 37, 17);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'false', found 'boolean'",
                 38, 15);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '\"12\"', found 'string'", 39, 15);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE1', found '3'", 41, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE2', found '3.0f'", 42, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE3', found '3.0d'", 43, 16);
-        // Activate this after fixing #33889
-//        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE4', found '3'", 44, 16);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE4', found '3'", 44, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE5', found 'false'", 45, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE6', found '\"12\"'", 46, 16);
         BAssertUtil.validateError(compileResult1, i++, "invalid usage of finite literal: duplicate key 'b'", 63, 46);
@@ -84,6 +82,8 @@ public class ConstantTypeTest {
                 "'(record {| 0.11f a; 2.12f b; |} & readonly)'", 118, 17);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE10', found " +
                 "'(record {| 0.11d a; 2.12d b; |} & readonly)'", 119, 17);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE9', found " +
+                        "'(record {| 127 a; 255 b; |} & readonly)'", 120, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE8', found " +
                 "'(record {| true a; false b; |} & readonly)'", 121, 16);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'TYPE7', found '(record {| \"C\"" +
@@ -101,6 +101,8 @@ public class ConstantTypeTest {
         BAssertUtil.validateError(compileResult1, i++, "undefined field 'c' in record 'record {| readonly 0.11f a; " +
                 "readonly 2.12f b; |} & readonly'", 128, 28);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '0.11d', found 'float'", 129, 22);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '127', found 'string'", 130, 22);
+        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '255', found 'string'", 130, 31);
         BAssertUtil.validateError(compileResult1, i++, "missing non-defaultable required record field 'b'", 131, 17);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '\"C\"', found 'string'", 132, 22);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '\"S\"', found 'string'", 132, 31);

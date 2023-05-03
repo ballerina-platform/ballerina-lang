@@ -159,6 +159,21 @@ public class ConstantExpressionTest {
         BRunUtil.invoke(compileResult, "testConstDecimalSubnormals");
     }
 
+    @Test
+    public void testConstExprWithUnionExpectedType() {
+        BRunUtil.invoke(compileResult, "testConstExprWithUnionExpectedType");
+    }
+
+    @Test
+    public void testConstExprWithConstExpectedType() {
+        BRunUtil.invoke(compileResult, "testConstExprWithConstExpectedType");
+    }
+
+    @Test
+    public void testConstExprWithByteExpectedType() {
+        BRunUtil.invoke(compileResult, "testConstExprWithByteExpectedType");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
