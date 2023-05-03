@@ -182,9 +182,8 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--native", description = "enable native image generation")
     private Boolean nativeImage;
 
-    @CommandLine.Option(names = "--semtype-disabled", description = "disable semtype based type checking",
-            hidden = true)
-    private boolean semtypeDisabled;
+    @CommandLine.Option(names = "--semtype-enabled", description = "enable semtype based type checking", hidden = true)
+    private boolean semtypeEnabled;
 
     public void execute() {
         long start = 0;
@@ -305,7 +304,7 @@ public class BuildCommand implements BLauncherCmd {
                 .setExportComponentModel(exportComponentModel)
                 .setEnableCache(enableCache)
                 .setNativeImage(nativeImage)
-                .setSemType(!semtypeDisabled);
+                .setSemType(semtypeEnabled);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

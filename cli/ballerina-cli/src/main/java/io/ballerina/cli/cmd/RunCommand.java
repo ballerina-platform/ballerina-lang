@@ -102,9 +102,8 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
-    @CommandLine.Option(names = "--semtype-disabled", description = "disable semtype based type checking",
-            hidden = true)
-    private boolean semtypeDisabled;
+    @CommandLine.Option(names = "--semtype-enabled", description = "enable semtype based type checking", hidden = true)
+    private boolean semtypeEnabled;
 
     private static final String runCmd =
             "bal run [--debug <port>] <executable-jar> \n" +
@@ -266,7 +265,7 @@ public class RunCommand implements BLauncherCmd {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setConfigSchemaGen(configSchemaGen)
-                .setSemType(!semtypeDisabled);
+                .setSemType(semtypeEnabled);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
