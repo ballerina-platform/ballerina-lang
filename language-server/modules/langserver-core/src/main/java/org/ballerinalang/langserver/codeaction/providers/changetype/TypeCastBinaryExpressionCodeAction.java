@@ -15,7 +15,9 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -47,7 +49,7 @@ import java.util.Set;
  * @since 2201.1.1
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class TypeCastNumericExpression extends TypeCastCodeAction {
+public class TypeCastBinaryExpressionCodeAction extends TypeCastCodeAction {
 
     public static final String NAME = "Type Cast Numeric Expression";
     public static final Set<String> DIAGNOSTIC_CODES = Set.of("BCE4026", "BCE2070");
@@ -89,16 +91,35 @@ public class TypeCastNumericExpression extends TypeCastCodeAction {
             contextType = context.currentSemanticModel().get().expectedType(context.currentDocument().get(), position);
         }
 
+        // If we can't determine the context type or if both LHS and RHS types are different from the context
+        // type, we don't take a risk of suggesting an invalid type cast. Instead avoid suggesting the code action.
+        if (contextType.isEmpty()) {
+            return Collections.emptyList();
+        }
+        
         String typeName;
         Node castExprNode;
-        if (contextType.isPresent() && contextType.get().typeKind() == lhsOperand.get().typeKind()) {
+        if (contextType.get().typeKind() == lhsOperand.get().typeKind()) {
             typeName = NameUtil.getModifiedTypeName(context, lhsOperand.get());
             castExprNode = binaryExpressionNode.rhsExpr();
-        } else {
-            //If the context type can't be determined or the context type is same as the rhs expr,
-            // we add the type cast to the lhs expr.
+        } else if (contextType.get().typeKind() == rhsOperand.get().typeKind()) {
+            // If the context type is same as the rhs expr, we add the type cast to the lhs expr.
             typeName = NameUtil.getModifiedTypeName(context, rhsOperand.get());
             castExprNode = binaryExpressionNode.lhsExpr();
+        } else {
+            if (isNumericType(contextType.get()) && isNumericType(lhsOperand.get())
+                    && isNumericType(rhsOperand.get())) {
+                // If all 3 types are numeric, we cast the RHS expr to the context type.
+                typeName = NameUtil.getModifiedTypeName(context, contextType.get());
+                castExprNode = binaryExpressionNode.rhsExpr();
+            } else if (isStringType(contextType.get()) && isStringType(lhsOperand.get())
+                    && isStringType(rhsOperand.get())) {
+                // If all 3 are string types, we cast the RHS expr to the context type.
+                typeName = NameUtil.getModifiedTypeName(context, contextType.get());
+                castExprNode = binaryExpressionNode.rhsExpr();
+            } else {
+                return Collections.emptyList();
+            }
         }
         String exprSourceCode = castExprNode.toSourceCode().strip();
         if (typeName.isEmpty()) {
@@ -109,6 +130,26 @@ public class TypeCastNumericExpression extends TypeCastCodeAction {
         String commandTitle = String.format(CommandConstants.ADD_TYPE_CAST_TO_NUMERIC_OPERAND_TITLE, exprSourceCode);
         return Collections.singletonList(CodeActionUtil.createCodeAction(commandTitle, edits, context.fileUri(),
                 CodeActionKind.QuickFix));
+    }
+
+    private boolean isNumericType(TypeSymbol typeSymbol) {
+        TypeDescKind typeKind = typeSymbol.typeKind();
+        return typeKind.isIntegerType() || typeKind == TypeDescKind.DECIMAL || typeKind == TypeDescKind.FLOAT;
+    }
+
+    /**
+     * Checks if the provided type is a string type. Cover strings and string unions
+     *
+     * @param typeSymbol Type symbol
+     * @return True if the type or a member of the type is a string
+     */
+    private boolean isStringType(TypeSymbol typeSymbol) {
+        if (typeSymbol.typeKind().isStringType()) {
+            return true;
+        }
+        return typeSymbol.typeKind() == TypeDescKind.UNION
+                && ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors().stream()
+                .anyMatch(t -> t.typeKind().isStringType());
     }
 
     public String getName() {
