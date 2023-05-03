@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 11,
+    "character": 6
+  },
+  "source": "type_cast_no_ctx_type_negative1.bal",
+  "expected": [
+    {
+      "title": "Add type cast"
+    }
+  ]
+}

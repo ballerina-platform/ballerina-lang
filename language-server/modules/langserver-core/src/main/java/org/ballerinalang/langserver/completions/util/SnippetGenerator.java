@@ -537,20 +537,6 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Main Function Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getMainFunctionSnippet() {
-        String snippet = "public function main() {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
-                + CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(ItemResolverConstants.MAIN_FUNCTION,
-                generateFilterText(Arrays.asList(ItemResolverConstants.PUBLIC_KEYWORD,
-                        ItemResolverConstants.FUNCTION, "main")), snippet,
-                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
-    }
-
-    /**
      * Get Match Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1446,7 +1432,7 @@ public class SnippetGenerator {
         return new SnippetBlock(keyword, keyword, keyword, ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
     }
 
-    private static String generateFilterText(List<String> filters) {
+    public static String generateFilterText(List<String> filters) {
         return String.join(FILTER_TEXT_SEPARATOR, filters);
     }
 }
