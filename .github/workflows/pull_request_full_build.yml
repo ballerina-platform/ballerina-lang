@@ -1,7 +1,10 @@
 name: CI Full Build Ubuntu
 
 on:
-  workflow_dispatch:
+  pull_request:
+    branches:
+      - master
+      - symbolEnter-revamp
 
 jobs:
   build-lang:

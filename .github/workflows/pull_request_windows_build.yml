@@ -14,6 +14,7 @@ on:
       - 2201.[0-9]+.[0-9]+-stage
       - native-build
       - revert-client-decl-master
+      - symbolEnter-revamp
 
 jobs:
   windows_build:
