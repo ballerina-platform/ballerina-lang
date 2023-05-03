@@ -68,7 +68,12 @@ class ToolCommand implements BLauncherCmd {
     private static final String UPDATE_COMMAND = "update";
     private static final String LIST_COMMAND = "list";
     private static final String SEARCH_COMMAND = "search";
-    private static final String UNINSTALL_COMMAND = "uninstall";
+    private static final String REMOVE_COMMAND = "remove";
+
+    public static final String TOOL_USAGE_TEXT = "bal tool <sub-command> [args]";
+    public static final String TOOL_PULL_USAGE_TEXT = "bal tool pull <tool-id>[:<version>]";
+    public static final String TOOL_LIST_USAGE_TEXT = "bal tool list";
+    public static final String TOOL_REMOVE_USAGE_TEXT = "bal tool remove <tool-id>:[<version>]";
 
     private final boolean exitWhenFinish;
     private final PrintStream errStream;
@@ -125,7 +130,7 @@ class ToolCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.isEmpty()) {
-            CommandUtil.printError(this.errStream, "no sub-command given", "bal tool <sub-command> [args]", false);
+            CommandUtil.printError(this.errStream, "no sub-command given", TOOL_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -144,12 +149,11 @@ class ToolCommand implements BLauncherCmd {
             case SEARCH_COMMAND:
                 handleSearchCommand();
                 break;
-            case UNINSTALL_COMMAND:
-                handleUninstallCommand();
+            case REMOVE_COMMAND:
+                handleRemoveCommand();
                 break;
             default:
-                CommandUtil.printError(this.errStream, "invalid sub-command given", "bal tool <sub-command> [args]",
-                        false);
+                CommandUtil.printError(this.errStream, "invalid sub-command given", TOOL_USAGE_TEXT, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 break;
         }
@@ -157,13 +161,13 @@ class ToolCommand implements BLauncherCmd {
 
     private void handlePullCommand() {
         if (argList.size() < 2) {
-            CommandUtil.printError(this.errStream, "no tool id given", "bal tool pull <tool-id>[:<version>]", false);
+            CommandUtil.printError(this.errStream, "no tool id given", TOOL_PULL_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
         if (argList.size() > 2) {
             CommandUtil.printError(
-                    this.errStream, "too many arguments", "bal tool pull <tool-id>[:<version>]", false);
+                    this.errStream, "too many arguments", TOOL_PULL_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -177,15 +181,13 @@ class ToolCommand implements BLauncherCmd {
             toolId = toolIdAndVersion;
             version = Names.EMPTY.getValue();
         } else {
-            CommandUtil.printError(errStream, "invalid tool id",
-                    "bal tool pull <tool-id>[:<version>]", false);
+            CommandUtil.printError(errStream, "invalid tool id", TOOL_PULL_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         if (!validatePackageName(toolId)) {
-            CommandUtil.printError(errStream, "invalid tool id",
-                    "bal tool pull <tool-id>[:<version>]", false);
+            CommandUtil.printError(errStream, "invalid tool id", TOOL_PULL_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -194,8 +196,8 @@ class ToolCommand implements BLauncherCmd {
             try {
                 SemanticVersion.from(version);
             } catch (ProjectException e) {
-                CommandUtil.printError(errStream, "invalid tool version. " + e.getMessage(),
-                        "bal tool pull <tool-id>[:<version>]", false);
+                CommandUtil.printError(errStream, "invalid tool version. " + e.getMessage(), TOOL_PULL_USAGE_TEXT,
+                        false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -245,7 +247,7 @@ class ToolCommand implements BLauncherCmd {
     private void handleListCommand() {
         if (argList.size() > 1) {
             CommandUtil.printError(
-                    this.errStream, "too many arguments", "bal tool list", false);
+                    this.errStream, "too many arguments", TOOL_LIST_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -262,16 +264,15 @@ class ToolCommand implements BLauncherCmd {
         //  bal tool search <search-term>
     }
 
-    private void handleUninstallCommand() {
+    private void handleRemoveCommand() {
         if (argList.size() < 2) {
-            CommandUtil.printError(this.errStream, "no tool id given",
-                    "bal tool uninstall <tool-id>:[<version>]", false);
+            CommandUtil.printError(this.errStream, "no tool id given", TOOL_REMOVE_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
         if (argList.size() > 2) {
             CommandUtil.printError(
-                    this.errStream, "too many arguments", "bal tool uninstall <tool-id>:[<version>]", false);
+                    this.errStream, "too many arguments", TOOL_REMOVE_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -285,15 +286,13 @@ class ToolCommand implements BLauncherCmd {
             toolId = toolIdAndVersion;
             version = Names.EMPTY.getValue();
         } else {
-            CommandUtil.printError(errStream, "invalid tool id",
-                    "bal tool uninstall <tool-id>:[<version>]", false);
+            CommandUtil.printError(errStream, "invalid tool id", TOOL_REMOVE_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         if (!validatePackageName(toolId)) {
-            CommandUtil.printError(errStream, "invalid tool id",
-                    "bal tool uninstall <tool-id>:[<version>]", false);
+            CommandUtil.printError(errStream, "invalid tool id", TOOL_REMOVE_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -303,7 +302,7 @@ class ToolCommand implements BLauncherCmd {
                 SemanticVersion.from(version);
             } catch (ProjectException e) {
                 CommandUtil.printError(errStream, "invalid tool version. " + e.getMessage(),
-                        "bal tool pull <tool-id>[:<version>]", false);
+                        "bal tool remove <tool-id>[:<version>]", false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -311,15 +310,15 @@ class ToolCommand implements BLauncherCmd {
 
         BalToolsToml balToolsToml = BalToolsToml.from(balToolsTomlPath);
         BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(balToolsToml).build();
-        boolean uninstallSuccess;
+        boolean removeSuccess;
         if (Names.EMPTY.getValue().equals(version)) {
-            uninstallSuccess = uninstallAllToolVersions(balToolsManifest);
+            removeSuccess = removeAllToolVersions(balToolsManifest);
         } else {
-            uninstallSuccess = uninstallSpecificToolVersion(balToolsManifest);
+            removeSuccess = removeSpecificToolVersion(balToolsManifest);
         }
-        if (uninstallSuccess) {
+        if (removeSuccess) {
             balToolsToml.modify(balToolsManifest);
-            errStream.println(toolIdAndVersion + " uninstalled successfully");
+            errStream.println(toolIdAndVersion + " removed successfully");
         }
     }
 
@@ -389,7 +388,7 @@ class ToolCommand implements BLauncherCmd {
         return balToolsManifest.tools().containsKey(toolIdAndVersion);
     }
 
-    private boolean uninstallAllToolVersions(BalToolsManifest balToolsManifest) {
+    private boolean removeAllToolVersions(BalToolsManifest balToolsManifest) {
         boolean foundTools = false;
 
         Iterator<BalToolsManifest.Tool> iter = balToolsManifest.tools().values().iterator();
@@ -416,7 +415,7 @@ class ToolCommand implements BLauncherCmd {
         return true;
     }
 
-    private boolean uninstallSpecificToolVersion(BalToolsManifest balToolsManifest) {
+    private boolean removeSpecificToolVersion(BalToolsManifest balToolsManifest) {
         String mapId = toolId + ":" + version;
         // if version is specified remove only the given version.
         if (balToolsManifest.tools().containsKey(mapId)) {
