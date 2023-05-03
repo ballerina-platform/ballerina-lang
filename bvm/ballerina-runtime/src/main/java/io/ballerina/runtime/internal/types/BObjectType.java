@@ -115,6 +115,11 @@ public class BObjectType extends BStructureType implements ObjectType {
     }
 
     @Override
+    public MethodType getInitializer() {
+        return initializer;
+    }
+
+    @Override
     public boolean isIsolated() {
         return SymbolFlags.isFlagOn(getFlags(), SymbolFlags.ISOLATED);
     }
@@ -140,7 +145,7 @@ public class BObjectType extends BStructureType implements ObjectType {
         this.methodTypes = methodTypes;
     }
 
-    public void setInitializer(BMethodType initializer) {
+    public void setInitializer(MethodType initializer) {
         this.initializer = initializer;
     }
 
