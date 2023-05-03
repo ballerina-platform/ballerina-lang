@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -33,10 +34,12 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
+import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SnippetBlock;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -78,20 +81,22 @@ public class ModulePartNodeContextUtil {
         if (isInImportStatementsContext(context)) {
             snippets.add(Snippet.KW_IMPORT);
         }
-        if (!isMainFunctionAvailable(context)) {
-            snippets.add(Snippet.DEF_MAIN_FUNCTION);
-        }
         snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));
+
+        if (isMainFunctionUnavailable(context)) {
+            LSCompletionItem mainCompletionItem = FunctionCompletionItemBuilder.buildMainFunction(context);
+            completionItems.add(mainCompletionItem);
+        }
 
         return completionItems;
     }
 
-    private static boolean isMainFunctionAvailable(BallerinaCompletionContext context) {
+    public static boolean isMainFunctionUnavailable(BallerinaCompletionContext context) {
         Optional<ModulePartNode> modulePartNode = context.currentSyntaxTree().map(SyntaxTree::rootNode);
         return modulePartNode.filter(partNode ->
                 context.visibleSymbols(PositionUtil.toPosition(partNode.lineRange().startLine()))
-                .stream().anyMatch(symbol -> symbol.kind() == SymbolKind.FUNCTION
-                                && symbol.nameEquals("main"))).isPresent();
+                        .stream().anyMatch(symbol -> symbol.kind() == SymbolKind.FUNCTION
+                                && symbol.nameEquals("main"))).isEmpty();
     }
 
     private static boolean isInImportStatementsContext(BallerinaCompletionContext context) {
@@ -119,10 +124,6 @@ public class ModulePartNodeContextUtil {
             CompletionItem cItem = item.getCompletionItem();
             if (isSnippetBlock(item)) {
                 SnippetCompletionItem snippetCompletionItem = (SnippetCompletionItem) item;
-                if (snippetCompletionItem.id().equals(Snippet.DEF_MAIN_FUNCTION.name())) {
-                    cItem.setSortText(genSortText(1) + genSortText(1));
-                    continue;
-                }
                 if (snippetCompletionItem.id().equals(Snippet.DEF_SERVICE_COMMON.name())) {
                     cItem.setSortText(genSortText(1) + genSortText(2));
                     continue;
@@ -170,6 +171,11 @@ public class ModulePartNodeContextUtil {
             }
             if (SortingUtil.isModuleCompletionItem(item)) {
                 cItem.setSortText(genSortText(6));
+                continue;
+            }
+            if (item instanceof StaticCompletionItem &&
+                    (((StaticCompletionItem) item).kind() == StaticCompletionItem.Kind.MAIN_FUNCTION)) {
+                cItem.setSortText(genSortText(1) + genSortText(1));
                 continue;
             }
             cItem.setSortText(genSortText(7));
@@ -255,5 +261,26 @@ public class ModulePartNodeContextUtil {
 
         return !tokensFromMinutiae.isEmpty() ? Optional.of(tokensFromMinutiae.get(tokensFromMinutiae.size() - 1))
                 : Optional.empty();
+    }
+
+    /**
+     * Get the last qualifier of the node, but in the same line as the cursor. We have to consider the cursor's
+     * line here due to parser's behavior at the module context.
+     *
+     * @param context Completion context
+     * @param node    Node
+     * @return Optional last qualifier's token
+     */
+    public static Optional<Token> getLastQualifier(BallerinaCompletionContext context, Node node) {
+        Position cursorPos = context.getCursorPosition();
+        // Get the qualifiers in the same line as the cursor
+        List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, node)
+                .stream()
+                .filter(qualifier -> qualifier.lineRange().endLine().line() == cursorPos.getLine())
+                .collect(Collectors.toList());
+        if (qualifiers.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(qualifiers.get(qualifiers.size() - 1));
     }
 }

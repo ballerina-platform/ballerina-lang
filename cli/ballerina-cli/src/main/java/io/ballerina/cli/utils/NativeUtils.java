@@ -115,26 +115,31 @@ public class NativeUtils {
                             new String[]{"java.lang.String[]", "java.nio.file.Path[]", "java.lang.String"}
                     )
             );
-            ReflectConfigClass testTestExecuteGeneratedRefConfClz = new ReflectConfigClass(
-                    testSuiteMap.get(moduleName).getTestUtilityFunctions().get(TEST_EXEC_FUNCTION));
-            testTestExecuteGeneratedRefConfClz.addReflectConfigClassMethod(
-                    new ReflectConfigClassMethod(
-                            TEST_EXEC_FUNCTION,
-                            new String[]{
-                                    "io.ballerina.runtime.internal.scheduling.Strand",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString",
-                                    "io.ballerina.runtime.api.values.BString"
-                            }
-                    )
-            );
+            Map<String, String> testUtilityFunctions = testSuiteMap.get(moduleName).getTestUtilityFunctions();
+
+            if (testUtilityFunctions.containsKey(TEST_EXEC_FUNCTION)) {
+                ReflectConfigClass testTestExecuteGeneratedRefConfClz = new ReflectConfigClass(
+                        testSuiteMap.get(moduleName).getTestUtilityFunctions().get(TEST_EXEC_FUNCTION));
+                testTestExecuteGeneratedRefConfClz.addReflectConfigClassMethod(
+                        new ReflectConfigClassMethod(
+                                TEST_EXEC_FUNCTION,
+                                new String[]{
+                                        "io.ballerina.runtime.internal.scheduling.Strand",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString"
+                                }
+                        )
+                );
+                classList.add(testTestExecuteGeneratedRefConfClz);
+            }
             //Add classes with $MOCK_function methods (mock function case)
             if (!testSuiteMap.get(moduleName).getMockFunctionNamesMap().isEmpty()) {
                 ReflectConfigClass functionMockingEntryClz = new ReflectConfigClass(getQualifiedClassName(
@@ -148,7 +153,7 @@ public class NativeUtils {
             //Add all class values to the array
             classList.add(testInitRefConfClz);
             classList.add(testConfigurationMapperRefConfClz);
-            classList.add(testTestExecuteGeneratedRefConfClz);
+
 
             //Add classes corresponding to test documents
             Path mockedFunctionClassPath = nativeConfigPath.resolve("mocked-func-class-map.json");
