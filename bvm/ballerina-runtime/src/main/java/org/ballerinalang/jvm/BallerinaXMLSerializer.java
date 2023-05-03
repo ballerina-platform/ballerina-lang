@@ -55,7 +55,7 @@ public class BallerinaXMLSerializer extends OutputStream {
     private static final String EMPTY_STR = "";
     public static final String PARSE_XML_OP = "parse xml";
     public static final String XML = "xml";
-    private static final String XML_NS_URI_PREFIX = "{" + XMLConstants.XML_NS_URI + "}";
+    private static final String XML_NS_URI_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
     private static final String XML_NAME_SPACE = "http://www.w3.org/XML/1998/namespace";
 
     private XMLStreamWriter xmlStreamWriter;
@@ -382,7 +382,7 @@ public class BallerinaXMLSerializer extends OutputStream {
         // Extract namespace entries
         for (Map.Entry<String, String> attributeEntry : xmlValue.getAttributesMap().entrySet()) {
             String key = attributeEntry.getKey();
-            if (key.startsWith(XMLItem.XMLNS_URL_PREFIX)) {
+            if (key.startsWith(XML_NS_URI_PREFIX)) {
                 int closingCurly = key.indexOf('}');
                 String prefix = key.substring(closingCurly + 1);
                 if (prefix.equals(XML)) {
