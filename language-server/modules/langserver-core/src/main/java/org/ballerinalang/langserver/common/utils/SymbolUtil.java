@@ -41,6 +41,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.ballerinalang.langserver.completions.CompletionSearchProvider;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -441,21 +442,33 @@ public class SymbolUtil {
         if (prefix.isEmpty()) {
             return Collections.emptyList();
         }
+
+        Map<String, Symbol> symbolMap = new HashMap<>();
+        for (Symbol symbol : symbolList) {
+            if (symbol.getName().isEmpty()) {
+                continue;
+            }
+            String symbolName = symbol.getName().get();
+            symbolMap.put(symbolName, symbol);
+            if (moduleId.modulePrefix().isEmpty()) {
+                symbolMap.put(moduleId.moduleName() + ":" + symbolName, symbol);
+            } else {
+                symbolMap.put(moduleId.modulePrefix() + ":" + symbolName, symbol);
+            }
+        }
+
         CompletionSearchProvider completionSearchProvider = CompletionSearchProvider
                 .getInstance(context.languageServercontext());
         if (!completionSearchProvider.checkModuleIndexed(moduleId)) {
-            completionSearchProvider.indexModule(moduleId, symbolList.stream().map(symbol -> symbol.getName().get())
-                    .collect(Collectors.toList()));
+            completionSearchProvider.indexModule(moduleId, symbolList.stream()
+                    .map(symbol -> symbol.getName().get())
+                    .collect(Collectors.toList()), new ArrayList<>(symbolMap.keySet()));
         }
 
         List<String> stringList = completionSearchProvider.getSuggestions(prefix);
 
-        Map<String, Symbol> symbolMap = new HashMap<>();
-        for (Symbol symbol : symbolList) {
-            symbolMap.put(symbol.getName().get(), symbol);
-        }
-        return symbolMap.entrySet().stream().filter(stringSymbolEntry -> stringList.contains(stringSymbolEntry.getKey()
-                        .toLowerCase()))
+        return symbolMap.entrySet().stream()
+                .filter(stringSymbolEntry -> stringList.contains(stringSymbolEntry.getKey().toLowerCase()))
                 .map(Map.Entry::getValue).collect(Collectors.toList());
     }
 }
