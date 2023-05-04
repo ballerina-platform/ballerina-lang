@@ -183,6 +183,9 @@ public class QueryTypeChecker extends TypeChecker {
             actualType = (actualType == symTable.semanticError) ? actualType : types.checkType(queryExpr.pos,
                     actualType, data.expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         } else {
+            if (queryExpr.isTable || queryExpr.isStream || queryExpr.isMap) {
+                dlog.error(queryExpr.pos, DiagnosticErrorCode.QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT);
+            }
             BLangExpression finalClauseExpr = ((BLangCollectClause) finalClause).expression;
             BType queryType = checkExpr(finalClauseExpr, commonAnalyzerData.queryEnvs.peek(), data);
             actualType = types.checkType(finalClauseExpr.pos, queryType, data.expType,

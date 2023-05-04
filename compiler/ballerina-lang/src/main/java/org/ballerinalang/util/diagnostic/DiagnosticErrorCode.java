@@ -806,6 +806,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCS4047", "seq.var.cannot.be.used.in.required.arg"),
     SEQUENCE_VARIABLE_CAN_BE_USED_IN_SINGLE_ELEMENT_LIST_CTR_OR_FUNC_INVOCATION(
             "BCS4048", "seq.var.used.in.single.element.list.ctr.or.func.invocation"),
+
+    QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT(
+            "BCS4049", "query.construct.types.cannot.be.used.with.collect")
     ;
 
     private String diagnosticId;

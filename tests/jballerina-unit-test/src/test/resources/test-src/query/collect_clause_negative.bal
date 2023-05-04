@@ -73,6 +73,19 @@ function sumx(int... p) returns int {
     return 2;
 }
 
+function testQueryConstructTypes() {
+    var input = [{name: "Saman", price1: 11, price2: 11}];
+
+    var sum1 = stream from var {name, price1, price2} in input
+                    collect sum(price1); // error
+    var sum2 = map from var {name, price1, price2} in input
+                    collect sum(price1); // error    
+    map<int> sum3 = map from var {name, price1, price2} in input
+                    collect sum(price1); // error 
+    var sum4 = table key(name) from var {name, price1, price2} in input
+                                collect sum(price1); // error  
+}
+
 // function testInvalidArgOrder() {
 //     int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
 //                 collect int:sum(salary, bonus); // error
