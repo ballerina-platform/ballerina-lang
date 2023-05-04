@@ -280,7 +280,8 @@ public class ConfigValueCreator {
             Object objectValue = createValue(value, fieldType);
             initialValueEntries.put(fieldName, objectValue);
         }
-        return ValueCreator.createReadonlyRecordValue(mutableType.getPackage(), mutableType.getName(), initialValueEntries);
+        return ValueCreator.createReadonlyRecordValue(mutableType.getPackage(), mutableType.getName(),
+                initialValueEntries);
     }
 
     private BTable<BString, Object> createTableValue(TomlNode tomlValue, Type type) {
