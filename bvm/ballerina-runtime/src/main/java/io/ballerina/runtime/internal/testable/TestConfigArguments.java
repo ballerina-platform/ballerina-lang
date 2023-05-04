@@ -20,7 +20,7 @@ package io.ballerina.runtime.internal.testable;
 import java.util.Arrays;
 
 /**
- * Config CLI arguments for testable configInit.
+ * Config CLI arguments for testable configInit method.
  *
  * @since 2201.6.0
  */
@@ -30,7 +30,6 @@ public class TestConfigArguments {
     private final String[] configCliArgs;
 
     public TestConfigArguments(String... args) {
-
         configCliArgs = Arrays.copyOfRange(args, INITIAL_CONFIG_ARG_INDEX, args.length);
     }
 

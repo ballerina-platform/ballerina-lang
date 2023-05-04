@@ -74,7 +74,6 @@ import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
 import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isBuiltInPackage;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TEST_EXECUTION_STATE;
@@ -486,7 +485,7 @@ public class InitMethodGen {
         BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
         // TODO remove once lang.annotation is fixed
-        if (isBuiltInPackage(modId)) {
+        if (JvmCodeGenUtil.isBuiltInPackage(modId)) {
             lastBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId,
                     new Name(initFuncName), args, null, nextBB, calleeAnnotAttachments, Collections.emptySet());
             return nextBB;
@@ -542,7 +541,7 @@ public class InitMethodGen {
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "scheduler", GET_SCHEDULER);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, GRACEFUL_EXIT_METHOD_NAME, "()V", false);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, GRACEFUL_EXIT_METHOD_NAME, SCHEDULER);
         mv.visitEnd();
     }
 
@@ -552,7 +551,7 @@ public class InitMethodGen {
         mv.visitCode();
         mv.visitFieldInsn(GETSTATIC, className, TEST_EXECUTION_STATE, "I");
         mv.visitInsn(IRETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, GET_TEST_EXECUTION_STATE, className);
         mv.visitEnd();
     }
 }

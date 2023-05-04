@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
 /**
- * Parameters for testable main.
+ * Parameters for testable main method.
  *
  * @since 2201.6.0
  */
@@ -36,7 +36,6 @@ public class TestArguments {
     public TestArguments(String... args) {
         argTypes = new Class[ARGUMENTS_NUMBER + 1];
         argValues = new Object[ARGUMENTS_NUMBER + 1];
-
         argTypes[0] = Strand.class;
         argValues[0] = null;
 
@@ -50,10 +49,6 @@ public class TestArguments {
         assignValues(7, args[7]);
         assignValues(8, args[8]);
         assignValues(9, args[9]);
-    }
-
-    public Class<?>[] getArgTypes() {
-        return argTypes;
     }
 
     public Object[] getArgValues() {

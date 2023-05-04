@@ -61,7 +61,6 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.MOCK_LEGACY
  */
 public class NativeUtils {
     private static final String MODULE_INIT_CLASS_NAME = "$_init";
-    private static final String MODULE_CONFIGURATION_MAPPER = "$configurationMapper";
     private static final String TEST_EXEC_FUNCTION = "__execute__";
 
     //Add dynamically loading classes and methods to reflection config
