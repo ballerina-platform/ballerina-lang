@@ -597,6 +597,8 @@ public class BallerinaSemanticModel implements SemanticModel {
             return isContaining;
         }
 
+        // If the same module symbol, but without a module alias is already added, then it shall be removed to add
+        // the new symbol with the import alias.
         if (((BPackageSymbol) symbol).importPrefix != null) {
             compiledSymbols.remove(evaluatingSymbol);
             return false;
