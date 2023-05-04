@@ -80,7 +80,8 @@ import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.CentralClientConstants.IS_DEPRECATED;
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.CentralClientConstants.ORGANIZATION;
-import static org.ballerinalang.central.client.CentralClientConstants.PACKAGE_NAME;
+import static org.ballerinalang.central.client.CentralClientConstants.PACKAGE;
+import static org.ballerinalang.central.client.CentralClientConstants.PKG_NAME;
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.central.client.CentralClientConstants.VERSION;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
@@ -571,7 +572,7 @@ public class CentralAPIClient {
     }
 
     /**
-     * Pull a package from central.
+     * Pull a tool from central.
      *
      * @param toolId                    The id of the tool.
      * @param version                   The version of the package.
@@ -595,9 +596,6 @@ public class CentralAPIClient {
         if (null != version && !version.isEmpty()) {
             url += "/" + version;
             toolSignature += ":" + version;
-        } else {
-            url += "/*";
-            toolSignature += ":*";
         }
 
         Optional<ResponseBody> body = Optional.empty();
@@ -612,7 +610,7 @@ public class CentralAPIClient {
                     .get()
                     .url(url)
                     .addHeader(ACCEPT_ENCODING, IDENTITY)
-                    .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
+                    .addHeader(ACCEPT, APPLICATION_JSON)
                     .build();
             logRequestInitVerbose(packagePullReq);
             Call packagePullReqCall = client.newCall(packagePullReq);
@@ -628,12 +626,24 @@ public class CentralAPIClient {
 
             // 302   - Package is found
             if (packagePullResponse.code() == HTTP_MOVED_TEMP) {
+                Optional<String> org = Optional.empty();
+                Optional<String> pkgName = Optional.empty();
+                Optional<String> latestVersion = Optional.empty();
+                if (body.isPresent()) {
+                    Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                    if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
+                        JsonObject jsonContent = new Gson().fromJson(pkgPullResBodyContent, JsonObject.class);
+                        Optional<JsonObject> jsonPackage = Optional.ofNullable(jsonContent.getAsJsonObject(PACKAGE));
+                        if (jsonPackage.isPresent()) {
+                            org = Optional.ofNullable(jsonPackage.get().get(ORGANIZATION).getAsString());
+                            pkgName = Optional.ofNullable(jsonPackage.get().get(PKG_NAME).getAsString());
+                            latestVersion = Optional.ofNullable(jsonPackage.get().get(VERSION).getAsString());
+                        }
+                    }
+                }
                 // get redirect url from "location" header field
                 Optional<String> balaUrl = Optional.ofNullable(packagePullResponse.header(LOCATION));
                 Optional<String> balaFileName = Optional.ofNullable(packagePullResponse.header(CONTENT_DISPOSITION));
-                Optional<String> org = Optional.ofNullable(packagePullResponse.header(ORGANIZATION));
-                Optional<String> pkgName = Optional.ofNullable(packagePullResponse.header(PACKAGE_NAME));
-                Optional<String> latestVersion = Optional.ofNullable(packagePullResponse.header(VERSION));
 
                 if (balaUrl.isPresent() && balaFileName.isPresent() && org.isPresent() && latestVersion.isPresent()
                         && pkgName.isPresent()) {
