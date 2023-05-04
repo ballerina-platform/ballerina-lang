@@ -104,17 +104,18 @@ public class ConstantAssignmentTest {
     @Test
     public void testConstantAssignmentNegative() {
         int i = 0;
-        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected 'int', found 'float'", 1, 16);
-        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected 'float', found 'string'", 3,
-                31);
-        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected 'int', found 'string'", 5,
-                27);
-        BAssertUtil.validateError(negativeCompileResult, i++, "missing non-defaultable required record field 'a'", 14,
-                20);
+        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected 'int', found 'float'",
+                1, 16);
+        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected 'float', found 'string'",
+                3, 31);
+        BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected 'int', found 'string'",
+                5, 27);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing non-defaultable required record field 'a'",
+                14, 20);
         BAssertUtil.validateError(negativeCompileResult, i++, "undefined field 'c' in record 'Foo'", 14,
                 37);
-        BAssertUtil.validateError(negativeCompileResult, i++, "missing non-defaultable required record field 'a'", 15,
-                38);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing non-defaultable required record field 'a'",
+                15, 38);
         BAssertUtil.validateError(negativeCompileResult, i++, "undefined field 'c' in record " +
                 "'record {| (record {| \"a\" a; |} & readonly) x; int i; |}'", 15, 55);
         BAssertUtil.validateError(negativeCompileResult, i++, "missing non-defaultable required record field 'a'",
