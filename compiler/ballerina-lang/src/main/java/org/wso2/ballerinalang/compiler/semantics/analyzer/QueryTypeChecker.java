@@ -854,8 +854,6 @@ public class QueryTypeChecker extends TypeChecker {
         BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(data.env, pkgAlias, getCurrentCompUnit(iExpr));
         if (pkgSymbol == symTable.notFoundSymbol) {
             dlog.error(iExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias);
-            // visit args
-            // return;
         }
         BType invocationType;
         if (iExpr.expr != null) {
@@ -872,13 +870,11 @@ public class QueryTypeChecker extends TypeChecker {
             symbol = symResolver.lookupMainSpaceSymbolInPackage(iExpr.pos, data.env, pkgAlias, funcName);
             if (symbol == symTable.notFoundSymbol) {
                 dlog.error(iExpr.pos, DiagnosticErrorCode.UNDEFINED_FUNCTION, funcName);
-                // visit args
                 return;
             }
             if (!Symbols.isFlagOn(symbol.flags, Flags.LANG_LIB)) {
                 dlog.error(iExpr.pos,
                         DiagnosticErrorCode.USER_DEFINED_FUNCTIONS_ARE_DISALLOWED_WITH_AGGREGATED_VARIABLES);
-                // visit args
                 return;
             }
         }
@@ -913,10 +909,6 @@ public class QueryTypeChecker extends TypeChecker {
                         checkArg(argExpr, restParamType, data);
                         continue;
                     }
-                }
-                if (argExprKind == NodeKind.REST_ARGS_EXPR) {
-                    checkTypeParamExpr(argExpr, restParamType, data);
-                    continue;
                 }
                 if (restParamType.tag == TypeTags.ARRAY) {
                     checkArg(argExpr, ((BArrayType) restParamType).eType, data);

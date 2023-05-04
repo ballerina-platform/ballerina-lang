@@ -82,9 +82,15 @@ public class CollectClauseTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int x; |}', " +
                 "found 'record {| [int...] x; |}'", 50, 41);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[6]', found '[int...]'",
-                99, 25);
+                55, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int[6] intArr; |}', " +
-                "found 'record {| [int...] intArr; |}'", 101, 49);
+                "found 'record {| [int...] intArr; |}'", 57, 49);
+        BAssertUtil.validateError(negativeResult, i++, "undefined module 'foo'", 62, 29);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'seq int'", 67, 29);
+        BAssertUtil.validateError(negativeResult, i++, "undefined function 'sumy'", 67, 29);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'seq int'", 69, 29);
+        BAssertUtil.validateError(negativeResult, i++, "user defined functions are not allowed when arguments " +
+                "contain aggregated variable", 69, 29);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 }

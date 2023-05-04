@@ -50,6 +50,29 @@ function testInvalidExpressions1() {
                                 collect { x: [x] }; // error
 }
 
+function testInvalidAssignment() {
+    int[6] a = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
+                collect [salary]; // error
+    record {| int[6] intArr; |} r = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
+                                        collect { intArr: [salary] }; // error
+}
+
+function testUndefinedModule() {
+    int sum = from var {name, price} in [{name: "Saman", price: 11}]
+                    collect foo:sum(price);  // error   
+}
+
+function testUserDefinedFunctions() {
+    int sum = from var {name, price} in [{name: "Saman", price: 11}]
+                    collect sumy(price);          
+    sum = from var {name, price} in [{name: "Saman", price: 11}]
+                    collect sumx(price); 
+}
+
+function sumx(int... p) returns int {
+    return 2;
+}
+
 // function testInvalidArgOrder() {
 //     int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
 //                 collect int:sum(salary, bonus); // error
@@ -93,13 +116,6 @@ function testInvalidExpressions1() {
 //     int[] _ = from var {salary} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
 //                 collect [foo(salary)]; // error
 // }
-
-function testInvalidAssignment() {
-    int[6] a = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-                collect [salary]; // error
-    record {| int[6] intArr; |} r = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-                                        collect { intArr: [salary] }; // error
-}
 
 // function testInvalidFunctionInvocations2() {
 //     int _ = from var {salary} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
