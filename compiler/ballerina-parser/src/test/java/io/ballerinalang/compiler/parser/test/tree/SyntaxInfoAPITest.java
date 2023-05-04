@@ -64,6 +64,11 @@ public class SyntaxInfoAPITest {
     }
 
     @Test
+    public void testContextualKeywords() {
+        Assert.assertFalse(SyntaxInfo.isKeyword("re"));
+    }
+
+    @Test
     public void testIsIdentifierMethod() {
         Assert.assertTrue(SyntaxInfo.isIdentifier("foo"));
         Assert.assertTrue(SyntaxInfo.isIdentifier("foo123Bar"));

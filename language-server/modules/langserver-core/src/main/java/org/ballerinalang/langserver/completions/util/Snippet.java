@@ -38,8 +38,6 @@ public enum Snippet {
 
     DEF_FUNCTION_SIGNATURE(SnippetGenerator.getFunctionSignatureSnippet()),
 
-    DEF_MAIN_FUNCTION(SnippetGenerator.getMainFunctionSnippet()),
-
     DEF_OBJECT_TYPE_DESC_SNIPPET(SnippetGenerator.getObjectTypeDescSnippet()),
 
     DEF_OBJECT_SNIPPET(SnippetGenerator.getObjectDefinitionSnippet()),
