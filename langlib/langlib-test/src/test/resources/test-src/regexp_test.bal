@@ -579,6 +579,20 @@ function testReplace() {
     var regExpr5 = re `0+`;
     string result6 = regExpr5.replace(str6, replacementFunctionForReplace, 4);
     assertEquality("1001711", result6);
+
+    string str7 = "🔜 #RayoBarça 🔵🔴 https://t.co/iHDUx7EmFJ";
+    var regExpr6 = re `\p{S}`;
+    string result7 = regExpr6.replace(str7, replacementFunctionForReplace);
+    assertEquality("2 #RayoBarça 🔵🔴 https://t.co/iHDUx7EmFJ", result7);
+
+    string result8 = regExpr6.replace(str7, replacementFunctionForReplace, 4);
+    assertEquality("🔜 #RayoBarça 16🔴 https://t.co/iHDUx7EmFJ", result8);
+
+    string result9 = regExpr6.replace(str7, "");
+    assertEquality(" #RayoBarça 🔵🔴 https://t.co/iHDUx7EmFJ", result9);
+
+    string result10 = regExpr6.replace(str7, "", 3);
+    assertEquality("🔜 #RayoBarça 🔴 https://t.co/iHDUx7EmFJ", result10);
 }
 
 isolated function replacementFunctionForReplace(regexp:Groups groups) returns string {
@@ -624,10 +638,32 @@ function testReplaceAll() {
     assertEquality("151311", result51);
     string result52 = regExpr4.replaceAll(str5, replacementFunctionForReplaceAll, 6);
     assertEquality("1000001311", result52);
+
+    var regExpr5 = re `\p{S}`;
+    string str6 = "🔜 #RayoBarça 🔵🔴 https://t.co/iHDUx7EmFJ";
+    string result61 = regExpr5.replaceAll(str6, "");
+    assertEquality(" #RayoBarça  https://t.co/iHDUx7EmFJ", result61);
+    string result62 = regExpr5.replaceAll(str6, "", 12);
+    assertEquality("🔜 #RayoBarça  https://t.co/iHDUx7EmFJ", result62);
+
+    var regExpr6 = re `(\d{2})/(\d{2})/(\d{4})`;
+    string str7 = "04/05/2023, 05/05/2023";
+    string result71 = regExpr6.replaceAll(str7, updateDateFormat);
+    assertEquality("2023-05-04, 2023-05-05", result71);
 }
 
 isolated function replacementFunctionForReplaceAll(regexp:Groups groups) returns string {
     return groups[0].substring().length().toString();
+}
+
+isolated function updateDateFormat(regexp:Groups groups) returns string {
+    if groups.length() != 4 {
+        return (<regexp:Span>groups[0]).substring();
+    }
+    string year = (<regexp:Span>groups[3]).substring();
+    string month = (<regexp:Span>groups[2]).substring();
+    string day = (<regexp:Span>groups[1]).substring();
+    return string `${year}-${month}-${day}`;
 }
 
 function testFromString() {
