@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -231,11 +232,14 @@ public class JvmDesugarPhase {
                 localVar.metaVarName = encodeNonFunctionIdentifier(localVar.metaVarName, encodedVsInitialIds);
             }
             for (BIRNode.BIRParameter parameter : function.requiredParams) {
-                if (parameter.name == null) {
-                    continue;
-                }
                 parameter.name = Names.fromString(encodeNonFunctionIdentifier(parameter.name.value,
                                                                               encodedVsInitialIds));
+            }
+            if (function.type.tsymbol != null) {
+                for (BVarSymbol parameter : ((BInvokableTypeSymbol) function.type.tsymbol).params) {
+                    parameter.name = Names.fromString(encodeNonFunctionIdentifier(parameter.name.value,
+                            encodedVsInitialIds));
+                }
             }
             encodeDefaultFunctionName(function.type, encodedVsInitialIds);
             encodeWorkerName(function, encodedVsInitialIds);
@@ -340,10 +344,12 @@ public class JvmDesugarPhase {
                 localVar.metaVarName = getInitialIdString(localVar.metaVarName, encodedVsInitialIds);
             }
             for (BIRNode.BIRParameter parameter : function.requiredParams) {
-                if (parameter.name == null) {
-                    continue;
-                }
                 parameter.name = getInitialIdString(parameter.name, encodedVsInitialIds);
+            }
+            if (function.type.tsymbol != null) {
+                for (BVarSymbol parameter : ((BInvokableTypeSymbol) function.type.tsymbol).params) {
+                    parameter.name = getInitialIdString(parameter.name, encodedVsInitialIds);
+                }
             }
             replaceEncodedDefaultFunctionName(function.type, encodedVsInitialIds);
             replaceEncodedWorkerName(function, encodedVsInitialIds);

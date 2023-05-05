@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 1,
+    "character": 21
+  },
+  "source": "remove_all_unused_imports_redeclared_imports1.bal",
+  "expected": [
+    {
+      "title": "Remove all unused imports",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 2,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
+        }
+      ]
+    }
+  ]
+}

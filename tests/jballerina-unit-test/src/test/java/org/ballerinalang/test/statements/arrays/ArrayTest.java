@@ -239,6 +239,11 @@ public class ArrayTest {
         Assert.assertEquals(compileResultNegative.getErrorCount(), index);
     }
 
+    @Test
+    public void testTableWithByteArrayArgForUnionParam() {
+        BRunUtil.invoke(compileResult, "testTableWithByteArrayArgForUnionParam");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

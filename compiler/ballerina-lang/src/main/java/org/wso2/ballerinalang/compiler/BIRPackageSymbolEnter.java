@@ -1153,11 +1153,7 @@ public class BIRPackageSymbolEnter {
 
         private BInvokableType setTSymbolForInvokableType(BInvokableType bInvokableType,
                                                           BType retType) throws IOException {
-            BInvokableTypeSymbol tSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, bInvokableType.flags,
-                                                                             env.pkgSymbol.pkgID, null,
-                                                                             env.pkgSymbol.owner, symTable.builtinPos,
-                                                                             COMPILED_SOURCE);
-            bInvokableType.tsymbol = tSymbol;
+            BInvokableTypeSymbol tSymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
             boolean hasTSymbol = inputStream.readBoolean();
             if (!hasTSymbol) {
                 return bInvokableType;
@@ -1420,8 +1416,13 @@ public class BIRPackageSymbolEnter {
                     return bMapType;
                 case TypeTags.INVOKABLE:
                     BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
+                    bInvokableType.tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
+                            env.pkgSymbol.pkgID, null,
+                            env.pkgSymbol.owner, symTable.builtinPos,
+                            COMPILED_SOURCE);
                     bInvokableType.flags = flags;
                     if (inputStream.readBoolean()) {
+                        // Return if an any function
                         return bInvokableType;
                     }
                     int paramCount = inputStream.readInt();

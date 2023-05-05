@@ -179,4 +179,9 @@ public class LangLibFloatTest {
     public void testRound() {
         BRunUtil.invoke(compileResult, "testRound");
     }
+
+    @Test
+    public void testAvg() {
+        BRunUtil.invoke(compileResult, "testAvg");
+    }
 }
