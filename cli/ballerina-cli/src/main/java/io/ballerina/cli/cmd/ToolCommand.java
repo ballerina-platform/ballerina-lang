@@ -109,12 +109,12 @@ class ToolCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("  bal tool\n");
+        out.append("provides utility commands for managing ballerina tools\n");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal tool\n");
+        out.append(TOOL_USAGE_TEXT);
     }
 
     @Override
