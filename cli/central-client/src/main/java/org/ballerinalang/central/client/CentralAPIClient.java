@@ -43,6 +43,7 @@ import org.ballerinalang.central.client.model.PackageNameResolutionResponse;
 import org.ballerinalang.central.client.model.PackageResolutionRequest;
 import org.ballerinalang.central.client.model.PackageResolutionResponse;
 import org.ballerinalang.central.client.model.PackageSearchResult;
+import org.ballerinalang.central.client.model.ToolSearchResult;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -98,9 +99,10 @@ import static org.ballerinalang.central.client.Utils.isApplicationJsonContentTyp
 public class CentralAPIClient {
 
     private static final String PACKAGES = "packages";
-    public static final String TOOLS = "tools";
+    private static final String TOOLS = "tools";
     private static final String CONNECTORS = "connectors";
     private static final String TRIGGERS = "triggers";
+    private static final String SEARCH = "search";
     private static final String RESOLVE_DEPENDENCIES = "resolve-dependencies";
     private static final String RESOLVE_MODULES = "resolve-modules";
     private static final String DEPRECATE = "deprecate";
@@ -924,6 +926,71 @@ public class CentralAPIClient {
             throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "'.");
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "'. reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * Search packages in registry.
+     */
+    public ToolSearchResult searchTool(String keyword, String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
+        try {
+            Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+//                    .url(this.baseUrl + "/" + TOOLS + "/" + SEARCH + "/" + keyword)
+                    .url("https://09edc8a7-fa97-48d7-b07a-b7709ce6101d.mock.pstmn.io" +
+                            "/" + TOOLS + "/" + SEARCH + "/" + keyword)
+                    .build();
+
+            Call httpRequestCall = client.newCall(searchReq);
+            Response searchResponse = httpRequestCall.execute();
+
+            body = Optional.ofNullable(searchResponse.body());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
+                    // If searching was successful
+                    if (searchResponse.code() == HTTP_OK) {
+                        return new Gson().fromJson(body.get().string(), ToolSearchResult.class);
+                    }
+
+                    // Unauthorized access token
+                    if (searchResponse.code() == HTTP_UNAUTHORIZED) {
+                        handleUnauthorizedResponse(body);
+                    }
+
+                    // If search request was sent wrongly
+                    if (searchResponse.code() == HTTP_BAD_REQUEST) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException(error.getMessage());
+                        }
+                    }
+
+                    // If error occurred at remote repository
+                    if (searchResponse.code() == HTTP_INTERNAL_ERROR ||
+                            searchResponse.code() == HTTP_UNAVAILABLE) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + keyword + "' reason:" +
+                                    error.getMessage());
+                        }
+                    }
+                }
+            }
+
+            throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + keyword + "'.");
+        } catch (IOException e) {
+            throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + keyword + "'. reason: " + e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {

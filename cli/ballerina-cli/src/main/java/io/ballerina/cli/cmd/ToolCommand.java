@@ -33,6 +33,8 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
+import org.ballerinalang.central.client.model.Tool;
+import org.ballerinalang.central.client.model.ToolSearchResult;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -47,6 +49,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
+import static io.ballerina.cli.utils.PrintUtils.printTools;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
 import static io.ballerina.projects.util.ProjectConstants.HOME_REPO_DEFAULT_DIRNAME;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
@@ -63,9 +66,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
 @CommandLine.Command(name = TOOL_COMMAND, description = "Ballerina tool command")
 public
 class ToolCommand implements BLauncherCmd {
-    // TODO: Remove TOOL_ORG_NAME and use what is there in the dir structure once pulled. Can be ballerina or ballerinax
     private static final String PULL_COMMAND = "pull";
-    private static final String UPDATE_COMMAND = "update";
     private static final String LIST_COMMAND = "list";
     private static final String SEARCH_COMMAND = "search";
     private static final String REMOVE_COMMAND = "remove";
@@ -74,6 +75,7 @@ class ToolCommand implements BLauncherCmd {
     public static final String TOOL_PULL_USAGE_TEXT = "bal tool pull <tool-id>[:<version>]";
     public static final String TOOL_LIST_USAGE_TEXT = "bal tool list";
     public static final String TOOL_REMOVE_USAGE_TEXT = "bal tool remove <tool-id>:[<version>]";
+    public static final String TOOL_SEARCH_USAGE_TEXT = "bal tool search [<tool-id>|<org>|<package>|<text>] ";
 
     private final boolean exitWhenFinish;
     private final PrintStream errStream;
@@ -139,9 +141,6 @@ class ToolCommand implements BLauncherCmd {
         switch (command) {
             case PULL_COMMAND:
                 handlePullCommand();
-                break;
-            case UPDATE_COMMAND:
-                handleUpdateCommand();
                 break;
             case LIST_COMMAND:
                 handleListCommand();
@@ -213,10 +212,8 @@ class ToolCommand implements BLauncherCmd {
             return;
         }
 
-        // TODO: remove the hard coded org name once we have an API for tool pulling.
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             try {
-//                boolean hasCompilationErrors = mockPullToolFromCentral(supportedPlatform, packagePathInBalaCache);
                 pullToolFromCentral(supportedPlatform, balaCacheDirPath);
 
                 String toolPathInCentralCache = getToolPathInCentralCache();
@@ -237,13 +234,6 @@ class ToolCommand implements BLauncherCmd {
         }
     }
 
-    private void handleUpdateCommand() {
-        // Change this when update command is supported.
-        CommandUtil.printError(this.errStream, "invalid sub-command given", "bal tool <sub-command> [args]",
-                false);
-        CommandUtil.exitError(this.exitWhenFinish);
-    }
-
     private void handleListCommand() {
         if (argList.size() > 1) {
             CommandUtil.printError(
@@ -260,8 +250,20 @@ class ToolCommand implements BLauncherCmd {
     }
 
     private void handleSearchCommand() {
-        // TODO: make a central API call and return the results.
-        //  bal tool search <search-term>
+        if (argList.size() < 2) {
+            CommandUtil.printError(this.errStream, "no keyword given", TOOL_SEARCH_USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        if (argList.size() > 2) {
+            CommandUtil.printError(
+                    this.errStream, "too many arguments", TOOL_SEARCH_USAGE_TEXT, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        String searchArgs = argList.get(1);
+        searchToolsInCentral(searchArgs);
     }
 
     private void handleRemoveCommand() {
@@ -340,17 +342,6 @@ class ToolCommand implements BLauncherCmd {
         pkgName = toolInfo[1];
         version = toolInfo[2];
     }
-
-    // TODO: remove once the pull tool API is available.
-//    private boolean mockPullToolFromCentral(String supportedPlatform, Path packagePathInBalaCache)
-//            throws CentralClientException {
-//        if (version.equals(Names.EMPTY.getValue())) {
-//            version = "1.0.0";
-//        }
-//        org = "ballerina";
-//        // do nothing
-//        return false;
-//    }
 
     private String getToolPathInCentralCache() {
         Path versionPath = ProjectUtils.createAndGetHomeReposPath()
@@ -438,5 +429,46 @@ class ToolCommand implements BLauncherCmd {
     private boolean deletePackageCentralCache(String platformPath) {
         Optional<Path> versionDir = Optional.ofNullable(Path.of(platformPath).getParent());
         return versionDir.filter(ProjectUtils::deleteDirectory).isPresent();
+    }
+
+    /**
+     * Search for tools in central.
+     *
+     * @param keyword search keyword.
+     */
+    private void searchToolsInCentral(String keyword) {
+        try {
+            Settings settings;
+            try {
+                settings = RepoUtils.readSettings();
+                // Ignore Settings.toml diagnostics in the search command
+            } catch (SettingsTomlException e) {
+                // Ignore 'Settings.toml' parsing errors and return empty Settings object
+                settings = Settings.from();
+            }
+            CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                    initializeProxy(settings.getProxy()),
+                    getAccessTokenOfCLI(settings));
+            ToolSearchResult toolSearchResult = client.searchTool(keyword,
+                    JvmTarget.JAVA_11.code(),
+                    RepoUtils.getBallerinaVersion());
+
+            List<Tool> tools = toolSearchResult.getTools();
+            if (tools != null && tools.size() > 0) {
+                printTools(toolSearchResult.getTools(), RepoUtils.getTerminalWidth());
+            } else {
+                errStream.println("no tools found");
+            }
+        } catch (CentralClientException e) {
+            String errorMessage = e.getMessage();
+            if (null != errorMessage && !"".equals(errorMessage.trim())) {
+                // removing the error stack
+                if (errorMessage.contains("\n\tat")) {
+                    errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
+                }
+                CommandUtil.printError(this.errStream, errorMessage, null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+            }
+        }
     }
 }
