@@ -217,7 +217,5 @@ function assertEquality(anydata expected, anydata actual) {
 
 // TODO: let clause, where clause, group by clause ...
 // TODO: test group by collect combinations
-// TODO: _ = map/stream/string/table from var …
-				// collect …; // compile time error
 // TODO: collect avg()
 // TODO: multiple collect clause (in same query(error), in different sub queries in main query)

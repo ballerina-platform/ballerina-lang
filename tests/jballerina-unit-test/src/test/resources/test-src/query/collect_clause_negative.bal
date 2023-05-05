@@ -134,5 +134,3 @@ function testQueryConstructTypes() {
 //     int _ = from var {salary} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
 //                 collect foo(salary, 2); // error
 // }
-
-// TODO: multiple negative collect clauses

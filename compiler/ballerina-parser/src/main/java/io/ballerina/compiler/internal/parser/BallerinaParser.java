@@ -11952,6 +11952,7 @@ public class BallerinaParser extends AbstractParser {
             case WHERE_KEYWORD:
             case LET_KEYWORD:
             case SELECT_KEYWORD:
+            case COLLECT_KEYWORD:
             case JOIN_KEYWORD:
             case OUTER_KEYWORD:
             case ORDER_KEYWORD:
