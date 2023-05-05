@@ -362,7 +362,10 @@ public class Module {
         }
 
         private Collection<ModuleDescriptor> getAllDependants(ModuleDescriptor updatedModuleDescriptor) {
-            packageInstance.getResolution(); // this will build the dependency graph if it is not built yet
+            CompilationOptions offlineCompOptions = CompilationOptions.builder().setOffline(true).build();
+            offlineCompOptions = offlineCompOptions.acceptTheirs(project.currentPackage().compilationOptions());
+            // this will build the dependency graph if it is not built yet
+            packageInstance.getResolution(offlineCompOptions);
             return getAllDependants(updatedModuleDescriptor, new HashSet<>(), new HashSet<>());
         }
 

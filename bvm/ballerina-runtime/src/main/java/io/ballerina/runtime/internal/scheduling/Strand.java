@@ -144,6 +144,7 @@ public class Strand {
                         currentTrxContext.getInfoRecord());
         String currentTrxBlockId = currentTrxContext.getCurrentTransactionBlockId();
         trxCtx.addCurrentTransactionBlockId(currentTrxBlockId + "_" + strandName);
+        trxCtx.setTransactionContextStore(currentTrxContext.getTransactionContextStore());
         return trxCtx;
     }
 
