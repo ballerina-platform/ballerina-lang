@@ -192,6 +192,11 @@ public class TypeResolver {
         modTable.clear();
         constantMap.clear();
         unknownTypeRefs.clear();
+        resolvingTypeDefinitions.clear();
+        resolvedConstants.clear();
+        resolvingConstants.clear();
+        resolvedClassDef.clear();
+        resolvingStructureTypes.clear();
     }
 
     public static TypeResolver getInstance(CompilerContext context) {
