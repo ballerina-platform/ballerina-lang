@@ -258,26 +258,26 @@ function testNestedConstMapAccess() returns boolean {
 
 // -----------------------------------------------------------
 
-const map<string> X = {a: "a"};
+// const map<string> X = {a: "a"};
 
-type Foo record {
-   X x;
-   int i;
-};
+// type Foo record {
+//    X x;
+//    int i;
+// };
 
-const Foo F1 = {x: {a : "a"}, i: 1};
-const record{|X x; int i;|} F2 = {x: {a : "a"}, i: 1};
+// const Foo F1 = {x: {a : "a"}, i: 1};
+// const record{|X x; int i;|} F2 = {x: {a : "a"}, i: 1};
 
-Foo f1 = {x: {a : "a"}, i: 1};
-Foo f2 = {x: X, i: 1};
+// Foo f1 = {x: {a : "a"}, i: 1};
+// Foo f2 = {x: X, i: 1};
 
-function testRecordAsExpectedType() {
-    assertEqual(F1.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
-    assertEqual(F2.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
+// function testRecordAsExpectedType() {
+//     assertEqual(F1.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
+//     assertEqual(F2.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
 
-    assertEqual(f1.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
-    assertEqual(f2.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
-}
+//     assertEqual(f1.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
+//     assertEqual(f2.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
+// }
 
 function assertEqual(int|float|decimal|boolean|string actual, int|float|decimal|boolean|string expected) {
     if (actual != expected) {

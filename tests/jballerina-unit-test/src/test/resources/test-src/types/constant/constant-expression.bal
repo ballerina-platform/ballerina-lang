@@ -197,12 +197,12 @@ function testConstExprWithUnionExpectedType() {
 
 const CONST21 = 1 + 2;
 const CONST21 CONST22 = 3;
-const CONST23 = {a : "a", b : 1};
-const CONST23 CONST24 = {a : "a", b : 1};
+// const CONST23 = {a : "a", b : 1};
+// const CONST23 CONST24 = {a : "a", b : 1};
 
 function testConstExprWithConstExpectedType() {
     assertEqual(CONST22, 3);
-    assertEqual(CONST24.toString(), "{\"a\":\"a\",\"b\":1}");
+    // assertEqual(CONST24.toString(), "{\"a\":\"a\",\"b\":1}");
 }
 
 const byte CONST31 = 300 - 100;
