@@ -128,10 +128,12 @@ public enum SyntaxKind {
     READONLY_KEYWORD(318, "readonly"),
     DISTINCT_KEYWORD(319, "distinct"),
     FAIL_KEYWORD(320, "fail"),
-    RE_KEYWORD(320, "re"),
+
+    // Contextual keywords
+    RE_KEYWORD(400, "re"), // Any kind above this is considered as a keyword
 
     // Separators
-    OPEN_BRACE_TOKEN(500, "{"), // Any kind above this is considered as a keyword
+    OPEN_BRACE_TOKEN(500, "{"),
     CLOSE_BRACE_TOKEN(501, "}"),
     OPEN_PAREN_TOKEN(502, "("),
     CLOSE_PAREN_TOKEN(503, ")"),

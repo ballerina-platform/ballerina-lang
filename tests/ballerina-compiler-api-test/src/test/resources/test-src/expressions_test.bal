@@ -367,3 +367,7 @@ function testRegexp() {
     string:RegExp reg1 = re `a|b`;
     regexp:RegExp reg2 = re `[a-z]+`;
 }
+
+function name() {
+    _ = xml ``;
+}

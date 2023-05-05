@@ -36,6 +36,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
+
 /**
  * {@code UnionType} represents a union type in Ballerina.
  *
@@ -185,15 +187,13 @@ public class BUnionType extends BType implements UnionType {
     public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>(types.size());
 
-        boolean isImmutable = true;
-        boolean hasNilableType = false;
-
         if (types.isEmpty()) {
-            return new BUnionType(tsymbol, memberTypes, hasNilableType, isImmutable);
+            return new BUnionType(tsymbol, memberTypes, false, true);
         }
 
+        boolean isImmutable = true;
         for (BType memBType : toFlatTypeSet(types)) {
-            if (getReferredType(memBType).tag != TypeTags.NEVER) {
+            if (!isNeverType(memBType)) {
                 memberTypes.add(memBType);
             }
 
@@ -201,7 +201,12 @@ public class BUnionType extends BType implements UnionType {
                 isImmutable = false;
             }
         }
+        if (memberTypes.isEmpty()) {
+            memberTypes.add(new BNeverType());
+            return new BUnionType(tsymbol, memberTypes, false, isImmutable);
+        }
 
+        boolean hasNilableType = false;
         for (BType memberType : memberTypes) {
             if (memberType.isNullable() && memberType.tag != TypeTags.NIL) {
                 hasNilableType = true;
@@ -491,6 +496,22 @@ public class BUnionType extends BType implements UnionType {
         boolean hasNilType = uniqueTypes.size() > numberOfNotNilTypes;
         cachedToString = (nullable && hasNilType && !hasNilableMember) ? (typeStr + Names.QUESTION_MARK.value) :
                 typeStr;
+    }
+
+    private static boolean isNeverType(BType type) {
+        if (type.tag == NEVER) {
+            return true;
+        } else if (type.tag == TypeTags.TYPEREFDESC) {
+            return isNeverType(getReferredType(type));
+        } else if (type.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                if (!isNeverType(memberType)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     @Override
