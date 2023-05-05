@@ -86,6 +86,29 @@ function testQueryConstructTypes() {
                                 collect sum(price1); // error  
 }
 
+function testInvalidExpressions2() {
+    int[] a = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
+                collect salary; // error
+}
+
+function testInvalidListConstructors() {
+    int[] a = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
+                collect [salary + 2]; // error
+    int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
+                collect int:sum([salary, bonus]); // error
+}
+
+function foo(int... ns) returns int {
+    return 2;
+}
+
+function testInvalidFunctionInvocations1() {
+    int _ = from var {salary} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
+                collect foo(salary); // error
+    int[] _ = from var {salary} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
+                collect [foo(salary)]; // error
+}
+
 // function testInvalidArgOrder() {
 //     int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
 //                 collect int:sum(salary, bonus); // error
@@ -100,37 +123,4 @@ function testQueryConstructTypes() {
 
 //     int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
 //                 collect int:sum(salary + bonus, 3); // error
-// }
-
-// function testInvalidExpressions2() {
-//     int[] a = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect salary; // error
-// }
-
-// function testInvalidListConstructors() {
-//     int[] a = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect [salary + 2]; // error
-//     int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect int:sum([salary, bonus]); // error
-// }
-
-// function testInvalidExpressions3() {
-//     int _ = from var {_} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect salary; // error
-// }
-
-// function foo(int... ns) returns int {
-//     return 2;
-// }
-
-// function testInvalidFunctionInvocations1() {
-//     int _ = from var {salary} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect foo(salary); // error
-//     int[] _ = from var {salary} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect [foo(salary)]; // error
-// }
-
-// function testInvalidFunctionInvocations2() {
-//     int _ = from var {salary} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect foo(salary, 2); // error
 // }

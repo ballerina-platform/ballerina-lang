@@ -96,6 +96,13 @@ function testInvocation() {
     var x11 = from var {name, price} in [{name: "Saman", price: 1}, {name: "Amal", price: 2}, {name: "Saman", price: 3}]
                 collect 'join("_", name);
     assertEquality("Saman_Amal_Saman", x11);
+    var x12 = from var {name, price1} in input
+                let var p1 = price1
+                collect min(-1, p1);    
+    assertEquality(-1, x12);
+    var x13 = from var {name, price1, price2} in input
+                collect int:avg([price2][0], ...[price2].slice(1, [price2].length()));
+    assertEquality(11.66666666666666666666666666666667d, x13);
 }
 
 function testEmptyGroups() {
@@ -123,90 +130,11 @@ function testEmptyGroups() {
                 collect string:'join(",", name);
     assertEquality("", x4);    
     assertEquality(0, x4.length());    
+    string x5 = from var {name, price1} in input
+                where name == "X"
+                collect string:'join(",", name);
+    assertEquality("", x5); 
 }
-
-// function testIncompatibleQueryResultType2() {
-//     string x1 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
-//                     collect int:sum(x); // error
-//     int[] x2 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
-//                     collect int:sum(x); // error
-// }
-
-// function testIncompatibleParameterTypes() {
-//     int x1 = from var {x} in [{"x":"2", "y":"3"}, {"x":"4", "y":"5"}]
-//                 collect int:sum(x); // error
-//     string x2 = from var {x} in [{"x":"2", "y":"3"}, {"x":"4", "y":"5"}]
-//                     collect int:toHexString(x); // error
-//     string x3 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
-//                     collect ",".'join(x); // error
-//     string x4 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
-//                 collect string:'join(",", x);
-// }
-
-// function testInvalidExpressions1() {
-//     string x1 = from var {x} in [{"x":"2", "y":"3"}, {"x":"4", "y":"5"}]
-//                 collect x; // error
-//     int x2 = from var {x} in [{"x":2, "y":3}, {"x":4, "y":5}]
-//                 collect x + 2; // error
-//     record {| int x; |} rec = from var {x, y} in [{"x":2, "y":3}, {"x":4, "y":5}]
-//                                 collect { x: [x] }; // error
-// }
-
-// function testInvalidArgOrder() {
-//     int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect int:sum(salary, bonus); // error
-
-//     int i = 2;
-//     int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect int:sum(salary, i); // error
-
-//     int[] j = [];
-//     int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect int:sum(salary, ...j); // error
-
-//     int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect int:sum(salary + bonus, 3); // error
-// }
-
-// function testInvalidExpressions2() {
-//     int[] a = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect salary; // error
-// }
-
-// function testInvalidListConstructors() {
-//     int[] a = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect [salary + 2]; // error
-//     int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect int:sum([salary, bonus]); // error
-// }
-
-// function testInvalidExpressions3() {
-//     int _ = from var {_} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect salary; // error
-// }
-
-// function foo(int... ns) returns int {
-//     return 2;
-// }
-
-// function testInvalidFunctionInvocations1() {
-//     int _ = from var {salary} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect foo(salary); // error
-//     int[] _ = from var {salary} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect [foo(salary)]; // error
-// }
-
-// function testInvalidAssignment() {
-//     int[6] a = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect [salary]; // error
-//     record {| int[6] intArr; |} r = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                                         collect { intArr: [salary] }; // error
-// }
-
-// function testInvalidFunctionInvocations2() {
-//     int _ = from var {salary} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect foo(salary, 2); // error
-// }
 
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
@@ -215,7 +143,6 @@ function assertEquality(anydata expected, anydata actual) {
     panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }
 
-// TODO: let clause, where clause, group by clause ...
 // TODO: test group by collect combinations
 // TODO: collect avg()
 // TODO: multiple collect clause (in same query(error), in different sub queries in main query)
