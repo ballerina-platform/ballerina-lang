@@ -196,7 +196,7 @@ public class GroupByClauseTest {
     @Test
     public void testNegativeCases() {
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "sequence variable cannot be used in a required argument",
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(any|error)[]', found 'int'",
                 23, 37);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element list " +
                 "constructor or function invocation", 29, 24);
@@ -255,7 +255,7 @@ public class GroupByClauseTest {
         BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after rest argument", 151, 39);
         BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 154, 37);
         BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 154, 40);
-        BAssertUtil.validateError(negativeResult, i++, "sequence variable cannot be used in a required argument", 157, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(any|error)[]', found 'int'", 157, 37);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 }

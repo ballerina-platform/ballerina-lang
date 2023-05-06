@@ -396,7 +396,7 @@ function testMultipleGroupByInSameQuery() {
                 group by name
                 group by var p1 = [price1]
                 select string:'join("_", name);
-    assertEquality(["__Saman_Amal", "__Kamal"], x1);
+    assertEquality(["Saman_Amal", "Kamal"], x1);
 
     var x2 = from var {name, price1, price2} in input1
                 group by price1
@@ -409,7 +409,7 @@ function testMultipleGroupByInSameQuery() {
                 let var n = string:'join(",", name)
                 group by price1
                 select string:'join("_", n);
-    assertEquality(["__,,Saman,Saman,Amal,Amal","__,,Kamal,Kamal,Kamal"], x3);
+    assertEquality(["Saman,Saman,Amal,Amal", "Kamal,Kamal,Kamal"], x3);
 
     var input2 = [{name: "Saman", price1: 11, price2: 11},
                     {name: "Saman", price1: 11, price2: 12},
@@ -431,7 +431,7 @@ function testMultipleGroupByInSameQuery() {
                 let var n2 = string:'join(" ", n1)
                 group by p2
                 select string:'join("@", n2);
-    assertEquality(["@@  __Saman_Saman __Kamal_Kamal", "@@  __Amal_Amal"], x5);
+    assertEquality(["Saman_Saman Kamal_Kamal", "Amal_Amal"], x5);
 
     var x6 = from var {name, price1, price2} in input2
                 group by price1
@@ -452,14 +452,14 @@ function testMultipleGroupByInSameQuery() {
                 let var n = string:'join("@", name)
                 group by var _ = price1 + price2
                 select string:'join("_", n);
-    assertEquality(["__@@Saman@Saman@Kamal","__@@Kamal","__@@Amal","__@@Amal"], x7);    
+    assertEquality(["Saman@Saman@Kamal", "Kamal", "Amal", "Amal"], x7);    
 
     var x8 = from var {name, price1, price2} in input3
                 group by price1, price2
                 let var s = string:'join("@", name)
                 group by var _ = from var {name: n, price1: p1, price2: p2} in input3 group by n select int:sum(p1)
                 select string:'join("_", s);
-    assertEquality(["__@@Saman@Saman@Kamal_@@Kamal_@@Amal_@@Amal"], x8); 
+    assertEquality(["Saman@Saman@Kamal_Kamal_Amal_Amal"], x8); 
 }
 
 type RecOpt record {|
@@ -482,7 +482,7 @@ function testOptionalFieldInput() returns error? {
     var x1 = from var {name, price1, price2} in input1
                 group by price2
                 select string:'join(",", name);
-    assertEquality([",,Saman", ",,Saman,Kamal", ",,Kamal", ",,Kamal", ",,Amal,Amali"], x1);
+    assertEquality(["Saman", "Saman,Kamal", "Kamal", "Kamal", "Amal,Amali"], x1);
 
     RecOpt[] input2 = [{name: "Saman", price1: 11, price2: 11},
                     {name: "Saman", price1: 15, price2: 12},
@@ -901,3 +901,5 @@ function assertEquality(anydata expected, anydata actual) {
     }
     panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }
+
+// TODO: select avg(price), select min(price)

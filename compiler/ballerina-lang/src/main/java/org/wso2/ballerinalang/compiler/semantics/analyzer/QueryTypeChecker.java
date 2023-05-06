@@ -821,7 +821,7 @@ public class QueryTypeChecker extends TypeChecker {
 
     public void visit(BLangInvocation iExpr, TypeChecker.AnalyzerData data) {
         // Check whether the invocation happens after group by and arguments contain sequence variables
-         if (hasSequenceArgs(iExpr, data)) {
+        if (hasSequenceArgs(iExpr, data)) {
             // Do complete type checking for the invocation
             Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
             // TODO: Add more tests related to pkg alias
@@ -870,12 +870,15 @@ public class QueryTypeChecker extends TypeChecker {
                     List<BVarSymbol> params = functionSymbol.params;
                     for (int i = 0; i < params.size(); i++) {
                         BLangExpression arg = iExpr.argExprs.get(i);
-                        checkArg(arg, params.get(i).type, data);
-                        if (arg.getBType().tag == TypeTags.SEQUENCE) {
-                            dlog.error(arg.pos, DiagnosticErrorCode.SEQUENCE_VARIABLE_CANNOT_BE_USED_IN_REQUIRED_ARG);
+                        BType argType = silentTypeCheckExpr(arg, symTable.noType, data);
+                        if (argType.tag == TypeTags.SEQUENCE) {
+                            types.checkType(arg.pos, ((BSequenceType) argType).elementType, params.get(i).type,
+                                    DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                        } else {
+                            checkArg(arg, params.get(i).type, data);
+                            iExpr.requiredArgs.add(arg);
+                            argCount++;
                         }
-                        iExpr.requiredArgs.add(arg);
-                        argCount = i;
                     }
                     boolean foundSeqRestArg = false;
                     for (int i = argCount; i < iExpr.argExprs.size(); i++) {
@@ -911,9 +914,9 @@ public class QueryTypeChecker extends TypeChecker {
                     data.resultType = types.checkType(iExpr, retType, data.expType);
                 }
             }
-         } else {
+        } else {
             super.visit(iExpr, data);
-         }
+        }
     }
 
     // Check the argument within sequence context.
