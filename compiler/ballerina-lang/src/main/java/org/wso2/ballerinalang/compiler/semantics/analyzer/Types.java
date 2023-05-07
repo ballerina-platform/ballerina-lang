@@ -24,6 +24,7 @@ import io.ballerina.types.Context;
 import io.ballerina.types.Env;
 import io.ballerina.types.SemType;
 import io.ballerina.types.SemTypes;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -105,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -177,6 +179,7 @@ public class Types {
     private int recordCount = 0;
     private SymbolEnv env;
     private Context cx;
+    private boolean semtypeEnabled;
 
     private boolean ignoreObjectTypeIds = false;
     private static final String BASE_16 = "base16";
@@ -196,6 +199,8 @@ public class Types {
             types = new Types(context);
         }
 
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        types.semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
         return types;
     }
 
@@ -870,11 +875,13 @@ public class Types {
     }
 
     private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        SemType sourceSemType = source.getSemtype();
-        SemType targetSemType = target.getSemtype();
+        if (this.semtypeEnabled) {
+            SemType sourceSemType = source.getSemtype();
+            SemType targetSemType = target.getSemtype();
 
-        if (sourceSemType != null && targetSemType != null && isSemTypeEnabled(source, target)) {
-            return SemTypes.isSubtype(cx, sourceSemType, targetSemType);
+            if (sourceSemType != null && targetSemType != null && isSemTypeEnabled(source, target)) {
+                return SemTypes.isSubtype(cx, sourceSemType, targetSemType);
+            }
         }
 
         if (isSameType(source, target)) {

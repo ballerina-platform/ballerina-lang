@@ -120,7 +120,7 @@ public class BCompileUtil {
     }
 
     public static PackageSyntaxTreePair compileSemType(String sourceFilePath) {
-        Project project = loadProject(sourceFilePath, BuildOptions.builder().setSemType(true).build());
+        Project project = loadProject(sourceFilePath, BuildOptions.builder().setSemTypeTest(true).build());
         Package currentPackage = project.currentPackage();
         Module module = currentPackage.getDefaultModule();
         DocumentId docId = module.documentIds().iterator().next();

@@ -118,6 +118,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private HashMap<BSymbol, BLangTypeDefinition> createdTypeDefinitions = new HashMap<>();
     private Stack<String> anonTypeNameSuffixes = new Stack<>();
     private boolean semtypeEnabled;
+    private boolean semtypeTest;
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -136,6 +137,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         constantValueResolver.semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
+        constantValueResolver.semtypeTest = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE_TEST));
         return constantValueResolver;
     }
 
@@ -595,7 +597,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue constructBLangConstantValue(BLangExpression node) {
 
-        if (!node.typeChecked && !this.semtypeEnabled) {
+        if (!node.typeChecked && !this.semtypeEnabled && !this.semtypeTest) {
             return null;
         }
         switch (node.getKind()) {
