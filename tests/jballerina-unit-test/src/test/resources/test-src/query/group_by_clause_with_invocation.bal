@@ -460,6 +460,21 @@ function testMultipleGroupByInSameQuery() {
                 group by var _ = from var {name: n, price1: p1, price2: p2} in input3 group by n select int:sum(p1)
                 select string:'join("_", s);
     assertEquality(["Saman@Saman@Kamal_Kamal_Amal_Amal"], x8); 
+
+    string x9 = from var {name, price1, price2} in input3
+                    group by var _ = true 
+                    let var n = [name]
+                    group by var _ = true 
+                    select ",".'join(...([n][0]));
+    assertEquality("Saman,Saman,Kamal,Kamal,Amal,Amal", x9);   
+
+    string x10 = from var {name, price1, price2} in input3
+                    where name == "Saman"
+                    group by var _ = true 
+                    let var n = [name]
+                    group by var _ = true 
+                    select ",".'join(...([n][0]));
+    assertEquality("Saman,Saman", x10);  
 }
 
 type RecOpt record {|
@@ -893,6 +908,65 @@ function testMultipleGroupBy() {
                 group by var xx = (from var {name: n, price1: p1, price2: p2} in input group by n select sum(p1))
                 select sum(price1);
     assertEquality([62], res6);
+}
+
+function testGroupByExpressionAndSelectWithNonGroupingKeys7() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 9},
+                    {name: "Amal", price1: 10, price2: 13}];
+
+    var res1 = from var {name, price1, price2} in input
+                group by var _ = true
+                select avg(price1);
+    assertEquality([10.33333333333333333333333333333333d], res1);
+    var res2 = from var {name, price1, price2} in input
+                group by var _ = true
+                select avg(price1) + avg(price2);
+    assertEquality([22.00000000000000000000000000000000d], res2);
+    var res3 = from var {name, price1, price2} in input
+                group by var _ = true
+                select min(price1) + min(price2);
+    assertEquality([19], res3);
+}
+
+function testEmptyGroups() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 9},
+                    {name: "Amal", price1: 10, price2: 13}];
+
+    var res1 = from var {name, price1, price2} in input
+                where name == "No name"
+                group by var _ = true 
+                select avg(price1);   
+    assertEquality([], res1);
+    var res2 = from var {name, price1, price2} in input
+                where name == "No name"
+                group by var _ = true 
+                select avg(price1) + avg(price2);   
+    assertEquality([], res2);
+    decimal[] res3 = from var {name, price1, price2} in input
+                        where name == "No name"
+                        group by var _ = true 
+                        select avg(price1);   
+    assertEquality([], res3);    
+    string res4 = from var {name, price1, price2} in input
+                    where name == "No name"
+                    group by var _ = true 
+                    select ",".'join(name);   
+    assertEquality("", res4);    
+    string res5 = from var {name, price1, price2} in input
+                    where name == "No name"
+                    group by var _ = true 
+                    let var n = [name]
+                    group by var _ = true 
+                    select ",".'join(...([n][0]));
+    assertEquality("", res5);   
 }
 
 function assertEquality(anydata expected, anydata actual) {
