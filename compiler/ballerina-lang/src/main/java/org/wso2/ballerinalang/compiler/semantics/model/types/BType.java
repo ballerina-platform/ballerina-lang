@@ -60,6 +60,10 @@ public class BType implements ValueType {
         this(tag, tsymbol, 0);
     }
 
+    public BType(int tag, BTypeSymbol tsymbol, SemType semType) {
+        this(tag, tsymbol, 0, semType);
+    }
+
     public BType(int tag, BTypeSymbol tsymbol, long flags) {
         this(tag, tsymbol, Names.EMPTY, flags);
     }

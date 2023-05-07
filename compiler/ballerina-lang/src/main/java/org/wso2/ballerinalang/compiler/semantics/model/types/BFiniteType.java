@@ -18,6 +18,7 @@
 
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.types.FiniteType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -43,13 +44,15 @@ public class BFiniteType extends BType implements FiniteType {
 
 
     public BFiniteType(BTypeSymbol tsymbol) {
-        super(TypeTags.FINITE, tsymbol);
-        valueSpace = new LinkedHashSet<>();
-        this.flags |= Flags.READONLY;
+        this(tsymbol, new LinkedHashSet<>());
     }
 
     public BFiniteType(BTypeSymbol tsymbol, Set<BLangExpression> valueSpace) {
-        super(TypeTags.FINITE, tsymbol);
+        this(tsymbol, valueSpace, null);
+    }
+
+    public BFiniteType(BTypeSymbol tsymbol, Set<BLangExpression> valueSpace, SemType semType) {
+        super(TypeTags.FINITE, tsymbol, semType);
         this.valueSpace = valueSpace;
         this.flags |= Flags.READONLY;
     }
