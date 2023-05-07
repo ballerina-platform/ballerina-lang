@@ -1045,16 +1045,12 @@ public class QueryTypeChecker extends TypeChecker {
             if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BType type = silentTypeCheckExpr(expr, symTable.noType, data);
                 if (type.tag == TypeTags.SEQUENCE) {
-                    // TODO: There is another type of doing this
-                    // First check the expr with expType = noType
-                    // Use the result type to generate the type of list-ctr
-                    // Then check the expType is an array or tuple
-                    // Then do the type check for element types
-                    // This may cause to remove the type checking part for seq from Types.java
                     data.queryData.withinSequenceContext = true;
-                    checkExpr(expr, data.env, expType, data);
+                    checkExpr(expr, data.env, symTable.noType, data);
                     data.queryData.withinSequenceContext = false;
-                    data.resultType = new BTupleType(null, new ArrayList<>(0), ((BSequenceType) type).elementType, 0);
+                    data.resultType = types.checkType(listConstructor.pos,
+                            new BTupleType(null, new ArrayList<>(0), ((BSequenceType) type).elementType, 0),
+                            expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
                     listConstructor.setBType(data.resultType);
                     return;
                 }

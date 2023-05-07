@@ -50,7 +50,7 @@ function testSeqVariableInGroupExpr() {
     var prices = from var {name, price} in input
                         group by name
                         let var p = [(price)] // error: group-expr is not supported
-                        select p;
+                        select p;                        
 }
 
 function testTupleDestructure() {
@@ -159,4 +159,10 @@ function testSeqVarInInvalidPositions4() {
     // int[] sum = from var {name, price1, price2} in input
     //         group by var _ = true
     //         select int:min(n = 200, price1); // error            
+}
+
+function testTypeMatchInSeqVar() {
+    decimal[] sum = from var {name, price} in [{name: "Saman", price: 23}]
+                        group by name
+                        select int:avg(...[price]); // error
 }

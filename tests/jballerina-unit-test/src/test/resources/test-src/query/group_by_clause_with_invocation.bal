@@ -545,33 +545,26 @@ function testOptionalFieldInput() returns error? {
     assertEquality([11, 24, 10, 13, 28], x3); 
 }
 
-// function testGroupByExpressionAndSelectWithNonGroupingKeys3() {
-//     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}, {name: "Saman", price: 12}];
-//     int[] sum = from var {name, price} in input
-//                         group by name
-//                         select avg(price);
-//     assertEquality([35, 11], sum);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select int:avg(price);
-//     assertEquality([35, 11], sum);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select int:avg(price + 2);
-//     assertEquality([35, 11], sum);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select avg(...[price]);
-//     assertEquality([35, 11], sum);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select int:avg(2, ...[price]);
-//     assertEquality([35, 11], sum);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select 2.0.avg(2, ...[price]);
-//     assertEquality([35, 11], sum);
-// }
+function testGroupByExpressionAndSelectWithNonGroupingKeys8() {
+    var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}, {name: "Saman", price: 12}];
+    decimal[] sum = from var {name, price} in input
+                        group by name
+                        select avg(price);
+    assertEquality([11.66666666666666666666666666666667d, 11d], sum);
+    sum = from var {name, price} in input
+                        group by name
+                        select int:avg(price);
+    assertEquality([11.66666666666666666666666666666667d, 11d], sum);
+    sum = from var {name, price} in input
+                        group by name
+                        select int:avg(2, ...[price]);
+    assertEquality([9.25d, 6.5d], sum);
+    var input1 = [{name: "Saman", price: 11.0}, {name: "Saman", price: 12.0}, {name: "Kamal", price: 11.0}, {name: "Saman", price: 12.0}];
+    float[] x = from var {name, price} in input1
+                        group by name
+                        select 2.0.avg(2, ...[price]);
+    assertEquality([7.8, 5.0], x);
+}
 
 // function testGroupByExpressionAndSelectWithNonGroupingKeys4() {
 //     var input = [{name: "Saman", price1: 11, price2: 11},

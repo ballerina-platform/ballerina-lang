@@ -192,7 +192,8 @@ public class GroupByClauseTest {
                 "testOptionalFieldInput",
                 "testGroupByExpressionAndSelectWithNonGroupingKeys6",
                 "testGroupByExpressionAndSelectWithNonGroupingKeys7",
-                "testEmptyGroups"
+                "testEmptyGroups",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys8"
         };
     }
 
@@ -221,10 +222,12 @@ public class GroupByClauseTest {
                 "constructor or function invocation", 45, 26);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
                 "list constructor or function invocation", 52, 39);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '[int[]]', found 'seq int'",
-                65, 34);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '[int,int]', found 'seq int'",
-                70, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '[int,int...]', " +
+                "found '[int...]'", 60, 39);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '[int[]]', found '[int...]'",
+                65, 33);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '[int,int]', found '[int...]'",
+                70, 36);
         BAssertUtil.validateError(negativeResult, i++, "record literal is not supported for record binding pattern",
                 79, 32);
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
@@ -275,6 +278,8 @@ public class GroupByClauseTest {
         BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 154, 40);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(any|error)[]', found 'int'",
                 157, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'([int,int...]|record {| int n; |})', found '[int...]'", 167, 43);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 }
