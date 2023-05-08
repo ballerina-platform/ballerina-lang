@@ -12,7 +12,9 @@ Running Tests
 
 		[fail] test2:
 
-		     / by zero
+		    error("{ballerina}DivisionByZero",message=" / by zero")
+				callableName: test2  fileName: dependson-skip-test.bal lineNumber: 34
+				callableName: test2$lambda2$  fileName: dependson-skip-test.bal lineNumber: 59
 			
 
 

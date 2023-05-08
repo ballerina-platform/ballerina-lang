@@ -59,7 +59,7 @@ public class FieldCompletionItemBuilder {
 
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(recordFieldName);
-        completionItem.setInsertText(CommonUtil.escapeEscapeCharsInIdentifier(recordFieldName));
+        completionItem.setInsertText(CommonUtil.escapeSpecialCharsInInsertText(recordFieldName));
         completionItem.setKind(CompletionItemKind.Field);
         return completionItem;
     }
@@ -72,7 +72,7 @@ public class FieldCompletionItemBuilder {
      * @return {@link CompletionItem} generated completion item
      */
     public static CompletionItem build(RecordFieldSymbol symbol, BallerinaCompletionContext context) {
-        String recordFieldName = CommonUtil.escapeEscapeCharsInIdentifier(symbol.getName().orElseThrow());
+        String recordFieldName = symbol.getName().orElseThrow();
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(recordFieldName);
         completionItem.setKind(CompletionItemKind.Field);
@@ -89,7 +89,7 @@ public class FieldCompletionItemBuilder {
             }
         }
 
-        completionItem.setInsertText(insertText);
+        completionItem.setInsertText(CommonUtil.escapeSpecialCharsInInsertText(insertText));
 
         return completionItem;
     }
@@ -103,12 +103,13 @@ public class FieldCompletionItemBuilder {
      */
     public static CompletionItem build(ObjectFieldSymbol objectFieldSymbol, boolean withSelfPrefix) {
         if (withSelfPrefix) {
-            String label = "self." + 
-                    CommonUtil.escapeEscapeCharsInIdentifier(objectFieldSymbol.getName().orElse(""));
+            String label = String.format("self.%s", objectFieldSymbol.getName().orElse(""));
+            String insertText = "self." +
+                    CommonUtil.escapeSpecialCharsInInsertText(objectFieldSymbol.getName().orElse(""));
 
             CompletionItem item = new CompletionItem();
             item.setLabel(label);
-            item.setInsertText(label);
+            item.setInsertText(insertText);
             item.setKind(CompletionItemKind.Field);
 
             return item;

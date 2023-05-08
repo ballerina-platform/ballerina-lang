@@ -98,7 +98,8 @@ public class TypeCastTest extends AbstractCodeActionTest {
                 {"typeCastNegative4.json"},
                 {"typeCastNegative5.json"},
                 {"typeCastNegative6.json"},
-                {"typeCastNegativeInLangLib.json"}
+                {"typeCastNegativeInLangLib.json"},
+                {"type_cast_no_ctx_type_negative1.json"}
         };
     }
 }
