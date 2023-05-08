@@ -783,6 +783,7 @@ public class QueryTypeChecker extends TypeChecker {
         SymbolEnv groupByEnv = SymbolEnv.createTypeNarrowedEnv(groupByClause, data.commonAnalyzerData.queryEnvs.pop());
         groupByClause.env = groupByEnv;
         data.commonAnalyzerData.queryEnvs.push(groupByEnv);
+        groupByClause.nonGroupingKeys = new HashSet<>(data.queryVariables);
         for (BLangGroupingKey groupingKey : groupByClause.groupingKeyList) {
             String variable;
             if (groupingKey.variableRef != null) {
@@ -792,10 +793,10 @@ public class QueryTypeChecker extends TypeChecker {
                 semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env, this,
                         data.commonAnalyzerData);
                 variable = groupingKey.variableDef.var.name.value;
+                data.queryVariables.add(variable);
             }
-            data.queryVariables.remove(variable);
+            groupByClause.nonGroupingKeys.remove(variable);
         }
-        groupByClause.nonGroupingKeys = new HashSet<>(data.queryVariables);
         for (String var : groupByClause.nonGroupingKeys) {
             Name name = new Name(var);
             BSymbol originalSymbol = symResolver.lookupSymbolInMainSpace(groupByEnv, name);
@@ -819,94 +820,89 @@ public class QueryTypeChecker extends TypeChecker {
     }
 
     public void visit(BLangInvocation iExpr, TypeChecker.AnalyzerData data) {
-        // Check whether the invocation happens after group by and arguments contain sequence variables
-         if (hasSequenceArgs(iExpr, data)) {
-            // Do complete type checking for the invocation
-            Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
-            // TODO: Add more tests related to pkg alias
-            if (pkgAlias.value.isEmpty()) {
-                if (iExpr.expr != null) {
-                    BType exprType = checkExpr(iExpr.expr, data);
-                    pkgAlias = exprType.tsymbol.name;
-                    iExpr.argExprs.add(0, iExpr.expr);
-                } else {
-                    BType firstArgType = silentTypeCheckExpr(iExpr.argExprs.get(0), symTable.noType, data);
-                    if (firstArgType.tag == TypeTags.SEQUENCE) {
-                        pkgAlias = ((BSequenceType) firstArgType).elementType.tsymbol.name;
-                    } else {
-                        pkgAlias = firstArgType.tsymbol.name;
-                    }
-                }
-            }
-            BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(data.env, pkgAlias, getCurrentCompUnit(iExpr));
-            if (pkgSymbol == symTable.notFoundSymbol) {
-                dlog.error(iExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias);
-                // visit args
-                // return;
-            } else {
-                Name funcName = names.fromIdNode(iExpr.name);
-                BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(iExpr.pos, data.env, pkgAlias, funcName);
-                if (symbol == symTable.notFoundSymbol) {
-                    dlog.error(iExpr.pos, DiagnosticErrorCode.UNDEFINED_FUNCTION, funcName);
-                    // visit args
-                    // return;
-                } else if (!Symbols.isFlagOn(symbol.flags, Flags.LANG_LIB)) {
-                    dlog.error(iExpr.pos,
-                            DiagnosticErrorCode.USER_DEFINED_FUNCTIONS_ARE_DISALLOWED_WITH_AGGREGATED_VARIABLES);
-                    // visit args
-                    // return;
-                } else {
-                    // TODO: check why this is useful
-                    boolean langLibPackageID = PackageID.isLangLibPackageID(pkgSymbol.pkgID);
-                    if (langLibPackageID) {
-                        data.env = SymbolEnv.createInvocationEnv(iExpr, data.env);
-                    }
-                    BInvokableSymbol functionSymbol = (BInvokableSymbol) symbol;
-                    iExpr.symbol = functionSymbol;
-                    // match between params and args
-                    // make sure all params are divided between required and rest
-                    int argCount = 0;
-                    List<BVarSymbol> params = functionSymbol.params;
-                    for (int i = 0; i < params.size(); i++) {
-                        BLangExpression arg = iExpr.argExprs.get(i);
-                        checkArg(arg, params.get(i).type, data);
-                        if (arg.getBType().tag == TypeTags.SEQUENCE) {
-                            dlog.error(arg.pos, DiagnosticErrorCode.SEQUENCE_VARIABLE_CANNOT_BE_USED_IN_REQUIRED_ARG);
-                        }
-                        iExpr.requiredArgs.add(arg);
-                        argCount = i;
-                    }
-                    for (int i = argCount; i < iExpr.argExprs.size(); i++) {
-                        if (functionSymbol.restParam != null) {
-                            BLangExpression argExpr = iExpr.argExprs.get(i);
-                            BType restParamType = functionSymbol.restParam.type;
-                            NodeKind argExprKind = argExpr.getKind();
-                            iExpr.restArgs.add(argExpr);
-                            if (argExprKind == NodeKind.SIMPLE_VARIABLE_REF) {
-                                if (silentTypeCheckExpr(argExpr, symTable.noType, data).tag == TypeTags.SEQUENCE) {
-                                    checkArg(argExpr, restParamType, data);
-                                    continue;
-                                }
-                            }
-                            if (argExprKind == NodeKind.REST_ARGS_EXPR) {
-                                checkTypeParamExpr(argExpr, restParamType, data);
-                                continue;
-                            }
-                            if (restParamType.tag == TypeTags.ARRAY) {
-                                checkArg(argExpr, ((BArrayType) restParamType).eType, data);
-                            } else {
-                                checkArg(argExpr, restParamType, data);
-                            }
-                        }
-                    }
-                    BInvokableType bInvokableType = (BInvokableType) Types.getReferredType(functionSymbol.type);
-                    BType retType = typeParamAnalyzer.getReturnTypeParams(data.env, bInvokableType.getReturnType());
-                    data.resultType = types.checkType(iExpr, retType, data.expType);
-                }
-            }
-         } else {
+        if (!hasSequenceArgs(iExpr, data)) {
             super.visit(iExpr, data);
-         }
+            return;
+        }
+        Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
+        BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(data.env, pkgAlias, getCurrentCompUnit(iExpr));
+        if (pkgSymbol == symTable.notFoundSymbol) {
+            dlog.error(iExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, pkgAlias);
+        }
+        BType invocationType;
+        if (iExpr.expr != null) {
+            invocationType = checkExpr(iExpr.expr, data);
+            iExpr.argExprs.add(0, iExpr.expr);
+        } else {
+            BType firstArgType = silentTypeCheckExpr(iExpr.argExprs.get(0), symTable.noType, data);
+            invocationType =
+                    firstArgType.tag == TypeTags.SEQUENCE ? ((BSequenceType) firstArgType).elementType : firstArgType;
+        }
+        Name funcName = names.fromIdNode(iExpr.name);
+        BSymbol symbol = symResolver.lookupLangLibMethod(invocationType, funcName, data.env);
+        if (symbol == symTable.notFoundSymbol) {
+            symbol = symResolver.lookupMainSpaceSymbolInPackage(iExpr.pos, data.env, pkgAlias, funcName);
+            if (symbol == symTable.notFoundSymbol) {
+                dlog.error(iExpr.pos, DiagnosticErrorCode.UNDEFINED_FUNCTION, funcName);
+                return;
+            }
+            if (!Symbols.isFlagOn(symbol.flags, Flags.LANG_LIB)) {
+                dlog.error(iExpr.pos,
+                        DiagnosticErrorCode.USER_DEFINED_FUNCTIONS_ARE_DISALLOWED_WITH_AGGREGATED_VARIABLES);
+                return;
+            }
+        }
+        // TODO: check why this is useful
+        boolean langLibPackageID = PackageID.isLangLibPackageID(pkgSymbol.pkgID);
+        if (langLibPackageID) {
+            data.env = SymbolEnv.createInvocationEnv(iExpr, data.env);
+        }
+        BInvokableSymbol functionSymbol = (BInvokableSymbol) symbol;
+        iExpr.symbol = functionSymbol;
+        // match between params and args
+        // make sure all params are divided between required and rest
+        int argCount = 0;
+        List<BVarSymbol> params = functionSymbol.params;
+        for (int i = 0; i < params.size(); i++) {
+            BLangExpression arg = iExpr.argExprs.get(i);
+            BType argType = silentTypeCheckExpr(arg, symTable.noType, data);
+            if (argType.tag == TypeTags.SEQUENCE) {
+                types.checkType(arg.pos, ((BSequenceType) argType).elementType, params.get(i).type,
+                        DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+            } else {
+                checkArg(arg, params.get(i).type, data);
+                iExpr.requiredArgs.add(arg);
+                argCount++;
+            }
+        }
+        boolean foundSeqRestArg = false;
+        for (int i = argCount; i < iExpr.argExprs.size(); i++) {
+            BLangExpression argExpr = iExpr.argExprs.get(i);
+            if (functionSymbol.restParam != null) {
+                if (foundSeqRestArg) {
+                    dlog.error(argExpr.pos, DiagnosticErrorCode.SEQ_ARG_FOLLOWED_BY_ANOTHER_SEQ_ARG);
+                } else {
+                    BType restParamType = functionSymbol.restParam.type;
+                    NodeKind argExprKind = argExpr.getKind();
+                    iExpr.restArgs.add(argExpr);
+                    if (argExprKind == NodeKind.SIMPLE_VARIABLE_REF) {
+                        if (silentTypeCheckExpr(argExpr, symTable.noType, data).tag == TypeTags.SEQUENCE) {
+                            foundSeqRestArg = true;
+                            checkArg(argExpr, restParamType, data);
+                            continue;
+                        }
+                    }
+                    if (restParamType.tag == TypeTags.ARRAY) {
+                        checkArg(argExpr, ((BArrayType) restParamType).eType, data);
+                    } else {
+                        checkArg(argExpr, restParamType, data);
+                    }
+                }
+            }
+        }
+        BInvokableType bInvokableType = (BInvokableType) Types.getReferredType(functionSymbol.type);
+        BType retType = typeParamAnalyzer.getReturnTypeParams(data.env, bInvokableType.getReturnType());
+        data.resultType = types.checkType(iExpr, retType, data.expType);
     }
 
     // Check the argument within sequence context.
@@ -1049,16 +1045,12 @@ public class QueryTypeChecker extends TypeChecker {
             if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BType type = silentTypeCheckExpr(expr, symTable.noType, data);
                 if (type.tag == TypeTags.SEQUENCE) {
-                    // TODO: There is another type of doing this
-                    // First check the expr with expType = noType
-                    // Use the result type to generate the type of list-ctr
-                    // Then check the expType is an array or tuple
-                    // Then do the type check for element types
-                    // This may cause to remove the type checking part for seq from Types.java
                     data.queryData.withinSequenceContext = true;
-                    checkExpr(expr, data.env, expType, data);
+                    checkExpr(expr, data.env, symTable.noType, data);
                     data.queryData.withinSequenceContext = false;
-                    data.resultType = new BTupleType(null, new ArrayList<>(0), ((BSequenceType) type).elementType, 0);
+                    data.resultType = types.checkType(listConstructor.pos,
+                            new BTupleType(null, new ArrayList<>(0), ((BSequenceType) type).elementType, 0),
+                            expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
                     listConstructor.setBType(data.resultType);
                     return;
                 }

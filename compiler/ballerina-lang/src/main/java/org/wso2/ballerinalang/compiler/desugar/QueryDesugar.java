@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BSequenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -1673,7 +1674,9 @@ public class QueryDesugar extends BLangNodeVisitor {
             BType type;
             if (symbol.type.tag == TypeTags.SEQUENCE) {
                 BType elementType = ((BSequenceType) symbol.type).elementType;
-                type = symbol.type = new BTupleType(null, new ArrayList<>(0), elementType, 0);
+                List<BTupleMember> tupleMembers = new ArrayList<>(1);
+                tupleMembers.add(new BTupleMember(elementType, Symbols.createVarSymbolForTupleMember(elementType)));
+                type = symbol.type = new BTupleType(null, tupleMembers, elementType, 0);
             } else {
                 type = symbol.type;
             }
