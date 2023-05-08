@@ -238,25 +238,33 @@ function newByte(int val) returns handle = @java:Constructor {
    'class: "java.lang.Byte"
 } external;
 
-function greetings(handle receiver) returns string = @java:Method {
-    name: "balEnvAcceptingMethod",
+function getStringFromFutureResult(handle receiver) returns string = @java:Method {
+    name: "getStringWithBalEnv",
     'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
 } external;
 
-function getFutureResult(handle receiver) returns int = @java:Method {
-    name: "balEnvAcceptingMethodTwo",
+function getIntFromFutureResult(handle receiver) returns int = @java:Method {
+    name: "getIntWithBalEnv",
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+} external;
+
+function getMapFromFutureResult(handle receiver) returns map<any> = @java:Method {
+    name: "getMapValueWithBalEnv",
     'class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
 } external;
 
 public function testBalEnvAcceptingMethodRetType(handle receiver) {
-    string stringResult = greetings(receiver);
+    string stringResult = getStringFromFutureResult(receiver);
     test:assertEquals(stringResult, "Hello World!");
 
-    anydata anydataResult = greetings(receiver);
+    anydata anydataResult = getStringFromFutureResult(receiver);
     test:assertEquals(anydataResult, "Hello World!");
 
-    anydataResult = getFutureResult(receiver);
+    anydataResult = getIntFromFutureResult(receiver);
     test:assertEquals(anydataResult, 7);
+
+    map<any> mapResult = getMapFromFutureResult(receiver);
+    test:assertEquals(mapResult, {"a":10,"b":12.5});
 }
 
 function assertEquals(anydata|error expected, anydata|error actual) {

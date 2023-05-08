@@ -789,15 +789,25 @@ public class StaticMethods {
         return StringUtils.fromString("getResourceTwo");
     }
 
-    public static void balEnvAcceptingMethod(Environment env) {
+    public static void getStringWithBalEnv(Environment env) {
         Future balFuture = env.markAsync();
         BString output = StringUtils.fromString("Hello World!");
         balFuture.complete(output);
     }
 
-    public static void balEnvAcceptingMethodTwo(Environment env) {
+    public static void getIntWithBalEnv(Environment env) {
         Future balFuture = env.markAsync();
         long output = 7;
+        balFuture.complete(output);
+    }
+
+    public static void getMapValueWithBalEnv(Environment env, BString name, long age,
+                                             MapValue<BString, Object> results) {
+        Future balFuture = env.markAsync();
+        BMap<BString, Object> output = ValueCreator.createMapValue();
+        output.put(StringUtils.fromString("name"), name);
+        output.put(StringUtils.fromString("age"), age);
+        output.put(StringUtils.fromString("results"), results);
         balFuture.complete(output);
     }
 }

@@ -391,40 +391,48 @@ function defaultDecimalArgs(handle s, decimal d = -1) returns (anydata) = @java:
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-function greetings() returns string = @java:Method {
-    name: "balEnvAcceptingMethod",
+function getStringFromFutureResult() returns string = @java:Method {
+    name: "getStringWithBalEnv",
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 public client isolated class Client {
-    resource function get getResourceOne() returns string = @java:Method {
-        name: "balEnvAcceptingMethod",
+    resource function get getStringFromFutureResult() returns string = @java:Method {
+        name: "getStringWithBalEnv",
         'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
     } external;
 
-    resource function get getResourceTwo() returns anydata = @java:Method {
-        name: "balEnvAcceptingMethod",
+    resource function get getAnydataFromFutureResult() returns anydata = @java:Method {
+        name: "getStringWithBalEnv",
         'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
     } external;
 
-    resource function get getResourceThree() returns anydata = @java:Method {
-        name: "balEnvAcceptingMethodTwo",
+    resource function get getIntFromFutureResult() returns anydata = @java:Method {
+        name: "getIntWithBalEnv",
         'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
     } external;
 }
 
+function getMapFromFutureResult(string name, int age, map<anydata> results) returns map<any> = @java:Method {
+    name: "getMapValueWithBalEnv",
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
 public function testBalEnvAcceptingMethodRetType() {
 
-    string stringResult = greetings();
+    string stringResult = getStringFromFutureResult();
     test:assertEquals(stringResult, "Hello World!");
 
     Client clientResult = new Client();
-    stringResult = clientResult->/getResourceOne();
+    stringResult = clientResult->/getStringFromFutureResult();
     test:assertEquals(stringResult, "Hello World!");
 
-    anydata anydataResult = clientResult->/getResourceTwo();
+    anydata anydataResult = clientResult->/getAnydataFromFutureResult();
     test:assertEquals(anydataResult, "Hello World!");
 
-    anydataResult = clientResult->/getResourceThree();
+    anydataResult = clientResult->/getIntFromFutureResult();
     test:assertEquals(anydataResult, 7);
+
+    map<any> mapResult = getMapFromFutureResult("John", 35, {"Mathematics": 99, "Physics": 95});
+    test:assertEquals(mapResult, {"name":"John","age":35,"results":{"Mathematics":99,"Physics":95}});
 }
