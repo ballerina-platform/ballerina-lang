@@ -1,6 +1,6 @@
-// Copyright (c) 2023 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2023 WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
 //
-// WSO2 Inc. licenses this file to you under the Apache License,
+// WSO2 LLC. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/lang.array;
 
 // group by <expression>, select <expr with grouping keys>, lhs has the type
@@ -1054,6 +1055,11 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys3() {
                     group by name
                     select [[price]]; // @output [[[11, 12]], [[11]]]
     assertEquality([[[11, 12]], [[11]]], prices3);
+
+    var prices4 = from var {name, price} in input
+                    group by name
+                    select [([price])]; // @output [[[11, 12]], [[11]]]
+    assertEquality([[[11, 12]], [[11]]], prices4);
 }
 
 function testGroupByExpressionAndSelectWithNonGroupingKeys4() {
@@ -1994,6 +2000,167 @@ function testOptionalFieldsInInput() {
     assertEquality(["Saman", "Kamal", "Amal"], res2);
 }
 
+function testMultipleGroupByInSameQuery() {
+    var input1 = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 9},
+                    {name: "Amal", price1: 11, price2: 13},
+                    {name: "Amal", price1: 11, price2: 15}];
+
+    var x1 = from var {name, price1, price2} in input1
+                group by name
+                group by var p1 = [price1]
+                select [name];
+    assertEquality([["Saman", "Amal"], ["Kamal"]], x1);
+
+    var x2 = from var {name, price1, price2} in input1
+                group by price1
+                group by price1
+                select price1;
+    assertEquality([11, 10], x2);
+
+    var x3 = from var {name, price1, price2} in input1
+                group by price1
+                let var n = [name]
+                group by price1
+                select [n];
+    assertEquality([[["Saman", "Saman", "Amal", "Amal"]], [["Kamal", "Kamal", "Kamal"]]], x3);
+
+    var input2 = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 11},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Amal", price1: 12, price2: 13},
+                    {name: "Amal", price1: 12, price2: 15}];
+
+    var x4 = from var {name, price1, price2} in input2
+                group by price1
+                let var n = [name]
+                group by var p2 = [price2]
+                select [n];
+    assertEquality([[["Saman", "Saman"], ["Kamal", "Kamal"]], [["Amal", "Amal"]]], x4);
+
+    var x5 = from var {name, price1, price2} in input2
+                group by price1
+                let var n1 = [name]
+                group by var p2 = [price2]
+                let var n2 = [n1]
+                group by p2
+                select [n2];
+    assertEquality([[[["Saman", "Saman"], ["Kamal", "Kamal"]]], [[["Amal", "Amal"]]]], x5);
+
+    var x6 = from var {name, price1, price2} in input2
+                group by price1
+                let var n = [name]
+                group by n
+                select n;
+    assertEquality([["Saman", "Saman"], ["Kamal", "Kamal"], ["Amal", "Amal"]], x6);
+
+    var input3 = [{name: "Saman", price1: 11, price2: 12},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Amal", price1: 12, price2: 13},
+                    {name: "Amal", price1: 12, price2: 15}];
+
+    var x7 = from var {name, price1, price2} in input3
+                group by price1, price2
+                let var n = [name]
+                group by var _ = price1 + price2
+                select [n];
+    assertEquality([[["Saman", "Saman", "Kamal"]], [["Kamal"]], [["Amal"]], [["Amal"]]], x7);
+
+    var x8 = from var {name, price1, price2} in input3
+                group by price1, price2
+                let var s = [name]
+                group by var _ = from var {name: n, price1: p1, price2: p2} in input3 group by var p = p1 + p2 select p
+                select [s];
+    assertEquality([[["Saman", "Saman", "Kamal"], ["Kamal"], ["Amal"], ["Amal"]]], x8);
+
+    var x9 = from var {name, price1, price2} in input3
+                group by price1, price2
+                let var s = [name]
+                group by var _ = s.length()
+                select [s];
+    assertEquality([[["Saman", "Saman", "Kamal"]], [["Kamal"], ["Amal"], ["Amal"]]], x9);
+
+    var x10 = from var {name, price1, price2} in input3
+                group by price1, price2
+                let var s = [name]
+                group by var l = s.length()
+                select l;
+    assertEquality([3, 1], x10);
+}
+
+function testMultipleFromClauses() {
+    var input = [{name: "Saman", price1: 11, price2: 12},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Amal", price1: 12, price2: 13},
+                    {name: "Amal", price1: 12, price2: 15}];
+    var x1 = from var {name, price1, price2} in input
+                group by name
+                let var x = from var p in [price1] select p
+                select x;
+    assertEquality([[11, 11], [11, 10], [12, 12]], x1);
+
+    var x2 = from var {name, price1, price2} in input
+                group by name
+                let var x = (from var p in [price1] select p).length()
+                select x;
+    assertEquality([2, 2, 2], x2);
+
+    var x3 = from var {name, price1, price2} in input
+                group by name
+                let var x = (from var p in [price1] select p).length() + (from var p in [price2] select p).length()
+                select x;
+    assertEquality([4, 4, 4], x3);
+}
+
+type RecOpt record {|
+    string name;
+    int price1;
+    int price2?;
+|};
+
+function testOptionalFieldInput() {
+    RecOpt[] input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 15, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 9, price2: 12},
+                    {name: "Kamal", price1: 13, price2: 9},
+                    {name: "Amal", price1: 14},
+                    {name: "Amali", price1: 14}];
+
+    var x1 = from var {name, price1, price2} in input
+                group by price2
+                select [name];
+    assertEquality([["Saman"], ["Saman", "Kamal"], ["Kamal"], ["Kamal"], ["Amal", "Amali"]], x1);
+
+    var x2 = from var {name, price1, price2} in input
+                group by price2
+                select price2;
+    assertEquality([11, 12, 13, 9, null], x2);
+
+    var x3 = from var {name, price1, price2} in input
+                group by name
+                select [price2];
+    assertEquality([[11, 12], [13, 12, 9], [], []], x3);
+
+    var x4 = from var {name, price1, price2} in input
+                group by name
+                select [price2].length();
+    assertEquality([2, 3, 0, 0], x4);
+
+    var x5 = from var {name: n, price1: p1, price2: p2} in input
+                group by n
+                select [p2].length();
+    assertEquality([2, 3, 0, 0], x5);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
@@ -2015,7 +2182,10 @@ function assertEquality(anydata expected, anydata actual) {
 // TODO: use a client
 // TODO: optional fiels in input
 // TODO: from var {name: namex, price1, price2} group by namex
-
+// TODO: 2nd from clause uses seq vars of first from clause
+// TODO: optional fiels in input
+// TODO: from var {name: namex, price1, price2} group by namex
 // from var {name, maths, science} in input
 // group by name
 // select {name: name, maths: avg:(maths), science: avg:(science)}
+// TODO: xml langlib function
