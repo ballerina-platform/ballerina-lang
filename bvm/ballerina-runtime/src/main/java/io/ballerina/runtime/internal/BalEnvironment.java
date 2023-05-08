@@ -90,7 +90,7 @@ public class BalEnvironment extends Environment {
     }
 
     /**
-     * Gets the instance of Ballerina runtime.
+     * Gets an instance of Ballerina runtime.
      *
      * @return Ballerina runtime instance.
      */
