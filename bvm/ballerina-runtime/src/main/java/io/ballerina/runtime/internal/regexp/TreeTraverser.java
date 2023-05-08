@@ -148,11 +148,8 @@ public class TreeTraverser {
         switch (nextChar) {
             case 'p':
             case 'P':
-                if (this.reader.peek(1) == Terminals.OPEN_BRACE) {
-                    this.reader.advance();
-                    return getRegExpText(TokenKind.RE_PROPERTY);
-                }
-                break;
+                this.reader.advance();
+                return getRegExpText(TokenKind.RE_PROPERTY);
             case Terminals.OPEN_BRACE:
                 this.reader.advance();
                 return getRegExpToken(TokenKind.OPEN_BRACE_TOKEN);
@@ -407,9 +404,7 @@ public class TreeTraverser {
             // Handle ReUnicodePropertyEscape separately.
             case 'p':
             case 'P':
-                if (this.reader.peek(1) == Terminals.OPEN_BRACE) {
-                    startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
-                }
+                startMode(ParserMode.RE_UNICODE_PROP_ESCAPE);
                 break;
             default:
                 break;
