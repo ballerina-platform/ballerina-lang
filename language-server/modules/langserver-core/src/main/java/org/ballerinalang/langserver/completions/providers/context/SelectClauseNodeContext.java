@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.Types;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -26,6 +28,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -33,6 +36,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link SelectClauseNode} context.
@@ -61,6 +65,15 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
         } else {
             completionItems.addAll(this.expressionCompletions(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_ON_CONFLICT.get()));
+            
+            if (node.parent().toSourceCode().contains(ItemResolverConstants.GROUPBY_KEYWORD)) {
+                List<FunctionSymbol> functionSymbols = getLangLibMethods(context);
+                functionSymbols.stream()
+                        .filter(functionSymbol -> functionSymbol.typeDescriptor().restParam().isPresent())
+                        .filter(functionSymbol -> functionSymbol.getName().isPresent() && !functionSymbol.getName().get().contains("$"))
+                        .filter(functionSymbol -> completionItems.addAll(populateBallerinaFunctionCompletionItems(functionSymbol, context)))
+                        .collect(Collectors.toList());
+            }
         }
         this.sort(context, node, completionItems);
         
@@ -88,5 +101,33 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
     public boolean onPreValidation(BallerinaCompletionContext context, SelectClauseNode node) {
         return !node.selectKeyword().isMissing() && 
                 context.getCursorPositionInTree() >= node.selectKeyword().textRange().startOffset();
+    }
+    
+    private List<FunctionSymbol> getLangLibMethods(BallerinaCompletionContext context) {
+
+        Types types = context.currentSemanticModel().get().types();
+        List<FunctionSymbol> langLibMethods = types.INT.langLibMethods();
+        langLibMethods.addAll(types.DECIMAL.langLibMethods());
+        langLibMethods.addAll(types.FLOAT.langLibMethods());
+        langLibMethods.addAll(types.STRING.langLibMethods());
+        langLibMethods.addAll(types.BOOLEAN.langLibMethods());
+        langLibMethods.addAll(types.ANY.langLibMethods());
+        langLibMethods.addAll(types.ANYDATA.langLibMethods());
+        langLibMethods.addAll(types.BYTE.langLibMethods());
+        langLibMethods.addAll(types.ERROR.langLibMethods());
+        langLibMethods.addAll(types.FUNCTION.langLibMethods());
+        langLibMethods.addAll(types.FUTURE.langLibMethods());
+        langLibMethods.addAll(types.HANDLE.langLibMethods());
+        langLibMethods.addAll(types.JSON.langLibMethods());
+        langLibMethods.addAll(types.NEVER.langLibMethods());
+        langLibMethods.addAll(types.NIL.langLibMethods());
+        langLibMethods.addAll(types.READONLY.langLibMethods());
+        langLibMethods.addAll(types.REGEX.langLibMethods());
+        langLibMethods.addAll(types.STREAM.langLibMethods());
+        langLibMethods.addAll(types.TYPEDESC.langLibMethods());
+        langLibMethods.addAll(types.XML.langLibMethods());
+        langLibMethods.addAll(types.COMPILATION_ERROR.langLibMethods());
+
+        return langLibMethods.stream().distinct().collect(Collectors.toList());
     }
 }
