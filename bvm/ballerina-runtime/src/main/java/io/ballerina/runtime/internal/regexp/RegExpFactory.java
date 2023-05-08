@@ -183,6 +183,11 @@ public class RegExpFactory {
         if ("&".equals(value)) {
             return createLiteralCharOrEscape("\\&");
         }
+        if (value.startsWith("\\u{") && value.endsWith("}")) {
+            int codePoint = Integer.parseInt(value.substring(3, value.length() - 1), 16);
+            char[] chars = Character.toChars(codePoint);
+            return createLiteralCharOrEscape(new String(chars));
+        }
         return charOrEscape;
     }
 
