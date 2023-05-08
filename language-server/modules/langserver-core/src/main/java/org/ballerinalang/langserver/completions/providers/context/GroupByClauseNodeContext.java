@@ -15,22 +15,31 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.GroupByClauseNode;
+import io.ballerina.compiler.syntax.tree.GroupingKeyVarDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link GroupByClauseNode} context.
  *
- * @since 2.0.0
+ * @since 2201.6.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<GroupByClauseNode> {
@@ -82,22 +91,9 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
              */
             completionItems.addAll(this.expressionCompletions(context));
         }
-//        this.sort(context, node, completionItems);
+        this.sort(context, node, completionItems);
         return completionItems;
     }
-//
-//    public static boolean isSymbolWithinNodeAndCursor(BallerinaCompletionContext context,
-//                                                      Symbol symbol, Node startNode) {
-//
-//        return symbol.getLocation()
-//                .filter(location -> startNode.textRange().startOffset() < location.textRange().startOffset())
-//                .filter(location -> location.textRange().endOffset() < context.getCursorPositionInTree())
-//                .isPresent();
-//    }
-//
-//    private boolean afterGroupByKeywords(BallerinaCompletionContext context, GroupByClauseNode node) {
-//        return true;
-//    }
 
     private boolean onBindingPatternContext(int cursorPos, Node lastNode) {
         GroupingKeyVarDeclarationNode groupingKeyVarDeclNode = (GroupingKeyVarDeclarationNode) lastNode;
@@ -116,31 +112,22 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
         return cursorPos > ((GroupingKeyVarDeclarationNode) lastNode).equalsToken().textRange().endOffset();
     }
 
+    @Override
+    public void sort(BallerinaCompletionContext context,
+                     GroupByClauseNode node,
+                     List<LSCompletionItem> completionItems) {
 
+        Optional<QueryExpressionNode> queryExprNode = SortingUtil.getTheOutermostQueryExpressionNode(node);
+        if (queryExprNode.isEmpty()) {
+            return;
+        }
+        completionItems.forEach(lsCItem -> {
+            int rank = 2;
+            if (SortingUtil.isSymbolCItemWithinNodeAndCursor(context, lsCItem, queryExprNode.get())) {
+                rank = 1;
+            }
+            lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank) +
+                    SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
+        });
+    }
 }
-
-//    @Override
-//    public void sort(BallerinaCompletionContext context,
-//                     OrderByClauseNode node,
-//                     List<LSCompletionItem> completionItems) {
-//        
-//        List<TypeDescKind> basicTypes = Arrays.asList(
-//                TypeDescKind.STRING, TypeDescKind.INT,
-//                TypeDescKind.BOOLEAN, TypeDescKind.FLOAT,
-//                TypeDescKind.DECIMAL);
-//
-//        Optional<QueryExpressionNode> queryExprNode =  SortingUtil.getTheOutermostQueryExpressionNode(node);
-//        if (queryExprNode.isEmpty()) {
-//            return;
-//        }
-//        completionItems.forEach(lsCItem -> {
-//            int rank = 3;
-//            if (SortingUtil.isSymbolCItemWithinNodeAndCursor(context, lsCItem, queryExprNode.get())) {
-//                rank = 1;
-//            } else if (CommonUtil.isCompletionItemOfType(lsCItem, basicTypes)) {
-//                rank = 2;
-//            }
-//            lsCItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank) +
-//                    SortingUtil.genSortText(SortingUtil.toRank(context, lsCItem)));
-//        });
-//    }

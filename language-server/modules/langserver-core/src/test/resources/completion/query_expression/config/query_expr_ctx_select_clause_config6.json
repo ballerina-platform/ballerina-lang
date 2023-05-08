@@ -719,6 +719,253 @@
       "filterText": "on_conflict",
       "insertText": "on conflict ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "min(int... ns)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the minimum of one or more int values.\n\n```ballerina\nint:min(45, 25, 30, 75, 50) ⇒ 25\n[int, int, int, int] points = [21, 12, 48, 14];\nint:min(...points) ⇒ 12\nint m = 23;\nm.min(12, 43, 7, 19) ⇒ 7\n```\n  \n**Params**  \n- `int[]` ns: other int values  \n  \n**Return** `int`   \n- minimum value of parameter `n` and all of parameter `ns`  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "min",
+      "insertText": "min(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "max(int... ns)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the maximum of one or more int values.\n\n```ballerina\nint:max(50, 20, 30, 70, 65) ⇒ 70\n[int, int, int] scores = [52, 95, 76];\nint:max(...scores) ⇒ 95\nint n = 18;\nn.max(25, 30, 4, 15) ⇒ 30\n```\n  \n**Params**  \n- `int[]` ns: other int values  \n  \n**Return** `int`   \n- maximum value of value of parameter `n` and all of parameter `ns`  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "max",
+      "insertText": "max(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "sum(int... ns)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns sum of zero or more int values.\n\n```ballerina\nint:sum(10, 20, 30, 40) ⇒ 100\nint[] marks = [50, 65, 78, 95];\nint:sum(...marks) ⇒ 288\nint num = 24;\nnum.sum(38, 15, 97, 27) ⇒ 201\n```\n  \n  \n  \n**Return** `int`   \n- sum of all of parameter `ns`; 0 if parameter `ns` is empty  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "sum",
+      "insertText": "sum(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "min(decimal... xs)",
+      "kind": "Function",
+      "detail": "decimal",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.decimal:0.0.0_  \n  \nReturns the minimum of one or more decimal values.\n\n```ballerina\ndecimal:min(5.2, 2.3, 3.4) ⇒ 2.3\ndecimal[] marks = [90.3, 80.5, 98, 92.3];\ndecimal:min(82.1, ...marks) ⇒ 80.5\n[decimal, decimal, decimal] scores = [7.21, 10.32, 9.2];\ndecimal:min(...scores) ⇒ 7.21\ndecimal d = 1.2;\nd.min(10.5, 21, 32.4) ⇒ 1.2\n```\n  \n**Params**  \n- `decimal[]` xs: other decimal values  \n  \n**Return** `decimal`   \n- minimum value of parameter `x` and all the parameter `xs`.  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "min",
+      "insertText": "min(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "max(decimal... xs)",
+      "kind": "Function",
+      "detail": "decimal",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.decimal:0.0.0_  \n  \nReturns the maximum of one or more decimal values.\n\n```ballerina\ndecimal:max(1.2, 12.3, 3.4) ⇒ 12.3\ndecimal[] marks = [70.3, 80.5, 98.1, 92.3];\ndecimal:max(30.5, ...marks) ⇒ 98.1\n[decimal, decimal, decimal] scores = [7.21, 10.32, 9.2];\ndecimal:max(...scores) ⇒ 10.32\ndecimal d = 21.2;\nd.max(40.5, 21, 32.4) ⇒ 40.5\n```\n  \n**Params**  \n- `decimal[]` xs: other decimal values  \n  \n**Return** `decimal`   \n- maximum value of parameter `x` and all the parameter `xs`  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "max",
+      "insertText": "max(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "sum(decimal... xs)",
+      "kind": "Function",
+      "detail": "decimal",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.decimal:0.0.0_  \n  \nReturns the sum of zero or more decimal values.\n\n```ballerina\ndecimal:sum(1.2, 2.3, 3.4) ⇒ 6.9\ndecimal[] scores = [11.1, 22.2, 33.3];\ndecimal:sum(...scores) ⇒ 66.6\n[decimal, decimal, decimal] marks = [7.21, 10.32, 9.2];\ndecimal:sum(...marks) ⇒ 26.73\ndecimal d = 21.2;\nd.sum(10.5, 21, 32.4) ⇒ 85.1\n```\n  \n  \n  \n**Return** `decimal`   \n- sum of all the parameter `xs`; 0 if parameter `xs` is empty  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "sum",
+      "insertText": "sum(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "sum(float... xs)",
+      "kind": "Function",
+      "detail": "float",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.float:0.0.0_  \n  \nReturns the sum of zero or more float values.\n\nResult is NaN if any arg is NaN\n\n```ballerina\nfloat:sum(1.2, 2.3, 3.4) ⇒ 6.9\nfloat[] scores = [11.1, 22.2, 33.3];\nfloat:sum(...scores) ⇒ 66.6\nfloat f = 21.2;\nf.sum(10.5, 21, 32.4) ⇒ 85.1\nfloat:sum(float:NaN, 2.3, 3.4) ⇒ NaN\n```\n  \n  \n  \n**Return** `float`   \n- sum of all of parameter `xs`, +0.0 if parameter `xs` is empty  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "sum",
+      "insertText": "sum(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "min(float... xs)",
+      "kind": "Function",
+      "detail": "float",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.float:0.0.0_  \n  \nReturns the minimum of zero or more float values.\n\nResult is +∞ if no args\nResult is NaN if any arg is NaN\n\n```ballerina\nfloat:min(5.2, 2.3, 3.4) ⇒ 2.3\nfloat[] marks = [90.3, 80.5, 98, 92.3];\nfloat:min(...marks) ⇒ 80.5\nfloat f = 1.2;\nf.min(10.5, 21, 32.4) ⇒ 1.2\nfloat:min() ⇒ Infinity\nfloat:min(5.2, float:NaN, 3.4) ⇒ NaN\n```\n  \n  \n  \n**Return** `float`   \n- minimum value of all of parameter `xs`  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "min",
+      "insertText": "min(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "max(float... xs)",
+      "kind": "Function",
+      "detail": "float",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.float:0.0.0_  \n  \nReturns the maximum of zero or more float values.\n\nResult is -∞ if no args\nNaN if any arg is NaN\n\n```ballerina\nfloat:max(1.2, 12.3, 3.4) ⇒ 12.3\nfloat[] marks = [70.3, 80.5, 98.1, 92.3];\nfloat:max(...marks) ⇒ 98.1\nfloat f = 21.2;\nf.max(40.5, 21, 32.4) ⇒ 40.5\nfloat:max() ⇒ -Infinity\nfloat:max(1.2, float:NaN, 3.4) ⇒ NaN\n```\n  \n  \n  \n**Return** `float`   \n- maximum value of all of parameter `xs`  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "max",
+      "insertText": "max(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "'join(string... strs)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nJoins zero or more strings together with a separator.\n\n```ballerina\nstring:'join(\" \", \"Ballerina\", \"is\", \"a\", \"programming\", \"language\") ⇒ Ballerina is a programming language\nstring[] array = [\"John\", \"23\", \"USA\", \"Computer Science\", \"Swimmer\"];\nstring:'join(\",\", ...array) ⇒ John,23,USA,Computer Science,Swimmer\n```\n  \n**Params**  \n- `string[]` strs: strings to be joined  \n  \n**Return** `string`   \n- a string consisting of all of parameter `strs` concatenated in order  \nwith parameter `separator` in between them  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "'join",
+      "insertText": "'join(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "concat(string... strs)",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.string:0.0.0_  \n  \nConcatenates zero or more strings.\n\n```ballerina\n\"http://worldtimeapi.org\".concat(\"/api/timezone/\", \"Asia\", \"/\", \"Colombo\") ⇒ http://worldtimeapi.org/api/timezone/Asia/Colombo\n// Alternative approach to achieve the same.\nstring:concat(\"http://worldtimeapi.org\", \"/api/timezone/\", \"Asia\", \"/\", \"Colombo\") ⇒ http://worldtimeapi.org/api/timezone/Asia/Colombo\n```\n  \n  \n  \n**Return** `string`   \n- concatenation of all of the parameter `strs`; empty string if parameter `strs` is empty  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "concat",
+      "insertText": "concat(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "some(boolean... bs)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.boolean:0.0.0_  \n  \nReturns true if one or more of its arguments are true and false otherwise.\nIn particular, it returns false if there are no arguments.\n\n```ballerina\nboolean:some(true, false) ⇒ true\nboolean:some(false, false) ⇒ false\nboolean:some() ⇒ false\n```\n  \n  \n  \n**Return** `boolean`   \n- true if one or more of its arguments are true and false otherwise  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "some",
+      "insertText": "some(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "every(boolean... bs)",
+      "kind": "Function",
+      "detail": "boolean",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.boolean:0.0.0_  \n  \nReturns true if all of its arguments are true and false otherwise.\nIn particular, it returns true if there are no arguments.\n\n```ballerina\nboolean:every(true, false) ⇒ false\nboolean:every(true, true) ⇒ true\nboolean:every() ⇒ true    \n```\n  \n  \n  \n**Return** `boolean`   \n- true if all of its arguments are true and false otherwise  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "every",
+      "insertText": "every(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }
