@@ -487,7 +487,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
             }
         }
-        typeResolver.cleanup();
+        typeResolver.clearUnknowTypeRefs();
     }
 
     public void populateTypeToTypeDefMap(List<BLangNode> typeDefNodes) {

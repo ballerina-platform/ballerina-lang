@@ -188,10 +188,13 @@ public class TypeResolver {
         this.unknownTypeRefs = new HashSet<>();
     }
 
-    public void cleanup() {
+    public void clearUnknowTypeRefs() {
+        unknownTypeRefs.clear();
+    }
+
+    private void clear() {
         modTable.clear();
         constantMap.clear();
-        unknownTypeRefs.clear();
         resolvingTypeDefinitions.clear();
         resolvedConstants.clear();
         resolvingConstants.clear();
@@ -238,6 +241,7 @@ public class TypeResolver {
                 handleDistinctDefinitionOfErrorIntersection(typeDefinition, type);
             }
         }
+        clear();
     }
 
     private BType extracted(SymbolEnv pkgEnv, Map<String, BLangNode> modTable, BLangClassDefinition classDefinition) {

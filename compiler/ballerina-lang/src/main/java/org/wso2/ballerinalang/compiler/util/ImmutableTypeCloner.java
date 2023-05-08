@@ -108,7 +108,6 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
 public class ImmutableTypeCloner {
 
     private static final String AND_READONLY_SUFFIX = " & readonly";
-    private static HashSet<BType> visitedImmutableTypes = new HashSet<>();
 
     public static BType getEffectiveImmutableType(Location pos, Types types,
                                                   BType type, SymbolEnv env,
@@ -923,6 +922,7 @@ public class ImmutableTypeCloner {
         private PackageID pkgID;
         private BLangNode typeNode;
         private SymbolEnv env;
+        private HashSet<BType> visitedImmutableTypes = new HashSet<>();
 
         public UpdateImmutableType(CompilerContext context) {
             context.put(UPDATE_IMMUTABLE_TYPE_KEY, this);
