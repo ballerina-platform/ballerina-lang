@@ -768,8 +768,8 @@ public class JvmPackageGen {
         // create imported modules flat list
         List<PackageID> flattenedModuleImports = flattenModuleImports(moduleImports);
 
-        BIRFunction mainFunc = getFunction(module, MAIN_METHOD);
-        BIRFunction testExecuteFunc = getFunction(module, TEST_EXECUTE_METHOD);
+        BIRFunction mainFunc = getMainFunction(module);
+        BIRFunction testExecuteFunc = getTestExecuteFunction(module);
 
         // enrich current package with package initializers
         initMethodGen.enrichPkgWithInitializers(birFunctionMap, jvmClassMapping, moduleInitClass, module,
@@ -812,14 +812,28 @@ public class JvmPackageGen {
         return new CompiledJarFile(getModuleLevelClassName(module.packageID, MODULE_INIT_CLASS_NAME, "."), jarEntries);
     }
 
+    private BIRFunction getMainFunction(BIRPackage module) {
+        BIRFunction mainFunc = null;
+        if (module.packageID.skipTests) {
+            mainFunc = getFunction(module, MAIN_METHOD);
+        }
+        return mainFunc;
+    }
+
+    private BIRFunction getTestExecuteFunction(BIRPackage module) {
+        BIRFunction testExecuteFunc = null;
+        if (!module.packageID.skipTests) {
+            testExecuteFunc = getFunction(module, TEST_EXECUTE_METHOD);
+        }
+        return testExecuteFunc;
+    }
+
     private BIRFunction getFunction(BIRPackage module, String funcName) {
         BIRFunction function = null;
-        if (module.packageID.skipTests) {
-            for (BIRFunction birFunc : module.functions) {
-                if (birFunc.name.value.equals(funcName)) {
-                    function = birFunc;
-                    break;
-                }
+        for (BIRFunction birFunc : module.functions) {
+            if (birFunc.name.value.equals(funcName)) {
+                function = birFunc;
+                break;
             }
         }
         return function;
