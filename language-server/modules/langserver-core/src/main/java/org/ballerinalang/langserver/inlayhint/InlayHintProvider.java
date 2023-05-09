@@ -51,31 +51,30 @@ import java.util.stream.Collectors;
  */
 public class InlayHintProvider {
     public static List<InlayHint> getInlayHint(InlayHintContext context) {
-        InlayHintMethodTypeFinder inlayHintMethodFinder = new InlayHintMethodTypeFinder();
         if (context.currentDocument().isEmpty()) {
             return Collections.emptyList();
         }
+        InvokableNodeFinder invokableNodeFinder = new InvokableNodeFinder();
         Node rootNode = context.currentDocument().get().syntaxTree().rootNode();
-        rootNode.accept(inlayHintMethodFinder);
+        rootNode.accept(invokableNodeFinder);
 
         // Get the method name list
-        List<NonTerminalNode> methodNameList = inlayHintMethodFinder.getMethodNameList();
+        List<NonTerminalNode> invokableNodeList = invokableNodeFinder.getInvokableNodeList();
         List<InlayHint> inlayHints = new ArrayList<>();
 
-        for (NonTerminalNode node : methodNameList) {
+        for (NonTerminalNode node : invokableNodeList) {
             InlayHintArgumentTypeFinder argumentTypeFinder = new InlayHintArgumentTypeFinder();
             node.accept(argumentTypeFinder);
 
             // Get the argument list
             List<NonTerminalNode> argList = argumentTypeFinder.getArgumentList();
+            if (argList.isEmpty()) {
+                return Collections.emptyList();
+            }
             List<LineRange> commaList = argumentTypeFinder.getCommaList();
-
             List<ParameterSymbol> parameterSymbols = getParameterSymbols(context, node);
 
             for (int i = 0; i < commaList.size(); i++) {
-                if (argList.isEmpty()) {
-                    continue;
-                }
                 LineRange lineRange = commaList.get(i);
                 int startLine = lineRange.endLine().line();
                 int startChar = lineRange.endLine().offset();
@@ -116,10 +115,31 @@ public class InlayHintProvider {
         LineRange lineRange = node.lineRange();
         List<Symbol> visibleSymbols = context.visibleSymbols(new Position(
                 lineRange.startLine().line(), lineRange.startLine().offset()));
+        List<FunctionSymbol> functionSymbols = new ArrayList<>();
 
-        List<ParameterSymbol> parameterSymbols = visibleSymbols.stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION)
-                .map(symbol -> (FunctionSymbol) symbol)
+        for (Node child : node.children()) {
+            if (child.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                functionSymbols = visibleSymbols.stream()
+                        .filter(symbol -> symbol.kind() == SymbolKind.MODULE)
+                        .map(symbol -> (ModuleSymbol) symbol)
+                        .filter(moduleSymbol -> moduleSymbol.getName().isPresent())
+                        .filter(moduleSymbol -> moduleSymbol.getName().get().equals(
+                                ((QualifiedNameReferenceNode) child).modulePrefix().toString().strip()))
+                        .findFirst()
+                        .map(ModuleSymbol::functions)
+                        .orElse(Collections.emptyList());
+                break;
+            }
+        }
+
+        if (functionSymbols.isEmpty()) {
+            functionSymbols = visibleSymbols.stream()
+                    .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION)
+                    .map(symbol -> (FunctionSymbol) symbol).collect(Collectors.toList());
+        }
+
+        return functionSymbols.stream()
+                .filter(functionSymbol -> functionSymbol.getName().isPresent())
                 .filter(functionSymbol -> functionSymbol.getName().get().equals(
                         node.functionName().toString().strip()))
                 .map(functionSymbol -> SymbolUtil.getTypeDescriptor(functionSymbol).get())
@@ -129,61 +149,37 @@ public class InlayHintProvider {
                 .map(functionTypeSymbol -> functionTypeSymbol.params().get())
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
-
-        for (Node child : node.children()) {
-            if (child.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                parameterSymbols = visibleSymbols.stream()
-                        .filter(symbol -> symbol.kind() == SymbolKind.MODULE)
-                        .map(symbol -> (ModuleSymbol) symbol)
-                        .filter(moduleSymbol -> moduleSymbol.getName().get().equals(
-                                ((QualifiedNameReferenceNode) child).modulePrefix().toString().strip()))
-                        .map(moduleSymbol -> moduleSymbol.functions().stream()
-                                .filter(functionSymbol -> functionSymbol.getName().get()
-                                        .equals(((QualifiedNameReferenceNode) child).identifier().text()))
-                                .map(functionSymbol -> SymbolUtil.getTypeDescriptor(functionSymbol).get())
-                                .filter(typeDescriptor -> typeDescriptor instanceof FunctionTypeSymbol)
-                                .map(typeDescriptor -> (FunctionTypeSymbol) typeDescriptor)
-                                .filter(functionTypeSymbol -> functionTypeSymbol.params().isPresent())
-                                .map(functionTypeSymbol -> functionTypeSymbol.params().get())
-                                .flatMap(Collection::stream)
-                                .collect(Collectors.toList()))
-                        .flatMap(Collection::stream)
-                        .collect(Collectors.toList());
-            }
-        }
-        return parameterSymbols;
     }
 
     /**
      * Visitor to find function call and method call expression nodes.
      */
-    public static class InlayHintMethodTypeFinder extends NodeVisitor {
-        List<NonTerminalNode> methodNameList = new ArrayList<>();
+    private static class InvokableNodeFinder extends NodeVisitor {
+        List<NonTerminalNode> invokableNodeList = new ArrayList<>();
 
-        public InlayHintMethodTypeFinder() {
+        public InvokableNodeFinder() {
         }
 
-        public List<NonTerminalNode> getMethodNameList() {
-            return methodNameList;
+        public List<NonTerminalNode> getInvokableNodeList() {
+            return invokableNodeList;
         }
 
         @Override
         public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
-            methodNameList.add(functionCallExpressionNode);
+            invokableNodeList.add(functionCallExpressionNode);
         }
 
         @Override
         public void visit(MethodCallExpressionNode methodCallExpressionNode) {
-            methodNameList.add(methodCallExpressionNode);
+            invokableNodeList.add(methodCallExpressionNode);
         }
     }
 
     /**
      * Visitor to find argument list and comma list of a function call or method call expression node.
      */
-    public static class InlayHintArgumentTypeFinder extends NodeVisitor {
+    private static class InlayHintArgumentTypeFinder extends NodeVisitor {
         List<NonTerminalNode> argumentList = new ArrayList<>();
-
         List<LineRange> commaList = new ArrayList<>();
 
         public InlayHintArgumentTypeFinder() {
