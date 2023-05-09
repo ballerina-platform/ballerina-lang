@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
 
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -39,7 +40,7 @@ import java.util.Map.Entry;
  * 
  * @since 0.995.0
  */
-public class JSONGenerator {
+public class JSONGenerator implements Closeable {
 
     private static final int DEFAULT_DEPTH = 10;
 
@@ -269,6 +270,10 @@ public class JSONGenerator {
 
     public void flush() throws IOException {
         this.writer.flush();
+    }
+
+    public void close() throws IOException {
+        this.writer.close();
     }
 
     @SuppressWarnings("unchecked")
