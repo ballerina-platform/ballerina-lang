@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
@@ -450,7 +451,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         refs.put(this, newMap);
         for (Map.Entry<K, V> entry : this.entrySet()) {
             V value = entry.getValue();
-            value = value instanceof RefValue ? (V) ((RefValue) value).copy(refs) : value;
+            value = value instanceof BRefValue ? (V) ((BRefValue) value).copy(refs) : value;
             newMap.put(entry.getKey(), value);
         }
         return newMap;
@@ -528,8 +529,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         this.referredType = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.referredType);
 
         this.values().forEach(val -> {
-            if (val instanceof RefValue) {
-                ((RefValue) val).freezeDirect();
+            if (val instanceof BRefValue) {
+                ((BRefValue) val).freezeDirect();
             }
         });
         this.typedesc = null;

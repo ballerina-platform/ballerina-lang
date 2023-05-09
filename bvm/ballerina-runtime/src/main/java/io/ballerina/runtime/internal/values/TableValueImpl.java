@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.CycleUtils;
@@ -181,7 +182,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         while (itr.hasNext()) {
             TupleValueImpl tupleValue = (TupleValueImpl) itr.next();
             Object value = tupleValue.get(1);
-            value = value instanceof RefValue ? ((RefValue) value).copy(refs) : value;
+            value = value instanceof BRefValue ? ((BRefValue) value).copy(refs) : value;
             clone.add((V) value);
         }
 
@@ -374,8 +375,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         this.tableType = (BTableType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.tableType);
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
 
-        //we know that values are always RefValues
-        this.values().forEach(val -> ((RefValue) val).freezeDirect());
+        //we know that values are always BRefValues
+        this.values().forEach(val -> ((BRefValue) val).freezeDirect());
         this.typedesc = null;
     }
 

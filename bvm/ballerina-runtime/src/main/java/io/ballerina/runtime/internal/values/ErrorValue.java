@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
@@ -258,8 +259,8 @@ public class ErrorValue extends BError implements RefValue {
      * @return detail record
      */
     public Object getDetails() {
-        if (details instanceof RefValue) {
-            return ((RefValue) details).frozenCopy(new HashMap<>());
+        if (details instanceof BRefValue) {
+            return ((BRefValue) details).frozenCopy(new HashMap<>());
         }
         return details;
     }
