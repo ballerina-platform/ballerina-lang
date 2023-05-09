@@ -56,7 +56,8 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
         SeparatedNodeList<Node> groupingKey = node.groupingKey();
         Node lastNode = groupingKey.get(groupingKey.separatorSize());
 
-        if (lastNode.kind() != SyntaxKind.GROUPING_KEY_VAR_DECLARATION || this.onBindingPatternContext(cursor, lastNode)) {
+        if (lastNode.kind() != SyntaxKind.GROUPING_KEY_VAR_DECLARATION 
+                || this.onBindingPatternContext(cursor, lastNode)) {
             /*
             Covers the case where the cursor is within the binding pattern context.
             Eg:

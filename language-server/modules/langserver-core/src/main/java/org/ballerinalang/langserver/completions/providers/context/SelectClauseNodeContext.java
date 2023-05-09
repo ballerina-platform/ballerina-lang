@@ -18,7 +18,12 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.syntax.tree.*;
+import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
+import io.ballerina.compiler.syntax.tree.SelectClauseNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -31,7 +36,6 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -65,9 +69,10 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
             if (containsGroupByNode(node)) {
                 List<FunctionSymbol> functionSymbols = getLangLibMethods(context);
                 functionSymbols.stream()
-                        .filter(functionSymbol -> functionSymbol.typeDescriptor().restParam().isPresent())
-                        .filter(functionSymbol -> functionSymbol.getName().isPresent() && !functionSymbol.getName().get().contains("$"))
-                        .filter(functionSymbol -> completionItems.addAll(populateBallerinaFunctionCompletionItems(functionSymbol, context)))
+                        .filter(symbol -> symbol.typeDescriptor().restParam().isPresent())
+                        .filter(symbol -> symbol.getName().isPresent() && !symbol.getName().get().contains("$"))
+                        .filter(symbol -> completionItems
+                                .addAll(populateBallerinaFunctionCompletionItems(symbol, context)))
                         .collect(Collectors.toList());
             }
         }
