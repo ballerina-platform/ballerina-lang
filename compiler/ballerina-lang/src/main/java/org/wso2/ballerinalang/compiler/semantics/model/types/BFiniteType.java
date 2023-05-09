@@ -44,7 +44,7 @@ public class BFiniteType extends BType implements FiniteType {
 
 
     public BFiniteType(BTypeSymbol tsymbol) {
-        this(tsymbol, new LinkedHashSet<>());
+        this(tsymbol, new LinkedHashSet<>(), null);
     }
 
     public BFiniteType(BTypeSymbol tsymbol, Set<BLangExpression> valueSpace) {

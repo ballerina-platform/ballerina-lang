@@ -443,17 +443,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
         classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
         if (this.semtypeEnabled) {
-            try {
-                defineSemTypesSubset(typeAndClassDefs, pkgEnv);
-            } catch (UnsupportedOperationException e) {
-                // Do nothing
-                // TODO: semType: remove once all types are implemented.
-            }
+            // We may need to move this next to defineTypeNodes() to support constants
+            defineSemTypesSubset(typeAndClassDefs, pkgEnv);
         }
         defineTypeNodes(typeAndClassDefs, pkgEnv);
         if (this.semtypeTest) {
             defineSemTypes(typeAndClassDefs, pkgEnv);
-
         }
 
         // Enabled logging errors after type def visit.
@@ -574,8 +569,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (depth == defn.cycleDepth) {
-            // TODO: semType: enable once all types are supported
-//            dlog.error(defn.pos, DiagnosticErrorCode.INVALID_TYPE_CYCLE, defn.name);
+            // TODO: semType: enable error log once all types are supported
+            // dlog.error(defn.pos, DiagnosticErrorCode.INVALID_TYPE_CYCLE, defn.name);
             return null;
         }
         defn.cycleDepth = depth;
@@ -648,7 +643,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BLangNode moduleLevelDef = mod.get(name);
         if (moduleLevelDef == null) {
-            dlog.error(td.pos, DiagnosticErrorCode.REFERENCE_TO_UNDEFINED_TYPE, td.typeName);
+            // TODO: semType: enable once implementation is complete
+            // dlog.error(td.pos, DiagnosticErrorCode.REFERENCE_TO_UNDEFINED_TYPE, td.typeName);
             throw new UnsupportedOperationException("Reference to undefined type: " + name);
         }
 
@@ -909,7 +905,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             case "Unsigned32":
                 return SemTypes.UINT32;
             default:
-                throw new IllegalStateException("Unknown int subtype: " + name);
+                // TODO: semtype: support MAX_VALUE
+                throw new UnsupportedOperationException("Unknown int subtype: " + name);
         }
     }
 
