@@ -54,10 +54,14 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
         List<LSCompletionItem> completionItems = new ArrayList<>();
         int cursor = context.getCursorPositionInTree();
         SeparatedNodeList<Node> groupingKey = node.groupingKey();
-        Node lastNode = groupingKey.get(groupingKey.separatorSize());
+        Node groupingKeyNode = groupingKey.get(groupingKey.separatorSize());
 
-        if (lastNode.kind() != SyntaxKind.GROUPING_KEY_VAR_DECLARATION 
-                || this.onBindingPatternContext(cursor, lastNode)) {
+        if (groupingKeyNode.kind() != SyntaxKind.GROUPING_KEY_VAR_DECLARATION) {
+            return completionItems;
+        }
+        
+        GroupingKeyVarDeclarationNode groupingKeyVarDeclNode = (GroupingKeyVarDeclarationNode) groupingKeyNode;
+        if (this.onBindingPatternContext(cursor, groupingKeyVarDeclNode)) {
             /*
             Covers the case where the cursor is within the binding pattern context.
             Eg:
@@ -67,9 +71,7 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
             In these cases no suggestions are provided
              */
             return completionItems;
-        }
-        
-        if (this.onTypedBindingPatternContext(cursor, lastNode)) {
+        } else if (this.onTypedBindingPatternContext(cursor, groupingKeyVarDeclNode)) {
             /*
             Covers the case where the cursor is within the typed binding pattern context.
             Eg:
@@ -84,7 +86,7 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
             }
             completionItems.addAll(this.expressionCompletions(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
-        } else if (this.onExpressionContext(cursor, lastNode)) {
+        } else if (this.onExpressionContext(cursor, groupingKeyVarDeclNode)) {
             /*
             Covers the case where the cursor is within the expression context.
             Eg:
@@ -96,21 +98,20 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
         return completionItems;
     }
 
-    private boolean onBindingPatternContext(int cursorPos, Node lastNode) {
-        GroupingKeyVarDeclarationNode groupingKeyVarDeclNode = (GroupingKeyVarDeclarationNode) lastNode;
-        return cursorPos >= groupingKeyVarDeclNode.simpleBindingPattern().textRange().startOffset()
-                && cursorPos < groupingKeyVarDeclNode.equalsToken().textRange().startOffset();
+    private boolean onBindingPatternContext(int cursor, GroupingKeyVarDeclarationNode node) {
+        return cursor >= node.simpleBindingPattern().textRange().startOffset()
+                && cursor < node.equalsToken().textRange().startOffset();
     }
 
-    private boolean onTypedBindingPatternContext(int cursorPos, Node lastNode) {
-        TypeDescriptorNode typeDescriptorNode = ((GroupingKeyVarDeclarationNode) lastNode).typeDescriptor();
-        return cursorPos < typeDescriptorNode.textRange().startOffset() ||
-                cursorPos >= typeDescriptorNode.textRange().startOffset()
-                        && cursorPos <= typeDescriptorNode.textRange().endOffset();
+    private boolean onTypedBindingPatternContext(int cursor, GroupingKeyVarDeclarationNode node) {
+        TypeDescriptorNode typeDescriptorNode = node.typeDescriptor();
+        return cursor < typeDescriptorNode.textRange().startOffset() ||
+                cursor >= typeDescriptorNode.textRange().startOffset()
+                        && cursor <= typeDescriptorNode.textRange().endOffset();
     }
 
-    private boolean onExpressionContext(int cursorPos, Node lastNode) {
-        return cursorPos > ((GroupingKeyVarDeclarationNode) lastNode).equalsToken().textRange().endOffset();
+    private boolean onExpressionContext(int cursor, GroupingKeyVarDeclarationNode node) {
+        return cursor > node.equalsToken().textRange().endOffset();
     }
 
     @Override
