@@ -12375,6 +12375,7 @@ public class BallerinaParser extends AbstractParser {
     private boolean isQueryClauseStartToken(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case SELECT_KEYWORD:
+            case COLLECT_KEYWORD:
             case LET_KEYWORD:
             case WHERE_KEYWORD:
             case OUTER_KEYWORD:

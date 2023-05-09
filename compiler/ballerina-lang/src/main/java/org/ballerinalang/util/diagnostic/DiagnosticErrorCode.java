@@ -806,8 +806,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCS4047", "seq.var.used.in.single.element.list.ctr.or.func.invocation"),
     SEQ_ARG_FOLLOWED_BY_ANOTHER_SEQ_ARG("BCS4048", "seq.arg.followed.by.another.seq.arg"),
 
-    QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT(
-            "BCS4049", "query.construct.types.cannot.be.used.with.collect")
+    QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT("BCS4049", "query.construct.types.cannot.be.used.with.collect"),
+    VARIABLE_IS_SEQUENCED_MORE_THAN_ONCE("BCS4050", "variable.is.sequenced.more.than.once")
     ;
 
     private String diagnosticId;

@@ -932,7 +932,8 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys7() {
     var res3 = from var {name, price1, price2} in input
                 group by var _ = true
                 select min(price1) + min(price2);
-    assertEquality([19], res3);
+    assertEquality([19], res3);// TODO: from var {name: namex, price1, price2} group by namex
+
 }
 
 function testEmptyGroups() {
@@ -946,7 +947,7 @@ function testEmptyGroups() {
     var res1 = from var {name, price1, price2} in input
                 where name == "No name"
                 group by var _ = true 
-                select avg(price1);   
+                select avg(price1);
     assertEquality([], res1);
     var res2 = from var {name, price1, price2} in input
                 where name == "No name"
@@ -972,11 +973,45 @@ function testEmptyGroups() {
     assertEquality("", res5);   
 }
 
+function testGroupByExpressionAndSelectWithNonGroupingKeys9() {
+    var input = [
+        {name: "Saman", mathematics: 85, science: 70, quarter: "Q1"},
+        {name: "Kamal", mathematics: 85, science: 70, quarter: "Q1"},
+        {name: "Amal", mathematics: 85, science: 70, quarter: "Q1"},
+        {name: "Saman", mathematics: 85, science: 70, quarter: "Q2"},
+        {name: "Kamal", mathematics: 85, science: 70, quarter: "Q2"},
+        {name: "Amal", mathematics: 85, science: 70, quarter: "Q2"},
+        {name: "Saman", mathematics: 85, science: 70, quarter: "Q3"},
+        {name: "Kamal", mathematics: 85, science: 70, quarter: "Q3"},
+        {name: "Amal", mathematics: 85, science: 70, quarter: "Q3"},
+        {name: "Saman", mathematics: 85, science: 70, quarter: "Q4"},
+        {name: "Kamal", mathematics: 85, science: 70, quarter: "Q4"},
+        {name: "Amal", mathematics: 85, science: 70, quarter: "Q4"}
+    ];
+
+    var yearlyAvg = from var {name, mathematics, science} in input
+        group by name
+        select {name: name, mathematicsAvg: int:avg(mathematics), scienceAvg: avg(science)};
+    assertEquality([
+        {"name": "Saman", "mathematicsAvg": 85d, "scienceAvg": 70d},
+        {"name": "Kamal", "mathematicsAvg": 85d, "scienceAvg": 70d},
+        {"name": "Amal", "mathematicsAvg": 85d, "scienceAvg": 70d}
+    ], yearlyAvg);
+
+    var quarterlyMin = from var {mathematics, science, quarter} in input
+        group by quarter
+        select {quarter: quarter, mathematicsMin: min(mathematics), minScience: min(science)};
+    assertEquality([
+        {"quarter": "Q1", "mathematicsMin": 85, "minScience": 70},
+        {"quarter": "Q2", "mathematicsMin": 85, "minScience": 70},
+        {"quarter": "Q3", "mathematicsMin": 85, "minScience": 70},
+        {"quarter": "Q4", "mathematicsMin": 85, "minScience": 70}
+    ], quarterlyMin);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
     }
     panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }
-
-// TODO: select avg(price), select min(price)

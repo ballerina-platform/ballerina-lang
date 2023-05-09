@@ -1016,6 +1016,10 @@ public class QueryTypeChecker extends TypeChecker {
                             DiagnosticErrorCode.
                                     SEQUENCE_VARIABLE_CAN_BE_USED_IN_SINGLE_ELEMENT_LIST_CTR_OR_FUNC_INVOCATION);
                 }
+                if (actualType.tag == TypeTags.SEQUENCE
+                        && ((BSequenceType) actualType).elementType.tag == TypeTags.SEQUENCE) {
+                    dlog.error(varRefExpr.pos, DiagnosticErrorCode.VARIABLE_IS_SEQUENCED_MORE_THAN_ONCE, varName);
+                }
             } else if ((symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
                 actualType = symbol.type.tag == TypeTags.TYPEDESC ? symbol.type : new BTypedescType(symbol.type, null);
                 varRefExpr.symbol = symbol;

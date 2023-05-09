@@ -109,6 +109,25 @@ function testInvalidFunctionInvocations1() {
                 collect [foo(salary)]; // error
 }
 
+function testVariablesSeqMoreThanOnce() {
+    var input1 = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 9},
+                    {name: "Amal", price1: 11, price2: 13},
+                    {name: "Amal", price1: 11, price2: 15}];
+    
+    var x1 = from var {name, price1, price2} in input1
+                group by name
+                collect [price1]; // error
+
+    var x2 = from var {name, price1, price2} in input1
+                group by name
+                group by var p1 = [price1]
+                collect string:'join("_", name); // error
+}
+
 // function testInvalidArgOrder() {
 //     int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
 //                 collect int:sum(salary, bonus); // error

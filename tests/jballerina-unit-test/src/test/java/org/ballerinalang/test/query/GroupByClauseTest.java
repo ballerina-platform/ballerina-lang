@@ -193,7 +193,8 @@ public class GroupByClauseTest {
                 "testGroupByExpressionAndSelectWithNonGroupingKeys6",
                 "testGroupByExpressionAndSelectWithNonGroupingKeys7",
                 "testEmptyGroups",
-                "testGroupByExpressionAndSelectWithNonGroupingKeys8"
+                "testGroupByExpressionAndSelectWithNonGroupingKeys8",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys9"
         };
     }
 

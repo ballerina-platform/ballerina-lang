@@ -48,10 +48,11 @@ public class CollectClauseTest {
 
     @DataProvider
     public Object[] dataToTestCollectClause() {
-        return new Object[] {
-            "testListConstructor",
-            "testInvocation",
-            "testEmptyGroups"
+        return new Object[]{
+                "testListConstructor",
+                "testInvocation",
+                "testEmptyGroups",
+                "testGroupByAndCollectInSameQuery"
         };
     }
 
@@ -65,8 +66,7 @@ public class CollectClauseTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', found 'int'", 28, 29);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', found 'seq string'",
                 33, 33);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'seq string'",
-                35, 45);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 35, 45);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string[]', found 'seq int'",
                 37, 39);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string[]', found 'seq int'",
@@ -116,6 +116,9 @@ public class CollectClauseTest {
                 " contain aggregated variable", 107, 25);
         BAssertUtil.validateError(negativeResult, i++, "user defined functions are not allowed when arguments" +
                 " contain aggregated variable", 109, 26);
+        BAssertUtil.validateError(negativeResult, i++, "'price1' is sequenced more than once", 123, 26);
+        BAssertUtil.validateError(negativeResult, i++, "'name' is sequenced more than once", 128, 43);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string[]', found 'seq seq string'", 128, 43);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 }

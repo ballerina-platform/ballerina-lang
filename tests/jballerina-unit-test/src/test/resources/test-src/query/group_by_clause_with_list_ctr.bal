@@ -2170,22 +2170,5 @@ function assertEquality(anydata expected, anydata actual) {
 
 // TODO: Add test cases readonly types
 // TODO: Add tests to empty groups
-// TODO: 2nd from clause uses seq vars of first from clause
-// TODO: multiple grouping keys
-// TODO: string langlib function tests ex: join
-// TODO: tests with multiple group by
-// TODO:                 group by name
-                // group by var x = [price]
-// TODO:                 group by name
-                // let var x = [price]
-                // group by var y = x[0]
 // TODO: use a client
-// TODO: optional fiels in input
-// TODO: from var {name: namex, price1, price2} group by namex
-// TODO: 2nd from clause uses seq vars of first from clause
-// TODO: optional fiels in input
-// TODO: from var {name: namex, price1, price2} group by namex
-// from var {name, maths, science} in input
-// group by name
-// select {name: name, maths: avg:(maths), science: avg:(science)}
 // TODO: xml langlib function
