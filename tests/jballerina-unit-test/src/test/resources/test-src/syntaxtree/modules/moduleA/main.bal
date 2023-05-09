@@ -29,7 +29,6 @@ public class Examiner {
 
     public function getName() returns string {
         return self.name;
-
     }
 
     public function getQualification() returns string {
