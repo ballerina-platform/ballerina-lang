@@ -4970,7 +4970,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 isOptionalFloatOrDecimal(referredExpType)) {
             lhsType = checkAndGetType(binaryExpr.lhsExpr, data.env, binaryExpr, data);
         } else {
-            lhsType = checkExpr(binaryExpr.lhsExpr, data);
+            lhsType = checkOperandTypeForAdditiveExpressions(binaryExpr.lhsExpr,
+                    binaryExpr.expectedType, data.env, data);
         }
 
         if (binaryExpr.opKind == OperatorKind.AND) {
@@ -4988,13 +4989,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             rhsType = checkAndGetType(binaryExpr.rhsExpr, rhsExprEnv, binaryExpr, data);
         } else {
             if (binaryExpr.opKind == OperatorKind.ADD) {
-                BType silentType = checkExprSilent(nodeCloner
-                        .cloneNode(binaryExpr.rhsExpr), binaryExpr.expectedType, data);
-                if (silentType.tag == TypeTags.SEMANTIC_ERROR) {
-                    rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv, data);
-                } else {
-                    rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv, binaryExpr.expectedType, data);
-                }
+                rhsType = checkOperandTypeForAdditiveExpressions(binaryExpr.rhsExpr,
+                        binaryExpr.expectedType, rhsExprEnv, data);
             } else {
                 rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv, data);
             }
@@ -5063,6 +5059,23 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         data.resultType = types.checkType(binaryExpr, actualType, data.expType);
+    }
+
+    private BType checkOperandTypeForAdditiveExpressions(BLangExpression expression, BType expectedType,
+                                                        SymbolEnv exprEnv, AnalyzerData data) {
+        BType expressionType;
+        BType silentType = checkExprSilent(nodeCloner
+                .cloneNode(expression), expectedType, data);
+        if (TypeTags.isIntegerTypeTag(silentType.tag)
+                || silentType.tag == TypeTags.DECIMAL
+                || silentType.tag == TypeTags.FLOAT
+                || TypeTags.isStringTypeTag(silentType.tag)
+                || TypeTags.isXMLTypeTag(silentType.tag)) {
+            expressionType = checkExpr(expression, exprEnv, silentType, data);
+        } else {
+            expressionType = checkExpr(expression, exprEnv, data);
+        }
+        return expressionType;
     }
 
     private boolean isOptionalFloatOrDecimal(BType expectedType) {
