@@ -531,7 +531,7 @@ function testFromStringOnRegExpNegative() {
     x1 = s.fromBalString();
     assert(x1 is error, true);
     assert("{ballerina/lang.value}FromBalStringError", (<error>x1).message());
-    assert("Failed to parse regular expression: invalid character 'p' after backslash in 'AB\\pCD'",
+    assert("Failed to parse regular expression: missing open brace '{' token in 'AB\\pCD'",
         <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "re `AB\\uCD`";

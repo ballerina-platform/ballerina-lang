@@ -734,7 +734,7 @@ function testFromJsonWithTypeOnRegExpNegative() {
     x1 = s.fromJsonWithType(RegExpType);
     assert(x1 is error, true);
     assert("{ballerina/lang.value}ConversionError", (<error>x1).message());
-    assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: invalid character 'p' after backslash in 'AB\\pCD'",
+    assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing open brace '{' token in 'AB\\pCD'",
         <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "AB\\uCD";
