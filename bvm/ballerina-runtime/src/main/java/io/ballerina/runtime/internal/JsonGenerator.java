@@ -27,6 +27,7 @@ import io.ballerina.runtime.internal.values.RefValue;
 import io.ballerina.runtime.internal.values.StreamingJsonValue;
 
 import java.io.BufferedWriter;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -41,7 +42,7 @@ import java.util.Map.Entry;
  * 
  * @since 0.995.0
  */
-public class JsonGenerator {
+public class JsonGenerator implements Closeable {
 
     private static final int DEFAULT_DEPTH = 10;
 
@@ -271,6 +272,10 @@ public class JsonGenerator {
 
     public void flush() throws IOException {
         this.writer.flush();
+    }
+
+    public void close() throws IOException {
+        this.writer.close();
     }
 
     @SuppressWarnings("unchecked")
