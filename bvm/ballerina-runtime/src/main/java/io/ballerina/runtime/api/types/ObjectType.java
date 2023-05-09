@@ -29,13 +29,6 @@ public interface ObjectType extends StructureType, SelectivelyImmutableReference
     MethodType[] getMethods();
 
     /**
-     * Get the method type of the initializer function.
-     *
-     * @return {@link MethodType} of the initializer function
-     */
-    MethodType getInitializer();
-
-    /**
      * Provides given @{@link ObjectType} is isolated.
      *
      * @return true if object is isolated otherwise false.

@@ -429,7 +429,6 @@ public class JvmSignatures {
     public static final String SET_LINKED_HASH_MAP = "(L" + LINKED_HASH_MAP + ";)V";
     public static final String SET_MAP = "(L" + MAP + ";)V";
     public static final String SET_METHODS = "([L" + METHOD_TYPE + ";)V";
-    public static final String SET_INITIALIZER = "(L" + METHOD_TYPE + ";)V";
     public static final String SET_ON_INIT = "(L" + B_STRING_VALUE + ";L" + OBJECT + ";)V";
     public static final String SET_RESOURCE_METHOD_TYPE_ARRAY = "([L" + RESOURCE_METHOD_TYPE + ";)V";
     public static final String SET_STRAND = "(L" + STRAND_CLASS + ";)V";
