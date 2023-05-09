@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
-import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.BalStringUtils;
@@ -38,7 +38,7 @@ import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
-import io.ballerina.runtime.internal.values.RefValue;
+import io.ballerina.runtime.internal.values.ObjectValue;
 
 /**
  * Common utility methods used for String manipulation.
@@ -91,11 +91,11 @@ public class StringUtils {
         }
 
         if (type.getTag() == TypeTags.TABLE_TAG) {
-            return ((RefValue) value).informalStringValue(parent);
+            return ((BRefValue) value).informalStringValue(parent);
         }
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            BObject objectValue = (BObject) value;
+            ObjectValue objectValue = (ObjectValue) value;
             ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
             for (MethodType func : objectType.getMethods()) {
                 if (func.getName().equals(TO_STRING) && func.getParameters().length == 0 &&
@@ -162,7 +162,7 @@ public class StringUtils {
         }
 
         if (type.getTag() == TypeTags.TABLE_TAG) {
-            return ((RefValue) value).expressionStringValue(parent);
+            return ((BRefValue) value).expressionStringValue(parent);
         }
 
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
@@ -176,7 +176,7 @@ public class StringUtils {
             }
         }
 
-        RefValue refValue = (RefValue) value;
+        BRefValue refValue = (BRefValue) value;
         return refValue.expressionStringValue(parent);
     }
 
