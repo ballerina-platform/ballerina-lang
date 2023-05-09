@@ -1311,6 +1311,17 @@ function testTranslatingDiffNodesInCharClass() {
     assertEquality("A", (<regexp:Span>res8).substring());
 }
 
+function testRegexpWithUnicodeChars() {
+    regexp:Span? resA1 = regexp:find(re = re `\u{1F30D}`, str = "😀 Hello, 🌍! ❤️");
+    assertTrue(resA1 is regexp:Span);
+    regexp:Span? resA2 = regexp:find(re = re `\u{1F31F}`, str = "😀 Hello, 🌍! ❤️");
+    assertTrue(resA2 is ());
+    regexp:Span? resA3 = regexp:find(re = re `\u{0d9c}`, str = "පරිගණක 10");
+    assertTrue(resA3 is regexp:Span);
+    regexp:Span[] resA4 = regexp:findAll(re = re `\u{1F30D}`, str = "😀 Hello, 🌍🌍! ❤️");
+    assertTrue(resA4 is regexp:Span[]);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
