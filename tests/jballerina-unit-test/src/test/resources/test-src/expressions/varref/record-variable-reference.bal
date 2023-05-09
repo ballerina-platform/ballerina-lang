@@ -370,21 +370,26 @@ function testMappingBindingWithSingleNameFieldBinding() {
 }
 
 function testMappingBindingPatternInListBindingPattern() {
-    [record {int a; int b;}] r1 = [{a: 1, b: 2}];
-    [record {int a; int b; stream<int> c;}] r2 = [{a: 1, b: 2, c: new}];
-    [Some, Some] r3 = [{var1: "A", var2: "B"}, {var1: "C", var2: "D"}];
+
+    [Some, Some] r1 = [{var1: "A", var2: "B"}, {var1: "C", var2: "D"}];
+
+    [record {int a; int b;}] r2 = [{a: 1, b: 2}];
 
     int a;
     int b;
 
-    [{a, b}] = r1;
-    [record {int a; int b;}] v = r1;
+    [{a, b}] = r2;
+
+    [record {int a; int b;}] v = r2;
+
+    [record {int a; int b; stream<int> c;}] r3 = [{a: 1, b: 2, c: new}];
+
+    [{a, b}] = r3;
 
     string xVar1;
     string xVar2;
 
-    [{var1: xVar1}, {var1: xVar2}] = r3;
-    [{a, b}] = r2;
+    [{var1: xVar1}, {var1: xVar2}] = r1;
 
     string fname;
     string lname;
