@@ -381,7 +381,7 @@ public class XMLLiteralTest {
         Object returns = BRunUtil.invoke(result, "testFunctionCallInXMLTemplate");
         Assert.assertTrue(returns instanceof BXmlItem);
 
-        Assert.assertEquals(returns.toString(), "<foo>&lt;--&gt;returned from a function</foo>");
+        Assert.assertEquals(returns.toString(), "<foo>&lt;-->returned from a function</foo>");
     }
 
     @Test
