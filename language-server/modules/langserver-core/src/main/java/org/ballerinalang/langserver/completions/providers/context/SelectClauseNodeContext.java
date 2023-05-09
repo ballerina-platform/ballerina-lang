@@ -18,17 +18,12 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
-import io.ballerina.compiler.syntax.tree.SelectClauseNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.*;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -36,6 +31,7 @@ import org.ballerinalang.langserver.completions.util.SortingUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -66,7 +62,7 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
             completionItems.addAll(this.expressionCompletions(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_ON_CONFLICT.get()));
             
-            if (node.parent().toSourceCode().contains(ItemResolverConstants.GROUPBY_KEYWORD)) {
+            if (containsGroupByNode(node)) {
                 List<FunctionSymbol> functionSymbols = getLangLibMethods(context);
                 functionSymbols.stream()
                         .filter(functionSymbol -> functionSymbol.typeDescriptor().restParam().isPresent())
@@ -78,6 +74,21 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
         this.sort(context, node, completionItems);
         
         return completionItems;
+    }
+
+    private boolean containsGroupByNode(SelectClauseNode selectClauseNode) {
+        boolean foundNode = false;
+        NonTerminalNode parentNode = selectClauseNode.parent();
+        if (selectClauseNode.parent().kind() != SyntaxKind.QUERY_EXPRESSION) {
+            return false;
+        }
+        QueryExpressionNode queryExpNode = (QueryExpressionNode) parentNode;
+        for (IntermediateClauseNode node : queryExpNode.queryPipeline().intermediateClauses()) {
+            if (node.kind() == SyntaxKind.GROUP_BY_CLAUSE) {
+                foundNode = true;
+            }
+        }
+        return foundNode;
     }
 
     @Override
