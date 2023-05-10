@@ -245,6 +245,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private boolean afterGroupBy = false;
     private boolean withinLambdaOrArrowFunc = false;
     private HashSet<BType> checkedErrorList;
+    private BLangNode result;
 
     private QueryDesugar(CompilerContext context) {
         context.put(QUERY_DESUGAR_KEY, this);
@@ -870,6 +871,45 @@ public class QueryDesugar extends BLangNodeVisitor {
         BVarSymbol oldFrameSymbol = lambda.function.requiredParams.get(0).symbol;
         BLangSimpleVarRef frame = ASTBuilderUtil.createVariableRef(pos, oldFrameSymbol);
         // $frame$["$value$"] = select-expr;
+        if (collectClause.expression.getKind() == NodeKind.INVOCATION) {
+            BLangInvocation invocation = (BLangInvocation) collectClause.expression;
+            if (invocation.name.value.equals("avg") && invocation.argExprs.size() == 1 && invocation.restArgs.size() == 1) {
+                BLangSimpleVarRef varRef = (BLangSimpleVarRef) invocation.restArgs.get(0);
+                BType invocationType = BUnionType.create(null, invocation.getBType(), symTable.nilType);
+                BLangSimpleVariable tempResultVar =
+                        ASTBuilderUtil.createVariable(pos, "$$name$$", invocationType, null,
+                                new BVarSymbol(0, Names.fromString("$$name$$"),
+                                        this.env.scope.owner.pkgID, invocationType,
+                                        this.env.scope.owner, pos, VIRTUAL));
+                BLangSimpleVariableDef tempResultVarDef = ASTBuilderUtil.createVariableDef(pos, tempResultVar);
+                BLangSimpleVarRef tempResultVarRef = ASTBuilderUtil.createVariableRef(pos, tempResultVar.symbol);
+
+                BType elementType = ((BSequenceType) varRef.symbol.type).elementType;
+                List<BTupleMember> tupleMembers = new ArrayList<>(1);
+                tupleMembers.add(new BTupleMember(elementType, Symbols.createVarSymbolForTupleMember(elementType)));
+                BType type = varRef.symbol.type = new BTupleType(null, tupleMembers, elementType, 0);
+                varRef.setBType(type);
+                BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
+                queryBlock.addStatement(tempResultVarDef);
+
+                BLangInvocation size = desugar.createLangLibInvocationNode("length", varRef, new ArrayList<>(), null, pos);
+
+                BLangBlockStmt thenBody = ASTBuilderUtil.createBlockStmt(pos);
+                BLangBlockStmt elseBody = ASTBuilderUtil.createBlockStmt(pos);
+
+                BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, size, ASTBuilderUtil.createLiteral(pos, symTable.intType, 0), symTable.booleanType, OperatorKind.EQUAL, null);
+
+                BLangIf ifElse = ASTBuilderUtil.createIfElseStmt(pos, binaryExpr, thenBody, elseBody);
+                BLangAssignment then = ASTBuilderUtil.createAssignmentStmt(pos, tempResultVarRef, invocation);
+                elseBody.addStatement(then);
+                BLangAssignment elsee = ASTBuilderUtil.createAssignmentStmt(pos, tempResultVarRef, ASTBuilderUtil.createLiteral(pos, symTable.nilType, null));
+                thenBody.addStatement(elsee);
+                queryBlock.addStatement(ifElse);
+                BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, tempResultVarRef);
+                stmtExpr.setBType(invocationType);
+                collectClause.expression = stmtExpr;
+            }
+        }
         BLangStatement assignment = getAddToFrameStmt(pos, frame, "$value$", collectClause.expression);
         body.stmts.add(body.stmts.size() - 1, assignment);
         lambda.accept(this);

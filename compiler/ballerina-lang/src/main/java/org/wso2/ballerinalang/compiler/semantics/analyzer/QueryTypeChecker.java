@@ -188,6 +188,12 @@ public class QueryTypeChecker extends TypeChecker {
             }
             BLangExpression finalClauseExpr = ((BLangCollectClause) finalClause).expression;
             BType queryType = checkExpr(finalClauseExpr, commonAnalyzerData.queryEnvs.peek(), data);
+            if (finalClauseExpr.getKind() == NodeKind.INVOCATION) {
+                BLangInvocation invocation = (BLangInvocation) finalClauseExpr;
+                if (invocation.name.value.equals("avg") && invocation.argExprs.size() == 1 && invocation.restArgs.size() == 1) {
+                    queryType = BUnionType.create(null, invocation.getBType(), symTable.nilType);
+                }
+            }
             actualType = types.checkType(finalClauseExpr.pos, queryType, data.expType,
                     DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
