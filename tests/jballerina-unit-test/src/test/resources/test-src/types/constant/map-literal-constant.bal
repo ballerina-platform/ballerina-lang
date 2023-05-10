@@ -279,6 +279,17 @@ function testNestedConstMapAccess() returns boolean {
 //     assertEqual(f2.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
 // }
 
+// -----------------------------------------------------------
+
+const CONSTA = "b";
+const map<string> X = {a : "A", [CONSTA] : "B"};
+
+function testConstMapWithComputedField() {
+    assertEqual(X["a"], "A");
+    assertEqual(X["b"], "B");
+    assertEqual(X.toString(), "{\"a\":\"A\",\"b\":\"B\"}");
+}
+
 function assertEqual(int|float|decimal|boolean|string actual, int|float|decimal|boolean|string expected) {
     if (actual != expected) {
         panic error(string `Assertion error: expected ${expected} found ${actual}`);

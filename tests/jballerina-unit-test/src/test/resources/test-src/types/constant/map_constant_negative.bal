@@ -33,3 +33,7 @@ const map<string> m = { one: "hello", two: "world" };
 function testInvalidUpdate() {
     m["one"] += " world";
 }
+
+// Constant map with invalid field update via computed name field
+const CONSTA = "a";
+const map<string> X = {a : "A", [CONSTA] : "B"};

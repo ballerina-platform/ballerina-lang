@@ -38,6 +38,7 @@ public class MapConstantNegativeTest {
         validateError(compileResult, i++, "expression is not a constant expression", 20, 27);
         validateError(compileResult, i++, "incompatible types: expected 'string', found 'other'", 20, 27);
         validateError(compileResult, i++, "cannot update constant value", 34, 5);
+        validateError(compileResult, i++, "invalid usage of finite literal: duplicate key 'a'", 39, 34);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 

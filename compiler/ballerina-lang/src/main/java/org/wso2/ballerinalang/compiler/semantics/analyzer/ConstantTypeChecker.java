@@ -686,8 +686,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 BLangExpression keyExpr = key.expr;
 
                 // Add the resolved field.
-                if (!addFields(inferredFields, keyValueType, getKeyName(keyExpr), keyExpr.pos, recordSymbol,
-                        false)) {
+                if (!addFields(inferredFields, keyValueType, getKeyName(keyExpr), keyExpr.pos, recordSymbol)) {
                     containErrors = true;
                 }
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -705,7 +704,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 }
 
                 if (!addFields(inferredFields, Types.getReferredType(varRefType), getKeyName(varNameField),
-                        varNameField.pos, recordSymbol, false)) {
+                        varNameField.pos, recordSymbol)) {
                     containErrors = true;
                 }
             } else { // Spread Field
@@ -724,7 +723,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 BRecordType recordType = (BRecordType) type;
                 for (BField recField : recordType.fields.values()) {
                     if (!addFields(inferredFields, Types.getReferredType(recField.type), recField.name.value,
-                            fieldExpr.pos, recordSymbol, false)) {
+                            fieldExpr.pos, recordSymbol)) {
                         containErrors = true;
                     }
                 }
@@ -744,7 +743,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     }
                     BType keyValueType = checkConstExpr(exprToCheck, expType, data);
                     if (!addFields(inferredFields, Types.getReferredType(keyValueType),
-                            fieldNameLiteral.getValue().toString(), key.pos, recordSymbol, true)) {
+                            fieldNameLiteral.getValue().toString(), key.pos, recordSymbol)) {
                         containErrors = true;
                     }
                     continue;
@@ -813,8 +812,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 BLangExpression keyExpr = key.expr;
 
                 // Add the resolved field.
-                if (!addFields(inferredFields, keyValueType, getKeyName(keyExpr), keyExpr.pos, recordSymbol,
-                        false)) {
+                if (!addFields(inferredFields, keyValueType, getKeyName(keyExpr), keyExpr.pos, recordSymbol)) {
                     containErrors = true;
                 }
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -843,7 +841,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     continue;
                 }
                 if (!addFields(inferredFields, Types.getReferredType(varRefType), getKeyName(varNameField),
-                        varNameField.pos, recordSymbol, false)) {
+                        varNameField.pos, recordSymbol)) {
                     containErrors = true;
                 }
             } else { // Spread Field
@@ -863,7 +861,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                         continue;
                     }
                     if (!addFields(inferredFields, Types.getReferredType(recField.type), recField.name.value,
-                            fieldExpr.pos, recordSymbol, false)) {
+                            fieldExpr.pos, recordSymbol)) {
                         containErrors = true;
                     }
                 }
@@ -895,7 +893,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     }
                     BType keyValueType = checkConstExpr(exprToCheck, expType, data);
                     if (!addFields(inferredFields, Types.getReferredType(keyValueType),
-                            fieldNameLiteral.getValue().toString(), key.pos, recordSymbol, true)) {
+                            fieldNameLiteral.getValue().toString(), key.pos, recordSymbol)) {
                         containErrors = true;
                     }
                     continue;
@@ -2021,17 +2019,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     private boolean addFields(LinkedHashMap<String, BField> fields, BType keyValueType, String key, Location pos,
-                           BRecordTypeSymbol recordSymbol, boolean overWriteValue) {
+                           BRecordTypeSymbol recordSymbol) {
         Name fieldName = names.fromString(key);
         if (fields.containsKey(key)) {
-            if (overWriteValue) {
-                // This is used in computed field scenarios.
-                BField field = fields.get(key);
-                field.type = keyValueType;
-                field.symbol.type = keyValueType;
-                return true;
-            }
-            // Duplicate key.
             dlog.error(pos, DiagnosticErrorCode.DUPLICATE_KEY_IN_RECORD_LITERAL, keyValueType.getKind().typeName(),
                     key);
             return false;
@@ -2779,6 +2769,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     BLangRecordLiteral.BLangRecordKeyValueField keyValue =
                             (BLangRecordLiteral.BLangRecordKeyValueField) field;
                     BLangRecordLiteral.BLangRecordKey key = keyValue.key;
+                    BLangExpression keyValueExpr = keyValue.valueExpr;
                     if (key.computedKey) {
                         BLangRecordLiteral.BLangRecordKeyValueField computedKeyValue =
                                 (BLangRecordLiteral.BLangRecordKeyValueField) field;
@@ -2789,9 +2780,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                         expFieldType =
                                 getResolvedFieldType(constantTypeChecker.getKeyName(fieldNameLiteral), resolvedType);
                         resolveConstExpr(computedKey.expr, expFieldType, data);
+                        resolveConstExpr(keyValueExpr, expFieldType, data);
                         continue;
                     }
-                    BLangExpression keyValueExpr = keyValue.valueExpr;
                     expFieldType = getResolvedFieldType(constantTypeChecker.getKeyName(key.expr), resolvedType);
                     resolveConstExpr(keyValueExpr, expFieldType, data);
                 } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
