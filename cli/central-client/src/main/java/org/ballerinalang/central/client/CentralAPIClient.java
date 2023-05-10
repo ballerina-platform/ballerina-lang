@@ -582,6 +582,7 @@ public class CentralAPIClient {
      * @param supportedPlatform         The supported platform.
      * @param ballerinaVersion          The ballerina version.
      * @param isBuild                   If build option is enabled or not.
+     * @return An array containing the organization, package name and version.
      * @throws CentralClientException   Central Client exception.
      */
     public String[] pullTool(String toolId, String version, Path balaCacheDirPath, String supportedPlatform,

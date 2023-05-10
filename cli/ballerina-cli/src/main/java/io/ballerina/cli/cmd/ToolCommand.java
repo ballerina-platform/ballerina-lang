@@ -62,7 +62,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  *
  * @since 2201.6.0
  */
-@CommandLine.Command(name = TOOL_COMMAND, description = "Ballerina tool command")
+@CommandLine.Command(name = TOOL_COMMAND, description = "Manage ballerina tool commands")
 public class ToolCommand implements BLauncherCmd {
     private static final String PULL_COMMAND = "pull";
     private static final String LIST_COMMAND = "list";
@@ -84,7 +84,7 @@ public class ToolCommand implements BLauncherCmd {
     @CommandLine.Parameters(description = "Manage ballerina tools")
     private List<String> argList;
 
-    @CommandLine.Option(names = {"--help", "-h", "?"}, usageHelp = true)
+    @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
     private String toolId;
@@ -130,7 +130,7 @@ public class ToolCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.isEmpty()) {
-            CommandUtil.printError(this.errStream, "no sub-command given", TOOL_USAGE_TEXT, false);
+            CommandUtil.printError(this.errStream, "no sub-command given.", TOOL_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -150,7 +150,7 @@ public class ToolCommand implements BLauncherCmd {
                 handleRemoveCommand();
                 break;
             default:
-                CommandUtil.printError(this.errStream, "invalid sub-command given", TOOL_USAGE_TEXT, false);
+                CommandUtil.printError(this.errStream, "invalid sub-command given.", TOOL_USAGE_TEXT, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 break;
         }
@@ -158,13 +158,13 @@ public class ToolCommand implements BLauncherCmd {
 
     private void handlePullCommand() {
         if (argList.size() < 2) {
-            CommandUtil.printError(this.errStream, "no tool id given", TOOL_PULL_USAGE_TEXT, false);
+            CommandUtil.printError(this.errStream, "no tool id given.", TOOL_PULL_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
         if (argList.size() > 2) {
             CommandUtil.printError(
-                    this.errStream, "too many arguments", TOOL_PULL_USAGE_TEXT, false);
+                    this.errStream, "too many arguments.", TOOL_PULL_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -178,14 +178,14 @@ public class ToolCommand implements BLauncherCmd {
             toolId = toolIdAndVersion;
             version = Names.EMPTY.getValue();
         } else {
-            CommandUtil.printError(errStream, "invalid tool id", TOOL_PULL_USAGE_TEXT, false);
+            CommandUtil.printError(errStream, "invalid tool id.", TOOL_PULL_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         // TODO: add a separate validation for tool-id
         if (!validatePackageName(toolId)) {
-            CommandUtil.printError(errStream, "invalid tool id", TOOL_PULL_USAGE_TEXT, false);
+            CommandUtil.printError(errStream, "invalid tool id.", TOOL_PULL_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -206,7 +206,7 @@ public class ToolCommand implements BLauncherCmd {
                 .resolve(ProjectConstants.BALA_DIR_NAME);
 
         if (isToolLocallyAvailable(toolIdAndVersion)) {
-            CommandUtil.printError(this.errStream, "tool is already pulled", null, false);
+            CommandUtil.printError(this.errStream, "tool is already pulled.", null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -217,12 +217,12 @@ public class ToolCommand implements BLauncherCmd {
 
                 String toolPathInCentralCache = getToolPathInCentralCache();
                 if (toolPathInCentralCache == null) {
-                    CommandUtil.printError(this.errStream, "tool jar not found", null, false);
+                    CommandUtil.printError(this.errStream, "tool jar not found.", null, false);
                     CommandUtil.exitError(this.exitWhenFinish);
                     return;
                 }
                 updateBalToolsTomlFile(toolPathInCentralCache);
-                errStream.println(toolIdAndVersion + " pulled successfully");
+                errStream.println(toolId  + ":" + version + " pulled successfully.");
             } catch (PackageAlreadyExistsException e) {
                 errStream.println(e.getMessage());
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -236,13 +236,13 @@ public class ToolCommand implements BLauncherCmd {
     private void handleListCommand() {
         if (argList.size() > 1) {
             CommandUtil.printError(
-                    this.errStream, "too many arguments", TOOL_LIST_USAGE_TEXT, false);
+                    this.errStream, "too many arguments.", TOOL_LIST_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
         List<BalToolsManifest.Tool> tools = listBalToolsTomlFile();
         if (tools.isEmpty()) {
-            errStream.println("no tools found locally");
+            errStream.println("no tools found locally.");
             return;
         }
         PrintUtils.printLocalTools(tools, RepoUtils.getTerminalWidth());
@@ -250,13 +250,13 @@ public class ToolCommand implements BLauncherCmd {
 
     private void handleSearchCommand() {
         if (argList.size() < 2) {
-            CommandUtil.printError(this.errStream, "no keyword given", TOOL_SEARCH_USAGE_TEXT, false);
+            CommandUtil.printError(this.errStream, "no keyword given.", TOOL_SEARCH_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
         if (argList.size() > 2) {
             CommandUtil.printError(
-                    this.errStream, "too many arguments", TOOL_SEARCH_USAGE_TEXT, false);
+                    this.errStream, "too many arguments.", TOOL_SEARCH_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -267,13 +267,13 @@ public class ToolCommand implements BLauncherCmd {
 
     private void handleRemoveCommand() {
         if (argList.size() < 2) {
-            CommandUtil.printError(this.errStream, "no tool id given", TOOL_REMOVE_USAGE_TEXT, false);
+            CommandUtil.printError(this.errStream, "no tool id given.", TOOL_REMOVE_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
         if (argList.size() > 2) {
             CommandUtil.printError(
-                    this.errStream, "too many arguments", TOOL_REMOVE_USAGE_TEXT, false);
+                    this.errStream, "too many arguments.", TOOL_REMOVE_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -287,13 +287,13 @@ public class ToolCommand implements BLauncherCmd {
             toolId = toolIdAndVersion;
             version = Names.EMPTY.getValue();
         } else {
-            CommandUtil.printError(errStream, "invalid tool id", TOOL_REMOVE_USAGE_TEXT, false);
+            CommandUtil.printError(errStream, "invalid tool id.", TOOL_REMOVE_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         if (!validatePackageName(toolId)) {
-            CommandUtil.printError(errStream, "invalid tool id", TOOL_REMOVE_USAGE_TEXT, false);
+            CommandUtil.printError(errStream, "invalid tool id.", TOOL_REMOVE_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
@@ -303,7 +303,7 @@ public class ToolCommand implements BLauncherCmd {
                 SemanticVersion.from(version);
             } catch (ProjectException e) {
                 CommandUtil.printError(errStream, "invalid tool version. " + e.getMessage(),
-                        "bal tool remove <tool-id>[:<version>]", false);
+                        TOOL_REMOVE_USAGE_TEXT, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -319,7 +319,7 @@ public class ToolCommand implements BLauncherCmd {
         }
         if (removeSuccess) {
             balToolsToml.modify(balToolsManifest);
-            errStream.println(toolIdAndVersion + " removed successfully");
+            errStream.println(toolIdAndVersion + " removed successfully.");
         }
     }
 
@@ -389,7 +389,7 @@ public class ToolCommand implements BLauncherCmd {
                 boolean isDeleted = deletePackageCentralCache(tool.path());
                 if (!isDeleted) {
                     CommandUtil.printError(
-                            errStream, "failed to delete the tool jar for the tool " + mapId, null, false);
+                            errStream, "failed to delete the tool jar for the tool " + mapId + ".", null, false);
                     CommandUtil.exitError(this.exitWhenFinish);
                     return false;
                 }
@@ -398,7 +398,7 @@ public class ToolCommand implements BLauncherCmd {
             }
         }
         if (!foundTools) {
-            CommandUtil.printError(errStream, "tool " + toolId + " does not exist locally", null, false);
+            CommandUtil.printError(errStream, "tool " + toolId + " does not exist locally.", null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return false;
         }
@@ -411,14 +411,14 @@ public class ToolCommand implements BLauncherCmd {
         if (balToolsManifest.tools().containsKey(mapId)) {
             boolean isDeleted = deletePackageCentralCache(balToolsManifest.tools().get(mapId).path());
             if (!isDeleted) {
-                CommandUtil.printError(errStream, "failed to delete the tool jar for the tool " + mapId,
+                CommandUtil.printError(errStream, "failed to delete the tool jar for the tool " + mapId + ".",
                         null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return false;
             }
             balToolsManifest.removeTool(mapId);
         } else {
-            CommandUtil.printError(errStream, "tool " + mapId + " does not exist locally", null, false);
+            CommandUtil.printError(errStream, "tool " + mapId + " does not exist locally.", null, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return false;
         }
@@ -456,7 +456,7 @@ public class ToolCommand implements BLauncherCmd {
             if (tools != null && tools.size() > 0) {
                 printTools(toolSearchResult.getTools(), RepoUtils.getTerminalWidth());
             } else {
-                errStream.println("no tools found");
+                errStream.println("no tools found.");
             }
         } catch (CentralClientException e) {
             String errorMessage = e.getMessage();

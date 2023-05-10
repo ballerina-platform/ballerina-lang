@@ -152,11 +152,11 @@ public class PrintUtils {
         String[] columnNames;
         int[] columnWidths;
         if (descColWidth >= minDescColWidth) {
-            columnNames = new String[]{"ID", "NAME", "DESCRIPTION", "AUTHOR", "DATE", "VERSION"};
+            columnNames = new String[]{"ID", "PACKAGE", "DESCRIPTION", "AUTHOR", "DATE", "VERSION"};
             columnWidths = new int[]{ idColWidth, nameColWidth, descColWidth - authorsColWidth, authorsColWidth,
                     dateColWidth, versionColWidth};
         } else {
-            columnNames = new String[]{"ID", "NAME", "DESCRIPTION", "DATE", "VERSION"};
+            columnNames = new String[]{"ID", "PACKAGE", "DESCRIPTION", "DATE", "VERSION"};
             columnWidths = new int[]{idColWidth, nameColWidth, descColWidth, dateColWidth, versionColWidth};
         }
         printBallerinaCentralTitle();
