@@ -26,6 +26,8 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Contains utility methods for executing a Ballerina program.
@@ -92,5 +94,10 @@ public class LauncherUtils {
         char[] c = s.toCharArray();
         c[0] = Character.toLowerCase(c[0]);
         return new String(c);
+    }
+
+    public static <K extends Comparable<? super K>, V> Iterable<V> sortValuesByKeys(Map<K, V> map) {
+        TreeMap<K, V> sortedMap = new TreeMap<>(map);
+        return sortedMap.values();
     }
 }

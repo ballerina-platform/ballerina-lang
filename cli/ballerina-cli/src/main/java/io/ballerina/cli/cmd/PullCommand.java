@@ -53,8 +53,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = PULL_COMMAND,
-        description = "download the module source and binaries from a remote repository")
+@CommandLine.Command(name = PULL_COMMAND, description = "Pull a package from Ballerina Central")
 public class PullCommand implements BLauncherCmd {
 
     private static final String USAGE_TEXT =
@@ -225,7 +224,7 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Download modules to the user repository \n");
+        out.append(BLauncherCmd.getCommandUsageInfo(PULL_COMMAND));
     }
 
     @Override

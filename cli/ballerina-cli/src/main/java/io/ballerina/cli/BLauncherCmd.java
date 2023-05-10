@@ -53,7 +53,9 @@ public interface BLauncherCmd {
      * Print usgae info for the command.
      *
      * @param out a {@link StringBuilder} instance
+     * @deprecated this method will be removed in a future version
      */
+    @Deprecated
     void printUsage(StringBuilder out);
 
     /**

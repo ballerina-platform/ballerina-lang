@@ -27,10 +27,38 @@ import picocli.CommandLine;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
+
+import static io.ballerina.cli.cmd.Constants.ADD_COMMAND;
+import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
+import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
+import static io.ballerina.cli.cmd.Constants.DEPRECATE_COMMAND;
+import static io.ballerina.cli.cmd.Constants.DIST_COMMAND;
+import static io.ballerina.cli.cmd.Constants.DOC_COMMAND;
+import static io.ballerina.cli.cmd.Constants.FORMAT_COMMAND;
+import static io.ballerina.cli.cmd.Constants.GRAPH_COMMAND;
+import static io.ballerina.cli.cmd.Constants.HELP_COMMAND;
+import static io.ballerina.cli.cmd.Constants.HOME_COMMAND;
+import static io.ballerina.cli.cmd.Constants.INIT_COMMAND;
+import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
+import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
+import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
+import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
+import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
+import static io.ballerina.cli.cmd.Constants.SEARCH_COMMAND;
+import static io.ballerina.cli.cmd.Constants.SEMVER_COMMAND;
+import static io.ballerina.cli.cmd.Constants.SHELL_COMMAND;
+import static io.ballerina.cli.cmd.Constants.START_DEBUG_ADAPTER_COMMAND;
+import static io.ballerina.cli.cmd.Constants.START_LANG_SERVER_COMMAND;
+import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
+import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
+import static io.ballerina.cli.cmd.Constants.UPDATE_COMMAND;
+import static io.ballerina.cli.cmd.Constants.VERSION_COMMAND;
 
 /**
  * This class executes a Ballerina program.
@@ -151,8 +179,6 @@ public class Main {
                                                                      + " needs an argument");
             }
             throw LauncherUtils.createUsageExceptionWithHelp(LauncherUtils.makeFirstLetterLowerCase(msg));
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
         }
     }
 
@@ -211,21 +237,64 @@ public class Main {
         private CommandLine parentCmdParser;
 
         public void execute() {
-            if (helpCommands == null) {
-                printUsageInfo(BallerinaCliCommands.HELP);
-                return;
+            Map<String, CommandLine> subCommands = parentCmdParser.getSubcommands();
 
+            if (helpCommands == null) {
+                List<String> coreCommands = Arrays.asList(
+                        BUILD_COMMAND, RUN_COMMAND, TEST_COMMAND, DOC_COMMAND, PACK_COMMAND);
+                List<String> packageCommands = Arrays.asList(NEW_COMMAND, INIT_COMMAND, ADD_COMMAND, PULL_COMMAND,
+                        PUSH_COMMAND, SEARCH_COMMAND, SEMVER_COMMAND, GRAPH_COMMAND, DEPRECATE_COMMAND);
+                List<String> otherCommands = Arrays.asList(CLEAN_COMMAND, FORMAT_COMMAND, SHELL_COMMAND,
+                        VERSION_COMMAND, TOOL_COMMAND);
+                List<String> excludedCommands = Arrays.asList(
+                        START_LANG_SERVER_COMMAND, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND, HOME_COMMAND);
+                List<String> updateCommands = Arrays.asList(DIST_COMMAND, UPDATE_COMMAND);
+
+                StringBuilder helpBuilder = new StringBuilder();
+                StringBuilder coreCmdsHelpBuilder = new StringBuilder("\n    Core Commands:\n");
+                StringBuilder pkgCmdsHelpBuilder = new StringBuilder("\n    Package Commands:\n");
+                StringBuilder updateCmdsHelpBuilder = new StringBuilder("\n    Update Commands:\n");
+                StringBuilder toolCmdsHelpBuilder = new StringBuilder("\n    Tool Commands:\n");
+                StringBuilder otherCmdHelpBuilder = new StringBuilder("\n   Other Commands:\n");
+
+                helpBuilder.append(BLauncherCmd.getCommandUsageInfo(HELP_COMMAND));
+
+                for (CommandLine cmd : LauncherUtils.sortValuesByKeys(subCommands)) {
+                    String cmdName = cmd.getCommandName();
+                    if (coreCommands.contains(cmdName)) {
+                        generateCommandDescription(cmd, coreCmdsHelpBuilder);
+                    } else if (packageCommands.contains(cmdName)) {
+                        generateCommandDescription(cmd, pkgCmdsHelpBuilder);
+                    } else if (updateCommands.contains(cmdName)) {
+                        generateCommandDescription(cmd, updateCmdsHelpBuilder);
+                    } else if (otherCommands.contains(cmdName)) {
+                        generateCommandDescription(cmd, otherCmdHelpBuilder);
+                    } else if (excludedCommands.contains(cmdName)) {
+                        continue;
+                    } else {
+                        generateCommandDescription(cmd, toolCmdsHelpBuilder);
+                    }
+                }
+                helpBuilder.append(coreCmdsHelpBuilder);
+                helpBuilder.append(pkgCmdsHelpBuilder);
+                helpBuilder.append(toolCmdsHelpBuilder);
+                helpBuilder.append(otherCmdHelpBuilder);
+                helpBuilder.append(updateCmdsHelpBuilder);
+                helpBuilder.append("\nUse 'bal help <command>' for more information on a specific command.");
+                outStream.println(helpBuilder);
+                return;
             } else if (helpCommands.size() > 1) {
                 throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
             }
 
             String userCommand = helpCommands.get(0);
-            if (parentCmdParser.getSubcommands().get(userCommand) == null) {
+            if (subCommands.get(userCommand) == null) {
                 throw LauncherUtils.createUsageExceptionWithHelp("unknown help topic `" + userCommand + "`");
             }
-
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(userCommand);
-            errStream.println(commandUsageInfo);
+            StringBuilder commandUsageInfo = new StringBuilder();
+            BLauncherCmd cmd = subCommands.get(userCommand).getCommand();
+            cmd.printLongDesc(commandUsageInfo);
+            outStream.println(commandUsageInfo);
         }
 
         @Override
@@ -246,6 +315,20 @@ public class Main {
         public void setParentCmdParser(CommandLine parentCmdParser) {
             this.parentCmdParser = parentCmdParser;
         }
+
+        private void generateCommandDescription(CommandLine command, StringBuilder stringBuilder) {
+            String commandName = command.getCommandName();
+            BLauncherCmd bCmd = (BLauncherCmd) command.getCommandSpec().userObject();
+            CommandLine.Command annotation = bCmd.getClass().getAnnotation(CommandLine.Command.class);
+            String commandDescription = "";
+            if (annotation != null) {
+                String[] descValues = annotation.description();
+                if (descValues != null && descValues.length > 0) {
+                    commandDescription = descValues[0];
+                }
+            }
+            stringBuilder.append("\t").append(String.format("%-20s %s", commandName, commandDescription)).append("\n");
+        }
     }
 
     /**
@@ -253,7 +336,7 @@ public class Main {
      *
      * @since 0.8.1
      */
-    @CommandLine.Command(name = "version", description = "Prints Ballerina version")
+    @CommandLine.Command(name = "version", description = "Print the Ballerina version")
     private static class VersionCmd implements BLauncherCmd {
 
         @CommandLine.Parameters(description = "Command name")
@@ -287,7 +370,7 @@ public class Main {
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  bal version\n");
+            out.append("Print the Ballerina version");
         }
 
         @Override

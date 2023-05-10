@@ -36,8 +36,8 @@ import java.nio.file.Paths;
  *
  * @since 2201.2.0
  */
-@CommandLine.Command(name = "semver", description = "check semver compliance between the source code changes and " +
-        "the package version")
+@CommandLine.Command(name = "semver", description = "Show SemVer compatibility and local package changes against " +
+        "published packages in Ballerina Central")
 public class SemverCmd implements BLauncherCmd {
 
     private final PrintStream outStream;

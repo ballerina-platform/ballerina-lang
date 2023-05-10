@@ -19,7 +19,6 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
-import io.ballerina.cli.launcher.BallerinaCliCommands;
 import io.ballerina.cli.utils.PrintUtils;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
@@ -64,8 +63,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  * @since 2201.6.0
  */
 @CommandLine.Command(name = TOOL_COMMAND, description = "Ballerina tool command")
-public
-class ToolCommand implements BLauncherCmd {
+public class ToolCommand implements BLauncherCmd {
     private static final String PULL_COMMAND = "pull";
     private static final String LIST_COMMAND = "list";
     private static final String SEARCH_COMMAND = "search";
@@ -83,7 +81,7 @@ class ToolCommand implements BLauncherCmd {
     Path balToolsTomlPath = Path.of(
             System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, BAL_TOOLS_TOML);
 
-    @CommandLine.Parameters(description = "Command name")
+    @CommandLine.Parameters(description = "Manage ballerina tools")
     private List<String> argList;
 
     @CommandLine.Option(names = {"--help", "-h", "?"}, usageHelp = true)
@@ -106,12 +104,12 @@ class ToolCommand implements BLauncherCmd {
 
     @Override
     public String getName() {
-        return BallerinaCliCommands.TOOL;
+        return TOOL_COMMAND;
     }
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("provides utility commands for managing ballerina tools\n");
+        out.append(BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND));
     }
 
     @Override
@@ -185,6 +183,7 @@ class ToolCommand implements BLauncherCmd {
             return;
         }
 
+        // TODO: add a separate validation for tool-id
         if (!validatePackageName(toolId)) {
             CommandUtil.printError(errStream, "invalid tool id", TOOL_PULL_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);

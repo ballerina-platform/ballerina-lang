@@ -119,8 +119,7 @@ public class TestCommand implements BLauncherCmd {
         this.offline = true;
     }
 
-    @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
-            "dependencies.")
+    @CommandLine.Option(names = {"--offline"}, description = "Run package tests")
     private Boolean offline;
 
     @CommandLine.Parameters(description = "Program arguments")
@@ -378,7 +377,7 @@ public class TestCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Test a Ballerina project or a standalone Ballerina file. \n");
+        out.append(BLauncherCmd.getCommandUsageInfo(TEST_COMMAND));
     }
 
     @Override
