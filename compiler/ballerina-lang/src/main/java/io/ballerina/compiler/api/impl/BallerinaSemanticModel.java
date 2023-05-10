@@ -591,10 +591,14 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private boolean checkAndUpdateModuleSymbols(Set<Symbol> compiledSymbols, Symbol evaluatingSymbol, BSymbol symbol) {
-        boolean isContaining = compiledSymbols.contains(evaluatingSymbol);
+        boolean symbolExists = compiledSymbols.contains(evaluatingSymbol);
+
+        if (!symbolExists) {
+            return false;
+        }
 
         if (evaluatingSymbol.kind() != MODULE) {
-            return isContaining;
+            return true;
         }
 
         // If the same module symbol, but without a module alias is already added, then it shall be removed to add
@@ -604,7 +608,7 @@ public class BallerinaSemanticModel implements SemanticModel {
             return false;
         }
 
-        return isContaining;
+        return true;
     }
 
     private boolean isWithinCurrentWorker(long symbolEnvScopeOwnerFlags, SymbolEnv enclEnv, BSymbol symbol) {

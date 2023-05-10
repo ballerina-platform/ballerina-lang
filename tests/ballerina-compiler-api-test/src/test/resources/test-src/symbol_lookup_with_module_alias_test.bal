@@ -18,6 +18,8 @@ import ballerina/lang.'object as obj;
 import ballerina/lang.'table as tbl;
 import ballerina/lang.regexp as regexp;
 import ballerina/lang.array as 'arr;
+import ballerina/lang.'int as foo;
 
 function testFunction() {
+   _ = int:max(20, 10);
 }
