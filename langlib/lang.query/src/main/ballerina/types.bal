@@ -733,6 +733,52 @@ class _GroupByFunction {
     }
 }
 
+class _CollectFunction {
+    *_StreamFunction;
+
+    string[] nonGroupingKeys;
+    function (_Frame _frame) returns _Frame|error? collectFunc;
+
+    function init(string[] nonGroupingKeys, function (_Frame _frame) returns _Frame|error? collectFunc) {
+        self.nonGroupingKeys = nonGroupingKeys;
+        self.collectFunc = collectFunc;
+        self.prevFunc = ();
+    }
+
+    public function process() returns _Frame|error? {
+        _Frame groupedFrame = {};
+        foreach var nonGroupingKey in self.nonGroupingKeys {
+            groupedFrame[nonGroupingKey] = [];
+        }
+        _StreamFunction pf = <_StreamFunction>self.prevFunc;
+        _Frame? f = check pf.process();
+        while f is _Frame {
+            foreach var nonGroupingKey in self.nonGroupingKeys {
+                any|error sequenceValue = groupedFrame[nonGroupingKey];
+                if (sequenceValue is any) {
+                    any|error val = f[nonGroupingKey];
+                    if val !is () {
+                        (<(any|error)[]> sequenceValue).push(val);
+                    }
+                }
+            }
+            f = check pf.process();
+        }
+        _Frame|error? cFrame = self.collectFunc(groupedFrame);
+        if (cFrame is error) {
+            return prepareQueryBodyError(cFrame);
+        }
+        return cFrame;
+    }
+
+    public function reset() {
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+}
+
 class _SelectFunction {
     *_StreamFunction;
 

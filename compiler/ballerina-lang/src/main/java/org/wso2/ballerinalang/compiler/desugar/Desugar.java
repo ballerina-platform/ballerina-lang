@@ -8503,34 +8503,10 @@ public class Desugar extends BLangNodeVisitor {
         boolean prevDesugarToReturn = this.desugarToReturn;
         this.isVisitingQuery = true;
         this.desugarToReturn = true;
-        BLangNode finalClause = queryExpr.getFinalClause();
-        if (finalClause.getKind() == NodeKind.COLLECT) {
-            queryExpr.hasCollect = true;
-            replaceCollectWithGroupByAndSelect(queryExpr, (BLangCollectClause) finalClause);
-        }
         BLangStatementExpression stmtExpr = queryDesugar.desugar(queryExpr, env, getVisibleXMLNSStmts(env));
         result = rewrite(stmtExpr, env);
         this.isVisitingQuery = prevIsVisitingQuery;
         this.desugarToReturn = prevDesugarToReturn;
-    }
-
-    private void replaceCollectWithGroupByAndSelect(BLangQueryExpr queryExpr, BLangCollectClause collectClause) {
-        Location pos = collectClause.pos;
-        BLangGroupByClause groupByClause = (BLangGroupByClause) TreeBuilder.createGroupByClauseNode();
-        groupByClause.pos = pos;
-        BLangGroupingKey groupingKeyNode = (BLangGroupingKey) TreeBuilder.createGroupingKeyNode();
-        groupingKeyNode.variableDef = createVarDef("_", symTable.booleanType,
-                createLiteral(collectClause.pos, symTable.booleanType, true), pos);
-        groupByClause.groupingKeyList.add(groupingKeyNode);
-        groupByClause.env = collectClause.env;
-        groupByClause.nonGroupingKeys.addAll(collectClause.nonGroupingKeys);
-
-        BLangSelectClause selectClause = (BLangSelectClause) TreeBuilder.createSelectClauseNode();
-        selectClause.pos = collectClause.pos;
-        selectClause.expression = collectClause.expression;
-
-        queryExpr.queryClauseList.set(queryExpr.queryClauseList.size() - 1, groupByClause);
-        queryExpr.queryClauseList.add(selectClause);
     }
 
     List<BLangStatement> getVisibleXMLNSStmts(SymbolEnv env) {

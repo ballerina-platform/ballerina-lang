@@ -73,6 +73,10 @@ function createSelectFunction(function(_Frame _frame) returns _Frame|error? sele
     return new _SelectFunction(selectFunc);
 }
 
+function createCollectFunction(string[] nonGroupingKeys, function(_Frame _frame) returns _Frame|error? collectFunc) returns _StreamFunction {
+    return new _CollectFunction(nonGroupingKeys, collectFunc);
+}
+
 function createDoFunction(function(_Frame _frame) returns any|error doFunc) returns _StreamFunction {
     return new _DoFunction(doFunc);
 }

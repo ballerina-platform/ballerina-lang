@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
@@ -208,6 +209,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CREATE_FILTER_FUNCTION = new Name("createFilterFunction");
     private static final Name QUERY_CREATE_ORDER_BY_FUNCTION = new Name("createOrderByFunction");
     private static final Name QUERY_CREATE_GROUP_BY_FUNCTION = new Name("createGroupByFunction");
+    private static final Name QUERY_CREATE_COLLECT_FUNCTION = new Name("createCollectFunction");
     private static final Name QUERY_CREATE_SELECT_FUNCTION = new Name("createSelectFunction");
     private static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
     private static final Name QUERY_CREATE_LIMIT_FUNCTION = new Name("createLimitFunction");
@@ -305,7 +307,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             result = getStreamFunctionVariableRef(queryBlock,
                     QUERY_ADD_TO_MAP_FUNCTION, Lists.of(streamRef, mapLiteral, onConflictExpr, isReadonly), pos);
             onConflictExpr = null;
-        } else if (queryExpr.hasCollect) {
+        } else if (queryExpr.getFinalClause().getKind() == NodeKind.COLLECT) {
             result = getStreamFunctionVariableRef(queryBlock, COLLECT_QUERY_FUNCTION, Lists.of(streamRef), pos);
         } else {
             BType refType = Types.getReferredType(queryExpr.getBType());
@@ -538,6 +540,11 @@ public class QueryDesugar extends BLangNodeVisitor {
                     BLangVariableReference selectFunc = addSelectFunction(block, (BLangSelectClause) clause,
                             stmtsToBePropagated);
                     addStreamFunction(block, initPipeline, selectFunc);
+                    break;
+                case COLLECT:
+                    BLangVariableReference collectFunc = addCollectFunction(block, (BLangCollectClause) clause,
+                            stmtsToBePropagated);
+                    addStreamFunction(block, initPipeline, collectFunc);
                     break;
                 case DO:
                     BLangVariableReference doFunc = addDoFunction(block, (BLangDoClause) clause, stmtsToBePropagated);
@@ -845,6 +852,29 @@ public class QueryDesugar extends BLangNodeVisitor {
         }
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_GROUP_BY_FUNCTION,
                 Lists.of(keys, nonGroupingKeys), pos);
+    }
+
+    BLangVariableReference addCollectFunction(BLangBlockStmt blockStmt, BLangCollectClause collectClause,
+                                              List<BLangStatement> stmtsToBePropagated) {
+        Location pos = collectClause.pos;
+        BLangArrayLiteral nonGroupingKeys = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+        nonGroupingKeys.exprs = new ArrayList<>();
+        nonGroupingKeys.setBType(new BArrayType(symTable.stringType));
+        for (String nonGroupingKey : collectClause.nonGroupingKeys) {
+            nonGroupingKeys.exprs.add(createStringLiteral(pos, nonGroupingKey));
+        }
+
+        BLangLambdaFunction lambda = createPassthroughLambda(pos);
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        body.stmts.addAll(0, stmtsToBePropagated);
+        BVarSymbol oldFrameSymbol = lambda.function.requiredParams.get(0).symbol;
+        BLangSimpleVarRef frame = ASTBuilderUtil.createVariableRef(pos, oldFrameSymbol);
+        // $frame$["$value$"] = select-expr;
+        BLangStatement assignment = getAddToFrameStmt(pos, frame, "$value$", collectClause.expression);
+        body.stmts.add(body.stmts.size() - 1, assignment);
+        lambda.accept(this);
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_COLLECT_FUNCTION,
+                Lists.of(nonGroupingKeys, lambda), pos);
     }
 
     BLangLetClause createLetClauseFromVarDef(BLangSimpleVariableDef varDef) {
