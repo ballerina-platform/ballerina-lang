@@ -33,15 +33,18 @@ import java.util.Collections;
 public class STCheckExpressionNode extends STExpressionNode {
     public final STNode checkKeyword;
     public final STNode expression;
+    public final STNode onFailClause;
 
     STCheckExpressionNode(
             SyntaxKind kind,
             STNode checkKeyword,
-            STNode expression) {
+            STNode expression,
+            STNode onFailClause) {
         this(
                 kind,
                 checkKeyword,
                 expression,
+                onFailClause,
                 Collections.emptyList());
     }
 
@@ -49,14 +52,17 @@ public class STCheckExpressionNode extends STExpressionNode {
             SyntaxKind kind,
             STNode checkKeyword,
             STNode expression,
+            STNode onFailClause,
             Collection<STNodeDiagnostic> diagnostics) {
         super(kind, diagnostics);
         this.checkKeyword = checkKeyword;
         this.expression = expression;
+        this.onFailClause = onFailClause;
 
         addChildren(
                 checkKeyword,
-                expression);
+                expression,
+                onFailClause);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -64,16 +70,19 @@ public class STCheckExpressionNode extends STExpressionNode {
                 this.kind,
                 this.checkKeyword,
                 this.expression,
+                this.onFailClause,
                 diagnostics);
     }
 
     public STCheckExpressionNode modify(
             SyntaxKind kind,
             STNode checkKeyword,
-            STNode expression) {
+            STNode expression,
+            STNode onFailClause) {
         if (checkForReferenceEquality(
                 checkKeyword,
-                expression)) {
+                expression,
+                onFailClause)) {
             return this;
         }
 
@@ -81,6 +90,7 @@ public class STCheckExpressionNode extends STExpressionNode {
                 kind,
                 checkKeyword,
                 expression,
+                onFailClause,
                 diagnostics);
     }
 

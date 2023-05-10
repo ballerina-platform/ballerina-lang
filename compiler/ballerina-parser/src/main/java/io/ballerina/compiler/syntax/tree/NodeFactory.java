@@ -515,14 +515,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static CheckExpressionNode createCheckExpressionNode(
             SyntaxKind kind,
             Token checkKeyword,
-            ExpressionNode expression) {
+            ExpressionNode expression,
+            OnFailCheckNode onFailClause) {
         Objects.requireNonNull(checkKeyword, "checkKeyword must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stCheckExpressionNode = STNodeFactory.createCheckExpressionNode(
                 kind,
                 checkKeyword.internalNode(),
-                expression.internalNode());
+                expression.internalNode(),
+                getOptionalSTNode(onFailClause));
         return stCheckExpressionNode.createUnlinkedFacade();
     }
 
@@ -3417,8 +3419,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(reCharSetAtomNoDash, "reCharSetAtomNoDash must not be null");
         Objects.requireNonNull(reCharSetNoDash, "reCharSetNoDash must not be null");
 
-        STNode stReCharSetAtomNoDashWithReCharSetNoDashNode =
-                STNodeFactory.createReCharSetAtomNoDashWithReCharSetNoDashNode(
+        STNode stReCharSetAtomNoDashWithReCharSetNoDashNode = STNodeFactory.createReCharSetAtomNoDashWithReCharSetNoDashNode(
                 reCharSetAtomNoDash.internalNode(),
                 reCharSetNoDash.internalNode());
         return stReCharSetAtomNoDashWithReCharSetNoDashNode.createUnlinkedFacade();
@@ -3517,7 +3518,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeBraceToken.internalNode());
         return stReBracedQuantifierNode.createUnlinkedFacade();
     }
-  
+
     public static MemberTypeDescriptorNode createMemberTypeDescriptorNode(
             NodeList<AnnotationNode> annotations,
             TypeDescriptorNode typeDescriptor) {
@@ -3528,6 +3529,29 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 annotations.underlyingListNode().internalNode(),
                 typeDescriptor.internalNode());
         return stMemberTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static OnFailCheckNode createOnFailCheckNode(
+            SyntaxKind kind,
+            Token onKeyword,
+            Token failKeyword,
+            ExpressionNode errorExpr,
+            Token rightArrowToken,
+            ErrorConstructorExpressionNode errorConstructor) {
+        Objects.requireNonNull(onKeyword, "onKeyword must not be null");
+        Objects.requireNonNull(failKeyword, "failKeyword must not be null");
+        Objects.requireNonNull(errorExpr, "errorExpr must not be null");
+        Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
+        Objects.requireNonNull(errorConstructor, "errorConstructor must not be null");
+
+        STNode stOnFailCheckNode = STNodeFactory.createOnFailCheckNode(
+                kind,
+                onKeyword.internalNode(),
+                failKeyword.internalNode(),
+                errorExpr.internalNode(),
+                rightArrowToken.internalNode(),
+                errorConstructor.internalNode());
+        return stOnFailCheckNode.createUnlinkedFacade();
     }
 }
 

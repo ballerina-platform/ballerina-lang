@@ -17,67 +17,7 @@
  */
 package org.ballerinalang.bindgen.utils;
 
-import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
-import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
-import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
-import io.ballerina.compiler.syntax.tree.BindingPatternNode;
-import io.ballerina.compiler.syntax.tree.BlockStatementNode;
-import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
-import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
-import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
-import io.ballerina.compiler.syntax.tree.ConditionalExpressionNode;
-import io.ballerina.compiler.syntax.tree.ElseBlockNode;
-import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
-import io.ballerina.compiler.syntax.tree.ExpressionNode;
-import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
-import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
-import io.ballerina.compiler.syntax.tree.ForEachStatementNode;
-import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
-import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
-import io.ballerina.compiler.syntax.tree.FunctionBodyNode;
-import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
-import io.ballerina.compiler.syntax.tree.IdentifierToken;
-import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
-import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
-import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
-import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
-import io.ballerina.compiler.syntax.tree.ListConstructorExpressionNode;
-import io.ballerina.compiler.syntax.tree.LiteralValueToken;
-import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
-import io.ballerina.compiler.syntax.tree.MappingFieldNode;
-import io.ballerina.compiler.syntax.tree.MarkdownDocumentationLineNode;
-import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
-import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
-import io.ballerina.compiler.syntax.tree.MetadataNode;
-import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
-import io.ballerina.compiler.syntax.tree.MinutiaeList;
-import io.ballerina.compiler.syntax.tree.NameReferenceNode;
-import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.NodeFactory;
-import io.ballerina.compiler.syntax.tree.NodeList;
-import io.ballerina.compiler.syntax.tree.ParameterNode;
-import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
-import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
-import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
-import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
-import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
-import io.ballerina.compiler.syntax.tree.StatementNode;
-import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
-import io.ballerina.compiler.syntax.tree.TypeCastParamNode;
-import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
-import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
-import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.*;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.model.BFunction;
 import org.ballerinalang.bindgen.model.JConstructor;
@@ -85,17 +25,11 @@ import org.ballerinalang.bindgen.model.JField;
 import org.ballerinalang.bindgen.model.JMethod;
 import org.ballerinalang.bindgen.model.JParameter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static io.ballerina.compiler.syntax.tree.AbstractNodeFactory.createToken;
 import static io.ballerina.compiler.syntax.tree.SyntaxKind.CLOSE_PAREN_TOKEN;
+import static io.ballerina.compiler.syntax.tree.SyntaxKind.RIGHT_ARROW_TOKEN;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ARRAY_BRACKETS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CLASS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.HANDLE;
@@ -1282,8 +1216,7 @@ class BindgenNodeFactory {
      */
     private static CheckExpressionNode createCheckExpressionNode(ExpressionNode expressionNode) {
         Token checkKeyword = createToken(SyntaxKind.CHECK_KEYWORD, emptyML(), singleWSML());
-
-        return NodeFactory.createCheckExpressionNode(null, checkKeyword, expressionNode);
+        return NodeFactory.createCheckExpressionNode(null, checkKeyword, expressionNode, null);
     }
 
     /**

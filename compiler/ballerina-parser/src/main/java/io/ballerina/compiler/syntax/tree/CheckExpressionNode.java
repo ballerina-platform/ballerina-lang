@@ -20,6 +20,7 @@ package io.ballerina.compiler.syntax.tree;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -40,6 +41,10 @@ public class CheckExpressionNode extends ExpressionNode {
         return childInBucket(1);
     }
 
+    public Optional<OnFailCheckNode> onFailClause() {
+        return optionalChildInBucket(2);
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -54,23 +59,27 @@ public class CheckExpressionNode extends ExpressionNode {
     protected String[] childNames() {
         return new String[]{
                 "checkKeyword",
-                "expression"};
+                "expression",
+                "onFailClause"};
     }
 
     public CheckExpressionNode modify(
             SyntaxKind kind,
             Token checkKeyword,
-            ExpressionNode expression) {
+            ExpressionNode expression,
+            OnFailCheckNode onFailClause) {
         if (checkForReferenceEquality(
                 checkKeyword,
-                expression)) {
+                expression,
+                onFailClause)) {
             return this;
         }
 
         return NodeFactory.createCheckExpressionNode(
                 kind,
                 checkKeyword,
-                expression);
+                expression,
+                onFailClause);
     }
 
     public CheckExpressionNodeModifier modify() {
@@ -86,11 +95,13 @@ public class CheckExpressionNode extends ExpressionNode {
         private final CheckExpressionNode oldNode;
         private Token checkKeyword;
         private ExpressionNode expression;
+        private OnFailCheckNode onFailClause;
 
         public CheckExpressionNodeModifier(CheckExpressionNode oldNode) {
             this.oldNode = oldNode;
             this.checkKeyword = oldNode.checkKeyword();
             this.expression = oldNode.expression();
+            this.onFailClause = oldNode.onFailClause().orElse(null);
         }
 
         public CheckExpressionNodeModifier withCheckKeyword(
@@ -107,11 +118,18 @@ public class CheckExpressionNode extends ExpressionNode {
             return this;
         }
 
+        public CheckExpressionNodeModifier withOnFailClause(
+                OnFailCheckNode onFailClause) {
+            this.onFailClause = onFailClause;
+            return this;
+        }
+
         public CheckExpressionNode apply() {
             return oldNode.modify(
                     oldNode.kind(),
                     checkKeyword,
-                    expression);
+                    expression,
+                    onFailClause);
         }
     }
 }
