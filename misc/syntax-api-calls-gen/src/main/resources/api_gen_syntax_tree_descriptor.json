@@ -693,6 +693,11 @@
         {
           "name": "expression",
           "type": "ExpressionNode"
+        },
+        {
+          "name": "onFailClause",
+          "type": "OnFailCheckNode",
+          "isOptional": true
         }
       ]
     },
@@ -4885,6 +4890,32 @@
         {
           "name": "typeDescriptor",
           "type": "TypeDescriptorNode"
+        }
+      ]
+    },
+    {
+      "name": "OnFailCheckNode",
+      "base": "Node",
+      "attributes": [
+        {
+          "name": "onKeyword",
+          "type": "Token"
+        },
+        {
+          "name": "failKeyword",
+          "type": "Token"
+        },
+        {
+          "name": "errorExpr",
+          "type": "ExpressionNode"
+        },
+        {
+          "name": "rightArrowToken",
+          "type": "Token"
+        },
+        {
+          "name": "errorConstructor",
+          "type": "ErrorConstructorExpressionNode"
         }
       ]
     }
