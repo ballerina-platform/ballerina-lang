@@ -235,8 +235,7 @@ public class JsonUtils {
      * @throws BError If error occur while serialize json construct.
      */
     public static void serialize(Object json, OutputStream out) throws BError {
-        try {
-            JsonGenerator gen = new JsonGenerator(out);
+        try (JsonGenerator gen = new JsonGenerator(out)) {
             gen.serialize(json);
             gen.flush();
         } catch (IOException e) {
@@ -253,8 +252,7 @@ public class JsonUtils {
      * @throws BError If error occur while serialize json construct.
      */
     public static void serialize(Object json, OutputStream out, Charset charset) throws BError {
-        try {
-            JsonGenerator gen = new JsonGenerator(out, charset);
+        try (JsonGenerator gen = new JsonGenerator(out, charset)) {
             gen.serialize(json);
             gen.flush();
         } catch (IOException e) {
@@ -270,8 +268,7 @@ public class JsonUtils {
      * @throws BError If error occur while serialize json construct.
      */
     public static void serialize(Object json, Writer writer) throws BError {
-        try {
-            JsonGenerator gen = new JsonGenerator(writer);
+        try (JsonGenerator gen = new JsonGenerator(writer)) {
             gen.serialize(json);
             gen.flush();
         } catch (IOException e) {
