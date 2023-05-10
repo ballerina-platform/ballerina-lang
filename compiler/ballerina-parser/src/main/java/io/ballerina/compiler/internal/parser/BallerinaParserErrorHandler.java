@@ -2404,6 +2404,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case TUPLE_MEMBER:
                 alternativeRules = TUPLE_MEMBER;
+                break;
             case CHECK_ON_FAIL:
                 alternativeRules = CHECK_ON_FAIL;
                 break;

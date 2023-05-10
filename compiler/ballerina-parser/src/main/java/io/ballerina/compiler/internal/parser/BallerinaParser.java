@@ -20,7 +20,52 @@ package io.ballerina.compiler.internal.parser;
 import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Solution;
-import io.ballerina.compiler.internal.parser.tree.*;
+import io.ballerina.compiler.internal.parser.tree.STAbstractNodeFactory;
+import io.ballerina.compiler.internal.parser.tree.STAmbiguousCollectionNode;
+import io.ballerina.compiler.internal.parser.tree.STAnnotAccessExpressionNode;
+import io.ballerina.compiler.internal.parser.tree.STArrayTypeDescriptorNode;
+import io.ballerina.compiler.internal.parser.tree.STAsyncSendActionNode;
+import io.ballerina.compiler.internal.parser.tree.STBinaryExpressionNode;
+import io.ballerina.compiler.internal.parser.tree.STBracedExpressionNode;
+import io.ballerina.compiler.internal.parser.tree.STConditionalExpressionNode;
+import io.ballerina.compiler.internal.parser.tree.STDefaultableParameterNode;
+import io.ballerina.compiler.internal.parser.tree.STErrorConstructorExpressionNode;
+import io.ballerina.compiler.internal.parser.tree.STFieldAccessExpressionNode;
+import io.ballerina.compiler.internal.parser.tree.STFunctionArgumentNode;
+import io.ballerina.compiler.internal.parser.tree.STFunctionCallExpressionNode;
+import io.ballerina.compiler.internal.parser.tree.STFunctionSignatureNode;
+import io.ballerina.compiler.internal.parser.tree.STFunctionTypeDescriptorNode;
+import io.ballerina.compiler.internal.parser.tree.STIndexedExpressionNode;
+import io.ballerina.compiler.internal.parser.tree.STIntersectionTypeDescriptorNode;
+import io.ballerina.compiler.internal.parser.tree.STListConstructorExpressionNode;
+import io.ballerina.compiler.internal.parser.tree.STMappingConstructorExpressionNode;
+import io.ballerina.compiler.internal.parser.tree.STMetadataNode;
+import io.ballerina.compiler.internal.parser.tree.STMissingToken;
+import io.ballerina.compiler.internal.parser.tree.STNamedArgumentNode;
+import io.ballerina.compiler.internal.parser.tree.STNilLiteralNode;
+import io.ballerina.compiler.internal.parser.tree.STNode;
+import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
+import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
+import io.ballerina.compiler.internal.parser.tree.STNodeList;
+import io.ballerina.compiler.internal.parser.tree.STObjectTypeDescriptorNode;
+import io.ballerina.compiler.internal.parser.tree.STOptionalFieldAccessExpressionNode;
+import io.ballerina.compiler.internal.parser.tree.STOptionalTypeDescriptorNode;
+import io.ballerina.compiler.internal.parser.tree.STPositionalArgumentNode;
+import io.ballerina.compiler.internal.parser.tree.STQualifiedNameReferenceNode;
+import io.ballerina.compiler.internal.parser.tree.STRemoteMethodCallActionNode;
+import io.ballerina.compiler.internal.parser.tree.STRequiredParameterNode;
+import io.ballerina.compiler.internal.parser.tree.STRestArgumentNode;
+import io.ballerina.compiler.internal.parser.tree.STRestBindingPatternNode;
+import io.ballerina.compiler.internal.parser.tree.STRestParameterNode;
+import io.ballerina.compiler.internal.parser.tree.STSimpleNameReferenceNode;
+import io.ballerina.compiler.internal.parser.tree.STSpecificFieldNode;
+import io.ballerina.compiler.internal.parser.tree.STSyncSendActionNode;
+import io.ballerina.compiler.internal.parser.tree.STToken;
+import io.ballerina.compiler.internal.parser.tree.STTypeReferenceTypeDescNode;
+import io.ballerina.compiler.internal.parser.tree.STTypeTestExpressionNode;
+import io.ballerina.compiler.internal.parser.tree.STTypedBindingPatternNode;
+import io.ballerina.compiler.internal.parser.tree.STUnaryExpressionNode;
+import io.ballerina.compiler.internal.parser.tree.STUnionTypeDescriptorNode;
 import io.ballerina.compiler.internal.parser.utils.ConditionalExprResolver;
 import io.ballerina.compiler.internal.syntax.SyntaxUtils;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -7141,7 +7186,8 @@ public class BallerinaParser extends AbstractParser {
         }
 
         if (isAction(expr)) {
-            return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_ACTION, checkingKeyword, expr, onFailClause);
+            return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_ACTION, checkingKeyword, expr,
+                    onFailClause);
         } else {
             return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, checkingKeyword, expr,
                     onFailClause);
