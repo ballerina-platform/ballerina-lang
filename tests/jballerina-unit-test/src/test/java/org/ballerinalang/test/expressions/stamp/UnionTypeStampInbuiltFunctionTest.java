@@ -27,7 +27,6 @@ import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BStringType;
-import io.ballerina.runtime.internal.types.BXmlType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -91,57 +90,17 @@ public class UnionTypeStampInbuiltFunctionTest {
 
     @Test
     public void testStampUnionToXML() {
-
-        Object results = BRunUtil.invoke(compileResult, "stampUnionToXML");
-        Object xmlValue = results;
-
-        Assert.assertEquals(getType(xmlValue).getClass(), BXmlType.class);
+        BRunUtil.invoke(compileResult, "stampUnionToXML");
     }
 
     @Test
     public void testStampUnionToIntMap() {
-
-        Object results = BRunUtil.invoke(compileResult, "stampUnionToIntMap");
-        BMap<String, Object> mapValue = (BMap<String, Object>) results;
-
-        Assert.assertEquals(getType(mapValue).getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) mapValue.getType()).getConstrainedType().getTag(), TypeTags.INT_TAG);
+        BRunUtil.invoke(compileResult, "stampUnionToIntMap");
     }
 
     @Test
     public void testStampUnionToConstraintMap() {
-
-        Object results = BRunUtil.invoke(compileResult, "stampUnionToConstraintMap");
-        BMap<String, Object> employee0 = (BMap<String, Object>) results;
-
-        Assert.assertEquals(employee0.size(), 2);
-
-        Assert.assertEquals(getType(employee0).getClass(), BMapType.class);
-        Type constrainedType = TypeUtils.getReferredType(((BMapType) employee0.getType()).getConstrainedType());
-        Assert.assertEquals(constrainedType.getClass(), BRecordType.class);
-        Assert.assertEquals(constrainedType.getName(), "Employee");
-
-        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("a"))).getName(), "Employee");
-        Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("a"))).get(
-                        StringUtils.fromString("age"))).getTag(),
-                TypeTags.INT_TAG);
-        Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("a"))).get(
-                        StringUtils.fromString("school"))).getClass(),
-                BStringType.class);
-        Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("a"))).get(
-                        StringUtils.fromString("batch"))).getClass(),
-                BStringType.class);
-
-        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("b"))).getName(), "Employee");
-        Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("b"))).get(
-                        StringUtils.fromString("age"))).getTag(),
-                TypeTags.INT_TAG);
-        Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("b"))).get(
-                        StringUtils.fromString("school"))).getClass(),
-                BStringType.class);
-        Assert.assertEquals(getType(((BMap) employee0.get(StringUtils.fromString("b"))).get(
-                        StringUtils.fromString("batch"))).getClass(),
-                BStringType.class);
+        BRunUtil.invoke(compileResult, "stampUnionToConstraintMap");
     }
 
     @Test

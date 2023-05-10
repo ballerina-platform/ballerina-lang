@@ -123,15 +123,14 @@ public abstract class AbstractArrayValue implements ArrayValue {
 
     @Override
     public String getJSONString() {
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        JsonGenerator gen = new JsonGenerator(byteOut);
-        try {
+        try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+             JsonGenerator gen = new JsonGenerator(byteOut)) {
             gen.serialize(this);
             gen.flush();
+            return byteOut.toString();
         } catch (IOException e) {
             throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
         }
-        return byteOut.toString();
     }
 
     /**

@@ -116,57 +116,12 @@ public class JSONStampInbuiltFunctionTest {
 
     @Test
     public void testStampJSONToMap() {
-
-        Object results = BRunUtil.invoke(compileResult, "stampJSONToMap");
-        BMap<String, Object> mapValue0 = (BMap<String, Object>) results;
-
-        Assert.assertEquals((mapValue0).size(), 4);
-
-        Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("name")).toString(), "John");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("name"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("status"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("school")).toString(), "Hindu College");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
+        BRunUtil.invoke(compileResult, "stampJSONToMap");
     }
 
     @Test
     public void testStampJSONToMapV2() {
-
-        Object results = BRunUtil.invoke(compileResult, "stampJSONToMapV2");
-        BMap<String, Object> mapValue0 = (BMap<String, Object>) results;
-
-        Assert.assertEquals((mapValue0).size(), 6);
-
-        Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("name")).toString(), "Raja");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("name"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("age")).toString(), "25");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("status"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("school")).toString(), "Hindu College");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(((BMap) mapValue0.get(StringUtils.fromString("emp"))).size(), 3);
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("emp"))).getClass(), BMapType.class);
-        Assert.assertEquals(
-                ((BMapType) getType(mapValue0.get(StringUtils.fromString("emp")))).getConstrainedType().getClass(),
-                BAnydataType.class);
+        BRunUtil.invoke(compileResult, "stampJSONToMapV2");
     }
 
     @Test
