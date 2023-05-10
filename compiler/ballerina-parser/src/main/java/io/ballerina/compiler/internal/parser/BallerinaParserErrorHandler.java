@@ -834,8 +834,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] OPTIONAL_TOP_LEVEL_SEMICOLON =
             { ParserRuleContext.TOP_LEVEL_NODE, ParserRuleContext.SEMICOLON };
 
-  private static final ParserRuleContext[] TUPLE_MEMBER =
+    private static final ParserRuleContext[] TUPLE_MEMBER =
             { ParserRuleContext.ANNOTATIONS, ParserRuleContext.TYPE_DESC_IN_TUPLE };
+    private static final ParserRuleContext[] CHECK_ON_FAIL =
+            { ParserRuleContext.SEMICOLON };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -1590,6 +1592,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST:
             case OPTIONAL_TOP_LEVEL_SEMICOLON:
             case TUPLE_MEMBER:
+            case CHECK_ON_FAIL:
                 return true;
             default:
                 return false;
@@ -2052,6 +2055,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TOP_LEVEL_NODE;
             case TUPLE_MEMBER:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE;
+            case CHECK_ON_FAIL:
+                return ParserRuleContext.CHECK_ON_FAIL;
             default:
                 throw new IllegalStateException("Alternative path entry not found");
         }
@@ -2399,6 +2404,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case TUPLE_MEMBER:
                 alternativeRules = TUPLE_MEMBER;
+            case CHECK_ON_FAIL:
+                alternativeRules = CHECK_ON_FAIL;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -3441,6 +3448,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return getNextRuleForBindingPattern();
             case TUPLE_MEMBERS:
                 return ParserRuleContext.TUPLE_MEMBER;
+            case CHECK_ON_FAIL:
+                return ParserRuleContext.CHECK_ON_FAIL;
             default:
                 return getNextRuleInternal(currentCtx, nextLookahead);
         }
@@ -3833,6 +3842,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     endContext();
                 }
                 return getNextRuleForAction();
+            case CHECKING_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
             default:
                 return getNextRuleForKeywords(currentCtx, nextLookahead);
         }
