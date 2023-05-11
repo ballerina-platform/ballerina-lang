@@ -44,7 +44,6 @@ import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -76,12 +75,7 @@ public class ValueConverter {
     }
 
     public static Object convert(Object value, Type targetType) {
-        try {
-            return convert(value, targetType, new HashSet<>());
-        } catch (BallerinaException e) {
-            throw createError(BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
-                    StringUtils.fromString(e.getDetail()));
-        }
+        return convert(value, targetType, new HashSet<>());
     }
 
     private static Object convert(Object value, Type targetType, Set<TypeValuePair> unresolvedValues) {

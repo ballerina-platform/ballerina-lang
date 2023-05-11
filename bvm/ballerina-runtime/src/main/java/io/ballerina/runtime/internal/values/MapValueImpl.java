@@ -45,7 +45,6 @@ import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.io.ByteArrayOutputStream;
@@ -543,7 +542,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             gen.flush();
             return byteOut.toString();
         } catch (IOException e) {
-            throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
+            throw ErrorCreator.createError(StringUtils.fromString(
+                    "Error in converting JSON to a string: " + e.getMessage()), e);
         }
     }
 

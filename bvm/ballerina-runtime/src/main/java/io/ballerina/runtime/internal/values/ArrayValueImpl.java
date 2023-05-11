@@ -40,7 +40,6 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.io.IOException;
@@ -950,13 +949,14 @@ public class ArrayValueImpl extends AbstractArrayValue {
                     outputStream.write(this.byteValues[i]);
                 }
             } catch (IOException e) {
-                throw new BallerinaException("error occurred while writing the binary content to the output stream", e);
+                throw ErrorCreator.createError(StringUtils.fromString(
+                        "error occurred while writing the binary content to the output stream"), e);
             }
         } else {
             try {
                 outputStream.write(this.toString().getBytes(Charset.defaultCharset()));
             } catch (IOException e) {
-                throw new BallerinaException("error occurred while serializing data", e);
+                throw ErrorCreator.createError(StringUtils.fromString("error occurred while serializing data"), e);
             }
         }
     }

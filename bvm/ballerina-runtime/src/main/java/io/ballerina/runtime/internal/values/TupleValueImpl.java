@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
@@ -34,7 +35,6 @@ import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.io.IOException;
@@ -578,7 +578,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         try {
             outputStream.write(this.toString().getBytes(Charset.defaultCharset()));
         } catch (IOException e) {
-            throw new BallerinaException("error occurred while serializing data", e);
+            throw ErrorCreator.createError(StringUtils.fromString("error occurred while serializing data"), e);
         }
     }
 
