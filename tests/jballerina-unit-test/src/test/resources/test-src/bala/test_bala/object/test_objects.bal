@@ -466,6 +466,14 @@ function testSubTypingForDifferentOrgNameAndVersionWithAllPublicFields() {
     assertTrue((<any> ob3) is foo2:ObjectWithPublicFieldsAndMethods);
 }
 
+readonly service class FooClass {
+    *foo2:FooObj;
+
+    isolated remote function execute(string aVar, int bVar) {
+
+    }
+}
+
 function assertTrue(anydata actual) {
     assertEquals(true, actual);
 }
