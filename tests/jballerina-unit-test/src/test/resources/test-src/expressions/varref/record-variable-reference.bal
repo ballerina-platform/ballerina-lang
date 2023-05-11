@@ -406,6 +406,18 @@ function testMappingBindingPatternInListBindingPattern() {
     int p5;
 
     [[{p1, p2}], [[{p3, p4}], {p5}]] = [[{p1: 10, p2: 12}], [[{p3: 13, p4: 14}], {p5: 15}]];
+
+    {p3: {p1, p2}} = getMap();
+
+    // TODO: Uncomment after fixing #40312
+    // int d;
+    // error<record { record { int d; } x; }> err = error("Transaction Failure", x = {d: 0});
+
+    // error(x = {d}) = err;
+}
+
+function getMap() returns record {record {int p1; int p2;} p3;} {
+    return {p3: {p1: 2, p2: 3}};
 }
 
 function assertEquality(anydata expected, anydata actual) {
