@@ -54,6 +54,7 @@ import static io.ballerina.projects.util.ProjectConstants.HOME_REPO_DEFAULT_DIRN
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.projects.util.ProjectUtils.validatePackageName;
+import static io.ballerina.projects.util.ProjectUtils.validateToolName;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.ANY_PLATFORM;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
@@ -183,8 +184,7 @@ public class ToolCommand implements BLauncherCmd {
             return;
         }
 
-        // TODO: add a separate validation for tool-id
-        if (!validatePackageName(toolId)) {
+        if (!validateToolName(toolId)) {
             CommandUtil.printError(errStream, "invalid tool id.", TOOL_PULL_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
