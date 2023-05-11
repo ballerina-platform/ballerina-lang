@@ -5222,9 +5222,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             // Default values of fields are not inherited.
             if (referredTypeTag == TypeTags.RECORD || referredTypeTag == TypeTags.OBJECT) {
                 if ((typeResolver.resolvingStructureTypes.contains((BStructureType) referredType))) {
-                    List<BLangSimpleVariable> fields =
-                            typeResolver.getFieldsOfStructureType(referredType.tsymbol.name.value);
-                    return fields.stream().filter(f -> {
+                    List<BLangSimpleVariable> includedFields = new ArrayList<>();
+                    typeResolver.getFieldsOfStructureType(referredType.tsymbol.name.value, includedFields);
+                    return includedFields.stream().filter(f -> {
                         if (fieldNames.containsKey(f.name.value)) {
                             BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
                             if (existingVariable.flagSet.contains(Flag.PUBLIC) !=

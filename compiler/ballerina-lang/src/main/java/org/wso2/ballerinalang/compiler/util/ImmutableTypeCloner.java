@@ -908,7 +908,7 @@ public class ImmutableTypeCloner {
     }
 
     /**
-     * @since 2201.7.0
+     * @since 2201.6.0
      */
     public static class UpdateImmutableType implements TypeVisitor {
 

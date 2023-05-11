@@ -107,7 +107,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
- * @since 2201.7.0
+ * @since 2201.6.0
  */
 public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChecker.AnalyzerData> {
     private static final CompilerContext.Key<ConstantTypeChecker> CONSTANT_TYPE_CHECKER_KEY =
@@ -125,6 +125,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     private final ConstantTypeChecker.FillMembers fillMembers;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private Location currentPos;
+    private Stack<BLangExpression> compoundExprs = new Stack<>();
     public Stack<String> anonTypeNameSuffixes = new Stack<>();
 
     public ConstantTypeChecker(CompilerContext context) {
@@ -267,7 +268,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         BType finiteType = getFiniteType(literalExpr.value, data.constantSymbol, literalExpr.pos, literalType);
-        if (data.compoundExprs.isEmpty() &&
+        if (compoundExprs.isEmpty() &&
                 types.typeIncompatible(literalExpr.pos, finiteType, data.expType)) {
             data.resultType = symTable.semanticError;
             return;
@@ -324,7 +325,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             }
         }
 
-        if (data.compoundExprs.isEmpty() &&
+        if (compoundExprs.isEmpty() &&
                 types.typeIncompatible(varRefExpr.pos, actualType, data.expType)) {
             data.resultType = symTable.semanticError;
             return;
@@ -404,13 +405,13 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     public void visit(BLangBinaryExpr binaryExpr, AnalyzerData data) {
         BType expType = data.expType;
 
-        data.compoundExprs.push(binaryExpr.lhsExpr);
+        compoundExprs.push(binaryExpr.lhsExpr);
         BType lhsType = checkConstExpr(binaryExpr.lhsExpr, expType, data);
-        data.compoundExprs.pop();
+        compoundExprs.pop();
 
-        data.compoundExprs.push(binaryExpr.rhsExpr);
+        compoundExprs.push(binaryExpr.rhsExpr);
         BType rhsType = checkConstExpr(binaryExpr.rhsExpr, expType, data);
-        data.compoundExprs.pop();
+        compoundExprs.pop();
 
         Location pos = binaryExpr.pos;
 
@@ -456,7 +457,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             return;
         }
         BType finiteType = getFiniteType(resolvedValue, constantSymbol, pos, resultType);
-        if (data.compoundExprs.isEmpty() && types.typeIncompatible(pos, finiteType, expType)) {
+        if (compoundExprs.isEmpty() && types.typeIncompatible(pos, finiteType, expType)) {
             data.resultType = symTable.semanticError;
             return;
         }
@@ -470,9 +471,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     public void visit(BLangUnaryExpr unaryExpr, AnalyzerData data) {
         BType resultType;
 
-        data.compoundExprs.push(unaryExpr.expr);
+        compoundExprs.push(unaryExpr.expr);
         BType actualType = checkConstExpr(unaryExpr.expr, data.expType, data);
-        data.compoundExprs.pop();
+        compoundExprs.pop();
 
         if (actualType == symTable.semanticError) {
             data.resultType = symTable.semanticError;
@@ -498,7 +499,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         BType finiteType = getFiniteType(resolvedValue, constantSymbol, unaryExpr.pos, resultType);
-        if (data.compoundExprs.isEmpty() && types.typeIncompatible(unaryExpr.pos, finiteType, data.expType)) {
+        if (compoundExprs.isEmpty() && types.typeIncompatible(unaryExpr.pos, finiteType, data.expType)) {
             data.resultType = symTable.semanticError;
             return;
         }
@@ -1765,6 +1766,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue, expType);
                     return symTable.semanticError;
                 }
+                if (literalExpr.getBType().tag == TypeTags.BYTE) {
+                    return symTable.byteType;
+                }
                 return symTable.intType;
             case TypeTags.FLOAT:
                 // The literalValue will be a string if it was not within the bounds of what is supported by Java Long
@@ -1830,6 +1834,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             dlog.error(literalExpr.pos, DiagnosticErrorCode.OUT_OF_RANGE, literalExpr.originalValue,
                     literalExpr.getBType());
             return symTable.semanticError;
+        }
+        if (literalExpr.getBType().tag == TypeTags.BYTE) {
+            return symTable.byteType;
         }
         return symTable.intType;
     }
@@ -1922,12 +1929,12 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             case TypeTags.INT:
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
-//            case TypeTags.BYTE:
+            case TypeTags.BYTE:
                 BLangNumericLiteral numericLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
                 return createFiniteType(constantSymbol, updateLiteral(numericLiteral, value, type, pos));
-            case TypeTags.BYTE:
-                BLangNumericLiteral byteLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
-                return createFiniteType(constantSymbol, updateLiteral(byteLiteral, value, symTable.intType, pos));
+//            case TypeTags.BYTE:
+//                BLangNumericLiteral byteLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+//                return createFiniteType(constantSymbol, updateLiteral(byteLiteral, value, symTable.intType, pos));
             case TypeTags.STRING:
             case TypeTags.NIL:
             case TypeTags.BOOLEAN:
@@ -2215,7 +2222,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     /**
-     * @since 2201.7.0
+     * @since 2201.6.0
      */
     public static class FillMembers implements TypeVisitor {
 
@@ -2629,7 +2636,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     /**
-     * @since 2201.7.0
+     * @since 2201.6.0
      */
     public static class ResolveConstantExpressionType extends
             SimpleBLangNodeAnalyzer<ConstantTypeChecker.AnalyzerData> {
@@ -2855,7 +2862,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     /**
-     * @since 2201.7.0
+     * @since 2201.6.0
      */
     public static class AnalyzerData extends TypeChecker.AnalyzerData {
         public SymbolEnv env;
@@ -2868,6 +2875,5 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         BType resultType;
         Map<String, BLangNode> modTable;
         BConstantSymbol constantSymbol;
-        private Stack<BLangExpression> compoundExprs = new Stack<>();
     }
 }

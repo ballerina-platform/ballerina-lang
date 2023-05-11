@@ -554,14 +554,6 @@
       "sortText": "BN",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Cloneable",
-      "kind": "Enum",
-      "detail": "Union",
-      "sortText": "AI",
-      "insertText": "Cloneable",
-      "insertTextFormat": "Snippet"
     }
   ]
 }

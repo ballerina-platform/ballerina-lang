@@ -22,7 +22,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
- * @since 2201.7.0
+ * @since 2201.6.0
  */
 public class BTypeDefinition {
     public BType type;

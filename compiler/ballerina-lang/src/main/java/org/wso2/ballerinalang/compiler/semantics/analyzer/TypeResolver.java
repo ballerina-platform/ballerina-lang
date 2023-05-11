@@ -136,7 +136,7 @@ import static org.wso2.ballerinalang.compiler.util.Constants.INFERRED_ARRAY_INDI
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_ARRAY_INDICATOR;
 
 /**
- * @since 2201.7.0
+ * @since 2201.6.0
  */
 
 public class TypeResolver {
@@ -240,6 +240,7 @@ public class TypeResolver {
                 updateEffectiveTypeOfCyclicIntersectionTypes(pkgEnv);
                 handleDistinctDefinitionOfErrorIntersection(typeDefinition, type);
             }
+            resolvingTypes.clear();
         }
         clear();
     }
@@ -627,16 +628,20 @@ public class TypeResolver {
         }
     }
 
-    public List<BLangSimpleVariable> getFieldsOfStructureType(String name) {
+    public void getFieldsOfStructureType(String name, List<BLangSimpleVariable> includedFields) {
         BLangNode moduleLevelDef = modTable.get(name);
         if (moduleLevelDef != null && moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
             BLangNode typeNode = ((BLangTypeDefinition) moduleLevelDef).typeNode;
             if (typeNode.getKind() == NodeKind.RECORD_TYPE || typeNode.getKind() == NodeKind.OBJECT_TYPE) {
                 BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeNode;
-                return structureTypeNode.fields;
+                includedFields.addAll(structureTypeNode.fields);
+                structureTypeNode.typeRefs.forEach(typeRef -> {
+                    if (typeRef.getKind() == NodeKind.USER_DEFINED_TYPE) {
+                        getFieldsOfStructureType(((BLangUserDefinedType) typeRef).typeName.value, includedFields);
+                    }
+                });
             }
         }
-        return new ArrayList<>();
     }
 
     public BLangTypeDefinition getTypeDefinition(String name) {
@@ -1263,7 +1268,7 @@ public class TypeResolver {
                                   Map<String, BLangNode> mod, int depth, BLangTypeDefinition typeDefinition) {
         currentDepth = depth;
 
-        if (td.defn != null) {
+        if (td.defn != null && !resolvingTypeDefinitions.contains(typeDefinition)) {
             return td.defn.getMutableType();
         }
 
@@ -1625,7 +1630,7 @@ public class TypeResolver {
 
     private BType resolveSingletonType(BLangFiniteTypeNode td, SymbolEnv symEnv) {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
-                Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
+                (Flags.asMask(EnumSet.of(Flag.PUBLIC))), Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos, BUILTIN);
 
         // In case we encounter unary expressions in finite type, we will be replacing them with numeric literals.
