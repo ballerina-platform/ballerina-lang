@@ -28,6 +28,10 @@ public class CommonUtils {
     private CommonUtils() {
     }
 
+    public static String replaceExecutionTime(String content) {
+        return replaceVaryingString("Test execution time :", "ms", content);
+    }
+
     public static String replaceVaryingString(String firstString, String endString, String content) {
         String modifiedContent = content;
         int firstPos = modifiedContent.indexOf(firstString);

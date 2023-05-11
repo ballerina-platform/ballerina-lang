@@ -78,42 +78,58 @@ function executeTests() returns error? {
 
     }
 
+    int paralalTestExecutionListLength = parallelTestExecutionList.length();
+    int serialTestExecutionListLength = serialTestExecutionList.length();
+
     while true {
-        if (parallelTestExecutionList.length() == 0 && getAvailableWorkerCount() == testWorkers
-            && serialTestExecutionList.length() == 0) {
+
+        TestFunction? testFunction = ();
+        lock {
+            paralalTestExecutionListLength = parallelTestExecutionList.length();
+            serialTestExecutionListLength = serialTestExecutionList.length();
+        }
+        //Exit from the loop if there are no tests to execute and all jobs are released  
+        if (paralalTestExecutionListLength == 0 && getAvailableWorkerCount() == testWorkers
+            && serialTestExecutionListLength == 0) {
             break;
         }
 
         if (getAvailableWorkerCount() != 0) {
 
-            if parallelTestExecutionList.length() == 0 && serialTestExecutionList.length() == 0 {
+            if paralalTestExecutionListLength == 0 && serialTestExecutionListLength == 0 {
                 runtime:sleep(0.0001);
                 continue;
 
             }
 
-            if (serialTestExecutionList.length() != 0 && getAvailableWorkerCount() == testWorkers) {
+            if (serialTestExecutionListLength != 0 && getAvailableWorkerCount() == testWorkers) {
+                lock {
+                    testFunction = serialTestExecutionList.remove(0);
+                }
 
-                TestFunction testFunction = serialTestExecutionList.remove(0);
-                allocateWorker();
-                future<error?> serialWaiter = start executeTest(testFunction);
-                any _ = check wait serialWaiter;
+                if testFunction is TestFunction {
+                    allocateWorker();
+                    future<error?> serialWaiter = start executeTest(testFunction);
+                    any _ = check wait serialWaiter;
+                }
 
-            } else if parallelTestExecutionList.length() != 0 && serialTestExecutionList.length() == 0 {
-                TestFunction testFunction = parallelTestExecutionList.remove(0);
-                allocateWorker();
-                future<(error?)> parallelWaiter = start executeTest(testFunction);
-                runtime:sleep(0.0001);
-                if isDataDrivenTest(testFunction) {
-                    any _ = check wait parallelWaiter;
+            } else if paralalTestExecutionListLength != 0 && serialTestExecutionListLength == 0 {
+                lock {
+                    testFunction = parallelTestExecutionList.remove(0);
+                }
+                if testFunction is TestFunction {
+                    allocateWorker();
+                    future<(error?)> parallelWaiter = start executeTest(testFunction);
+                    if isDataDrivenTest(testFunction) {
+                        any _ = check wait parallelWaiter;
+                    }
                 }
 
             }
-        } else {
-            runtime:sleep(0.0001);
         }
+        runtime:sleep(0.0001);
     }
-    // println("Test execution time :" + (currentTimeInMillis() - startTime).toString() + "ms");
+    println("\n\t\tTest execution time :" + (currentTimeInMillis() - startTime).toString() + "ms\n");
 }
 
 function executeTest(TestFunction testFunction) returns error? {
@@ -161,7 +177,6 @@ function executeTest(TestFunction testFunction) returns error? {
     }
     testFunction.dependents.forEach(dependent => checkExecutionReadiness(dependent));
     releaseWorker();
-    // isSerialTestExecution = !isSerialTestExecution && !testFunction.parallelizable;
 }
 
 function checkExecutionReadiness(TestFunction testFunction) {
@@ -227,8 +242,19 @@ function executeDataDrivenTestSet(TestFunction testFunction) returns error? {
             runtime:sleep(0.0001);
             continue;
         }
+        runtime:sleep(0.0001);
     }
-    allocateWorker();
+
+    while true {
+        if getAvailableWorkerCount() > 0 {
+            break;
+        }
+        runtime:sleep(0.0001);
+    }
+    
+    if !isIntialJob {
+        allocateWorker();
+    }
 }
 
 function prepareDataDrivenTest(TestFunction testFunction, string key, AnyOrError[] value, TestType testType) {
