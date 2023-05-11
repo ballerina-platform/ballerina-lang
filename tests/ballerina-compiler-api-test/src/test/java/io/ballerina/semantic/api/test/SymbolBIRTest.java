@@ -41,6 +41,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -179,7 +180,7 @@ public class SymbolBIRTest {
         
         SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), List.of("HumanObj", "ApplicationResponseError", 
                 "Person", "BasicType", "Digit", "FileNotFoundError", "EofError", "Error", "Pet", "Student", "Cat", 
-                "Annot", "Detail", "Service", "FnTypeA", "FnTypeB"));
+                "Annot", "Detail", "Service", "FnTypeA", "FnTypeB", "Address"));
 
         
         SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj", "Human"));
@@ -389,5 +390,22 @@ public class SymbolBIRTest {
             ClassFieldSymbol fieldSymbol = (ClassFieldSymbol) symbol.get();
             assertEquals((Boolean) fieldSymbol.hasDefaultValue(), hasDefault);
         }
+    }
+
+    @Test
+    public void testSymbolPosBIR() {
+        Project project = BCompileUtil.loadProject("test-src/symbol_position_bir_test.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        Document srcFile = getDocumentForSingleSource(project);
+
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        LineRange lineRange = ((TypeReferenceTypeSymbol) model.symbol(srcFile,
+                from(19, 16)).get()).definition().getLocation().get().lineRange();
+        assertEquals(lineRange.startLine().line(), 143);
+        assertEquals(lineRange.startLine().offset(), 0);
+        assertEquals(lineRange.endLine().line(), 147);
+        assertEquals(lineRange.endLine().offset(), 2);
     }
 }
