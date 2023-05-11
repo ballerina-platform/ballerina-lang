@@ -215,8 +215,7 @@ public class DocCommand implements BLauncherCmd {
                 .setCodeCoverage(false)
                 .setOffline(offline)
                 .setTestReport(false)
-                .setObservabilityIncluded(false)
-                .build();
+                .setObservabilityIncluded(false);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
