@@ -1,0 +1,63 @@
+{
+  "position": {
+    "line": 38,
+    "character": 17
+  },
+  "source": "expressions/clientSource.bal",
+  "expected": {
+    "result": {
+      "signatures": [
+        {
+          "label": "remote1(string id, int age, string name)",
+          "parameters": [
+            {
+              "label": {
+                "right": {
+                  "first": 15,
+                  "second": 17
+                }
+              },
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "**Parameter**  \n**`string`id**"
+                }
+              }
+            },
+            {
+              "label": {
+                "right": {
+                  "first": 23,
+                  "second": 26
+                }
+              },
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "**Parameter**  \n**`int`age**"
+                }
+              }
+            },
+            {
+              "label": {
+                "right": {
+                  "first": 35,
+                  "second": 39
+                }
+              },
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "**Parameter**  \n**`string`name**"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "activeSignature": 0,
+      "activeParameter": 0
+    },
+    "jsonrpc": "2.0"
+  }
+}

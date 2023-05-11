@@ -31,6 +31,7 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
+import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
@@ -70,6 +71,7 @@ import org.ballerinalang.langserver.completions.builder.ConstantCompletionItemBu
 import org.ballerinalang.langserver.completions.builder.FieldCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.ParameterCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.ResourcePathCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.StreamTypeInitCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.TypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
@@ -479,8 +481,14 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                     FunctionCompletionItemBuilder.buildFunctionPointer(symbol, context);
             completionItems.add(new FunctionPointerCompletionItem(context, symbol, pointerCompletionItem));
         }
-        CompletionItem completionItem = FunctionCompletionItemBuilder.build(symbol, context);
-        completionItems.add(new SymbolCompletionItem(context, symbol, completionItem));
+        if (symbol.kind() == RESOURCE_METHOD && symbol.getName().isPresent()) {
+            ResourcePathCompletionItemBuilder.build((ResourceMethodSymbol) symbol, context).stream().map(
+                            completionItem -> new SymbolCompletionItem(context, symbol, completionItem))
+                    .forEach(completionItems::add);
+        } else {
+            CompletionItem completionItem = FunctionCompletionItemBuilder.build(symbol, context);
+            completionItems.add(new SymbolCompletionItem(context, symbol, completionItem));
+        }
         return completionItems;
     }
 
@@ -526,6 +534,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_BASE64_LITERAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FROM.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_REG_EXP.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_STRING.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_XML.get()));
         
         Predicate<Symbol> symbolFilter = getExpressionContextSymbolFilter();
         List<Symbol> filteredList = visibleSymbols.stream()

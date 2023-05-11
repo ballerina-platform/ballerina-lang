@@ -42,7 +42,7 @@ public final class WorkerCompletionItemBuilder {
         CompletionItem item = new CompletionItem();
         String name = workerSymbol.getName().orElse("");
         item.setLabel(name);
-        item.setInsertText(CommonUtil.escapeEscapeCharsInIdentifier(name));
+        item.setInsertText(CommonUtil.escapeSpecialCharsInInsertText(name));
         item.setDetail(ItemResolverConstants.WORKER);
         item.setKind(CompletionItemKind.Variable);
         return item;

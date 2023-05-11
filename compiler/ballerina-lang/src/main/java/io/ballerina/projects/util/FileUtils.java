@@ -18,12 +18,15 @@
 package io.ballerina.projects.util;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -240,6 +243,45 @@ public class FileUtils {
                 return false;
             }
             return false;
+        }
+    }
+
+    /**
+     * Add deprecated meta file.
+     *
+     * @param metaFilePath deprecated message meta file path
+     * @param message deprecated message
+     */
+    public static void addDeprecatedMetaFile(Path metaFilePath, String message) {
+        if (!metaFilePath.toFile().exists()) {
+            try {
+                Files.createFile(metaFilePath);
+            } catch (IOException ignored) {
+                // ignore and continue
+                return;
+            }
+        }
+        if (metaFilePath.toFile().exists()) {
+            try (FileWriter fileWriter = new FileWriter(metaFilePath.toAbsolutePath().toString(),
+                    Charset.defaultCharset());
+                 BufferedWriter bufferedWriter = new BufferedWriter(fileWriter)) {
+                bufferedWriter.write(message);
+            } catch (IOException ignored) {
+                // ignore and continue
+            }
+        }
+    }
+
+    /**
+     * Delete deprecated meta file.
+     *
+     * @param metaFilePath deprecated message meta file path
+     */
+    public static void deleteDeprecatedMetaFile(Path metaFilePath) {
+        try {
+            Files.deleteIfExists(metaFilePath);
+        } catch (IOException ignored) {
+            // ignore and continue
         }
     }
 

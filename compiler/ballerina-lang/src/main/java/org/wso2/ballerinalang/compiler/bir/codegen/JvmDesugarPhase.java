@@ -30,7 +30,10 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -139,7 +142,7 @@ public class JvmDesugarPhase {
 
         // Inject an additional parameter to accept the self-record value into the init function
         BIRFunctionParameter selfParam = new BIRFunctionParameter(null, receiver.type, receiver.name,
-                                                                  receiver.scope, VarKind.ARG, paramName, false);
+                receiver.scope, VarKind.ARG, paramName, false, false);
 
         List<BType> updatedParamTypes = Lists.of(receiver.type);
         updatedParamTypes.addAll(func.type.paramTypes);
@@ -229,13 +232,28 @@ public class JvmDesugarPhase {
                 localVar.metaVarName = encodeNonFunctionIdentifier(localVar.metaVarName, encodedVsInitialIds);
             }
             for (BIRNode.BIRParameter parameter : function.requiredParams) {
-                if (parameter.name == null) {
-                    continue;
-                }
                 parameter.name = Names.fromString(encodeNonFunctionIdentifier(parameter.name.value,
                                                                               encodedVsInitialIds));
             }
+            if (function.type.tsymbol != null) {
+                for (BVarSymbol parameter : ((BInvokableTypeSymbol) function.type.tsymbol).params) {
+                    parameter.name = Names.fromString(encodeNonFunctionIdentifier(parameter.name.value,
+                            encodedVsInitialIds));
+                }
+            }
+            encodeDefaultFunctionName(function.type, encodedVsInitialIds);
             encodeWorkerName(function, encodedVsInitialIds);
+        }
+    }
+
+    private static void encodeDefaultFunctionName(BInvokableType type, HashMap<String, String> encodedVsInitialIds) {
+        BInvokableTypeSymbol typeSymbol = (BInvokableTypeSymbol) type.tsymbol;
+        if (typeSymbol == null) {
+            return;
+        }
+        for (BInvokableSymbol defaultFunc : typeSymbol.defaultValues.values()) {
+            defaultFunc.name = Names.fromString(encodeFunctionIdentifier(defaultFunc.name.value,
+                    encodedVsInitialIds));
         }
     }
 
@@ -326,12 +344,26 @@ public class JvmDesugarPhase {
                 localVar.metaVarName = getInitialIdString(localVar.metaVarName, encodedVsInitialIds);
             }
             for (BIRNode.BIRParameter parameter : function.requiredParams) {
-                if (parameter.name == null) {
-                    continue;
-                }
                 parameter.name = getInitialIdString(parameter.name, encodedVsInitialIds);
             }
+            if (function.type.tsymbol != null) {
+                for (BVarSymbol parameter : ((BInvokableTypeSymbol) function.type.tsymbol).params) {
+                    parameter.name = getInitialIdString(parameter.name, encodedVsInitialIds);
+                }
+            }
+            replaceEncodedDefaultFunctionName(function.type, encodedVsInitialIds);
             replaceEncodedWorkerName(function, encodedVsInitialIds);
+        }
+    }
+
+    private static void replaceEncodedDefaultFunctionName(BInvokableType type,
+                                                          HashMap<String, String> encodedVsInitialIds) {
+        BInvokableTypeSymbol typeSymbol = (BInvokableTypeSymbol) type.tsymbol;
+        if (typeSymbol == null) {
+            return;
+        }
+        for (BInvokableSymbol defaultFunc : typeSymbol.defaultValues.values()) {
+            defaultFunc.name = getInitialIdString(defaultFunc.name, encodedVsInitialIds);
         }
     }
 

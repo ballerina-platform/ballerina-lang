@@ -237,16 +237,6 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get version Keyword Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getVersionKeywordSnippet() {
-        return new SnippetBlock(ItemResolverConstants.VERSION_KEYWORD, ItemResolverConstants.VERSION_KEYWORD,
-                "version", ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
-    }
-
-    /**
      * Get From Keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -544,20 +534,6 @@ public class SnippetGenerator {
         String snippet = "lock {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.LOCK, ItemResolverConstants.LOCK, snippet,
                 ItemResolverConstants.STATEMENT_TYPE, Kind.STATEMENT);
-    }
-
-    /**
-     * Get Main Function Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getMainFunctionSnippet() {
-        String snippet = "public function main() {" + CommonUtil.LINE_SEPARATOR + "\t${1}"
-                + CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(ItemResolverConstants.MAIN_FUNCTION,
-                generateFilterText(Arrays.asList(ItemResolverConstants.PUBLIC_KEYWORD,
-                        ItemResolverConstants.FUNCTION, "main")), snippet,
-                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
     }
 
     /**
@@ -1316,6 +1292,28 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get string Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getStringSnippet() {
+        String snippet = "string `${1}`";
+        return new SnippetBlock(ItemResolverConstants.STRING_TEMP, ItemResolverConstants.STRING_TEMP, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Get xml Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getXmlSnippet() {
+        String snippet = "xml `${1}`";
+        return new SnippetBlock(ItemResolverConstants.XML_TEMP, ItemResolverConstants.XML_TEMP, snippet,
+                ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
      * Get Paranthesis Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1434,7 +1432,7 @@ public class SnippetGenerator {
         return new SnippetBlock(keyword, keyword, keyword, ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
     }
 
-    private static String generateFilterText(List<String> filters) {
+    public static String generateFilterText(List<String> filters) {
         return String.join(FILTER_TEXT_SEPARATOR, filters);
     }
 }

@@ -77,6 +77,7 @@ import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PrepareRenameDefaultBehavior;
 import org.eclipse.lsp4j.PrepareRenameParams;
 import org.eclipse.lsp4j.PrepareRenameResult;
 import org.eclipse.lsp4j.Range;
@@ -92,6 +93,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
 import java.net.URISyntaxException;
@@ -499,7 +501,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<Either<Range, PrepareRenameResult>> prepareRename(PrepareRenameParams params) {
+    public CompletableFuture<Either3<Range, PrepareRenameResult, PrepareRenameDefaultBehavior>>
+    prepareRename(PrepareRenameParams params) {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 String fileUri = params.getTextDocument().getUri();
@@ -511,7 +514,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         cancelChecker);
                 Optional<Range> range = RenameUtil.prepareRename(context);
                 if (range.isPresent()) {
-                    return Either.forLeft(range.get());
+                    return Either3.forFirst(range.get());
                 }
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Rename", e);

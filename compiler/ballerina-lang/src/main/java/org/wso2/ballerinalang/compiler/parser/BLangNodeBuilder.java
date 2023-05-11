@@ -654,7 +654,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
         }
 
-        Location newLocation = new BLangDiagnosticLocation(pos.lineRange().filePath(), 0, 0, 0, 0, 0, 0);
+        Location newLocation = new BLangDiagnosticLocation(pos.lineRange().fileName(), 0, 0, 0, 0, 0, 0);
 
         compilationUnit.pos = newLocation;
         compilationUnit.setPackageID(packageID);
@@ -2457,7 +2457,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             case RAW_TEMPLATE_EXPRESSION:
                 return createRawTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
             case REGEX_TEMPLATE_EXPRESSION:
-                return createRegExpTemplateLiteral(expressionNode.content(), getPosition(expressionNode));
+                return createRegExpTemplateLiteral(expressionNode);
             default:
                 throw new RuntimeException("Syntax kind is not supported: " + kind);
         }
@@ -3591,7 +3591,13 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private BLangNode createXMLEmptyLiteral(Node expressionNode) {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
         xmlTextLiteral.pos = getPosition(expressionNode);
-        xmlTextLiteral.textFragments.add(createEmptyStringLiteral(xmlTextLiteral.pos));
+        Location expressionPos = xmlTextLiteral.pos;
+        if (expressionNode.kind() == SyntaxKind.XML_TEMPLATE_EXPRESSION) {
+            TemplateExpressionNode templateExprNode = (TemplateExpressionNode) expressionNode;
+            expressionPos = getPosition(templateExprNode.startBacktick(), templateExprNode.endBacktick());
+        }
+
+        xmlTextLiteral.textFragments.add(createEmptyStringLiteral(expressionPos));
         return xmlTextLiteral;
     }
 
@@ -5477,12 +5483,15 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         return literal;
     }
-
-    private BLangNode createRegExpTemplateLiteral(NodeList<Node> reSequences, Location location) {
+    
+    private BLangNode createRegExpTemplateLiteral(TemplateExpressionNode expressionNode) {
         BLangRegExpTemplateLiteral regExpTemplateLiteral =
                 (BLangRegExpTemplateLiteral) TreeBuilder.createRegExpTemplateLiteralNode();
-        regExpTemplateLiteral.reDisjunction = (BLangReDisjunction) createReDisjunctionNode(reSequences, location);
-        regExpTemplateLiteral.pos = location;
+        
+        Location reDisjunctionPos = getPosition(expressionNode.startBacktick(), expressionNode.endBacktick());
+        regExpTemplateLiteral.reDisjunction = (BLangReDisjunction) createReDisjunctionNode(expressionNode.content(),
+                reDisjunctionPos);
+        regExpTemplateLiteral.pos = getPosition(expressionNode);
         return regExpTemplateLiteral;
     }
 
@@ -5620,10 +5629,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         Location pos = getPosition(reSimpleCharClassEscapeNode);
         BLangExpression escapeChar = createStringLiteral(backSlash.value.toString() +
                 simpleCharClassEscapeNode.value.toString(), pos);
-        // Return the literal for escape sequence if it's in a character class.
-        if (this.isInCharacterClass) {
-            return escapeChar;
-        }
         BLangReAtomCharOrEscape reAtomCharOrEscape =
                 (BLangReAtomCharOrEscape) TreeBuilder.createReAtomCharOrEscapeNode();
         reAtomCharOrEscape.charOrEscape = escapeChar;
@@ -5765,8 +5770,25 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         charSetRange.dash = (BLangExpression) charSetRangeNode.minusToken().apply(this);
         charSetRange.rhsCharSetAtom = (BLangExpression) charSetRangeNode.rhsReCharSetAtom().apply(this);
         charSetRange.pos = getPosition(charSetRangeNode);
-        // lhsCharSetAtom value should be less than rhsCharSetAtom value.
-        checkRangeValidity((BLangLiteral) charSetRange.lhsCharSetAtom, (BLangLiteral) charSetRange.rhsCharSetAtom);
+        return validateAndRefactorCharSetRange(charSetRange);
+    }
+
+    private BLangReCharSetRange validateAndRefactorCharSetRange(BLangReCharSetRange charSetRange) {
+        BLangExpression lhsCharSetAtom = charSetRange.lhsCharSetAtom;
+        BLangExpression rhsCharSetAtom = charSetRange.rhsCharSetAtom;
+        if (lhsCharSetAtom.getKind() != NodeKind.REG_EXP_ATOM_CHAR_ESCAPE
+                && rhsCharSetAtom.getKind() != NodeKind.REG_EXP_ATOM_CHAR_ESCAPE) {
+            // lhsCharSetAtom value should be less than rhsCharSetAtom value.
+            checkRangeValidity((BLangLiteral) lhsCharSetAtom, (BLangLiteral) rhsCharSetAtom);
+        }
+        if (isInCharacterClass) {
+            if (lhsCharSetAtom.getKind() == NodeKind.REG_EXP_ATOM_CHAR_ESCAPE) {
+                charSetRange.lhsCharSetAtom = ((BLangReAtomCharOrEscape) lhsCharSetAtom).charOrEscape;
+            }
+            if (charSetRange.rhsCharSetAtom.getKind() == NodeKind.REG_EXP_ATOM_CHAR_ESCAPE) {
+                charSetRange.rhsCharSetAtom = ((BLangReAtomCharOrEscape) rhsCharSetAtom).charOrEscape;
+            }
+        }
         return charSetRange;
     }
 
@@ -5803,7 +5825,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         charSetRange.dash = (BLangExpression) charSetRangeNode.minusToken().apply(this);
         charSetRange.rhsCharSetAtom = (BLangExpression) charSetRangeNode.reCharSetAtom().apply(this);
         charSetRange.pos = getPosition(charSetRangeNode);
-        return charSetRange;
+        return validateAndRefactorCharSetRange(charSetRange);
     }
 
     @Override
@@ -6937,7 +6959,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
                (location.lineRange().startLine().line() == upTo.lineRange().startLine().line() &&
                        location.lineRange().startLine().offset() >= upTo.lineRange().startLine().offset());
 
-        Location expandedLocation = new BLangDiagnosticLocation(location.lineRange().filePath(),
+        Location expandedLocation = new BLangDiagnosticLocation(location.lineRange().fileName(),
                 upTo.lineRange().startLine().line(),
                 location.lineRange().endLine().line(),
                 upTo.lineRange().startLine().offset(),

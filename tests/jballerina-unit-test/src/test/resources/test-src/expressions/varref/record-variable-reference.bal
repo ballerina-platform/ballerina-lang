@@ -316,6 +316,59 @@ function testReadOnlyRecordWithMappingBindingPatternInDestructuringAssignment() 
     assertEquality("s1", y2);
 }
 
+type ClosedRec record {|
+    string a;
+    string b;
+|};
+
+type OpenRec record {
+    string a;
+    string b;
+};
+
+function testMappingBindingWithSingleNameFieldBinding() {
+    record {|
+        string a;
+        string b;
+    |} x = {a: "foo", b: "bar"};
+
+    string a;
+    string b;
+
+    {a} = x;
+    assertEquality("foo", a);
+
+    {b} = x;
+    assertEquality("bar", b);
+
+    ClosedRec y = {a: "foo2", b: "bar2"};
+
+    {a} = y;
+    assertEquality("foo2", a);
+
+    {b} = y;
+    assertEquality("bar2", b);
+
+    record {
+        string a;
+        string b;
+    } v = {a: "foo3", b: "bar3"};
+
+    {a} = v;
+    assertEquality("foo3", a);
+
+    {b} = v;
+    assertEquality("bar3", b);
+
+    OpenRec w = {a: "foo4", b: "bar4"};
+
+    {a} = w;
+    assertEquality("foo4", a);
+
+    {b} = w;
+    assertEquality("bar4", b);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

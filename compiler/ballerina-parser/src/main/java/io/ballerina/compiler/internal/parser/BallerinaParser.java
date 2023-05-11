@@ -706,16 +706,9 @@ public class BallerinaParser extends AbstractParser {
                 STNode slash = parseSlashToken();
                 orgName = STNodeFactory.createImportOrgNameNode(identifier, slash);
                 moduleName = parseModuleName();
-                parseVersion(); // Parse version and log an error
                 alias = parseImportPrefixDecl();
                 break;
             case DOT_TOKEN:
-            case VERSION_KEYWORD:
-                orgName = STNodeFactory.createEmptyNode();
-                moduleName = parseModuleName(identifier);
-                parseVersion(); // Parse version and log an error
-                alias = parseImportPrefixDecl();
-                break;
             case AS_KEYWORD:
                 orgName = STNodeFactory.createEmptyNode();
                 moduleName = parseModuleName(identifier);
@@ -804,7 +797,6 @@ public class BallerinaParser extends AbstractParser {
             case DOT_TOKEN:
                 return consume();
             case AS_KEYWORD:
-            case VERSION_KEYWORD:
             case SEMICOLON_TOKEN:
                 return null;
             default:
@@ -834,111 +826,6 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse version component of a import declaration.
-     * <p>
-     * <code>version-decl := version sem-ver</code>
-     * @deprecated
-     * Version is no longer supported. Hence, parse it and log an error.
-     **/
-    @Deprecated
-    private void parseVersion() {
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case VERSION_KEYWORD:
-                STNode versionKeyword = parseVersionKeyword();
-                STNode versionNumber = parseVersionNumber();
-                addInvalidNodeToNextToken(versionKeyword,
-                        DiagnosticErrorCode.ERROR_VERSION_IN_IMPORT_DECLARATION_NO_LONGER_SUPPORTED);
-                addInvalidNodeToNextToken(versionNumber, null);
-                return;
-            case AS_KEYWORD:
-            case SEMICOLON_TOKEN:
-                return;
-            default:
-                if (isEndOfImportDecl(nextToken)) {
-                    return;
-                }
-
-                recover(peek(), ParserRuleContext.IMPORT_VERSION_DECL);
-                parseVersion();
-        }
-    }
-
-    /**
-     * Parse version keyword.
-     *
-     * @return Parsed node
-     */
-    private STNode parseVersionKeyword() {
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.VERSION_KEYWORD) {
-            return consume();
-        } else {
-            recover(peek(), ParserRuleContext.VERSION_KEYWORD);
-            return parseVersionKeyword();
-        }
-    }
-
-    /**
-     * Parse version number.
-     * <p>
-     * <code>sem-ver := major-num [. minor-num [. patch-num]]
-     * <br/>
-     * major-num := DecimalNumber
-     * <br/>
-     * minor-num := DecimalNumber
-     * <br/>
-     * patch-num := DecimalNumber
-     * </code>
-     *
-     * @return Parsed node
-     */
-    private STNode parseVersionNumber() {
-        STToken nextToken = peek();
-        STNode majorVersion;
-        switch (nextToken.kind) {
-            case DECIMAL_INTEGER_LITERAL_TOKEN:
-                majorVersion = parseMajorVersion();
-                break;
-            default:
-                recover(peek(), ParserRuleContext.VERSION_NUMBER);
-                return parseVersionNumber();
-        }
-
-        List<STNode> versionParts = new ArrayList<>();
-        versionParts.add(majorVersion);
-
-        STNode minorVersionEnd = parseSubVersionEnd();
-        if (minorVersionEnd != null) {
-            versionParts.add(minorVersionEnd);
-            STNode minorVersion = parseMinorVersion();
-            versionParts.add(minorVersion);
-
-            STNode patchVersionEnd = parseSubVersionEnd();
-            if (patchVersionEnd != null) {
-                versionParts.add(patchVersionEnd);
-                STNode patchVersion = parsePatchVersion();
-                versionParts.add(patchVersion);
-            }
-        }
-
-        return STNodeFactory.createNodeList(versionParts);
-
-    }
-
-    private STNode parseMajorVersion() {
-        return parseDecimalIntLiteral(ParserRuleContext.MAJOR_VERSION);
-    }
-
-    private STNode parseMinorVersion() {
-        return parseDecimalIntLiteral(ParserRuleContext.MINOR_VERSION);
-    }
-
-    private STNode parsePatchVersion() {
-        return parseDecimalIntLiteral(ParserRuleContext.PATCH_VERSION);
-    }
-
-    /**
      * Parse decimal literal.
      *
      * @param context Context in which the decimal literal is used.
@@ -951,21 +838,6 @@ public class BallerinaParser extends AbstractParser {
         } else {
             recover(peek(), context);
             return parseDecimalIntLiteral(context);
-        }
-    }
-
-    private STNode parseSubVersionEnd() {
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case AS_KEYWORD:
-            case SEMICOLON_TOKEN:
-            case EOF_TOKEN:
-                return null;
-            case DOT_TOKEN:
-                return parseDotToken();
-            default:
-                recover(nextToken, ParserRuleContext.IMPORT_SUB_VERSION);
-                return parseSubVersionEnd();
         }
     }
 
@@ -6484,18 +6356,20 @@ public class BallerinaParser extends AbstractParser {
         STToken secondToken = peek();
         switch (secondToken.kind) {
             case EQUAL_TOKEN:
+                if (argNameOrExpr.kind != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                    break;
+                }
                 STNode equal = parseAssignOp();
                 STNode valExpr = parseExpression();
                 return STNodeFactory.createNamedArgumentNode(argNameOrExpr, equal, valExpr);
             case COMMA_TOKEN:
             case CLOSE_PAREN_TOKEN:
                 return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
-            default:
-                // Treat everything else as a single expression. If something is missing,
-                // expression-parsing will recover it.
-                argNameOrExpr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, argNameOrExpr, true, false);
-                return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
         }
+        // Treat everything else as a single expression. If something is missing,
+        // expression-parsing will recover it.
+        argNameOrExpr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, argNameOrExpr, true, false);
+        return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
     }
 
     /**
@@ -11248,6 +11122,7 @@ public class BallerinaParser extends AbstractParser {
         // Separate out the interpolated expressions to a queue. Then merge the string content using '${}'.
         // These '${}' are used to represent the interpolated locations. Regular expression parser will replace '${}'
         // with the actual interpolated expression, while building the regular expression tree.
+        this.tokenReader.startMode(ParserMode.REGEXP);
         ArrayDeque<STNode> expressions = new ArrayDeque<>();
         StringBuilder regExpStringBuilder = new StringBuilder();
         STToken nextToken = peek();
@@ -11261,7 +11136,7 @@ public class BallerinaParser extends AbstractParser {
             }
             nextToken = peek();
         }
-
+        this.tokenReader.endMode();
         CharReader charReader = CharReader.from(regExpStringBuilder.toString());
         AbstractTokenReader tokenReader = new TokenReader(new RegExpLexer(charReader));
         RegExpParser regExpParser = new RegExpParser(tokenReader, expressions);
@@ -18286,6 +18161,7 @@ public class BallerinaParser extends AbstractParser {
         STNode identifier = parseIdentifier(ParserRuleContext.VARIABLE_REF);
         switch (peek().kind) {
             case COMMA_TOKEN: // { foo,
+            case CLOSE_BRACE_TOKEN: // {foo}
                 // could be map literal or mapping-binding-pattern
                 STNode colon = STNodeFactory.createEmptyNode();
                 STNode value = STNodeFactory.createEmptyNode();

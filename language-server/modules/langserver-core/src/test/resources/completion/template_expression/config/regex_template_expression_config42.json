@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 17,
+    "character": 31
+  },
+  "source": "template_expression/source/regex_template_expression_source11.bal",
+  "description": "",
+  "items": [
+    {
+      "label": ":",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "im:",
+      "insertText": "im:",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "-",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "im-",
+      "insertText": "im-",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "s",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "ims",
+      "insertText": "ims",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "x",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "imx",
+      "insertText": "imx",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

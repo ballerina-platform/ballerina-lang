@@ -98,7 +98,9 @@ public class Main {
                     // is not provided
                     .setEndOfOptionsDelimiter("");
             cmdParser.getSubcommands().get("build").setStopAtUnmatched(false).setStopAtPositional(true);
-            cmdParser.getSubcommands().get("test").setStopAtUnmatched(false).setStopAtPositional(true);
+            cmdParser.getSubcommands().get("test").setStopAtUnmatched(true).setStopAtPositional(true)
+                    .setUnmatchedOptionsArePositionalParams(true)
+                    .setEndOfOptionsDelimiter("");
 
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();

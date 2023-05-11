@@ -62,6 +62,7 @@ public abstract class Types {
     public final TypeSymbol JSON;
     public final TypeSymbol BYTE;
     public final TypeSymbol COMPILATION_ERROR;
+    public final TypeSymbol REGEX;
 
     protected Types(CompilerContext context) {
         this.context = context;
@@ -90,6 +91,7 @@ public abstract class Types {
         this.JSON = typesFactory.getTypeDescriptor(symbolTable.jsonType);
         this.BYTE = typesFactory.getTypeDescriptor(symbolTable.byteType);
         this.COMPILATION_ERROR = typesFactory.getTypeDescriptor(symbolTable.semanticError);
+        this.REGEX = typesFactory.getTypeDescriptor(symbolTable.regExpType);
     }
 
     /**

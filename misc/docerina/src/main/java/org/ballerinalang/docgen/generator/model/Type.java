@@ -275,9 +275,9 @@ public class Type {
             type = functionType;
         } else if (node instanceof MapTypeDescriptorNode) {
             MapTypeDescriptorNode mapTypeDesc = (MapTypeDescriptorNode) node;
-                type.name = "map";
-                type.category = "map";
-                type.constraint = fromNode(mapTypeDesc.mapTypeParamsNode().typeNode(), semanticModel);
+            type.name = "map";
+            type.category = "map";
+            type.constraint = fromNode(mapTypeDesc.mapTypeParamsNode().typeNode(), semanticModel);
         } else if (node instanceof ParameterizedTypeDescriptorNode) {
             ParameterizedTypeDescriptorNode parameterizedTypeNode = (ParameterizedTypeDescriptorNode) node;
             SyntaxKind typeKind = node.kind();
@@ -395,13 +395,29 @@ public class Type {
             List<FunctionType> functionTypes = new ArrayList<>();
             objectTypeSymbol.methods().forEach((methodName, methodSymbol) -> {
                 FunctionType functionType = new FunctionType();
-                functionType.name = methodName;
+                functionType.resourcePath = "";
+                if (methodSymbol.qualifiers().contains(Qualifier.RESOURCE)) {
+                    functionType.name = "";
+                    functionType.accessor = methodName;
+                } else {
+                    functionType.name = methodName;
+                    functionType.accessor = "";
+                }
                 functionType.description = methodSymbol.documentation().isPresent() &&
                         methodSymbol.documentation().get().description().isPresent() ?
                         methodSymbol.documentation().get().description().get() : null;
                 functionType.category = "included_function";
                 functionType.isIsolated = methodSymbol.qualifiers().contains(Qualifier.ISOLATED);
-                functionType.isRemote = methodSymbol.qualifiers().contains(Qualifier.REMOTE);
+                FunctionKind functionKind;
+                if (methodSymbol.qualifiers().contains(Qualifier.REMOTE)) {
+                    functionKind = FunctionKind.REMOTE;
+                } else if (methodSymbol.qualifiers().contains(Qualifier.RESOURCE)) {
+                    functionKind = FunctionKind.RESOURCE;
+                } else {
+                    functionKind = FunctionKind.OTHER;
+                }
+                functionType.functionKind = functionKind;
+
                 functionType.isExtern = methodSymbol.external();
                 methodSymbol.typeDescriptor().params().ifPresent(parameterSymbols -> {
                     parameterSymbols.forEach(parameterSymbol -> {
