@@ -79,12 +79,9 @@ function simpleQueryExprForStringResult() returns error? {
     string:Char chr = "a";
     BookGenerator bookGenerator = new ();
     stream<Book, error?> bookStream = new (bookGenerator);
-
     string strValue = check from Book _ in bookStream
         select chr;
-
     string expectedValue = "aa";
-
     assertTrue(strValue is string);
     assertEquality(strValue, expectedValue);
 }
@@ -92,12 +89,9 @@ function simpleQueryExprForStringResult() returns error? {
 function simpleQueryExprForStringResult2() returns error? {
     stream<Book, error?> bookStream = [{ author: "Author 1", title: "Title 1" },
                                         {author: "Author 2", title: "Title 2" }].toStream();
-
     string strValue = check from Book _ in bookStream
         select <string:Char> "a";
-
     string expectedValue = "aa";
-
     assertTrue(strValue is string);
     assertEquality(strValue, expectedValue);
 }
@@ -106,10 +100,8 @@ function simpleQueryExprForStringResult3() returns error? {
     string:Char chr = "a";
     BookGenerator bookGenerator = new ();
     stream<Book, error?> bookStream = new (bookGenerator);
-
     string:Char[] strValue = check from Book _ in bookStream
         select chr;
-
     assertTrue(strValue is string:Char[]);
     assertEquality(strValue[0], chr);
     assertEquality(strValue[1], chr);
@@ -119,9 +111,7 @@ function testQueryExprWithWhereForStringResult() returns string {
     Person p1 = {firstName: "Alex", lastName: "George", age: 23};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
     Person p3 = {firstName: "John", lastName: "David", age: 33};
-
     Person[] personList = [p1, p2, p3];
-
     string outputNameString =
                 from var person in personList
                 where person.age >= 30
