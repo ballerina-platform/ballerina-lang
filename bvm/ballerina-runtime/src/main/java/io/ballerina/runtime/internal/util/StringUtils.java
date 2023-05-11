@@ -63,37 +63,28 @@ public class StringUtils {
         if (value == null) {
             return "";
         }
-
         Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
-
         if (type.getTag() == TypeTags.STRING_TAG) {
             return ((BString) value).getValue();
         }
-
         if (type.getTag() < TypeTags.NULL_TAG) {
             return String.valueOf(value);
         }
-
         CycleUtils.Node node = new CycleUtils.Node(value, parent);
-
         if (node.hasCyclesSoFar()) {
             return STR_CYCLE;
         }
-
         if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             MapValueImpl mapValue = (MapValueImpl) value;
             return mapValue.stringValue(parent);
         }
-
         if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
             ArrayValue arrayValue = (ArrayValue) value;
             return arrayValue.stringValue(parent);
         }
-
         if (type.getTag() == TypeTags.TABLE_TAG) {
             return ((BRefValue) value).informalStringValue(parent);
         }
-
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue objectValue = (ObjectValue) value;
             ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
@@ -104,7 +95,6 @@ public class StringUtils {
                 }
             }
         }
-
         BValue bValue = (BValue) value;
         return bValue.stringValue(parent);
     }
@@ -120,18 +110,14 @@ public class StringUtils {
         if (value == null) {
             return "()";
         }
-
         Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
-
         if (type.getTag() == TypeTags.STRING_TAG) {
             return "\"" + ((BString) value).getValue() + "\"";
         }
-
         if (type.getTag() == TypeTags.DECIMAL_TAG) {
             DecimalValue decimalValue = (DecimalValue) value;
             return decimalValue.expressionStringValue(parent);
         }
-
         if (type.getTag() == TypeTags.FLOAT_TAG) {
             if (Double.isNaN((Double) value)) {
                 return "float:" + value;
@@ -140,31 +126,24 @@ public class StringUtils {
                 return "float:" + value;
             }
         }
-
         if (type.getTag() < TypeTags.NULL_TAG) {
             return String.valueOf(value);
         }
-
         CycleUtils.Node node = new CycleUtils.Node(value, parent);
-
         if (node.hasCyclesSoFar()) {
             return STR_CYCLE + "[" + node.getIndex() + "]";
         }
-
         if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             MapValueImpl mapValue = (MapValueImpl) value;
             return mapValue.expressionStringValue(parent);
         }
-
         if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
             ArrayValue arrayValue = (ArrayValue) value;
             return arrayValue.expressionStringValue(parent);
         }
-
         if (type.getTag() == TypeTags.TABLE_TAG) {
             return ((BRefValue) value).expressionStringValue(parent);
         }
-
         if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
             AbstractObjectValue objectValue = (AbstractObjectValue) value;
             ObjectType objectType = (ObjectType) TypeUtils.getReferredType(objectValue.getType());
@@ -175,7 +154,6 @@ public class StringUtils {
                 }
             }
         }
-
         BRefValue refValue = (BRefValue) value;
         return refValue.expressionStringValue(parent);
     }
