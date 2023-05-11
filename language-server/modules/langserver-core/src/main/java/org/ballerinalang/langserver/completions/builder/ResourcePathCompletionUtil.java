@@ -126,7 +126,7 @@ public class ResourcePathCompletionUtil {
         insertTextWithComputedResourceSegments.append(";");
         resourceAccessInfo.add(new ImmutablePair<>(insertTextWithComputedResourceSegments.toString(),
                 signatureWithComputedResourceSegments.toString()));
- 
+
         if (isStringPathParamsAvailable) {
             addResourceMethodCallSignature(resourceMethodSymbol, ctx, escapedFunctionName,
                     signatureWithNamedSegments, insertTextWithNamedSegments, placeHolderIndex);
@@ -201,11 +201,12 @@ public class ResourcePathCompletionUtil {
 
         PathParameterSymbol pathParameterSymbol = (PathParameterSymbol) segment;
         Optional<String> defaultValue;
-        TypeSymbol typeSymbol = pathParameterSymbol.typeDescriptor();;
+        TypeSymbol typeSymbol = pathParameterSymbol.typeDescriptor();
+        ;
         if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER
                 && pathParameterSymbol.typeDescriptor().typeKind() == TypeDescKind.ARRAY) {
             typeSymbol = ((ArrayTypeSymbol) (pathParameterSymbol.typeDescriptor())).memberTypeDescriptor();
-        } 
+        }
         defaultValue = DefaultValueGenerationUtil
                 .getDefaultValueForType(typeSymbol);
         String paramType = FunctionCompletionItemBuilder
@@ -214,7 +215,8 @@ public class ResourcePathCompletionUtil {
         String computedInsertText = "[${" + placeHolderIndex + ":" + defaultValue.orElse("") + "}]";
         ResourceAccessPathPart resourceAccessPathPart =
                 new ResourceAccessPathPart(computedInsertText, computedSignature);
-        if (typeSymbol.typeKind() == TypeDescKind.STRING) {
+        if (context.currentSemanticModel().isPresent() &&
+                context.currentSemanticModel().get().types().STRING.subtypeOf(typeSymbol)) {
             resourceAccessPathPart.namedPathSignature = "<path>";
             resourceAccessPathPart.namedPathInsertText = "${" + placeHolderIndex + ":" + "path" + "}";
             resourceAccessPathPart.computedPathInsertText = "[${" + placeHolderIndex + ":" + "\"path\"" + "}]";
