@@ -44,7 +44,6 @@ import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -189,11 +188,6 @@ public class JsonInternalUtils {
 
         try {
             return jsonObject.get(elementName);
-        } catch (BallerinaException e) {
-            if (e.getDetail() != null) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetail());
-            }
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getMessage());
         } catch (Throwable t) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
         }
@@ -260,7 +254,7 @@ public class JsonInternalUtils {
      * @param json JSON to convert
      * @param mapType MapType which the JSON is converted to.
      * @return If the provided JSON is of object-type, this method will return a {@link MapValueImpl} containing the
-     *          values of the JSON object. Otherwise a {@link BallerinaException} will be thrown.
+     *          values of the JSON object. Otherwise a {@link BError} will be thrown.
      */
     public static MapValueImpl<BString, ?> jsonToMap(Object json, MapType mapType) {
         if (!isJSONObject(json)) {
@@ -289,7 +283,7 @@ public class JsonInternalUtils {
      * @param json       JSON to convert
      * @param structType Type (definition) of the target record
      * @return If the provided JSON is of object-type, this method will return a {@link MapValueImpl} containing the
-     * values of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
+     * values of the JSON object. Otherwise the method will throw a {@link BError}.
      */
     public static MapValueImpl<BString, Object> convertJSONToRecord(Object json, StructureType structType) {
         if (!isJSONObject(json)) {
@@ -512,7 +506,7 @@ public class JsonInternalUtils {
      * @param json JSON to convert
      * @param targetArrayType Type of the target array
      * @return If the provided JSON is of array type, this method will return a {@link BArrayType} containing the values
-     *         of the JSON array. Otherwise the method will throw a {@link BallerinaException}.
+     *         of the JSON array. Otherwise the method will throw a {@link BError}.
      */
     public static ArrayValue convertJSONToBArray(Object json, BArrayType targetArrayType) {
         if (!(json instanceof ArrayValue)) {
@@ -826,7 +820,7 @@ public class JsonInternalUtils {
 
     private static void handleError(Exception e, String fieldName) {
         String errorMsg = e.getCause() == null ? "error while mapping '" + fieldName + "': " : "";
-        throw new BallerinaException(errorMsg + e.getMessage(), e);
+        throw ErrorCreator.createError(StringUtils.fromString(errorMsg + e.getMessage()), e);
     }
 
     private static class ObjectPair {
