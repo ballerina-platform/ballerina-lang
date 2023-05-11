@@ -65,16 +65,17 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  */
 @CommandLine.Command(name = TOOL_COMMAND, description = "Manage ballerina tool commands")
 public class ToolCommand implements BLauncherCmd {
-    private static final String PULL_COMMAND = "pull";
-    private static final String LIST_COMMAND = "list";
-    private static final String SEARCH_COMMAND = "search";
-    private static final String REMOVE_COMMAND = "remove";
+    private static final String TOOL_PULL_COMMAND = "pull";
+    private static final String TOOL_LIST_COMMAND = "list";
+    private static final String TOOL_SEARCH_COMMAND = "search";
+    private static final String TOOL_REMOVE_COMMAND = "remove";
+    private static final String HYPHEN = "-";
 
-    public static final String TOOL_USAGE_TEXT = "bal tool <sub-command> [args]";
-    public static final String TOOL_PULL_USAGE_TEXT = "bal tool pull <tool-id>[:<version>]";
-    public static final String TOOL_LIST_USAGE_TEXT = "bal tool list";
-    public static final String TOOL_REMOVE_USAGE_TEXT = "bal tool remove <tool-id>:[<version>]";
-    public static final String TOOL_SEARCH_USAGE_TEXT = "bal tool search [<tool-id>|<org>|<package>|<text>] ";
+    private static final String TOOL_USAGE_TEXT = "bal tool <sub-command> [args]";
+    private static final String TOOL_PULL_USAGE_TEXT = "bal tool pull <tool-id>[:<version>]";
+    private static final String TOOL_LIST_USAGE_TEXT = "bal tool list";
+    private static final String TOOL_REMOVE_USAGE_TEXT = "bal tool remove <tool-id>:[<version>]";
+    private static final String TOOL_SEARCH_USAGE_TEXT = "bal tool search [<tool-id>|<org>|<package>|<text>]";
 
     private final boolean exitWhenFinish;
     private final PrintStream errStream;
@@ -125,7 +126,20 @@ public class ToolCommand implements BLauncherCmd {
     @Override
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND);
+            String commandUsageInfo;
+            if (argList == null || argList.isEmpty()) {
+                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND);
+            } else if (argList.get(0).equals(TOOL_PULL_COMMAND)) {
+                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_PULL_COMMAND);
+            } else if (argList.get(0).equals(TOOL_LIST_COMMAND)) {
+                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_LIST_COMMAND);
+            } else if (argList.get(0).equals(TOOL_REMOVE_COMMAND)) {
+                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_REMOVE_COMMAND);
+            } else if (argList.get(0).equals(TOOL_SEARCH_COMMAND)) {
+                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND + HYPHEN + TOOL_SEARCH_COMMAND);
+            } else {
+                commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TOOL_COMMAND);
+            }
             errStream.println(commandUsageInfo);
             return;
         }
@@ -138,16 +152,16 @@ public class ToolCommand implements BLauncherCmd {
 
         String command = argList.get(0);
         switch (command) {
-            case PULL_COMMAND:
+            case TOOL_PULL_COMMAND:
                 handlePullCommand();
                 break;
-            case LIST_COMMAND:
+            case TOOL_LIST_COMMAND:
                 handleListCommand();
                 break;
-            case SEARCH_COMMAND:
+            case TOOL_SEARCH_COMMAND:
                 handleSearchCommand();
                 break;
-            case REMOVE_COMMAND:
+            case TOOL_REMOVE_COMMAND:
                 handleRemoveCommand();
                 break;
             default:
