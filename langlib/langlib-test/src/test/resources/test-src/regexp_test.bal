@@ -2340,7 +2340,21 @@ function testRegexpInterpolationNegative() {
     assertTrue(reg21 is error);
     assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg21).message());
     assertEquality("invalid character class range 'a'-'-' in insertion substring 'abc\\w[a--]'", 
-        <string>checkpanic (<error>reg21).detail()["message"]);           
+        <string>checkpanic (<error>reg21).detail()["message"]);
+        
+    string pattern22 = "abc[a-z[A-Z]]";
+    string:RegExp|error reg22 = trap re `${pattern22}`;
+    assertTrue(reg22 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg22).message());
+    assertEquality("missing backslash before ']' token in insertion substring 'abc[a-z[A-Z]]'", 
+        <string>checkpanic (<error>reg22).detail()["message"]);
+    
+    string pattern23 = "abc[a-zZ-A]";
+    string:RegExp|error reg23 = trap re `${pattern23}`;
+    assertTrue(reg23 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg23).message());
+    assertEquality("invalid character class range 'Z'-'A' in insertion substring 'abc[a-zZ-A]'", 
+        <string>checkpanic (<error>reg23).detail()["message"]);             
 }
 
 function testCharClassesWithMultipleRangesAndAtoms() returns error? {
