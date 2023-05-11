@@ -828,6 +828,29 @@ function testFromJsonWithTypeToUnionOfTypeReference() {
     assertEquality(t3, <BoundAssertion> ["let", 3]);
 }
 
+function testFromJsonStringWithUnexpectedChars() {
+    string s1 = "{\"a\":}";
+    string s2 = "[1, 2,]";
+    string s3 = "{\"a\":1,}";
+    string s4 = "{\"a\": [1, 2,]}";
+
+    error err = <error> s1.fromJsonStringWithType(json);
+    assertEquality(<string> checkpanic err.detail()["message"], "expected 'a field value' at line: 1 column: 6");
+    assertEquality(err.message(), "{ballerina/lang.value}ConversionError");
+
+    err = <error> s2.fromJsonStringWithType(json);
+    assertEquality(<string> checkpanic err.detail()["message"], "expected 'an array element' at line: 1 column: 9");
+    assertEquality(err.message(), "{ballerina/lang.value}ConversionError");
+
+    err = <error> s3.fromJsonString();
+    assertEquality(<string> checkpanic err.detail()["message"], "expected '\"' at line: 1 column: 9");
+    assertEquality(err.message(), "{ballerina/lang.value}FromJsonStringError");
+
+    err = <error> s4.fromJsonString();
+    assertEquality(<string> checkpanic err.detail()["message"], "expected 'an array element' at line: 1 column: 15");
+    assertEquality(err.message(), "{ballerina/lang.value}FromJsonStringError");
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected == actual) {
         return;

@@ -540,6 +540,8 @@ public class JsonParser {
                         state = sm.initNewObject();
                     } else if (ch == '[') {
                         state = sm.initNewArray();
+                    } else if (ch == ']') {
+                        StateMachine.throwExpected("an array element");
                     } else {
                         state = NON_STRING_ARRAY_ELEMENT_STATE;
                     }
@@ -647,6 +649,8 @@ public class JsonParser {
                         state = sm.initNewObject();
                     } else if (ch == '[') {
                         state = sm.initNewArray();
+                    } else if (ch == ']' || ch == '}') {
+                        StateMachine.throwExpected("a field value");
                     } else {
                         state = NON_STRING_FIELD_VALUE_STATE;
                     }
