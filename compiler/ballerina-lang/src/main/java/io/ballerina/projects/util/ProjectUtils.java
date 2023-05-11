@@ -947,22 +947,23 @@ public class ProjectUtils {
     }
 
     /**
-     * Delete the given type of files from the given directory.
+     * Delete all files and subdirectories expect a given file inside the given directory.
      *
-     * @param packagePath Directory to delete.
-     * @param fileType file type to delete
+     * @param directoryPath Directory to delete.
+     * @param fileNameToKeep file name to keep
      */
-    public static void deleteFilesOfType(Path packagePath, String fileType) throws IOException {
-        Files.walk(packagePath)
-                .filter(path -> path.toString().endsWith(fileType))
-                .forEach(path -> {
-                    try {
-                        Files.deleteIfExists(path);
-                    } catch (IOException e) {
-                        throw new ProjectException("Failed to delete files: " +
-                                e.getMessage(), e);
+    public static void deleteAllButOneInDirectory(Path directoryPath, String fileNameToKeep) throws IOException {
+        File directory = new File(String.valueOf(directoryPath));
+        if (directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    if (!f.getName().equals(fileNameToKeep)) {
+                        deleteDirectory(f.toPath());
                     }
-                });
+                }
+            }
+        }
     }
 
     /**

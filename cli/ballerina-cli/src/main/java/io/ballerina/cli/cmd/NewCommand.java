@@ -125,6 +125,7 @@ public class NewCommand implements BLauncherCmd {
         CommandUtil.setPrintStream(errStream);
         Path packageDirectory;
         String packageName;
+        boolean balFilesExist = false;
 
         // Check if the given path is a valid path
         if (Files.exists((packagePath))) {
@@ -137,9 +138,23 @@ public class NewCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
+
+            //Check if package files/directories other than .bal files exist
+            String packageFiles = checkPackageFilesExists(packagePath);
+            if (!packageFiles.equals("")) {
+                CommandUtil.printError(errStream,
+                        "Existing " + packageFiles.substring(0, packageFiles.length() - 2) +
+                                " file/directory(s) were found. " +
+                                "Please use a different directory or remove existing files.",
+                        null,
+                        false);
+                CommandUtil.exitError(exitWhenFinish);
+                return;
+            }
+
             try {
-                boolean balFilesExist = balFilesExists(packagePath);
-                if (balFilesExist) {
+                balFilesExist = balFilesExists(packagePath);
+                if (balFilesExist && !template.equals("main") && !template.equals("default")) {
                     CommandUtil.printError(errStream,
                             "Existing .bal files found. " +
                                     "Please use a different directory or remove existing files.",
@@ -157,18 +172,6 @@ public class NewCommand implements BLauncherCmd {
                 return;
             }
 
-
-            String packageFiles = checkPackageFilesExists(packagePath);
-            if (!packageFiles.equals("")) {
-                CommandUtil.printError(errStream,
-                        "Existing " + packageFiles.substring(0, packageFiles.length() - 2) +
-                                " file/directory(s) were found. " +
-                                "Please use a different directory or remove existing files.",
-                        null,
-                        false);
-                CommandUtil.exitError(exitWhenFinish);
-                return;
-            }
             packageDirectory = packagePath;
             packageName = packagePath.getFileName().toString();
         } else {
@@ -248,7 +251,7 @@ public class NewCommand implements BLauncherCmd {
                         return;
                     }
                 }
-                CommandUtil.initPackageByTemplate(packagePath, packageName, template);
+                CommandUtil.initPackageByTemplate(packagePath, packageName, template, balFilesExist);
             } else {
                 Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
                         .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)

@@ -728,15 +728,15 @@ public class CommandUtil {
      * @throws IOException  If any IO exception occurred
      * @throws URISyntaxException If any URISyntaxException occurred
      */
-    public static void initPackageByTemplate(Path path, String packageName, String template) throws IOException,
-            URISyntaxException {
+    public static void initPackageByTemplate(Path path, String packageName, String template, boolean balFilesExist)
+            throws IOException, URISyntaxException {
         // We will be creating following in the project directory
         // - Ballerina.toml
         // - main.bal
         // - .gitignore       <- git ignore file
         // - .devcontainer.json
 
-        applyTemplate(path, template);
+        applyTemplate(path, template, balFilesExist);
         if (template.equalsIgnoreCase("lib")) {
             initLibPackage(path, packageName);
             Path source = path.resolve("lib.bal");
@@ -823,13 +823,20 @@ public class CommandUtil {
      * @throws IOException if any IOException occurred
      * @throws URISyntaxException if any URISyntaxException occurred
      */
-    public static void applyTemplate(Path modulePath, String template) throws IOException, URISyntaxException {
+    public static void applyTemplate(Path modulePath, String template, boolean balfilesExist)
+            throws IOException, URISyntaxException {
         Path templateDir = getTemplatePath().resolve(template);
         if (template.equalsIgnoreCase(MAIN_TEMPLATE)) {
             templateDir = getTemplatePath().resolve(DEFAULT_TEMPLATE);
             Path tempDirTest = getTemplatePath().resolve(MAIN_TEMPLATE);
-            Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
+            if (!balfilesExist) {
+                Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
+            }
             Files.walkFileTree(tempDirTest, new FileUtils.Copy(tempDirTest, modulePath));
+        } else if (template.equalsIgnoreCase(DEFAULT_TEMPLATE)) {
+            if (!balfilesExist) {
+                Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
+            }
         } else {
             Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
         }
@@ -957,28 +964,12 @@ public class CommandUtil {
     public static String checkTemplateFilesExists(String template, Path packagePath) throws URISyntaxException,
             IOException {
         Path templateDir = getTemplatePath().resolve(template);
-        if (template.equalsIgnoreCase(MAIN_TEMPLATE)) {
-            templateDir = getTemplatePath().resolve(DEFAULT_TEMPLATE);
-            Path tempDirTest = getTemplatePath().resolve(MAIN_TEMPLATE);
-            checkFilesExists(packagePath, tempDirTest);
-        }
-        return checkFilesExists(packagePath, templateDir);
-    }
-
-    /**
-     * Check if a set of files in one location exists in another.
-     *
-     * @param packagePath given path
-     * @param templatesPath given path
-     * @throws IOException if IO exception occurred
-     */
-    private static String checkFilesExists(Path packagePath, Path templatesPath) throws IOException {
-        Stream<Path> paths = Files.list(templatesPath);
+        Stream<Path> paths = Files.list(templateDir);
         List<Path> templateFilePathList = paths.collect(Collectors.toList());
         String existingFiles = "";
         for (Path path : templateFilePathList) {
             String fileName = path.getFileName().toString();
-            if (Files.exists(packagePath.resolve(fileName))) {
+            if (!fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT) && Files.exists(packagePath.resolve(fileName))) {
                 existingFiles += fileName + FILE_STRING_SEPARATOR;
             }
         }
@@ -1011,10 +1002,8 @@ public class CommandUtil {
      * @return error message if files exists
      */
     public static boolean balFilesExists(Path packagePath) throws IOException {
-        if (Files.walk(packagePath).anyMatch(path -> path.toString().endsWith(ProjectConstants.BLANG_SOURCE_EXT))) {
-            return true;
-        }
-        return false;
+        //Only skip the bal file to be created if any other .bal files exists
+        return Files.list(packagePath).anyMatch(path -> path.toString().endsWith(ProjectConstants.BLANG_SOURCE_EXT));
     }
 }
 
