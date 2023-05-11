@@ -62,7 +62,7 @@ public class TracersStore {
     public Tracer getTracer(String serviceName) {
         if (!isInitialized()) {
             throw ErrorCreator.createError(StringUtils.fromString("error: tracer store is not initialized " +
-                    "due to observability has not been enabled"));
+                    "because observability has not been enabled"));
         }
         Tracer tracer;
         if (store.containsKey(serviceName)) {
