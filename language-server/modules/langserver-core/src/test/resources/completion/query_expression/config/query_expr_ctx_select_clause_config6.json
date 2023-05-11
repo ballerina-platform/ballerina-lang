@@ -966,6 +966,63 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "avg(int... ns)",
+      "kind": "Function",
+      "detail": "decimal",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the average of its arguments.\n\n```ballerina\nint:avg(10, 20, 30, 40) ⇒ 25.0\n```\n  \n**Params**  \n- `int[]` ns: other int values  \n  \n**Return** `decimal`   \n- average of parameter `n` and all of parameter `ns`  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "avg",
+      "insertText": "avg(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "avg(decimal... xs)",
+      "kind": "Function",
+      "detail": "decimal",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.decimal:0.0.0_  \n  \nReturns the average of its arguments.\n\n```ballerina\ndecimal:avg(10, 20, 30, 40) ⇒ 25.0\n```\n  \n**Params**  \n- `decimal[]` xs: other decimal values  \n  \n**Return** `decimal`   \n- average of parameter `x` and all of parameter `xs`  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "avg",
+      "insertText": "avg(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "avg(float... xs)",
+      "kind": "Function",
+      "detail": "float",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.float:0.0.0_  \n  \nReturns the average of its arguments.\nReturn NaN if there are no arguments,\n\n```ballerina\nfloat:avg(2, 2) ⇒ 2.0\n```\n  \n  \n  \n**Return** `float`   \n- average of all of parameter `xs`  \n  \n"
+        }
+      },
+      "sortText": "BC",
+      "filterText": "avg",
+      "insertText": "avg(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }
