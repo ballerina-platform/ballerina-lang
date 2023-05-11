@@ -376,7 +376,7 @@ public class LangLibValueTest {
                 "testCloneWithTypeOnRegExpNegative",
                 "testCloneWithTypeWithXML", "testConversionsBetweenXml",
                 "testCloneWithTypeRecordWithXMLField",
-                "testConvertToUnionWithAmbiguousMemberTypes",
+                "testConvertToUnionWithAmbiguousMemberTypes", "testConvertingToReferenceTypes",
                 "testCloneWithTypeTableToAnydata", "testUnionNestedTypeConversionErrors",
                 "testCloneWithTypeToUnionOfTypeReference", "testCloneWithTypeToTableNegative"
         };
