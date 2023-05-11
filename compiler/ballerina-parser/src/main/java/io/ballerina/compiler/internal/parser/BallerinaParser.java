@@ -191,7 +191,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Completely parses a given input as regexp.
+     * Completely parses a given input as a regexp.
      *
      * @return Parsed node
      */
