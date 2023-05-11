@@ -163,21 +163,56 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(devcontainerContent.contains(RepoUtils.getBallerinaVersion()));
     }
 
-    @DataProvider(name = "directoriesWithExistingBalFiles")
-    public Object[][] provideDirectoriesWithExistingBalFiles() {
-        return new Object[][] {
-                { testResources.resolve(ProjectConstants.EXISTING_PACKAGE_FILES_DIR).
-                        resolve("directoryWithBalFiles")},
-                { testResources.resolve(ProjectConstants.EXISTING_PACKAGE_FILES_DIR).
-                        resolve("directoryWithBalFilesInSubDir")}
-                };
+    @Test(description = "Create a new project in an existing directory containing .bal files with main template")
+    public void testNewCommandInExistingDirectoryWithExistingBalFilesForMainTemplate() throws IOException {
+        System.setProperty(USER_NAME, "testuserorg");
+        Path packageDir = testResources.resolve(ProjectConstants.EXISTING_PACKAGE_FILES_DIR).
+                resolve("directoryWithBalFilesForMainTemplate");
+        String[] args = {packageDir.toString(), "-t", "main"};
+        NewCommand newCommand = new NewCommand(printStream, false);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+        // Check with spec
+        // project_name/
+        // - Ballerina.toml
+        // - main.bal
+
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String name = Paths.get(args[0]).getFileName().toString();
+        String tomlContent = Files.readString(
+                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
+        String expectedContent = "[package]\n" +
+                "org = \"testuserorg\"\n" +
+                "name = \"" + name + "\"\n" +
+                "version = \"0.1.0\"\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
+                "observabilityIncluded = true\n";
+        Assert.assertEquals(tomlContent.trim(), expectedContent.trim());
+
+        Assert.assertFalse(Files.exists(packageDir.resolve("main.bal")));
+        Assert.assertFalse(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME)));
+        String gitignoreContent = Files.readString(
+                packageDir.resolve(ProjectConstants.GITIGNORE_FILE_NAME), StandardCharsets.UTF_8);
+        String expectedGitignoreContent = "target\ngenerated\n" +
+                "Config.toml\n";
+        Assert.assertEquals(gitignoreContent.trim(), expectedGitignoreContent.trim());
+        Assert.assertTrue(readOutput().contains("Created new package"));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(".devcontainer.json")));
+        String devcontainerContent = Files.readString(packageDir.resolve(".devcontainer.json"));
+        Assert.assertTrue(devcontainerContent.contains(RepoUtils.getBallerinaVersion()));
+        ProjectUtils.deleteAllButOneInDirectory(packageDir, "main2.bal");
     }
 
-    @Test(description = "Create a new project in an existing directory containing bal files",
-            dataProvider = "directoriesWithExistingBalFiles")
-    public void testNewCommandInExistingDirectoryWithExistingBalFiles(Path directoryPath) throws IOException {
+    @Test(description = "Create a new project in an existing directory containing .bal files with service template")
+    public void testNewCommandInExistingDirectoryWithExistingBalFiles() throws IOException {
         System.setProperty(USER_NAME, "testuserorg");
-        String[] args = {directoryPath.toString()};
+        Path packageDir = testResources.resolve(ProjectConstants.EXISTING_PACKAGE_FILES_DIR).
+                resolve("directoryWithBalFiles");
+        String[] args = {packageDir.toString(), "-t", "service"};
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
