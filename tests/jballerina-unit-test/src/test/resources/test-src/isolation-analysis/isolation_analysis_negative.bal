@@ -312,3 +312,24 @@ function testAnonIsolatedFuncAccessingImplicitlyFinalVarsNegative(int[] i) {
 
    isolated function (int[]) returns int[] fn9 = let int[] k = i in (l) => k;
 }
+
+final function () returns string nf1 = inferredButNotExplicitlyIsolatedFunc;
+final var nf2 = nonIsolated;
+
+isolated function testInvalidNonIsolatedFPCall() {
+    var f = inferredButNotExplicitlyIsolatedFunc;
+    string _ = f();
+
+    string _ = nf1();
+
+    var g = nf2;
+    int _ = g();
+
+    function () returns int i = nonIsolated;
+    _ = i();
+
+    function (int a, string b = "hello", boolean|int... c) j = diffParamKinds;
+    _ = j(1);
+}
+
+function inferredButNotExplicitlyIsolatedFunc() returns string => "bar";

@@ -504,6 +504,15 @@ isolated function testFinalReadOnlyRawTemplateAccessInIsolatedFunction() {
     assertEquality(<int[]>[10, 20], tmp3.insertions);
 }
 
+isolated function testIsolatedFPCallInIsolatedFunction() {
+    var f = isolatedFunctionWithOnlyLocalVars;
+    int r = f();
+    assertEquality(4, r);
+
+    isolated function () returns int g = isolatedFunctionWithOnlyLocalVars;
+    assertEquality(4, g());
+}
+
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
