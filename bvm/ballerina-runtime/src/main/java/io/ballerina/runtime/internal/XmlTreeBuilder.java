@@ -97,7 +97,10 @@ public class XmlTreeBuilder {
 
     private void handleXMLStreamException(Exception e) {
         String reason = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
-        throw ErrorCreator.createError(StringUtils.fromString(reason));
+        if (reason == null) {
+            throw ErrorCreator.createError(StringUtils.fromString(XmlFactory.PARSE_ERROR));
+        }
+        throw ErrorCreator.createError(StringUtils.fromString(XmlFactory.PARSE_ERROR_PREFIX + reason));
     }
 
     public BXml parse() {

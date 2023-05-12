@@ -444,7 +444,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
             Throwable cause = e.getCause() == null ? e : e.getCause();
             throw ErrorCreator.createError(StringUtils.fromString((cause.getMessage())));
         } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString(("failed to parse xml: " + e.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString((XmlFactory.PARSE_ERROR_PREFIX + e.getMessage())));
         }
     }
 
