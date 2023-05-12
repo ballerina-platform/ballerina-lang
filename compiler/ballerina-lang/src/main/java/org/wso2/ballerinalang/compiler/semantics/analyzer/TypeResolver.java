@@ -114,7 +114,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -225,7 +224,7 @@ public class TypeResolver {
             resolvingTypes = new Stack<>();
             if (def.getKind() == NodeKind.CLASS_DEFN) {
                 intersectionTypeList = new HashMap<>();
-                extracted(pkgEnv, modTable, (BLangClassDefinition) def);
+                extracted(pkgEnv, (BLangClassDefinition) def, 0);
                 updateEffectiveTypeOfCyclicIntersectionTypes(pkgEnv);
             } else if (def.getKind() == NodeKind.CONSTANT) {
                 resolveConstant(pkgEnv, modTable, (BLangConstant) def);
@@ -245,10 +244,19 @@ public class TypeResolver {
         clear();
     }
 
-    private BType extracted(SymbolEnv pkgEnv, Map<String, BLangNode> modTable, BLangClassDefinition classDefinition) {
+    private BType extracted(SymbolEnv pkgEnv, BLangClassDefinition classDefinition, int depth) {
         if (resolvedClassDef.contains(classDefinition)) {
             return classDefinition.getBType();
         }
+
+        if (depth == classDefinition.cycleDepth) {
+            // We cannot define recursive classDefinitions with same depths.
+            dlog.error(classDefinition.pos, DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, classDefinition.name);
+            return symTable.semanticError;
+        }
+
+        currentDepth = depth;
+        classDefinition.cycleDepth = depth;
 
         if (classDefinition.getBType() != null) {
             return classDefinition.getBType();
@@ -280,6 +288,7 @@ public class TypeResolver {
             symEnter.defineFields((BLangTypeDefinition) typeDefNode, pkgEn);
             symEnter.defineReferencedFieldsOfRecordTypeDef((BLangTypeDefinition) typeDefNode);
         }
+        currentDepth--;
     }
 
     public void defineFieldsOfClassDef(BLangClassDefinition classDefinition, SymbolEnv env) {
@@ -389,10 +398,6 @@ public class TypeResolver {
             tSymbol.flags |= Flags.DEPRECATED;
         }
 
-        if (symResolver.checkForUniqueSymbol(classDefinition.pos, env, tSymbol)) {
-            env.scope.define(tSymbol.name, tSymbol);
-        }
-
         // For each referenced type, check whether the types are already resolved.
         // If not, then that type should get a higher precedence.
         for (BLangType typeRef : classDefinition.typeRefs) {
@@ -400,8 +405,9 @@ public class TypeResolver {
             objectType.typeInclusions.add(referencedType);
         }
 
-        // TODO : check
-        // env.scope.define(tSymbol.name, tSymbol);
+        if (symResolver.checkForUniqueSymbol(classDefinition.pos, env, tSymbol)) {
+            env.scope.define(tSymbol.name, tSymbol);
+        }
     }
 
 
@@ -525,8 +531,9 @@ public class TypeResolver {
         if (resolvingTypeDefinitions.contains(defn)) {
             // Type definition has a cyclic reference.
             for (int i = resolvingTypeDefinitions.size() - 1; i >= 0; i--) {
-                resolvingTypeDefinitions.get(i).hasCyclicReference = true;
-                if (resolvingTypeDefinitions.get(i) == defn) {
+                BLangTypeDefinition resolvingTypeDefn = resolvingTypeDefinitions.get(i);
+                resolvingTypeDefn.hasCyclicReference = true;
+                if (resolvingTypeDefn == defn) {
                     break;
                 }
             }
@@ -542,7 +549,7 @@ public class TypeResolver {
 
         // Define the typeDefinition. Add symbol, flags etc.
         type = defineTypeDefinition(defn, type, symEnv);
-//        symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(defn); // disable due to intersections
+        symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(defn);
 
         if (!hasAlreadyVisited) {
             // Remove the typeDefinition from currently resolving typeDefinition map.
@@ -607,7 +614,6 @@ public class TypeResolver {
         if (moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
             BLangTypeDefinition typeDefinition = (BLangTypeDefinition) moduleLevelDef;
             BType resolvedType = resolveTypeDefinition(pkgEnv, modTable, typeDefinition, currentDepth);
-//            symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(typeDefinition);
             if (resolvedType == symTable.semanticError || resolvedType == symTable.noType) {
                 return resolvedType;
             }
@@ -624,7 +630,7 @@ public class TypeResolver {
             BLangConstant constant = (BLangConstant) moduleLevelDef;
             return resolveTypeDefinition(pkgEnv, modTable, constant.associatedTypeDefinition, currentDepth);
         } else {
-            return extracted(pkgEnv, modTable, (BLangClassDefinition) moduleLevelDef);
+            return extracted(pkgEnv, (BLangClassDefinition) moduleLevelDef, currentDepth);
         }
     }
 
@@ -1019,7 +1025,7 @@ public class TypeResolver {
             }
         }
 
-        defineTypeDefinition(typeDefinition, recordType, symEnv); // swj: define symbols, set flags ...
+        defineTypeDefinition(typeDefinition, recordType, symEnv);
         symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(typeDefinition);
         currentDepth = depth;
         if (errored) {
@@ -1082,9 +1088,8 @@ public class TypeResolver {
 
         symResolver.validateDistinctType(td, objectType);
 
-        defineTypeDefinition(typeDefinition, objectType, symEnv); // swj: define symbols, set flags ...
-        symEnter.defineDistinctClassAndObjectDefinitions(new ArrayList<>(Arrays.asList(typeDefinition)));
-        symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(typeDefinition);
+        defineTypeDefinition(typeDefinition, objectType, symEnv);
+        symEnter.defineDistinctClassAndObjectDefinitionIndividual(typeDefinition);
         defineFieldsOftypeDefinition(typeDefinition, symEnv, mod);
         resolvingStructureTypes.remove(objectType);
         resolvingTypes.pop();
@@ -1601,7 +1606,6 @@ public class TypeResolver {
         if (moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
             BLangTypeDefinition typeDefinition = (BLangTypeDefinition) moduleLevelDef;
             BType resolvedType = resolveTypeDefinition(symEnv, mod, typeDefinition, depth);
-//            symEnter.populateDistinctTypeIdsFromIncludedTypeReferences(typeDefinition);
             if (resolvedType == symTable.semanticError || resolvedType == symTable.noType) {
                 return resolvedType;
             }
@@ -1619,7 +1623,7 @@ public class TypeResolver {
             resolveConstant(symEnv, mod, constant);
             return constant.getBType();
         } else {
-            return extracted(symEnv, mod, (BLangClassDefinition) moduleLevelDef);
+            return extracted(symEnv, (BLangClassDefinition) moduleLevelDef, depth);
         }
     }
 

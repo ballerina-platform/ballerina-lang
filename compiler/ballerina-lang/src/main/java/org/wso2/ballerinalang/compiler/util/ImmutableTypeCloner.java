@@ -974,6 +974,7 @@ public class ImmutableTypeCloner {
                             pkgID, env.scope.owner, symTable, anonymousModelHelper, names, new HashSet<>());
                 }
                 updateImmutableType(bArrayType.eType, loc, pkgID, typeNode, env);
+                bArrayType.mutableType = null;
             }
         }
 
@@ -1022,6 +1023,7 @@ public class ImmutableTypeCloner {
                             new HashSet<>());
                 }
                 updateImmutableType(bMapType.constraint, loc, pkgID, typeNode, env);
+                bMapType.mutableType = null;
             }
         }
 
@@ -1093,6 +1095,7 @@ public class ImmutableTypeCloner {
                         updateImmutableType(memberType, loc, pkgID, typeNode, env);
                     }
                 }
+                bTupleType.mutableType = null;
             }
         }
 
@@ -1123,6 +1126,7 @@ public class ImmutableTypeCloner {
             for (BType immutableMemberType : bUnionType.getMemberTypes()) {
                 updateImmutableType(immutableMemberType, loc, pkgID, typeNode, env);
             }
+            bUnionType.mutableType = null;
         }
 
         @Override
@@ -1153,6 +1157,7 @@ public class ImmutableTypeCloner {
                             new HashSet<>());
                     updateImmutableType(bTableType.keyTypeConstraint, loc, pkgID, typeNode, env);
                 }
+                bTableType.mutableType = null;
             }
         }
 
@@ -1212,6 +1217,7 @@ public class ImmutableTypeCloner {
                         structureSymbol.scope.define(origFieldName, immutableField.symbol);
                     }
                 }
+                bRecordType.mutableType = null;
             }
         }
 
@@ -1265,6 +1271,7 @@ public class ImmutableTypeCloner {
                         structureSymbol.scope.define(origFieldName, immutableField.symbol);
                     }
                 }
+                bObjectType.mutableType = null;
             }
         }
 

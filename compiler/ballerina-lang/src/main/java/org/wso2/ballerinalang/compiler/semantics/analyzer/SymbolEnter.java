@@ -562,20 +562,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         return false;
     }
 
-    public void defineDistinctClassAndObjectDefinitions(List<BLangNode> typDefs) {
-        for (BLangNode node : typDefs) {
-            if (node.getKind() == NodeKind.CLASS_DEFN) {
-                BLangClassDefinition classDefinition = (BLangClassDefinition) node;
-                if (isObjectCtor(classDefinition)) {
-                    continue;
-                }
-                populateDistinctTypeIdsFromIncludedTypeReferences((BLangClassDefinition) node);
-            } else if (node.getKind() == NodeKind.TYPE_DEFINITION) {
-                populateDistinctTypeIdsFromIncludedTypeReferences((BLangTypeDefinition) node);
-            }
-        }
-    }
-
     public void defineDistinctClassAndObjectDefinitionIndividual(BLangNode node) {
         if (node.getKind() == NodeKind.CLASS_DEFN) {
             BLangClassDefinition classDefinition = (BLangClassDefinition) node;
@@ -614,7 +600,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             BTypeIdSet typeIdSet = ((BObjectType) objectTypeNode.getBType()).typeIdSet;
 
             for (BLangType typeRef : objectTypeNode.typeRefs) {
-                BType type = types.getTypeWithEffectiveIntersectionTypes(typeRef.getBType());
+                BType type = typeRef.getBType();
+                if (type == null) {
+                    return;
+                }
+                type = types.getTypeWithEffectiveIntersectionTypes(type);
                 type = Types.getReferredType(type);
                 if (type.tag != TypeTags.OBJECT) {
                     continue;

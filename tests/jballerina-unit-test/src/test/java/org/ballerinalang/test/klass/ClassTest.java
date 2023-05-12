@@ -78,6 +78,7 @@ public class ClassTest {
     public void classDefNegative() {
         CompileResult negative = BCompileUtil.compile("test-src/klass/class_def_negative_test.bal");
         int i = 0;
+        BAssertUtil.validateError(negative, i++, "invalid cyclic type reference in 'A'", 17, 1);
         BAssertUtil.validateError(negative, i++, "invalid cyclic type reference in 'C'", 28, 1);
         BAssertUtil.validateError(negative, i++, "no implementation found for the method 'resource " +
                 "function get name() returns (string)' of class 'ServiceClass'", 36, 1);
