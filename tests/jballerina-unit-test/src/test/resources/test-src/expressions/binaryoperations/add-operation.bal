@@ -461,10 +461,10 @@ function testXmlSubtypesAddition() {
 }
 
 function testXmlAdditionWithQueryExpressions() {
-    xml y = xml `foo` + from string s in ["a", "b"] select xml `${s}`;
+    xml y1 = xml `foo` + from string s in ["a", "b"] select xml `${s}`;
     xml:Text expectedVal = xml `fooab`;
-    assertTrue(y is xml:Text);
-    assertEquality(y.toString(), expectedVal.toString());
+    assertTrue(y1 is xml:Text);
+    assertEquality(y1.toString(), expectedVal.toString());
 
     xml y2 = xml `foo` + from string s in ["a", "b"] select xml `<a><b>${s}</b></a>`;
     assertTrue(y2 == xml `foo<a><b>a</b></a><a><b>b</b></a>`);
