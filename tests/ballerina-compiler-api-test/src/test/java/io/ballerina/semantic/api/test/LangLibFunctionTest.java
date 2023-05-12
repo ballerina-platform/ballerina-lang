@@ -99,7 +99,8 @@ public class LangLibFunctionTest {
 
         List<String> expFunctions = List.of("abs", "max", "min", "sum", "toHexString", "clone",
                 "cloneReadOnly", "cloneWithType", "isReadOnly", "toString", "toBalString", "toJson",
-                "toJsonString", "fromJsonWithType", "mergeJson", "ensureType", "range", "last", "count", "first");
+                "toJsonString", "fromJsonWithType", "mergeJson", "ensureType", "range", "avg", "last", "count",
+                "first");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -115,7 +116,7 @@ public class LangLibFunctionTest {
                 "acos", "atan", "atan2", "sinh", "cosh", "tanh", "toHexString", "toBitsInt",
                 "clone", "cloneReadOnly", "cloneWithType", "isReadOnly", "toString",
                 "toBalString", "toJson", "toJsonString", "fromJsonWithType", "mergeJson",
-                "ensureType", "sum", "min", "max", "toFixedString", "toExpString", "last", "count", "first");
+                "ensureType", "sum", "min", "max", "toFixedString", "toExpString", "avg", "last", "count", "first");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -128,7 +129,8 @@ public class LangLibFunctionTest {
 
         List<String> expFunctions = List.of("abs", "max", "min", "sum", "round", "floor", "ceiling", "clone",
                 "cloneReadOnly", "cloneWithType", "isReadOnly", "toString", "toBalString", "quantize",
-                "toJson", "toJsonString", "fromJsonWithType", "mergeJson", "ensureType", "last", "first", "count");
+                "toJson", "toJsonString", "fromJsonWithType", "mergeJson", "ensureType", "avg", "last", "first",
+                "count");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
     }
@@ -144,7 +146,7 @@ public class LangLibFunctionTest {
 
         List<String> expFunctions = List.of("abs", "max", "min", "sum", "clone", "cloneReadOnly",
                 "cloneWithType", "isReadOnly", "toString", "toBalString", "toJson", "toJsonString",
-                "fromJsonWithType", "mergeJson", "ensureType", "toHexString", "range", "last", "count", "first");
+                "fromJsonWithType", "mergeJson", "ensureType", "toHexString", "range", "avg", "last", "count", "first");
 
         assertLangLibList(typeSymbol.langLibMethods(), expFunctions);
     }

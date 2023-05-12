@@ -294,6 +294,25 @@
       }
     },
     {
+      "label": "avg(int... ns)",
+      "kind": "Function",
+      "detail": "decimal",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int:0.0.0_  \n  \nReturns the average of its arguments.\nThe result is returned as a decimal.\n\n```ballerina\nint:avg(10, 20, 30, 40) ⇒ 25.0\n```\n  \n**Params**  \n- `int[]` ns: other int values  \n  \n**Return** `decimal`   \n- average of parameter `n` and all of parameter `ns`  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "avg",
+      "insertText": "avg(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "last(value:Type... vs)",
       "kind": "Function",
       "detail": "value:Type",
