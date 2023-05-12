@@ -1417,7 +1417,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        boolean isWorker = actionInvocationExpr.functionPointerInvocation;
+        boolean isWorker = actionInvocationExpr.functionPointerInvocation &&
+                Symbols.isFlagOn(actionInvocationExpr.symbol.flags, Flags.WORKER);
         if (isInIsolatedFunction(env)) {
             if (checkStrandAnnotationExists(actionInvocationExpr.annAttachments, true, isWorker)) {
                 return;
@@ -2072,7 +2073,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         inferredIsolated = false;
 
-        if (inIsolatedFunction && !invocationExpr.functionPointerInvocation) {
+        if (inIsolatedFunction && !Symbols.isFlagOn(flags, Flags.WORKER)) {
             dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NON_ISOLATED_INVOCATION_IN_ISOLATED_FUNCTION);
             return;
         }
