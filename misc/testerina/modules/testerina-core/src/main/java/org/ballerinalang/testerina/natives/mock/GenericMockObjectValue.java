@@ -18,9 +18,11 @@
 package org.ballerinalang.testerina.natives.mock;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFuture;
@@ -30,7 +32,6 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 
@@ -74,8 +75,8 @@ public class GenericMockObjectValue implements ObjectValue {
                 }
             }
         }
-        throw new BallerinaException("no cases registered for member function '" + funcName +
-                "' of object type '" + mockObj.getType().getName() + "'.");
+        throw ErrorCreator.createError(StringUtils.fromString("no cases registered for member function '" + funcName
+                + "' of object type '" + mockObj.getType().getName() + "'."));
     }
 
     @Override
@@ -89,8 +90,8 @@ public class GenericMockObjectValue implements ObjectValue {
                 return MockRegistry.getInstance().getReturnValue(caseId);
             }
         }
-        throw new BallerinaException("no cases registered for member field '" + fieldName +
-                "' of object type '" + mockObj.getType().getName() + "'.");
+        throw ErrorCreator.createError(StringUtils.fromString("no cases registered for member field '" + fieldName +
+                        "' of object type '" + mockObj.getType().getName() + "'."));
     }
 
     @Override
