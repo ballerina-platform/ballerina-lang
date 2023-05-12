@@ -190,5 +190,6 @@ public class StringQueryExpressionTest {
     @AfterClass
     public void tearDown() {
         result = null;
+        negativeResult = null;
     }
 }
