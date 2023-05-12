@@ -187,7 +187,7 @@ string str1 = "string-1";
 
 function testClosureInQueryActionInDo3() returns error? {
     string str2 = "string-2";
-    EvenNumberGenerator evenGen = new ();
+    EvenNumberGenerator evenGen = new;
     stream<int, error?> evenNumberStream = new (evenGen);
     int|string str3 = "string-3";
 
