@@ -149,6 +149,7 @@ public class QueryTypeChecker extends TypeChecker {
     public void checkQueryType(BLangQueryExpr queryExpr, TypeChecker.AnalyzerData data) {
         AnalyzerData prevData = data.queryData;
         data.queryData = new AnalyzerData();
+        data.queryData.withinCollectClause = prevData.withinCollectClause;
 
         Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
 
@@ -187,13 +188,9 @@ public class QueryTypeChecker extends TypeChecker {
                 dlog.error(queryExpr.pos, DiagnosticErrorCode.QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT);
             }
             BLangExpression finalClauseExpr = ((BLangCollectClause) finalClause).expression;
+            data.commonAnalyzerData.withinCollectClause = data.queryData.withinCollectClause = true;
             BType queryType = checkExpr(finalClauseExpr, commonAnalyzerData.queryEnvs.peek(), data);
-            if (finalClauseExpr.getKind() == NodeKind.INVOCATION) {
-                BLangInvocation invocation = (BLangInvocation) finalClauseExpr;
-                if (invocation.name.value.equals("avg") && invocation.argExprs.size() == 1 && invocation.restArgs.size() == 1) {
-                    queryType = BUnionType.create(null, invocation.getBType(), symTable.nilType);
-                }
-            }
+            data.commonAnalyzerData.withinCollectClause = data.queryData.withinCollectClause = false;
             actualType = types.checkType(finalClauseExpr.pos, queryType, data.expType,
                     DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
@@ -937,7 +934,18 @@ public class QueryTypeChecker extends TypeChecker {
         }
         BInvokableType bInvokableType = (BInvokableType) Types.getReferredType(functionSymbol.type);
         BType retType = typeParamAnalyzer.getReturnTypeParams(data.env, bInvokableType.getReturnType());
+        if (isNilReturnInvocationInCollectClause(iExpr, data)) {
+            retType = BUnionType.create(null, retType, symTable.nilType);
+        }
         data.resultType = types.checkType(iExpr, retType, data.expType);
+    }
+
+    // In the collect clause if there are invocations, those invocations can return () if the argument is empty.
+    private boolean isNilReturnInvocationInCollectClause(BLangInvocation invocation, TypeChecker.AnalyzerData data) {
+        BInvokableSymbol symbol = (BInvokableSymbol) invocation.symbol;
+        return (data.queryData.withinCollectClause || data.commonAnalyzerData.withinCollectClause)
+                && symbol.restParam != null && symbol.params.size() > 0 && invocation.argExprs.size() == 1
+                && invocation.restArgs.size() == 1;
     }
 
     // Check the argument within sequence context.
@@ -1148,7 +1156,9 @@ public class QueryTypeChecker extends TypeChecker {
     public static class AnalyzerData {
         boolean queryCompletesEarly = false;
         HashSet<BType> completeEarlyErrorList = new HashSet<>();
+        // TODO: check whether we need stacks for these two
         boolean foundSeqVarInExpr = false;
         boolean withinSequenceContext = false;
+        boolean withinCollectClause = false;
     }
 }

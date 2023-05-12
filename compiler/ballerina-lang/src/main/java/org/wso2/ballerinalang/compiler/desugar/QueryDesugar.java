@@ -244,6 +244,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private boolean withinQuery = false;
     private boolean afterGroupBy = false;
     private boolean withinLambdaOrArrowFunc = false;
+    private boolean withinCollectClause = false;
     private HashSet<BType> checkedErrorList;
     private BLangNode result;
 
@@ -870,49 +871,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         body.stmts.addAll(0, stmtsToBePropagated);
         BVarSymbol oldFrameSymbol = lambda.function.requiredParams.get(0).symbol;
         BLangSimpleVarRef frame = ASTBuilderUtil.createVariableRef(pos, oldFrameSymbol);
-        // $frame$["$value$"] = select-expr;
-        if (collectClause.expression.getKind() == NodeKind.INVOCATION) {
-            BLangInvocation invocation = (BLangInvocation) collectClause.expression;
-            if (invocation.name.value.equals("avg") && invocation.argExprs.size() == 1 && invocation.restArgs.size() == 1) {
-                BLangSimpleVarRef varRef = (BLangSimpleVarRef) invocation.restArgs.get(0);
-                BType invocationType = BUnionType.create(null, invocation.getBType(), symTable.nilType);
-                BLangSimpleVariable tempResultVar =
-                        ASTBuilderUtil.createVariable(pos, "$$name$$", invocationType, null,
-                                new BVarSymbol(0, Names.fromString("$$name$$"),
-                                        this.env.scope.owner.pkgID, invocationType,
-                                        this.env.scope.owner, pos, VIRTUAL));
-                BLangSimpleVariableDef tempResultVarDef = ASTBuilderUtil.createVariableDef(pos, tempResultVar);
-                BLangSimpleVarRef tempResultVarRef = ASTBuilderUtil.createVariableRef(pos, tempResultVar.symbol);
-
-                BType elementType = ((BSequenceType) varRef.symbol.type).elementType;
-                List<BTupleMember> tupleMembers = new ArrayList<>(1);
-                tupleMembers.add(new BTupleMember(elementType, Symbols.createVarSymbolForTupleMember(elementType)));
-                BType type = varRef.symbol.type = new BTupleType(null, tupleMembers, elementType, 0);
-                varRef.setBType(type);
-                BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
-                queryBlock.addStatement(tempResultVarDef);
-
-                BLangInvocation size = desugar.createLangLibInvocationNode("length", varRef, new ArrayList<>(), null, pos);
-
-                BLangBlockStmt thenBody = ASTBuilderUtil.createBlockStmt(pos);
-                BLangBlockStmt elseBody = ASTBuilderUtil.createBlockStmt(pos);
-
-                BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, size, ASTBuilderUtil.createLiteral(pos, symTable.intType, 0), symTable.booleanType, OperatorKind.EQUAL, null);
-
-                BLangIf ifElse = ASTBuilderUtil.createIfElseStmt(pos, binaryExpr, thenBody, elseBody);
-                BLangAssignment then = ASTBuilderUtil.createAssignmentStmt(pos, tempResultVarRef, invocation);
-                elseBody.addStatement(then);
-                BLangAssignment elsee = ASTBuilderUtil.createAssignmentStmt(pos, tempResultVarRef, ASTBuilderUtil.createLiteral(pos, symTable.nilType, null));
-                thenBody.addStatement(elsee);
-                queryBlock.addStatement(ifElse);
-                BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, tempResultVarRef);
-                stmtExpr.setBType(invocationType);
-                collectClause.expression = stmtExpr;
-            }
-        }
         BLangStatement assignment = getAddToFrameStmt(pos, frame, "$value$", collectClause.expression);
         body.stmts.add(body.stmts.size() - 1, assignment);
+        withinCollectClause = true;
         lambda.accept(this);
+        withinCollectClause = false;
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_COLLECT_FUNCTION,
                 Lists.of(nonGroupingKeys, lambda), pos);
     }
@@ -959,7 +922,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         // $frame$["$value$"] = select-expr;
         BLangStatement assignment = getAddToFrameStmt(pos, frame, "$value$", selectClause.expression);
         body.stmts.add(body.stmts.size() - 1, assignment);
-        lambda.accept(this);
+        lambda = rewrite(lambda);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_SELECT_FUNCTION, Lists.of(lambda), pos);
     }
 
@@ -1635,8 +1598,9 @@ public class QueryDesugar extends BLangNodeVisitor {
     // ---- Visitor methods to replace frame access and mark closure variables ---- //
     @Override
     public void visit(BLangLambdaFunction lambda) {
-        lambda.function.accept(this);
+        lambda.function = rewrite(lambda.function);
         lambda.function = desugar.rewrite(lambda.function, lambda.capturedClosureEnv);
+        result = lambda;
     }
 
     @Override
@@ -1648,7 +1612,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             currentFrameSymbol = function.requiredParams.get(0).symbol;
             identifiers = new HashMap<>();
             currentQueryLambdaBody = (BLangBlockFunctionBody) function.getBody();
-            currentQueryLambdaBody.accept(this);
+            rewrite(currentQueryLambdaBody);
             currentFrameSymbol = prevFrameSymbol;
             identifiers = prevIdentifiers;
             currentQueryLambdaBody = prevQueryLambdaBody;
@@ -1658,71 +1622,88 @@ public class QueryDesugar extends BLangNodeVisitor {
             function.getBody().accept(this);
             withinLambdaOrArrowFunc = prevWithinLambdaFunc;
         }
+        result = function;
     }
 
     @Override
     public void visit(BLangBlockFunctionBody body) {
         List<BLangStatement> stmts = new ArrayList<>(body.getStatements());
-        stmts.forEach(stmt -> stmt.accept(this));
+        rewrite(stmts);
+        result = body;
     }
 
     @Override
     public void visit(BLangExprFunctionBody exprBody) {
-        exprBody.expr.accept(this);
+        exprBody.expr = rewrite(exprBody.expr);
+        result = exprBody;
     }
 
     @Override
     public void visit(BLangSimpleVariableDef bLangSimpleVariableDef) {
         bLangSimpleVariableDef.getVariable().accept(this);
+        result = bLangSimpleVariableDef;
     }
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
         bLangRecordVariableDef.var.accept(this);
+        result = bLangRecordVariableDef;
     }
 
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
         bLangRecordVariable.variableList.forEach(v -> v.getValue().accept(this));
-        this.acceptNode(bLangRecordVariable.expr);
+        bLangRecordVariable.expr = rewrite(bLangRecordVariable.expr);
         if (bLangRecordVariable.hasRestParam()) {
             bLangRecordVariable.restParam.accept(this);
         }
+        result = bLangRecordVariable;
     }
 
     @Override
     public void visit(BLangSimpleVariable bLangSimpleVariable) {
         identifiers.putIfAbsent(bLangSimpleVariable.name.value, bLangSimpleVariable.symbol);
-        this.acceptNode(bLangSimpleVariable.expr);
+        bLangSimpleVariable.expr = rewrite(bLangSimpleVariable.expr);
+        result = bLangSimpleVariable;
     }
 
     @Override
     public void visit(BLangTypeConversionExpr conversionExpr) {
-        conversionExpr.expr.accept(this);
+        conversionExpr.expr = rewrite(conversionExpr.expr);
+        result = conversionExpr;
     }
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        fieldAccessExpr.expr.accept(this);
+        fieldAccessExpr.expr = rewrite(fieldAccessExpr.expr);
+        result = fieldAccessExpr;
     }
 
     @Override
     public void visit(BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess nsPrefixedFieldBasedAccess) {
-        nsPrefixedFieldBasedAccess.expr.accept(this);
+        nsPrefixedFieldBasedAccess.expr = rewrite(nsPrefixedFieldBasedAccess.expr);
+        result = nsPrefixedFieldBasedAccess;
     }
 
     @Override
     public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef structFunctionVarRef) {
-        structFunctionVarRef.expr.accept(this);
+        structFunctionVarRef.expr = rewrite(structFunctionVarRef.expr);
+        result = structFunctionVarRef;
     }
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
-        exprStmtNode.expr.accept(this);
+        exprStmtNode.expr = rewrite(exprStmtNode.expr);
+        result = exprStmtNode;
     }
 
     @Override
     public void visit(BLangInvocation invocationExpr) {
+        if (invocationExpr.desugared) {
+            invocationExpr.desugared = false;
+            result = invocationExpr;
+            return;
+        }
         List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
         if (invocationExpr.langLibInvocation && !requiredArgs.isEmpty()) {
             requiredArgs = requiredArgs.subList(1, requiredArgs.size());
@@ -1730,6 +1711,48 @@ public class QueryDesugar extends BLangNodeVisitor {
         requiredArgs.forEach(this::acceptNode);
         visitRestArgs(invocationExpr);
         this.acceptNode(invocationExpr.expr);
+
+        Location pos = invocationExpr.pos;
+        if (isNilReturnInvocationInCollectClause(invocationExpr)) {
+            BLangSimpleVarRef restArg = (BLangSimpleVarRef) invocationExpr.argExprs.get(0);
+            BType invocationType = BUnionType.create(null, invocationExpr.getBType(), symTable.nilType);
+            BLangSimpleVariable tempResultVar = ASTBuilderUtil.createVariable(pos, "$invocationResult$",
+                    invocationType, null, new BVarSymbol(0, Names.fromString("$invocationResult$"),
+                            this.env.scope.owner.pkgID, invocationType, this.env.scope.owner, pos, VIRTUAL));
+            BLangSimpleVariableDef tempResultVarDef = ASTBuilderUtil.createVariableDef(pos, tempResultVar);
+            BLangSimpleVarRef tempResultVarRef = ASTBuilderUtil.createVariableRef(pos, tempResultVar.symbol);
+
+            BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(pos);
+            blockStmt.addStatement(tempResultVarDef);
+            BLangBlockStmt thenBody = ASTBuilderUtil.createBlockStmt(pos);
+            BLangBlockStmt elseBody = ASTBuilderUtil.createBlockStmt(pos);
+            BLangInvocation argLength = desugar.createLangLibInvocationNode("length", restArg, new ArrayList<>(),
+                    null, pos);
+            BLangBinaryExpr binaryExpr = ASTBuilderUtil.createBinaryExpr(pos, argLength,
+                    ASTBuilderUtil.createLiteral(pos, symTable.intType, (long) 0), symTable.booleanType,
+                    OperatorKind.EQUAL, null);
+            BLangIf ifElse = ASTBuilderUtil.createIfElseStmt(pos, binaryExpr, thenBody, elseBody);
+            invocationExpr.desugared = true;
+            thenBody.addStatement(ASTBuilderUtil.createAssignmentStmt(pos, tempResultVarRef,
+                    ASTBuilderUtil.createLiteral(pos, symTable.nilType, null)));
+            elseBody.addStatement(ASTBuilderUtil.createAssignmentStmt(pos, tempResultVarRef, invocationExpr));
+            blockStmt.addStatement(ifElse);
+            BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, tempResultVarRef);
+            stmtExpr.setBType(invocationType);
+            result = rewrite(stmtExpr);
+            // In the TypeChecker, type of invocation is update to have nil type. It should be reset, otherwise
+            // runtime crashes.
+            // TODO: Need to check the reason for that
+            invocationExpr.setBType(((BInvokableSymbol) invocationExpr.symbol).retType);
+        } else {
+            result = invocationExpr;
+        }
+    }
+
+    private boolean isNilReturnInvocationInCollectClause(BLangInvocation invocation) {
+        BInvokableSymbol symbol = (BInvokableSymbol) invocation.symbol;
+        return this.withinCollectClause && symbol.restParam != null &&
+                symbol.params.size() > 0 && invocation.argExprs.size() == 1 && invocation.restArgs.size() == 1;
     }
 
     private void visitRestArgs(BLangInvocation invocation) {
@@ -1771,93 +1794,111 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation.BFunctionPointerInvocation functionPointerInvocationExpr) {
         visit((BLangInvocation) functionPointerInvocationExpr);
+        result = functionPointerInvocationExpr;
     }
 
     @Override
     public void visit(BLangInvocation.BLangAttachedFunctionInvocation attachedFunctionInvocation) {
         visit((BLangInvocation) attachedFunctionInvocation);
+        result = attachedFunctionInvocation;
     }
 
     @Override
     public void visit(BLangLiteral literalExpr) {
         // do nothing;
+        result = literalExpr;
     }
 
     @Override
     public void visit(BLangReturn bLangReturn) {
-        this.acceptNode(bLangReturn.expr);
+        bLangReturn.expr = rewrite(bLangReturn.expr);
+        result = bLangReturn;
     }
 
     @Override
     public void visit(BLangBinaryExpr bLangBinaryExpr) {
-        this.acceptNode(bLangBinaryExpr.lhsExpr);
-        this.acceptNode(bLangBinaryExpr.rhsExpr);
+        bLangBinaryExpr.lhsExpr = rewrite(bLangBinaryExpr.lhsExpr);
+        bLangBinaryExpr.rhsExpr = rewrite(bLangBinaryExpr.rhsExpr);
+        result = bLangBinaryExpr;
     }
 
     @Override
     public void visit(BLangCommitExpr commitExpr) {
+        result = commitExpr;
     }
 
     @Override
     public void visit(BLangAssignment bLangAssignment) {
-        this.acceptNode(bLangAssignment.varRef);
-        this.acceptNode(bLangAssignment.expr);
+        bLangAssignment.varRef = rewrite(bLangAssignment.varRef);
+        bLangAssignment.expr = rewrite(bLangAssignment.expr);
+        result = bLangAssignment;
     }
 
     @Override
     public void visit(BLangRecordLiteral bLangRecordLiteral) {
         bLangRecordLiteral.fields.forEach(field -> this.acceptNode((BLangNode) field));
+        result = bLangRecordLiteral;
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangStructLiteral structLiteral) {
         visit((BLangRecordLiteral) structLiteral);
+        result = structLiteral;
     }
 
     @Override
     public void visit(BLangRecordLiteral.BLangMapLiteral mapLiteral) {
         visit((BLangRecordLiteral) mapLiteral);
+        result = mapLiteral;
     }
 
     @Override
     public void visit(BLangRecordKeyValueField recordKeyValue) {
         this.acceptNode(recordKeyValue.key.expr);
-        this.acceptNode(recordKeyValue.valueExpr);
+        recordKeyValue.valueExpr = rewrite(recordKeyValue.valueExpr);
+        result = recordKeyValue;
     }
 
     @Override
     public void visit(BLangRecordSpreadOperatorField spreadOperatorField) {
-        this.acceptNode(spreadOperatorField.expr);
+        spreadOperatorField.expr = rewrite(spreadOperatorField.expr);
+        result = spreadOperatorField;
     }
 
     @Override
     public void visit(BLangConstRef constRef) {
         //do nothing
+        result = constRef;
     }
 
     @Override
     public void visit(BLangNumericLiteral literalExpr) {
         //do nothing
+        result = literalExpr;
     }
 
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {
-        varRefExpr.expressions.forEach(this::acceptNode);
-        this.acceptNode((BLangNode) varRefExpr.restParam);
+        rewrite(varRefExpr.expressions);
+        varRefExpr.restParam = rewrite(varRefExpr.restParam);
+        result = varRefExpr;
     }
 
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
-        varRefExpr.recordRefFields.forEach(recordVarRefKeyValue
-                -> this.acceptNode(recordVarRefKeyValue.variableReference));
-        this.acceptNode((BLangNode) varRefExpr.restParam);
+        for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordVarRef :varRefExpr.recordRefFields) {
+            recordVarRef.variableReference = rewrite(recordVarRef.variableReference);
+        }
+        varRefExpr.restParam = rewrite(varRefExpr.restParam);
+        result = varRefExpr;
     }
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
-        this.acceptNode(varRefExpr.message);
-        this.acceptNode(varRefExpr.restVar);
-        varRefExpr.detail.forEach(this::acceptNode);
+        varRefExpr.message = rewrite(varRefExpr.message);
+        varRefExpr.restVar = rewrite(varRefExpr.restVar);
+        rewrite(varRefExpr.detail);
+        result = varRefExpr;
     }
 
     @Override
@@ -1931,129 +1972,152 @@ public class QueryDesugar extends BLangNodeVisitor {
                 enclSymbol.closure = true;
             }
         }
+        result = bLangSimpleVarRef;
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangPackageVarRef bLangPackageVarRef) {
         visit((BLangSimpleVarRef) bLangPackageVarRef);
+        result = bLangPackageVarRef;
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangLocalVarRef localVarRef) {
         visit(((BLangSimpleVarRef) localVarRef));
+        result = localVarRef;
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangFieldVarRef fieldVarRef) {
         visit(((BLangSimpleVarRef) fieldVarRef));
+        result = fieldVarRef;
     }
 
     @Override
     public void visit(BLangSimpleVarRef.BLangFunctionVarRef functionVarRef) {
         visit(((BLangSimpleVarRef) functionVarRef));
+        result = functionVarRef;
     }
 
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        indexAccessExpr.indexExpr.accept(this);
-        indexAccessExpr.expr.accept(this);
+        indexAccessExpr.indexExpr = rewrite(indexAccessExpr.indexExpr);
+        indexAccessExpr.expr = rewrite(indexAccessExpr.expr);
+        result = indexAccessExpr;
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangStructFieldAccessExpr structFieldAccessExpr) {
         visit((BLangIndexBasedAccess) structFieldAccessExpr);
+        result = structFieldAccessExpr;
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangMapAccessExpr mapAccessExpr) {
         visit((BLangIndexBasedAccess) mapAccessExpr);
+        result = mapAccessExpr;
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayAccessExpr) {
         visit((BLangIndexBasedAccess) arrayAccessExpr);
+        result = arrayAccessExpr;
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangTableAccessExpr tableAccessExpr) {
         visit((BLangIndexBasedAccess) tableAccessExpr);
+        result = tableAccessExpr;
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangTupleAccessExpr tupleAccessExpr) {
         visit((BLangIndexBasedAccess) tupleAccessExpr);
+        result = tupleAccessExpr;
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangStringAccessExpr stringAccessExpr) {
         visit((BLangIndexBasedAccess) stringAccessExpr);
+        result = stringAccessExpr;
     }
 
     @Override
     public void visit(BLangIndexBasedAccess.BLangXMLAccessExpr xmlAccessExpr) {
         visit((BLangIndexBasedAccess) xmlAccessExpr);
+        result = xmlAccessExpr;
     }
 
     @Override
     public void visit(BLangTypeInit connectorInitExpr) {
-        connectorInitExpr.argsExpr.forEach(this::acceptNode);
-        connectorInitExpr.initInvocation.accept(this);
+        rewrite(connectorInitExpr.argsExpr);
+        connectorInitExpr.initInvocation = rewrite(connectorInitExpr.initInvocation);
+        result = connectorInitExpr;
     }
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocationExpr) {
-        actionInvocationExpr.argExprs.forEach(this::acceptNode);
-        this.acceptNode(actionInvocationExpr.expr);
+        rewrite(actionInvocationExpr.argExprs);
+        actionInvocationExpr.expr = rewrite(actionInvocationExpr.expr);
+        result = actionInvocationExpr;
     }
 
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         this.acceptNode(errorConstructorExpr.errorTypeRef);
         if (errorConstructorExpr.namedArgs != null) {
-            errorConstructorExpr.namedArgs.forEach(this::acceptNode);
+            rewrite(errorConstructorExpr.namedArgs);
         }
-        this.acceptNode(errorConstructorExpr.errorDetail);
+        errorConstructorExpr.errorDetail = rewrite(errorConstructorExpr.errorDetail);
+        result = errorConstructorExpr;
     }
 
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
-        ternaryExpr.expr.accept(this);
-        ternaryExpr.elseExpr.accept(this);
-        ternaryExpr.thenExpr.accept(this);
+        ternaryExpr.expr = rewrite(ternaryExpr.expr);
+        ternaryExpr.elseExpr = rewrite(ternaryExpr.elseExpr);
+        ternaryExpr.thenExpr = rewrite(ternaryExpr.thenExpr);
+        result = ternaryExpr;
     }
 
     @Override
     public void visit(BLangWaitExpr awaitExpr) {
-        awaitExpr.exprList.forEach(this::acceptNode);
+        rewrite(awaitExpr.exprList);
+        result = awaitExpr;
     }
 
     @Override
     public void visit(BLangTrapExpr trapExpr) {
-        this.acceptNode(trapExpr.expr);
+        trapExpr.expr = rewrite(trapExpr.expr);
+        result = trapExpr;
     }
 
     @Override
     public void visit(BLangElvisExpr elvisExpr) {
-        this.acceptNode(elvisExpr.lhsExpr);
-        this.acceptNode(elvisExpr.rhsExpr);
+        elvisExpr.lhsExpr = rewrite(elvisExpr.lhsExpr);
+        elvisExpr.rhsExpr = rewrite(elvisExpr.rhsExpr);
+        result = elvisExpr;
     }
 
     @Override
     public void visit(BLangGroupExpr groupExpr) {
-        this.acceptNode(groupExpr.expression);
+        groupExpr.expression = rewrite(groupExpr.expression);
+        result = groupExpr;
     }
 
     @Override
     public void visit(BLangLetExpression letExpr) {
-        this.acceptNode(letExpr.expr);
+        letExpr.expr = rewrite(letExpr.expr);
         letExpr.letVarDeclarations.forEach(var -> this.acceptNode((BLangNode) var.definitionNode));
+        result = letExpr;
     }
 
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
         List<BLangExpression> expressions = listConstructorExpr.exprs;
         convertSeqElementToSpread(expressions);
-        expressions.forEach(this::acceptNode);
+        rewrite(expressions);
+        result = listConstructorExpr;
     }
 
     private void convertSeqElementToSpread(List<BLangExpression> expressions) {
@@ -2086,88 +2150,104 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangListConstructorExpr.BLangListConstructorSpreadOpExpr spreadOpExpr) {
-        this.acceptNode(spreadOpExpr.expr);
+        spreadOpExpr.expr = rewrite(spreadOpExpr.expr);
+        result = spreadOpExpr;
     }
 
     @Override
     public void visit(BLangTableConstructorExpr tableConstructorExpr) {
+        result = tableConstructorExpr;
     }
 
     @Override
     public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
-        tupleLiteral.exprs.forEach(this::acceptNode);
+        rewrite(tupleLiteral.exprs);
+        result = tupleLiteral;
     }
 
     @Override
     public void visit(BLangListConstructorExpr.BLangJSONArrayLiteral jsonArrayLiteral) {
-        jsonArrayLiteral.exprs.forEach(expression -> expression.accept(this));
+        rewrite(jsonArrayLiteral.exprs);
+        result = jsonArrayLiteral;
     }
 
     @Override
     public void visit(BLangArrayLiteral arrayLiteral) {
-        arrayLiteral.exprs.forEach(this::acceptNode);
+        rewrite(arrayLiteral.exprs);
+        result = arrayLiteral;
     }
 
     @Override
     public void visit(BLangUnaryExpr unaryExpr) {
-        this.acceptNode(unaryExpr.expr);
+        unaryExpr.expr = rewrite(unaryExpr.expr);
+        result = unaryExpr;
     }
 
     @Override
     public void visit(BLangTypedescExpr accessExpr) {
+        result = accessExpr;
     }
 
     @Override
     public void visit(BLangXMLQName xmlQName) {
+        result = xmlQName;
     }
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
-        this.acceptNode(xmlAttribute.name);
-        this.acceptNode(xmlAttribute.value);
+        xmlAttribute.name = rewrite(xmlAttribute.name);
+        xmlAttribute.value = rewrite(xmlAttribute.value);
+        result = xmlAttribute;
     }
 
     @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
-        this.acceptNode(xmlElementLiteral.startTagName);
-        this.acceptNode(xmlElementLiteral.endTagName);
-        xmlElementLiteral.attributes.forEach(this::acceptNode);
-        xmlElementLiteral.children.forEach(this::acceptNode);
+        xmlElementLiteral.startTagName = rewrite(xmlElementLiteral.startTagName);
+        xmlElementLiteral.endTagName = rewrite(xmlElementLiteral.endTagName);
+        rewrite(xmlElementLiteral.attributes);
+        rewrite(xmlElementLiteral.children);
+        result = xmlElementLiteral;
     }
 
     @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-        xmlTextLiteral.textFragments.forEach(this::acceptNode);
-        this.acceptNode(xmlTextLiteral.concatExpr);
+        rewrite(xmlTextLiteral.textFragments);
+        xmlTextLiteral.concatExpr = rewrite(xmlTextLiteral.concatExpr);
+        result = xmlTextLiteral;
     }
 
     @Override
     public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-        xmlCommentLiteral.textFragments.forEach(this::acceptNode);
-        this.acceptNode(xmlCommentLiteral.concatExpr);
+        rewrite(xmlCommentLiteral.textFragments);
+        xmlCommentLiteral.concatExpr = rewrite(xmlCommentLiteral.concatExpr);
+        result = xmlCommentLiteral;
     }
 
     @Override
     public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
-        xmlProcInsLiteral.dataFragments.forEach(this::acceptNode);
-        this.acceptNode(xmlProcInsLiteral.dataConcatExpr);
+        rewrite(xmlProcInsLiteral.dataFragments);
+        xmlProcInsLiteral.dataConcatExpr = rewrite(xmlProcInsLiteral.dataConcatExpr);
+        result = xmlProcInsLiteral;
     }
 
     @Override
     public void visit(BLangXMLQuotedString xmlQuotedString) {
-        xmlQuotedString.textFragments.forEach(this::acceptNode);
-        this.acceptNode(xmlQuotedString.concatExpr);
+        rewrite(xmlQuotedString.textFragments);
+        xmlQuotedString.concatExpr = rewrite(xmlQuotedString.concatExpr);
+        result = xmlQuotedString;
     }
 
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        stringTemplateLiteral.exprs.forEach(this::acceptNode);
+        rewrite(stringTemplateLiteral.exprs);
+        result = stringTemplateLiteral;
     }
 
     @Override
     public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
-        rawTemplateLiteral.strings.forEach(this::acceptNode);
-        rawTemplateLiteral.insertions.forEach(this::acceptNode);
+        rewrite(rawTemplateLiteral.strings);
+        rewrite(rawTemplateLiteral.insertions);
+        result = rawTemplateLiteral;
     }
 
     @Override
@@ -2177,21 +2257,25 @@ public class QueryDesugar extends BLangNodeVisitor {
         this.withinLambdaOrArrowFunc = true;
         this.acceptNode(bLangArrowFunction.body);
         this.withinLambdaOrArrowFunc = prevWithinLambdaFunc;
+        result = bLangArrowFunction;
     }
 
     @Override
     public void visit(BLangRestArgsExpression bLangVarArgsExpression) {
-        this.acceptNode(bLangVarArgsExpression.expr);
+        bLangVarArgsExpression.expr = rewrite(bLangVarArgsExpression.expr);
+        result = bLangVarArgsExpression;
     }
 
     @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
-        this.acceptNode(bLangNamedArgsExpression.expr);
+        bLangNamedArgsExpression.expr = rewrite(bLangNamedArgsExpression.expr);
+        result = bLangNamedArgsExpression;
     }
 
     @Override
     public void visit(BLangIsAssignableExpr assignableExpr) {
-        this.acceptNode(assignableExpr.lhsExpr);
+        assignableExpr.lhsExpr = rewrite(assignableExpr.lhsExpr);
+        result = assignableExpr;
     }
 
     @Override
@@ -2200,69 +2284,82 @@ public class QueryDesugar extends BLangNodeVisitor {
         if (this.checkedErrorList != null && checkedExpr.equivalentErrorTypeList != null) {
             this.checkedErrorList.addAll(checkedExpr.equivalentErrorTypeList);
         }
-        this.acceptNode(checkedExpr.expr);
+        checkedExpr.expr = rewrite(checkedExpr.expr);
+        result = checkedExpr;
     }
 
     @Override
     public void visit(BLangCheckPanickedExpr checkPanickedExpr) {
-        this.acceptNode(checkPanickedExpr.expr);
+        checkPanickedExpr.expr = rewrite(checkPanickedExpr.expr);
+        result = checkPanickedExpr;
     }
 
     @Override
     public void visit(BLangServiceConstructorExpr serviceConstructorExpr) {
         this.acceptNode(serviceConstructorExpr.serviceNode);
+        result = serviceConstructorExpr;
     }
 
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
-        this.acceptNode(typeTestExpr.expr);
+        typeTestExpr.expr = rewrite(typeTestExpr.expr);
+        result = typeTestExpr;
     }
 
     @Override
     public void visit(BLangIsLikeExpr typeTestExpr) {
-        this.acceptNode(typeTestExpr.expr);
+        typeTestExpr.expr = rewrite(typeTestExpr.expr);
+        result = typeTestExpr;
     }
 
     @Override
     public void visit(BLangIgnoreExpr ignoreExpr) {
+        result = ignoreExpr;
     }
 
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+        result = annotAccessExpr;
     }
 
     @Override
     public void visit(BLangXMLNS.BLangLocalXMLNS xmlnsNode) {
+        result = xmlnsNode;
     }
 
     @Override
     public void visit(BLangXMLNS.BLangPackageXMLNS xmlnsNode) {
+        result = xmlnsNode;
     }
 
     @Override
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
-        bLangXMLSequenceLiteral.xmlItems.forEach(this::acceptNode);
+        rewrite(bLangXMLSequenceLiteral.xmlItems);
+        result = bLangXMLSequenceLiteral;
     }
 
     @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
-        this.acceptNode(bLangStatementExpression.expr);
+        bLangStatementExpression.expr = rewrite(bLangStatementExpression.expr);
         this.acceptNode(bLangStatementExpression.stmt);
+        result = bLangStatementExpression;
     }
 
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
         this.acceptNode(bLangTupleVariable.restVariable);
         bLangTupleVariable.memberVariables.forEach(this::acceptNode);
+        result = bLangTupleVariable;
     }
 
     @Override
     public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
         this.acceptNode(bLangTupleVariableDef.var.restVariable);
-        this.acceptNode(bLangTupleVariableDef.var.expr);
+        bLangTupleVariableDef.var.expr = rewrite(bLangTupleVariableDef.var.expr);
         if (bLangTupleVariableDef.var.memberVariables != null) {
             bLangTupleVariableDef.var.memberVariables.forEach(this::acceptNode);
         }
+        result = bLangTupleVariableDef;
     }
 
     @Override
@@ -2270,105 +2367,126 @@ public class QueryDesugar extends BLangNodeVisitor {
         this.acceptNode(bLangErrorVariable.message);
         bLangErrorVariable.detail.forEach(var -> this.acceptNode(var.valueBindingPattern));
         this.acceptNode(bLangErrorVariable.restDetail);
-        this.acceptNode(bLangErrorVariable.detailExpr);
+        bLangErrorVariable.detailExpr = rewrite(bLangErrorVariable.detailExpr);
+        result = bLangErrorVariable;
     }
 
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
         this.acceptNode(bLangErrorVariableDef.errorVariable);
+        result = bLangErrorVariableDef;
     }
 
     @Override
     public void visit(BLangWorkerFlushExpr workerFlushExpr) {
+        result = workerFlushExpr;
     }
 
     @Override
     public void visit(BLangWorkerSyncSendExpr syncSendExpr) {
+        result = syncSendExpr;
     }
 
     @Override
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
         waitForAllExpr.keyValuePairs.forEach(this::acceptNode);
+        result = waitForAllExpr;
     }
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitLiteral waitLiteral) {
+        result = waitLiteral;
     }
 
     @Override
     public void visit(BLangMarkdownReferenceDocumentation bLangMarkdownReferenceDocumentation) {
+        result = bLangMarkdownReferenceDocumentation;
     }
 
     @Override
     public void visit(BLangWaitForAllExpr.BLangWaitKeyValue waitKeyValue) {
-        this.acceptNode(waitKeyValue.key);
-        this.acceptNode(waitKeyValue.valueExpr);
+        waitKeyValue.key = rewrite(waitKeyValue.key);
+        waitKeyValue.valueExpr = rewrite(waitKeyValue.valueExpr);
+        result = waitKeyValue;
     }
 
     @Override
     public void visit(BLangXMLElementFilter xmlElementFilter) {
-        this.acceptNode(xmlElementFilter.impConversionExpr);
+        xmlElementFilter.impConversionExpr = rewrite(xmlElementFilter.impConversionExpr);
+        result = xmlElementFilter;
     }
 
     @Override
     public void visit(BLangXMLElementAccess xmlElementAccess) {
-        this.acceptNode(xmlElementAccess.expr);
+        xmlElementAccess.expr = rewrite(xmlElementAccess.expr);
+        result = xmlElementAccess;
     }
 
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
-        this.acceptNode(xmlNavigation.expr);
-        this.acceptNode(xmlNavigation.childIndex);
+        xmlNavigation.expr = rewrite(xmlNavigation.expr);
+        xmlNavigation.childIndex = rewrite(xmlNavigation.childIndex);
+        result = xmlNavigation;
     }
 
     //statements
     @Override
     public void visit(BLangBlockStmt blockNode) {
         blockNode.stmts.forEach(this::acceptNode);
+        result = blockNode;
     }
 
     @Override
     public void visit(BLangLock.BLangLockStmt lockStmtNode) {
+        result = lockStmtNode;
     }
 
     @Override
     public void visit(BLangLock.BLangUnLockStmt unLockNode) {
+        result = unLockNode;
     }
 
     @Override
     public void visit(BLangCompoundAssignment compoundAssignNode) {
-        this.acceptNode(compoundAssignNode.expr);
-        this.acceptNode(compoundAssignNode.modifiedExpr);
-        this.acceptNode(compoundAssignNode.varRef);
+        compoundAssignNode.expr = rewrite(compoundAssignNode.expr);
+        compoundAssignNode.modifiedExpr = rewrite(compoundAssignNode.modifiedExpr);
+        compoundAssignNode.varRef = rewrite(compoundAssignNode.varRef);
+        result = compoundAssignNode;
     }
 
     @Override
     public void visit(BLangRetry retryNode) {
+        result = retryNode;
     }
 
     @Override
     public void visit(BLangContinue continueNode) {
+        result = continueNode;
     }
 
     @Override
     public void visit(BLangBreak breakNode) {
+        result = breakNode;
     }
 
     @Override
     public void visit(BLangPanic panicNode) {
-        this.acceptNode(panicNode.expr);
+        panicNode.expr = rewrite(panicNode.expr);
+        result = panicNode;
     }
 
     @Override
     public void visit(BLangXMLNSStatement xmlnsStmtNode) {
         this.acceptNode(xmlnsStmtNode.xmlnsDecl);
+        result = xmlnsStmtNode;
     }
 
     @Override
     public void visit(BLangIf ifNode) {
-        this.acceptNode(ifNode.expr);
+        ifNode.expr = rewrite(ifNode.expr);
         this.acceptNode(ifNode.body);
         this.acceptNode(ifNode.elseStmt);
+        result = ifNode;
     }
 
     @Override
@@ -2380,6 +2498,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         queryAction.getQueryClauses().forEach(this::acceptNode);
         this.withinQuery = prevWithinQuery;
         this.queryEnv = prevQueryEnv;
+        result = queryAction;
     }
 
     @Override
@@ -2394,18 +2513,20 @@ public class QueryDesugar extends BLangNodeVisitor {
         this.withinQuery = prevWithinQuery;
         this.queryEnv = prevQueryEnv;
         this.afterGroupBy = prevAfterGroupBy;
+        result = queryExpr;
     }
     
     @Override
     public void visit(BLangForeach foreach) {
-        this.acceptNode(foreach.collection);
+        foreach.collection = rewrite(foreach.collection);
         this.acceptNode(foreach.body);
+        result = foreach;
     }
 
     @Override
     public void visit(BLangFromClause fromClause) {
         this.queryEnv = fromClause.env;
-        this.acceptNode(fromClause.collection);
+        fromClause.collection = rewrite(fromClause.collection);
         VariableNode var = fromClause.variableDefinitionNode.getVariable();
         // TODO: Extend this for other variables kinds such as record, list.
         if (var.getKind() == NodeKind.VARIABLE) {
@@ -2413,15 +2534,16 @@ public class QueryDesugar extends BLangNodeVisitor {
             identifiers.put(simpleVar.name.value, simpleVar.symbol);
         }
         //we don't have to reset the env to the prev env because from clause is the init clause for the query
+        result = fromClause;
     }
 
     @Override
     public void visit(BLangJoinClause joinClause) {
-        this.acceptNode(joinClause.collection);
-        joinClause.collection.accept(this);
+        joinClause.collection = rewrite(joinClause.collection);
         this.acceptNode(((BLangVariable) joinClause.variableDefinitionNode.getVariable()));
-        this.acceptNode((BLangNode) joinClause.onClause.getLeftExpression());
-        this.acceptNode((BLangNode) joinClause.onClause.getRightExpression());
+        joinClause.onClause.lhsExpr = rewrite(joinClause.onClause.lhsExpr);
+        joinClause.onClause.rhsExpr = rewrite(joinClause.onClause.rhsExpr);
+        result = joinClause;
     }
 
     @Override
@@ -2429,128 +2551,159 @@ public class QueryDesugar extends BLangNodeVisitor {
         for (BLangLetVariable letVar : letClause.letVarDeclarations) {
             this.acceptNode((BLangNode) letVar.definitionNode);
         }
+        result = letClause;
     }
 
     @Override
     public void visit(BLangSelectClause selectClause) {
-        this.acceptNode(selectClause.expression);
+        selectClause.expression = rewrite(selectClause.expression);
+        result = selectClause;
+    }
+
+    @Override
+    public void visit(BLangCollectClause collectClause) {
+        collectClause.expression = rewrite(collectClause.expression);
+        result = collectClause;
     }
 
     @Override
     public void visit(BLangWhereClause whereClause) {
-        this.acceptNode(whereClause.expression);
+        whereClause.expression = rewrite(whereClause.expression);
+        result = whereClause;
     }
 
     @Override
     public void visit(BLangDoClause doClause) {
         doClause.body.getStatements().forEach(this::acceptNode);
+        result = doClause;
     }
 
     @Override
     public void visit(BLangOnConflictClause onConflictClause) {
-        this.acceptNode(onConflictClause.expression);
+        onConflictClause.expression = rewrite(onConflictClause.expression);
+        result = onConflictClause;
     }
 
     @Override
     public void visit(BLangLimitClause limitClause) {
-        this.acceptNode(limitClause.expression);
+        limitClause.expression = rewrite(limitClause.expression);
+        result = limitClause;
     }
 
     @Override
     public void visit(BLangOrderByClause orderByClause) {
-        orderByClause.orderByKeyList.forEach(key -> this.acceptNode(((BLangOrderKey) key).expression));
+        for (OrderKeyNode orderKey :orderByClause.orderByKeyList) {
+            ((BLangOrderKey) orderKey).expression = rewrite(((BLangOrderKey) orderKey).expression);
+        }
+        result = orderByClause;
     }
 
     @Override
     public void visit(BLangGroupByClause groupByClause) {
         afterGroupBy = true;
         groupByClause.groupingKeyList.forEach(this::acceptNode);
+        result = groupByClause;
     }
 
     @Override
     public void visit(BLangGroupingKey groupingKey) {
         this.acceptNode(groupingKey.variableDef);
-        this.acceptNode(groupingKey.variableRef);
+        groupingKey.variableRef = rewrite(groupingKey.variableRef);
+        result = groupingKey;
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
-        this.acceptNode(whileNode.expr);
+        whileNode.expr = rewrite(whileNode.expr);
         this.acceptNode(whileNode.body);
+        result = whileNode;
     }
 
     @Override
     public void visit(BLangDo doNode) {
         doNode.body.stmts.forEach(this::acceptNode);
         this.acceptNode(doNode.onFailClause);
+        result = doNode;
     }
 
     @Override
     public void visit(BLangOnFailClause onFailClause) {
         onFailClause.body.stmts.forEach(this::acceptNode);
+        result = onFailClause;
     }
 
     @Override
     public void visit(BLangFail failNode) {
-        this.acceptNode(failNode.expr);
+        failNode.expr = rewrite(failNode.expr);
+        result = failNode;
     }
 
     @Override
     public void visit(BLangLock lockNode) {
         this.acceptNode(lockNode.body);
+        result = lockNode;
     }
 
     @Override
     public void visit(BLangTransaction transactionNode) {
         this.acceptNode(transactionNode.transactionBody);
+        result = transactionNode;
     }
 
     @Override
     public void visit(BLangTupleDestructure stmt) {
-        this.acceptNode(stmt.varRef);
-        this.acceptNode(stmt.expr);
+        stmt.varRef = rewrite(stmt.varRef);
+        stmt.expr = rewrite(stmt.expr);
+        result = stmt;
     }
 
     @Override
     public void visit(BLangRecordDestructure stmt) {
-        this.acceptNode(stmt.expr);
-        this.acceptNode(stmt.varRef);
+        stmt.expr = rewrite(stmt.expr);
+        stmt.varRef = rewrite(stmt.varRef);
+        result = stmt;
     }
 
     @Override
     public void visit(BLangErrorDestructure stmt) {
-        this.acceptNode(stmt.expr);
-        this.acceptNode(stmt.varRef);
+        stmt.expr = rewrite(stmt.expr);
+        stmt.varRef = rewrite(stmt.varRef);
+        result = stmt;
     }
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
         forkJoin.workers.forEach(this::acceptNode);
+        result = forkJoin;
     }
 
     @Override
     public void visit(BLangWorkerSend workerSendNode) {
-        this.acceptNode(workerSendNode.expr);
+        workerSendNode.expr = rewrite(workerSendNode.expr);
+        result = workerSendNode;
     }
 
     @Override
     public void visit(BLangWorkerReceive workerReceiveNode) {
-        this.acceptNode(workerReceiveNode.sendExpression);
+        workerReceiveNode.sendExpression = rewrite(workerReceiveNode.sendExpression);
+        result = workerReceiveNode;
     }
 
     @Override
     public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
-        resourceAccessInvocation.argExprs.forEach(this::acceptNode);
-        resourceAccessInvocation.restArgs.forEach(this::acceptNode);
-        resourceAccessInvocation.resourceAccessPathSegments.exprs.forEach(this::acceptNode);
-        this.acceptNode(resourceAccessInvocation.expr);
+        rewrite(resourceAccessInvocation.argExprs);
+        rewrite(resourceAccessInvocation.restArgs);
+        rewrite(resourceAccessInvocation.resourceAccessPathSegments.exprs);
+        resourceAccessInvocation.expr = rewrite(resourceAccessInvocation.expr);
+        result = resourceAccessInvocation;
     }
 
     @Override
     public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
         List<BLangExpression> interpolationsList =
                 symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
-        interpolationsList.forEach(this::acceptNode);
+        rewrite(interpolationsList);
+        result = regExpTemplateLiteral;
     }
 
     private void acceptNode(BLangNode node) {
@@ -2558,5 +2711,24 @@ public class QueryDesugar extends BLangNodeVisitor {
             return;
         }
         node.accept(this);
+    }
+
+    <E extends BLangNode> E rewrite(E node) {
+        if (node == null) {
+            return null;
+        }
+
+        node.accept(this);
+        BLangNode resultNode = this.result;
+        this.result = null;
+
+        return (E) resultNode;
+    }
+
+    private <E extends BLangNode> List<E> rewrite(List<E> nodeList) {
+        for (int i = 0; i < nodeList.size(); i++) {
+            nodeList.set(i, rewrite(nodeList.get(i)));
+        }
+        return nodeList;
     }
 }

@@ -51,7 +51,8 @@ public class CollectClauseTest {
         return new Object[]{
                 "testListConstructor",
                 "testInvocation",
-                "testEmptyGroups",
+                "testEmptyGroups1",
+                "testEmptyGroups2",
                 "testGroupByAndCollectInSameQuery"
         };
     }
@@ -118,7 +119,20 @@ public class CollectClauseTest {
                 " contain aggregated variable", 109, 26);
         BAssertUtil.validateError(negativeResult, i++, "'price1' is sequenced more than once", 123, 26);
         BAssertUtil.validateError(negativeResult, i++, "'name' is sequenced more than once", 128, 43);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string[]', found 'seq seq string'", 128, 43);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string[]', " +
+                "found 'seq seq string'", 128, 43);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 134, 25);
+        BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 139, 41);
+        BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 143, 41);
+        BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 147, 41);
+        BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'seq int'",
+                150, 33);
+        BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
+                "list constructor or function invocation", 150, 33);
+        BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
+                "list constructor or function invocation", 150, 42);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'([int,int...]|record {| int n; |})', found '[int...]'", 154, 36);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 }

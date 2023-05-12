@@ -111,36 +111,162 @@ function testInvocation() {
     assertEquality(14.66666666666666666666666666666667d, x15);
 }
 
-// TODO: Check this after finalizing empty groups issue
-function testEmptyGroups() {
-    // var input = [{name: "Saman", price1: 11, price2: 11},
-    //                 {name: "Saman", price1: 15, price2: 12},
-    //                 {name: "Kamal", price1: 10, price2: 13},
-    //                 {name: "Kamal", price1: 9, price2: 12},
-    //                 {name: "Kamal", price1: 13, price2: 9},
-    //                 {name: "Amal", price1: 30, price2: 13}];
-    // var x1 = from var {name, price1} in input
-    //             where name == "X"
-    //             collect [name];
-    // assertEquality([], x1);
-    // assertEquality(0, x1.length());
-    // var x2 = from var {name, price1} in input
-    //             where name == "X"
-    //             collect int:sum(price1);
-    // assertEquality(0, x2);
-    // var x3 = from var {name, price1} in input
-    //             where name == "X"
-    //             collect sum(price1);
-    // assertEquality(0, x3);
-    // var x4 = from var {name, price1} in input
-    //             where name == "X"
-    //             collect string:'join(",", name);
-    // assertEquality("", x4);    
-    // assertEquality(0, x4.length());    
-    // string x5 = from var {name, price1} in input
-    //             where name == "X"
-    //             collect string:'join(",", name);
-    // assertEquality("", x5); 
+function testEmptyGroups1() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 15, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 9, price2: 12},
+                    {name: "Kamal", price1: 13, price2: 9},
+                    {name: "Amal", price1: 30, price2: 13}];
+    var x1 = from var {name, price1} in input
+                where name == "X"
+                collect [name];
+    assertEquality([], x1);
+    assertEquality(0, x1.length());
+    var x2 = from var {name, price1} in input
+                where name == "X"
+                collect int:sum(price1);
+    assertEquality(0, x2);
+    int x3 = from var {name, price1} in input
+                where name == "X"
+                collect sum(price1);
+    assertEquality(0, x3);
+    var x4 = from var {name, price1} in input
+                where name == "X"
+                collect string:'join(",", name);
+    assertEquality("", x4);    
+    assertEquality(0, x4.length());    
+    string x5 = from var {name, price1} in input
+                where name == "X"
+                collect string:'join(",", name);
+    assertEquality("", x5); 
+    [int...] x6 = from var {name, price1} in input
+                    where name == "X"
+                    collect [price1];
+    assertEquality([], x6);
+    int? x7 = from var {name, price1} in input
+                where name == "X"
+                collect max(price1);    
+    assertEquality((), x7);
+    assertEquality(x7 is (), true);
+    int x8 = from var {name, price1} in input
+                where name == "X"
+                collect max(2, price1);    
+    assertEquality(2, x8);
+    int x9 = from var {name, price1} in input
+                where name == "X"
+                collect int:max(2);    
+    assertEquality(2, x9);
+    int x10 = from var {name, price1} in input
+                where name == "X"
+                collect int:max(2, ...[price1]);    
+    assertEquality(2, x10);
+    string x11 = from var {name, price1} in input
+                where name == "X"
+                collect xml:concat(name);   
+    assertEquality("", x11);
+    decimal? x12 = from var {name, price1} in input
+                    where name == "X"
+                    collect avg(price1);      
+    assertEquality((), x12);
+    var x13 = from var {name, price1, price2} in input
+                where name == "X"
+                collect [price1].push(...[price2]);      
+    assertEquality((), x13);
+
+    var input1 = [{name: "Saman", presence: true},
+                    {name: "Saman", presence: true},
+                    {name: "Kamal", presence: true},
+                    {name: "Kamal", presence: true},
+                    {name: "Kamal", presence: false},
+                    {name: "Amal", presence: true}];
+    boolean x14 = from var {name, presence} in input1
+                    where name == "X"
+                    collect some(presence);      
+    assertEquality(false, x14);
+    boolean x15 = from var {name, presence} in input1
+                    where name == "X"
+                    collect every(presence);      
+    assertEquality(true, x15);
+
+    var input2 = [{name: "Saman", price1: 11.1d},
+                    {name: "Saman", price1: 15.4d},
+                    {name: "Kamal", price1: 10.3d},
+                    {name: "Kamal", price1: 9.9d},
+                    {name: "Kamal", price1: 13.0d},
+                    {name: "Amal", price1: 30.1d}];
+    decimal? x16 = from var {name, price1} in input2
+                    where name == "X"
+                    collect avg(price1);
+    assertEquality((), x16);
+    decimal? x17 = from var {name, price1} in input2
+                    where name == "X"
+                    collect avg(3d, price1);
+    assertEquality(3d, x17);
+    string x18 = from var {name, price1} in input2
+                    where name == "X"
+                    collect concat(name);
+    assertEquality("", x18);
+    string x19 = from var {name, price1} in input2
+                    where name == "X"
+                    collect concat("Names :", name);
+    assertEquality("Names :", x19);
+    string? x20 = from var {name, price1} in input2
+                    where name == "X"
+                    collect 'join(name);
+    assertEquality((), x20);
+    assertEquality(x20 is (), true);
+    string? x21 = from var {name, price1} in input2
+                    where name == "X"
+                    collect string:'join("n");
+    assertEquality("", x21);
+}
+
+function testEmptyGroups2() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 15, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 9, price2: 12},
+                    {name: "Kamal", price1: 13, price2: 9},
+                    {name: "Amal", price1: 30, price2: 13}];    
+    int? x1 = from var {name, price1, price2} in input
+                where name == "X"
+                collect max(price1) + max(price2);  
+    assertEquality((), x1);
+    int? x2 = from var {name, price1, price2} in input
+                where name == "X"
+                collect max(price1) - max(price2);  
+    assertEquality((), x2);
+    int? x3 = from var {name, price1, price2} in input
+                collect max(price1) - max(price2);  
+    assertEquality(17, x3);
+    record {int? max;} x4 = from var {name, price1, price2} in input
+                                where name == "X"
+                                collect {max: max(price1)};
+    assertEquality({max: null}, x4);
+    record {decimal? avg;} x5 = from var {name, price1, price2} in input
+                                where name == "X"
+                                collect {avg: avg(price1)};
+    assertEquality({avg: null}, x5);
+    decimal x6 = from var {name, price1, price2} in input
+                    collect <decimal> avg(price1);
+    assertEquality(14.66666666666666666666666666666667d, x6);
+    var x7 = from var {name, price1, price2} in input
+                where name == "XX"
+                collect from var item in [avg(price1)] select item;
+    assertEquality([()], x7);
+    decimal?[] x8 = from var {name, price1, price2} in input
+                    where name == "XX"
+                    collect from var item in [2] select avg(price1);
+    assertEquality([()], x8);
+    decimal? x9 = from var {name, price1, price2} in input
+                    where name == "XX"
+                    collect from var item in [2] collect avg(price1);
+    assertEquality((), x9);
+    decimal?[] x10 = from var {name, price1, price2} in input
+                    where name == "XX"
+                    collect from var item in [2] let var x = avg(price1) collect [x];
+    assertEquality([], x10);    
 }
 
 function testGroupByAndCollectInSameQuery() {
@@ -242,4 +368,4 @@ function assertEquality(anydata expected, anydata actual) {
 }
 
 // TODO: test group by collect combinations
-// TODO: multiple collect clause (in same query(error), in different sub queries in main query)
+// TODO: multiple collect clause (in different sub queries in main query)

@@ -128,18 +128,28 @@ function testVariablesSeqMoreThanOnce() {
                 collect string:'join("_", name); // error
 }
 
-// function testInvalidArgOrder() {
-//     int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect int:sum(salary, bonus); // error
+function testInvalidReturnTypesForEmptyGroups() {
+    int x7 = from var {name, price1} in [{name: "Saman", price1: 2}]
+                where name == "X"
+                collect max(price1); // error   
+}
 
-//     int i = 2;
-//     int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect int:sum(salary, i); // error
+function testInvalidArgOrder() {
+    int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
+                collect int:sum(salary, bonus); // error
 
-//     int[] j = [];
-//     int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect int:sum(salary, ...j); // error
+    int i = 2;
+    int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
+                collect int:sum(salary, i); // error
 
-//     int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
-//                 collect int:sum(salary + bonus, 3); // error
-// }
+    int[] j = [];
+    int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
+                collect int:sum(salary, ...j); // error
+
+    int _ = from var {salary, bonus} in [{salary: 2, bonus: 1}, {salary: 4, bonus: 2}]
+                collect int:sum(salary + bonus, 3); // error
+
+    var x = from var {name, price} in [{name: "", price: 2}]
+                where name == "XX"
+                collect int:max(...[price]); // error
+}
