@@ -723,6 +723,19 @@ public class JvmCodeGenUtil {
         }
     }
 
+    public static boolean needNoTypeGeneration(int bTypeTag) {
+        switch (bTypeTag) {
+            case TypeTags.RECORD:
+            case TypeTags.ERROR:
+            case TypeTags.OBJECT:
+            case TypeTags.UNION:
+            case TypeTags.TUPLE:
+                return false;
+            default:
+                return true;
+        }
+    }
+
     public static BType getReferredType(BType type) {
         BType constraint = type;
         if (type != null && type.tag == TypeTags.TYPEREFDESC) {
