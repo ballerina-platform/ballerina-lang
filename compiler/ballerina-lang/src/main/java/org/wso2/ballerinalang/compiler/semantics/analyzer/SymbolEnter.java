@@ -5228,7 +5228,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         if (fieldNames.containsKey(f.name.value)) {
                             BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
                             if (existingVariable.flagSet.contains(Flag.PUBLIC) !=
-                                    Symbols.isFlagOn(f.symbol.flags, Flags.PUBLIC)) {
+                                    f.flagSet.contains(Flag.PUBLIC)) {
                                 dlog.error(existingVariable.pos,
                                         DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
                                         existingVariable.name.value);
