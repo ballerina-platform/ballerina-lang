@@ -258,6 +258,7 @@ public class ConfigValueCreator {
     private BMap<BString, Object> createRecordValue(TomlNode tomlNode, Type type) {
         RecordType mutableType;
         Optional<IntersectionType> intersectionType = ((IntersectableReferenceType) type).getIntersectionType();
+        // Creating a record value with mutable type and freezing it.
         if (intersectionType.isPresent()) {
             mutableType = (RecordType) ReadOnlyUtils.getMutableType((BIntersectionType) intersectionType.get());
         } else {
