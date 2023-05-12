@@ -52,7 +52,7 @@ public class AssertionUtils {
             Assert.assertEquals(output.replaceAll("\r\n|\r", "\n"), fileContent.replaceAll("\r\n|\r", "\n"));
         } else {
             String fileContent = Files.readString(commandOutputsDir.resolve("unix").resolve(outputFileName));
-            Assert.assertEquals(output, fileContent);
+            Assert.assertEquals(output, fileContent.strip());
         }
     }
 }
