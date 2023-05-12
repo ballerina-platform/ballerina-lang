@@ -202,7 +202,6 @@ public class ResourcePathCompletionUtil {
         PathParameterSymbol pathParameterSymbol = (PathParameterSymbol) segment;
         Optional<String> defaultValue;
         TypeSymbol typeSymbol = pathParameterSymbol.typeDescriptor();
-        ;
         if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER
                 && pathParameterSymbol.typeDescriptor().typeKind() == TypeDescKind.ARRAY) {
             typeSymbol = ((ArrayTypeSymbol) (pathParameterSymbol.typeDescriptor())).memberTypeDescriptor();
