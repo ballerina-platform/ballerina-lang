@@ -306,7 +306,7 @@ public class ToolCommand implements BLauncherCmd {
             return;
         }
 
-        if (!validatePackageName(toolId)) {
+        if (!validateToolName(toolId)) {
             CommandUtil.printError(errStream, "invalid tool id.", TOOL_REMOVE_USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;

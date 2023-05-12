@@ -1,4 +1,4 @@
-ballerina: no sub-command given
+ballerina: no sub-command given.
 
 USAGE:
     bal tool <sub-command> [args]

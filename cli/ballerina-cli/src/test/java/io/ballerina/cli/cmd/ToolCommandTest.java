@@ -18,10 +18,6 @@
 
 package io.ballerina.cli.cmd;
 
-import io.ballerina.projects.BalToolsToml;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -36,8 +32,6 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
  *
  * @since 2201.6.0
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(BalToolsToml.class)
 public class ToolCommandTest extends BaseCommandTest {
     @Test(description = "Test tool command with the help flag")
     public void testToolCommandWithHelpFlag() throws IOException {
@@ -134,13 +128,50 @@ public class ToolCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-list-with-args.txt"));
     }
 
-    // 1. List with an argument
-    // 2. List without a bal-tools.toml file
-    // 3. List with an empty bal-tools.toml
-    // 4. List with a bal-tools.toml filled.
+    @Test(description = "Test tool remove with more than one arguments")
+    public void testToolRemoveSubCommandWithTooManyArgs() throws IOException {
+        ToolCommand toolCommand = new ToolCommand(printStream, false);
+        new CommandLine(toolCommand).parseArgs("remove", "arg1", "arg2");
+        toolCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-remove-with-too-many-args.txt"));
+    }
 
-    // TODO: add tests for search, list, uninstall
-    // TODO: look if it is possible to mock central API calls and add positive test cases here
+    @Test(description = "Test tool remove with more than no arguments")
+    public void testToolRemoveSubCommandWithNoArgs() throws IOException {
+        ToolCommand toolCommand = new ToolCommand(printStream, false);
+        new CommandLine(toolCommand).parseArgs("remove");
+        toolCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-remove-with-no-args.txt"));
+    }
+
+    @Test(description = "Test tool remove sub-command with invalid argument format")
+    public void testToolRemoveSubCommandWithInvalidArgFormat() throws IOException {
+        ToolCommand toolCommand = new ToolCommand(printStream, false);
+        new CommandLine(toolCommand).parseArgs("remove", "id:1.0.1:extra");
+        toolCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-remove-with-invalid-tool-id.txt"));
+    }
+
+    @Test(dataProvider = "invalidToolIds", description = "Test tool remove sub-command with invalid argument format")
+    public void testToolRemoveSubCommandWithInvalidToolId(String toolId) throws IOException {
+        ToolCommand toolCommand = new ToolCommand(printStream, false);
+        new CommandLine(toolCommand).parseArgs("remove", toolId);
+        toolCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-remove-with-invalid-tool-id.txt"));
+    }
+
+    @Test(description = "Test tool pull sub-command with invalid tool version")
+    public void testToolRemoveSubCommandWithInvalidToolVersion() throws IOException {
+        ToolCommand toolCommand = new ToolCommand(printStream, false);
+        new CommandLine(toolCommand).parseArgs("remove", "tool_id:1.1");
+        toolCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("tool-remove-with-invalid-tool-version.txt"));
+    }
 
     @DataProvider(name = "invalidToolIds")
     public Object[] invalidToolIds() {
