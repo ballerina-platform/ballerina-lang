@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
+import ballerina/jballerina.java;
 
 public class Listener {
 
@@ -22,27 +22,27 @@ public class Listener {
 
     public function init(string name) {
         self.name = name;
-        io:println("Calling init for " + self.name);
+        println("Calling init for " + self.name);
     }
 
     public function attach(service object {} s, string[]|string? name = ()) returns error? {
-        io:println("Calling attach for " + self.name);
+        println("Calling attach for " + self.name);
     }
 
     public function detach(service object {} s) returns error? {
-        io:println("Calling detach for " + self.name);
+        println("Calling detach for " + self.name);
     }
 
     public function 'start() returns error? {
-        io:println("Calling start for " + self.name);
+        println("Calling start for " + self.name);
     }
 
     public function gracefulStop() returns error? {
-        io:println("Calling stop for " + self.name);
+        println("Calling stop for " + self.name);
     }
 
     public function immediateStop() returns error? {
-        io:println("Calling immediateStop for " + self.name);
+        println("Calling immediateStop for " + self.name);
     }
 }
 
@@ -51,3 +51,19 @@ listener Listener ep = new Listener("'moduleA listener'");
 public function intAdd(int a, int b) returns int {
     return a + b;
 }
+
+function println(string value) {
+    handle strValue = java:fromString(value);
+    handle stdout1 = stdout();
+    printlnInternal(stdout1, strValue);
+}
+public function stdout() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java/lang/System"
+} external;
+
+public function printlnInternal(handle receiver, handle strValue)  = @java:Method {
+    name: "println",
+    'class: "java/io/PrintStream",
+    paramTypes: ["java.lang.String"]
+} external;
