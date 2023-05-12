@@ -45,7 +45,6 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.BmpStringValue;
@@ -388,7 +387,7 @@ public class StaticMethods {
                                         new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
     }
 
-    public static TupleValueImpl getArrayValue() throws BallerinaException {
+    public static TupleValueImpl getArrayValue() throws BError {
         String name = null;
         String type = null;
         try {
@@ -398,8 +397,9 @@ public class StaticMethods {
                     add(PredefinedTypes.TYPE_STRING);
                 }
             }));
-        } catch (BallerinaException e) {
-            throw new BallerinaException("Error occurred while creating ArrayValue.", e);
+        } catch (BError e) {
+            throw ErrorCreator.createError(StringUtils.fromString(
+                    "Error occurred while creating ArrayValue."), e);
         }
     }
 
