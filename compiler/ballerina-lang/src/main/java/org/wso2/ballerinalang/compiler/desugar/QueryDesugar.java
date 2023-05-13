@@ -243,6 +243,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private boolean containsCheckExpr;
     private boolean withinQuery = false;
     private boolean afterGroupBy = false;
+    private boolean afterCollect = false;
     private boolean withinLambdaOrArrowFunc = false;
     private boolean withinCollectClause = false;
     private HashSet<BType> checkedErrorList;
@@ -1957,7 +1958,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 }
                 identifiers.put(identifier, symbol);
             } else if (identifiers.containsKey(identifier) && (withinLambdaOrArrowFunc || withinQuery)
-                    && !afterGroupBy) {
+                    && !afterGroupBy && !afterCollect) {
                 symbol = identifiers.get(identifier);
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
@@ -2508,11 +2509,14 @@ public class QueryDesugar extends BLangNodeVisitor {
         // This can be set to true directly since it's invoked only for nested queries.
         this.withinQuery = true;
         boolean prevAfterGroupBy = this.afterGroupBy;
+        boolean prevAfterCollect = this.afterCollect;
         this.afterGroupBy = false;
+        this.afterCollect = false;
         queryExpr.getQueryClauses().forEach(this::acceptNode);
         this.withinQuery = prevWithinQuery;
         this.queryEnv = prevQueryEnv;
         this.afterGroupBy = prevAfterGroupBy;
+        this.afterCollect = prevAfterCollect;
         result = queryExpr;
     }
     
@@ -2562,6 +2566,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCollectClause collectClause) {
+        this.afterCollect = true;
         collectClause.expression = rewrite(collectClause.expression);
         result = collectClause;
     }

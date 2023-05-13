@@ -53,7 +53,8 @@ public class CollectClauseTest {
                 "testInvocation",
                 "testEmptyGroups1",
                 "testEmptyGroups2",
-                "testGroupByAndCollectInSameQuery"
+                "testGroupByAndCollectInSameQuery",
+                "testMultipleCollect"
         };
     }
 

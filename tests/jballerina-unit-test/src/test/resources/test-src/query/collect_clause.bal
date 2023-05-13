@@ -360,6 +360,48 @@ function testGroupByAndCollectInSameQuery() {
     assertEquality("Saman@Saman@Kamal&Kamal&Amal&Amal", x10); 
 }
 
+function testMultipleCollect() {
+    var input1 = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 11},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Amal", price1: 12, price2: 13},
+                    {name: "Amal", price1: 12, price2: 15}];    
+
+    var x1 = from var j in [1, 2]
+                    collect (from var item in [3, 4] collect [item]);
+    assertEquality([3, 4], x1);
+    var x2 = from var j in [1, 2]
+                    let var x = from var item in [3, 4] collect [item]
+                    collect [x];
+    assertEquality([[3, 4], [3, 4]], x2);
+    var x3 = from var j in [1, 2]
+                    let var x = from var item in [3, 4] collect sum(item)
+                    collect sum(x);
+    assertEquality(14, x3);
+    var x4 = from var {name, price1, price2} in input1
+                    let var x = from var item in [3, 4] collect sum(item)
+                    collect sum(x) + sum(price1);
+    assertEquality(108, x4);
+    var x5 = from var {name, price1, price2} in input1
+                    collect (from var x in [price1] collect sum(x));
+    assertEquality(66, x5);
+    var x6 = from var {name, price1, price2} in input1
+                    collect sum(price1) + (from var x in [price1] collect sum(x));    
+    assertEquality(132, x6);
+    // TODO: Enable after https://github.com/ballerina-platform/ballerina-lang/issues/40413
+    // var x7 = from var {name, price1, price2} in input1
+    //                 collect (from var x in [price1] collect min(x)) + sum(price1);
+    var x7 = from var {name, price1, price2} in input1  
+                group by var x = from var {price1: p1} in input1 collect sum(p1)
+                collect sum(x);
+    assertEquality(66, x7);
+    var x8 = from var {name, price1, price2} in input1  
+                group by var x = from var {price1: p1} in input1 where name == "XX" collect avg(p1)
+                collect [x];
+    assertEquality([], x8);
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
