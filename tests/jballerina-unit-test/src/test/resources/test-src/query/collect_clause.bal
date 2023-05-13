@@ -402,6 +402,24 @@ function testMultipleCollect() {
     assertEquality([], x8);
 }
 
+function testDoClause() {
+    var input1 = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 11},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Amal", price1: 12, price2: 13},
+                    {name: "Amal", price1: 12, price2: 15}];  
+
+    int[] arr = [];
+    var _ = from var {name, price1, price2} in input1
+                do {
+                    var x = from var {name: n, price1: p1, price2: p2} in input1
+                            collect sum(p1);
+                    arr.push(x);
+                };   
+    assertEquality([66, 66, 66, 66, 66, 66], arr) ;
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

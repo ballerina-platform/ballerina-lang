@@ -1623,7 +1623,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangGroupByClause groupByClause) {
         groupByClause.groupingKeyList.forEach(value -> analyzeNode(value, env));
-        for (Map.Entry<Name, Scope.ScopeEntry> symbolEntry : groupByClause.env.scope.entries.entrySet()) {
+        replaceWithSeqSymbol(groupByClause.env);
+    }
+
+    private void replaceWithSeqSymbol(SymbolEnv env) {
+        for (Map.Entry<Name, Scope.ScopeEntry> symbolEntry : env.scope.entries.entrySet()) {
             BSymbol sym = null;
             Location loc = null;
             for (Map.Entry<BSymbol, Location> unusedLocalVariable : this.unusedLocalVariables.entrySet()) {
@@ -1653,8 +1657,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCollectClause bLangCollectClause) {
-//        analyzeNode(bLangCollectClause.expression, env);
-        // TODO: Implement this to remove unused variable error
+        replaceWithSeqSymbol(bLangCollectClause.env);
+        analyzeNode(bLangCollectClause.expression, env);
     }
 
     @Override
