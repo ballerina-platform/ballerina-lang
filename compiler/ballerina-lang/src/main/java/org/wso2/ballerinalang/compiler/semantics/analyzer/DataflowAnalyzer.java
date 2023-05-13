@@ -32,6 +32,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -1622,6 +1623,22 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangGroupByClause groupByClause) {
         groupByClause.groupingKeyList.forEach(value -> analyzeNode(value, env));
+        for (Map.Entry<Name, Scope.ScopeEntry> symbolEntry : groupByClause.env.scope.entries.entrySet()) {
+            BSymbol sym = null;
+            Location loc = null;
+            for (Map.Entry<BSymbol, Location> unusedLocalVariable : this.unusedLocalVariables.entrySet()) {
+                BSymbol unusedVarSymbol = unusedLocalVariable.getKey();
+                if (unusedVarSymbol.name.equals(symbolEntry.getKey())) {
+                    sym = unusedLocalVariable.getKey();
+                    loc = unusedLocalVariable.getValue();
+                    break;
+                }
+            }
+            if (sym != null) {
+                this.unusedLocalVariables.remove(sym);
+                this.unusedLocalVariables.put(symbolEntry.getValue().symbol, loc);
+            }
+        }
     }
 
     @Override

@@ -2161,6 +2161,29 @@ function testOptionalFieldInput() {
     assertEquality([2, 3, 0, 0], x5);
 }
 
+enum Student {
+    SAMAN,
+    KAMAL,
+    AMAL
+};
+
+function testEnumInInput() {
+    var input = [{name: SAMAN, price1: 11, price2: 12}, 
+                    {name: SAMAN, price1: 11, price2: 14}, 
+                    {name: KAMAL, price1: 12, price2: 12}, 
+                    {name: KAMAL, price1: 12, price2: 14}, 
+                    {name: AMAL, price1: 19, price2: 20}]; 
+    var x1 = from var {name, price1, price2} in input 
+                group by name
+                select name;  
+    assertEquality([SAMAN, KAMAL, AMAL], x1);  
+
+    var x2 = from var {name, price1, price2} in input 
+                group by name
+                select [price1];  
+    assertEquality([[11, 11], [12, 12], [19]], x2); 
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

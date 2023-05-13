@@ -159,7 +159,8 @@ public class GroupByClauseTest {
                 "testOptionalFieldsInInput",
                 "testMultipleGroupByInSameQuery",
                 "testMultipleFromClauses",
-                "testOptionalFieldInput"
+                "testOptionalFieldInput",
+                "testEnumInInput"
         };
     }
 
@@ -194,6 +195,7 @@ public class GroupByClauseTest {
                 "testGroupByExpressionAndSelectWithNonGroupingKeys7",
                 "testEmptyGroups",
                 "testGroupByExpressionAndSelectWithNonGroupingKeys8",
+                "testEnumInInput",
                 "testGroupByExpressionAndSelectWithNonGroupingKeys9"
         };
     }
