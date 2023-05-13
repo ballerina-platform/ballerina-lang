@@ -270,7 +270,7 @@ public class Main {
                     } else if (otherCommands.contains(cmdName)) {
                         generateCommandDescription(cmd, otherCmdHelpBuilder);
                     } else if (excludedCommands.contains(cmdName)) {
-                        continue;
+                        // do nothing
                     } else {
                         generateCommandDescription(cmd, toolCmdsHelpBuilder);
                     }
@@ -324,7 +324,7 @@ public class Main {
             if (annotation != null) {
                 String[] descValues = annotation.description();
                 if (descValues != null && descValues.length > 0) {
-                    commandDescription = descValues[0];
+                    commandDescription = LauncherUtils.wrapString(descValues[0], 60, 29);
                 }
             }
             stringBuilder.append("\t").append(String.format("%-20s %s", commandName, commandDescription)).append("\n");
