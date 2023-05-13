@@ -254,6 +254,7 @@ public class ImmutableTypeCloner {
                                                                           pkgId, owner, symTable, anonymousModelHelper,
                                                                           names, unresolvedTypes),
                                                 immutableXmlTSymbol, origXmlType.flags | Flags.READONLY);
+                immutableXmlType.mutableType = origXmlType;
                 if (immutableXmlTSymbol != null) {
                     immutableXmlTSymbol.type = immutableXmlType;
                 }
@@ -1135,8 +1136,16 @@ public class ImmutableTypeCloner {
         }
 
         @Override
-        public void visit(BXMLType bxmlType) {
-
+        public void visit(BXMLType bXMLType) {
+            BXMLType origXMLType = bXMLType.mutableType;
+            if (origXMLType != null) {
+                if (bXMLType.constraint == symTable.semanticError) {
+                    bXMLType.constraint = getImmutableType(loc, types, origXMLType.constraint, env,
+                            pkgID, env.scope.owner, symTable, anonymousModelHelper, names, new HashSet<>());
+                }
+                updateImmutableType(bXMLType.constraint, loc, pkgID, typeNode, env);
+                bXMLType.mutableType = null;
+            }
         }
 
         @Override
@@ -1146,8 +1155,7 @@ public class ImmutableTypeCloner {
                 if (bTableType.constraint.tag == TypeTags.NEVER ||
                         bTableType.constraint == symTable.semanticError) {
                     bTableType.constraint = getImmutableType(loc, types, origTableType.constraint, env,
-                            pkgID, env.scope.owner, symTable, anonymousModelHelper, names,
-                            new HashSet<>());
+                            pkgID, env.scope.owner, symTable, anonymousModelHelper, names, new HashSet<>());
                 }
                 updateImmutableType(bTableType.constraint, loc, pkgID, typeNode, env);
 

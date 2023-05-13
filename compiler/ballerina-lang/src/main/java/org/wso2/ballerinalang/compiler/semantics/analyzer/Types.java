@@ -1469,7 +1469,8 @@ public class Types {
             case TypeTags.HANDLE:
                 return true;
             case TypeTags.XML:
-                return ((BXMLType) type).constraint.tag == TypeTags.NEVER;
+                BXMLType xmlType = (BXMLType) type;
+                return xmlType.constraint != null && xmlType.constraint.tag == TypeTags.NEVER;
             case TypeTags.TYPEREFDESC:
                 return isInherentlyImmutableType(((BTypeReferenceType) type).referredType);
         }

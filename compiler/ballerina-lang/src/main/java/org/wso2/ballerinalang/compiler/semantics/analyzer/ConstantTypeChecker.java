@@ -107,6 +107,8 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
+ * Resolve the value and check the type of  constant expression.
+ *
  * @since 2201.6.0
  */
 public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChecker.AnalyzerData> {
@@ -153,10 +155,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return constTypeChecker;
     }
 
-    public BType checkConstExpr(BLangExpression expr, SymbolEnv env, AnalyzerData data) {
-        return checkConstExpr(expr, env, symTable.noType, data);
-    }
-
     public BType checkConstExpr(BLangExpression expr, AnalyzerData data) {
         return checkConstExpr(expr, data.env, symTable.noType, data);
     }
@@ -167,19 +165,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     public BType checkConstExpr(BLangExpression expr, BType expType, AnalyzerData data) {
         return checkConstExpr(expr, data.env, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data);
-    }
-
-    public BType checkConstExpr(BLangExpression expr, SymbolEnv env) {
-        return checkConstExpr(expr, env, symTable.noType, new Stack<>());
-    }
-
-    public BType checkConstExpr(BLangExpression expr, SymbolEnv env, BType expType, Stack<SymbolEnv> prevEnvs) {
-        final AnalyzerData data = new AnalyzerData();
-        data.env = env;
-        data.prevEnvs = prevEnvs;
-        data.commonAnalyzerData.queryFinalClauses = new Stack<>();
-        data.commonAnalyzerData.queryEnvs = new Stack<>();
-        return checkConstExpr(expr, env, expType, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data);
     }
 
     public BType checkConstExpr(BLangExpression expr, SymbolEnv env, BType expType, DiagnosticCode diagCode,
@@ -1382,25 +1367,18 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         if (symbol == symTable.notFoundSymbol) {
             symbol = symResolver.getUnaryOpsForTypeSets(unaryExpr.operator, exprType);
         }
-        if (symbol == symTable.notFoundSymbol) {
-//            dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,
-//                    unaryExpr.operator, exprType);
-//            data.resultType = symTable.semanticError;
-        } else {
+        if (symbol != symTable.notFoundSymbol) {
             unaryExpr.opSymbol = (BOperatorSymbol) symbol;
             data.resultType = symbol.type.getReturnType();
         }
+
         if (symbol == symTable.notFoundSymbol) {
             exprType = ((BFiniteType) type).getValueSpace().iterator().next().getBType();
             symbol = symResolver.resolveUnaryOperator(unaryExpr.operator, exprType);
             if (symbol == symTable.notFoundSymbol) {
                 symbol = symResolver.getUnaryOpsForTypeSets(unaryExpr.operator, exprType);
             }
-            if (symbol == symTable.notFoundSymbol) {
-//                dlog.error(unaryExpr.pos, DiagnosticErrorCode.UNARY_OP_INCOMPATIBLE_TYPES,
-//                        unaryExpr.operator, exprType);
-//                data.resultType = symTable.semanticError;
-            } else {
+            if (symbol != symTable.notFoundSymbol) {
                 unaryExpr.opSymbol = (BOperatorSymbol) symbol;
                 data.resultType = symbol.type.getReturnType();
             }
@@ -1508,7 +1486,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         }
         return null;
-//        return new BLangConstantValue(null, type);
     }
 
     private Object calculateAddition(Object lhs, Object rhs, BType type) {
@@ -2068,22 +2045,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         return recordSymbol;
     }
 
-    private BFiniteType getCorrespondingFiniteType(BType type, BType expType) {
-        // Here, type can be broad union type. This will return member type corresponding to expType.
-        // type = 1|1.0f|1.0d, expType = float, Result = 1.0f
-        if (type.tag == TypeTags.UNION) {
-            for (BType memberType: ((BUnionType) type).getMemberTypes()) {
-                BFiniteType result = getCorrespondingFiniteType(memberType, expType);
-                if (result != null) {
-                    return result;
-                }
-            }
-        } else if (type.tag == TypeTags.FINITE && types.isAssignable(type, expType)) {
-            return (BFiniteType) type;
-        }
-        return null;
-    }
-
     private BSymbol getOpSymbolBothUnion(BUnionType lhsType, BUnionType rhsType,
                                          BLangBinaryExpr binaryExpr, AnalyzerData data) {
         BSymbol firstValidOpSymbol = symTable.notFoundSymbol;
@@ -2454,7 +2415,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             BTupleType resultTupleType = new BTupleType(tupleTypeSymbol, members);
             tupleTypeSymbol.type = resultTupleType;
             data.resultType = resultTupleType;
-            return;
         }
 
         @Override
@@ -2841,7 +2801,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     paramTypes.add(binaryExpr.rhsExpr.getBType());
                     invokableType.paramTypes = paramTypes;
                     invokableType.retType = binaryExpr.getBType();
-                    return;
             }
         }
 
