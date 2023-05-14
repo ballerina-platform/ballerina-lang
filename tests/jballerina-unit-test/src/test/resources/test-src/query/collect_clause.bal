@@ -420,12 +420,19 @@ function testDoClause() {
     assertEquality([66, 66, 66, 66, 66, 66], arr) ;
 }
 
+function testErrorSeq() {
+    var input = [{name: "SAMAN", err: error("msg1")}, 
+                    {name: "SAMAN", err: error("msg2")}]; 
+
+    var x = from var {name, err} in input
+                collect [err];
+    assertEquality("msg1", x[0].message());
+    
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
     }
     panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }
-
-// TODO: test group by collect combinations
-// TODO: multiple collect clause (in different sub queries in main query)

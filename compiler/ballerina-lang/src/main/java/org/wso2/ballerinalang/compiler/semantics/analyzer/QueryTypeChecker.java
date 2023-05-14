@@ -149,7 +149,6 @@ public class QueryTypeChecker extends TypeChecker {
     public void checkQueryType(BLangQueryExpr queryExpr, TypeChecker.AnalyzerData data) {
         AnalyzerData prevData = data.queryData;
         data.queryData = new AnalyzerData();
-        data.queryData.withinCollectClause = prevData.withinCollectClause;
 
         Types.CommonAnalyzerData commonAnalyzerData = data.commonAnalyzerData;
 
@@ -188,9 +187,9 @@ public class QueryTypeChecker extends TypeChecker {
                 dlog.error(queryExpr.pos, DiagnosticErrorCode.QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT);
             }
             BLangExpression finalClauseExpr = ((BLangCollectClause) finalClause).expression;
-            data.commonAnalyzerData.withinCollectClause = data.queryData.withinCollectClause = true;
+            data.commonAnalyzerData.withinCollectClause = true;
             BType queryType = checkExpr(finalClauseExpr, commonAnalyzerData.queryEnvs.peek(), data);
-            data.commonAnalyzerData.withinCollectClause = data.queryData.withinCollectClause = false;
+            data.commonAnalyzerData.withinCollectClause = false;
             actualType = types.checkType(finalClauseExpr.pos, queryType, data.expType,
                     DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
@@ -818,14 +817,20 @@ public class QueryTypeChecker extends TypeChecker {
         groupByClause.nonGroupingKeys = new HashSet<>(data.queryVariables);
         for (BLangGroupingKey groupingKey : groupByClause.groupingKeyList) {
             String variable;
+            BType keyType;
             if (groupingKey.variableRef != null) {
                 checkExpr(groupingKey.variableRef, groupByClause.env, data);
                 variable = groupingKey.variableRef.variableName.value;
+                keyType = groupingKey.variableRef.getBType();
             } else {
                 semanticAnalyzer.analyzeNode(groupingKey.variableDef, groupByClause.env, this,
                         data.commonAnalyzerData);
                 variable = groupingKey.variableDef.var.name.value;
                 data.queryVariables.add(variable);
+                keyType = groupingKey.variableDef.var.getBType();
+            }
+            if (!types.isAssignable(keyType, symTable.anydataType)) {
+                dlog.error(groupingKey.pos, DiagnosticErrorCode.INVALID_GROUPING_KEY_TYPE, keyType);
             }
             groupByClause.nonGroupingKeys.remove(variable);
         }
@@ -940,23 +945,24 @@ public class QueryTypeChecker extends TypeChecker {
         data.resultType = types.checkType(iExpr, retType, data.expType);
     }
 
-    // In the collect clause if there are invocations, those invocations can return () if the argument is empty.
+    // In the collect clause if there are invocations, those invocations should return `()` if the argument is empty.
     private boolean isNilReturnInvocationInCollectClause(BLangInvocation invocation, TypeChecker.AnalyzerData data) {
         BInvokableSymbol symbol = (BInvokableSymbol) invocation.symbol;
-        return (data.queryData.withinCollectClause || data.commonAnalyzerData.withinCollectClause)
-                && symbol.restParam != null && symbol.params.size() > 0 && invocation.argExprs.size() == 1
-                && invocation.restArgs.size() == 1;
+        return data.commonAnalyzerData.withinCollectClause && symbol.restParam != null && symbol.params.size() > 0
+                && invocation.argExprs.size() == 1 && invocation.restArgs.size() == 1;
     }
 
     // Check the argument within sequence context.
     private boolean hasSequenceArgs(BLangInvocation invocation, TypeChecker.AnalyzerData data) {
-        data.queryData.foundSeqVarInExpr = false;
         for (BLangExpression arg : invocation.argExprs) {
             if (arg.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                silentTypeCheckExpr(arg, symTable.noType, data);
+                BType argType = silentTypeCheckExpr(arg, symTable.noType, data);
+                if (argType.tag == TypeTags.SEQUENCE) {
+                    return true;
+                }
             }
         }
-        return data.queryData.foundSeqVarInExpr;
+        return false;
     }
 
     private void checkArg(BLangExpression arg, BType expectedType, TypeChecker.AnalyzerData data) {
@@ -1024,7 +1030,6 @@ public class QueryTypeChecker extends TypeChecker {
             } else if ((symbol.tag & SymTag.SEQUENCE) == SymTag.SEQUENCE) {
                 varRefExpr.symbol = symbol;
                 actualType = symbol.type;
-                data.queryData.foundSeqVarInExpr = true;
                 if (!data.queryData.withinSequenceContext) {
                     dlog.error(varRefExpr.pos,
                             DiagnosticErrorCode.
@@ -1156,9 +1161,6 @@ public class QueryTypeChecker extends TypeChecker {
     public static class AnalyzerData {
         boolean queryCompletesEarly = false;
         HashSet<BType> completeEarlyErrorList = new HashSet<>();
-        // TODO: check whether we need stacks for these two
-        boolean foundSeqVarInExpr = false;
         boolean withinSequenceContext = false;
-        boolean withinCollectClause = false;
     }
 }

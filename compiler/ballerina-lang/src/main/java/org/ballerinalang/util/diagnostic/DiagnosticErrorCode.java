@@ -807,7 +807,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     SEQ_ARG_FOLLOWED_BY_ANOTHER_SEQ_ARG("BCS4048", "seq.arg.followed.by.another.seq.arg"),
 
     QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT("BCS4049", "query.construct.types.cannot.be.used.with.collect"),
-    VARIABLE_IS_SEQUENCED_MORE_THAN_ONCE("BCS4050", "variable.is.sequenced.more.than.once")
+    VARIABLE_IS_SEQUENCED_MORE_THAN_ONCE("BCS4050", "variable.is.sequenced.more.than.once"),
+    INVALID_GROUPING_KEY_TYPE("BCS4051", "invalid.grouping.key.type")
     ;
 
     private String diagnosticId;

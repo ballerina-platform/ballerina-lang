@@ -16,7 +16,6 @@
 
 import ballerina/lang.array;
 
-// group by <expression>, select <expr with grouping keys>, lhs has the type
 function testGroupByExpressionAndSelectWithGroupingKeys1() {
     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
     string[] names = from var {name} in input
@@ -128,24 +127,24 @@ function testGroupByExpressionAndSelectWithGroupingKeys9() {
     assertEquality(["HotelA", "HotelB"], res);
 }
 
-// function testGroupByExpressionAndSelectWithGroupingKeys10() {
-//     record {|string town; record {|string name; float distance;|}[] hotels;|}[] input = [
-//                             {town: "Colombo2", hotels: [{name: "HotelA", distance: 2}, {name: "HotelB", distance: 0.8}]},
-//                             {town: "Colombo4", hotels: [{name: "HotelB", distance: 2}]},
-//                             {town: "Colombo3", hotels: [{name: "HotelA", distance: 2}, {name: "HotelB", distance: 0.8}]}];
-//     var res = from var {town, hotels} in input
-//                 group by hotels
-//                 select [town]; // @output [["Colombo2", "Colombo3"], ["Colombo4"]]
-//     assertEquality([[["Colombo2", "Colombo3"], ["Colombo4"]]], res);
-// }
+function testGroupByExpressionAndSelectWithGroupingKeys10() {
+    record {|string town; record {|string name; float distance;|}[] hotels;|}[] input = [
+                            {town: "Colombo2", hotels: [{name: "HotelA", distance: 2}, {name: "HotelB", distance: 0.8}]},
+                            {town: "Colombo4", hotels: [{name: "HotelB", distance: 2}]},
+                            {town: "Colombo3", hotels: [{name: "HotelA", distance: 2}, {name: "HotelB", distance: 0.8}]}];
+    var res = from var {town, hotels} in input
+                group by hotels
+                select [town]; // @output [["Colombo2", "Colombo3"], ["Colombo4"]]
+    assertEquality([["Colombo2", "Colombo3"], ["Colombo4"]], res);
+}
 
-// function testGroupByExpressionAndSelectWithGroupingKeys11() {
-//     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
-//     string|int[] names = from var {name} in input
-//                             group by name
-//                             select name; // @output ["Saman", "Kamal"]
-//     assertEquality(["Saman", "Kamal"], names);
-// }
+function testGroupByExpressionAndSelectWithGroupingKeys11() {
+    var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
+    string[] names = from var {name} in input
+                            group by name
+                            select name; // @output ["Saman", "Kamal"]
+    assertEquality(["Saman", "Kamal"], names);
+}
 
 type STR string;
 type STRINT string|int;
@@ -163,16 +162,16 @@ function testGroupByExpressionAndSelectWithGroupingKeys12() {
     assertEquality(["Saman", "Kamal"], names2);
 }
 
-// function testGroupByExpressionAndSelectWithGroupingKeys13() {
-//     record {|string town; record {|string name; float distance;|}[] hotels;|}[] input = [
-//                             {town: "Colombo2", hotels: [{name: "HotelA", distance: 2}, {name: "HotelB", distance: 0.8}]},
-//                             {town: "Colombo4", hotels: [{name: "HotelB", distance: 2}]},
-//                             {town: "Colombo3", hotels: [{name: "HotelA", distance: 2}, {name: "HotelB", distance: 0.8}]}];
-//     [string...] res = from var {town, hotels} in input
-//                     group by hotels
-//                     select [town]; // @output [["Colombo2", "Colombo3"], ["Colombo4"]]
-//     assertEquality([[["Colombo2", "Colombo3"], ["Colombo4"]]], res);
-// }
+function testGroupByExpressionAndSelectWithGroupingKeys13() {
+    record {|string town; record {|string name; float distance;|}[] hotels;|}[] input = [
+                            {town: "Colombo2", hotels: [{name: "HotelA", distance: 2}, {name: "HotelB", distance: 0.8}]},
+                            {town: "Colombo4", hotels: [{name: "HotelB", distance: 2}]},
+                            {town: "Colombo3", hotels: [{name: "HotelA", distance: 2}, {name: "HotelB", distance: 0.8}]}];
+    [string...][] res = from var {town, hotels} in input
+                            group by hotels
+                            select [town]; // @output [["Colombo2", "Colombo3"], ["Colombo4"]]
+    assertEquality([["Colombo2", "Colombo3"], ["Colombo4"]], res);
+}
 
 function testGroupByExpressionAndSelectWithGroupingKeysAndWhereClause1() {
     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
@@ -326,19 +325,19 @@ function testGroupByExpressionAndSelectWithGroupingKeysFromClause1() {
     assertEquality([[11, 12, 11, 12], [11, 12, 11, 12], [11, 12, 11, 12]], prices);
 }
 
-// function testGroupByExpressionAndSelectWithGroupingKeysFromClause2() {
-//     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}, {name: "Amal", price: 12}];
-//     record {|string name; int price;|}[][] res = from var {name} in input
-//                                                     group by name
-//                                                     select from var {price} in input
-//                                                             select {name, price};
-//                                                     // @output [[{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Saman", price: 11}, {name: "Saman", price: 12}],
-//                                                     //          [{name: "Kamal", price: 11}, {name: "Kamal", price: 12}, {name: "Kamal", price: 11}, {name: "Kamal", price: 12}],
-//                                                     //          [{name: "Amal", price: 11}, {name: "Amal", price: 12}, {name: "Amal", price: 11}, {name: "Amal", price: 12}]]
-//     assertEquality([[{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Saman", price: 11}, {name: "Saman", price: 12}],
-//                     [{name: "Kamal", price: 11}, {name: "Kamal", price: 12}, {name: "Kamal", price: 11}, {name: "Kamal", price: 12}],
-//                     [{name: "Amal", price: 11}, {name: "Amal", price: 12}, {name: "Amal", price: 11}, {name: "Amal", price: 12}]], res);
-// }
+function testGroupByExpressionAndSelectWithGroupingKeysFromClause2() {
+    var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}, {name: "Amal", price: 12}];
+    record {|string name; int price;|}[][] res = from var {name} in input
+                                                    group by name
+                                                    select from var {price} in input
+                                                            select {name, price};
+                                                    // @output [[{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Saman", price: 11}, {name: "Saman", price: 12}],
+                                                    //          [{name: "Kamal", price: 11}, {name: "Kamal", price: 12}, {name: "Kamal", price: 11}, {name: "Kamal", price: 12}],
+                                                    //          [{name: "Amal", price: 11}, {name: "Amal", price: 12}, {name: "Amal", price: 11}, {name: "Amal", price: 12}]]
+    assertEquality([[{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Saman", price: 11}, {name: "Saman", price: 12}],
+                    [{name: "Kamal", price: 11}, {name: "Kamal", price: 12}, {name: "Kamal", price: 11}, {name: "Kamal", price: 12}],
+                    [{name: "Amal", price: 11}, {name: "Amal", price: 12}, {name: "Amal", price: 11}, {name: "Amal", price: 12}]], res);
+}
 
 // // This will not working due to an existing bug
 // function testGroupbyExpressionAndSelectWithGroupingKeysFromClause3() {
@@ -763,20 +762,20 @@ function testGroupByVarDefsAndSelectWithGroupingKeysAndWhereClause6() {
                                                 select {name: n, price: p2};
                                                 // @output [{name: "Saman", price: 11}, {name:"Amal", price: 10}, {name: "Saman", price: 11}]
     assertEquality([{name: "Saman", price: 11}, {name:"Amal", price: 10}, {name: "Saman", price: 11}], res1);
-    // record {|string name; int price;|}[] res2 = from var {name, price1, price2} in input
-    //                                             group by string n = name, price1, var p2 = price2
-    //                                             let int total = getTotal(price1, p2)
-    //                                             where total < 30
-    //                                             select {name: n, price: p2};
-    //                                             // @output [{name: "Saman", price: 11}, {name:"Amal", price: 10}, {name: "Saman", price: 11}]
-    // assertEquality([{name: "Saman", price: 11}, {name:"Amal", price: 10}, {name: "Saman", price: 11}], res2);
-    // record {|string name; int price;|}[] res3 = from var {name, price1, price2} in input
-    //                                             group by string n = name, price1, var p2 = price2
-    //                                             let STRINT total = getTotal(price1, p2)
-    //                                             where total < 30
-    //                                             select {name: n, price: p2};
-    //                                             // @output [{name: "Saman", price: 11}, {name:"Amal", price: 10}, {name: "Saman", price: 11}]
-    // assertEquality([{name: "Saman", price: 11}, {name:"Amal", price: 10}, {name: "Saman", price: 11}], res3);
+    record {|string name; int price;|}[] res2 = from var {name, price1, price2} in input
+                                                group by string n = name, price1, var p2 = price2
+                                                let int total = getTotal(price1, p2)
+                                                where total < 30
+                                                select {name: n, price: p2};
+                                                // @output [{name: "Saman", price: 11}, {name:"Amal", price: 10}, {name: "Saman", price: 11}]
+    assertEquality([{name: "Saman", price: 11}, {name:"Amal", price: 10}, {name: "Saman", price: 11}], res2);
+    record {|string name; int price;|}[] res3 = from var {name, price1, price2} in input
+                                                group by string n = name, price1, var p2 = price2
+                                                let int total = getTotal(price1, p2)
+                                                where total < -3
+                                                select {name: n, price: p2};
+                                                // @output []
+    assertEquality([], res3);
 }
 
 function testGroupByVarDefsAndSelectWithGroupingKeysAndWhereClause7() {
@@ -795,16 +794,19 @@ function testGroupByVarDefsAndSelectWithGroupingKeysAndWhereClause7() {
     assertEquality([{name: "Saman", price: 11}, {name: "Amal", price: 10}, {name:"Saman", price: 11}], res);
 }
 
-// function testGroupbyVarDefsAndSelectWithGroupingKeysFromClause1() {
-//     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}, {name: "Amal", price: 12}];
-//     record {|string n; int price;|}[][] names = from var {name} in input
-//                                                         group by var n = name
-//                                                         select from var {price} in input
-//                                                                 select {n, price};
-//                                                     // @output [[{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Saman", price: 11}, {name: "Saman", price: 12}],
-//                                                     //          [{name: "Kamal", price: 11}, {name: "Kamal", price: 12}, {name: "Kamal", price: 11}, {name: "Kamal", price: 12}],
-//                                                     //          [{name: "Amal", price: 11}, {name: "Amal", price: 12}, {name: "Amal", price: 11}, {name: "Amal", price: 12}]]
-// }
+function testGroupbyVarDefsAndSelectWithGroupingKeysFromClause1() {
+    var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}, {name: "Amal", price: 12}];
+    record {|string n; int price;|}[][] names = from var {name} in input
+                                                        group by var n = name
+                                                        select from var {price} in input
+                                                                select {n, price};
+    assertEquality([[{"n":"Saman", "price":11}, {"n":"Saman", "price":12}, {"n":"Saman", "price":11}, {"n":"Saman", "price":12}],
+                    [{"n":"Kamal", "price":11}, {"n":"Kamal", "price":12}, {"n":"Kamal", "price":11}, {"n":"Kamal", "price":12}],
+                    [{"n":"Amal", "price":11}, {"n":"Amal", "price":12}, {"n":"Amal", "price":11}, {"n":"Amal", "price":12}]], names);
+                                                    // @output [[{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Saman", price: 11}, {name: "Saman", price: 12}],
+                                                    //          [{name: "Kamal", price: 11}, {name: "Kamal", price: 12}, {name: "Kamal", price: 11}, {name: "Kamal", price: 12}],
+                                                    //          [{name: "Amal", price: 11}, {name: "Amal", price: 12}, {name: "Amal", price: 11}, {name: "Amal", price: 12}]]
+}
 
 // // This will not waoking due to an existing bug
 // function testGroupbyVarDefsAndSelectWithGroupingKeysFromClause3() {
@@ -850,35 +852,35 @@ function testGroupByVarDefsAndSelectWithGroupingKeysAndWhereClause7() {
 //                                 select name; // @output [[HotelA]]
 // }
 
-// function testGroupByVarDefsAndSelectWithGroupingKeysWithJoinClause1() {
-//     var personList = [{id: 1, fname: "Alex", lname: "George"}, {id: 2, fname: "Ranjan", lname: "Fonseka"}, {id: 3, fname: "Amal", lname: "Kumara"}];
-//     var deptList = [{id: 1, name:"HR"}, {id: 2, name:"Operations"}, {id: 3, name:"HR"}];
+function testGroupByVarDefsAndSelectWithGroupingKeysWithJoinClause1() {
+    var personList = [{id: 1, fname: "Alex", lname: "George"}, {id: 2, fname: "Ranjan", lname: "Fonseka"}, {id: 3, fname: "Amal", lname: "Kumara"}];
+    var deptList = [{id: 1, name:"HR"}, {id: 2, name:"Operations"}, {id: 3, name:"HR"}];
 
-//     string[] res1 = from var person in personList
-//                     join var {id, name: deptName} in deptList
-//                     on person.id equals id
-//                     group by string n = deptName
-//                     select n; // @output ["HR", "Operations"]
-//     assertEquality(["HR", "Operations"], res1);
-//     string[] res2 = from var person in personList
-//                     join var {id, name: deptName} in deptList
-//                     on person.id equals id
-//                     group by string|int n = deptName
-//                     select n; // @output ["HR", "Operations"]
-//     assertEquality(["HR", "Operations"], res2);
-// }
+    string[] res1 = from var person in personList
+                    join var {id, name: deptName} in deptList
+                    on person.id equals id
+                    group by string n = deptName
+                    select n; // @output ["HR", "Operations"]
+    assertEquality(["HR", "Operations"], res1);
+    (string|int)[] res2 = from var person in personList
+                    join var {id, name: deptName} in deptList
+                    on person.id equals id
+                    group by string|int n = deptName
+                    select n; // @output ["HR", "Operations"]
+    assertEquality(["HR", "Operations"], res2);
+}
 
-// function testGroupByVarDefsAndSelectWithGroupingKeysWithJoinClause2() {
-//     var personList = [{id: 1, fname: "Alex", lname: "George"}, {id: 2, fname: "Ranjan", lname: "Fonseka"}, {id: 3, fname: "Amal", lname: "Kumara"}];
-//     var deptList = [{id: 1, name:"HR"}, {id: 2, name:"Operations"}, {id: 3, name:"HR"}];
+function testGroupByVarDefsAndSelectWithGroupingKeysWithJoinClause2() {
+    var personList = [{id: 1, fname: "Alex", lname: "George"}, {id: 2, fname: "Ranjan", lname: "Fonseka"}, {id: 3, fname: "Amal", lname: "Kumara"}];
+    var deptList = [{id: 1, name:"HR"}, {id: 2, name:"Operations"}, {id: 3, name:"HR"}];
 
-//     record {|int id; string deptName;|}[] res = from var person in personList
-//                                                     join var {id, name: deptName} in deptList
-//                                                     on person.id equals id
-//                                                     group by var i = id, var n = deptName
-//                                                     select {id: i, deptName: n}; // @output [{id: 1, name:"HR"}, {id: 2, name:"Operations"}, {id: 3, name:"HR"}]
-//     assertEquality([{id: 1, deptName: "HR"}, {id: 2, deptName: "Operations"}, {id: 3, deptName: "HR"}], res);
-// }
+    record {|int id; string deptName;|}[] res = from var person in personList
+                                                    join var {id, name: deptName} in deptList
+                                                    on person.id equals id
+                                                    group by var i = id, var n = deptName
+                                                    select {id: i, deptName: n}; // @output [{id: 1, name:"HR"}, {id: 2, name:"Operations"}, {id: 3, name:"HR"}]
+    assertEquality([{id: 1, deptName: "HR"}, {id: 2, deptName: "Operations"}, {id: 3, deptName: "HR"}], res);
+}
 
 function testGroupByVarDefsAndSelectWithGroupingKeysWithJoinClause3() {
     var personList = [{id: 1, fname: "Alex", lname: "George"}, {id: 2, fname: "Ranjan", lname: "Fonseka"}, {id: 3, fname: "Amal", lname: "Fonseka"}];
@@ -1012,14 +1014,14 @@ function testGroupByVarDefsAndSelectWithGroupingKeysWithFromClause() {
 }
 
 // group by <expression>, select <expr with non grouping keys>, lhs has the type
-// function testGroupByExpressionAndSelectWithNonGroupingKeys1() {
-//     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
-//     int[][] prices = from var {name, price} in input
-//                         group by name
-//                         let var p = [price]
-//                         select p; // @output [[11, 12], [11]]
-//     assertEquality([[11, 12], [11]], prices);
-// }
+function testGroupByExpressionAndSelectWithNonGroupingKeys1() {
+    var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
+    int[][] prices = from var {name, price} in input
+                        group by name
+                        let var p = [price]
+                        select p; // @output [[11, 12], [11]]
+    assertEquality([[11, 12], [11]], prices);
+}
 
 function testGroupByExpressionAndSelectWithNonGroupingKeys2() {
     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
@@ -1036,20 +1038,19 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys2() {
     assertEquality([[11, 12, 11]], prices2);
 }
 
-// TODO: check unused varialbe check
 function testGroupByExpressionAndSelectWithNonGroupingKeys3() {
     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}];
-//     int[][][] prices1 = from var {name, price} in input
-//                             group by name
-//                             let var p = [[price]]
-//                             select p; // @output [[[11, 12]], [[11]]]
-//     assertEquality([[[11, 12]], [[11]]], prices1);
+    int[][][] prices1 = from var {name, price} in input
+                            group by name
+                            let var p = [[price]]
+                            select p; // @output [[[11, 12]], [[11]]]
+    assertEquality([[[11, 12]], [[11]]], prices1);
 
-//     [[int...]][] prices2 = from var {name, price} in input
-//                             group by name
-//                             let var p = [[price]]
-//                             select p; // @output [[[11, 12]], [[11]]]
-//     assertEquality([[[11, 12]], [[11]]], prices2);
+    [[int...]][] prices2 = from var {name, price} in input
+                            group by name
+                            let var p = [[price]]
+                            select p; // @output [[[11, 12]], [[11]]]
+    assertEquality([[[11, 12]], [[11]]], prices2);
 
     var prices3 = from var {name, price} in input
                     group by name
@@ -1678,7 +1679,7 @@ function testGroupByWithDoClause() {
                 {name: "Saman", price1: 19, price2: 20}];
     boolean[] res = [];
     _ = from var {name, price1, price2} in input
-                group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
+                group by name 
                 do {
                     boolean b = [price1].some(someFunc);
                     res.push(b);
@@ -1687,7 +1688,7 @@ function testGroupByWithDoClause() {
 
     int[] arr = [];
     _ = from var {name, price1, price2} in input
-                group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
+                group by name 
                 do {
                     [price1].forEach(function (int i) {
                         arr.push(i);
@@ -1696,26 +1697,29 @@ function testGroupByWithDoClause() {
     assertEquality([11, 13, 19, 25, 27], arr);
 
     // This is working in the latest version
-    // _ = from var {name, price1, price2} in input
-    //             group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
-    //             do {
-    //                 int[] p = from var x in [price1]
-    //                             select x;
-    //                 io:println(p);
-    //             };
-
-    // int[] arr = [];
-    // _ = from var {name, price1, price2} in input
-    //             group by name // name : Saman, price1 : [11, 13, 19], price2 : [12, 14, 20]
-    //             do {
-    //                 from var x in [price1]
-    //                     do {
-    //                         arr.push(x + [price2].length());
-    //                     };
-    //             };
-    // io:println(arr); 
 
     int[][] arr1 = [];
+    _ = from var {name, price1, price2} in input
+                group by name 
+                do {
+                    int[] p = from var p1 in [price1]
+                                select p1;
+                    arr1.push(p);
+                };
+    assertEquality([[11, 13, 19], [25, 27]], arr1);
+
+    arr = [];
+    _ = from var {name, price1, price2} in input
+                group by name 
+                do {
+                    from var p1 in [price1]
+                        do {
+                            arr.push(p1 + [price2].length());
+                        };
+                };
+    assertEquality([14, 16, 22, 27, 29], arr);
+
+    arr1 = [];
     _ = from var {name, price1, price2} in input
             group by name
             let var p = {prices: [price1]}
@@ -2184,6 +2188,42 @@ function testEnumInInput() {
     assertEquality([[11, 11], [12, 12], [19]], x2); 
 }
 
+function testEmptyGroups() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 9},
+                    {name: "Amal", price1: 10, price2: 13}];
+
+    var res1 = from var {name, price1, price2} in input
+                where name == "No name"
+                group by var _ = true 
+                select [price1];
+    assertEquality([], res1);
+    var res2 = from var {name, price1, price2} in input
+                where name == "No name"
+                group by var _ = true 
+                select [price2].length();   
+    assertEquality([], res2);
+    [int...][] res3 = from var {name, price1, price2} in input
+                        where name == "No name"
+                        group by var _ = true 
+                        select [price1];   
+    assertEquality([], res3);
+}
+
+function testErrorSeq() {
+    var input = [{name: "SAMAN", err: error("msg1")}, 
+                    {name: "SAMAN", err: error("msg2")}]; 
+
+    var x = from var {name, err} in input
+                group by name
+                select [err];
+    assertEquality("msg1", x[0][0].message());
+    
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;
@@ -2192,8 +2232,6 @@ function assertEquality(anydata expected, anydata actual) {
 }
 
 // TODO: Add test cases readonly types
-// TODO: Add tests to empty groups
 // TODO: use a client
 // TODO: xml langlib function
-// TODO: error values
 // TODO: handle named args

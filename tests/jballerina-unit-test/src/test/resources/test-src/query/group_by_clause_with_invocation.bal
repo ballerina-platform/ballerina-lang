@@ -564,70 +564,49 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys8() {
                         group by name
                         select 2.0.avg(2, ...[price]);
     assertEquality([7.8, 5.0], x);
+
+    var input2 = [{name: "Saman", err: error("msg1")}, 
+                    {name: "Kamal", err: error("msg1")}]; 
+
+    var j = from var {name, err} in input2
+                group by var str = err.message()
+                select 'join(",", name);
+    assertEquality(["Saman,Kamal"], j);
 }
 
-// function testGroupByExpressionAndSelectWithNonGroupingKeys4() {
-//     var input = [{name: "Saman", price1: 11, price2: 11},
-//                     {name: "Saman", price1: 11, price2: 12},
-//                     {name: "Kamal", price1: 10, price2: 13},
-//                     {name: "Kamal", price1: 10, price2: 12},
-//                     {name: "Kamal", price1: 10, price2: 9},
-//                     {name: "Amal", price1: 10, price2: 13}];
+function testGroupByExpressionAndSelectWithNonGroupingKeys11() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 9},
+                    {name: "Amal", price1: 10, price2: 13}];
 
-//     int[] sum = from var {name, price1, price2} in input
-//                     group by name
-//                     select avg(price1 + price2);
-//     // int[] sum = from var {name, price1, price2} in input
-//     //                 group by name
-//     //                 select sum(...[price1] + ...[price2]); // negative test case
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select avg(price1 + price2);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select avg(price1 + price2 + 3);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select int:avg(price1 + price2 + 3);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select 5.avg(price1 + price2 + 3);
-//     // sum = from var {_, price1, price2} in input
-//     //         group by var _ = true
-//     //         select int:sum(price1, price2); // error
-//     assertEquality([35, 11], sum);
-//     // sum = from var {_, price1, price2} in input
-//     //         group by var _ = true
-//     //         select 5.sum(...[price1], ...[price2]); // error
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select 5.avg(23, ...[price2]);
-//     assertEquality([35, 11], sum);
-// }
+    decimal[] sum = from var {name, price1, price2} in input
+                    group by var _ = true
+                    select 5.avg(23, ...[price2]);
+    assertEquality([35, 11], sum);
+}
 
-// function testGroupByExpressionAndSelectWithNonGroupingKeys5() {
-//     record {|string name; float price;|}[] input1 = [{name: "Saman", price: 1.0}, {name: "Kamal", price: 1.2}, {name: "Kamal", price: 0.9}];
-//     float[] sum = from var {name, price} in input1
-//                     group by name
-//                     select avg(price);
-//     assertEquality([35, 11], sum);
+function testGroupByExpressionAndSelectWithNonGroupingKeys10() {
+    record {|string name; float price;|}[] input1 = [{name: "Saman", price: 1.0}, {name: "Kamal", price: 1.2}, {name: "Kamal", price: 0.9}];
+    float[] sum = from var {name, price} in input1
+                    group by name
+                    select avg(price);
+    assertEquality([1.0, 1.05], sum);
 
-//     record {|string name; float price?;|}[] input2 = [{name: "Saman"}, {name: "Kamal"}, {name: "Kamal"}];
-//     sum = from var {name, price} in input2
-//                 group by name
-//                 select avg(price);
-//     assertEquality([35, 11], sum);
+    var input2 = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 9},
+                    {name: "Amal", price1: 10, price2: 13}];
 
-//     record {|string name; float price?;|}[] input3 = [{name: "Saman"}, {name: "Kamal"}, {name: "Kamal", price: 0.9}];
-//     sum = from var {name, price} in input3
-//                 group by name
-//                 select avg(price);
-//     assertEquality([35, 11], sum);
-// }
+    decimal[] sum1 = from var {name, price1, price2} in input2
+                    group by var _ = true
+                    select 5.avg(23, ...[price2]);
+    assertEquality([12.25d], sum1);
+}
 
 // function testGroupByExpressionAndSelectWithNonGroupingKeys6() {
 //     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}, {name: "Saman", price: 12}];
@@ -654,36 +633,6 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys8() {
 //     sum = from var {name, price} in input
 //                         group by name
 //                         select 2.0.count(2, ...[price]);
-//     assertEquality([35, 11], sum);
-// }
-
-// function testGroupByExpressionAndSelectWithNonGroupingKeys7() {
-//     var input = [{name: "Saman", price1: 11, price2: 11},
-//                     {name: "Saman", price1: 11, price2: 12},
-//                     {name: "Kamal", price1: 10, price2: 13},
-//                     {name: "Kamal", price1: 10, price2: 12},
-//                     {name: "Kamal", price1: 10, price2: 9},
-//                     {name: "Amal", price1: 10, price2: 13}];
-
-//     int[] sum = from var {name, price1, price2} in input
-//                     group by name
-//                     select first(price1 + price2);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select last(price1 + price2);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select first(price1 + price2 + 3);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select int:first(price1 + price2 + 3);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select 5.last(price1 + price2 + 3);
 //     assertEquality([35, 11], sum);
 // }
 

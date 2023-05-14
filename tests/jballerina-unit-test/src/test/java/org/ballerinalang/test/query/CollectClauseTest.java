@@ -55,7 +55,8 @@ public class CollectClauseTest {
                 "testEmptyGroups2",
                 "testGroupByAndCollectInSameQuery",
                 "testMultipleCollect",
-                "testDoClause"
+                "testDoClause",
+                "testErrorSeq"
         };
     }
 

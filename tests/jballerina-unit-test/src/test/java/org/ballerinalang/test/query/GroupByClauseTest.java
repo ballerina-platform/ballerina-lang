@@ -71,6 +71,7 @@ public class GroupByClauseTest {
                 "testGroupByExpressionAndSelectWithGroupingKeysAndWhereClause8",
                 "testGroupByExpressionAndSelectWithGroupingKeysAndWhereClause9",
                 "testGroupByExpressionAndSelectWithGroupingKeysFromClause1",
+                "testGroupByExpressionAndSelectWithGroupingKeysFromClause2",
                 "testGroupByExpressionAndSelectWithGroupingKeysWithJoinClause1",
                 "testGroupByExpressionAndSelectWithGroupingKeysWithJoinClause2",
                 "testGroupByExpressionAndSelectWithGroupingKeysWithJoinClause3",
@@ -160,7 +161,17 @@ public class GroupByClauseTest {
                 "testMultipleGroupByInSameQuery",
                 "testMultipleFromClauses",
                 "testOptionalFieldInput",
-                "testEnumInInput"
+                "testEnumInInput",
+                "testEmptyGroups",
+                "testErrorSeq",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys1",
+                "testGroupByExpressionAndSelectWithGroupingKeys10",
+                "testGroupByExpressionAndSelectWithGroupingKeys11",
+                "testGroupByExpressionAndSelectWithGroupingKeys12",
+                "testGroupByExpressionAndSelectWithGroupingKeys13",
+                "testGroupbyVarDefsAndSelectWithGroupingKeysFromClause1",
+                "testGroupByVarDefsAndSelectWithGroupingKeysWithJoinClause1",
+                "testGroupByVarDefsAndSelectWithGroupingKeysWithJoinClause2"
         };
     }
 
@@ -196,7 +207,8 @@ public class GroupByClauseTest {
                 "testEmptyGroups",
                 "testGroupByExpressionAndSelectWithNonGroupingKeys8",
                 "testEnumInInput",
-                "testGroupByExpressionAndSelectWithNonGroupingKeys9"
+                "testGroupByExpressionAndSelectWithNonGroupingKeys9",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys10"
         };
     }
 
@@ -283,6 +295,10 @@ public class GroupByClauseTest {
                 157, 37);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
                 "'([int,int...]|record {| int n; |})', found '[int...]'", 167, 43);
+        BAssertUtil.validateError(negativeResult, i++, "invalid grouping key type 'error', expected a subtype of " +
+                "'anydata'", 175, 26);
+        BAssertUtil.validateError(negativeResult, i++, "invalid grouping key type 'error', expected a subtype of " +
+                "'anydata'", 178, 26);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 }
