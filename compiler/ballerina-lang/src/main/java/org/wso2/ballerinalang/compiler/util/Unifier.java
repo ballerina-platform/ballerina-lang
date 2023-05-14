@@ -557,7 +557,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                     }
 
                     BType type = paramValueTypes.get(paramVarName);
-                    return type == symbolTable.semanticError ? expType : 
+                    return type.tag == TypeTags.SEMANTIC_ERROR ? expType : 
                             ((BTypedescType) Types.getReferredType(type)).constraint;
                 }
 

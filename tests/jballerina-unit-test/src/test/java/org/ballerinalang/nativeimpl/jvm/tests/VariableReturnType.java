@@ -347,12 +347,13 @@ public class VariableReturnType {
         return ErrorCreator.createError(StringUtils.fromString("Error!"), StringUtils.fromString("Union typedesc"));
     }
 
-    public static BMap<BString, Object> getAnnotationValue(BTypedesc y) {
-        return ((BTypeReferenceType) y.getDescribingType()).getAnnotations();
+    public static BMap<BString, Object> getAnnotationValue(BTypedesc typedesc) {
+        return ((BTypeReferenceType) typedesc.getDescribingType()).getAnnotations();
     }
 
-    public static Object getAnnotationValue2(Object value, BTypedesc y, BString annotationName, int min, int max) {
-        Type describingType = y.getDescribingType();
+    public static Object getAnnotationValue2(Object value, BTypedesc typedesc, BString annotationName, 
+                                             int min, int max) {
+        Type describingType = typedesc.getDescribingType();
         BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
         if (annotations.containsKey(annotationName)) {
             Object annotValue = annotations.get(annotationName);
