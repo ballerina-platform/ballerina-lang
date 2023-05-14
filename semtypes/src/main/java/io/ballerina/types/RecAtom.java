@@ -26,7 +26,7 @@ public class RecAtom implements Atom {
     public final int index;
     private static final RecAtom zero = new RecAtom(0);
 
-    public RecAtom(int index) {
+    private RecAtom(int index) {
         this.index = index;
     }
 

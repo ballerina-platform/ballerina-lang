@@ -37,7 +37,7 @@ public class FunctionDefinition implements Definition {
     private SemType semType;
 
     public FunctionDefinition(Env env) {
-        FunctionAtomicType dummy = new FunctionAtomicType(PredefinedType.NEVER, PredefinedType.NEVER);
+        FunctionAtomicType dummy = FunctionAtomicType.from(PredefinedType.NEVER, PredefinedType.NEVER);
         this.atom = env.recFunctionAtom();
         this.semType = PredefinedType.uniformSubtype(UniformTypeCode.UT_FUNCTION, BddCommonOps.bddAtom(this.atom));
     }
@@ -48,7 +48,7 @@ public class FunctionDefinition implements Definition {
     }
 
     public SemType define(Env env, SemType args, SemType ret) {
-        FunctionAtomicType t = new FunctionAtomicType(args, ret);
+        FunctionAtomicType t = FunctionAtomicType.from(args, ret);
         env.setRecFunctionAtomType(this.atom, t);
         return this.semType;
     }

@@ -26,8 +26,12 @@ public class FunctionAtomicType implements AtomicType {
     public final SemType paramType;
     public final SemType retType;
 
-    public FunctionAtomicType(SemType paramType, SemType retType) {
+    private FunctionAtomicType(SemType paramType, SemType retType) {
         this.paramType = paramType;
         this.retType = retType;
+    }
+
+    public static FunctionAtomicType from(SemType paramType , SemType rest) {
+        return new FunctionAtomicType(paramType, rest);
     }
 }

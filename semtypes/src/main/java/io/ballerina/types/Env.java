@@ -54,7 +54,7 @@ public class Env {
             int result = this.recFunctionAtoms.size();
             // represents adding () in nballerina
             this.recFunctionAtoms.add(null);
-            return new RecAtom(result);
+            return RecAtom.createRecAtom(result);
         }
     }
 
