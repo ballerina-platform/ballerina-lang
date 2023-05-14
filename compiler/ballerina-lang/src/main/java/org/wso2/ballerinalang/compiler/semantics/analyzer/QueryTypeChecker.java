@@ -889,7 +889,6 @@ public class QueryTypeChecker extends TypeChecker {
                 return;
             }
         }
-        // TODO: check why this is useful
         boolean langLibPackageID = PackageID.isLangLibPackageID(pkgSymbol.pkgID);
         if (langLibPackageID) {
             data.env = SymbolEnv.createInvocationEnv(iExpr, data.env);
@@ -966,15 +965,9 @@ public class QueryTypeChecker extends TypeChecker {
     }
 
     private void checkArg(BLangExpression arg, BType expectedType, TypeChecker.AnalyzerData data) {
-        data.queryData.withinSequenceContext = effectiveSimpleVarRef(arg);
+        data.queryData.withinSequenceContext = arg.getKind() == NodeKind.SIMPLE_VARIABLE_REF;
         checkTypeParamExpr(arg, expectedType, data);
         data.queryData.withinSequenceContext = false;
-    }
-
-    private boolean effectiveSimpleVarRef(BLangExpression expr) {
-        // TODO: Improve this method to handle grouping-expr
-        NodeKind kind = expr.getKind();
-        return kind == NodeKind.SIMPLE_VARIABLE_REF;
     }
 
     public void visit(BLangSimpleVarRef varRefExpr, TypeChecker.AnalyzerData data) {
@@ -1080,18 +1073,7 @@ public class QueryTypeChecker extends TypeChecker {
 
     @Override
     public void visit(BLangListConstructorExpr listConstructor, TypeChecker.AnalyzerData data) {
-        // TODO: Refactor this method
         BType expType = data.expType;
-        if (expType.tag == TypeTags.NONE || expType.tag == TypeTags.READONLY) {
-            data.queryData.withinSequenceContext =
-                    listConstructor.exprs.size() == 1 && effectiveSimpleVarRef(listConstructor.exprs.get(0));
-            BType inferredType = getInferredTupleType(listConstructor, expType, data);
-            data.queryData.withinSequenceContext = false;
-            checkTupleWithSequence(inferredType);
-            data.resultType = inferredType == symTable.semanticError ?
-                    symTable.semanticError : types.checkType(listConstructor, inferredType, expType);
-            return;
-        }
         if (listConstructor.exprs.size() == 1) {
             BLangExpression expr = listConstructor.exprs.get(0);
             if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
@@ -1107,6 +1089,13 @@ public class QueryTypeChecker extends TypeChecker {
                     return;
                 }
             }
+        }
+        if (expType.tag == TypeTags.NONE || expType.tag == TypeTags.READONLY) {
+            BType inferredType = getInferredTupleType(listConstructor, expType, data);
+            checkTupleWithSequence(inferredType);
+            data.resultType = inferredType == symTable.semanticError ?
+                    symTable.semanticError : types.checkType(listConstructor, inferredType, expType);
+            return;
         }
         data.resultType = checkListConstructorCompatibility(expType, listConstructor, data);
     }
