@@ -122,6 +122,10 @@ public class ReadOnlyUtils {
             return type;
         }
 
+        if (type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG) {
+            return getAvailableImmutableType(((ReferenceType) type).getReferredType());
+        }
+
         if (type.getTag() == TypeTags.INTERSECTION_TAG && type.isReadOnly()) {
             return ((BIntersectionType) type).getEffectiveType();
         }
@@ -280,7 +284,8 @@ public class ReadOnlyUtils {
                 return objectIntersectionType;
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
                 BTypeReferenceType bType = (BTypeReferenceType) type;
-                BTypeReferenceType refType = new BTypeReferenceType(bType.getName(), bType.getPkg());
+                BTypeReferenceType refType = new BTypeReferenceType(bType.getName(), bType.getPkg(),
+                        bType.getTypeFlags(), true);
                 refType.setReferredType(getImmutableType(bType.getReferredType(), unresolvedTypes));
                 return createAndSetImmutableIntersectionType(bType, refType);
             case TypeTags.ANY_TAG:

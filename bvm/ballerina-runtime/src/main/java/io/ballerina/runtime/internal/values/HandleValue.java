@@ -38,7 +38,7 @@ import java.util.Map;
 public class HandleValue implements BHandle, RefValue {
 
     private Object value;
-    private final BTypedesc typedesc = new TypedescValueImpl(PredefinedTypes.TYPE_HANDLE);
+    private BTypedesc typedesc;
 
     @Deprecated
     public HandleValue(Object value) {
@@ -85,6 +85,9 @@ public class HandleValue implements BHandle, RefValue {
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = new TypedescValueImpl(PredefinedTypes.TYPE_HANDLE);
+        }
         return typedesc;
     }
 

@@ -1,0 +1,52 @@
+{
+  "position": {
+    "line": 11,
+    "character": 15
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source76.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "readonly",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "...p",
+      "kind": "Variable",
+      "detail": "Test2",
+      "sortText": "AB",
+      "filterText": "p",
+      "insertText": "...p",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "person",
+      "kind": "Field",
+      "detail": "Test2.person",
+      "sortText": "K",
+      "insertText": "person: {name: ${1:\"\"}, age: ${2:0}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "Test2.name",
+      "sortText": "K",
+      "insertText": "name: ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Fill Test2 Required Fields",
+      "kind": "Property",
+      "detail": "Test2",
+      "sortText": "R",
+      "filterText": "fill",
+      "insertText": "person: {name: ${1:\"\"}, age: ${2:0}},\nname: ${3:\"\"}",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

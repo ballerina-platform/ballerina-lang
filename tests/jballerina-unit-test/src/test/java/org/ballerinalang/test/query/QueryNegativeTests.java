@@ -56,7 +56,7 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "incompatible types: expected 'Student', found " +
                 "'(string|float)'", 222, 10);
         validateError(compileResult, index++, "incompatible types: expected 'Address', found 'map<string>'", 241, 13);
-        validateError(compileResult, index++, "incompatible types: expected 'FullName[]', found 'error?'", 266, 13);
+        validateError(compileResult, index++, "incompatible types: expected 'FullName[]', found '()'", 266, 13);
         validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 278, 24);
         validateError(compileResult, index++, "a type compatible with mapping constructor expressions " +
                 "not found in type 'string'", 292, 24);
@@ -77,9 +77,9 @@ public class QueryNegativeTests {
                 416, 29);
         validateError(compileResult, index++, "incompatible types: expected 'error?', " +
                         "found 'stream<record {| int a; |},error?>'", 421, 12);
-        validateError(compileResult, index++, "invalid record binding pattern with type 'anydata'", 426, 18);
+        validateError(compileResult, index++, "invalid record binding pattern with type 'anydata'", 426, 22);
         validateError(compileResult, index++, "undefined symbol 'k'", 427, 25);
-        validateError(compileResult, index++, "invalid record binding pattern with type 'any'", 432, 18);
+        validateError(compileResult, index++, "invalid record binding pattern with type 'any'", 432, 22);
         validateError(compileResult, index++, "undefined symbol 'k'", 433, 25);
         validateError(compileResult, index++, "field name 'id' used in key specifier is not found in " +
                         "table constraint type 'record {| User user; |}'", 451, 28);
@@ -104,12 +104,16 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "incompatible types: expected 'error?', found '(error|int)'", 520, 47);
         validateError(compileResult, index++, "incompatible types: expected 'int', found 'string'", 525, 16);
         validateError(compileResult, index++, "incompatible types: expected 'int', found 'string'", 530, 20);
-        Assert.assertEquals(compileResult.getErrorCount(), index);
         validateWarning(compileResult, index++, "invalid usage of the 'check' expression operator:" +
                 " no expression type is equivalent to error type", 544, 15);
         validateWarning(compileResult, index++, "invalid usage of the 'check' expression operator:" +
                 " no expression type is equivalent to error type", 553, 15);
-        Assert.assertEquals(compileResult.getDiagnostics().length, index);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found 'string[]'", 574, 13);
+        validateError(compileResult, index++, "incompatible types: expected 'PersonA', found 'string'", 583, 12);
+        validateError(compileResult, index++, "incompatible types: expected 'PersonA', found 'string[]'", 586, 17);
+        int warnCount = 2;
+        Assert.assertEquals(compileResult.getWarnCount(), warnCount);
+        Assert.assertEquals(compileResult.getErrorCount(), index - warnCount);
     }
 
     @Test
@@ -121,13 +125,13 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "cannot assign a value to final 'person'", 44, 17);
         validateWarning(compileResult, index++, "unused variable 'outputNameList'", 58, 5);
         validateError(compileResult, index++, "cannot assign a value to final 'twiceScore'", 62, 10);
-        validateError(compileResult, index++, "cannot assign a value to final 'a'", 76, 13);
-        validateWarning(compileResult, index++, "unused variable 'a'", 79, 16);
-        validateError(compileResult, index++, "cannot assign a value to final 'a'", 83, 13);
-        validateError(compileResult, index++, "cannot assign a value to final 'b'", 84, 13);
-        validateError(compileResult, index++, "cannot assign a value to final 'a'", 92, 13);
-        validateError(compileResult, index++, "cannot assign a value to final 'b'", 93, 13);
-        validateError(compileResult, index++, "cannot assign a value to final 'item'", 103, 13);
+        validateError(compileResult, index++, "cannot assign a value to final 'a'", 76, 9);
+        validateWarning(compileResult, index++, "unused variable 'a'", 79, 10);
+        validateError(compileResult, index++, "cannot assign a value to final 'a'", 83, 9);
+        validateError(compileResult, index++, "cannot assign a value to final 'b'", 84, 9);
+        validateError(compileResult, index++, "cannot assign a value to final 'a'", 92, 9);
+        validateError(compileResult, index++, "cannot assign a value to final 'b'", 93, 9);
+        validateError(compileResult, index++, "cannot assign a value to final 'item'", 103, 9);
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
     }
 

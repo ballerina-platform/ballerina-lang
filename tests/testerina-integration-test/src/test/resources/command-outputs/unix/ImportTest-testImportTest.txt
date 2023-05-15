@@ -1,0 +1,18 @@
+Compiling source
+	intg_tests/pre_declared_imports:0.0.0
+
+Running Tests with Coverage
+
+	pre_declared_imports
+		[pass] testImportTest1
+		[pass] testImportTest2
+		[pass] testImportTest3
+		[pass] testImportTest4
+
+
+		4 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	predeclared-import-tests/target/report/test_results.json

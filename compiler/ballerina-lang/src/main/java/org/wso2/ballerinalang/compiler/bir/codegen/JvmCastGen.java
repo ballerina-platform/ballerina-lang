@@ -1297,7 +1297,7 @@ public class JvmCastGen {
         }
     }
 
-    private void generateCheckCastToAnyData(MethodVisitor mv, BType type) {
+    public void generateCheckCastToAnyData(MethodVisitor mv, BType type) {
         BType sourceType = JvmCodeGenUtil.getReferredType(type);
         if (sourceType.tag == TypeTags.UNION || sourceType.tag == TypeTags.INTERSECTION ||
                 (types.isAssignable(sourceType, symbolTable.anyType) &&
@@ -1338,8 +1338,7 @@ public class JvmCastGen {
     private void checkCast(MethodVisitor mv, BType targetType) {
 
         jvmTypeGen.loadType(mv, targetType);
-        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkCast",
-                           CHECK_CAST, false);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkCast", CHECK_CAST, false);
     }
 
     static String getTargetClass(BType targetType) {

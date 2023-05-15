@@ -23,6 +23,9 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -206,7 +209,12 @@ class InstructionEmitter {
         str += emitSpaces(1);
         str += "newArray";
         str += emitSpaces(1);
-        str += emitTypeRef(ins.type, 0);
+        BType type = Types.getReferredType(ins.type);
+        if (type.tag == TypeTags.TUPLE) {
+            str += emitVarRef(ins.typedescOp);
+        } else {
+            str += emitTypeRef(ins.type, 0);
+        }
         str += "[";
         str += emitVarRef(ins.sizeOp);
         str += "]";

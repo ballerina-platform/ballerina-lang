@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 5,
+    "character": 4
+  },
+  "source": "createVariableWithUnionType.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 4
+            },
+            "end": {
+              "line": 5,
+              "character": 4
+            }
+          },
+          "newText": "int|float number = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariableWithUnionType.bal",
+          {
+            "line": 5,
+            "character": 14
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

@@ -53,7 +53,8 @@ public class MultiModuleTestDebugTest extends BaseTestCase {
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
     }
 
-    @Test
+    @Test(description = "Test to verify breakpoint hits within different types of test functions (i.e. beforeSuite, " +
+            "beforeFunc, etc)")
     public void testMultiModuleDebugScenarios() throws BallerinaTestException {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 22));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 27));
@@ -98,7 +99,7 @@ public class MultiModuleTestDebugTest extends BaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(5));
     }
 
-    @Test
+    @Test(description = "Test to verify breakpoint hits when running selective test cases")
     public void testSelectiveTestsDebug() throws BallerinaTestException {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 36));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 44));

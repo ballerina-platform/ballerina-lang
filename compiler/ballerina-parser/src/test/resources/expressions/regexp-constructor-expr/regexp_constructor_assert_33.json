@@ -119,8 +119,7 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION_VALUE",
-                                      "value": "^"
+                                      "kind": "BITWISE_XOR_TOKEN"
                                     }
                                   ]
                                 },
@@ -162,8 +161,7 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "+"
+                                          "kind": "PLUS_TOKEN"
                                         }
                                       ]
                                     }
@@ -173,8 +171,7 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION_VALUE",
-                                      "value": "$"
+                                      "kind": "DOLLAR_TOKEN"
                                     }
                                   ]
                                 }
@@ -261,8 +258,7 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION_VALUE",
-                                      "value": "^"
+                                      "kind": "BITWISE_XOR_TOKEN"
                                     }
                                   ]
                                 },
@@ -304,8 +300,7 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "+"
+                                          "kind": "PLUS_TOKEN"
                                         }
                                       ]
                                     }
@@ -315,8 +310,7 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION_VALUE",
-                                      "value": "$"
+                                      "kind": "DOLLAR_TOKEN"
                                     }
                                   ]
                                 }
@@ -403,8 +397,7 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION_VALUE",
-                                      "value": "^"
+                                      "kind": "BITWISE_XOR_TOKEN"
                                     }
                                   ]
                                 },
@@ -446,8 +439,7 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "+"
+                                          "kind": "PLUS_TOKEN"
                                         }
                                       ]
                                     }
@@ -457,8 +449,7 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION_VALUE",
-                                      "value": "$"
+                                      "kind": "DOLLAR_TOKEN"
                                     }
                                   ]
                                 }
@@ -545,8 +536,7 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION_VALUE",
-                                      "value": "^"
+                                      "kind": "BITWISE_XOR_TOKEN"
                                     }
                                   ]
                                 },
@@ -588,8 +578,7 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "+"
+                                          "kind": "PLUS_TOKEN"
                                         }
                                       ]
                                     }
@@ -599,8 +588,7 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION_VALUE",
-                                      "value": "$"
+                                      "kind": "DOLLAR_TOKEN"
                                     }
                                   ]
                                 }
@@ -721,8 +709,7 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "+"
+                                          "kind": "PLUS_TOKEN"
                                         }
                                       ]
                                     }
@@ -732,8 +719,7 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION_VALUE",
-                                      "value": "$"
+                                      "kind": "DOLLAR_TOKEN"
                                     }
                                   ]
                                 }
@@ -854,8 +840,7 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "+"
+                                          "kind": "PLUS_TOKEN"
                                         }
                                       ]
                                     }
@@ -865,8 +850,7 @@
                                   "kind": "RE_ASSERTION",
                                   "children": [
                                     {
-                                      "kind": "RE_ASSERTION_VALUE",
-                                      "value": "$"
+                                      "kind": "DOLLAR_TOKEN"
                                     }
                                   ]
                                 }

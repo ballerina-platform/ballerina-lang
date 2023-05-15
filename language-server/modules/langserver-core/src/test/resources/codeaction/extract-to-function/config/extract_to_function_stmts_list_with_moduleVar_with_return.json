@@ -26,7 +26,7 @@
               "character": 1
             }
           },
-          "newText": "\n\nfunction extracted() returns int {\n    int localVar \u003d 10;\n    localVar \u003d localVar + moduleVar;\n    return localVar;\n}"
+          "newText": "\n\nfunction extracted() returns int {\n    int localVar = 10;\n    localVar = localVar + moduleVar;\n    return localVar;\n}"
         },
         {
           "range": {
@@ -39,9 +39,21 @@
               "character": 36
             }
           },
-          "newText": "int localVar \u003d extracted();"
+          "newText": "int localVar = extracted();"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_stmts_list_with_moduleVar_with_return.bal",
+          {
+            "line": 3,
+            "character": 4
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

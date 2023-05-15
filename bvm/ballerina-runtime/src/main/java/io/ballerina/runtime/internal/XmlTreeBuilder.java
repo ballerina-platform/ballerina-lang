@@ -28,6 +28,7 @@ import io.ballerina.runtime.internal.values.XmlItem;
 import io.ballerina.runtime.internal.values.XmlPi;
 import io.ballerina.runtime.internal.values.XmlQName;
 import io.ballerina.runtime.internal.values.XmlSequence;
+import io.ballerina.runtime.internal.values.XmlText;
 
 import java.io.Reader;
 import java.io.StringReader;
@@ -147,7 +148,7 @@ public class XmlTreeBuilder {
     }
 
     private void readText(XMLStreamReader xmlStreamReader) {
-        siblingDeque.peek().add(XmlFactory.createXMLText(xmlStreamReader.getText()));
+        siblingDeque.peek().add(new XmlText(xmlStreamReader.getText()));
     }
 
     private void readComment(XMLStreamReader xmlStreamReader) {
@@ -213,8 +214,7 @@ public class XmlTreeBuilder {
             String uri = xmlStreamReader.getNamespaceURI(i);
             String prefix = xmlStreamReader.getNamespacePrefix(i);
             if (prefix == null || prefix.isEmpty()) {
-                attributesMap.put(StringUtils.fromString(XmlItem.XMLNS_NS_URI_PREFIX + "xmlns"),
-                                  StringUtils.fromString(uri));
+                attributesMap.put(XmlItem.XMLNS_PREFIX, StringUtils.fromString(uri));
             } else {
                 attributesMap.put(StringUtils.fromString(XmlItem.XMLNS_NS_URI_PREFIX + prefix),
                                   StringUtils.fromString(uri));

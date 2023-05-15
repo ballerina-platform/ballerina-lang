@@ -41,6 +41,7 @@ import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
@@ -123,6 +124,13 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
             try {
                 if (semanticModel != null) {
                     Optional<TypeSymbol> typeSymbol = this.semanticModel.type(lineRange);
+                    if (node.kind() == SyntaxKind.OBJECT_FIELD) {
+                        // HACK: Cannot identify client qualifier with display annotation
+                        ObjectFieldNode objectFieldNode = (ObjectFieldNode) node;
+                        if (objectFieldNode.metadata().isPresent()) {
+                            typeSymbol = this.semanticModel.type(objectFieldNode.children().get(1));
+                        }
+                    }
                     if (typeSymbol.isPresent()) {
                         TypeSymbol rawType = getRawType(typeSymbol.get());
                         if (rawType.typeKind() == TypeDescKind.OBJECT) {
@@ -154,6 +162,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                         }
                     }
                 }
+            } catch (RuntimeException e) {
+                // Ignore as semantic API calls cannot break the ST JSON creation.
             } catch (Exception | AssertionError e) {
                 // TODO: Remove the AssertionError catcher when fix the symbolVisitor to be extended from BaseVisitor.
                 // Ignore as semantic API calls cannot break the ST JSON creation.
@@ -198,8 +208,9 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
             nodeJson.add("typeData", symbolJson);
 
-            if ((node.kind() == SyntaxKind.BLOCK_STATEMENT || node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK)
-                    && (this.visibleEpsForEachBlock.size() > 0 || this.visibleEpsForModule.size() > 0)) {
+            if ((node.kind() == SyntaxKind.BLOCK_STATEMENT || node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK ||
+                    node.kind() == SyntaxKind.SERVICE_DECLARATION) && (this.visibleEpsForEachBlock.size() > 0 ||
+                    this.visibleEpsForModule.size() > 0)) {
 
                 JsonArray blockEndpoints = new JsonArray();
                 // Add module level endpoints
@@ -209,7 +220,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                     int epStartLine = endpoint.get("position").getAsJsonObject().get("startLine").getAsInt();
                     int epEndLine = endpoint.get("position").getAsJsonObject().get("endLine").getAsInt();
 
-                    Optional<Node> parentFunctionBlock = getParentFunctionBlock(node);
+                    Optional<Node> parentFunctionBlock = getParentBlock(node);
                     if (parentFunctionBlock.isPresent()
                             && epStartLine >= parentFunctionBlock.get().lineRange().startLine().line()
                             && epEndLine < node.lineRange().startLine().line()
@@ -232,13 +243,13 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         return nodeJson;
     }
 
-    protected Optional<Node> getParentFunctionBlock(Node node) {
+    protected Optional<Node> getParentBlock(Node node) {
         try {
-            if (node.kind() == SyntaxKind.FUNCTION_DEFINITION
-                    || node.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+            if (node.kind() == SyntaxKind.FUNCTION_DEFINITION ||
+                    node.kind() == SyntaxKind.SERVICE_DECLARATION) {
                 return Optional.of(node);
             }
-            return getParentFunctionBlock(node.parent());
+            return getParentBlock(node.parent());
         } catch (NullPointerException ex) {
             return Optional.empty();
         }
@@ -291,7 +302,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 Optional<Token> paramName = requiredParameterNode.paramName();
                 String symbolName = paramName.isPresent() ? paramName.get().text() : "";
                 symbolMetaInfo = getModuleMetaInfo(typeSymbol, symbolName, requiredParameterNode.lineRange(),
-                        false, true, true);
+                        false, true);
+                symbolMetaInfo.addProperty("isParameter", true);
                 if (!isAvailableAsEndpoint(symbolName)) {
                     this.visibleEpsForEachBlock.add(symbolMetaInfo);
                 }
@@ -306,6 +318,16 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                         this.visibleEpsForModule.add(getModuleMetaInfo(typeSymbol, moduleVarName,
                                 moduleVariableDeclarationNode.lineRange(), true, true));
                     }
+                }
+                break;
+            case OBJECT_FIELD:
+                ObjectFieldNode objectFieldNode = (ObjectFieldNode) node;
+                String fieldName = objectFieldNode.fieldName().text();
+                symbolMetaInfo = getModuleMetaInfo(typeSymbol, fieldName, objectFieldNode.lineRange(),
+                        false, true);
+                symbolMetaInfo.addProperty("isClassField", true);
+                if (!isAvailableAsEndpoint(fieldName)) {
+                    this.visibleEpsForEachBlock.add(symbolMetaInfo);
                 }
                 break;
             case LOCAL_VAR_DECL:
@@ -370,18 +392,6 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         position.addProperty("startLine", lineRange.startLine().line());
         position.addProperty("endLine", lineRange.endLine().line());
         metaInfo.add("position", position);
-
-        return metaInfo;
-    }
-
-    private JsonObject getModuleMetaInfo(TypeSymbol typeSymbol, String name, LineRange lineRange,
-                                         Boolean isModuleVar, Boolean isExternal, Boolean isParam) {
-        if (!typeSymbol.getModule().isPresent()) {
-            return new JsonObject();
-        }
-
-        JsonObject metaInfo = getModuleMetaInfo(typeSymbol, name, lineRange, isModuleVar, isExternal);
-        metaInfo.addProperty("isParameter", isParam);
 
         return metaInfo;
     }

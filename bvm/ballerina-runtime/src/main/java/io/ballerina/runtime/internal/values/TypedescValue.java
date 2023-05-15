@@ -26,5 +26,4 @@ import io.ballerina.runtime.api.values.BTypedesc;
  * @since 1.3.0
  */
 public interface TypedescValue extends RefValue, BTypedesc {
-
 }

@@ -769,7 +769,8 @@ public class TypeTestExprTest {
                 "testRecordsWithOptionalFields",
                 "testReadOnlyArrays",
                 "testTypeTestExprWithSingletons",
-                "testResourceMethodTyping"
+                "testResourceMethodTyping",
+                "testIsExpressionWithDistinctErrors"
         };
     }
 }

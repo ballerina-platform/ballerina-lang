@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.langserver.codeaction.providers;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
@@ -29,6 +31,7 @@ import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagnosticBasedCodeActionProvider;
@@ -111,6 +114,12 @@ public class IgnoreUnusedVariableCodeAction implements DiagnosticBasedCodeAction
             return Collections.emptyList();
         }
 
+        // Only subtypes of any can be ignored.
+        if (bindingPatternNode.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN 
+                && !isSubTypeOfAny(bindingPatternNode, context)) {
+            return Collections.emptyList();
+        }
+
         // If it's a variable, need to check for references
         if (bindingPatternNode.kind() == SyntaxKind.CAPTURE_BINDING_PATTERN) {
             BindingPatternNode finalBindingPatternNode = bindingPatternNode;
@@ -148,6 +157,29 @@ public class IgnoreUnusedVariableCodeAction implements DiagnosticBasedCodeAction
 
         return List.of(CodeActionUtil.createCodeAction(CommandConstants.IGNORE_UNUSED_VAR_TITLE,
                 List.of(textEdit), context.fileUri(), CodeActionKind.QuickFix));
+    }
+
+    /**
+     * Check whether the given binding pattern node is a subtype of any.
+     *
+     * @param bindingPatternNode binding pattern node
+     * @param context            code action context
+     * @return {@code true} if the given binding pattern node is a subtype of any
+     */
+    private boolean isSubTypeOfAny(BindingPatternNode bindingPatternNode, CodeActionContext context) {
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isEmpty()) {
+            return false;
+        }
+
+        Optional<TypeSymbol> typeSymbol = semanticModel.get().symbol(bindingPatternNode)
+                .flatMap(SymbolUtil::getTypeDescriptor);
+
+        if (typeSymbol.isEmpty()) {
+            return false;
+        }
+
+        return typeSymbol.get().subtypeOf(semanticModel.get().types().ANY);
     }
 
     @Override

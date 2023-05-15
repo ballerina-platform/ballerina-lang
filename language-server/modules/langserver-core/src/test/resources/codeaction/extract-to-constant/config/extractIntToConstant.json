@@ -20,7 +20,7 @@
               "character": 0
             }
           },
-          "newText": "const int CONST \u003d 10;\n"
+          "newText": "const int CONST = 10;\n"
         },
         {
           "range": {
@@ -35,7 +35,19 @@
           },
           "newText": "CONST"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename constant",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToConstant.bal",
+          {
+            "line": 2,
+            "character": 21
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

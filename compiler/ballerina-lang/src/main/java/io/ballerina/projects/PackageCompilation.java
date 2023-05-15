@@ -105,8 +105,9 @@ public class PackageCompilation {
         if (compilation.packageContext().defaultModuleContext().compilationState() != ModuleCompilationState.COMPILED) {
             return compilation;
         }
-        // Do not run code analyzers, if the code generators are enabled.
-        if (compilation.compilationOptions().withCodeGenerators()) {
+        // Do not run code analyzers, if the code generators or code modifiers are enabled.
+        if (compilation.compilationOptions().withCodeGenerators()
+                || compilation.compilationOptions().withCodeModifiers()) {
             return compilation;
         }
 
@@ -196,14 +197,13 @@ public class PackageCompilation {
         diagnostics.addAll(packageContext().packageManifest().diagnostics().allDiagnostics);
         // add dependency manifest diagnostics
         diagnostics.addAll(packageContext().dependencyManifest().diagnostics().allDiagnostics);
-        diagnostics.addAll(packageResolution.pluginDiagnosticList());
         // add compilation diagnostics
         if (!packageResolution.diagnosticResult().hasErrors()) {
             for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
                 moduleContext.compile(compilerContext);
                 for (Diagnostic diagnostic : moduleContext.diagnostics()) {
                     diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
-                            moduleContext.project(), moduleContext.isGenerated()));
+                            moduleContext.project()));
                 }
             }
         }

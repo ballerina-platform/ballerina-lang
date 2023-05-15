@@ -52,7 +52,7 @@ public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements Arra
         if (this.memberTypeDesc == null) {
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
             BType eType = ((BArrayType) this.getBType()).eType;
-            if (eType.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL) {
+            if (eType.tsymbol != null && eType.tsymbol.getOrigin() == SymbolOrigin.VIRTUAL) {
                 this.memberTypeDesc = typesFactory.getTypeDescriptor(eType, eType.tsymbol, true);
             } else {
                 this.memberTypeDesc = typesFactory.getTypeDescriptor(eType);

@@ -20,13 +20,15 @@ package io.ballerina.projects.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import io.ballerina.projects.DocumentConfig;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleConfig;
-import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
@@ -40,12 +42,8 @@ import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
-import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
-import io.ballerina.projects.internal.DocumentData;
-import io.ballerina.projects.internal.ModuleData;
-import io.ballerina.projects.internal.ProjectFiles;
 import io.ballerina.projects.internal.model.BuildJson;
 import io.ballerina.projects.internal.model.Dependency;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
@@ -84,6 +82,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -124,6 +123,8 @@ import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 public class ProjectUtils {
     private static final String USER_HOME = "user.home";
     private static final Pattern separatedIdentifierPattern = Pattern.compile("^[a-zA-Z0-9_.]*$");
+    private static final Pattern onlyDotsPattern = Pattern.compile("^[.]+$");
+    private static final Pattern onlyNonAlphanumericPattern = Pattern.compile("^[^a-zA-Z0-9]+$");
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
 
     /**
@@ -164,6 +165,40 @@ public class ProjectUtils {
         return validateDotSeparatedIdentifiers(packageName)
                 && validateUnderscoresOfName(packageName)
                 && validateInitialNumericsOfName(packageName);
+    }
+
+    public static Set<String> getPackageImports(Package pkg) {
+        Set<String> imports = new HashSet<>();
+        for (ModuleId moduleId : pkg.moduleIds()) {
+            Module module = pkg.module(moduleId);
+            Collection<DocumentId> documentIds = module.documentIds();
+            getPackageImports(imports, module, documentIds);
+            Collection<DocumentId> testDocumentIds = module.testDocumentIds();
+            getPackageImports(imports, module, testDocumentIds);
+        }
+        return imports;
+    }
+
+    private static void getPackageImports(Set<String> imports, Module module, Collection<DocumentId> documentIds) {
+        for (DocumentId docId : documentIds) {
+            Document document = module.document(docId);
+
+            ModulePartNode modulePartNode = document.syntaxTree().rootNode();
+
+            for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
+                String orgName = "";
+                if (importDcl.orgName().isPresent()) {
+                    orgName = importDcl.orgName().get().orgName().text();
+                }
+                SeparatedNodeList<IdentifierToken> identifierTokenList = importDcl.moduleName();
+                StringJoiner stringJoiner = new StringJoiner(".");
+                for (int i = 0; i < identifierTokenList.size(); i++) {
+                    stringJoiner.add(identifierTokenList.get(i).text());
+                }
+                String moduleName = stringJoiner.toString();
+                imports.add(orgName + "/" + moduleName);
+            }
+        }
     }
 
     /**
@@ -312,6 +347,10 @@ public class ProjectUtils {
      * @return package name
      */
     public static String guessPkgName(String packageName, String template) {
+        if (!validateOnlyNonAlphanumeric(packageName)) {
+            packageName = "my_package";
+        }
+
         if (!validatePackageName(packageName)) {
             packageName = packageName.replaceAll("[^a-zA-Z0-9_.]", "_");
         }
@@ -721,7 +760,15 @@ public class ProjectUtils {
 
     private static boolean validateDotSeparatedIdentifiers(String identifiers) {
         Matcher m = separatedIdentifierPattern.matcher(identifiers);
-        return m.matches();
+        Matcher mm = onlyDotsPattern.matcher(identifiers);
+
+        return m.matches() && !mm.matches();
+    }
+
+    private static boolean validateOnlyNonAlphanumeric(String identifiers) {
+        Matcher m = onlyNonAlphanumericPattern.matcher(identifiers);
+
+        return !m.matches();
     }
 
     /**
@@ -738,15 +785,15 @@ public class ProjectUtils {
         content.append("[ballerina]\n");
         content.append("version = \"").append(RepoUtils.getBallerinaShortVersion()).append("\"\n");
         content.append("dependencies-toml-version = \"").append(ProjectConstants.DEPENDENCIES_TOML_VERSION)
-                .append("\"\n\n");
+                .append("\"\n");
 
         // write dependencies from package dependency graph
         pkgGraphDependencies.forEach(graphDependency -> {
+            content.append("\n");
             PackageDescriptor descriptor = graphDependency.packageInstance().descriptor();
             addDependencyContent(content, descriptor.org().value(), descriptor.name().value(),
                                  descriptor.version().value().toString(), null, Collections.emptyList(),
                                  Collections.emptyList());
-            content.append("\n");
         });
         return String.valueOf(content);
     }
@@ -764,14 +811,15 @@ public class ProjectUtils {
         StringBuilder content = new StringBuilder(comment);
         content.append("[ballerina]\n");
         content.append("dependencies-toml-version = \"").append(ProjectConstants.DEPENDENCIES_TOML_VERSION)
-                .append("\"\n\n");
+                .append("\"\n");
+        content.append("distribution-version = \"").append(RepoUtils.getBallerinaShortVersion()).append("\"\n");
 
         // write dependencies from package dependency graph
         pkgDependencies.forEach(dependency -> {
+            content.append("\n");
             addDependencyContent(content, dependency.getOrg(), dependency.getName(), dependency.getVersion(),
                                  getDependencyScope(dependency.getScope()), dependency.getDependencies(),
                                  dependency.getModules());
-            content.append("\n");
         });
         return String.valueOf(content);
     }
@@ -979,16 +1027,13 @@ public class ProjectUtils {
             try {
                 BuildJson buildJson = readBuildJson(buildFile);
                 long lastProjectUpdatedTime = FileUtils.lastModifiedTimeOfBalProject(project.sourceRoot());
-                PackageName packageName = project.currentPackage().packageName();
-                if (buildJson == null
-                        || buildJson.getLastModifiedTime() == null
-                        || buildJson.getLastModifiedTime().entrySet().isEmpty()
-                        || buildJson.getLastModifiedTime().get(packageName.value()) == null) {
-                    return true; // return true if `build` file does not exist
+                if (buildJson != null
+                        && buildJson.getLastModifiedTime() != null
+                        && !buildJson.getLastModifiedTime().entrySet().isEmpty()) {
+                    long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
+                            .get(project.currentPackage().packageName().value());
+                    return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
                 }
-                long defaultModuleLastModifiedTime = buildJson.getLastModifiedTime()
-                        .get(packageName.value());
-                return lastProjectUpdatedTime > defaultModuleLastModifiedTime;
             } catch (IOException e) {
                 // if reading `build` file fails
                 // delete `build` file and return true
@@ -1092,6 +1137,12 @@ public class ProjectUtils {
         return allMatchingPaths;
     }
 
+    public static boolean isNewUpdateDistribution(SemanticVersion prevDistributionVersion,
+                                            SemanticVersion currentDistributionVersion) {
+        return currentDistributionVersion.major() == prevDistributionVersion.major()
+                && currentDistributionVersion.minor() > prevDistributionVersion.minor();
+    }
+
     private static void removeNegatedIncludePaths(String pattern, List<Path> allMatchingPaths) {
         String combinedPattern = getGlobFormatPattern(pattern);
         Stream<Path> pathStream = allMatchingPaths.stream();
@@ -1177,46 +1228,5 @@ public class ProjectUtils {
                     ProjectUtils.getRelativeBalaPath(org, name, version, JvmTarget.JAVA_11.code()));
         }
         return balaPath;
-    }
-
-    public static void writeModule(ModuleConfig moduleConfig, Path modulesRoot) throws IOException {
-        Path moduleDirPath = modulesRoot.resolve(moduleConfig.moduleDescriptor().name().moduleNamePart());
-        Files.createDirectories(moduleDirPath);
-        for (DocumentConfig sourceDoc : moduleConfig.sourceDocs()) {
-            Files.writeString(moduleDirPath.resolve(sourceDoc.name()), sourceDoc.content());
-        }
-
-        Path moduleTestDirPath = moduleDirPath.resolve(ProjectConstants.TEST_DIR_NAME);
-        Files.createDirectories(moduleTestDirPath);
-        for (DocumentConfig testSourceDoc : moduleConfig.testSourceDocs()) {
-            Files.writeString(moduleTestDirPath.resolve(testSourceDoc.name()), testSourceDoc.content());
-        }
-
-        Path moduleResourcesDirPath = moduleDirPath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
-        Files.createDirectories(moduleTestDirPath);
-        for (ResourceConfig resource : moduleConfig.resources()) {
-            Files.write(moduleResourcesDirPath.resolve(resource.name()), resource.content().orElse(null));
-        }
-    }
-
-    public static ModuleConfig createModuleConfig (String moduleName, Project project) {
-        ModuleData moduleData = ProjectFiles.loadModule(
-                project.sourceRoot().resolve(ProjectConstants.GENERATED_MODULES_ROOT).resolve(moduleName));
-        ModuleId moduleId = ModuleId.create(moduleName, project.currentPackage().packageId());
-        List<DocumentConfig> documentConfigs = new ArrayList<>();
-        List<DocumentConfig> testDocumentConfigs = new ArrayList<>();
-        for (DocumentData sourceDoc : moduleData.sourceDocs()) {
-            DocumentId documentId = DocumentId.create(sourceDoc.name(), moduleId);
-            documentConfigs.add(DocumentConfig.from(documentId, sourceDoc.content(), sourceDoc.name()));
-        }
-        for (DocumentData sourceDoc : moduleData.testSourceDocs()) {
-            DocumentId documentId = DocumentId.create(sourceDoc.name(), moduleId);
-            testDocumentConfigs.add(DocumentConfig.from(documentId, sourceDoc.content(), sourceDoc.name()));
-        }
-        ModuleDescriptor moduleDescriptor = ModuleDescriptor.from(
-                ModuleName.from(project.currentPackage().packageName(), moduleName),
-                project.currentPackage().descriptor());
-        return ModuleConfig.from(
-                moduleId, moduleDescriptor, documentConfigs, testDocumentConfigs, null, new ArrayList<>());
     }
 }

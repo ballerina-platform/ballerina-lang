@@ -20,6 +20,38 @@ function testFromString(string s, boolean|error expected) {
     assert(expected, 'boolean:fromString(s));
 }
 
+function testSome() {
+    assert(true, boolean:some(...[true, false, true]));
+    assert(true, boolean:some(...[false, false, true]));
+    assert(true, boolean:some(false, false, true));
+    assert(false, boolean:some(false, false, false));
+    assert(false, boolean:some(false));
+    assert(false, boolean:some());
+    boolean[] arr = [true, false, true];
+    assert(true, boolean:some(...arr));
+    arr = [];
+    assert(false, boolean:some(...arr));
+    assert(true, true.some(true, true, true));
+    assert(true, false.some(true, true, true));
+    assert(false, false.some(false, false, false));
+}
+
+function testEvery() {
+    assert(true, boolean:every(true, true, true));
+    assert(true, boolean:every(...[true, true, true]));
+    assert(false, boolean:every(true, false, true));
+    assert(false, boolean:every(...[true, false, true]));
+    assert(false, boolean:every(false, false, false));
+    assert(true, boolean:every());
+    boolean[] arr = [true, true, true];
+    assert(true, boolean:every(...arr));
+    arr = [];
+    assert(true, boolean:every(...arr));
+    assert(true, true.every(true, true, true));
+    assert(false, false.every(true, true, true));
+    assert(false, false.every(true, false, true));
+}
+
 // Util functions
 
 function assert(boolean|error expected, boolean|error actual) {

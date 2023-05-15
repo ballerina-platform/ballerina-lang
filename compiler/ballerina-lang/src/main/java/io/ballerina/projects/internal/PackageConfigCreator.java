@@ -36,8 +36,6 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResourceConfig;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.tools.text.LineRange;
-import org.ballerinalang.model.elements.PackageID;
 
 import java.nio.file.Path;
 import java.util.Collections;
@@ -45,7 +43,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -89,7 +86,7 @@ public class PackageConfigCreator {
         PackageDescriptor packageDesc = PackageDescriptor.from(PackageOrg.from(ProjectConstants.ANON_ORG),
                 PackageName.from(ProjectConstants.DOT), PackageVersion.from(ProjectConstants.DEFAULT_VERSION));
         PackageManifest packageManifest = PackageManifest.from(packageDesc);
-        DependencyManifest dependencyManifest = DependencyManifest.from(null, Collections.emptyList());
+        DependencyManifest dependencyManifest = DependencyManifest.from(null, null, Collections.emptyList());
 
         PackageData packageData = ProjectFiles.loadSingleFileProjectPackageData(filePath);
         return createPackageConfig(packageData, packageManifest, dependencyManifest);
@@ -153,10 +150,6 @@ public class PackageConfigCreator {
                 .from(packageId, packageData.packagePath(), packageManifest, dependencyManifest, ballerinaToml,
                       dependenciesToml, cloudToml, compilerPluginToml, packageMd, moduleConfigs,
                       packageDependencyGraph);
-    }
-
-    public static Map<PackageID, Map<String, Map<LineRange, Optional<PackageID>>>> getIDLClientMap (Path balaPath) {
-        return BalaFiles.createIDLClientsMapFromJson(balaPath);
     }
 
     private static ModuleConfig createDefaultModuleConfig(PackageDescriptor pkgDesc,

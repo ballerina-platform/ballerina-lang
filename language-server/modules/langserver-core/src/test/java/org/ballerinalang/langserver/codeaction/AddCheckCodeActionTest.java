@@ -52,7 +52,9 @@ public class AddCheckCodeActionTest extends AbstractCodeActionTest {
                 {"add_check_codeaction_wait_action_config1.json"},
                 {"add_check_in_local_var1.json"},
                 {"add_check_in_local_var2.json"},
-                {"add_check_in_module_var.json"}
+                {"add_check_in_module_var.json"},
+                {"add_check_on_field_access_config1.json"},
+                {"add_check_on_field_access_config2.json"}
         };
     }
 

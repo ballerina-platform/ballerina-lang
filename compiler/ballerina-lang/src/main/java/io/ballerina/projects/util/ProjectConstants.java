@@ -42,7 +42,7 @@ public class ProjectConstants {
     public static final String BALA_JSON = "bala.json";
     public static final String COMPILER_PLUGIN_JSON = "compiler-plugin.json";
     public static final String DEPENDENCY_GRAPH_JSON = "dependency-graph.json";
-    public static final String IDL_CLIENTS_JSON = "idl-clients.json";
+    public static final String DEPRECATED_META_FILE_NAME = "deprecated.txt";
     public static final String BUILD_FILE = "build";
 
     public static final String SOURCE_DIR_NAME = "src";
@@ -80,7 +80,6 @@ public class ProjectConstants {
     public static final String BLANG_COMPILED_PKG_BIR_EXT = ".bir";
     public static final String BLANG_COMPILED_JAR_EXT = ".jar";
     public static final String RESOURCE_DIR_NAME = "resources";
-    public static final String IDL_CACHE_FILE = "idl-plugin-cache.json";
 
     public static final String TARGET_BALA_DIR_NAME = "bala";
     public static final String BALLERINA_HOME = "ballerina.home";
@@ -118,4 +117,5 @@ public class ProjectConstants {
     public static final String CENTRAL_REPOSITORY_CACHE_NAME = "central.ballerina.io";
     public static final String DEPENDENCIES_TOML_VERSION = "2";
     public static final String BALLERINA_ORG = "ballerina";
+    public static final String CONFIG_ARGS_PATTERN = "-C[\\w\\W]+=([\\w\\W]+)";
 }

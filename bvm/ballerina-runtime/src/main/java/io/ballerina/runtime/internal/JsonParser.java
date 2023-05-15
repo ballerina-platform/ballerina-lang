@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.JsonUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -310,7 +311,7 @@ public class JsonParser {
             }
 
             Object parentNode = this.nodesStack.pop();
-            if (TypeChecker.getType(parentNode).getTag() == TypeTags.MAP_TAG) {
+            if (TypeUtils.getReferredType(TypeChecker.getType(parentNode)).getTag() == TypeTags.MAP_TAG) {
                 ((MapValueImpl<BString, Object>) parentNode).put(StringUtils.fromString(fieldNames.pop()),
                                                                  currentJsonNode);
                 currentJsonNode = parentNode;

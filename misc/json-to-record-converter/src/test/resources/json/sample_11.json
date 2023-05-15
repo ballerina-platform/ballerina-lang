@@ -3,5 +3,33 @@
   "last+Name?": "Root",
   "007": "James Bond",
   "\\u{03FC} +-+": 123,
-  "ōŊĖ": false
+  "ōŊĖ": false,
+  "special object": {
+    "name": "Special",
+    "age": 100
+  },
+  "special\\array-?": [
+    [
+      {
+        "date": "2022-01-01",
+        "value": 2504,
+        "type": "None"
+      }
+    ],
+    [
+      {
+        "date": "2022-01-01",
+        "value": 2504
+      }
+    ],
+    [
+      [
+        {
+          "date": "2022-01-01",
+          "value": 2504,
+          "2 favourite-colors": ["Red", "Green"]
+        }
+      ]
+    ]
+  ]
 }

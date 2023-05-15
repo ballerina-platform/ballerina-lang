@@ -1,0 +1,12 @@
+{
+  "position": {
+    "line": 6,
+    "character": 10
+  },
+  "source": "convert_to_query_expr_negative1.bal",
+  "expected": [
+    {
+      "title": "Map with a query expression"
+    }
+  ]
+}

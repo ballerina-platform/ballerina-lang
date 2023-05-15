@@ -151,11 +151,11 @@
                                           "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "kind": "RE_LITERAL_CHAR",
                                               "value": "a"
                                             },
                                             {
-                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH",
+                                              "kind": "RE_LITERAL_CHAR",
                                               "value": "b"
                                             }
                                           ]
@@ -271,11 +271,11 @@
                                           "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                           "children": [
                                             {
-                                              "kind": "RE_CHAR_SET_ATOM",
+                                              "kind": "RE_LITERAL_CHAR",
                                               "value": "a"
                                             },
                                             {
-                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH",
+                                              "kind": "RE_LITERAL_CHAR",
                                               "value": "b"
                                             }
                                           ]
@@ -397,14 +397,15 @@
                                               "kind": "RE_CHAR_SET_RANGE",
                                               "children": [
                                                 {
-                                                  "kind": "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM",
+                                                  "kind": "RE_LITERAL_CHAR",
                                                   "value": "a"
                                                 },
                                                 {
-                                                  "kind": "MINUS_TOKEN"
+                                                  "kind": "RE_LITERAL_CHAR",
+                                                  "value": "-"
                                                 },
                                                 {
-                                                  "kind": "RE_CHAR_SET_ATOM",
+                                                  "kind": "RE_LITERAL_CHAR",
                                                   "value": "b"
                                                 }
                                               ]
@@ -413,7 +414,7 @@
                                               "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                               "children": [
                                                 {
-                                                  "kind": "RE_CHAR_SET_ATOM",
+                                                  "kind": "RE_LITERAL_CHAR",
                                                   "value": "c"
                                                 },
                                                 {
@@ -423,14 +424,15 @@
                                                       "kind": "RE_CHAR_SET_RANGE_NO_DASH",
                                                       "children": [
                                                         {
-                                                          "kind": "RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH",
+                                                          "kind": "RE_LITERAL_CHAR",
                                                           "value": "d"
                                                         },
                                                         {
-                                                          "kind": "MINUS_TOKEN"
+                                                          "kind": "RE_LITERAL_CHAR",
+                                                          "value": "-"
                                                         },
                                                         {
-                                                          "kind": "RE_CHAR_SET_ATOM",
+                                                          "kind": "RE_LITERAL_CHAR",
                                                           "value": "g"
                                                         }
                                                       ]
@@ -439,14 +441,14 @@
                                                       "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                                       "children": [
                                                         {
-                                                          "kind": "RE_CHAR_SET_ATOM",
+                                                          "kind": "RE_LITERAL_CHAR",
                                                           "value": "k"
                                                         },
                                                         {
                                                           "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH",
+                                                              "kind": "RE_LITERAL_CHAR",
                                                               "value": "l"
                                                             },
                                                             {
@@ -456,14 +458,15 @@
                                                                   "kind": "RE_CHAR_SET_RANGE_NO_DASH",
                                                                   "children": [
                                                                     {
-                                                                      "kind": "RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH",
+                                                                      "kind": "RE_LITERAL_CHAR",
                                                                       "value": "m"
                                                                     },
                                                                     {
-                                                                      "kind": "MINUS_TOKEN"
+                                                                      "kind": "RE_LITERAL_CHAR",
+                                                                      "value": "-"
                                                                     },
                                                                     {
-                                                                      "kind": "RE_CHAR_SET_ATOM",
+                                                                      "kind": "RE_LITERAL_CHAR",
                                                                       "value": "n"
                                                                     }
                                                                   ]
@@ -594,14 +597,15 @@
                                               "kind": "RE_CHAR_SET_RANGE",
                                               "children": [
                                                 {
-                                                  "kind": "RE_CHAR_SET_RANGE_LHS_CHAR_SET_ATOM",
+                                                  "kind": "RE_LITERAL_CHAR",
                                                   "value": "a"
                                                 },
                                                 {
-                                                  "kind": "MINUS_TOKEN"
+                                                  "kind": "RE_LITERAL_CHAR",
+                                                  "value": "-"
                                                 },
                                                 {
-                                                  "kind": "RE_CHAR_SET_ATOM",
+                                                  "kind": "RE_LITERAL_CHAR",
                                                   "value": "b"
                                                 }
                                               ]
@@ -610,7 +614,7 @@
                                               "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                               "children": [
                                                 {
-                                                  "kind": "RE_CHAR_SET_ATOM",
+                                                  "kind": "RE_LITERAL_CHAR",
                                                   "value": "c"
                                                 },
                                                 {
@@ -620,14 +624,15 @@
                                                       "kind": "RE_CHAR_SET_RANGE_NO_DASH",
                                                       "children": [
                                                         {
-                                                          "kind": "RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH",
+                                                          "kind": "RE_LITERAL_CHAR",
                                                           "value": "d"
                                                         },
                                                         {
-                                                          "kind": "MINUS_TOKEN"
+                                                          "kind": "RE_LITERAL_CHAR",
+                                                          "value": "-"
                                                         },
                                                         {
-                                                          "kind": "RE_CHAR_SET_ATOM",
+                                                          "kind": "RE_LITERAL_CHAR",
                                                           "value": "g"
                                                         }
                                                       ]
@@ -636,14 +641,14 @@
                                                       "kind": "RE_CHAR_SET_ATOM_WITH_RE_CHAR_SET_NO_DASH",
                                                       "children": [
                                                         {
-                                                          "kind": "RE_CHAR_SET_ATOM",
+                                                          "kind": "RE_LITERAL_CHAR",
                                                           "value": "k"
                                                         },
                                                         {
                                                           "kind": "RE_CHAR_SET_ATOM_NO_DASH_WITH_RE_CHAR_SET_NO_DASH",
                                                           "children": [
                                                             {
-                                                              "kind": "RE_CHAR_SET_ATOM_NO_DASH",
+                                                              "kind": "RE_LITERAL_CHAR",
                                                               "value": "l"
                                                             },
                                                             {
@@ -653,14 +658,15 @@
                                                                   "kind": "RE_CHAR_SET_RANGE_NO_DASH",
                                                                   "children": [
                                                                     {
-                                                                      "kind": "RE_CHAR_SET_RANGE_NO_DASH_LHS_CHAR_SET_ATOM_NO_DASH",
+                                                                      "kind": "RE_LITERAL_CHAR",
                                                                       "value": "m"
                                                                     },
                                                                     {
-                                                                      "kind": "MINUS_TOKEN"
+                                                                      "kind": "RE_LITERAL_CHAR",
+                                                                      "value": "-"
                                                                     },
                                                                     {
-                                                                      "kind": "RE_CHAR_SET_ATOM",
+                                                                      "kind": "RE_LITERAL_CHAR",
                                                                       "value": "n"
                                                                     }
                                                                   ]

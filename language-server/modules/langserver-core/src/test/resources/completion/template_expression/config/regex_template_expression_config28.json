@@ -1,0 +1,42 @@
+{
+  "position": {
+    "line": 20,
+    "character": 35
+  },
+  "source": "template_expression/source/regex_template_expression_source10.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "{}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "cd{}",
+      "insertText": "cd{${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "*",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "cd*",
+      "insertText": "cd*",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "+",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "cd+",
+      "insertText": "cd+",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "?",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "cd?",
+      "insertText": "cd?",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

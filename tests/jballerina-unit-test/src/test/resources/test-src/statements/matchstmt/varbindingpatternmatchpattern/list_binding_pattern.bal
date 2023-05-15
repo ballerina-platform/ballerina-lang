@@ -501,6 +501,29 @@ function testListBindingPattern22() {
     assertEquals((), listBindingPattern22(1));
 }
 
+function listBindingPattern23(any a) returns string {
+    match a {
+        var [] => {
+            return "match1";
+        }
+        var [s, [...i]] => {
+            return "match2";
+        }
+        var [...i] => {
+            return "match3";
+        }
+        _ => {
+            return "No match";
+        }
+    }
+}
+
+function testListBindingPattern23() {
+    assertEquals("match1", listBindingPattern23([]));
+    assertEquals("match2", listBindingPattern23(["str", [1, 2]]));
+    assertEquals("match3", listBindingPattern23([1,2,3]));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
