@@ -196,48 +196,17 @@ do
 done
 
 # Add bal tool jar files to the class path
-BAL_HOME_TOOLS_FILE="$BALLERINA_HOME/bal-tools.toml"
-USER_HOME_TOOLS_FILE="$HOME/.ballerina/bal-tools.toml"
-
-# Read the toml file and extract the tool entries
-tools=$(cat "$USER_HOME_TOOLS_FILE" "$BAL_HOME_TOOLS_FILE" | awk '/^\[\[tool\]\]/{flag=1;next}/^\[\[/&&flag{exit}flag')
-
-# Initialize the versions and paths arrays
-versions=()
-paths=()
-
-# Loop through the tool entries and extract the version and path
-while read -r line; do
-    if [[ "$line" =~ ^version\ *=\ *\"(.*)\" ]]; then
-        versions+=("${BASH_REMATCH[1]}")
-    elif [[ "$line" =~ ^path\ *=\ *\"(.*)\" ]]; then
-        paths+=("${BASH_REMATCH[1]}")
-    fi
-done <<< "$tools"
-
-# combine versions and paths into a single array for sorting
-combined=()
-for i in "${!versions[@]}"; do
-    combined+=("${versions[$i]},${paths[$i]}")
-done
-
-# sort the combined array in descending order by version number
-sorted_combined=($(echo "${combined[@]}" | tr ' ' '\n' | sort -r -t , -k1,1 -V))
-
-# extract the sorted versions and paths into separate arrays
-sorted_versions=()
-sorted_paths=()
-for i in "${!sorted_combined[@]}"; do
-    version_id=(${sorted_combined[$i]//,/ })
-    sorted_versions+=("${version_id[0]}")
-    sorted_paths+=("${version_id[1]}")
-done
-
-for path in "${sorted_paths[@]}"; do
-    for jar_file in "$path/tool/libs"/*.jar; do
-        BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":"$jar_file"
-    done
-done
+BAL_TOOLS_FILE="$HOME/.ballerina/bal-tools.toml"
+if [ -e "$BAL_TOOLS_FILE" ]; then
+    while IFS='=' read -r line; do
+        if echo "$line" | grep -q "path ="; then
+            path=$(echo "$line" | cut -d '"' -f 2)
+            for jar_file in "$path/tool/libs"/*.jar; do
+                BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":"$jar_file"
+            done
+        fi
+    done < "$BAL_TOOLS_FILE"
+fi
 
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then

@@ -74,51 +74,16 @@ set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%BALLERINA_HOME%\bre\lib\*
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%BALLERINA_HOME%\lib\tools\lang-server\lib\*
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%BALLERINA_HOME%\lib\tools\debug-adapter\lib\*
 
-rem Add bal tool jar files to the class path
-set "BAL_HOME_TOOLS_FILE=%BALLERINA_HOME%\bal-tools.toml"
-set "USER_HOME_TOOLS_FILE=%USERPROFILE%\.ballerina\bal-tools.toml"
-
-rem Read the toml files and extract the tool entries
-set "tools="
-for %%f in ("%BAL_HOME_TOOLS_FILE%" "%USER_HOME_TOOLS_FILE%") do (
-    for /f "usebackq delims=" %%t in (`type "%%~f" ^| findstr /r /c:"^\[\[tool\]\]"`) do (
-        set "tools=!tools!%%t"
+set "BAL_TOOLS_FILE=%USERPROFILE%\.ballerina\bal-tools.toml"
+if exist "%BAL_TOOLS_FILE%" (
+    for /f "delims=" %%i in ('type "%BAL_TOOLS_FILE%" ^| findstr /C:"path ="') do (
+        for /f "tokens=2 delims==\" %%j in ("%%i") do (
+            set "path=%%j"
+            for %%f in ("%path%\tool\libs\*.jar") do (
+                set "BALLERINA_CLASSPATH=%BALLERINA_CLASSPATH%;%%~f"
+            )
+        )
     )
-)
-
-REM Initialize the versions and paths arrays
-set "versions="
-set "paths="
-
-REM Loop through the tool entries and extract the version and path
-for /f "tokens=1,2 delims==\"" %%a in ('echo "!tools!" ^| findstr /r /c:"^version=.*\"" /c:"^path=.*\""') do (
-  if "%%a"=="version" (
-    set "versions=!versions!%%b\n"
-  ) else (
-    set "paths=!paths!%%b\n"
-  )
-)
-
-REM combine versions and paths into a single array for sorting
-set "combined="
-set "i=0"
-for %%a in (%versions%) do (
-  set /a "j=!i!+1"
-  set "combined=!combined!%%a,!!paths:~!i!,%%a!!\n"
-  set "i=!j!"
-)
-
-REM sort the combined array in descending order by version number
-for /f "tokens=1,* delims=," %%a in ('echo "!combined!" ^| sort /r /t"," /k1,1V') do (
-  set "sorted_versions=!sorted_versions!%%a\n"
-  set "sorted_paths=!sorted_paths!%%~b\n"
-)
-
-REM update the classpath variable
-for %%a in (%sorted_paths%) do (
-  for %%b in ("%%a\tool\libs\*.jar") do (
-    set "BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%%~fb"
-  )
 )
 
 set BALLERINA_CLI_HEIGHT=
