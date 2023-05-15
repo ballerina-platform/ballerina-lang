@@ -86,10 +86,9 @@ public class MultipartDataSource implements RefValue {
      */
     private void serializeBodyPart(OutputStream outputStream, String parentBoundaryString,
                                    ObjectValue parentBodyPart) {
-        final Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, Charset.defaultCharset()));
         ArrayValue childParts = parentBodyPart.getNativeData(BODY_PARTS) != null ?
                 (ArrayValue) parentBodyPart.getNativeData(BODY_PARTS) : null;
-        try {
+        try (final Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, Charset.defaultCharset()))){
             if (childParts == null) {
                 return;
             }
@@ -111,12 +110,6 @@ public class MultipartDataSource implements RefValue {
             writeFinalBoundaryString(writer, parentBoundaryString);
         } catch (IOException e) {
             log.error("Error occurred while writing body parts to outputstream", e.getMessage());
-        } finally {
-            try {
-                writer.close();
-            } catch (IOException e) {
-                log.error("Error occurred while closing the writer", e.getMessage());
-            }
         }
     }
 
