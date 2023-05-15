@@ -88,7 +88,8 @@ public class MultipartDataSource implements RefValue {
                                    ObjectValue parentBodyPart) {
         ArrayValue childParts = parentBodyPart.getNativeData(BODY_PARTS) != null ?
                 (ArrayValue) parentBodyPart.getNativeData(BODY_PARTS) : null;
-        try (final Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, Charset.defaultCharset()))){
+        try (final Writer outputStreamWriter = new OutputStreamWriter(outputStream, Charset.defaultCharset());
+             final Writer writer = new BufferedWriter(outputStreamWriter)) {
             if (childParts == null) {
                 return;
             }
