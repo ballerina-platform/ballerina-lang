@@ -98,11 +98,13 @@ public class BalToolsToml {
     private String generateContent(BalToolsManifest balToolsManifest) {
         StringBuilder content = new StringBuilder();
         content.append(getAutoGenCode());
-        for (Map.Entry<String, BalToolsManifest.Tool> tool: balToolsManifest.tools().entrySet()) {
-            content.append("[[tool]]\n");
-            content.append("id = \"").append(tool.getValue().id()).append("\"\n");
-            content.append("path = \"").append(tool.getValue().path()).append("\"\n");
-            content.append("version = \"").append(tool.getValue().version()).append("\"\n\n");
+        for (Map.Entry<String, Map<String, BalToolsManifest.Tool>> versions: balToolsManifest.tools().entrySet()) {
+            for (Map.Entry<String, BalToolsManifest.Tool> tool: versions.getValue().entrySet()) {
+                content.append("[[tool]]\n");
+                content.append("id = \"").append(tool.getValue().id()).append("\"\n");
+                content.append("path = \"").append(tool.getValue().path()).append("\"\n");
+                content.append("version = \"").append(tool.getValue().version()).append("\"\n\n");
+            }
         }
         return String.valueOf(content);
     }

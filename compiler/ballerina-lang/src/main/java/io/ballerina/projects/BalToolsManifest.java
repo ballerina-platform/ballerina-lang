@@ -26,9 +26,9 @@ import java.util.Map;
  * @since 2201.6.0
  */
 public class BalToolsManifest {
-    private final Map<String, Tool> tools;
+    private final Map<String, Map<String, Tool>> tools;
 
-    private BalToolsManifest(Map<String, Tool> tools) {
+    private BalToolsManifest(Map<String, Map<String, Tool>> tools) {
         this.tools = tools;
     }
 
@@ -36,20 +36,46 @@ public class BalToolsManifest {
         return new BalToolsManifest(new HashMap<>());
     }
 
-    public static BalToolsManifest from(Map<String, Tool> tools) {
+    public static BalToolsManifest from(Map<String, Map<String, Tool>> tools) {
         return new BalToolsManifest(tools);
     }
 
-    public Map<String, Tool> tools() {
+    public Map<String, Map<String, Tool>> tools() {
         return tools;
     }
 
     public void addTool(String id, String path, String version) {
-        tools.put(id + ":" + version, new Tool(id, path, version));
+        if (!tools.containsKey(id)) {
+            tools.put(id, new HashMap<>());
+        }
+        tools.get(id).put(version, new Tool(id, path, version));
     }
 
-    public void removeTool(String idAndVersion) {
-        tools.remove(idAndVersion);
+    public void removeTool(String id, String version) {
+        if (!tools.containsKey(id)) {
+            return;
+        }
+        tools.get(id).remove(version);
+    }
+
+    public boolean containsTool(String id, String version) {
+        if (!tools.containsKey(id)) {
+            return false;
+        }
+        return tools.get(id).containsKey(version);
+    }
+
+    public BalToolsManifest merge(BalToolsManifest otherToolsManifest) {
+        Map<String, Map<String, Tool>> combinedTools = new HashMap<>();
+        combinedTools.putAll(this.tools);
+        for(Map.Entry<String, Map<String, Tool>> entry: otherToolsManifest.tools.entrySet()) {
+            if (this.tools.containsKey(entry.getKey())) {
+                combinedTools.get(entry.getKey()).putAll(entry.getValue());
+            } else {
+                combinedTools.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return new BalToolsManifest(combinedTools);
     }
 
     /**

@@ -200,7 +200,7 @@ BAL_HOME_TOOLS_FILE="$BALLERINA_HOME/bal-tools.toml"
 USER_HOME_TOOLS_FILE="$HOME/.ballerina/bal-tools.toml"
 
 # Read the toml file and extract the tool entries
-tools=$(cat "$BAL_HOME_TOOLS_FILE" "$USER_HOME_TOOLS_FILE" | awk '/^\[\[tool\]\]/{flag=1;next}/^\[\[/&&flag{exit}flag')
+tools=$(cat "$USER_HOME_TOOLS_FILE" "$BAL_HOME_TOOLS_FILE" | awk '/^\[\[tool\]\]/{flag=1;next}/^\[\[/&&flag{exit}flag')
 
 # Initialize the versions and paths arrays
 versions=()
@@ -232,9 +232,6 @@ for i in "${!sorted_combined[@]}"; do
     sorted_versions+=("${version_id[0]}")
     sorted_paths+=("${version_id[1]}")
 done
-
-echo "sorted versions: ${sorted_versions[@]}"
-echo "sorted paths: ${sorted_paths[@]}"
 
 for path in "${sorted_paths[@]}"; do
     for jar_file in "$path/tool/libs"/*.jar; do

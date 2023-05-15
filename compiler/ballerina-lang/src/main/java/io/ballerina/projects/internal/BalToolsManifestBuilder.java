@@ -71,8 +71,8 @@ public class BalToolsManifestBuilder {
         return this;
     }
 
-    public BalToolsManifestBuilder removeTool(String idAndVersion) {
-        balToolsManifest.removeTool(idAndVersion);
+    public BalToolsManifestBuilder removeTool(String id, String version) {
+        balToolsManifest.removeTool(id, version);
         return this;
     }
 
@@ -81,7 +81,7 @@ public class BalToolsManifestBuilder {
             return BalToolsManifest.from();
         }
         validateBalToolsTomlAgainstSchema();
-        Map<String, BalToolsManifest.Tool> tools = getTools();
+        Map<String, Map<String, BalToolsManifest.Tool>> tools = getTools();
         return BalToolsManifest.from(tools);
     }
 
@@ -99,7 +99,7 @@ public class BalToolsManifestBuilder {
         balToolsTomlValidator.validate(balToolsToml.get().toml());
     }
 
-    private Map<String, BalToolsManifest.Tool> getTools() {
+    private Map<String, Map<String, BalToolsManifest.Tool>> getTools() {
         if (balToolsToml.isEmpty()) {
             return new HashMap<>();
         }
@@ -115,7 +115,7 @@ public class BalToolsManifestBuilder {
             return new HashMap<>();
         }
 
-        Map<String, BalToolsManifest.Tool> tools = new HashMap<>();
+        Map<String, Map<String, BalToolsManifest.Tool>> tools = new HashMap<>();
         if (toolEntries.kind() == TomlType.TABLE_ARRAY) {
             TomlTableArrayNode toolTableArray = (TomlTableArrayNode) toolEntries;
 
@@ -134,7 +134,10 @@ public class BalToolsManifestBuilder {
                 } catch (ProjectException ignore) {
                     continue;
                 }
-                tools.put(id + ":" + version, new BalToolsManifest.Tool(id, path, version));
+                if (!tools.containsKey(id)) {
+                    tools.put(id, new HashMap<>());
+                }
+                tools.get(id).put(version, new BalToolsManifest.Tool(id, path, version));
             }
         }
         return tools;
