@@ -24,7 +24,7 @@ import io.ballerina.runtime.internal.values.RefValue;
 
 /**
  * {@code BHandleType} represents a handle type in Ballerina.
- * A handle value is a reference to storage managed externally to a Ballerina program.
+ * A handle value is a reference to a storage managed externally by a Ballerina program.
  *
  * @since 1.0.0
  */

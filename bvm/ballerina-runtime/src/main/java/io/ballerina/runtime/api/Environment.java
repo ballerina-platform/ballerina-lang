@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.types.Parameter;
 import java.util.Optional;
 
 /**
- * When this interface is used as the first argument of an interop method, Ballerina will inject an instance of
+ * When this class is used as the first argument of an interop method, Ballerina will inject an instance of
  * the class when calling. That instance can be used to communicate with currently executing Ballerina runtime.
  *
  * @since 2.0.0
