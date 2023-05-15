@@ -163,12 +163,12 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(devcontainerContent.contains(RepoUtils.getBallerinaVersion()));
     }
 
-    @Test(description = "Create a new project in an existing directory containing .bal files with main template")
-    public void testNewCommandInExistingDirectoryWithExistingBalFilesForMainTemplate() throws IOException {
+    @Test(description = "Create a new project in an existing directory containing .bal files with default template")
+    public void testNewCommandInExistingDirectoryWithExistingBalFilesForDefaultTemplate() throws IOException {
         System.setProperty(USER_NAME, "testuserorg");
         Path packageDir = testResources.resolve(ProjectConstants.EXISTING_PACKAGE_FILES_DIR).
-                resolve("directoryWithBalFilesForMainTemplate");
-        String[] args = {packageDir.toString(), "-t", "main"};
+                resolve("directoryWithBalFilesForDefaultTemplate");
+        String[] args = {packageDir.toString()};
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();

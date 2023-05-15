@@ -154,7 +154,7 @@ public class NewCommand implements BLauncherCmd {
 
             try {
                 balFilesExist = balFilesExists(packagePath);
-                if (balFilesExist && !template.equals("main") && !template.equals("default")) {
+                if (balFilesExist && !template.equals("default")) {
                     CommandUtil.printError(errStream,
                             "Existing .bal files found. " +
                                     "Please use a different directory or remove existing files.",

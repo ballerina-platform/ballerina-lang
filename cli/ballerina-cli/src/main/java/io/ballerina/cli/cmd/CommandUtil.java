@@ -725,6 +725,7 @@ public class CommandUtil {
      * @param path project path
      * @param packageName name of the package
      * @param template package template
+     * @param balFilesExist if bal files exist in the project
      * @throws IOException  If any IO exception occurred
      * @throws URISyntaxException If any URISyntaxException occurred
      */
@@ -820,21 +821,20 @@ public class CommandUtil {
      *
      * @param modulePath path to the module
      * @param template template name
+     * @param balFilesExist if bal files exist in the project                
      * @throws IOException if any IOException occurred
      * @throws URISyntaxException if any URISyntaxException occurred
      */
-    public static void applyTemplate(Path modulePath, String template, boolean balfilesExist)
+    public static void applyTemplate(Path modulePath, String template, boolean balFilesExist)
             throws IOException, URISyntaxException {
         Path templateDir = getTemplatePath().resolve(template);
         if (template.equalsIgnoreCase(MAIN_TEMPLATE)) {
             templateDir = getTemplatePath().resolve(DEFAULT_TEMPLATE);
             Path tempDirTest = getTemplatePath().resolve(MAIN_TEMPLATE);
-            if (!balfilesExist) {
-                Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
-            }
+            Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
             Files.walkFileTree(tempDirTest, new FileUtils.Copy(tempDirTest, modulePath));
         } else if (template.equalsIgnoreCase(DEFAULT_TEMPLATE)) {
-            if (!balfilesExist) {
+            if (!balFilesExist) {
                 Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
             }
         } else {
