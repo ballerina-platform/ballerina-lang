@@ -257,7 +257,7 @@ public class InteropMethodGen {
         JType jMethodRetType = JInterop.getJType(jMethod.getReturnType());
 
         if (jMethodRetType == JType.jVoid && jMethod.isBalEnvAcceptingMethod()) {
-            jMethodRetType = JType.getPrimitiveJTypeForBType(birFunc.returnVariable.type);
+            jMethodRetType = JType.getJTypeForBType(birFunc.returnVariable.type);
         }
 
         initMethodGen.resetIds();

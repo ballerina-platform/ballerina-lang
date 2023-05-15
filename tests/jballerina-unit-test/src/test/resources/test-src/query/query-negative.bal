@@ -423,13 +423,13 @@ function testIncompatibleSelectType(stream<string, error?> clientStream) returns
 
 function testMapBindingPatternsAnydataType() {
     map<anydata> keyValsMap = {foo:"sss", bar:"ffff"};
-    var x = from var {k} in keyValsMap
+    var x = map from var {k} in keyValsMap
                  select k;
 }
 
 function testMapBindingPatternsAnyType() {
     map<any> keyValsMap = {foo:"sss", bar:"ffff"};
-    var x = from var {k} in keyValsMap
+    var x = map from var {k} in keyValsMap
                  select k;
 }
 
