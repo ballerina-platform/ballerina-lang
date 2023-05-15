@@ -1725,20 +1725,21 @@ class SymbolFinder extends BaseVisitor {
 
         List<BResourcePathSegmentSymbol> pathSegSymbols = resourceInvocation.targetResourceFunc.pathSegmentSymbols;
         List<BLangExpression> pathExprs = resourceInvocation.resourceAccessPathSegments.exprs;
-        BResourcePathSegmentSymbol restResourcePathSeg;
 
         if (pathExprs.size() == 0 && pathSegSymbols.get(0).getKind() == SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
             // Returns since the resource-function has only the root-path segment
+            // Assumption: If a resource-action with 0 path-expr match with a resource function must have a root-path
             return;
         }
 
-        // iterate through path expressions
+        // Iterate through path expressions
         for (int i = 0; i < pathExprs.size(); i++) {
             BLangExpression expr = pathExprs.get(i);
             BResourcePathSegmentSymbol pathSymbol = pathSegSymbols.get(i);
 
             if (pathSymbol.getKind() == SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
-                // Return since the path segment is a rest-param segment
+                // Return since the path segment is a rest-param segment.
+                // e.i. Resource path segment is not allowed after resource path rest parameter.
                 return;
             }
 
@@ -1748,8 +1749,6 @@ class SymbolFinder extends BaseVisitor {
                 return;
             }
         }
-
-
     }
 
     private boolean setEnclosingNode(BSymbol symbol, Location pos) {
