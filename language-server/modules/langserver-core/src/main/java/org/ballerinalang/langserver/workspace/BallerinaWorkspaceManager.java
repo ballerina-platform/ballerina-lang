@@ -29,6 +29,10 @@ import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarLibrary;
+import io.ballerina.projects.JarResolver;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.Package;
@@ -41,6 +45,8 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
@@ -58,6 +64,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
+import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
@@ -69,11 +76,14 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -82,6 +92,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -90,6 +101,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
+import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
 
 /**
  * Contains a set of utility methods to manage projects.
@@ -119,6 +132,20 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 .build();
         this.pathToSourceRootCache = cache.asMap();
         this.sourceRootToProject = new SourceRootToProjectMap<>(pathToSourceRootCache);
+
+        // We are only doing a best effort cleanup here. If we held a strong reference to the map
+        // GC will not be able to clean the projects. It impacts tests since all run in the same JVM.
+        WeakReference<Map<Path, ProjectPair>> weekMap = new WeakReference<>(sourceRootToProject);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            Map<Path, ProjectPair> map = weekMap.get();
+            if (map == null) {
+                return;
+            }
+            for (ProjectPair projectPair : map.values()) {
+                // Since we are anyway shutting down no need to acquire locks for each
+                projectPair.process().ifPresent(Process::destroy);
+            }
+        }));
     }
 
     @Override
@@ -534,6 +561,121 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     @Override
     public String uriScheme() {
         return "file";
+    }
+
+    @Override
+    public Optional<Process> run(Path filePath) throws IOException {
+        Optional<ProjectPair> projectPairOpt = projectPair(projectRoot(filePath));
+        if (projectPairOpt.isEmpty()) {
+            String msg = "Run command execution aborted because project is not loaded";
+            UserErrorException e = new UserErrorException(msg);
+            clientLogger.logError(LSContextOperation.WS_EXEC_CMD, msg, e, null, (Position) null);
+            return Optional.empty();
+        }
+        ProjectPair projectPair = projectPairOpt.get();
+        if (!stopProject(projectPair)) {
+            String msg = "Run command execution aborted because couldn't stop the previous run";
+            UserErrorException e = new UserErrorException(msg);
+            clientLogger.logError(LSContextOperation.WS_EXEC_CMD, msg, e, null, (Position) null);
+            return Optional.empty();
+        }
+
+        Project project = projectPair.project();
+        Package pkg = project.currentPackage();
+        Module executableModule = pkg.getDefaultModule();
+        Optional<PackageCompilation> packageCompilation = waitAndGetPackageCompilation(project.sourceRoot(), true);
+        if (packageCompilation.isEmpty()) {
+            return Optional.empty();
+        }
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation.get(), JvmTarget.JAVA_11);
+        Collection<Diagnostic> diagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
+        if (diagnostics.stream().anyMatch(BallerinaWorkspaceManager::isError)) {
+            String msg = "Run command execution aborted due to compilation errors: " + diagnostics;
+            UserErrorException e = new UserErrorException(msg);
+            clientLogger.logError(LSContextOperation.WS_EXEC_CMD, msg, e, null, (Position) null);
+            return Optional.empty();
+        }
+        JarResolver jarResolver = jBallerinaBackend.jarResolver();
+        String initClassName = JarResolver.getQualifiedClassName(
+                executableModule.packageInstance().packageOrg().toString(),
+                executableModule.packageInstance().packageName().toString(),
+                executableModule.packageInstance().packageVersion().toString(),
+                MODULE_INIT_CLASS_NAME);
+        List<String> commands = new ArrayList<>();
+        commands.add(System.getProperty("java.command"));
+        commands.add("-XX:+HeapDumpOnOutOfMemoryError");
+        commands.add("-XX:HeapDumpPath=" + System.getProperty(USER_DIR));
+        commands.add("-cp");
+        commands.add(getAllClassPaths(jarResolver));
+        commands.add(initClassName);
+        ProcessBuilder pb = new ProcessBuilder(commands);
+
+        Lock lock = projectPair.lockAndGet();
+        try {
+            Optional<Process> existing = projectPair.process();
+            if (existing.isPresent()) {
+                // We just removed this in above `stopProject`. This means there is a parallel command running.
+                String msg = "Run command execution aborted because another run is in progress";
+                UserErrorException e = new UserErrorException(msg);
+                clientLogger.logError(LSContextOperation.WS_EXEC_CMD, msg, e, null, (Position) null);
+                return Optional.empty();
+            }
+            Process ps = pb.start();
+            projectPair.setProcess(ps);
+            return Optional.of(ps);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public boolean stop(Path filePath) {
+        Optional<ProjectPair> projectPairOpt = projectPair(projectRoot(filePath));
+        if (projectPairOpt.isEmpty()) {
+            clientLogger.logWarning("Failed to stop process: Project not found");
+            return false;
+        }
+        ProjectPair projectPair = projectPairOpt.get();
+        return stopProject(projectPair);
+    }
+
+    private boolean stopProject(ProjectPair projectPair) {
+        Lock lock = projectPair.lockAndGet();
+        try {
+            Optional<Process> existing = projectPair.process();
+            if (existing.isEmpty()) {
+                return true;
+            }
+            boolean killed = killProcess(existing.get());
+            if (killed) {
+                projectPair.removeProcess();
+            }
+            return killed;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private boolean killProcess(Process process) {
+        process.destroy();
+        try {
+            process.waitFor(2, TimeUnit.SECONDS);
+        } catch (InterruptedException ignored) {
+            clientLogger.logWarning("Waiting for process to stop was interrupted");
+            Thread.currentThread().interrupt();
+        }
+        if (process.isAlive()) {
+            process.destroyForcibly();
+        }
+        return !process.isAlive();
+    }
+
+    private String getAllClassPaths(JarResolver jarResolver) {
+        StringJoiner cp = new StringJoiner(File.pathSeparator);
+        for (JarLibrary lib : jarResolver.getJarFilePathsRequiredForExecution()) {
+            cp.add(lib.path().toString());
+        }
+        return cp.toString();
     }
 
     /**
@@ -1170,6 +1312,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
 
         private boolean crashed;
 
+        private Process process;
+
         private ProjectPair(Project project, Lock lock) {
             this.project = project;
             this.lock = lock;
@@ -1236,6 +1380,29 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
          */
         public void setCrashed(boolean crashed) {
             this.crashed = crashed;
+        }
+
+        /**
+         * Project lock should be acquired before modifying (such as destroying) the process.
+         * @return Process associated with the project.
+         */
+        public Optional<Process> process() {
+            return Optional.ofNullable(this.process);
+        }
+
+        /**
+         * Set the process associated with the project. Project lock should be acquired before calling.
+         * @param process Process to be associated with the project.
+         */
+        public void setProcess(Process process) {
+            this.process = process;
+        }
+
+        /**
+         * Remove the process associated with the project. Project lock should be acquired before calling.
+         */
+        public void removeProcess() {
+            this.process = null;
         }
     }
 
@@ -1320,5 +1487,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     private boolean hasPackageJson(Path filePath) {
         Path absFilePath = filePath.toAbsolutePath().normalize();
         return absFilePath.resolve(ProjectConstants.PACKAGE_JSON).toFile().exists();
+    }
+
+    private static boolean isError(Diagnostic diagnostic) {
+        return diagnostic.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR);
     }
 }

@@ -17,13 +17,21 @@
  */
 package org.ballerinalang.langserver.workspace;
 
+import com.google.gson.JsonPrimitive;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.util.ProjectConstants;
+import org.apache.commons.io.FileUtils;
+import org.ballerinalang.langserver.command.executors.RunExecutor;
+import org.ballerinalang.langserver.command.executors.StopExecutor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.ExecuteCommandContext;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
@@ -34,17 +42,21 @@ import org.eclipse.lsp4j.FileEvent;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.mockito.MockSettings;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Locale;
 import java.util.Optional;
-
 /**
  * Contains a set of utility methods to manage projects.
  *
@@ -423,6 +435,37 @@ public class TestWorkspaceManager {
         // Loaded project should not be empty
         Optional<Project> project = workspaceManager.project(filePath1);
         Assert.assertTrue(project.isPresent());
+    }
+
+    @Test
+    public void testWSRunStopProject()
+            throws WorkspaceDocumentException, EventSyncException, IOException, LSCommandExecutorException {
+        Path filePath = RESOURCE_DIRECTORY.resolve("long_running").resolve("main.bal").toAbsolutePath();
+        System.setProperty("java.command", guessJavaPath());
+        workspaceManager.loadProject(filePath);
+        RunExecutor runExecutor = new RunExecutor();
+        MockSettings mockSettings = Mockito.withSettings().stubOnly();
+        ExecuteCommandContext execContext = Mockito.mock(ExecuteCommandContext.class, mockSettings);
+        CommandArgument arg = CommandArgument.from("path", new JsonPrimitive(filePath.toString()));
+        Mockito.when(execContext.getArguments()).thenReturn(Collections.singletonList(arg));
+        Mockito.when(execContext.workspace()).thenReturn(workspaceManager);
+        ExtendedLanguageClient languageClient = Mockito.mock(ExtendedLanguageClient.class, mockSettings);
+        Mockito.when(execContext.getLanguageClient()).thenReturn(languageClient);
+        Boolean didRan = runExecutor.execute(execContext);
+        Assert.assertTrue(didRan);
+
+        StopExecutor stopExecutor = new StopExecutor();
+        Boolean didStop = stopExecutor.execute(execContext);
+        Assert.assertTrue(didStop);
+
+        Path target = RESOURCE_DIRECTORY.resolve("long_running").resolve("target");
+        FileUtils.deleteDirectory(target.toFile());
+    }
+
+    private static String guessJavaPath() {
+        boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
+        String exe = isWindows ? "java.exe" : "java";
+        return System.getProperty("java.home") + File.separator + "bin" + File.separator + exe;
     }
 
     private void openFile(Path singleFile) throws WorkspaceDocumentException {
