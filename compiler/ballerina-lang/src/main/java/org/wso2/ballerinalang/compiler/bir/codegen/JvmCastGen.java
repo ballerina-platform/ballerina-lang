@@ -1338,8 +1338,7 @@ public class JvmCastGen {
     private void checkCast(MethodVisitor mv, BType targetType) {
 
         jvmTypeGen.loadType(mv, targetType);
-        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkCast",
-                           CHECK_CAST, false);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkCast", CHECK_CAST, false);
     }
 
     static String getTargetClass(BType targetType) {
