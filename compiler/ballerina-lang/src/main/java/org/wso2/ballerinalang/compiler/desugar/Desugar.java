@@ -32,6 +32,7 @@ import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
@@ -777,9 +778,6 @@ public class Desugar extends BLangNodeVisitor {
         // create closures for default values
         closureGenerator.visit(pkgNode);
 
-        // Initialize the annotation map
-        annotationDesugar.initializeAnnotationMap(pkgNode);
-
         pkgNode.constants.stream()
                 .filter(constant -> constant.expr.getKind() == NodeKind.LITERAL ||
                         constant.expr.getKind() == NodeKind.NUMERIC_LITERAL)
@@ -788,16 +786,16 @@ public class Desugar extends BLangNodeVisitor {
         BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
         BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) pkgNode.initFunction.body;
 
-        rewriteConstants(pkgNode, initFnBody);
+        // Initialize the annotation map
+        annotationDesugar.initializeAnnotationMap(pkgNode, initFnBody);
 
         pkgNode.constants = removeDuplicateConstants(pkgNode);
 
-        pkgNode.globalVars = desugarGlobalVariables(pkgNode, initFnBody);
-
         pkgNode.services.forEach(service -> serviceDesugar.engageCustomServiceDesugar(service, env));
 
-        desugarAnnotations(pkgNode);
-
+        BLangBlockStmt bLangBlockStmt = desugarAnnotations(pkgNode);
+        desugarTopLevelNodes(pkgNode, initFnBody);
+        initFnBody.stmts.addAll(bLangBlockStmt.stmts);
         // Add invocation for user specified module init function (`init()`) if present and return.
         addUserDefinedModuleInitInvocationAndReturn(pkgNode);
 
@@ -845,12 +843,13 @@ public class Desugar extends BLangNodeVisitor {
         result = pkgNode;
     }
 
-    private void desugarAnnotations(BLangPackage pkgNode) {
+    private BLangBlockStmt desugarAnnotations(BLangPackage pkgNode) {
         List<BLangTypeDefinition> prevTypeDefinitions = new ArrayList<>(pkgNode.typeDefinitions);
 
-        annotationDesugar.rewritePackageAnnotations(pkgNode, env);
+        BLangBlockStmt bLangBlockStmt = annotationDesugar.rewritePackageAnnotations(pkgNode, env);
 
         addInitFunctionForRecordTypeNodeInTypeDef(pkgNode, prevTypeDefinitions);
+        return bLangBlockStmt;
     }
 
     private void addInitFunctionForRecordTypeNodeInTypeDef(BLangPackage pkgNode,
@@ -986,64 +985,125 @@ public class Desugar extends BLangNodeVisitor {
         return new ArrayList<>(Arrays.asList(orgLiteral, moduleNameLiteral, versionLiteral, configNameLiteral,
                 typedescExpr));
     }
+    private BLangSimpleVariableDef createSimpleVarDef(BLangPackage pkgNode, String name,
+                                                      BLangRecordTypeNode recordTypeNode) {
+        BType type = recordTypeNode.getBType();
+        BVarSymbol varSymbol = new BVarSymbol(0, Names.fromString(name), pkgNode.packageID, type,
+               pkgNode.symbol, pkgNode.pos, VIRTUAL);
+        BLangSimpleVariable simpleVariable = ASTBuilderUtil.createVariable(pkgNode.pos, name, type, null, varSymbol);
+        BLangSimpleVariableDef simpleVariableDef = ASTBuilderUtil.createVariableDef(pkgNode.pos);
+        simpleVariableDef.var = simpleVariable;
+        simpleVariable.typeNode = recordTypeNode;
+        simpleVariableDef.setBType(simpleVariable.getBType());
+        return simpleVariableDef;
+    }
 
-    private List<BLangVariable> desugarGlobalVariables(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
+    private void desugarTopLevelNodes(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
         List<BLangVariable> desugaredGlobalVarList = new ArrayList<>();
         SymbolEnv initFunctionEnv =
                 SymbolEnv.createFunctionEnv(pkgNode.initFunction, pkgNode.initFunction.symbol.scope, env);
 
-        for (BLangVariable globalVar : pkgNode.globalVars) {
-            this.env.enclPkg.topLevelNodes.remove(globalVar);
-            // This will convert complex variables to simple variables.
-            switch (globalVar.getKind()) {
-                case TUPLE_VARIABLE:
-                    BLangNode blockStatementNode = rewrite(globalVar, initFunctionEnv);
-                    List<BLangStatement> statements = ((BLangBlockStmt) blockStatementNode).stmts;
-
-                    int statementSize = statements.size();
-                    for (int i = 0; i < statementSize; i++) {
-                        addToGlobalVariableList(statements.get(i), initFnBody, globalVar, desugaredGlobalVarList);
-                    }
-                    break;
-                case RECORD_VARIABLE:
-                case ERROR_VARIABLE:
-                    blockStatementNode = rewrite(globalVar, initFunctionEnv);
-                    for (BLangStatement statement : ((BLangBlockStmt) blockStatementNode).stmts) {
-                        addToGlobalVariableList(statement, initFnBody, globalVar, desugaredGlobalVarList);
-                    }
-                    break;
-                default:
-                    long globalVarFlags = globalVar.symbol.flags;
-                    BLangSimpleVariable simpleGlobalVar = (BLangSimpleVariable) globalVar;
-                    if (Symbols.isFlagOn(globalVarFlags, Flags.CONFIGURABLE)) {
-                        if (Symbols.isFlagOn(globalVarFlags, Flags.REQUIRED)) {
-                            // If it is required configuration get directly
-                            List<BLangExpression> args = getConfigurableLangLibInvocationParam(simpleGlobalVar);
-                            BLangInvocation getValueInvocation = createLangLibInvocationNode("getConfigurableValue",
-                                    args, symTable.anydataType, simpleGlobalVar.pos);
-                            simpleGlobalVar.expr = getValueInvocation;
-                        } else {
-                            // If it is optional configuration create if else
-                            simpleGlobalVar.expr = createIfElseFromConfigurable(simpleGlobalVar, initFunctionEnv);
-                        }
-                    }
-
-                    // Module init should fail if listener is a error value.
-                    if (Symbols.isFlagOn(globalVarFlags, Flags.LISTENER)
-                            && types.containsErrorType(globalVar.expr.getBType())) {
-                        globalVar.expr = ASTBuilderUtil.createCheckExpr(globalVar.expr.pos, globalVar.expr,
-                                                                        globalVar.getBType());
-                    }
-
-                    addToInitFunction(simpleGlobalVar, initFnBody);
-                    desugaredGlobalVarList.add(simpleGlobalVar);
-                    break;
+        int size = pkgNode.topLevelNodes.size();
+        for (int j = 0; j < size; j++) {
+            TopLevelNode topLevelNode = pkgNode.topLevelNodes.remove(0);
+            if (topLevelNode.getKind() == NodeKind.TYPE_DEFINITION) {
+                desugarTypeDefinitions((TypeDefinition) topLevelNode, pkgNode, initFnBody);
+            } else if (topLevelNode.getKind() == NodeKind.CONSTANT) {
+                desugarConstantVariables((BLangConstant) topLevelNode, initFunctionEnv, initFnBody);
             }
+            if (!(pkgNode.globalVars.contains(topLevelNode))) {
+                pkgNode.topLevelNodes.add(topLevelNode);
+                continue;
+            }
+
+            BLangVariable globalVar = (BLangVariable) topLevelNode;
+            desugaredGlobalVarList.addAll(desugarGlobalVariables(globalVar, initFunctionEnv, initFnBody));
+
         }
 
         this.env.enclPkg.topLevelNodes.addAll(desugaredGlobalVarList);
-        return desugaredGlobalVarList;
+        this.env.enclPkg.globalVars = desugaredGlobalVarList;
     }
+
+    private void desugarTypeDefinitions(TypeDefinition typeDefinition , BLangPackage pkgNode,
+                                          BLangBlockFunctionBody initFnBody) {
+        TypeNode typeNode = typeDefinition.getTypeNode();
+        if (typeNode != null && typeNode.getKind() == NodeKind.RECORD_TYPE) {
+            BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeNode;
+            BLangSimpleVariableDef bLangSimpleVariableDef =
+                    createSimpleVarDef(pkgNode, recordTypeNode.getBType().tsymbol.name.getValue(), recordTypeNode);
+            initFnBody.stmts.add(bLangSimpleVariableDef);
+        }
+    }
+
+    private void desugarConstantVariables(BLangConstant constant, SymbolEnv initFunctionEnv,
+                                          BLangBlockFunctionBody initFnBody) {
+        BType constType = Types.getReferredType(constant.symbol.type);
+        if (constType.tag != TypeTags.INTERSECTION) {
+            return;
+        }
+        for (BType memberType : ((BIntersectionType) constType).getConstituentTypes()) {
+            if (memberType.tag != TypeTags.RECORD) {
+                continue;
+            }
+            BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
+            constant.expr = rewrite(constant.expr, initFunctionEnv);
+            BLangAssignment constInit = ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef,
+                    constant.expr);
+            initFnBody.stmts.add(constInit);
+        }
+    }
+
+private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, SymbolEnv initFunctionEnv,
+                                                   BLangBlockFunctionBody initFnBody) {
+    List<BLangVariable> desugaredGlobalVarList = new ArrayList<>();
+    // This will convert complex variables to simple variables.
+    switch (globalVar.getKind()) {
+        case TUPLE_VARIABLE:
+            BLangNode blockStatementNode = rewrite(globalVar, initFunctionEnv);
+            List<BLangStatement> statements = ((BLangBlockStmt) blockStatementNode).stmts;
+
+            int statementSize = statements.size();
+            for (int i = 0; i < statementSize; i++) {
+                addToGlobalVariableList(statements.get(i), initFnBody, globalVar, desugaredGlobalVarList);
+            }
+            break;
+        case RECORD_VARIABLE:
+        case ERROR_VARIABLE:
+            blockStatementNode = rewrite(globalVar, initFunctionEnv);
+            for (BLangStatement statement : ((BLangBlockStmt) blockStatementNode).stmts) {
+                addToGlobalVariableList(statement, initFnBody, globalVar, desugaredGlobalVarList);
+            }
+            break;
+        default:
+            long globalVarFlags = globalVar.symbol.flags;
+            BLangSimpleVariable simpleGlobalVar = (BLangSimpleVariable) globalVar;
+            if (Symbols.isFlagOn(globalVarFlags, Flags.CONFIGURABLE)) {
+                if (Symbols.isFlagOn(globalVarFlags, Flags.REQUIRED)) {
+                    // If it is required configuration get directly
+                    List<BLangExpression> args = getConfigurableLangLibInvocationParam(simpleGlobalVar);
+                    BLangInvocation getValueInvocation = createLangLibInvocationNode("getConfigurableValue",
+                            args, symTable.anydataType, simpleGlobalVar.pos);
+                    simpleGlobalVar.expr = getValueInvocation;
+                } else {
+                    // If it is optional configuration create if else
+                    simpleGlobalVar.expr = createIfElseFromConfigurable(simpleGlobalVar, initFunctionEnv);
+                }
+            }
+
+            // Module init should fail if listener is a error value.
+            if (Symbols.isFlagOn(globalVarFlags, Flags.LISTENER)
+                    && types.containsErrorType(globalVar.expr.getBType())) {
+                globalVar.expr = ASTBuilderUtil.createCheckExpr(globalVar.expr.pos, globalVar.expr,
+                        globalVar.getBType());
+            }
+
+            addToInitFunction(simpleGlobalVar, initFnBody);
+            desugaredGlobalVarList.add(simpleGlobalVar);
+            break;
+    }
+    return desugaredGlobalVarList;
+}
 
     private void addToGlobalVariableList(BLangStatement bLangStatement, BLangBlockFunctionBody initFnBody,
                                          BLangVariable globalVar, List<BLangVariable> desugaredGlobalVarList) {
@@ -1063,7 +1123,7 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private void addToInitFunction(BLangSimpleVariable globalVar, BLangBlockFunctionBody initFnBody) {
+    public void addToInitFunction(BLangSimpleVariable globalVar, BLangBlockFunctionBody initFnBody) {
         if (globalVar.expr == null) {
             return;
         }

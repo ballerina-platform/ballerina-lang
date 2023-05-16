@@ -160,25 +160,22 @@ public class AnnotationDesugar {
         this.closureGenerator = ClosureGenerator.getInstance(context);
     }
 
-    /**
-     * Initialize annotation map.
-     *
-     * @param pkgNode package node
-     */
-    void initializeAnnotationMap(BLangPackage pkgNode) {
-        annotationMap = createGlobalAnnotationMapVar(pkgNode);
+    void initializeAnnotationMap(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
+        annotationMap = createGlobalAnnotationMapVar(pkgNode, initFnBody);
     }
 
-    void rewritePackageAnnotations(BLangPackage pkgNode, SymbolEnv env) {
+    BLangBlockStmt rewritePackageAnnotations(BLangPackage pkgNode, SymbolEnv env) {
         BLangFunction initFunction = pkgNode.initFunction;
-
+        BLangBlockStmt blockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
         defineTypeAnnotations(pkgNode, env, initFunction);
-        defineClassAnnotations(pkgNode, env, initFunction);
-        defineFunctionAnnotations(pkgNode, env, initFunction);
+        blockStmt.stmts.addAll(defineClassAnnotations(pkgNode, env, initFunction).stmts);
+        blockStmt.stmts.addAll(defineFunctionAnnotations(pkgNode, env, initFunction).stmts);
+        return blockStmt;
     }
 
-    private void defineClassAnnotations(BLangPackage pkgNode, SymbolEnv env2, BLangFunction initFunction) {
+    private BLangBlockStmt defineClassAnnotations(BLangPackage pkgNode, SymbolEnv env2, BLangFunction initFunction) {
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
+        BLangBlockStmt blockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
 
         for (int i = 0, topLevelNodesSize = topLevelNodes.size(); i < topLevelNodesSize; i++) {
             TopLevelNode topLevelNode = topLevelNodes.get(i);
@@ -228,27 +225,26 @@ public class AnnotationDesugar {
                         BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
                         target.pos = initBody.pos;
                         addLambdaToGlobalAnnotMap(classDef.name.value, lambdaFunction, target);
-                        int index = calculateIndex((initBody).stmts, type.tsymbol);
-                        for (BLangStatement stmt : target.stmts) {
-                            initBody.stmts.add(index++, stmt);
-                        }
+                        blockStmt.stmts.addAll(target.stmts);
                     } else {
                         // Add the lambda/invocation in a temporary block.
                         LocationData locationData = new LocationData(pkgID, owner, pos, initBody);
                         addAnnotationLambdaToGlobalAnnotationMapWithBlockDef(pkgNode, classDef, locationData,
-                                lambdaFunction);
+                                lambdaFunction, blockStmt);
                     }
                 } else {
                     addInvocationToGlobalAnnotMap(classDef.name.value, lambdaFunction, initBody);
                 }
             }
         }
+        return blockStmt;
     }
 
     private void addAnnotationLambdaToGlobalAnnotationMapWithBlockDef(BLangPackage pkgNode,
                                                                       BLangClassDefinition classDef,
                                                                       LocationData location,
-                                                                      BLangLambdaFunction lambdaFunction) {
+                                                                      BLangLambdaFunction lambdaFunction,
+                                                                      BLangBlockStmt allStmt) {
         BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
         PackageID pkgID = location.pkgID;
         Location pos = location.pos;
@@ -291,10 +287,7 @@ public class AnnotationDesugar {
         simpleVarRef.parent = initBody;
         assignmentStmt.parent = initBody;
 
-        int index = calculateOCEExprIndex(initBody.stmts, classDef.getBType().tsymbol);
-        for (BLangStatement stmt : target.stmts) {
-            initBody.stmts.add(index++, stmt);
-        }
+        allStmt.stmts.addAll(target.stmts);
     }
 
     private boolean isServiceDeclaration(BLangClassDefinition serviceClass) {
@@ -480,9 +473,10 @@ public class AnnotationDesugar {
         }
     }
 
-    private void defineFunctionAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
+    private BLangBlockStmt defineFunctionAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
         BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) initFunction.body;
         BLangFunction[] functions = pkgNode.functions.toArray(new BLangFunction[pkgNode.functions.size()]);
+        BLangBlockStmt blockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
         for (BLangFunction function : functions) {
             PackageID pkgID = function.symbol.pkgID;
             BSymbol owner = function.symbol.owner;
@@ -501,22 +495,18 @@ public class AnnotationDesugar {
                 target.pos = initFnBody.pos;
                 String identifier = function.attachedFunction ? function.symbol.name.value : function.name.value;
 
-                int index;
                 if (function.attachedFunction
                         && Symbols.isFlagOn(function.receiver.getBType().flags, Flags.OBJECT_CTOR)) {
                     addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
-                    index = calculateIndex(initFnBody.stmts, function.receiver.getBType().tsymbol);
                 } else {
                     addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target);
-                    index = initFnBody.stmts.size();
                 }
 
                 // Add the annotation assignment for resources to immediately before the service init.
-                for (BLangStatement stmt : target.stmts) {
-                    initFnBody.stmts.add(index++, stmt);
-                }
+                blockStmt.stmts.addAll(target.stmts);
             }
         }
+        return blockStmt;
     }
 
     private void attachSchedulerPolicy(BLangFunction function) {
@@ -927,6 +917,18 @@ public class AnnotationDesugar {
         ASTBuilderUtil.defineVariable(annotationMap, pkgNode.symbol, names);
         pkgNode.globalVars.add(0, annotationMap); // TODO fix this
         pkgNode.topLevelNodes.add(0, annotationMap);
+        return annotationMap;
+    }
+
+    private BLangSimpleVariable createGlobalAnnotationMapVar(BLangPackage pkgNode, BLangBlockFunctionBody initFnBody) {
+        BLangSimpleVariable annotationMap = ASTBuilderUtil.createVariable(pkgNode.pos, ANNOTATION_DATA,
+                symTable.mapType,
+                ASTBuilderUtil.createEmptyRecordLiteral(
+                        pkgNode.pos, symTable.mapType), null);
+        ASTBuilderUtil.defineVariable(annotationMap, pkgNode.symbol, names);
+        pkgNode.globalVars.add(0, annotationMap); // TODO fix this
+        pkgNode.topLevelNodes.add(0, annotationMap);
+        desugar.addToInitFunction(annotationMap, initFnBody);
         return annotationMap;
     }
 
