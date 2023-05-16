@@ -5724,7 +5724,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral, AnalyzerData data) {
         BType expType = Types.getReferredType(data.expType);
         if (expType.tag != TypeTags.XML && expType.tag != TypeTags.UNION && expType.tag != TypeTags.XML_TEXT
-        && expType != symTable.noType) {
+                && expType.tag != TypeTags.ANY && expType.tag != TypeTags.ANYDATA && expType != symTable.noType) {
             dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data.expType,
                     "XML Sequence");
             data.resultType = symTable.semanticError;
@@ -5754,17 +5754,28 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             data.resultType = symTable.xmlTextType;
             return;
         }
+        
+        if (expType.tag == TypeTags.ANY) {
+            data.resultType = symTable.anyType;
+            return;
+        }
+
+        if (expType.tag == TypeTags.ANYDATA) {
+            data.resultType = symTable.anydataType;
+            return;
+        }
+        
         // Disallow unions with 'xml:T (singleton) items
-         for (BType item : ((BUnionType) expType).getMemberTypes()) {
-             item = Types.getReferredType(item);
-             if (item.tag != TypeTags.XML_TEXT && item.tag != TypeTags.XML) {
-                 dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
-                         expType, symTable.xmlType);
-                 data.resultType = symTable.semanticError;
-                 return;
-             }
-         }
-        data.resultType = symTable.xmlType;
+        for (BType item : ((BUnionType) expType).getMemberTypes()) {
+            item = Types.getReferredType(item);
+            if (types.isAssignable(symTable.xmlType, item)) {
+                data.resultType = symTable.xmlType;
+                return;
+            }
+        }
+        dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
+                expType, symTable.xmlType);
+        data.resultType = symTable.semanticError;
     }
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral, AnalyzerData data) {

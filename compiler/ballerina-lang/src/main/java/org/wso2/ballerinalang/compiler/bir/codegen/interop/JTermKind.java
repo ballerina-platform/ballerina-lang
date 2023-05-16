@@ -25,7 +25,8 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 public enum JTermKind {
     J_METHOD_CALL((byte) 1),
     JI_METHOD_CALL((byte) 2),
-    JI_CONSTRUCTOR_CALL((byte) 3);
+    JI_CONSTRUCTOR_CALL((byte) 3),
+    J_INTERNAL_METHOD_CALL((byte) 4);
 
     private final byte termKind;
 
