@@ -583,10 +583,10 @@ function testReplace() {
     string str7 = "🔜 #RayoBarça 🔵🔴 https://t.co/iHDUx7EmFJ";
     var regExpr6 = re `\p{S}`;
     string result7 = regExpr6.replace(str7, replacementFunctionForReplace);
-    assertEquality("2 #RayoBarça 🔵🔴 https://t.co/iHDUx7EmFJ", result7);
+    assertEquality("1 #RayoBarça 🔵🔴 https://t.co/iHDUx7EmFJ", result7);
 
     string result8 = regExpr6.replace(str7, replacementFunctionForReplace, 4);
-    assertEquality("🔜 #RayoBarça 16🔴 https://t.co/iHDUx7EmFJ", result8);
+    assertEquality("🔜 #RayoBarça 14🔴 https://t.co/iHDUx7EmFJ", result8);
 
     string result9 = regExpr6.replace(str7, "");
     assertEquality(" #RayoBarça 🔵🔴 https://t.co/iHDUx7EmFJ", result9);
