@@ -89,6 +89,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.POPULATE_ATTACHED_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RESOURCE_METHOD_TYPE_ARRAY_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RESOURCE_METHOD_TYPE_IMPL_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_INITIALIZER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_METHODS;
@@ -165,8 +166,11 @@ public class JvmObjectTypeGen {
         mv.visitInsn(DUP);
         addObjectFields(mv, methodName, bType.fields);
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bType.tsymbol;
-        addObjectInitFunction(mv, objectTypeSymbol.generatedInitializerFunc, bType, indexMap, symbolTable);
-        addObjectAttachedFunctions(cw, mv, fieldName, getObjectAttachedFunctions(objectTypeSymbol), bType,
+        addObjectInitFunction(mv, objectTypeSymbol.generatedInitializerFunc, bType, indexMap,
+                "$init$",  symbolTable, true);
+        addObjectInitFunction(mv, objectTypeSymbol.initializerFunc, bType, indexMap, "init",
+                symbolTable, false);
+        addObjectAttachedFunctions(cw, mv, fieldName, objectTypeSymbol.attachedFuncs, bType,
                 symbolTable);
         addResourceMethods(cw, mv, fieldName, objectTypeSymbol.attachedFuncs, bType,
                 symbolTable);
@@ -178,16 +182,6 @@ public class JvmObjectTypeGen {
             mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, SET_TYPEID_SET_METHOD,
                     SET_TYPE_ID_SET, false);
         }
-    }
-
-    private List<BAttachedFunction> getObjectAttachedFunctions(BObjectTypeSymbol objectTypeSymbol) {
-        List<BAttachedFunction> attachedFunctions = new ArrayList<>();
-        BAttachedFunction initFunction = objectTypeSymbol.initializerFunc;
-        if (initFunction != null && initFunction.funcName.value.contains("init")) {
-            attachedFunctions.add(initFunction);
-        }
-        attachedFunctions.addAll(objectTypeSymbol.attachedFuncs);
-        return attachedFunctions;
     }
 
     /**
@@ -274,9 +268,10 @@ public class JvmObjectTypeGen {
     }
 
     private void addObjectInitFunction(MethodVisitor mv, BAttachedFunction initFunction, BObjectType objType,
-                                       BIRVarToJVMIndexMap indexMap, SymbolTable symbolTable) {
+                                       BIRVarToJVMIndexMap indexMap, String funcName,
+                                       SymbolTable symbolTable, boolean isGeneratedInit) {
 
-        if (initFunction == null || !initFunction.funcName.value.contains("$init$")) {
+        if (initFunction == null || !initFunction.funcName.value.contains(funcName)) {
             return;
         }
 
@@ -288,8 +283,12 @@ public class JvmObjectTypeGen {
         mv.visitVarInsn(ALOAD, attachedFunctionVarIndex);
         mv.visitInsn(DUP);
         mv.visitInsn(POP);
-        mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setGeneratedInitializer",
-                METHOD_TYPE_IMPL_PARAM, false);
+        if (isGeneratedInit) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setGeneratedInitializer",
+                    METHOD_TYPE_IMPL_PARAM, false);
+        } else {
+            mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setInitializer", SET_INITIALIZER, false);
+        }
     }
 
     private void addResourceMethods(ClassWriter cw, MethodVisitor mv, String fieldName,

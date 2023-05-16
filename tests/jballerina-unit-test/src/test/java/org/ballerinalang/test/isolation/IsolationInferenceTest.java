@@ -330,6 +330,10 @@ public class IsolationInferenceTest {
     public static boolean isMethodIsolated(Object val, String methodName) {
         BObjectType objectType = (BObjectType) getType(val);
         List<MethodType> methodTypes = Lists.of(objectType.getMethods());
+        MethodType initializer = objectType.getInitializer();
+        if (initializer != null) {
+            methodTypes.add(initializer);
+        }
         return isIsolated(methodTypes, methodName);
     }
 

@@ -52,6 +52,7 @@ import static io.ballerina.runtime.api.TypeTags.SERVICE_TAG;
 public class BObjectType extends BStructureType implements ObjectType {
 
     private MethodType[] methodTypes;
+    private MethodType initializer;
     public MethodType generatedInitializer;
 
     private final boolean readonly;
@@ -114,6 +115,11 @@ public class BObjectType extends BStructureType implements ObjectType {
     }
 
     @Override
+    public MethodType getInitializer() {
+        return initializer;
+    }
+
+    @Override
     public boolean isIsolated() {
         return SymbolFlags.isFlagOn(getFlags(), SymbolFlags.ISOLATED);
     }
@@ -137,6 +143,10 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     public void setMethods(MethodType[] methodTypes) {
         this.methodTypes = methodTypes;
+    }
+
+    public void setInitializer(MethodType initializer) {
+        this.initializer = initializer;
     }
 
     public void setGeneratedInitializer(BMethodType generatedInitializer) {
