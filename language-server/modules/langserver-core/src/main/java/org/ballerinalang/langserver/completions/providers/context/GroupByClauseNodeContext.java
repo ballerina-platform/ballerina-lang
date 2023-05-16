@@ -50,35 +50,45 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, GroupByClauseNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        SeparatedNodeList<Node> groupingKey = node.groupingKey();
+        
+        
+        if (!groupingKey.isEmpty() 
+                && groupingKey.get(groupingKey.separatorSize()).kind() == SyntaxKind.GROUPING_KEY_VAR_DECLARATION) {
+            Node groupingKeyNode = groupingKey.get(groupingKey.separatorSize());
+            return getGroupingKeyVarDeclCompletions(context, node, (GroupingKeyVarDeclarationNode) groupingKeyNode);
+        } 
+        
+        completionItems.addAll(this.expressionCompletions(context));
+        this.sort(context, node, completionItems);
+        return completionItems;
+    }
 
+    private List<LSCompletionItem> getGroupingKeyVarDeclCompletions(BallerinaCompletionContext context, 
+                                                                    GroupByClauseNode node, 
+                                                                    GroupingKeyVarDeclarationNode groupingKeyVarDeclNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         int cursor = context.getCursorPositionInTree();
-        SeparatedNodeList<Node> groupingKey = node.groupingKey();
-        Node groupingKeyNode = groupingKey.get(groupingKey.separatorSize());
-
-        if (groupingKeyNode.kind() != SyntaxKind.GROUPING_KEY_VAR_DECLARATION) {
-            return completionItems;
-        }
-        
-        GroupingKeyVarDeclarationNode groupingKeyVarDeclNode = (GroupingKeyVarDeclarationNode) groupingKeyNode;
+       
         if (this.onBindingPatternContext(cursor, groupingKeyVarDeclNode)) {
-            /*
-            Covers the case where the cursor is within the binding pattern context.
-            Eg:
-            (1) group by var <cursor>
-            (2) group by var cu<cursor>
-            (3) group by var item = foo(), var <cursor>
-            In these cases no suggestions are provided
-             */
+                /*
+                Covers the case where the cursor is within the binding pattern context.
+                Eg:
+                (1) group by var <cursor>
+                (2) group by var cu<cursor>
+                (3) group by var item = foo(), var <cursor>
+                In these cases no suggestions are provided
+                */
             return completionItems;
         } else if (this.onTypedBindingPatternContext(cursor, groupingKeyVarDeclNode)) {
-            /*
-            Covers the case where the cursor is within the typed binding pattern context.
-            Eg:
-            (1) group by <cursor>
-            (2) group by v<cursor>
-            (3) group by var item = foo(), v<cursor>
-             */
+                /*
+                Covers the case where the cursor is within the typed binding pattern context.
+                Eg:
+                (1) group by <cursor>
+                (2) group by v<cursor>
+                (3) group by var item = foo(), v<cursor>
+                */
             NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
             if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
@@ -86,12 +96,12 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
             }
             completionItems.addAll(this.expressionCompletions(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
-        } else if (this.onExpressionContext(cursor, groupingKeyVarDeclNode)) {
-            /*
-            Covers the case where the cursor is within the expression context.
-            Eg:
-            (1) group by var item = <cursor>
-             */
+        } else {
+                /*
+                Covers the case where the cursor is within the expression context.
+                Eg:
+                (1) group by var item = <cursor>
+                */
             completionItems.addAll(this.expressionCompletions(context));
         }
         this.sort(context, node, completionItems);
@@ -99,7 +109,7 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
     }
 
     private boolean onBindingPatternContext(int cursor, GroupingKeyVarDeclarationNode node) {
-        return cursor >= node.simpleBindingPattern().textRange().startOffset()
+        return cursor > node.typeDescriptor().textRange().endOffset()
                 && cursor < node.equalsToken().textRange().startOffset();
     }
 
@@ -108,10 +118,6 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
         return cursor < typeDescriptorNode.textRange().startOffset() ||
                 cursor >= typeDescriptorNode.textRange().startOffset()
                         && cursor <= typeDescriptorNode.textRange().endOffset();
-    }
-
-    private boolean onExpressionContext(int cursor, GroupingKeyVarDeclarationNode node) {
-        return cursor > node.equalsToken().textRange().endOffset();
     }
 
     @Override
