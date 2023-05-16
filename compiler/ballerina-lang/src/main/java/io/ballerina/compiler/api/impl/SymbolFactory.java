@@ -239,6 +239,10 @@ public class SymbolFactory {
             return createResourceNamedPathSegment((BResourcePathSegmentSymbol) symbol);
         }
 
+        if (symbol.kind == SymbolKind.RESOURCE_ROOT_PATH_SEGMENT) {
+            return createPathParamSymbol((BResourcePathSegmentSymbol) symbol, PathSegment.Kind.ROOT_PATH);
+        }
+
         if (symbol.kind == SymbolKind.RESOURCE_PATH_PARAM_SEGMENT) {
             return createPathParamSymbol((BResourcePathSegmentSymbol) symbol, PathSegment.Kind.PATH_PARAMETER);
         }

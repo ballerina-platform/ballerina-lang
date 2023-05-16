@@ -63,15 +63,18 @@ public class SymbolsInResourceMethodsTest {
     @DataProvider(name = "ResourceMethodPosProvider")
     public Object[][] getSymbolPos() {
         return new Object[][]{
+                {17, 22, "get", SymbolKind.RESOURCE_METHOD},
                 {24, 23, "get", SymbolKind.RESOURCE_METHOD},
                 {24, 26, "authors", SymbolKind.PATH_SEGMENT},
+                {28, 42, "author", SymbolKind.PARAMETER},
                 {24, 45, "names", SymbolKind.PATH_PARAMETER},
                 {32, 52, "isbn", SymbolKind.PATH_PARAMETER},
                 {32, 68, "Book", SymbolKind.TYPE},
 
                 // TODO: The following tests need to be verified again
+                {17, 26, ".", SymbolKind.PATH_PARAMETER},   // TODO: Is this a path-param?
                 {36, 27, "$^", SymbolKind.PATH_PARAMETER},
-                {40, 38, "$^^", SymbolKind.PATH_PARAMETER},
+                {40, 36, "$^^", SymbolKind.PATH_PARAMETER},
 
         };
     }
