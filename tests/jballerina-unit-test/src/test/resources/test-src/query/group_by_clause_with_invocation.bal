@@ -585,7 +585,7 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys11() {
     decimal[] sum = from var {name, price1, price2} in input
                     group by var _ = true
                     select 5.avg(23, ...[price2]);
-    assertEquality([35, 11], sum);
+    assertEquality([12.25d], sum);
 }
 
 function testGroupByExpressionAndSelectWithNonGroupingKeys10() {
@@ -608,12 +608,12 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys10() {
     assertEquality([12.25d], sum1);
 }
 
-// function testGroupByExpressionAndSelectWithNonGroupingKeys6() {
-//     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}, {name: "Saman", price: 12}];
-//     int[] sum = from var {name, price} in input
-//                         group by name
-//                         select count(price);
-//     assertEquality([35, 11], sum);
+function testGroupByExpressionAndSelectWithNonGroupingKeys12() {
+    // var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}, {name: "Saman", price: 12}];
+    // int[] sum = from var {name, price} in input
+    //                     group by name
+    //                     select count(price);
+    // assertEquality([35, 11], sum);
 //     sum = from var {name, price} in input
 //                         group by name
 //                         select int:count(price);
@@ -634,7 +634,7 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys10() {
 //                         group by name
 //                         select 2.0.count(2, ...[price]);
 //     assertEquality([35, 11], sum);
-// }
+}
 
 function testGroupByWithDoClause() {
     var input = [{name: "Saman", price1: 11, price2: 12}, 

@@ -208,7 +208,9 @@ public class GroupByClauseTest {
                 "testGroupByExpressionAndSelectWithNonGroupingKeys8",
                 "testEnumInInput",
                 "testGroupByExpressionAndSelectWithNonGroupingKeys9",
-                "testGroupByExpressionAndSelectWithNonGroupingKeys10"
+                "testGroupByExpressionAndSelectWithNonGroupingKeys10",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys12",
+                "testGroupByExpressionAndSelectWithNonGroupingKeys11"
         };
     }
 

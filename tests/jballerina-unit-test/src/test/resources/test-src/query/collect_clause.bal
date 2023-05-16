@@ -266,7 +266,7 @@ function testEmptyGroups2() {
     decimal?[] x10 = from var {name, price1, price2} in input
                     where name == "XX"
                     collect from var item in [2] let var x = avg(price1) collect [x];
-    assertEquality([], x10);    
+    assertEquality([], x10);
 }
 
 function testGroupByAndCollectInSameQuery() {
@@ -400,6 +400,15 @@ function testMultipleCollect() {
                 group by var x = from var {price1: p1} in input1 where name == "XX" collect avg(p1)
                 collect [x];
     assertEquality([], x8);
+    var x9 = from var {price1} in input1
+                select from var _ in [price1] collect int:avg(price1);
+    assertEquality([11d, 11d, 10d, 10d, 12d, 12d], x9);
+    var x10 = from var {price1} in input1
+                select (from var p in [price1] where p == -1 collect int:avg(price1));
+    assertEquality([11d, 11d, 10d, 10d, 12d, 12d], x10);
+    var x11 = from var {price1} in input1
+                select (from var p in [price1] where p == -1 collect int:avg(p));
+    assertEquality([null, null, null, null, null, null], x11);
 }
 
 function testDoClause() {
@@ -417,7 +426,7 @@ function testDoClause() {
                             collect sum(p1);
                     arr.push(x);
                 };   
-    assertEquality([66, 66, 66, 66, 66, 66], arr) ;
+    assertEquality([66, 66, 66, 66, 66, 66], arr);
 }
 
 function testErrorSeq() {
@@ -427,7 +436,6 @@ function testErrorSeq() {
     var x = from var {name, err} in input
                 collect [err];
     assertEquality("msg1", x[0].message());
-    
 }
 
 function assertEquality(anydata expected, anydata actual) {

@@ -242,8 +242,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     private SymbolEnv queryEnv;
     private boolean containsCheckExpr;
     private boolean withinQuery = false;
-    private boolean afterGroupBy = false;
-    private boolean afterCollect = false;
     private boolean withinLambdaOrArrowFunc = false;
     private boolean withinCollectClause = false;
     private HashSet<BType> checkedErrorList;
@@ -1957,8 +1955,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     }
                 }
                 identifiers.put(identifier, symbol);
-            } else if (identifiers.containsKey(identifier) && (withinLambdaOrArrowFunc || withinQuery)
-                    && !afterGroupBy && !afterCollect) {
+            } else if (identifiers.containsKey(identifier) && (withinLambdaOrArrowFunc || withinQuery)) {
                 symbol = identifiers.get(identifier);
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
@@ -2508,15 +2505,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         boolean prevWithinQuery = withinQuery;
         // This can be set to true directly since it's invoked only for nested queries.
         this.withinQuery = true;
-        boolean prevAfterGroupBy = this.afterGroupBy;
-        boolean prevAfterCollect = this.afterCollect;
-        this.afterGroupBy = false;
-        this.afterCollect = false;
         queryExpr.getQueryClauses().forEach(this::acceptNode);
         this.withinQuery = prevWithinQuery;
         this.queryEnv = prevQueryEnv;
-        this.afterGroupBy = prevAfterGroupBy;
-        this.afterCollect = prevAfterCollect;
         result = queryExpr;
     }
     
@@ -2566,9 +2557,18 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCollectClause collectClause) {
-        this.afterCollect = true;
+        updateIdentifiers(collectClause.env);
         collectClause.expression = rewrite(collectClause.expression);
         result = collectClause;
+    }
+
+    void updateIdentifiers(SymbolEnv env) {
+        for (Map.Entry<String, BSymbol> identifier : identifiers.entrySet()) {
+            BSymbol symbol = symResolver.lookupClosureVarSymbol(env, Names.fromString(identifier.getKey()), SymTag.SEQUENCE);
+            if (symbol != symTable.notFoundSymbol) {
+                identifiers.put(identifier.getKey(), symbol);
+            }
+        }
     }
 
     @Override
@@ -2605,8 +2605,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangGroupByClause groupByClause) {
-        afterGroupBy = true;
         groupByClause.groupingKeyList.forEach(this::acceptNode);
+        updateIdentifiers(groupByClause.env);
         result = groupByClause;
     }
 
