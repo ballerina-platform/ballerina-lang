@@ -22,12 +22,30 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 /**
  * Negative test cases to cover xml parsing.
  *
  * @since 1.2.0
  */
 public class XMLParserNegativeTest {
+
+    @Test
+    public void testCreateXmlFromInputStream() {
+        String invalidXMLString = "<!-- comments cannot have -- in it -->";
+        InputStream xmlStream = new ByteArrayInputStream(invalidXMLString.getBytes());
+        String expectedErrorMessage = "failed to parse xml: ParseError at [row,col]:[1,29]\n" +
+                "Message: The string \"--\" is not permitted within comments.";
+        try {
+            XmlFactory.parse(xmlStream);
+            Assert.fail("Negative test failed for: `" + invalidXMLString + "'. Expected exception with message: " +
+                    expectedErrorMessage);
+        } catch (Exception e) {
+            Assert.assertEquals(e.getMessage(), expectedErrorMessage);
+        }
+    }
 
     @Test(dataProvider = "xmlValues")
     public void testXmlArg(String xmlValue, String expectedErrorMessage) {
