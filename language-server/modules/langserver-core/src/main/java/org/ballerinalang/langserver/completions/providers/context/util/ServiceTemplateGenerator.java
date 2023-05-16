@@ -354,7 +354,7 @@ public class ServiceTemplateGenerator {
             return completionItems;
         }
         boolean isDefaultModule = currentModule.get().isDefaultModule();
-        
+
         project.get().currentPackage().modules().forEach(module -> {
             //Symbols in the default module should not be visible to other modules.
             if (module.isDefaultModule() && !isDefaultModule) {
@@ -440,7 +440,7 @@ public class ServiceTemplateGenerator {
 
         //Get the attach method of the listener.
         MethodSymbol attachMethod = classSymbol.methods().get("attach");
-        if (attachMethod == null || classSymbol.getName().isEmpty()) {
+        if (attachMethod == null) {
             return Optional.empty();
         }
 
@@ -454,7 +454,7 @@ public class ServiceTemplateGenerator {
         if (typeSymbol.typeKind() == TypeDescKind.UNION) {
             //Here we consider the first service type of the union. 
             Optional<TypeSymbol> memberType = ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors()
-                    .stream().filter(member -> member.typeKind() == TypeDescKind.OBJECT).findFirst();
+                    .stream().map(CommonUtil::getRawType).filter(member -> member.typeKind() == TypeDescKind.OBJECT).findFirst();
             if (memberType.isEmpty()) {
                 return Optional.empty();
             }
