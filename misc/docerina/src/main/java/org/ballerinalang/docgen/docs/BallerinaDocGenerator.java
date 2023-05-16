@@ -277,7 +277,7 @@ public class BallerinaDocGenerator {
 
             return apiDocsVersion;
         } catch (IOException e) {
-            return  "NOT_FOUND";
+            return "NOT_FOUND";
         }
     }
 
