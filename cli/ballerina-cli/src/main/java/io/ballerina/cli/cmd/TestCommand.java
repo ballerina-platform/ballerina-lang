@@ -55,7 +55,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = TEST_COMMAND, description = "Test Ballerina modules")
+@CommandLine.Command(name = TEST_COMMAND, description = "Run package tests")
 public class TestCommand implements BLauncherCmd {
 
     private final PrintStream outStream;

@@ -36,6 +36,7 @@ public class Constants {
     public static final String CLEAN_COMMAND = "clean";
     public static final String FORMAT_COMMAND = "format";
     public static final String VERSION_COMMAND = "version";
+    public static final String BINDGEN_COMMAND = "bindgen";
     public static final String SHELL_COMMAND = "shell";
     public static final String PACK_COMMAND = "pack";
     public static final String GRAPH_COMMAND = "graph";

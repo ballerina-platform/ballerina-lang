@@ -39,7 +39,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
  *
  * @since 1.2.0
  */
-@CommandLine.Command(name = "bindgen", description = "Print the Ballerina version")
+@CommandLine.Command(name = "bindgen", description = "Generate the Ballerina bindings for Java APIs")
 public class BindgenCommand implements BLauncherCmd {
 
     private final PrintStream outStream;

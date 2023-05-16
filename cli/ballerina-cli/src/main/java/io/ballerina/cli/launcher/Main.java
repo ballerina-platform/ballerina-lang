@@ -33,6 +33,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
 
+import static io.ballerina.cli.cmd.Constants.VERSION_COMMAND;
+
 /**
  * This class executes a Ballerina program.
  *
@@ -285,7 +287,7 @@ public class Main {
 
         @Override
         public void printLongDesc(StringBuilder out) {
-
+            out.append(BLauncherCmd.getCommandUsageInfo(VERSION_COMMAND));
         }
 
         @Override

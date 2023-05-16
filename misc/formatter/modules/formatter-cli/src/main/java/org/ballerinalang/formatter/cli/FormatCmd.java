@@ -22,7 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static io.ballerina.cli.cmd.Constants.DOC_COMMAND;
+import static io.ballerina.cli.cmd.Constants.FORMAT_COMMAND;
 
 /**
  * Class to implement "format" command for ballerina.
@@ -61,7 +61,7 @@ public class FormatCmd implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append(BLauncherCmd.getCommandUsageInfo(DOC_COMMAND));
+        out.append(BLauncherCmd.getCommandUsageInfo(FORMAT_COMMAND));
     }
 
     @Override

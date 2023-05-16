@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static io.ballerina.cli.cmd.Constants.ADD_COMMAND;
+import static io.ballerina.cli.cmd.Constants.BINDGEN_COMMAND;
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
 import static io.ballerina.cli.cmd.Constants.DEPRECATE_COMMAND;
@@ -166,17 +167,15 @@ public class LauncherUtils {
         List<String> packageCommands = Arrays.asList(NEW_COMMAND, INIT_COMMAND, ADD_COMMAND, PULL_COMMAND,
                 PUSH_COMMAND, SEARCH_COMMAND, SEMVER_COMMAND, GRAPH_COMMAND, DEPRECATE_COMMAND);
         List<String> otherCommands = Arrays.asList(CLEAN_COMMAND, FORMAT_COMMAND, SHELL_COMMAND,
-                VERSION_COMMAND, TOOL_COMMAND);
-        List<String> excludedCommands = Arrays.asList(
+                VERSION_COMMAND, TOOL_COMMAND, BINDGEN_COMMAND);
+        List<String> excludedCommands = Arrays.asList( DIST_COMMAND, UPDATE_COMMAND,
                 START_LANG_SERVER_COMMAND, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND, HOME_COMMAND);
-        List<String> updateCommands = Arrays.asList(DIST_COMMAND, UPDATE_COMMAND);
 
         StringBuilder helpBuilder = new StringBuilder();
         StringBuilder coreCmdsHelpBuilder = new StringBuilder("\n    Core Commands:\n");
         StringBuilder pkgCmdsHelpBuilder = new StringBuilder("\n    Package Commands:\n");
-        StringBuilder updateCmdsHelpBuilder = new StringBuilder("\n    Update Commands:\n");
         StringBuilder toolCmdsHelpBuilder = new StringBuilder("\n    Tool Commands:\n");
-        StringBuilder otherCmdHelpBuilder = new StringBuilder("\n   Other Commands:\n");
+        StringBuilder otherCmdHelpBuilder = new StringBuilder("\n    Other Commands:\n");
 
         helpBuilder.append(BLauncherCmd.getCommandUsageInfo(HELP_COMMAND));
 
@@ -186,8 +185,6 @@ public class LauncherUtils {
                 LauncherUtils.generateCommandDescription(cmd, coreCmdsHelpBuilder);
             } else if (packageCommands.contains(cmdName)) {
                 LauncherUtils.generateCommandDescription(cmd, pkgCmdsHelpBuilder);
-            } else if (updateCommands.contains(cmdName)) {
-                LauncherUtils.generateCommandDescription(cmd, updateCmdsHelpBuilder);
             } else if (otherCommands.contains(cmdName)) {
                 LauncherUtils.generateCommandDescription(cmd, otherCmdHelpBuilder);
             } else if (excludedCommands.contains(cmdName)) {
@@ -200,8 +197,6 @@ public class LauncherUtils {
         helpBuilder.append(pkgCmdsHelpBuilder);
         helpBuilder.append(toolCmdsHelpBuilder);
         helpBuilder.append(otherCmdHelpBuilder);
-        helpBuilder.append(updateCmdsHelpBuilder);
-        helpBuilder.append("\nUse 'bal help <command>' for more information on a specific command.");
         return helpBuilder.toString();
     }
 

@@ -30,6 +30,8 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static io.ballerina.cli.cmd.Constants.SEMVER_COMMAND;
+
 /**
  * Class to implement `semver` command for Ballerina.
  * Ex: `bal semver`
@@ -113,6 +115,7 @@ public class SemverCmd implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
+        out.append(BLauncherCmd.getCommandUsageInfo(SEMVER_COMMAND));
     }
 
     @Override
