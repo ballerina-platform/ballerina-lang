@@ -54,12 +54,30 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertTrue((Boolean) returnValues);
     }
 
+    @Test(description = "Test query expr returning a stream", dataProvider = "SimpleQueryReturnStreamFunctionList")
+    public void testQueryReturnStream(String funcName) {
+        BRunUtil.invoke(result, funcName);
+    }
+
+    @DataProvider(name = "SimpleQueryReturnStreamFunctionList")
+    public Object[][] simpleQueryReturnStreamFunctionList() {
+        return new Object[][]{
+                {"testSimpleQueryReturnStream2"},
+                {"testSimpleQueryReturnStream3"}
+        };
+    }
+
     @Test(description = "Test query expr with stream in from clause returning a stream ")
     public void testStreamInFromClauseWithReturnStream() {
         Object returnValues = BRunUtil.invoke(result, "testStreamInFromClauseWithReturnStream");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
+    }
+
+    @Test(description = "Test query expr with stream in from clause returning a stream ")
+    public void testStreamInFromClauseWithReturnStream2() {
+        BRunUtil.invoke(result, "testStreamInFromClauseWithReturnStream2");
     }
 
     @Test(description = "Test query expr with multiple from, let and where clauses returning a stream ")
@@ -70,6 +88,11 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertTrue((Boolean) returnValues);
     }
 
+    @Test(description = "Test query expr with multiple from, let and where clauses returning a stream ")
+    public void testMultipleFromWhereAndLetReturnStream2() {
+        BRunUtil.invoke(result, "testMultipleFromWhereAndLetReturnStream2");
+    }
+
     @Test(description = "Test query expr with inner join returning a stream ")
     public void testInnerJoinAndLimitReturnStream() {
         Object returnValues = BRunUtil.invoke(result, "testInnerJoinAndLimitReturnStream");
@@ -78,12 +101,22 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertTrue((Boolean) returnValues);
     }
 
+    @Test(description = "Test query expr with inner join returning a stream ")
+    public void testInnerJoinAndLimitReturnStream2() {
+        BRunUtil.invoke(result, "testInnerJoinAndLimitReturnStream2");
+    }
+
     @Test(description = "Test query expr returning table")
     public void testSimpleQueryExprReturnTable() {
         Object returnValues = BRunUtil.invoke(result, "testSimpleQueryExprReturnTable");
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
+    }
+
+    @Test(description = "Test query expr returning table")
+    public void testSimpleQueryExprReturnTable2() {
+        BRunUtil.invoke(result, "testSimpleQueryExprReturnTable2");
     }
 
     @Test(description = "Test query expr with table having duplicate keys")
@@ -129,6 +162,16 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertNotNull(returnValues);
 
         Assert.assertTrue((Boolean) returnValues);
+    }
+
+    @Test
+    public void testConstructTablesWithRecords() {
+        BRunUtil.invoke(result, "testConstructTablesWithRecords");
+    }
+
+    @Test
+    public void testConstructMapsWithTuples() {
+        BRunUtil.invoke(result, "testConstructMapsWithTuples");
     }
 
     @Test(description = "Test negative scenarios for query expr with query construct type")
@@ -271,6 +314,36 @@ public class QueryExprWithQueryConstructTypeTest {
                         "found 'table<record {| |}>'", 461, 19);
         validateError(negativeResult, index++, "incompatible types: expected 'string', " +
                         "found 'table<record {| int a; int b; |}>'", 462, 16);
+        validateError(negativeResult, index++, "incompatible types: 'string' cannot be constrained with 'int'",
+                473, 49);
+        validateError(negativeResult, index++, "incompatible types: 'string' cannot be constrained " +
+                "with '[int,int,int,int]'", 474, 49);
+        validateError(negativeResult, index++, "incompatible types: 'xml' cannot be constrained with 'string'",
+                478, 42);
+        validateError(negativeResult, index++, "incompatible types: 'xml' cannot be constrained with 'int'",
+                479, 42);
+        validateError(negativeResult, index++, "incompatible types: 'xml' cannot be constrained with " +
+                "'[int,int,int,int]'", 480, 42);
+        validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
+                "cannot be constrained with 'int'", 487, 41);
+        validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
+                "cannot be constrained with '[string,int]'", 488, 41);
+        validateError(negativeResult, index++, "incompatible types: 'table<Employee> key(name)' " +
+                "cannot be constrained with 'table<Employee> key(name)'", 489, 41);
+        validateError(negativeResult, index++, "query expression that constructs a mapping must " +
+                "start with the map keyword", 493, 36);
+        validateError(negativeResult, index++, "query expression that constructs a mapping must " +
+                "start with the map keyword", 494, 36);
+        validateError(negativeResult, index++, "query expression that constructs a mapping must " +
+                "start with the map keyword", 495, 36);
+        validateError(negativeResult, index++, "incompatible type in select clause: expected " +
+                "[string,any|error], found 'int'", 496, 40);
+        validateError(negativeResult, index++, "incompatible type in select clause: expected " +
+                "[string,any|error], found 'record {| int A; |}'", 497, 40);
+        validateError(negativeResult, index++, "incompatible types: 'T1' " +
+                "cannot be constrained with 'int'", 504, 37);
+        validateError(negativeResult, index++, "incompatible types: 'T1' " +
+                "cannot be constrained with 'T1'", 505, 37);
         Assert.assertEquals(negativeResult.getErrorCount(), index);
     }
 
