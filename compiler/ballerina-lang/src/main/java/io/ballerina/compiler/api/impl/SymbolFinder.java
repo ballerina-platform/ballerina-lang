@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangResourcePathSegment;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -309,7 +310,21 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangResourceFunction resourceFunction) {
+        lookupNodes(resourceFunction.resourcePathSegments);
         visit((BLangFunction) resourceFunction);
+    }
+
+    @Override
+    public void visit(BLangResourcePathSegment pathSegment) {
+        switch (pathSegment.getKind()) {
+            case RESOURCE_PATH_PARAM_SEGMENT:
+            case RESOURCE_PATH_REST_PARAM_SEGMENT:
+                lookupNode(pathSegment.typeNode);
+            case RESOURCE_PATH_IDENTIFIER_SEGMENT:
+            default:
+                setEnclosingNode(pathSegment.symbol, pathSegment.symbol.pos);
+                break;
+        }
     }
 
     @Override
@@ -392,7 +407,7 @@ class SymbolFinder extends BaseVisitor {
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         if (annAttachmentNode.annotationSymbol != null
                 && (setEnclosingNode(annAttachmentNode.annotationSymbol.owner, annAttachmentNode.pkgAlias.pos) ||
-                        annAttachmentNode.annotationSymbol.getOrigin().equals(SymbolOrigin.BUILTIN))) {
+                annAttachmentNode.annotationSymbol.getOrigin().equals(SymbolOrigin.BUILTIN))) {
             return;
         }
 

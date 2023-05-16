@@ -33,8 +33,8 @@ import java.util.Optional;
  */
 public class BallerinaNamedPathSegment extends BallerinaSymbol implements NamedPathSegment {
 
-    public BallerinaNamedPathSegment(BResourcePathSegmentSymbol resPathSegSymbol, CompilerContext context) {
-        super(resPathSegSymbol.getName().getValue(), SymbolKind.PATH_SEGMENT, resPathSegSymbol, context);
+    public BallerinaNamedPathSegment(BResourcePathSegmentSymbol pathSegmentSymbol, CompilerContext context) {
+        super(pathSegmentSymbol.getName().getValue(), SymbolKind.PATH_SEGMENT, pathSegmentSymbol, context);
     }
 
     @Override

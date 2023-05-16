@@ -239,6 +239,14 @@ public class SymbolFactory {
             return createResourceNamedPathSegment((BResourcePathSegmentSymbol) symbol);
         }
 
+        if (symbol.kind == SymbolKind.RESOURCE_PATH_PARAM_SEGMENT) {
+            return createPathParamSymbol((BResourcePathSegmentSymbol) symbol, PathSegment.Kind.PATH_PARAMETER);
+        }
+
+        if (symbol.kind == SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
+            return createPathParamSymbol((BResourcePathSegmentSymbol) symbol, PathSegment.Kind.PATH_REST_PARAMETER);
+        }
+
         throw new IllegalArgumentException("Unsupported symbol type: " + symbol.getClass().getName());
     }
 
@@ -468,6 +476,13 @@ public class SymbolFactory {
             return null;
         }
         return new BallerinaPathParameterSymbol(kind, symbol, this.context);
+    }
+
+    public PathParameterSymbol createPathParamSymbol(BResourcePathSegmentSymbol symbol, PathSegment.Kind pathKind) {
+        if (symbol == null) {
+            return null;
+        }
+        return new BallerinaPathParameterSymbol(pathKind, symbol, this.context);
     }
 
     /**
