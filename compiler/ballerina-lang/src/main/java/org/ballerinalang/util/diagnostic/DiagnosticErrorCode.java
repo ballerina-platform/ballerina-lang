@@ -801,7 +801,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNSUPPORTED_EMPTY_CHARACTER_CLASS(
             "BCS4045", "unsupported.empty.character.class"),
     INCOMPATIBLE_QUERY_CONSTRUCT_TYPE("BCE4046", "invalid.error.query.construct.type"),
-    INCOMPATIBLE_QUERY_CONSTRUCT_MAP_TYPE("BCE4047", "invalid.error.query.construct.map.type")
+    INCOMPATIBLE_QUERY_CONSTRUCT_MAP_TYPE("BCE4047", "invalid.error.query.construct.map.type"),
     CANNOT_USE_ALTERNATE_WAIT_ACTION_WITHIN_MULTIPLE_WAIT_ACTION("BCE4048",
             "cannot.use.alternate.wait.action.within.multiple.wait.action"),
     EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4049", "future.expression.expected")
