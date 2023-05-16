@@ -548,7 +548,7 @@ public class JvmPackageGen {
                                      Map<String, JavaClass> jvmClassMap) {
         // filter out functions.
         List<BIRFunction> functions = birPackage.functions;
-        if (functions.size() == 0) {
+        if (functions.isEmpty()) {
             return;
         }
 
@@ -776,8 +776,9 @@ public class JvmPackageGen {
                 flattenedModuleImports, serviceEPAvailable, mainFunc, testExecuteFunc);
         TypeHashVisitor typeHashVisitor = new TypeHashVisitor();
         JvmConstantsGen jvmConstantsGen = new JvmConstantsGen(module, moduleInitClass, types, typeHashVisitor);
-        JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, module, moduleInitClass
-                , typeHashVisitor);
+        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
+        JvmMethodsSplitter jvmMethodsSplitter = new JvmMethodsSplitter(this, jvmConstantsGen, module, moduleInitClass,
+                typeHashVisitor, jvmTypeGen);
         configMethodGen.generateConfigMapper(flattenedModuleImports, module, moduleInitClass, jvmConstantsGen,
                                              typeHashVisitor, jarEntries, symbolTable);
 
@@ -789,10 +790,8 @@ public class JvmPackageGen {
 
         // generate object/record value classes
         JvmValueGen valueGen = new JvmValueGen(module, this, methodGen, typeHashVisitor, types);
-        JvmTypeGen jvmTypeGen = new JvmTypeGen(jvmConstantsGen, module.packageID, typeHashVisitor, symbolTable);
         JvmCastGen jvmCastGen = new JvmCastGen(symbolTable, jvmTypeGen, types);
         valueGen.generateValueClasses(jarEntries, jvmConstantsGen);
-
 
         // generate frame classes
         frameClassGen.generateFrameClasses(module, jarEntries);
