@@ -267,6 +267,20 @@ public class BallerinaDocGenerator {
         }
     }
 
+    private static String getApiDocsVersion() {
+        String apiDocsVersion = "";
+        try (InputStream inputStream = BallerinaDocGenerator.class.getResourceAsStream("/META-INF/tool.properties")) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+
+            apiDocsVersion = properties.getProperty("apiDocs.version").split("-")[0];
+
+            return apiDocsVersion;
+        } catch (IOException e) {
+            return  "NOT_FOUND";
+        }
+    }
+
     private static void genApiDocsJson(ModuleLibrary moduleLib, Path destination, boolean excludeUI) {
         try {
             Files.createDirectories(destination);
@@ -275,6 +289,7 @@ public class BallerinaDocGenerator {
         }
 
         ApiDocsJson apiDocsJson = new ApiDocsJson();
+        apiDocsJson.apiDocsVersion = getApiDocsVersion();
         apiDocsJson.docsData = moduleLib;
         apiDocsJson.searchData = genSearchJson(moduleLib);
 
