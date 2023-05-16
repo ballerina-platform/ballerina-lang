@@ -490,18 +490,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeResolver.clearUnknowTypeRefs();
     }
 
-    public void populateTypeToTypeDefMap(List<BLangNode> typeDefNodes) {
-        typeToTypeDef = new HashMap<>(typeDefNodes.size());
-        for (BLangNode typeDef : typeDefNodes) {
-            if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
-                BLangTypeDefinition typeDefNode = (BLangTypeDefinition) typeDef;
-                BType type = typeDefNode.typeNode.getBType();
-                typeToTypeDef.put(type, typeDefNode);
-            }
-        }
-    }
-
-    public void defineDependentFields(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
+    private void defineDependentFields(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangNode typeDef : typeDefNodes) {
             if (typeDef.getKind() == NodeKind.CLASS_DEFN) {
                 BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;

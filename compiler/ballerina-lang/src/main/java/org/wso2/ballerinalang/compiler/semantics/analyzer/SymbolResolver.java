@@ -2664,7 +2664,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     }
 
     /**
-     *
+     * @since 2.0.0
      */
     public static class ParameterizedTypeInfo {
         BType paramValueType;

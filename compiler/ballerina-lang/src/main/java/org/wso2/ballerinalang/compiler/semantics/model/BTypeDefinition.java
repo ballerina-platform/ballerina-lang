@@ -1,7 +1,7 @@
 /*
  *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  WSO2 LLC. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model;
 
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 /**
@@ -25,27 +24,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
  */
 public class BTypeDefinition {
     public BType type;
-    private BIntersectionType immutableType;
-    public boolean hasImmutableUsed = false;
-
     public BTypeDefinition(BType type) {
         this.type = type;
     }
 
-    public BType getMutableType() {
+    public BType getType() {
         return type;
     }
 
-    public void setMutableType(BType type) {
+    public void setType(BType type) {
         this.type = type;
-    }
-
-    public BIntersectionType getImmutableType() {
-        hasImmutableUsed = true;
-        return immutableType;
-    }
-
-    public void setImmutableType(BIntersectionType type) {
-        this.immutableType = type;
     }
 }

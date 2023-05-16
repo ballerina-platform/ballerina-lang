@@ -1,6 +1,22 @@
+/*
+ *  Copyright (c) 2023, WSO2 LLC. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 LLC. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
@@ -127,7 +143,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     private final ConstantTypeChecker.FillMembers fillMembers;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private Location currentPos;
-    private Stack<BLangExpression> compoundExprs = new Stack<>();
+    private int compoundExprCount = 0;
     public Stack<String> anonTypeNameSuffixes = new Stack<>();
 
     public ConstantTypeChecker(CompilerContext context) {
@@ -253,7 +269,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         BType finiteType = getFiniteType(literalExpr.value, data.constantSymbol, literalExpr.pos, literalType);
-        if (compoundExprs.isEmpty() &&
+        if (compoundExprCount == 0 &&
                 types.typeIncompatible(literalExpr.pos, finiteType, data.expType)) {
             data.resultType = symTable.semanticError;
             return;
@@ -310,7 +326,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             }
         }
 
-        if (compoundExprs.isEmpty() &&
+        if (compoundExprCount == 0 &&
                 types.typeIncompatible(varRefExpr.pos, actualType, data.expType)) {
             data.resultType = symTable.semanticError;
             return;
@@ -390,13 +406,13 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     public void visit(BLangBinaryExpr binaryExpr, AnalyzerData data) {
         BType expType = data.expType;
 
-        compoundExprs.push(binaryExpr.lhsExpr);
+        compoundExprCount++;
         BType lhsType = checkConstExpr(binaryExpr.lhsExpr, expType, data);
-        compoundExprs.pop();
+        compoundExprCount--;
 
-        compoundExprs.push(binaryExpr.rhsExpr);
+        compoundExprCount++;
         BType rhsType = checkConstExpr(binaryExpr.rhsExpr, expType, data);
-        compoundExprs.pop();
+        compoundExprCount--;
 
         Location pos = binaryExpr.pos;
 
@@ -442,7 +458,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             return;
         }
         BType finiteType = getFiniteType(resolvedValue, constantSymbol, pos, resultType);
-        if (compoundExprs.isEmpty() && types.typeIncompatible(pos, finiteType, expType)) {
+        if (compoundExprCount == 0 && types.typeIncompatible(pos, finiteType, expType)) {
             data.resultType = symTable.semanticError;
             return;
         }
@@ -456,9 +472,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     public void visit(BLangUnaryExpr unaryExpr, AnalyzerData data) {
         BType resultType;
 
-        compoundExprs.push(unaryExpr.expr);
+        compoundExprCount++;
         BType actualType = checkConstExpr(unaryExpr.expr, data.expType, data);
-        compoundExprs.pop();
+        compoundExprCount--;
 
         if (actualType == symTable.semanticError) {
             data.resultType = symTable.semanticError;
@@ -484,7 +500,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         BType finiteType = getFiniteType(resolvedValue, constantSymbol, unaryExpr.pos, resultType);
-        if (compoundExprs.isEmpty() && types.typeIncompatible(unaryExpr.pos, finiteType, data.expType)) {
+        if (compoundExprCount == 0 && types.typeIncompatible(unaryExpr.pos, finiteType, data.expType)) {
             data.resultType = symTable.semanticError;
             return;
         }
@@ -590,7 +606,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         if (expType.tag != TypeTags.UNION) {
             dlog.error(mappingConstructorExpr.pos,
                     DiagnosticErrorCode.MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, expType);
-            return;
         }
     }
 
@@ -763,6 +778,15 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 BLangRecordLiteral.BLangRecordKeyValueField keyValue =
                         (BLangRecordLiteral.BLangRecordKeyValueField) field;
                 BLangRecordLiteral.BLangRecordKey key = keyValue.key;
+
+                if (key.computedKey) {
+                    // Computed fields can overwrite the existing field values.
+                    // Therefore, Computed key fields should be evaluated at the end.
+                    // Temporarily added them into a list.
+                    computedFields.add(field);
+                    continue;
+                }
+
                 if (!targetFields.containsKey(key.toString())) {
                     if (expRecordType.sealed) {
                         dlog.error(keyValue.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE,
@@ -774,14 +798,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     }
                 } else {
                     expType = targetFields.get(key.toString()).type;
-                }
-
-                if (key.computedKey) {
-                    // Computed fields can overwrite the existing field values.
-                    // Therefore, Computed key fields should be evaluated at the end.
-                    // Temporarily added them into a list.
-                    computedFields.add(field);
-                    continue;
                 }
 
                 exprToCheck = keyValue.valueExpr;
@@ -853,6 +869,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 }
             }
         }
+
         for (RecordLiteralNode.RecordField field : computedFields) {
             BLangRecordLiteral.BLangRecordKeyValueField keyValue = (BLangRecordLiteral.BLangRecordKeyValueField) field;
             BLangRecordLiteral.BLangRecordKey key = keyValue.key;
@@ -861,7 +878,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 BLangLiteral fieldNameLiteral =
                         (BLangLiteral) ((BFiniteType) fieldName).getValueSpace().iterator().next();
                 if (fieldNameLiteral.getBType().tag == TypeTags.STRING) {
-                    if (!targetFields.containsKey(((BString) fieldNameLiteral).getValue())) {
+                    String keyName = fieldNameLiteral.getValue().toString();
+                    if (!targetFields.containsKey(keyName)) {
                         if (expRecordType.sealed) {
                             containErrors = true;
                             dlog.error(keyValue.pos, DiagnosticErrorCode.UNDEFINED_STRUCTURE_FIELD_WITH_TYPE,
@@ -871,7 +889,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                             expType = expRecordType.restFieldType;
                         }
                     } else {
-                        expType = targetFields.get(key).type;
+                        expType = targetFields.get(keyName).type;
                     }
                     exprToCheck = keyValue.valueExpr;
                     if (data.commonAnalyzerData.nonErrorLoggingCheck) {
@@ -879,7 +897,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     }
                     BType keyValueType = checkConstExpr(exprToCheck, expType, data);
                     if (!addFields(inferredFields, Types.getReferredType(keyValueType),
-                            fieldNameLiteral.getValue().toString(), key.pos, recordSymbol)) {
+                            keyName, key.pos, recordSymbol)) {
                         containErrors = true;
                     }
                     continue;
@@ -2681,7 +2699,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 return;
             }
 
-            BType targetType = symTable.noType;
+            BType targetType;
             BType expType = data.expType;
             if (expType.tag == TypeTags.FINITE) {
                 targetType = ((BFiniteType) expType).getValueSpace().iterator().next().getBType();
