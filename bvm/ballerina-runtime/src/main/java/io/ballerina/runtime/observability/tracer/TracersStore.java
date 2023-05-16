@@ -61,8 +61,8 @@ public class TracersStore {
      */
     public Tracer getTracer(String serviceName) {
         if (!isInitialized()) {
-            throw ErrorCreator.createError(StringUtils.fromString("error: tracer store is not initialized " +
-                    "because observability has not been enabled"));
+            throw ErrorCreator.createError(StringUtils.fromString("error: the tracer store is not initialized " +
+                    "because observability has not been enabled."));
         }
         Tracer tracer;
         if (store.containsKey(serviceName)) {
@@ -79,7 +79,7 @@ public class TracersStore {
                 store.put(serviceName, tracer);
             } else {
                 tracer = io.opentelemetry.api.trace.TracerProvider.noop().get("");
-                consoleError.println("error: tracing disabled as tracer provider had not been initialized");
+                consoleError.println("error: tracing disabled as tracer provider had not been initialized.");
             }
         }
         return tracer;
