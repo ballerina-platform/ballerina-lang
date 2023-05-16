@@ -30,7 +30,7 @@ client class BookService {
         return author;
     }
 
-    resource function get registered/[float|decimal isbn]() returns Book? {
+    resource function get registered/[float|decimal isbn]/[int... ex]() returns Book? {
         return {id: 1, title: "AtoZ", author: "Jeo"};
     }
 
