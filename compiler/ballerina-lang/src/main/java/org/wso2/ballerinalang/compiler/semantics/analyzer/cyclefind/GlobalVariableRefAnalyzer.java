@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -275,7 +276,7 @@ public class GlobalVariableRefAnalyzer {
 
         sortConstants(sorted);
         projectSortToGlobalVarsList(sorted);
-        projectSortToTopLevelNodesList();
+        projectSortToTopLevelNodesList(sorted);
     }
 
     private List<BSymbol> analyzeDependenciesStartingFrom(BSymbol symbol) {
@@ -348,26 +349,52 @@ public class GlobalVariableRefAnalyzer {
         }
     }
 
-    private void projectSortToTopLevelNodesList() {
-        // Swap global variable nodes in 'topLevelNodes' list to reflect sorted global variables.
-        List<Integer> topLevelPositions = new ArrayList<>();
-        for (BLangVariable globalVar : pkgNode.globalVars) {
-            topLevelPositions.add(pkgNode.topLevelNodes.indexOf(globalVar));
-        }
-        topLevelPositions.sort(Comparator.comparingInt(i -> i));
-        for (int i = 0; i < topLevelPositions.size(); i++) {
-            Integer targetIndex = topLevelPositions.get(i);
-            pkgNode.topLevelNodes.set(targetIndex, pkgNode.globalVars.get(i));
+    private void projectSortToTopLevelNodesList(Set<BSymbol> sorted) {
+        List<TopLevelNode> orderedTopLevelNodes = new ArrayList<>();
+
+        for (BSymbol symbol : sorted) {
+            TopLevelNode matchedNode = findMatchingTopLevelNode(symbol);
+            if (matchedNode != null) {
+                orderedTopLevelNodes.add(matchedNode);
+            }
         }
 
-        topLevelPositions = new ArrayList<>();
-        for (BLangConstant constant : pkgNode.constants) {
-            topLevelPositions.add(pkgNode.topLevelNodes.indexOf(constant));
+        reorderTopLevelNodes(orderedTopLevelNodes);
+    }
+
+    private TopLevelNode findMatchingTopLevelNode(BSymbol symbol) {
+        for (TopLevelNode topLevelNode : pkgNode.topLevelNodes) {
+            if (isMatchingNode(topLevelNode, symbol)) {
+                return topLevelNode;
+            }
         }
-        topLevelPositions.sort(Comparator.comparingInt(i -> i));
-        for (int i = 0; i < topLevelPositions.size(); i++) {
-            Integer targetIndex = topLevelPositions.get(i);
-            pkgNode.topLevelNodes.set(targetIndex, pkgNode.constants.get(i));
+        return null;
+    }
+
+    private boolean isMatchingNode(TopLevelNode topLevelNode, BSymbol symbol) {
+        switch (topLevelNode.getKind()) {
+            case VARIABLE:
+                return ((BLangVariable) topLevelNode).symbol == symbol;
+            case FUNCTION:
+                return ((BLangFunction) topLevelNode).symbol == symbol;
+            case TYPE_DEFINITION:
+                return ((BLangTypeDefinition) topLevelNode).symbol.getType().tsymbol == symbol;
+            case CONSTANT:
+                return ((BLangConstant) topLevelNode).symbol == symbol;
+            case SERVICE:
+                return ((BLangService) topLevelNode).symbol == symbol;
+            case CLASS_DEFN:
+                return ((BLangClassDefinition) topLevelNode).symbol == symbol;
+            default:
+                return false;
+        }
+    }
+
+    private void reorderTopLevelNodes(List<TopLevelNode> orderedTopLevelNodes) {
+        for (int i = orderedTopLevelNodes.size() - 1; i >= 0; i--) {
+            TopLevelNode topLevelNode = orderedTopLevelNodes.get(i);
+            pkgNode.topLevelNodes.remove(topLevelNode);
+            pkgNode.topLevelNodes.add(0, topLevelNode);
         }
     }
 

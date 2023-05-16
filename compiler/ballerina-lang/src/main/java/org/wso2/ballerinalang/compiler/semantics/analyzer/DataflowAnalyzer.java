@@ -511,9 +511,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (typeDefinition.symbol.kind == SymbolKind.TYPE_DEF) {
             symbol = symbol.type.tsymbol;
         }
-        typeDefEnv = SymbolEnv.createTypeEnv(typeDefinition.typeNode, symbol.scope, env);
         this.currDependentSymbolDeque.push(symbol);
-        analyzeNode(typeDefinition.typeNode, typeDefEnv);
+        analyzeNode(typeDefinition.typeNode, env);
+        for (BLangAnnotationAttachment annAttachment : typeDefinition.annAttachments) {
+            analyzeNode(annAttachment, env);
+        }
         this.currDependentSymbolDeque.pop();
     }
 
@@ -640,7 +642,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariable variable) {
         BVarSymbol symbol = variable.symbol;
-        analyzeNode(variable.typeNode, env);
         if (symbol == null) {
             if (variable.expr != null) {
                 analyzeNode(variable.expr, env);
@@ -649,8 +650,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         this.currDependentSymbolDeque.push(symbol);
-        if (variable.typeNode != null && variable.typeNode.getBType() != null) {
-            BType type = variable.typeNode.getBType();
+        BLangType typeNode = variable.typeNode;
+        if (typeNode != null) {
+            analyzeNode(typeNode, env);
+        } else {
+            BType type = variable.symbol.getType();
             recordGlobalVariableReferenceRelationship(Types.getReferredType(type).tsymbol);
         }
         boolean withInModuleVarLetExpr = symbol.owner.tag == SymTag.LET && isGlobalVarSymbol(env.enclVarSym);
@@ -1938,6 +1942,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
+        analyzeNode(annAttachmentNode.expr, env);
     }
 
     @Override
@@ -1989,6 +1994,17 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         boolean validVariable = constant.symbol != null;
         if (validVariable) {
             this.currDependentSymbolDeque.push(constant.symbol);
+            BLangType typeNode = constant.typeNode;
+            if (typeNode != null) {
+                analyzeNode(typeNode, env);
+            } else {
+                BType type = constant.symbol.getType();
+                recordGlobalVariableReferenceRelationship(Types.getReferredType(type).tsymbol);
+            }
+        }
+        if (constant.associatedTypeDefinition != null) {
+            BLangType bLangType = constant.associatedTypeDefinition.typeNode;
+            analyzeNode(bLangType, env);
         }
         try {
             analyzeNode(constant.expr, env);
