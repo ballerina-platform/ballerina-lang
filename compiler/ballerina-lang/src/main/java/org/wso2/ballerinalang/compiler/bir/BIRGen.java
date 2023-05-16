@@ -2415,7 +2415,16 @@ public class BIRGen extends BLangNodeVisitor {
                     VarKind.TEMP);
             this.env.enclFunc.localVars.add(tempVarDcl);
             toVarRef = new BIROperand(tempVarDcl);
-            newTypeDesc = new BIRNonTerminator.NewTypeDesc(position, toVarRef, type, varDcls);
+            BIRVariableDcl annotationVarDcl = new BIRVariableDcl(symTable.mapType, this.env.nextLocalVarId(names),
+                                                                 VarScope.FUNCTION, VarKind.TEMP);
+            this.env.enclFunc.localVars.add(annotationVarDcl);
+            if (typeSymbol != null && typeSymbol.annotations != null &&
+                    globalVarMap.containsKey(typeSymbol.annotations)) {
+                newTypeDesc = new BIRNonTerminator.NewTypeDesc(position, toVarRef, type, varDcls,
+                                                              new BIROperand(globalVarMap.get(typeSymbol.annotations)));
+            } else {
+                newTypeDesc = new BIRNonTerminator.NewTypeDesc(position, toVarRef, type, varDcls);
+            }
             this.env.targetOperand = toVarRef;
             setScopeAndEmit(newTypeDesc);
             localTypedescMap.put(type, toVarRef);
