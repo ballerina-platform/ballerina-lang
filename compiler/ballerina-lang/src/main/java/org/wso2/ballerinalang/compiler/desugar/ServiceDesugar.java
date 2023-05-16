@@ -157,7 +157,7 @@ public class ServiceDesugar {
 
         ASTBuilderUtil.defineVariable(service.serviceVariable, env.enclPkg.symbol, names);
         env.enclPkg.globalVars.add(service.serviceVariable);
-
+        env.enclPkg.topLevelNodes.add(service.serviceVariable);
         int count = 0;
         for (BLangExpression attachExpr : service.attachedExprs) {
             //      if y is anonymous   ->      y = y(expr)
@@ -173,6 +173,7 @@ public class ServiceDesugar {
                 ASTBuilderUtil.defineVariable(listenerVar, env.enclPkg.symbol, names);
                 listenerVar.symbol.flags |= Flags.LISTENER;
                 env.enclPkg.globalVars.add(listenerVar);
+                env.enclPkg.topLevelNodes.add(listenerVar);
                 listenerVarRef = ASTBuilderUtil.createVariableRef(pos, listenerVar.symbol);
             }
 
@@ -187,6 +188,7 @@ public class ServiceDesugar {
                         null);
                 ASTBuilderUtil.defineVariable(listenerWithoutErrors, env.enclPkg.symbol, names);
                 env.enclPkg.globalVars.add(listenerWithoutErrors);
+                env.enclPkg.topLevelNodes.add(listenerWithoutErrors);
                 BLangSimpleVarRef checkedRef = ASTBuilderUtil.createVariableRef(pos, listenerWithoutErrors.symbol);
                 listenerVarRef = checkedRef;
             }
