@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.value;
+
 function testGroupByExpressionAndSelectWithNonGroupingKeys1() {
     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}, {name: "Saman", price: 12}];
     int[] sum = from var {name, price} in input
@@ -609,31 +611,27 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys10() {
 }
 
 function testGroupByExpressionAndSelectWithNonGroupingKeys12() {
-    // var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}, {name: "Saman", price: 12}];
-    // int[] sum = from var {name, price} in input
-    //                     group by name
-    //                     select count(price);
-    // assertEquality([35, 11], sum);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select int:count(price);
-//     assertEquality([35, 11], sum);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select int:count(price + 2);
-//     assertEquality([35, 11], sum);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select count(...[price]);
-//     assertEquality([35, 11], sum);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select int:count(2, ...[price]);
-//     assertEquality([35, 11], sum);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select 2.0.count(2, ...[price]);
-//     assertEquality([35, 11], sum);
+    var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}, {name: "Saman", price: 12}];
+    int[] sum = from var {name, price} in input
+                        group by name
+                        select count(price);
+    assertEquality([3, 1], sum);
+    sum = from var {name, price} in input
+                        group by name
+                        select int:count(price);
+    assertEquality([3, 1], sum);
+    sum = from var {name, price} in input
+                        group by name
+                        select value:count(...[price]);
+    assertEquality([3, 1], sum);
+    sum = from var {name, price} in input
+                        group by name
+                        select value:count(2, ...[price]);
+    assertEquality([4, 2], sum);
+    sum = from var {name, price} in input
+                        group by name
+                        select 2.0.count(2, ...[price]);
+    assertEquality([5, 3], sum);
 }
 
 function testGroupByWithDoClause() {

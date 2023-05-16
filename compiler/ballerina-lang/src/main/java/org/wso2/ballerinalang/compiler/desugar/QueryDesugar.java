@@ -2564,7 +2564,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     void updateIdentifiers(SymbolEnv env) {
         for (Map.Entry<String, BSymbol> identifier : identifiers.entrySet()) {
-            BSymbol symbol = symResolver.lookupClosureVarSymbol(env, Names.fromString(identifier.getKey()), SymTag.SEQUENCE);
+            BSymbol symbol = symResolver.lookupClosureVarSymbol(env, Names.fromString(identifier.getKey()),
+                    SymTag.SEQUENCE);
             if (symbol != symTable.notFoundSymbol) {
                 identifiers.put(identifier.getKey(), symbol);
             }

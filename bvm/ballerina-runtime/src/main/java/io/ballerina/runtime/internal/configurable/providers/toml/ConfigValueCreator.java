@@ -374,7 +374,7 @@ public class ConfigValueCreator {
         Object balValue = Utils.getBalValueFromToml(tomlValue, new HashSet<>(), unionType, new HashSet<>(), "");
         Type convertibleType = TypeConverter.getConvertibleType(balValue, unionType, null, new HashSet<>(),
                 new ArrayList<>(), false);
-        Type type = getEffectiveType(convertibleType);
+        Type type = getEffectiveType(TypeUtils.getReferredType(convertibleType));
         if (isSimpleType(type.getTag()) || type.getTag() == TypeTags.FINITE_TYPE_TAG || isXMLType(type)) {
             return balValue;
         }
