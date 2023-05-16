@@ -20,6 +20,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
@@ -438,7 +439,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
             String xmlStr = this.stringValue(null);
             OMElement omElement = XmlFactory.stringToOM(xmlStr);
             return omElement;
-        } catch (ErrorValue e) {
+        } catch (BError e) {
             throw e;
         } catch (OMException | XMLStreamException e) {
             Throwable cause = e.getCause() == null ? e : e.getCause();

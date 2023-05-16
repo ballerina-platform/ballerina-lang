@@ -108,6 +108,8 @@ public class XmlFactory {
         try {
             XmlTreeBuilder treeBuilder = new XmlTreeBuilder(new InputStreamReader(xmlStream));
             return treeBuilder.parse();
+        } catch (BError e) {
+            throw e;
         } catch (DeferredParsingException e) {
             throw ErrorCreator.createError(StringUtils.fromString((e.getCause().getMessage())));
         } catch (Throwable e) {
@@ -126,6 +128,8 @@ public class XmlFactory {
         try {
             XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(new InputStreamReader(xmlStream, charset));
             return xmlTreeBuilder.parse();
+        } catch (BError e) {
+            throw e;
         } catch (DeferredParsingException e) {
             throw ErrorCreator.createError(StringUtils.fromString((e.getCause().getMessage())));
         } catch (Throwable e) {
@@ -143,6 +147,8 @@ public class XmlFactory {
         try {
             XmlTreeBuilder xmlTreeBuilder = new XmlTreeBuilder(reader);
             return xmlTreeBuilder.parse();
+        } catch (BError e) {
+            throw e;
         } catch (DeferredParsingException e) {
             throw ErrorCreator.createError(StringUtils.fromString(e.getCause().getMessage()));
         } catch (Throwable e) {
