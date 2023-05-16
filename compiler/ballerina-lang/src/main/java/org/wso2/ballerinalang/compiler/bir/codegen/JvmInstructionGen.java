@@ -247,6 +247,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.XML_SET_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
+import static org.wso2.ballerinalang.compiler.semantics.analyzer.Types.getEffectiveType;
 
 /**
  * Instruction generator helper class to hold its enclosing pkg and index map.
@@ -2109,11 +2110,39 @@ public class JvmInstructionGen {
             PackageID packageID = type.tsymbol.pkgID;
             String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
             String fieldName = jvmTypeGen.getTypedescFieldName(toNameString(type));
+            createTypedescInstance(mv, newTypeDesc.type, newTypeDesc, typeOwner);
             mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, GET_TYPEDESC);
         } else {
             generateNewTypedescCreate(newTypeDesc.type, closureVars, newTypeDesc.annotations);
         }
         this.storeToVar(newTypeDesc.lhsOp.variableDcl);
+    }
+
+    private void createTypedescInstance(MethodVisitor mv, BType bType, BIRNonTerminator.NewTypeDesc typedesc,
+                                        String moduleInitClass) {
+        String className;
+        BType effectiveType = getEffectiveType(bType);
+        if (bType.tag == TypeTags.RECORD) {
+            PackageID pkgID = bType.tsymbol.pkgID;
+            String packageName = JvmCodeGenUtil.getPackageName(pkgID);
+            className = getTypeDescClassName(packageName, toNameString(bType));
+        } else if (effectiveType.tag == TypeTags.TUPLE) {
+            bType = effectiveType;
+            className = TYPEDESC_VALUE_IMPL;
+        } else {
+            return;
+        }
+
+        mv.visitTypeInsn(NEW, className);
+        mv.visitInsn(DUP);
+        jvmTypeGen.loadType(mv, JvmCodeGenUtil.getReferredType(bType));
+
+        mv.visitInsn(ACONST_NULL);
+        String constructorDesc =
+                         typedesc.annotations != null ? TYPE_DESC_CONSTRUCTOR_WITH_ANNOTATIONS : TYPE_DESC_CONSTRUCTOR;
+        mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, constructorDesc, false);
+        mv.visitFieldInsn(PUTSTATIC, moduleInitClass,
+                jvmTypeGen.getTypedescFieldName(typedesc.type.tsymbol.name.getValue()), GET_TYPEDESC);
     }
 
     private void generateNewTypedescCreate(BType btype, List<BIROperand> closureVars, BIROperand annotations) {
