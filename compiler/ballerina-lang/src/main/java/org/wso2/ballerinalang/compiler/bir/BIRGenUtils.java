@@ -30,6 +30,10 @@ import java.util.Comparator;
  */
 public class BIRGenUtils {
 
+    private BIRGenUtils () {
+
+    }
+
     public static void rearrangeBasicBlocks(BIRNode.BIRPackage birPackage) {
         for (BIRNode.BIRTypeDefinition tDef : birPackage.typeDefs) {
             for (BIRNode.BIRFunction birFunction : tDef.attachedFuncs) {
