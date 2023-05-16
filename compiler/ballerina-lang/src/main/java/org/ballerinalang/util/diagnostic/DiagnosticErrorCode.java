@@ -800,11 +800,13 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCS4044", "empty.regexp.string.disallowed"),
     UNSUPPORTED_EMPTY_CHARACTER_CLASS(
             "BCS4045", "unsupported.empty.character.class"),
+    INCOMPATIBLE_QUERY_CONSTRUCT_TYPE("BCE4046", "invalid.error.query.construct.type"),
+    INCOMPATIBLE_QUERY_CONSTRUCT_MAP_TYPE("BCE4047", "invalid.error.query.construct.map.type"),
     USER_DEFINED_FUNCTIONS_ARE_DISALLOWED_WITH_AGGREGATED_VARIABLES(
             "BCS4046", "user.defined.functions.not.allowed.with.aggregated.variables"),
     SEQUENCE_VARIABLE_CAN_BE_USED_IN_SINGLE_ELEMENT_LIST_CTR_OR_FUNC_INVOCATION(
             "BCS4047", "seq.var.used.in.single.element.list.ctr.or.func.invocation"),
-    SEQ_ARG_FOLLOWED_BY_ANOTHER_SEQ_ARG("BCS4048", "seq.arg.followed.by.another.seq.arg"),
+    SEQ_ARG_FOLLOWED_BY_ANOTHER_SEQ_ARG("BCS4048", "seq.arg.followed.by.another.seq.arg")
     ;
 
     private String diagnosticId;
