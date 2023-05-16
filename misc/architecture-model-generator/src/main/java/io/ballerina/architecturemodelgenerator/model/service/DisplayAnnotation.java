@@ -25,19 +25,19 @@ import io.ballerina.architecturemodelgenerator.model.ElementLocation;
  *
  * @since 2201.2.2
  */
-public class ServiceAnnotation {
+public class DisplayAnnotation {
 
     private final String id;
     private final String label;
     private final ElementLocation elementLocation;
 
-    public ServiceAnnotation() {
+    public DisplayAnnotation() {
         this.id = "";
         this.label = "";
         elementLocation = null;
     }
 
-    public ServiceAnnotation(String id, String label, ElementLocation elementLocation) {
+    public DisplayAnnotation(String id, String label, ElementLocation elementLocation) {
         this.id = id;
         this.label = label;
         this.elementLocation = elementLocation;

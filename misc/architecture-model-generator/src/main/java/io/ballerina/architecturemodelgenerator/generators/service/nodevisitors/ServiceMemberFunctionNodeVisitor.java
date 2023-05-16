@@ -18,7 +18,6 @@
 
 package io.ballerina.architecturemodelgenerator.generators.service.nodevisitors;
 
-import io.ballerina.architecturemodelgenerator.ComponentModel.PackageId;
 import io.ballerina.architecturemodelgenerator.ProjectDesignConstants.ParameterIn;
 import io.ballerina.architecturemodelgenerator.model.ElementLocation;
 import io.ballerina.architecturemodelgenerator.model.service.Dependency;
@@ -28,7 +27,6 @@ import io.ballerina.architecturemodelgenerator.model.service.Resource;
 import io.ballerina.architecturemodelgenerator.model.service.ResourceId;
 import io.ballerina.architecturemodelgenerator.model.service.ResourceParameter;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
@@ -39,7 +37,6 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
@@ -73,6 +70,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.findNode;
 import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.getClientModuleName;
 import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.getElementLocation;
+import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.getReferencedType;
 import static io.ballerina.architecturemodelgenerator.generators.GeneratorUtils.getServiceAnnotation;
 
 /**
@@ -187,7 +185,7 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
         Optional<Symbol> symbol = semanticModel.symbol(resourcePathParameterNode);
         if (symbol.isPresent()) {
             PathParameterSymbol parameterSymbol = ((PathParameterSymbol) symbol.get());
-            paramTypes = getReferencedType(parameterSymbol.typeDescriptor());
+            paramTypes = getReferencedType(parameterSymbol.typeDescriptor(), currentPackage);
         } // todo : implement else
         return new ResourceParameter(paramTypes, name, ParameterIn.PATH.getValue(), true, elementLocation);
     }
@@ -206,7 +204,7 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
                 boolean isRequired = false;
                 ParameterSymbol parameterSymbol = ((ParameterSymbol) symbol.get());
                 TypeSymbol typeSymbol = parameterSymbol.typeDescriptor();
-                List<String> paramTypes = getReferencedType(typeSymbol);
+                List<String> paramTypes = getReferencedType(typeSymbol, currentPackage);
                 switch (parameterNode.kind()) {
                     case REQUIRED_PARAM:
                         RequiredParameterNode requiredParameterNode = (RequiredParameterNode) parameterNode;
@@ -235,56 +233,6 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
                 }
             }
         }
-    }
-
-    private String getReferenceEntityName(TypeReferenceTypeSymbol typeReferenceTypeSymbol) {
-        PackageId packageId = new PackageId(currentPackage);
-        String currentPackageName = String.format
-                ("%s/%s:%s", packageId.getOrg(), packageId.getName(), packageId.getVersion());
-        String referenceType = typeReferenceTypeSymbol.signature();
-        if (typeReferenceTypeSymbol.getModule().isPresent() &&
-                !referenceType.split(":")[0].equals(currentPackageName.split(":")[0])) {
-            String orgName = typeReferenceTypeSymbol.getModule().get().id().orgName();
-            String packageName = typeReferenceTypeSymbol.getModule().get().id().packageName();
-            String modulePrefix = typeReferenceTypeSymbol.getModule().get().id().modulePrefix();
-            String recordName = typeReferenceTypeSymbol.getName().get();
-            String version = typeReferenceTypeSymbol.getModule().get().id().version();
-            referenceType = String.format("%s/%s:%s:%s:%s", orgName, packageName, modulePrefix, version, recordName);
-        }
-        return referenceType;
-    }
-
-    private List<String> getReferencedType(TypeSymbol typeSymbol) {
-        List<String> paramTypes = new LinkedList<>();
-        TypeDescKind typeDescKind = typeSymbol.typeKind();
-        switch (typeDescKind) {
-            case TYPE_REFERENCE:
-                TypeReferenceTypeSymbol typeReferenceTypeSymbol = (TypeReferenceTypeSymbol) typeSymbol;
-                paramTypes.add(getReferenceEntityName(typeReferenceTypeSymbol).trim());
-                break;
-            case UNION:
-                UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) typeSymbol;
-                List<TypeSymbol> memberTypeDescriptors = unionTypeSymbol.memberTypeDescriptors();
-                for (TypeSymbol memberTypeDescriptor : memberTypeDescriptors) {
-                    paramTypes.addAll(getReferencedType(memberTypeDescriptor));
-                }
-                break;
-            case ARRAY:
-                ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeSymbol;
-                if (arrayTypeSymbol.memberTypeDescriptor().typeKind().equals(TypeDescKind.TYPE_REFERENCE)) {
-                    paramTypes.add(getReferenceEntityName(
-                            (TypeReferenceTypeSymbol) arrayTypeSymbol.memberTypeDescriptor()).trim());
-                } else {
-                    paramTypes.add(arrayTypeSymbol.signature().trim());
-                }
-                break;
-            case NIL:
-                paramTypes.add("null");
-                break;
-            default:
-                paramTypes.add(typeDescKind.getName());
-        }
-        return paramTypes;
     }
 
     private String getParameterIn(NodeList<AnnotationNode> annotationNodes) {
@@ -317,7 +265,8 @@ public class ServiceMemberFunctionNodeVisitor extends NodeVisitor {
                     symbol.get().kind().equals(SymbolKind.RESOURCE_METHOD)) {
                 MethodSymbol resourceMethodSymbol = (MethodSymbol) symbol.get();
                 Optional<TypeSymbol> returnTypeSymbol = resourceMethodSymbol.typeDescriptor().returnTypeDescriptor();
-                returnTypeSymbol.ifPresent(typeSymbol -> returnTypes.addAll(getReferencedType(typeSymbol)));
+                returnTypeSymbol.ifPresent(typeSymbol ->
+                        returnTypes.addAll(getReferencedType(typeSymbol, currentPackage)));
             }
             // need to split by pipe sign
         }

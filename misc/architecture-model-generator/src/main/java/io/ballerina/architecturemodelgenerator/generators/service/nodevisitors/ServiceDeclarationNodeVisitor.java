@@ -19,8 +19,8 @@
 package io.ballerina.architecturemodelgenerator.generators.service.nodevisitors;
 
 import io.ballerina.architecturemodelgenerator.generators.GeneratorUtils;
+import io.ballerina.architecturemodelgenerator.model.service.DisplayAnnotation;
 import io.ballerina.architecturemodelgenerator.model.service.Service;
-import io.ballerina.architecturemodelgenerator.model.service.ServiceAnnotation;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -87,7 +87,7 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
     public void visit(ServiceDeclarationNode serviceDeclarationNode) {
 
         StringBuilder serviceNameBuilder = new StringBuilder();
-        ServiceAnnotation serviceAnnotation;
+        DisplayAnnotation serviceAnnotation;
         NodeList<Node> serviceNameNodes = serviceDeclarationNode.absoluteResourcePath();
         for (Node serviceNameNode : serviceNameNodes) {
             serviceNameBuilder.append(serviceNameNode.toString().replace("\"", ""));
@@ -98,7 +98,7 @@ public class ServiceDeclarationNodeVisitor extends NodeVisitor {
             NodeList<AnnotationNode> annotationNodes = metadataNode.get().annotations();
             serviceAnnotation = GeneratorUtils.getServiceAnnotation(annotationNodes, this.filePath.toString());
         } else {
-            serviceAnnotation = new ServiceAnnotation(UUID.randomUUID().toString(), "", null);
+            serviceAnnotation = new DisplayAnnotation(UUID.randomUUID().toString(), "", null);
         }
 
         String serviceName = serviceNameBuilder.toString().startsWith(FORWARD_SLASH) ?
