@@ -156,7 +156,7 @@ map-1.1.0.jar                                                                   
 websub.jar                                                                                          jar            apache2
 ballerina-streams-1.1.0.jar                                                                         jar            apache2
 ballerina-packerina-1.1.0.jar                                                                       jar            apache2
-jackson-dataformat-yaml-2.8.8.jar                                                                   bundle         apache2
+jackson-dataformat-yaml-2.15.0.jar                                                                   bundle         apache2
 config.jar                                                                                          jar            apache2
 task.jar                                                                                            jar            apache2
 picocli-4.0.1.jar                                                                                   bundle         apache2

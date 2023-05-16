@@ -72,7 +72,7 @@ dependencies {
     dist 'com.fasterxml.jackson.core:jackson-databind:2.13.4.2'
     dist 'com.fasterxml.jackson.core:jackson-core:2.13.1'
     dist 'com.fasterxml.jackson.core:jackson-annotations:2.13.1'
-    dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.1'
+    dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.0'
     dist 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1'
     // dist 'org.ow2.asm:asm:6.2.1'
     dist 'com.fasterxml.woodstox:woodstox-core:6.5.0'
