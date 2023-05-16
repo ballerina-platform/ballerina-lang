@@ -59,7 +59,7 @@ public class SymbolsInResourceAccessActionTest {
         srcFile = getDocumentForSingleSource(project);
     }
 
-    @Test(dataProvider = "ResourceAccessActionPosition")
+    @Test(dataProvider = "ResourceAccessActionPositionAndPathSegments")
     public void testResourceAccessAction(int line, int col, String name, Map<String, PathSegment.Kind> pathSegments) {
         ResourceMethodSymbol sym = (ResourceMethodSymbol)
                 assertBasicsAndGetSymbol(model, srcFile, line, col, name, SymbolKind.RESOURCE_METHOD);
@@ -69,7 +69,7 @@ public class SymbolsInResourceAccessActionTest {
         assertEquals(functionTypeSymbol.typeKind(), TypeDescKind.FUNCTION);
     }
 
-    @DataProvider(name = "ResourceAccessActionPosition")
+    @DataProvider(name = "ResourceAccessActionPositionAndPathSegments")
     public Object[][] getResourceAccessActionPosAndPathSegments() {
         return new Object[][]{
                 {42, 34, "get", Map.of(
@@ -82,6 +82,12 @@ public class SymbolsInResourceAccessActionTest {
                 {44, 28, "post", Map.of(
                         "bar", PathSegment.Kind.NAMED_SEGMENT,
                         "[string... ids]", PathSegment.Kind.PATH_REST_PARAMETER)},
+                {66, 11, "get", Map.of(
+                        "[string s1]", PathSegment.Kind.PATH_PARAMETER,
+                        "[string s2]", PathSegment.Kind.PATH_PARAMETER)},
+                {76, 11, "get", Map.of(
+                        "path1", PathSegment.Kind.NAMED_SEGMENT,
+                        "path2", PathSegment.Kind.NAMED_SEGMENT)},
         };
     }
 
@@ -103,22 +109,23 @@ public class SymbolsInResourceAccessActionTest {
         return new Object[][]{
                 {42, 23, "fooClient", SymbolKind.VARIABLE}, // <c>fooClient->/foo
                 {42, 32, null, null},   // -><c>/foo
-                {42, 34, "get", SymbolKind.RESOURCE_METHOD},    // <c>->
+                {42, 34, "get", SymbolKind.RESOURCE_METHOD},    // -><c>/
                 {42, 35, "foo", SymbolKind.PATH_SEGMENT}, // ->/<c>foo
-                {42, 49, "x", SymbolKind.CONSTANT}  // ["3"](<c>x, 2);
+                {42, 49, "x", SymbolKind.CONSTANT},  // ["3"](<c>x, 2);
+                {78, 11, "get", SymbolKind.RESOURCE_METHOD}  // -><c>/()
         };
     }
 
-    @Test(dataProvider = "ResourceAccessActionPathPos1")
-    public void testResourceAccessActionPath1(int line, int col, String signature) {
+    @Test(dataProvider = "ResourceAccessActionPosWithTargetFunctionSignature")
+    public void testTargetFunctionOfResourceAccessAction(int line, int col, String signature) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
         assertTrue(symbol.isPresent());
         assertEquals(symbol.get().kind(), SymbolKind.RESOURCE_METHOD);
         assertEquals(((ResourceMethodSymbol) symbol.get()).signature(), signature);
     }
 
-    @DataProvider(name = "ResourceAccessActionPathPos1")
-    public Object[][] getResourceAccessActionPathPos1() {
+    @DataProvider(name = "ResourceAccessActionPosWithTargetFunctionSignature")
+    public Object[][] getResourceAccessActionPosAndFunctionSignatures() {
         return new Object[][]{
                 // Resource method: [string s1]/[string s2]()
                 {66, 12, "resource function get [string s1]/[string s2] () returns ()"},
@@ -129,10 +136,17 @@ public class SymbolsInResourceAccessActionTest {
                 {70, 12, "resource function get [string... ss] () returns ()"},
                 {71, 17, "resource function get [string... ss] () returns ()"},
                 {72, 13, "resource function get [string... ss] () returns ()"},
+
+                // Resource method: path1/path2()
+                {74, 11, "resource function get path1/path2 () returns ()"},
+                {76, 11, "resource function get path1/path2 () returns ()"},
+
+                // Resource method: .()
+                {78, 11, "resource function get . () returns ()"},
         };
     }
 
-    @Test(dataProvider = "ResourceAccessActionPathPos2")
+    @Test(dataProvider = "ResourceAccessActionPathPos")
     public void testResourceAccessActionPath2(int line, int col, String signature) {
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
         assertTrue(symbol.isPresent());
@@ -140,16 +154,12 @@ public class SymbolsInResourceAccessActionTest {
         assertEquals(((PathSegment) symbol.get()).signature(), signature);
     }
 
-    @DataProvider(name = "ResourceAccessActionPathPos2")
-    public Object[][] getResourceAccessActionPathPos2() {
+    @DataProvider(name = "ResourceAccessActionPathPos")
+    public Object[][] getResourceAccessActionPathPos() {
         return new Object[][]{
                 // Resource method: path1/path2()
                 {74, 12, "path1"},   // quxCl->/<CURSOR>path1/path2()
-//                {75, 17, ""},   // quxCl->[...[<CURSOR>"path1", "path2"]]() // TODO: Remove this invalid test case
                 {76, 13, "path1"},   // quxCl->/[<CURSOR>"path1"]/["path2"]()
-
-                // Resource method: get . ()
-//                {81, 13, ""},   // quxCl->/<CURSOR>()  TODO: Remove if this is not needed to evaluate
         };
     }
 
