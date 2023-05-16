@@ -259,7 +259,9 @@ public class ClosureGenerator extends BLangNodeVisitor {
             BLangSimpleVariable simpleVariable = queue.poll().var;
             simpleVariable.flagSet.add(Flag.PUBLIC);
             simpleVariable.symbol.flags |= Flags.PUBLIC;
-            pkgEnv.enclPkg.globalVars.add(0, rewrite(simpleVariable, pkgEnv));
+            BLangSimpleVariable variableDef = rewrite(simpleVariable, pkgEnv);
+            pkgEnv.enclPkg.globalVars.add(0, variableDef);
+            pkgEnv.enclPkg.topLevelNodes.add(0, variableDef);
         }
         for (BLangSimpleVariableDef closureReference : annotationClosureReferences) {
             pkgEnv.enclPkg.globalVars.add(rewrite(closureReference.var, pkgEnv));
