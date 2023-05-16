@@ -527,4 +527,19 @@ public class LangLibValueTest {
         BRunUtil.invoke(compileResult, "testDecimalZeroToString");
         BRunUtil.invoke(compileResult, "testDecimalNonZeroToString");
     }
+
+    @Test
+    public void testCount() {
+        BRunUtil.invoke(compileResult, "testCount");
+    }
+
+    @Test
+    public void testFirst() {
+        BRunUtil.invoke(compileResult, "testFirst");
+    }
+
+    @Test
+    public void testLast() {
+        BRunUtil.invoke(compileResult, "testLast");
+    }
 }
