@@ -330,6 +330,41 @@ isolated function testInvalidNonIsolatedFPCall() {
 
     function (int a, string b = "hello", boolean|int... c) j = diffParamKinds;
     _ = j(1);
+
+    TestInvalidNonIsolatedBoundMethodFPCall k = new;
+    var f1 = k.nonIsolatedFn;
+    f1();
+
+    var f2 = k.isolatedFn;
+    f2();
 }
 
 function inferredButNotExplicitlyIsolatedFunc() returns string => "bar";
+
+class TestInvalidNonIsolatedBoundMethodFPCall {
+    isolated function testInvalidNonIsolatedBoundMethodFPCall() {
+        var f1 = self.nonIsolatedFn;
+        f1();
+
+        var f2 = self.isolatedFn;
+        f2();
+    }
+
+    public function nonIsolatedFn() {
+    }
+
+    public isolated function isolatedFn() {
+    }
+}
+
+public class TestInvalidNonIsolatedFunctionFieldFPCall {
+    private final function () returns string f = () => "hello";
+
+    isolated function testFunctionFieldFPCall() {
+        function () returns string f1 = self.f;
+        _ = f1();
+
+        var f2 = self.f;
+        string _ = f2();
+    }
+}

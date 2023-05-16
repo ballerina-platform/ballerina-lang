@@ -249,6 +249,12 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 326, 13);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 329, 9);
         validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 332, 9);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 336, 5);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 339, 5);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 347, 9);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 350, 9);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 365, 13);
+        validateError(result, i++, INVALID_NON_ISOLATED_FUNCTION_CALL_ERROR, 368, 20);
         Assert.assertEquals(result.getErrorCount(), i - 23);
         Assert.assertEquals(result.getWarnCount(), 23);
     }
