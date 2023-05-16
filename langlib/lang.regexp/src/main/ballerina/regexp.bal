@@ -336,7 +336,16 @@ public isolated function replace(RegExp re, string str, Replacement replacement,
     if findResult is () {
         return str;
     }
-    return replaceImpl(re, startIndex, str, getReplacementString(findResult, replacement));
+    Span span = findResult[0];
+    int index = 0;
+    int strLength = length(str);
+    string updatedString = substring(str, index, span.startIndex) +
+                                        getReplacementString(findResult, replacement);
+    index = span.endIndex;
+    if index < strLength {
+        updatedString += substring(str, index, strLength);
+    }
+    return updatedString;
 }
 
 # Replaces all matches of a regular expression.
@@ -369,9 +378,16 @@ public isolated function replaceAll(RegExp re, string str, Replacement replaceme
     if findResult.length() == 0 {
         return str;
     }
-    string updatedString = str;
-    foreach Groups group in findResult {
-        updatedString = replaceImpl(re, startIndex, updatedString, getReplacementString(group, replacement));
+    string updatedString = "";
+    int index = 0;
+    foreach Groups groups in findResult {
+        Span span = groups[0];
+        updatedString += substring(str, index, span.startIndex) +
+                                            getReplacementString(groups, replacement);
+        index = span.endIndex;
+    }
+    if index < length(str) {
+        updatedString += substring(str, index, length(str));
     }
     return updatedString;
 }
@@ -434,9 +450,4 @@ public isolated function split(RegExp re, string str) returns string[] = @java:M
 public isolated function fromString(string str) returns RegExp|error = @java:Method {
     'class: "org.ballerinalang.langlib.regexp.FromString",
     name: "fromString"
-} external;
-
-isolated function replaceImpl(RegExp reExp, int startIndex, string str, string replacement) returns string = @java:Method {
-    'class: "org.ballerinalang.langlib.regexp.Replace",
-    name: "replace"
 } external;
