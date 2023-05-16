@@ -187,6 +187,8 @@ public class PredefinedTypes {
     public static final Type ANY_AND_READONLY_TYPE = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_ANY);
     public static final Type ANY_AND_READONLY_OR_ERROR_TYPE;
 
+    private PredefinedTypes() {}
+
     // type anydata =  ()|boolean|int|float|decimal|string|xml|anydata[]|map<anydata>|table<map<anydata>>
     static {
         ArrayList<Type> members = new ArrayList<>();
@@ -200,9 +202,6 @@ public class PredefinedTypes {
         TYPE_ANYDATA = getAnydataType(members, TypeConstants.ANYDATA_TNAME, false);
         TYPE_READONLY_ANYDATA = getAnydataType(members, TypeConstants.READONLY_ANYDATA_TNAME, true);
         TYPE_ANYDATA_ARRAY = new BArrayType(TYPE_ANYDATA);
-    }
-
-    private PredefinedTypes() {
     }
 
     private static BAnydataType getAnydataType(List<Type> members, String typeName, boolean readonly) {
