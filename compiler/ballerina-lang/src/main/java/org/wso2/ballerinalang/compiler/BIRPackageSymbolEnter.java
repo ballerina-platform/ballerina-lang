@@ -18,6 +18,35 @@
 package org.wso2.ballerinalang.compiler;
 
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.ProperSubtypeData;
+import io.ballerina.types.Atom;
+import io.ballerina.types.AtomicType;
+import io.ballerina.types.Bdd;
+import io.ballerina.types.ComplexSemType;
+import io.ballerina.types.EnumerableCharString;
+import io.ballerina.types.EnumerableDecimal;
+import io.ballerina.types.EnumerableFloat;
+import io.ballerina.types.EnumerableString;
+import io.ballerina.types.FixedLengthArray;
+import io.ballerina.types.FunctionAtomicType;
+import io.ballerina.types.ListAtomicType;
+import io.ballerina.types.MappingAtomicType;
+import io.ballerina.types.RecAtom;
+import io.ballerina.types.SemType;
+import io.ballerina.types.TypeAtom;
+import io.ballerina.types.UniformTypeBitSet;
+import io.ballerina.types.subtypedata.BddAllOrNothing;
+import io.ballerina.types.subtypedata.BddNode;
+import io.ballerina.types.subtypedata.BooleanSubtype;
+import io.ballerina.types.subtypedata.CharStringSubtype;
+import io.ballerina.types.subtypedata.DecimalSubtype;
+import io.ballerina.types.subtypedata.FloatSubtype;
+import io.ballerina.types.subtypedata.IntSubtype;
+import io.ballerina.types.subtypedata.NonCharStringSubtype;
+import io.ballerina.types.subtypedata.Range;
+import io.ballerina.types.subtypedata.RwTableSubtype;
+import io.ballerina.types.subtypedata.StringSubtype;
+import io.ballerina.types.subtypedata.XmlSubtype;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
@@ -106,6 +135,8 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -1226,6 +1257,15 @@ public class BIRPackageSymbolEnter {
         }
 
         public BType readType(int cpI) throws IOException {
+            SemType semType = readSemType();
+            BType bType = readTypeInternal(cpI);
+            if (bType != null) {
+                bType.setSemtype(semType);
+            }
+            return bType;
+        }
+
+        private BType readTypeInternal(int cpI) throws IOException {
             byte tag = inputStream.readByte();
             Name name = names.fromString(getStringCPEntryValue(inputStream));
             var flags = inputStream.readLong();
@@ -1866,6 +1906,208 @@ public class BIRPackageSymbolEnter {
             objectSymbol.attachedFuncs.add(attachedFunction);
             objectSymbol.scope.define(funcName, attachedFuncSymbol);
         }
+
+        // --------------------------------------- Read SemType ----------------------------------------------
+
+        private SemType readSemType() throws IOException {
+            if (!inputStream.readBoolean()) {
+                return null;
+            }
+
+            if (inputStream.readBoolean()) {
+                int bitset = inputStream.readInt();
+                return UniformTypeBitSet.from(bitset);
+            }
+
+            int all = inputStream.readInt();
+            int some = inputStream.readInt();
+            byte subtypeDataListLength = inputStream.readByte();
+            ProperSubtypeData[] subtypeList = new ProperSubtypeData[subtypeDataListLength];
+            for (int i = 0; i < subtypeDataListLength; i++) {
+                subtypeList[i] = readProperSubtypeData();
+            }
+            return new ComplexSemType(UniformTypeBitSet.from(all), UniformTypeBitSet.from(some), subtypeList);
+        }
+
+        private ProperSubtypeData readProperSubtypeData() throws IOException {
+            switch (inputStream.readByte()) {
+                case 1:
+                    return readBdd();
+                case 2:
+                    return readIntSubtype();
+                case 3:
+                    return BooleanSubtype.from(inputStream.readBoolean());
+                case 4:
+                    return readFloatSubtype();
+                case 5:
+                    return readDecimalSubType();
+                case 6:
+                    return readStringSubtype();
+                case 7:
+                    return readRwTableSubtype();
+                case 8:
+                    return readXmlSubtype();
+                default:
+                    throw new IllegalStateException("Unexpected ProperSubtypeData kind");
+            }
+        }
+
+        private Bdd readBdd() throws IOException {
+            boolean isBddNode = inputStream.readBoolean();
+            if (isBddNode) {
+                return readBddNode();
+            } else {
+                boolean isAll = inputStream.readBoolean();
+                return isAll ? BddAllOrNothing.bddAll() : BddAllOrNothing.bddNothing();
+            }
+        }
+
+        private BddNode readBddNode() throws IOException {
+            Atom atom;
+            boolean isRecAtom = inputStream.readBoolean();
+            if (isRecAtom) {
+                int index = inputStream.readInt();
+                atom = RecAtom.createRecAtom(index);
+            } else {
+                long index = inputStream.readLong();
+                AtomicType atomicType;
+                switch (inputStream.readByte()) {
+                    case 1: {
+                        atomicType = readMappingAtomicType();
+                        break;
+                    }
+                    case 2: {
+                        atomicType = readListAtomicType();
+                        break;
+                    }
+                    case 3:
+                        atomicType = readFunctionAtomicType();
+                        break;
+                    default:
+                        throw new IllegalStateException("Unexpected atomicType kind");
+                }
+                atom = TypeAtom.createTypeAtom(index, atomicType);
+            }
+
+            Bdd left = readBdd();
+            Bdd middle = readBdd();
+            Bdd right = readBdd();
+            return BddNode.create(atom, left, middle, right);
+        }
+
+        private MappingAtomicType readMappingAtomicType() throws IOException {
+            int namesLength = inputStream.readInt();
+            String[] names = new String[namesLength];
+            for (int i = 0; i < namesLength; i++) {
+                names[i] = getStringCPEntryValue(inputStream);
+            }
+
+            int typesLength = inputStream.readInt();
+            SemType[] types = new SemType[typesLength];
+            for (int i = 0; i < typesLength; i++) {
+                types[i] = readSemType();
+            }
+
+            SemType rest = readSemType();
+            return MappingAtomicType.from(names, types, rest);
+        }
+
+        private ListAtomicType readListAtomicType() throws IOException {
+            int initialLength = inputStream.readInt();
+            List<SemType> initial = new ArrayList<>(initialLength);
+            for (int i = 0; i < initialLength; i++) {
+                initial.add(readSemType());
+            }
+
+            int fixedLength = inputStream.readInt();
+            FixedLengthArray members = FixedLengthArray.from(initial, fixedLength);
+
+            SemType rest = readSemType();
+            return ListAtomicType.from(members, rest);
+        }
+
+        private FunctionAtomicType readFunctionAtomicType() throws IOException {
+            SemType paramType = readSemType();
+            SemType retType = readSemType();
+            return FunctionAtomicType.from(paramType, retType);
+        }
+
+        private IntSubtype readIntSubtype() throws IOException {
+            int rangesLength = inputStream.readInt();
+            Range[] ranges = new Range[rangesLength];
+            for (int i = 0; i < rangesLength; i++) {
+                long min = inputStream.readLong();
+                long max = inputStream.readLong();
+                ranges[i] = new Range(min, max);
+
+            }
+            return IntSubtype.createIntSubtype(ranges);
+        }
+
+        private FloatSubtype readFloatSubtype() throws IOException {
+            boolean allowed = inputStream.readBoolean();
+            int valuesLength = inputStream.readInt();
+            EnumerableFloat[] values = new EnumerableFloat[valuesLength];
+            for (int i = 0; i < valuesLength; i++) {
+                values[i] = EnumerableFloat.from(inputStream.readDouble());
+            }
+
+            return (FloatSubtype) FloatSubtype.createFloatSubtype(allowed, values);
+        }
+
+        private DecimalSubtype readDecimalSubType() throws IOException {
+            boolean allowed = inputStream.readBoolean();
+            int valuesLength = inputStream.readInt();
+            EnumerableDecimal[] values = new EnumerableDecimal[valuesLength];
+            for (int i = 0; i < valuesLength; i++) {
+                int scale = inputStream.readInt();
+                int byteLen = inputStream.readInt();
+                byte[] unscaleValueBytes = inputStream.readNBytes(byteLen);
+                BigDecimal bigDecimal = new BigDecimal(new BigInteger(unscaleValueBytes), scale);
+                values[i] = EnumerableDecimal.from(bigDecimal);
+            }
+            return (DecimalSubtype) DecimalSubtype.createDecimalSubtype(allowed, values);
+        }
+
+        private StringSubtype readStringSubtype() throws IOException {
+            CharStringSubtype charStringSubtype = readCharStringSubtype();
+            NonCharStringSubtype nonCharStringSubtype = readNonCharStringSubtype();
+            return StringSubtype.from(charStringSubtype, nonCharStringSubtype);
+        }
+
+        private CharStringSubtype readCharStringSubtype() throws IOException {
+            boolean allowed = inputStream.readBoolean();
+            int valuesLength = inputStream.readInt();
+            EnumerableCharString[] values = new EnumerableCharString[valuesLength];
+            for (int i = 0; i < valuesLength; i++) {
+                values[i] = EnumerableCharString.from(getStringCPEntryValue(inputStream));
+            }
+            return CharStringSubtype.from(allowed, values);
+        }
+
+        private NonCharStringSubtype readNonCharStringSubtype() throws IOException {
+            boolean allowed = inputStream.readBoolean();
+            int valuesLength = inputStream.readInt();
+            EnumerableString[] values = new EnumerableString[valuesLength];
+            for (int i = 0; i < valuesLength; i++) {
+                values[i] = EnumerableString.from(getStringCPEntryValue(inputStream));
+            }
+            return NonCharStringSubtype.from(allowed, values);
+        }
+
+        private ProperSubtypeData readRwTableSubtype() throws IOException {
+            Bdd ro = readBdd();
+            Bdd rw = readBdd();
+            return RwTableSubtype.createRwTableSubtype(ro, rw);
+        }
+
+        private XmlSubtype readXmlSubtype() throws IOException {
+            int primitives = inputStream.readInt();
+            Bdd sequence = readBdd();
+            return XmlSubtype.from(primitives, sequence);
+        }
+
+        // --------------------------------------- End of SemType -----------------------------------------------
     }
 
     private BType getType(BType readShape, SymbolEnv pkgEnv, Name name) {
