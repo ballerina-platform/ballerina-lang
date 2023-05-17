@@ -7180,7 +7180,7 @@ public class BallerinaParser extends AbstractParser {
         STNode expr =
                 parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions, isInConditionalExpr);
         STToken onKeyword = peek();
-        STNode onFailClause = null;
+        STNode onFailClause = STNodeFactory.createEmptyNode();
         if (onKeyword.kind == SyntaxKind.ON_KEYWORD) {
             onFailClause = parseOnFailCheck();
         }
@@ -9073,15 +9073,16 @@ public class BallerinaParser extends AbstractParser {
                 return parseResourceAccessSegmentRhs(isRhsExpr, isInMatchGuard);
         }
     }
+
     private STNode parseOnFailCheck() {
-        startContext(ParserRuleContext.CHECK_ON_FAIL);
+        startContext(ParserRuleContext.ON_FAIL_CHECK);
         STNode onKeyword = parseOnKeyword();
         STNode failKeyword = parseFailKeyword();
         STNode varName = parseVariableName();
         STNode rightDoubleArrow = parseDoubleRightArrow();
         STNode errConstructor = parseErrorConstructorExpr(false);
         endContext();
-        return STNodeFactory.createOnFailCheckNode(null, onKeyword,
+        return STNodeFactory.createOnFailCheckNode(onKeyword,
                 failKeyword, varName, rightDoubleArrow,  errConstructor);
     }
 

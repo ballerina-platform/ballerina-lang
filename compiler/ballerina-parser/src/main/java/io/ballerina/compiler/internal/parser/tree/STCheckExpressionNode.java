@@ -33,18 +33,18 @@ import java.util.Collections;
 public class STCheckExpressionNode extends STExpressionNode {
     public final STNode checkKeyword;
     public final STNode expression;
-    public final STNode onFailClause;
+    public final STNode onFailCheck;
 
     STCheckExpressionNode(
             SyntaxKind kind,
             STNode checkKeyword,
             STNode expression,
-            STNode onFailClause) {
+            STNode onFailCheck) {
         this(
                 kind,
                 checkKeyword,
                 expression,
-                onFailClause,
+                onFailCheck,
                 Collections.emptyList());
     }
 
@@ -52,17 +52,17 @@ public class STCheckExpressionNode extends STExpressionNode {
             SyntaxKind kind,
             STNode checkKeyword,
             STNode expression,
-            STNode onFailClause,
+            STNode onFailCheck,
             Collection<STNodeDiagnostic> diagnostics) {
         super(kind, diagnostics);
         this.checkKeyword = checkKeyword;
         this.expression = expression;
-        this.onFailClause = onFailClause;
+        this.onFailCheck = onFailCheck;
 
         addChildren(
                 checkKeyword,
                 expression,
-                onFailClause);
+                onFailCheck);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -70,7 +70,7 @@ public class STCheckExpressionNode extends STExpressionNode {
                 this.kind,
                 this.checkKeyword,
                 this.expression,
-                this.onFailClause,
+                this.onFailCheck,
                 diagnostics);
     }
 
@@ -78,11 +78,11 @@ public class STCheckExpressionNode extends STExpressionNode {
             SyntaxKind kind,
             STNode checkKeyword,
             STNode expression,
-            STNode onFailClause) {
+            STNode onFailCheck) {
         if (checkForReferenceEquality(
                 checkKeyword,
                 expression,
-                onFailClause)) {
+                onFailCheck)) {
             return this;
         }
 
@@ -90,7 +90,7 @@ public class STCheckExpressionNode extends STExpressionNode {
                 kind,
                 checkKeyword,
                 expression,
-                onFailClause,
+                onFailCheck,
                 diagnostics);
     }
 

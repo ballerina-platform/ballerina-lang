@@ -695,7 +695,7 @@
                     "type": "ExpressionNode"
                 },
                 {
-                    "name": "onFailClause",
+                    "name": "onFailCheck",
                     "type": "OnFailCheckNode",
                     "isOptional": true
                 }
@@ -4896,6 +4896,7 @@
         {
             "name": "OnFailCheckNode",
             "base": "Node",
+            "kind": "ON_FAIL_CHECK",
             "attributes": [
                 {
                     "name": "onKeyword",
@@ -4906,8 +4907,8 @@
                     "type": "Token"
                 },
                 {
-                    "name": "errorExpr",
-                    "type": "ExpressionNode"
+                    "name": "identifier",
+                    "type": "IdentifierToken"
                 },
                 {
                     "name": "rightArrowToken",

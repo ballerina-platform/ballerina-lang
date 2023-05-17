@@ -516,7 +516,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             SyntaxKind kind,
             Token checkKeyword,
             ExpressionNode expression,
-            OnFailCheckNode onFailClause) {
+            OnFailCheckNode onFailCheck) {
         Objects.requireNonNull(checkKeyword, "checkKeyword must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
@@ -524,7 +524,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 kind,
                 checkKeyword.internalNode(),
                 expression.internalNode(),
-                getOptionalSTNode(onFailClause));
+                getOptionalSTNode(onFailCheck));
         return stCheckExpressionNode.createUnlinkedFacade();
     }
 
@@ -3533,23 +3533,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static OnFailCheckNode createOnFailCheckNode(
-            SyntaxKind kind,
             Token onKeyword,
             Token failKeyword,
-            ExpressionNode errorExpr,
+            IdentifierToken identifier,
             Token rightArrowToken,
             ErrorConstructorExpressionNode errorConstructor) {
         Objects.requireNonNull(onKeyword, "onKeyword must not be null");
         Objects.requireNonNull(failKeyword, "failKeyword must not be null");
-        Objects.requireNonNull(errorExpr, "errorExpr must not be null");
+        Objects.requireNonNull(identifier, "identifier must not be null");
         Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
         Objects.requireNonNull(errorConstructor, "errorConstructor must not be null");
 
         STNode stOnFailCheckNode = STNodeFactory.createOnFailCheckNode(
-                kind,
                 onKeyword.internalNode(),
                 failKeyword.internalNode(),
-                errorExpr.internalNode(),
+                identifier.internalNode(),
                 rightArrowToken.internalNode(),
                 errorConstructor.internalNode());
         return stOnFailCheckNode.createUnlinkedFacade();

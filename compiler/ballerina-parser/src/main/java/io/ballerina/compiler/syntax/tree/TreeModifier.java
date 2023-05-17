@@ -531,13 +531,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(checkExpressionNode.checkKeyword());
         ExpressionNode expression =
                 modifyNode(checkExpressionNode.expression());
-        OnFailCheckNode onFailClause =
-                modifyNode(checkExpressionNode.onFailClause().orElse(null));
+        OnFailCheckNode onFailCheck =
+                modifyNode(checkExpressionNode.onFailCheck().orElse(null));
         return checkExpressionNode.modify(
                 checkExpressionNode.kind(),
                 checkKeyword,
                 expression,
-                onFailClause);
+                onFailCheck);
     }
 
     @Override
@@ -3643,17 +3643,16 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(onFailCheckNode.onKeyword());
         Token failKeyword =
                 modifyToken(onFailCheckNode.failKeyword());
-        ExpressionNode errorExpr =
-                modifyNode(onFailCheckNode.errorExpr());
+        IdentifierToken identifier =
+                modifyNode(onFailCheckNode.identifier());
         Token rightArrowToken =
                 modifyToken(onFailCheckNode.rightArrowToken());
         ErrorConstructorExpressionNode errorConstructor =
                 modifyNode(onFailCheckNode.errorConstructor());
         return onFailCheckNode.modify(
-                onFailCheckNode.kind(),
                 onKeyword,
                 failKeyword,
-                errorExpr,
+                identifier,
                 rightArrowToken,
                 errorConstructor);
     }

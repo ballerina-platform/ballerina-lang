@@ -400,13 +400,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
             SyntaxKind kind,
             STNode checkKeyword,
             STNode expression,
-            STNode onFailClause) {
+            STNode onFailCheck) {
 
         return new STCheckExpressionNode(
                 kind,
                 checkKeyword,
                 expression,
-                onFailClause);
+                onFailCheck);
     }
 
     public static STNode createFieldAccessExpressionNode(
@@ -2683,18 +2683,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createOnFailCheckNode(
-            SyntaxKind kind,
             STNode onKeyword,
             STNode failKeyword,
-            STNode errorExpr,
+            STNode identifier,
             STNode rightArrowToken,
             STNode errorConstructor) {
 
         return new STOnFailCheckNode(
-                kind,
                 onKeyword,
                 failKeyword,
-                errorExpr,
+                identifier,
                 rightArrowToken,
                 errorConstructor);
     }

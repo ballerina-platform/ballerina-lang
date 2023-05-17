@@ -414,12 +414,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STCheckExpressionNode checkExpressionNode) {
         STNode checkKeyword = modifyNode(checkExpressionNode.checkKeyword);
         STNode expression = modifyNode(checkExpressionNode.expression);
-        STNode onFailClause = modifyNode(checkExpressionNode.onFailClause);
+        STNode onFailCheck = modifyNode(checkExpressionNode.onFailCheck);
         return checkExpressionNode.modify(
                 checkExpressionNode.kind,
                 checkKeyword,
                 expression,
-                onFailClause);
+                onFailCheck);
     }
 
     @Override
@@ -2888,14 +2888,13 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STOnFailCheckNode onFailCheckNode) {
         STNode onKeyword = modifyNode(onFailCheckNode.onKeyword);
         STNode failKeyword = modifyNode(onFailCheckNode.failKeyword);
-        STNode errorExpr = modifyNode(onFailCheckNode.errorExpr);
+        STNode identifier = modifyNode(onFailCheckNode.identifier);
         STNode rightArrowToken = modifyNode(onFailCheckNode.rightArrowToken);
         STNode errorConstructor = modifyNode(onFailCheckNode.errorConstructor);
         return onFailCheckNode.modify(
-                onFailCheckNode.kind,
                 onKeyword,
                 failKeyword,
-                errorExpr,
+                identifier,
                 rightArrowToken,
                 errorConstructor);
     }
