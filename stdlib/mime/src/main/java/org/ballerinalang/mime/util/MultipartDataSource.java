@@ -86,10 +86,10 @@ public class MultipartDataSource implements RefValue {
      */
     private void serializeBodyPart(OutputStream outputStream, String parentBoundaryString,
                                    ObjectValue parentBodyPart) {
-        final Writer writer = new BufferedWriter(new OutputStreamWriter(outputStream, Charset.defaultCharset()));
         ArrayValue childParts = parentBodyPart.getNativeData(BODY_PARTS) != null ?
                 (ArrayValue) parentBodyPart.getNativeData(BODY_PARTS) : null;
-        try {
+        try (final Writer outputStreamWriter = new OutputStreamWriter(outputStream, Charset.defaultCharset());
+             final Writer writer = new BufferedWriter(outputStreamWriter)) {
             if (childParts == null) {
                 return;
             }
