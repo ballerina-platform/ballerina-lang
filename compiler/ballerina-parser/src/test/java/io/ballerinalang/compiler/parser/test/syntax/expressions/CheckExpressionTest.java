@@ -36,6 +36,11 @@ public class CheckExpressionTest extends AbstractExpressionsTest {
         testFile("check-expr/check_expr_source_02.bal", "check-expr/check_expr_assert_02.json");
     }
 
+    @Test
+    public void testSimpleCheckOnFail() {
+        testFile("check-on-fail/check_on_fail_source_01.bal",  "check-on-fail/check_on_fail_assert_01.json");
+    }
+
     // Recovery test
 
     @Test
