@@ -69,7 +69,7 @@ function testFind() {
     assertEquality(6, resultSpan7.startIndex);
     assertEquality(10, resultSpan7.endIndex);
     assertEquality("here", resultSpan7.substring());
-    
+
     var regExpr7 = re `${"3*"}`;
     regexp:Span? res71  = regExpr7.find("1233333333", 5);
     assertTrue(res71 is regexp:Span);
@@ -84,7 +84,7 @@ function testFind() {
     assertEquality(0, resultSpan82.startIndex);
     assertEquality(0, resultSpan82.endIndex);
     assertEquality("", resultSpan82.substring());
-    
+
     var regExpr8 = re `${""}`;
     regexp:Span? res8  = regExpr8.find("empty match");
     assertTrue(res8 is regexp:Span);
@@ -92,7 +92,7 @@ function testFind() {
     assertEquality(0, resultSpan9.startIndex);
     assertEquality(0, resultSpan9.endIndex);
     assertEquality("", resultSpan9.substring());
-        
+
     var regExpr9 = re `.*`;
     regexp:Span? res9  = regExpr9.find("string", 0);
     assertTrue(res9 is regexp:Span);
@@ -112,6 +112,22 @@ function testFind() {
     var regExpr11 = re `.`;
     regexp:Span? res11  = regExpr11.find("", 0);
     assertTrue(res11 is ());
+
+    string str12 = "🔜 #RayoBarça 🔵🔴 https://t.co/iHDUx7EmFJ";
+    var regExpr12 = re `\p{S}`;
+    regexp:Span? result12 = regExpr12.find(str12, 12);
+    assertTrue(result12 is regexp:Span);
+    regexp:Span resultSpan12 = <regexp:Span>result12;
+    assertEquality(13, resultSpan12.startIndex);
+    assertEquality(14, resultSpan12.endIndex);
+    assertEquality("🔵", resultSpan12.substring());
+
+    regexp:Span? result13 = re `🔵🔴`.find(str12);
+    assertTrue(result13 is regexp:Span);
+    regexp:Span resultSpan13 = <regexp:Span>result13;
+    assertEquality(13, resultSpan13.startIndex);
+    assertEquality(15, resultSpan13.endIndex);
+    assertEquality("🔵🔴", resultSpan13.substring());
 }
 
 function testFindGroups() {
@@ -301,6 +317,16 @@ function testFindGroups() {
     assertEquality(0, resultSpan14_1.startIndex);
     assertEquality(0, resultSpan14_1.endIndex);
     assertEquality("", resultSpan14_1.substring());
+
+    var regExpr14 = re `\p{S}`;
+    string str12 = "🔜 #RayoBarça 🔵🔴 https://t.co/iHDUx7EmFJ";
+    regexp:Groups? res15 = regExpr14.findGroups(str12, 1);
+    assertTrue(res15 is regexp:Groups);
+    regexp:Groups resultGroups15 = <regexp:Groups>res15;
+    regexp:Span resultSpan15_0 = <regexp:Span>resultGroups15[0];
+    assertEquality(13, resultSpan15_0.startIndex);
+    assertEquality(14, resultSpan15_0.endIndex);
+    assertEquality("🔵", resultSpan15_0.substring());
 }
 
 function testFindAll() {
@@ -434,6 +460,18 @@ function testFindAll() {
     assertEquality(0, resultSpan8_1.startIndex);
     assertEquality(3, resultSpan8_1.endIndex);
     assertEquality("ABC", resultSpan8_1.substring());
+
+    var regExpr9 = re `\p{S}`;
+    string str9 = "🔜 #RayoBarça 🔵🔴 https://t.co/iHDUx7EmFJ";
+    regexp:Span[]? res9 = regExpr9.findAll(str9, 14);
+    assertTrue(res9 is regexp:Span[]);
+    regexp:Span[] resultSpanArr9 = <regexp:Span[]>res9;
+    assertEquality(1, resultSpanArr8.length());
+
+    regexp:Span resultSpan9_1 = resultSpanArr9[0];
+    assertEquality(14, resultSpan9_1.startIndex);
+    assertEquality(15, resultSpan9_1.endIndex);
+    assertEquality("🔴", resultSpan9_1.substring());
 }
 
 function testFindAllGroups() {
@@ -705,6 +743,27 @@ function testFindAllGroups() {
     assertEquality(3, resultSpan11_2_1.startIndex);
     assertEquality(4, resultSpan11_2_1.endIndex);
     assertEquality("D", resultSpan11_2_1.substring());
+
+    string:RegExp regExpr12 = re `(\p{S})`;
+    string str12 = "🔜 #RayoBarça 🔵🔴 https://t.co/iHDUx7EmFJ";
+    regexp:Groups[] groupsArr12 = regExpr12.findAllGroups(str12, 1);
+    assertEquality(2, groupsArr12.length());
+
+    regexp:Groups groups12_1 = groupsArr12[0];
+    regexp:Span? resultSpanOrNil12_1_1 = groups12_1[0];
+    assertTrue(resultSpanOrNil12_1_1 is regexp:Span);
+    regexp:Span resultSpan12_1_1 = <regexp:Span> resultSpanOrNil12_1_1;
+    assertEquality(13, resultSpan12_1_1.startIndex);
+    assertEquality(14, resultSpan12_1_1.endIndex);
+    assertEquality("🔵", resultSpan12_1_1.substring());
+
+    regexp:Groups groups12_2 = groupsArr12[1];
+    regexp:Span? resultSpanOrNil12_2_1 = groups12_2[0];
+    assertTrue(resultSpanOrNil12_2_1 is regexp:Span);
+    regexp:Span resultSpan12_2_1 = <regexp:Span> resultSpanOrNil12_2_1;
+    assertEquality(14, resultSpan12_2_1.startIndex);
+    assertEquality(15, resultSpan12_2_1.endIndex);
+    assertEquality("🔴", resultSpan12_2_1.substring());
 }
 
 function testMatchAt() {
@@ -761,6 +820,15 @@ function testMatchAt() {
     var regExpr7 = re `${""}`;
     regexp:Span? res8 = regExpr7.matchAt(str7, 1);
     assertTrue(res8 is ());
+
+    string str8 = "🔜🔵🔴";
+    var regExpr8 = re `\p{S}+`;
+    regexp:Span? result8 = regExpr8.matchAt(str8, 1);
+    assertTrue(result8 is regexp:Span);
+    regexp:Span resultSpan8 = <regexp:Span>result8;
+    assertEquality(1, resultSpan8.startIndex);
+    assertEquality(3, resultSpan8.endIndex);
+    assertEquality("🔵🔴", resultSpan8.substring());
 }
 
 function testMatchGroupsAt() {
@@ -1225,6 +1293,20 @@ function testReplace() {
     var regExpr16_2 = re `AB|A|AK`;
     string result17_2 = regExpr16_2.replace(str17, "Z");
     assertEquality("Z", result17_2);
+
+    string str18 = "🔜 #RayoBarça 🔵🔴 https://t.co/iHDUx7EmFJ";
+    var regExpr17 = re `\p{S}`;
+    string result17 = regExpr17.replace(str18, replacementFunctionForReplace);
+    assertEquality("1 #RayoBarça 🔵🔴 https://t.co/iHDUx7EmFJ", result17);
+
+    string result18 = regExpr17.replace(str18, replacementFunctionForReplace, 4);
+    assertEquality("🔜 #RayoBarça 14🔴 https://t.co/iHDUx7EmFJ", result18);
+
+    string result19 = regExpr17.replace(str18, "");
+    assertEquality(" #RayoBarça 🔵🔴 https://t.co/iHDUx7EmFJ", result19);
+
+    string result20 = regExpr17.replace(str18, "", 3);
+    assertEquality("🔜 #RayoBarça 🔴 https://t.co/iHDUx7EmFJ", result20);
 }
 
 isolated function replacementFunctionForReplace(regexp:Groups groups) returns string {
@@ -1337,10 +1419,37 @@ function testReplaceAll() {
     var regExpr16_2 = re `AB|A|AK`;
     string result17_2 = regExpr16_2.replaceAll(str17, "Z");
     assertEquality("Z", result17_2);
+
+    var regExpr18 = re `\p{S}`;
+    string str18 = "🔜 #RayoBarça 🔵🔴 https://t.co/iHDUx7EmFJ";
+    string result18_1 = regExpr18.replaceAll(str18, "");
+    assertEquality(" #RayoBarça  https://t.co/iHDUx7EmFJ", result18_1);
+    string result18_2 = regExpr18.replaceAll(str18, "", 12);
+    assertEquality("🔜 #RayoBarça  https://t.co/iHDUx7EmFJ", result18_2);
+
+    var regExpr19 = re `(\d{2})/(\d{2})/(\d{4})`;
+    string str19 = "04/05/2023, 05/05/2023";
+    string result19 = regExpr19.replaceAll(str19, updateDateFormat);
+    assertEquality("2023-05-04, 2023-05-05", result19);
+
+    string result20_1 = regExpr18.replaceAll(str18, "🔴");
+    assertEquality("🔴 #RayoBarça 🔴🔴 https://t.co/iHDUx7EmFJ", result20_1);
+    string result20_2 = regExpr18.replaceAll(str18, "🔴", 12);
+    assertEquality("🔜 #RayoBarça 🔴🔴 https://t.co/iHDUx7EmFJ", result20_2);
 }
 
 isolated function replacementFunctionForReplaceAll(regexp:Groups groups) returns string {
     return groups[0].substring().length().toString();
+}
+
+isolated function updateDateFormat(regexp:Groups groups) returns string {
+    if groups.length() != 4 {
+        return (<regexp:Span>groups[0]).substring();
+    }
+    string year = (<regexp:Span>groups[3]).substring();
+    string month = (<regexp:Span>groups[2]).substring();
+    string day = (<regexp:Span>groups[1]).substring();
+    return string `${year}-${month}-${day}`;
 }
 
 function testFromString() {
