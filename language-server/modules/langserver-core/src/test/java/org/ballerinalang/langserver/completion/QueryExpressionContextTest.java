@@ -53,7 +53,9 @@ public class QueryExpressionContextTest extends CompletionTest {
                 // Order By [asc/desc]
                 "query_expr_ctx_orderby_clause_config4.json",
                 "query_expr_ctx_config3.json", // issue #31449
-                "query_expr_ctx_groupby_clause_config14.json" //issue #40425 
+                "query_expr_ctx_groupby_clause_config14.json", //issue #40425
+                "query_expr_ctx_groupby_clause_config3.json",
+                "query_expr_ctx_groupby_clause_config8.json"
         );
     }
 
