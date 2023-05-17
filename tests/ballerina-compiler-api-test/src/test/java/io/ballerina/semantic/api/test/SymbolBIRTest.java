@@ -393,7 +393,7 @@ public class SymbolBIRTest {
     }
 
     @Test
-    public void testSymbolPosBIR() {
+    public void testIntersectionTypeDefSymbolPosBIR() {
         Project project = BCompileUtil.loadProject("test-src/symbol_position_bir_test.bal");
         Package currentPackage = project.currentPackage();
         ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
