@@ -143,7 +143,8 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
     public XmlValue getItem(int index) {
         if (index == 0) {
             return this;
-        } else if (index > 0) {
+        }
+        if (index > 0) {
             return new XmlSequence();
         }
         throw BLangExceptionHelper.getRuntimeException(
