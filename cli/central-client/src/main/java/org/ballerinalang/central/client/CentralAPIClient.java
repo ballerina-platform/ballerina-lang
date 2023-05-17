@@ -74,14 +74,15 @@ import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENC
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
 import static org.ballerinalang.central.client.CentralClientConstants.AUTHORIZATION;
+import static org.ballerinalang.central.client.CentralClientConstants.BALA_URL;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_PLATFORM;
 import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
+import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_TYPE;
 import static org.ballerinalang.central.client.CentralClientConstants.DEPRECATE_MESSAGE;
 import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.CentralClientConstants.IS_DEPRECATED;
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.CentralClientConstants.ORGANIZATION;
-import static org.ballerinalang.central.client.CentralClientConstants.PACKAGE;
 import static org.ballerinalang.central.client.CentralClientConstants.PKG_NAME;
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.central.client.CentralClientConstants.VERSION;
@@ -592,9 +593,7 @@ public class CentralAPIClient {
                 Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
         String toolSignature = toolId;
 
-        // TODO: remove once mocking is done
-        String url = "https://09edc8a7-fa97-48d7-b07a-b7709ce6101d.mock.pstmn.io" + resourceUrl;
-//        String url = this.baseUrl + resourceUrl;
+        String url = this.baseUrl + resourceUrl;
         // append version to url if available
         if (null != version && !version.isEmpty()) {
             url += "/" + version;
@@ -612,12 +611,11 @@ public class CentralAPIClient {
             Request packagePullReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
                     .url(url)
-                    .addHeader(ACCEPT_ENCODING, IDENTITY)
-                    .addHeader(ACCEPT, APPLICATION_JSON)
+                    .addHeader(CONTENT_TYPE, APPLICATION_JSON)
                     .build();
             logRequestInitVerbose(packagePullReq);
-            Call packagePullReqCall = client.newCall(packagePullReq);
-            Response packagePullResponse = packagePullReqCall.execute();
+            Call toolPullReqCall = client.newCall(packagePullReq);
+            Response packagePullResponse = toolPullReqCall.execute();
             logRequestConnectVerbose(packagePullReq, resourceUrl);
 
             body = Optional.ofNullable(packagePullResponse.body());
@@ -628,33 +626,32 @@ public class CentralAPIClient {
             logResponseVerbose(packagePullResponse, pkgPullResBodyContent);
 
             // 302   - Package is found
-            if (packagePullResponse.code() == HTTP_MOVED_TEMP) {
+            if (packagePullResponse.code() == HTTP_OK) {
                 Optional<String> org = Optional.empty();
                 Optional<String> pkgName = Optional.empty();
                 Optional<String> latestVersion = Optional.empty();
+                Optional<String> balaUrl = Optional.empty();
                 if (body.isPresent()) {
                     Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                     if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
                         JsonObject jsonContent = new Gson().fromJson(pkgPullResBodyContent, JsonObject.class);
-                        Optional<JsonObject> jsonPackage = Optional.ofNullable(jsonContent.getAsJsonObject(PACKAGE));
-                        if (jsonPackage.isPresent()) {
-                            org = Optional.ofNullable(jsonPackage.get().get(ORGANIZATION).getAsString());
-                            pkgName = Optional.ofNullable(jsonPackage.get().get(PKG_NAME).getAsString());
-                            latestVersion = Optional.ofNullable(jsonPackage.get().get(VERSION).getAsString());
-                        }
+                        org = Optional.ofNullable(jsonContent.get(ORGANIZATION).getAsString());
+                        pkgName = Optional.ofNullable(jsonContent.get(PKG_NAME).getAsString());
+                        latestVersion = Optional.ofNullable(jsonContent.get(VERSION).getAsString());
+                        balaUrl = Optional.ofNullable(jsonContent.get(BALA_URL).getAsString());
                     }
                 }
-                // get redirect url from "location" header field
-                Optional<String> balaUrl = Optional.ofNullable(packagePullResponse.header(LOCATION));
-                Optional<String> balaFileName = Optional.ofNullable(packagePullResponse.header(CONTENT_DISPOSITION));
 
-                if (balaUrl.isPresent() && balaFileName.isPresent() && org.isPresent() && latestVersion.isPresent()
+                if (balaUrl.isPresent() && org.isPresent() && latestVersion.isPresent()
                         && pkgName.isPresent()) {
+                    // gayaldassanayake-tool_openapi-any-0.1.1.bala
+                    String balaFileName = "attachment; filename=" + org.get() + "-" + pkgName.get() + "-any-"
+                            + latestVersion.get() + ".bala";
                     Request downloadBalaRequest = getNewRequest(supportedPlatform, ballerinaVersion)
                             .get()
                             .url(balaUrl.get())
                             .header(ACCEPT_ENCODING, IDENTITY)
-                            .addHeader(CONTENT_DISPOSITION, balaFileName.get())
+                            .addHeader(CONTENT_DISPOSITION, balaFileName)
                             .build();
                     logRequestInitVerbose(downloadBalaRequest);
                     Call downloadBalaRequestCall = client.newCall(downloadBalaRequest);
@@ -667,7 +664,7 @@ public class CentralAPIClient {
                     if (balaDownloadResponse.code() == HTTP_OK) {
                         boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
                         createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org.get(), pkgName.get(),
-                                isNightlyBuild, null, balaUrl.get(), balaFileName.get(),
+                                isNightlyBuild, null, balaUrl.get(), balaFileName,
                                 enableOutputStream ? outStream : null, logFormatter);
                         return new String[]{org.get(), pkgName.get(), latestVersion.get()};
                     } else {
@@ -947,9 +944,7 @@ public class CentralAPIClient {
         try {
             Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
-//                    .url(this.baseUrl + "/" + TOOLS + "/" + SEARCH + "/" + keyword)
-                    .url("https://09edc8a7-fa97-48d7-b07a-b7709ce6101d.mock.pstmn.io" +
-                            "/" + TOOLS + "/" + SEARCH + "/" + keyword)
+                    .url(this.baseUrl + "/" + TOOLS + "/" + SEARCH + "/" + keyword)
                     .build();
 
             Call httpRequestCall = client.newCall(searchReq);

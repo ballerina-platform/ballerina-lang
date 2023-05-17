@@ -118,7 +118,7 @@ public class PrintUtils {
 
         for (Package aPackage : packages) {
             outStream.print("|");
-            printPackage(aPackage, dateColWidth, versionColWidth, authorsColWidth, nameColWidth, descColWidth,
+            printPackage(aPackage, dateColWidth, versionColWidth, authorsColWidth, nameColWidth - 1, descColWidth,
                          minDescColWidth);
             outStream.println();
         }
@@ -163,8 +163,8 @@ public class PrintUtils {
         printPackageSearchTableHeader(columnNames, columnWidths);
 
         for (Tool tool : tools) {
-            printInCLI("|" + tool.getId(), idColWidth);
-            printPackage(tool.getPkg(), dateColWidth, versionColWidth, authorsColWidth, nameColWidth, descColWidth,
+            printInCLI("|" + tool.getBalToolId(), idColWidth);
+            printTool(tool, dateColWidth, versionColWidth, authorsColWidth, nameColWidth, descColWidth,
                     minDescColWidth);
             outStream.println();
         }
@@ -212,6 +212,48 @@ public class PrintUtils {
 
         printInCLI(getDateCreated(aPackage.getCreatedDate()), dateColWidth);
         printInCLI(aPackage.getVersion(), versionColWidth);
+    }
+
+    /**
+     * Print tool row.
+     *
+     * @param tool        tool information
+     * @param dateColWidth    date column width
+     * @param versionColWidth version column width
+     * @param nameColWidth    name column width
+     * @param descColWidth    description column width
+     * @param minDescColWidth minimum description column width
+     * @param authorsColWidth authors column width
+     */
+    private static void printTool(Tool tool, int dateColWidth, int versionColWidth, int authorsColWidth,
+                                     int nameColWidth, int descColWidth, int minDescColWidth) {
+        printInCLI(tool.getOrganization() + "/" + tool.getName(), nameColWidth);
+
+        String summary = getSummary(tool);
+
+        if (descColWidth >= minDescColWidth) {
+            printInCLI(summary, descColWidth - authorsColWidth);
+            String authors = "";
+            List<String> authorsArr = tool.getAuthors();
+
+            if (!authorsArr.isEmpty()) {
+                for (int j = 0; j < authorsArr.size(); j++) {
+                    if (j == 0) {
+                        authors = authorsArr.get(j);
+                    } else if (j == authorsArr.size() - 1) {
+                        authors = authorsArr.get(j);
+                    } else {
+                        authors = ", " + authorsArr.get(j);
+                    }
+                }
+            }
+            printInCLI(authors, authorsColWidth);
+        } else {
+            printInCLI(summary, descColWidth);
+        }
+
+        printInCLI(getDateCreated(tool.getCreatedDate()), dateColWidth);
+        printInCLI(tool.getVersion(), versionColWidth);
     }
 
     /**
@@ -318,6 +360,18 @@ public class PrintUtils {
         String summary = aPackage.getSummary();
         if (summary == null) {
             String readme = aPackage.getReadme();
+            if (readme == null) {
+                return "";
+            }
+            summary = readme.substring(0, readme.indexOf('\n'));
+        }
+        return summary;
+    }
+
+    private static String getSummary(Tool tool) {
+        String summary = tool.getSummary();
+        if (summary == null) {
+            String readme = tool.getReadme();
             if (readme == null) {
                 return "";
             }
