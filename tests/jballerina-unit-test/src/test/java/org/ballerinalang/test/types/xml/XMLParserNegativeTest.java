@@ -24,6 +24,8 @@ import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
 
 /**
  * Negative test cases to cover xml parsing.
@@ -33,15 +35,30 @@ import java.io.InputStream;
 public class XMLParserNegativeTest {
 
     @Test
-    public void testCreateXmlFromInputStream() {
+    public void testCreateXmlFromInputStreamAndReader() {
         String invalidXMLString = "<!-- comments cannot have -- in it -->";
-        InputStream xmlStream = new ByteArrayInputStream(invalidXMLString.getBytes());
         String expectedErrorMessage = "failed to parse xml: ParseError at [row,col]:[1,29]\n" +
                 "Message: The string \"--\" is not permitted within comments.";
-        try {
-            XmlFactory.parse(xmlStream);
-            Assert.fail("Negative test failed for: `" + invalidXMLString + "'. Expected exception with message: " +
-                    expectedErrorMessage);
+        String testFailErrorMessage = "Negative test failed for: `" + invalidXMLString +
+                "'. Expected exception with message: " + expectedErrorMessage;
+
+        try (InputStream xmlStream1 = new ByteArrayInputStream(invalidXMLString.getBytes())) {
+            XmlFactory.parse(xmlStream1);
+            Assert.fail(testFailErrorMessage);
+        } catch (Exception e) {
+            Assert.assertEquals(e.getMessage(), expectedErrorMessage);
+        }
+
+        try (InputStream xmlStream2 = new ByteArrayInputStream(invalidXMLString.getBytes())) {
+            XmlFactory.parse(xmlStream2, "UTF-8");
+            Assert.fail(testFailErrorMessage);
+        } catch (Exception e) {
+            Assert.assertEquals(e.getMessage(), expectedErrorMessage);
+        }
+
+        try (Reader xmlReader = new StringReader(invalidXMLString)) {
+            XmlFactory.parse(xmlReader);
+            Assert.fail(testFailErrorMessage);
         } catch (Exception e) {
             Assert.assertEquals(e.getMessage(), expectedErrorMessage);
         }
