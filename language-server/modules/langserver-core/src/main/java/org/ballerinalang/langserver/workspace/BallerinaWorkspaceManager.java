@@ -169,7 +169,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     @Override
     public Project loadProject(Path filePath) throws ProjectException, WorkspaceDocumentException, EventSyncException {
         Project project;
-        Optional<Project> optionalProject = project(ProjectPaths.packageRoot(filePath));
+        Optional<Project> optionalProject = project(filePath);
 
         if (optionalProject.isPresent()) {
             project = optionalProject.get();

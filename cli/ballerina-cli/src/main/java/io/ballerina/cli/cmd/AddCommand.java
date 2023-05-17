@@ -228,7 +228,7 @@ public class AddCommand implements BLauncherCmd {
         // - modules/
         // -- mymodule/
         // --- main.bal       <- Contains default main method.
-        CommandUtil.applyTemplate(modulePath, template);
+        CommandUtil.applyTemplate(modulePath, template, false);
         Path source = modulePath.resolve(template.toLowerCase(Locale.getDefault()) + ".bal");
         Files.move(source, source.resolveSibling(guessModuleName(moduleName) + ".bal"),
                 StandardCopyOption.REPLACE_EXISTING);
