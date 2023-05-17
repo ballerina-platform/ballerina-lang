@@ -987,6 +987,26 @@ public class ProjectUtils {
     }
 
     /**
+     * Delete all files and subdirectories expect a given file inside the given directory.
+     *
+     * @param directoryPath Directory to delete.
+     * @param fileNameToKeep file name to keep
+     */
+    public static void deleteAllButOneInDirectory(Path directoryPath, String fileNameToKeep) throws IOException {
+        File directory = new File(String.valueOf(directoryPath));
+        if (directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    if (!f.getName().equals(fileNameToKeep)) {
+                        deleteDirectory(f.toPath());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Read build file from given path.
      *
      * @param buildJsonPath build file path
