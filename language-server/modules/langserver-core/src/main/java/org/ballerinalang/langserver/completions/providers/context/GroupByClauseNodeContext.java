@@ -53,11 +53,12 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
         List<LSCompletionItem> completionItems = new ArrayList<>();
         SeparatedNodeList<Node> groupingKey = node.groupingKey();
         
-        
         if (!groupingKey.isEmpty() 
                 && groupingKey.get(groupingKey.separatorSize()).kind() == SyntaxKind.GROUPING_KEY_VAR_DECLARATION) {
-            Node groupingKeyNode = groupingKey.get(groupingKey.separatorSize());
-            return getGroupingKeyVarDeclCompletions(context, node, (GroupingKeyVarDeclarationNode) groupingKeyNode);
+            
+            GroupingKeyVarDeclarationNode groupingKeyVarDeclNode = (GroupingKeyVarDeclarationNode) groupingKey
+                    .get(groupingKey.separatorSize());
+            return getGroupingKeyVarDeclCompletions(context, node,  groupingKeyVarDeclNode);
         } 
         
         completionItems.addAll(this.expressionCompletions(context));
