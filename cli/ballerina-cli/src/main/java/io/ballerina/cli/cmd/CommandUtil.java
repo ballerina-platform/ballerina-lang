@@ -968,9 +968,13 @@ public class CommandUtil {
         List<Path> templateFilePathList = paths.collect(Collectors.toList());
         String existingFiles = "";
         for (Path path : templateFilePathList) {
-            String fileName = path.getFileName().toString();
-            if (!fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT) && Files.exists(packagePath.resolve(fileName))) {
-                existingFiles += fileName + FILE_STRING_SEPARATOR;
+            Optional<String> fileNameOptional = Optional.ofNullable(path.getFileName()).map(path1 -> path1.toString());
+            if (fileNameOptional.isPresent()) {
+                String fileName = fileNameOptional.get();
+                if (!fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT) &&
+                        Files.exists(packagePath.resolve(fileName))) {
+                    existingFiles += fileName + FILE_STRING_SEPARATOR;
+                }
             }
         }
         return existingFiles;

@@ -34,7 +34,9 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
+import static io.ballerina.cli.cmd.CommandUtil.DEFAULT_TEMPLATE;
 import static io.ballerina.cli.cmd.CommandUtil.balFilesExists;
 import static io.ballerina.cli.cmd.CommandUtil.checkPackageFilesExists;
 import static io.ballerina.cli.cmd.CommandUtil.initPackageFromCentral;
@@ -114,9 +116,13 @@ public class NewCommand implements BLauncherCmd {
         Path packagePath = argPath;
         Path currentDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         try {
-            Path relativeToCurrentDir = Paths.get(currentDir.toString(), packagePath.toString()).normalize();
-            if (Files.exists(relativeToCurrentDir) || Files.exists(relativeToCurrentDir.getParent())) {
-                packagePath = relativeToCurrentDir;
+            Optional<Path> optionalRelativeToCurrentDir = Optional.ofNullable(Paths.get(currentDir.toString(),
+                    packagePath.toString()).normalize());
+            if (optionalRelativeToCurrentDir.isPresent()) {
+                Path relativeToCurrentDir = optionalRelativeToCurrentDir.get();
+                if (Files.exists(relativeToCurrentDir) || Files.exists(relativeToCurrentDir.getParent())) {
+                    packagePath = relativeToCurrentDir;
+                }
             }
         } catch (InvalidPathException ignored) {
             // If the path is not a valid path, use the given path as it is.
@@ -139,7 +145,7 @@ public class NewCommand implements BLauncherCmd {
                 return;
             }
 
-            //Check if package files/directories other than .bal files exist
+            //Check if package files/directories other than .bal files exist.
             String packageFiles = checkPackageFilesExists(packagePath);
             if (!packageFiles.equals("")) {
                 CommandUtil.printError(errStream,
@@ -154,7 +160,7 @@ public class NewCommand implements BLauncherCmd {
 
             try {
                 balFilesExist = balFilesExists(packagePath);
-                if (balFilesExist && !template.equals("default")) {
+                if (balFilesExist && !template.equals(DEFAULT_TEMPLATE)) {
                     CommandUtil.printError(errStream,
                             "Existing .bal files found. " +
                                     "Please use a different directory or remove existing files.",

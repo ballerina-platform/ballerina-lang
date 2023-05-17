@@ -947,7 +947,7 @@ public class ProjectUtils {
     }
 
     /**
-     * Delete all files and subdirectories expect a given file inside the given directory.
+     * Delete all files and subdirectories except a given file inside the given directory.
      *
      * @param directoryPath Directory to delete.
      * @param fileNameToKeep file name to keep
