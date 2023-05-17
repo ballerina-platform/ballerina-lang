@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler;
 
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.Atom;
 import io.ballerina.types.AtomicType;
 import io.ballerina.types.Bdd;
@@ -31,6 +30,7 @@ import io.ballerina.types.FixedLengthArray;
 import io.ballerina.types.FunctionAtomicType;
 import io.ballerina.types.ListAtomicType;
 import io.ballerina.types.MappingAtomicType;
+import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
 import io.ballerina.types.TypeAtom;

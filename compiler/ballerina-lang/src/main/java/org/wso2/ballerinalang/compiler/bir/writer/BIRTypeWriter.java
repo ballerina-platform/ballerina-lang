@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.writer;
 
-import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.Atom;
 import io.ballerina.types.AtomicType;
 import io.ballerina.types.Bdd;
@@ -30,6 +29,7 @@ import io.ballerina.types.FixedLengthArray;
 import io.ballerina.types.FunctionAtomicType;
 import io.ballerina.types.ListAtomicType;
 import io.ballerina.types.MappingAtomicType;
+import io.ballerina.types.ProperSubtypeData;
 import io.ballerina.types.RecAtom;
 import io.ballerina.types.SemType;
 import io.ballerina.types.TypeAtom;
@@ -672,7 +672,7 @@ public class BIRTypeWriter implements TypeVisitor {
     private void writeSemType(SemType semType) {
         boolean hasSemType = semType != null;
         buff.writeBoolean(hasSemType);
-        if (!hasSemType){
+        if (!hasSemType) {
             return;
         }
 
