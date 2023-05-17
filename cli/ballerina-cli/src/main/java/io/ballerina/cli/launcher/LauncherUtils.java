@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import static io.ballerina.cli.cmd.Constants.ADD_COMMAND;
+import static io.ballerina.cli.cmd.Constants.ASYNCAPI_COMMAND;
 import static io.ballerina.cli.cmd.Constants.BINDGEN_COMMAND;
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
@@ -40,12 +41,16 @@ import static io.ballerina.cli.cmd.Constants.DEPRECATE_COMMAND;
 import static io.ballerina.cli.cmd.Constants.DIST_COMMAND;
 import static io.ballerina.cli.cmd.Constants.DOC_COMMAND;
 import static io.ballerina.cli.cmd.Constants.FORMAT_COMMAND;
+import static io.ballerina.cli.cmd.Constants.GRAPHQL_COMMAND;
 import static io.ballerina.cli.cmd.Constants.GRAPH_COMMAND;
+import static io.ballerina.cli.cmd.Constants.GRPC_COMMAND;
 import static io.ballerina.cli.cmd.Constants.HELP_COMMAND;
 import static io.ballerina.cli.cmd.Constants.HOME_COMMAND;
 import static io.ballerina.cli.cmd.Constants.INIT_COMMAND;
 import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
+import static io.ballerina.cli.cmd.Constants.OPENAPI_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
+import static io.ballerina.cli.cmd.Constants.PERSIST_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
@@ -166,15 +171,15 @@ public class LauncherUtils {
                 BUILD_COMMAND, RUN_COMMAND, TEST_COMMAND, DOC_COMMAND, PACK_COMMAND);
         List<String> packageCommands = Arrays.asList(NEW_COMMAND, INIT_COMMAND, ADD_COMMAND, PULL_COMMAND,
                 PUSH_COMMAND, SEARCH_COMMAND, SEMVER_COMMAND, GRAPH_COMMAND, DEPRECATE_COMMAND);
-        List<String> otherCommands = Arrays.asList(CLEAN_COMMAND, FORMAT_COMMAND, SHELL_COMMAND,
-                VERSION_COMMAND, TOOL_COMMAND, BINDGEN_COMMAND);
-        List<String> excludedCommands = Arrays.asList(DIST_COMMAND, UPDATE_COMMAND,
+        List<String> otherCommands = Arrays.asList(CLEAN_COMMAND, FORMAT_COMMAND, GRPC_COMMAND, GRAPHQL_COMMAND,
+                OPENAPI_COMMAND, ASYNCAPI_COMMAND, PERSIST_COMMAND, BINDGEN_COMMAND, SHELL_COMMAND, VERSION_COMMAND);
+        List<String> excludedCommands = Arrays.asList(TOOL_COMMAND, DIST_COMMAND, UPDATE_COMMAND,
                 START_LANG_SERVER_COMMAND, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND, HOME_COMMAND);
 
         StringBuilder helpBuilder = new StringBuilder();
         StringBuilder coreCmdsHelpBuilder = new StringBuilder("\n    Core Commands:\n");
         StringBuilder pkgCmdsHelpBuilder = new StringBuilder("\n    Package Commands:\n");
-        StringBuilder toolCmdsHelpBuilder = new StringBuilder("\n    Tool Commands:\n");
+//        StringBuilder toolCmdsHelpBuilder = new StringBuilder("\n    Tool Commands:\n");
         StringBuilder otherCmdHelpBuilder = new StringBuilder("\n    Other Commands:\n");
 
         helpBuilder.append(BLauncherCmd.getCommandUsageInfo(HELP_COMMAND));
@@ -189,13 +194,13 @@ public class LauncherUtils {
                 LauncherUtils.generateCommandDescription(cmd, otherCmdHelpBuilder);
             } else if (excludedCommands.contains(cmdName)) {
                 // do nothing
-            } else {
-                LauncherUtils.generateCommandDescription(cmd, toolCmdsHelpBuilder);
+//            } else {
+//                LauncherUtils.generateCommandDescription(cmd, toolCmdsHelpBuilder);
             }
         }
         helpBuilder.append(coreCmdsHelpBuilder);
         helpBuilder.append(pkgCmdsHelpBuilder);
-        helpBuilder.append(toolCmdsHelpBuilder);
+//        helpBuilder.append(toolCmdsHelpBuilder);
         helpBuilder.append(otherCmdHelpBuilder);
         return helpBuilder.toString();
     }
