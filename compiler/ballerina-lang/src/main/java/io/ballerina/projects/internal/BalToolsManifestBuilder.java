@@ -66,13 +66,13 @@ public class BalToolsManifestBuilder {
         return balToolsManifest;
     }
 
-    public BalToolsManifestBuilder addTool(String id, String path, String version) {
-        balToolsManifest.addTool(id, version, path);
+    public BalToolsManifestBuilder addTool(String id, String org, String name, String version) {
+        balToolsManifest.addTool(id, org, name, version);
         return this;
     }
 
-    public BalToolsManifestBuilder removeTool(String id, String version) {
-        balToolsManifest.removeTool(id, version);
+    public BalToolsManifestBuilder removeTool(String id) {
+        balToolsManifest.removeTool(id);
         return this;
     }
 
@@ -81,7 +81,7 @@ public class BalToolsManifestBuilder {
             return BalToolsManifest.from();
         }
         validateBalToolsTomlAgainstSchema();
-        Map<String, Map<String, BalToolsManifest.Tool>> tools = getTools();
+        Map<String, BalToolsManifest.Tool> tools = getTools();
         return BalToolsManifest.from(tools);
     }
 
@@ -99,7 +99,7 @@ public class BalToolsManifestBuilder {
         balToolsTomlValidator.validate(balToolsToml.get().toml());
     }
 
-    private Map<String, Map<String, BalToolsManifest.Tool>> getTools() {
+    private Map<String, BalToolsManifest.Tool> getTools() {
         if (balToolsToml.isEmpty()) {
             return new HashMap<>();
         }
@@ -115,29 +115,29 @@ public class BalToolsManifestBuilder {
             return new HashMap<>();
         }
 
-        Map<String, Map<String, BalToolsManifest.Tool>> tools = new HashMap<>();
+        Map<String, BalToolsManifest.Tool> tools = new HashMap<>();
         if (toolEntries.kind() == TomlType.TABLE_ARRAY) {
             TomlTableArrayNode toolTableArray = (TomlTableArrayNode) toolEntries;
 
             for (TomlTableNode toolNode : toolTableArray.children()) {
                 String id = getStringValueFromToolNode(toolNode, "id");
-                String path = getStringValueFromToolNode(toolNode, "path");
+                String org = getStringValueFromToolNode(toolNode, "org");
+                String name = getStringValueFromToolNode(toolNode, "name");
                 String version = getStringValueFromToolNode(toolNode, "version");
 
-                // If id, path or version, one of the value is null, ignore tool record
-                if (id == null || path == null || version == null) {
+                // If id, org or name, one of the value is null, ignore tool record
+                if (id == null || org == null || name == null) {
                     continue;
                 }
 
-                try {
-                    PackageVersion.from(version);
-                } catch (ProjectException ignore) {
-                    continue;
+                if (version != null) {
+                    try {
+                        PackageVersion.from(version);
+                    } catch (ProjectException ignore) {
+                        continue;
+                    }
                 }
-                if (!tools.containsKey(id)) {
-                    tools.put(id, new HashMap<>());
-                }
-                tools.get(id).put(version, new BalToolsManifest.Tool(id, path, version));
+                tools.put(id, new BalToolsManifest.Tool(id, org, name, version));
             }
         }
         return tools;

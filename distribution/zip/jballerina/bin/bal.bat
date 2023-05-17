@@ -74,14 +74,44 @@ set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%BALLERINA_HOME%\bre\lib\*
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%BALLERINA_HOME%\lib\tools\lang-server\lib\*
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%BALLERINA_HOME%\lib\tools\debug-adapter\lib\*
 
-set "BAL_TOOLS_FILE=%USERPROFILE%\.ballerina\bal-tools.toml"
+rem ---- TODO: check if bal_version_file, bal_tools_file paths are correct in windows
+set "bal_version_file=%USERPROFILE%\.ballerina\ballerina-version"
+for /F "usebackq delims=" %%A in ("%bal_version_file%") do set "bal_version=%%A"
+set "BAL_TOOLS_FILE=%USERPROFILE%\.ballerina\.config\dist-%bal_version%.toml"
+
 if exist "%BAL_TOOLS_FILE%" (
-    for /f "delims=" %%i in ('type "%BAL_TOOLS_FILE%" ^| findstr /C:"path ="') do (
-        for /f "tokens=2 delims==\" %%j in ("%%i") do (
-            set "path=%%j"
-            for %%f in ("%path%\tool\libs\*.jar") do (
-                set "BALLERINA_CLASSPATH=%BALLERINA_CLASSPATH%;%%~f"
+    for /F "usebackq delims==" %%B in ("%BAL_TOOLS_FILE%") do (
+        set "line=%%B"
+        echo !line! | findstr /R /C:"\\[.*tool.*\\]" > nul
+        if not errorlevel 1 (
+            set /P "line="
+            :innerLoop
+            set "line="
+            set /P "line="
+            echo !line! | findstr /R /C:"\\[.*tool.*\\]" > nul
+            if errorlevel 1 (
+                echo !line! | findstr /R /C:"org =" > nul
+                if not errorlevel 1 (
+                    for /F "tokens=2 delims= " %%C in ("!line!") do set "org=%%C"
+                )
+                echo !line! | findstr /R /C:"name =" > nul
+                if not errorlevel 1 (
+                    for /F "tokens=2 delims= " %%D in ("!line!") do set "name=%%D"
+                )
+                echo !line! | findstr /R /C:"version =" > nul
+                if not errorlevel 1 (
+                    for /F "tokens=2 delims= " %%E in ("!line!") do set "version=%%E"
+                )
+                set /P "line="
+                if defined org if defined name if defined version (
+                    for %%F in ("%USERPROFILE%\.ballerina\repositories\central.ballerina.io\bala\%org%\%name%\%version%\any\tool\libs\*.jar") do (
+                        set "BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%%F"
+                    )
+                )
+                goto :innerLoop
             )
+            set "org="
+            set "name="
         )
     )
 )

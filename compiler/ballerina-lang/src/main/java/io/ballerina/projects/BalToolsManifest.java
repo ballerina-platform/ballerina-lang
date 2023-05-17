@@ -26,9 +26,9 @@ import java.util.Map;
  * @since 2201.6.0
  */
 public class BalToolsManifest {
-    private final Map<String, Map<String, Tool>> tools;
+    private final Map<String, Tool> tools;
 
-    private BalToolsManifest(Map<String, Map<String, Tool>> tools) {
+    private BalToolsManifest(Map<String, Tool> tools) {
         this.tools = tools;
     }
 
@@ -36,46 +36,23 @@ public class BalToolsManifest {
         return new BalToolsManifest(new HashMap<>());
     }
 
-    public static BalToolsManifest from(Map<String, Map<String, Tool>> tools) {
+    public static BalToolsManifest from(Map<String, Tool> tools) {
         return new BalToolsManifest(tools);
     }
 
-    public Map<String, Map<String, Tool>> tools() {
+    public Map<String, Tool> tools() {
         return tools;
     }
 
-    public void addTool(String id, String path, String version) {
-        if (!tools.containsKey(id)) {
-            tools.put(id, new HashMap<>());
-        }
-        tools.get(id).put(version, new Tool(id, path, version));
+    public void addTool(String id, String org, String name, String version) {
+        tools.put(id, new Tool(id, org, name, version));
     }
 
-    public void removeTool(String id, String version) {
+    public void removeTool(String id) {
         if (!tools.containsKey(id)) {
             return;
         }
-        tools.get(id).remove(version);
-    }
-
-    public boolean containsTool(String id, String version) {
-        if (!tools.containsKey(id)) {
-            return false;
-        }
-        return tools.get(id).containsKey(version);
-    }
-
-    public BalToolsManifest merge(BalToolsManifest otherToolsManifest) {
-        Map<String, Map<String, Tool>> combinedTools = new HashMap<>();
-        combinedTools.putAll(this.tools);
-        for(Map.Entry<String, Map<String, Tool>> entry: otherToolsManifest.tools.entrySet()) {
-            if (this.tools.containsKey(entry.getKey())) {
-                combinedTools.get(entry.getKey()).putAll(entry.getValue());
-            } else {
-                combinedTools.put(entry.getKey(), entry.getValue());
-            }
-        }
-        return new BalToolsManifest(combinedTools);
+        tools.remove(id);
     }
 
     /**
@@ -85,12 +62,14 @@ public class BalToolsManifest {
      */
     public static class Tool {
         private final String id;
-        private final String path;
+        private final String org;
+        private final String name;
         private final String version;
 
-        public Tool(String id, String path, String version) {
+        public Tool(String id, String org, String name, String version) {
             this.id = id;
-            this.path = path;
+            this.org = org;
+            this.name = name;
             this.version = version;
         }
 
@@ -98,8 +77,12 @@ public class BalToolsManifest {
             return id;
         }
 
-        public String path() {
-            return path;
+        public String org() {
+            return org;
+        }
+
+        public String name() {
+            return name;
         }
 
         public String version() {

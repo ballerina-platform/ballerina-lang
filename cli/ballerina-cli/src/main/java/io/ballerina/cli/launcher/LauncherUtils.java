@@ -168,7 +168,7 @@ public class LauncherUtils {
                 PUSH_COMMAND, SEARCH_COMMAND, SEMVER_COMMAND, GRAPH_COMMAND, DEPRECATE_COMMAND);
         List<String> otherCommands = Arrays.asList(CLEAN_COMMAND, FORMAT_COMMAND, SHELL_COMMAND,
                 VERSION_COMMAND, TOOL_COMMAND, BINDGEN_COMMAND);
-        List<String> excludedCommands = Arrays.asList( DIST_COMMAND, UPDATE_COMMAND,
+        List<String> excludedCommands = Arrays.asList(DIST_COMMAND, UPDATE_COMMAND,
                 START_LANG_SERVER_COMMAND, START_DEBUG_ADAPTER_COMMAND, HELP_COMMAND, HOME_COMMAND);
 
         StringBuilder helpBuilder = new StringBuilder();

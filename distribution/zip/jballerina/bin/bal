@@ -196,14 +196,32 @@ do
 done
 
 # Add bal tool jar files to the class path
-BAL_TOOLS_FILE="$HOME/.ballerina/bal-tools.toml"
+bal_version_file="$HOME/.ballerina/ballerina-version"
+bal_version=$(sed -n '1s/[^-]*-\(.*\)/\1/p' $bal_version_file)
+BAL_TOOLS_FILE="$HOME/.ballerina/.config/dist-$bal_version.toml"
 if [ -e "$BAL_TOOLS_FILE" ]; then
     while IFS='=' read -r line; do
-        if echo "$line" | grep -q "path ="; then
-            path=$(echo "$line" | cut -d '"' -f 2)
-            for jar_file in "$path/tool/libs"/*.jar; do
-                BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":"$jar_file"
+        if echo "$line" | grep -q '\[.*tool.*\]'; then
+            read -r line
+            while [ ! -z "$line" ] && ! echo "$line" | grep -q '\[.*tool.*\]'; do
+                if echo "$line" | grep -q "org ="; then
+                    org=$(echo "$line" | cut -d '"' -f 2)
+                fi
+                if echo "$line" | grep -q "name ="; then
+                    name=$(echo "$line" | cut -d '"' -f 2)
+                fi
+                if echo "$line" | grep -q "version ="; then
+                    version=$(echo "$line" | cut -d '"' -f 2)
+                fi
+                read -r line
             done
+            if [ ! -z "$org" ] && [ ! -z "$name" ] && [ ! -z "$version" ]; then
+                for jar_file in "$HOME/.ballerina/repositories/central.ballerina.io/bala/$org/$name/$version/any/tool/libs"/*.jar; do
+                    BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":"$jar_file"
+                    done
+            fi
+            org=""
+            name=""
         fi
     done < "$BAL_TOOLS_FILE"
 fi

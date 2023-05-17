@@ -122,4 +122,5 @@ public class ProjectConstants {
     public static final String DEPENDENCIES_TOML_VERSION = "2";
     public static final String BALLERINA_ORG = "ballerina";
     public static final String CONFIG_ARGS_PATTERN = "-C[\\w\\W]+=([\\w\\W]+)";
+    public static final String CONFIG_DIR = ".config";
 }
