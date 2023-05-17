@@ -66,12 +66,12 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
     }
 
     private List<LSCompletionItem> getGroupingKeyVarDeclCompletions(BallerinaCompletionContext context, 
-                                                                    GroupByClauseNode node, 
-                                                                    GroupingKeyVarDeclarationNode groupingKeyVarDeclNode) {
+                                                                    GroupByClauseNode groupByClauseNode, 
+                                                                    GroupingKeyVarDeclarationNode groupingKeyNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         int cursor = context.getCursorPositionInTree();
        
-        if (this.onBindingPatternContext(cursor, groupingKeyVarDeclNode)) {
+        if (this.onBindingPatternContext(cursor, groupingKeyNode)) {
                 /*
                 Covers the case where the cursor is within the binding pattern context.
                 Eg:
@@ -81,7 +81,7 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
                 In these cases no suggestions are provided
                 */
             return completionItems;
-        } else if (this.onTypedBindingPatternContext(cursor, groupingKeyVarDeclNode)) {
+        } else if (this.onTypedBindingPatternContext(cursor, groupingKeyNode)) {
                 /*
                 Covers the case where the cursor is within the typed binding pattern context.
                 Eg:
@@ -104,7 +104,7 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
                 */
             completionItems.addAll(this.expressionCompletions(context));
         }
-        this.sort(context, node, completionItems);
+        this.sort(context, groupByClauseNode, completionItems);
         return completionItems;
     }
 
