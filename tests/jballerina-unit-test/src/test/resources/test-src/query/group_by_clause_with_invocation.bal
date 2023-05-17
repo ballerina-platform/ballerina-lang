@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.value;
+
 function testGroupByExpressionAndSelectWithNonGroupingKeys1() {
     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}, {name: "Saman", price: 12}];
     int[] sum = from var {name, price} in input
@@ -212,7 +214,7 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys6() {
                     {name: "Kamal", price1: 10, price2: 12},
                     {name: "Kamal", price1: 10, price2: 9},
                     {name: "Amal", price1: 30, price2: 13}];
-    
+
     var res = from var {name, price1, price2} in input
                 group by var _ = true
                 select sum(price1);
@@ -268,21 +270,21 @@ function testGroupByVarDefsAndSelectWithNonGroupingKeys2() {
                 let var p2 = item.price2
                 group by string name = item.name
                 select sum(p1);
-    assertEquality([22, 30, 10], yy);     
+    assertEquality([22, 30, 10], yy);
 
     int[] arr = from var item in input
                     let var p1 = item.price1
                     let var p2 = item.price2
                     group by string name = item.name
                     select sum(p1) + sum(p1);
-    assertEquality([44, 60, 20], arr); 
+    assertEquality([44, 60, 20], arr);
 
     arr = from var item in input
                 let var p1 = item.price1
                 let var p2 = item.price2
                 group by string name = item.name
                 select sum(p1) + sum(p2);
-    assertEquality([45, 64, 23], arr); 
+    assertEquality([45, 64, 23], arr);
 
     var x = from var item in input
                 let var p1 = item.price1
@@ -564,128 +566,73 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys8() {
                         group by name
                         select 2.0.avg(2, ...[price]);
     assertEquality([7.8, 5.0], x);
+
+    var input2 = [{name: "Saman", err: error("msg1")}, 
+                    {name: "Kamal", err: error("msg1")}]; 
+
+    var j = from var {name, err} in input2
+                group by var str = err.message()
+                select 'join(",", name);
+    assertEquality(["Saman,Kamal"], j);
 }
 
-// function testGroupByExpressionAndSelectWithNonGroupingKeys4() {
-//     var input = [{name: "Saman", price1: 11, price2: 11},
-//                     {name: "Saman", price1: 11, price2: 12},
-//                     {name: "Kamal", price1: 10, price2: 13},
-//                     {name: "Kamal", price1: 10, price2: 12},
-//                     {name: "Kamal", price1: 10, price2: 9},
-//                     {name: "Amal", price1: 10, price2: 13}];
+function testGroupByExpressionAndSelectWithNonGroupingKeys11() {
+    var input = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 9},
+                    {name: "Amal", price1: 10, price2: 13}];
 
-//     int[] sum = from var {name, price1, price2} in input
-//                     group by name
-//                     select avg(price1 + price2);
-//     // int[] sum = from var {name, price1, price2} in input
-//     //                 group by name
-//     //                 select sum(...[price1] + ...[price2]); // negative test case
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select avg(price1 + price2);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select avg(price1 + price2 + 3);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select int:avg(price1 + price2 + 3);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select 5.avg(price1 + price2 + 3);
-//     // sum = from var {_, price1, price2} in input
-//     //         group by var _ = true
-//     //         select int:sum(price1, price2); // error
-//     assertEquality([35, 11], sum);
-//     // sum = from var {_, price1, price2} in input
-//     //         group by var _ = true
-//     //         select 5.sum(...[price1], ...[price2]); // error
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select 5.avg(23, ...[price2]);
-//     assertEquality([35, 11], sum);
-// }
+    decimal[] sum = from var {name, price1, price2} in input
+                    group by var _ = true
+                    select 5.avg(23, ...[price2]);
+    assertEquality([12.25d], sum);
+}
 
-// function testGroupByExpressionAndSelectWithNonGroupingKeys5() {
-//     record {|string name; float price;|}[] input1 = [{name: "Saman", price: 1.0}, {name: "Kamal", price: 1.2}, {name: "Kamal", price: 0.9}];
-//     float[] sum = from var {name, price} in input1
-//                     group by name
-//                     select avg(price);
-//     assertEquality([35, 11], sum);
+function testGroupByExpressionAndSelectWithNonGroupingKeys10() {
+    record {|string name; float price;|}[] input1 = [{name: "Saman", price: 1.0}, {name: "Kamal", price: 1.2}, {name: "Kamal", price: 0.9}];
+    float[] sum = from var {name, price} in input1
+                    group by name
+                    select avg(price);
+    assertEquality([1.0, 1.05], sum);
 
-//     record {|string name; float price?;|}[] input2 = [{name: "Saman"}, {name: "Kamal"}, {name: "Kamal"}];
-//     sum = from var {name, price} in input2
-//                 group by name
-//                 select avg(price);
-//     assertEquality([35, 11], sum);
+    var input2 = [{name: "Saman", price1: 11, price2: 11},
+                    {name: "Saman", price1: 11, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 13},
+                    {name: "Kamal", price1: 10, price2: 12},
+                    {name: "Kamal", price1: 10, price2: 9},
+                    {name: "Amal", price1: 10, price2: 13}];
 
-//     record {|string name; float price?;|}[] input3 = [{name: "Saman"}, {name: "Kamal"}, {name: "Kamal", price: 0.9}];
-//     sum = from var {name, price} in input3
-//                 group by name
-//                 select avg(price);
-//     assertEquality([35, 11], sum);
-// }
+    decimal[] sum1 = from var {name, price1, price2} in input2
+                    group by var _ = true
+                    select 5.avg(23, ...[price2]);
+    assertEquality([12.25d], sum1);
+}
 
-// function testGroupByExpressionAndSelectWithNonGroupingKeys6() {
-//     var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}, {name: "Saman", price: 12}];
-//     int[] sum = from var {name, price} in input
-//                         group by name
-//                         select count(price);
-//     assertEquality([35, 11], sum);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select int:count(price);
-//     assertEquality([35, 11], sum);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select int:count(price + 2);
-//     assertEquality([35, 11], sum);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select count(...[price]);
-//     assertEquality([35, 11], sum);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select int:count(2, ...[price]);
-//     assertEquality([35, 11], sum);
-//     sum = from var {name, price} in input
-//                         group by name
-//                         select 2.0.count(2, ...[price]);
-//     assertEquality([35, 11], sum);
-// }
-
-// function testGroupByExpressionAndSelectWithNonGroupingKeys7() {
-//     var input = [{name: "Saman", price1: 11, price2: 11},
-//                     {name: "Saman", price1: 11, price2: 12},
-//                     {name: "Kamal", price1: 10, price2: 13},
-//                     {name: "Kamal", price1: 10, price2: 12},
-//                     {name: "Kamal", price1: 10, price2: 9},
-//                     {name: "Amal", price1: 10, price2: 13}];
-
-//     int[] sum = from var {name, price1, price2} in input
-//                     group by name
-//                     select first(price1 + price2);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select last(price1 + price2);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select first(price1 + price2 + 3);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select int:first(price1 + price2 + 3);
-//     assertEquality([35, 11], sum);
-//     sum = from var {_, price1, price2} in input
-//             group by var _ = true
-//             select 5.last(price1 + price2 + 3);
-//     assertEquality([35, 11], sum);
-// }
+function testGroupByExpressionAndSelectWithNonGroupingKeys12() {
+    var input = [{name: "Saman", price: 11}, {name: "Saman", price: 12}, {name: "Kamal", price: 11}, {name: "Saman", price: 12}];
+    int[] sum = from var {name, price} in input
+                        group by name
+                        select count(price);
+    assertEquality([3, 1], sum);
+    sum = from var {name, price} in input
+                        group by name
+                        select int:count(price);
+    assertEquality([3, 1], sum);
+    sum = from var {name, price} in input
+                        group by name
+                        select value:count(...[price]);
+    assertEquality([3, 1], sum);
+    sum = from var {name, price} in input
+                        group by name
+                        select value:count(2, ...[price]);
+    assertEquality([4, 2], sum);
+    sum = from var {name, price} in input
+                        group by name
+                        select 2.0.count(2, ...[price]);
+    assertEquality([5, 3], sum);
+}
 
 function testGroupByWithDoClause() {
     var input = [{name: "Saman", price1: 11, price2: 12}, 
@@ -852,6 +799,16 @@ function testGroupByExpressionAndSelectWithGroupingKeys2() {
     assertEquality([23, 31, 35, 39], x);
 }
 
+// Fix this after https://github.com/ballerina-platform/ballerina-lang/issues/40325
+// function testLambdaFunction() {
+//     var input = [{name: "Saman", price: 1}, {name: "Amal", price: 2}, {name: "Saman", price: 3}];
+
+//     var x = from var {name, price} in input
+//                 let var func = function (int x) returns int {return price + x;}
+//                 group by var x = func(price)
+//                 select [x, [price]];
+// }
+
 function testMultipleGroupBy() {
     var input = [{name: "Saman", price1: 11, price2: 11},
                     {name: "Saman", price1: 11, price2: 12},
@@ -866,7 +823,7 @@ function testMultipleGroupBy() {
                 select from var x in [price1]
                           let int y = x + minPrice2
                           group by var _ = true
-                          select int:sum(y);   
+                          select int:sum(y);
     assertEquality([[44], [57], [23]], res1);
 
     var res2 = from var {name, price1, price2} in input
@@ -875,21 +832,21 @@ function testMultipleGroupBy() {
                 select (from var x in [price1]
                           let int y = x + minPrice2
                           group by var _ = true
-                          select sum(y))[0]; 
+                          select sum(y))[0];
     assertEquality([44, 57, 23], res2);
 
     var res3 = from var {name, price1, price2} in input
                 group by name
                 let var minPrice2 = int:min(200, price2)
                 let var zz = from var x in [price1] let int y = x + minPrice2 group by var _ = true select sum(y)
-                select zz; 
+                select zz;
     assertEquality([[44], [57], [23]], res3);
 
     var res4 = from var {name, price1, price2} in input
                 group by name
                 let var minPrice2 = int:min(200, price2)
                 let var zz = (from var x in [price1] let int y = x + minPrice2 group by var _ = true select sum(y))[0]
-                select zz; 
+                select zz;
     assertEquality([44, 57, 23], res4);
 
     var res5 = from var {name, price1, price2} in input
@@ -922,7 +879,8 @@ function testGroupByExpressionAndSelectWithNonGroupingKeys7() {
     var res3 = from var {name, price1, price2} in input
                 group by var _ = true
                 select min(price1) + min(price2);
-    assertEquality([19], res3);
+    assertEquality([19], res3);// TODO: from var {name: namex, price1, price2} group by namex
+
 }
 
 function testEmptyGroups() {
@@ -936,7 +894,7 @@ function testEmptyGroups() {
     var res1 = from var {name, price1, price2} in input
                 where name == "No name"
                 group by var _ = true 
-                select avg(price1);   
+                select avg(price1);
     assertEquality([], res1);
     var res2 = from var {name, price1, price2} in input
                 where name == "No name"
@@ -969,16 +927,52 @@ enum Student {
 };
 
 function testEnumInInput() {
-    var input = [{name: SAMAN, price1: 11, price2: 12}, 
-                    {name: SAMAN, price1: 11, price2: 14}, 
-                    {name: KAMAL, price1: 12, price2: 12}, 
-                    {name: KAMAL, price1: 12, price2: 14}, 
-                    {name: AMAL, price1: 19, price2: 20}]; 
+    var input = [{name: SAMAN, price1: 11, price2: 12},
+                    {name: SAMAN, price1: 11, price2: 14},
+                    {name: KAMAL, price1: 12, price2: 12},
+                    {name: KAMAL, price1: 12, price2: 14},
+                    {name: AMAL, price1: 19, price2: 20}];
 
-    var x1 = from var {name, price1, price2} in input 
+    var x1 = from var {name, price1, price2} in input
                 group by name
-                select sum(price1);  
-    assertEquality([22, 24, 19], x1); 
+                select sum(price1);
+    assertEquality([22, 24, 19], x1);
+}
+
+function testGroupByExpressionAndSelectWithNonGroupingKeys9() {
+    var input = [
+        {name: "Saman", mathematics: 85, science: 70, quarter: "Q1"},
+        {name: "Kamal", mathematics: 85, science: 70, quarter: "Q1"},
+        {name: "Amal", mathematics: 85, science: 70, quarter: "Q1"},
+        {name: "Saman", mathematics: 85, science: 70, quarter: "Q2"},
+        {name: "Kamal", mathematics: 85, science: 70, quarter: "Q2"},
+        {name: "Amal", mathematics: 85, science: 70, quarter: "Q2"},
+        {name: "Saman", mathematics: 85, science: 70, quarter: "Q3"},
+        {name: "Kamal", mathematics: 85, science: 70, quarter: "Q3"},
+        {name: "Amal", mathematics: 85, science: 70, quarter: "Q3"},
+        {name: "Saman", mathematics: 85, science: 70, quarter: "Q4"},
+        {name: "Kamal", mathematics: 85, science: 70, quarter: "Q4"},
+        {name: "Amal", mathematics: 85, science: 70, quarter: "Q4"}
+    ];
+
+    var yearlyAvg = from var {name, mathematics, science} in input
+        group by name
+        select {name: name, mathematicsAvg: int:avg(mathematics), scienceAvg: avg(science)};
+    assertEquality([
+        {"name": "Saman", "mathematicsAvg": 85d, "scienceAvg": 70d},
+        {"name": "Kamal", "mathematicsAvg": 85d, "scienceAvg": 70d},
+        {"name": "Amal", "mathematicsAvg": 85d, "scienceAvg": 70d}
+    ], yearlyAvg);
+
+    var quarterlyMin = from var {mathematics, science, quarter} in input
+        group by quarter
+        select {quarter: quarter, mathematicsMin: min(mathematics), minScience: min(science)};
+    assertEquality([
+        {"quarter": "Q1", "mathematicsMin": 85, "minScience": 70},
+        {"quarter": "Q2", "mathematicsMin": 85, "minScience": 70},
+        {"quarter": "Q3", "mathematicsMin": 85, "minScience": 70},
+        {"quarter": "Q4", "mathematicsMin": 85, "minScience": 70}
+    ], quarterlyMin);
 }
 
 function assertEquality(anydata expected, anydata actual) {
@@ -987,5 +981,3 @@ function assertEquality(anydata expected, anydata actual) {
     }
     panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }
-
-// TODO: select avg(price), select min(price)

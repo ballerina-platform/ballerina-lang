@@ -195,6 +195,7 @@ public enum NodeKind {
 
     /* Clauses */
     SELECT,
+    COLLECT,
     FROM,
     JOIN,
     WHERE,

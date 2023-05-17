@@ -45,6 +45,10 @@ public class QueryExpressionNode extends ExpressionNode {
         return childInBucket(2);
     }
 
+    public Node finalClause() {
+        return childInBucket(2);
+    }
+
     public Optional<OnConflictClauseNode> onConflictClause() {
         return optionalChildInBucket(3);
     }

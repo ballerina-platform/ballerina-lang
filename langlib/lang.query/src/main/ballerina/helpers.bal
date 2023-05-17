@@ -73,6 +73,10 @@ function createSelectFunction(function(_Frame _frame) returns _Frame|error? sele
     return new _SelectFunction(selectFunc);
 }
 
+function createCollectFunction(string[] nonGroupingKeys, function(_Frame _frame) returns _Frame|error? collectFunc) returns _StreamFunction {
+    return new _CollectFunction(nonGroupingKeys, collectFunc);
+}
+
 function createDoFunction(function(_Frame _frame) returns any|error doFunc) returns _StreamFunction {
     return new _DoFunction(doFunc);
 }
@@ -111,6 +115,11 @@ function createArray(stream<Type, CompletionType> strm, Type[] arr) returns Type
         return v;
     }
     return arr;
+}
+
+function collectQuery(stream<Type, CompletionType> strm) returns Type|error {
+    record {| Type value; |}|error? v = strm.next();
+    return v is record {| Type value; |} ? v.value : v;
 }
 
 function toXML(stream<Type, CompletionType> strm, boolean isReadOnly) returns xml|error {

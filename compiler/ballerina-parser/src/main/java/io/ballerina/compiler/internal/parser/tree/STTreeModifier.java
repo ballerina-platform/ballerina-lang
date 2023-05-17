@@ -1677,6 +1677,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STCollectClauseNode transform(
+            STCollectClauseNode collectClauseNode) {
+        STNode selectKeyword = modifyNode(collectClauseNode.collectKeyword);
+        STNode expression = modifyNode(collectClauseNode.expression);
+        return collectClauseNode.modify(
+                selectKeyword,
+                expression);
+    }
+
+    @Override
     public STQueryExpressionNode transform(
             STQueryExpressionNode queryExpressionNode) {
         STNode queryConstructType = modifyNode(queryExpressionNode.queryConstructType);
