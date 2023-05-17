@@ -116,6 +116,7 @@ public class InlayHintProvider {
         List<Symbol> visibleSymbols = context.visibleSymbols(new Position(
                 lineRange.startLine().line(), lineRange.startLine().offset()));
         List<FunctionSymbol> functionSymbols = new ArrayList<>();
+        List<ParameterSymbol> parameterSymbols = new ArrayList<>();
 
         for (Node child : node.children()) {
             if (child.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
@@ -128,7 +129,8 @@ public class InlayHintProvider {
                         .findFirst()
                         .map(ModuleSymbol::functions)
                         .orElse(Collections.emptyList());
-                break;
+                parameterSymbols = getFunctionCallParams(functionSymbols,
+                        ((QualifiedNameReferenceNode) child).identifier().text());
             }
         }
 
@@ -136,12 +138,16 @@ public class InlayHintProvider {
             functionSymbols = visibleSymbols.stream()
                     .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION)
                     .map(symbol -> (FunctionSymbol) symbol).collect(Collectors.toList());
+            parameterSymbols = getFunctionCallParams(functionSymbols, node.functionName().toString());
         }
+        return parameterSymbols;
+    }
 
+    private static List<ParameterSymbol> getFunctionCallParams(List<FunctionSymbol> functionSymbols,
+                                                               String functionName) {
         return functionSymbols.stream()
                 .filter(functionSymbol -> functionSymbol.getName().isPresent())
-                .filter(functionSymbol -> functionSymbol.getName().get().equals(
-                        node.functionName().toString().strip()))
+                .filter(functionSymbol -> functionSymbol.getName().get().equals(functionName.strip()))
                 .map(functionSymbol -> SymbolUtil.getTypeDescriptor(functionSymbol).get())
                 .filter(typeDescriptor -> typeDescriptor instanceof FunctionTypeSymbol)
                 .map(typeDescriptor -> (FunctionTypeSymbol) typeDescriptor)

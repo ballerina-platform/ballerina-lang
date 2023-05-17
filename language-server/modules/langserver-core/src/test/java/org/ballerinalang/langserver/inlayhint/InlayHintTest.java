@@ -81,7 +81,7 @@ public class InlayHintTest extends AbstractLSTest {
         List<InlayHint> responseItemList = gson.fromJson(resultList, collectionType);
 
         if (responseItemList.size() != testConfig.getResult().size()) {
-            updateConfig(configPath, testConfig, responseItemList);
+//            updateConfig(configPath, testConfig, responseItemList);
             List<InlayHint> mismatchedList1 = responseItemList.stream()
                     .filter(item -> !testConfig.getResult().contains(item)).collect(Collectors.toList());
             List<InlayHint> mismatchedList2 = testConfig.getResult().stream()
