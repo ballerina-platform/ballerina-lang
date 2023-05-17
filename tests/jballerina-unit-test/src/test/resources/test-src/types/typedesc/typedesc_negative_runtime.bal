@@ -124,3 +124,13 @@ function singletonTypeDesc() returns error? {
     RecordType value = {name: "test"};
     var _ = check value.ensureType(SingletonTypeDesc);
 }
+
+function jsonTypeDescCloneWithType() returns error? {
+     RecordType value = {name: "test"};
+     var _ = check value.cloneWithType(JsonTypeDesc);
+}
+
+function jsonTypeDescFromJsonWithType() returns error? {
+     RecordType value = {name: "test"};
+     var _ = check value.fromJsonWithType(JsonTypeDesc);
+}

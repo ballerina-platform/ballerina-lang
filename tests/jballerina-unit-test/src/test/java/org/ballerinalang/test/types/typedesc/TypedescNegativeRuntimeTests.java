@@ -135,6 +135,16 @@ public class TypedescNegativeRuntimeTests {
     public void singletonTypeDesc() {
         BRunUtil.invoke(negativeRuntimeResult, "singletonTypeDesc");
     }
+    
+    @Test
+    public void jsonTypeDescCloneWithType() {
+        BRunUtil.invoke(negativeRuntimeResult, "jsonTypeDescCloneWithType");
+    }
+    
+    @Test
+    public void jsonTypeDescFromJsonWithType() {
+        BRunUtil.invoke(negativeRuntimeResult, "jsonTypeDescFromJsonWithType");
+    }
 
     @AfterClass
     public void tearDown() {
