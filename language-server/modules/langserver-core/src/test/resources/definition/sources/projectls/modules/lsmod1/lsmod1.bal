@@ -11,3 +11,5 @@ public function hello() {
 function addNumbers(int a, int b) {
     return a + b;
 }
+
+public type MyType anydata;
