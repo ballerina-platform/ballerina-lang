@@ -103,6 +103,24 @@
       "filterText": "from",
       "insertText": "from ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "group by",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "group by",
+      "insertText": "group by ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "group by clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "T",
+      "filterText": "group by",
+      "insertText": "group by ${1:var} ${2:item} = ${3}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

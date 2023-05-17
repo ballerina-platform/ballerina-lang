@@ -40,7 +40,9 @@ public class QueryExpressionUtil {
                 new SnippetCompletionItem(context, Snippet.KW_LIMIT.get()),
                 new SnippetCompletionItem(context, Snippet.CLAUSE_DO.get()),
                 new SnippetCompletionItem(context, Snippet.KW_SELECT.get()),
-                new SnippetCompletionItem(context, Snippet.KW_FROM.get())
+                new SnippetCompletionItem(context, Snippet.KW_FROM.get()),
+                new SnippetCompletionItem(context, Snippet.KW_GROUPBY.get()),
+                new SnippetCompletionItem(context, Snippet.CLAUSE_GROUPBY.get())
         );
     }
 }

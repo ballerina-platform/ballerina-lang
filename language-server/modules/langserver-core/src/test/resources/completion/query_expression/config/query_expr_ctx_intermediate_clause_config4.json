@@ -121,6 +121,24 @@
       "filterText": "from",
       "insertText": "from ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "group by",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "CQ",
+      "filterText": "group by",
+      "insertText": "group by ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "group by clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "CP",
+      "filterText": "group by",
+      "insertText": "group by ${1:var} ${2:item} = ${3}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
