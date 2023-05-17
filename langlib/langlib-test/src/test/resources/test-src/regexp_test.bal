@@ -16,6 +16,8 @@
 
 import ballerina/lang.regexp;
 
+string moduleLevelPattern = "\\p{";
+
 function testFind() {
     string str1 = "HelloWorld";
     var regExpr1 = re `World`;
@@ -1634,6 +1636,12 @@ function testFromString() {
     if (x1 is string:RegExp) {
        assertTrue(re `A&B\s|&D` == x1);
     }
+        
+    x1 = regexp:fromString("\\p{Ll}|\\p{Mn}|\\p{Nd}|\\p{Sm}|\\p{Pc}|\\p{Cc}|\\p{Zs}");
+    assertTrue(x1 is string:RegExp);
+    if (x1 is string:RegExp) {
+       assertTrue(re `\p{Ll}|\p{Mn}|\p{Nd}|\p{Sm}|\p{Pc}|\p{Cc}|\p{Zs}` == x1);
+    }
 }
 
 function testFromStringNegative() {
@@ -1807,6 +1815,16 @@ function testFromStringNegative() {
     //     assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
     //     assertEquality("Failed to parse regular expression: Invalid character '\\'", <string> checkpanic x1.detail()["message"]);
     // }
+}
+
+function testModuleLevelPatterns() {
+    string:RegExp|error x1 = regexp:fromString(moduleLevelPattern);
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: invalid end character in '\\p{'", 
+            <string> checkpanic x1.detail()["message"]);
+    }
 }
 
 function testSplit() {
@@ -2354,81 +2372,114 @@ function testRegexpInterpolationNegative() {
     assertTrue(reg23 is error);
     assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg23).message());
     assertEquality("invalid character class range 'Z'-'A' in insertion substring 'abc[a-zZ-A]'", 
-        <string>checkpanic (<error>reg23).detail()["message"]);             
+        <string>checkpanic (<error>reg23).detail()["message"]);
+        
+    string pattern24 = "\\p{Mz}";
+    string:RegExp|error reg24 = trap re `${pattern24}`;
+    assertTrue(reg24 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg24).message());
+    assertEquality("invalid Unicode general category value 'M' in insertion substring '\\p{Mz}'", 
+        <string>checkpanic (<error>reg24).detail()["message"]);
+    
+    string pattern25 = "\\p{Nz}";
+    string:RegExp|error reg25 = trap re `${pattern25}`;
+    assertTrue(reg25 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg25).message());
+    assertEquality("invalid Unicode general category value 'N' in insertion substring '\\p{Nz}'", 
+        <string>checkpanic (<error>reg25).detail()["message"]);
+    
+    string pattern26 = "\\p{Pz}";
+    string:RegExp|error reg26 = trap re `${pattern26}`;
+    assertTrue(reg26 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg26).message());
+    assertEquality("invalid Unicode general category value 'P' in insertion substring '\\p{Pz}'", 
+        <string>checkpanic (<error>reg26).detail()["message"]);
+    
+    string pattern27 = "\\p{Sz}";
+    string:RegExp|error reg27 = trap re `${pattern27}`;
+    assertTrue(reg27 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg27).message());
+    assertEquality("invalid Unicode general category value 'S' in insertion substring '\\p{Sz}'", 
+        <string>checkpanic (<error>reg27).detail()["message"]);
+    
+    string pattern28 = "\\p{Zz}";
+    string:RegExp|error reg28 = trap re `${pattern28}`;
+    assertTrue(reg28 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg28).message());
+    assertEquality("invalid Unicode general category value 'Z' in insertion substring '\\p{Zz}'", 
+        <string>checkpanic (<error>reg28).detail()["message"]);
+        
+    string pattern29 = "\\p{Cz}";
+    string:RegExp|error reg29 = trap re `${pattern29}`;
+    assertTrue(reg29 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg29).message());
+    assertEquality("invalid Unicode general category value 'C' in insertion substring '\\p{Cz}'", 
+        <string>checkpanic (<error>reg29).detail()["message"]);          
 }
 
 function testCharClassesWithMultipleRangesAndAtoms() returns error? {
     string:RegExp pattern1 = check regexp:fromString("[a-zA-Z0-9]");
     assertTrue(pattern1 is string:RegExp);
-    if (pattern1 is string:RegExp) {
-        assertTrue(re `[a-zA-Z0-9]` == pattern1);
-    }
-    regexp:Span? res1 = pattern1.find("ABC");
+    assertTrue(re `[a-zA-Z0-9]` == <string:RegExp>pattern1);
+    regexp:Span? res1 = (<string:RegExp>pattern1).find("ABC");
     assertTrue(res1 is regexp:Span);
     assertEquality("A", (<regexp:Span>res1).substring());
 
     string:RegExp pattern2 = check regexp:fromString("[abc-mzABC-FGH012-5]");
     assertTrue(pattern2 is string:RegExp);
-    if (pattern2 is string:RegExp) {
-        assertTrue(re `[abc-mzABC-FGH012-5]` == pattern2);
-    }
-    regexp:Span? res2 = pattern2.find("abc");
+    assertTrue(re `[abc-mzABC-FGH012-5]` == <string:RegExp>pattern2);
+    regexp:Span? res2 = (<string:RegExp>pattern2).find("abc");
     assertTrue(res2 is regexp:Span);
     assertEquality("a", (<regexp:Span>res2).substring());
 
     string:RegExp pattern3 = check regexp:fromString("[a-z\\d\\s]");
     assertTrue(pattern3 is string:RegExp);
-    if (pattern3 is string:RegExp) {
-        assertTrue(re `[a-z\d\s]` == pattern3);
-    }
-    regexp:Span? res3 = pattern3.find("abc");
+    assertTrue(re `[a-z\d\s]` == <string:RegExp>pattern3);
+    regexp:Span? res3 = (<string:RegExp>pattern3).find("abc");
     assertTrue(res3 is regexp:Span);
     assertEquality("a", (<regexp:Span>res3).substring());
 
     string:RegExp pattern4 = check regexp:fromString("[\\w-\\d\\s]");
     assertTrue(pattern4 is string:RegExp);
-    if (pattern4 is string:RegExp) {
-        assertTrue(re `[\w-\d\s]` == pattern4);
-    }
-    regexp:Span? res4 = pattern4.find("abc");
+    assertTrue(re `[\w-\d\s]` == <string:RegExp>pattern4);
+    regexp:Span? res4 = (<string:RegExp>pattern4).find("abc");
     assertTrue(res4 is regexp:Span);
     assertEquality("a", (<regexp:Span>res4).substring());
 
     string:RegExp pattern5 = check regexp:fromString("[ABC-MZ.a-z]");
     assertTrue(pattern5 is string:RegExp);
-    if (pattern5 is string:RegExp) {
-        assertTrue(re `[ABC-MZ.a-z]` == pattern5);
-    }
-    regexp:Span? res5 = pattern5.find("abc");
+    assertTrue(re `[ABC-MZ.a-z]` == <string:RegExp>pattern5);
+    regexp:Span? res5 = (<string:RegExp>pattern5).find("abc");
     assertTrue(res5 is regexp:Span);
     assertEquality("a", (<regexp:Span>res5).substring());
 
     string:RegExp pattern6 = check regexp:fromString("[^a-zA-Z*]");
     assertTrue(pattern6 is string:RegExp);
-    if (pattern6 is string:RegExp) {
-        assertTrue(re `[^a-zA-Z*]` == pattern6);
-    }
-    regexp:Span? res6 = pattern6.find("123");
+    assertTrue(re `[^a-zA-Z*]` == <string:RegExp>pattern6);
+    regexp:Span? res6 = (<string:RegExp>pattern6).find("123");
     assertTrue(res6 is regexp:Span);
     assertEquality("1", (<regexp:Span>res6).substring());
 
     string:RegExp pattern7 = check regexp:fromString("[a-z.\\s\\w]");
     assertTrue(pattern7 is string:RegExp);
-    if (pattern7 is string:RegExp) {
-        assertTrue(re `[a-z.\s\w]` == pattern7);
-    }
-    regexp:Span? res7 = pattern7.find("abc");
+    assertTrue(re `[a-z.\s\w]` == <string:RegExp>pattern7);
+    regexp:Span? res7 = (<string:RegExp>pattern7).find("abc");
     assertTrue(res7 is regexp:Span);
     assertEquality("a", (<regexp:Span>res7).substring());
     
     string:RegExp pattern8 = check regexp:fromString("[\\s]");
     assertTrue(pattern8 is string:RegExp);
-    if (pattern8 is string:RegExp) {
-        assertTrue(re `[\s]` == pattern8);
-    }
-    regexp:Span? res8 = pattern8.find("abc ");
+    assertTrue(re `[\s]` == <string:RegExp>pattern8);
+    regexp:Span? res8 = (<string:RegExp>pattern8).find("abc ");
     assertTrue(res8 is regexp:Span);
     assertEquality(" ", (<regexp:Span>res8).substring());
+    
+    string:RegExp pattern9 = check regexp:fromString("[\\p{Ll}]");
+    assertTrue(pattern9 is string:RegExp);
+    assertTrue(re `[\p{Ll}]` == <string:RegExp>pattern9);
+    regexp:Span? res9 = (<string:RegExp>pattern9).find("Abc BCa");
+    assertTrue(res9 is regexp:Span);
+    assertEquality("b", (<regexp:Span>res9).substring());
 }
 
 function assertEquality(any|error expected, any|error actual) {

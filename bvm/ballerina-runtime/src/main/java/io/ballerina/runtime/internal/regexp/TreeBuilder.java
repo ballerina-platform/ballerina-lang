@@ -132,13 +132,16 @@ public class TreeBuilder {
                 reAtom = readRegCapturingGroups();
                 break;
             default:
-                // Here the token is a syntax char, which is invalid. A syntax char should have a backslash prior
-                // to the token.
+                // Here the token is a syntax char, which is invalid. Syntax char tokens should be 
+                // proceeded by backslashes.
                 throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
                         RuntimeErrors.REGEXP_MISSING_BACKSLASH.messageKey(), nextToken.value));
         }
 
         RegExpQuantifier quantifier = readOptionalQuantifier();
+        if (quantifier == null) {
+            quantifier = new RegExpQuantifier("", "");
+        }
         return new RegExpAtomQuantifier(reAtom, quantifier);
     }
 
@@ -246,7 +249,7 @@ public class TreeBuilder {
     /**
      * Read the unicode general category.
      *
-     * @return gc=category or category
+     * @return gc=category
      */
     private String readRegUnicodeGeneralCategory() {
         Token nextToken = peek();
@@ -434,7 +437,7 @@ public class TreeBuilder {
             case OPEN_BRACE_TOKEN:
                 return readReQuantifier();
             default:
-                return new RegExpQuantifier("", "");
+                return null;
         }
     }
 

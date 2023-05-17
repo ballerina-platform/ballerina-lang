@@ -45,6 +45,7 @@ public class TreeTraverser {
             case RE_DISJUNCTION:
                 return readTokenInReDisjunction();
             case RE_UNICODE_PROP_ESCAPE:
+            case RE_UNICODE_GENERAL_CATEGORY_NAME:     
                 return readTokenInReUnicodePropertyEscape();
             case RE_UNICODE_PROPERTY_VALUE:
                 return readTokenInReUnicodePropertyValue();
@@ -148,10 +149,14 @@ public class TreeTraverser {
         switch (nextChar) {
             case 'p':
             case 'P':
-                this.reader.advance();
-                return getRegExpText(TokenKind.RE_PROPERTY);
+                if (this.mode != ParserMode.RE_UNICODE_GENERAL_CATEGORY_NAME) {
+                    this.reader.advance();
+                    return getRegExpText(TokenKind.RE_PROPERTY);
+                }
+                break;
             case Terminals.OPEN_BRACE:
                 this.reader.advance();
+                this.switchMode(ParserMode.RE_UNICODE_GENERAL_CATEGORY_NAME);
                 return getRegExpToken(TokenKind.OPEN_BRACE_TOKEN);
             case 's':
                 if (this.reader.peek(1) == 'c' && this.reader.peek(2) == '=') {
