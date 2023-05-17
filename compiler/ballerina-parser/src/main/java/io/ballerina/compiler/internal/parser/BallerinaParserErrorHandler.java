@@ -202,7 +202,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER_IN_GROUPING_KEY };
 
     private static final ParserRuleContext[] GROUPING_KEY_LIST_ELEMENT_END =
-            { ParserRuleContext.COMMA, ParserRuleContext.GROUP_BY_CLAUSE_END };
+            { ParserRuleContext.GROUP_BY_CLAUSE_END, ParserRuleContext.COMMA };
 
     private static final ParserRuleContext[] CLASS_MEMBER_OR_OBJECT_MEMBER_START =
             { ParserRuleContext.ASTERISK, ParserRuleContext.OBJECT_FUNC_OR_FIELD, ParserRuleContext.CLOSE_BRACE,
