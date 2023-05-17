@@ -12432,19 +12432,6 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createNodeList(orderKeys);
     }
 
-    private boolean isEndOfGroupByListOrListElement(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case COMMA_TOKEN:
-            case EOF_TOKEN:
-                return true;
-            case IDENTIFIER_TOKEN:
-                // A special case to improve group by key list end parsing.
-                return peek(3).kind != SyntaxKind.EQUAL_TOKEN;
-            default:
-                return isQueryClauseStartToken(tokenKind);
-        }
-    }
-
     private boolean isEndOfGroupByKeyListElement(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case COMMA_TOKEN:
@@ -12544,7 +12531,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseGroupingKey(boolean isRhsExpr) {
         STToken nextToken = peek();
         SyntaxKind nextTokenKind = nextToken.kind;
-        if (nextTokenKind == SyntaxKind.IDENTIFIER_TOKEN && isEndOfGroupByListOrListElement(getNextNextToken().kind)) {
+        if (nextTokenKind == SyntaxKind.IDENTIFIER_TOKEN && !isPossibleGroupingKeyVarDeclaration()) {
             return STNodeFactory.createSimpleNameReferenceNode(parseVariableName());
         } else if (isTypeStartingToken(nextTokenKind, nextToken)) {
             return parseGroupingKeyVariableDeclaration(isRhsExpr);
@@ -12552,6 +12539,12 @@ public class BallerinaParser extends AbstractParser {
 
         recover(nextToken, ParserRuleContext.GROUPING_KEY_LIST_ELEMENT);
         return parseGroupingKey(isRhsExpr);
+    }
+
+    private boolean isPossibleGroupingKeyVarDeclaration() {
+        SyntaxKind nextNextTokenKind = getNextNextToken().kind;
+        return nextNextTokenKind == SyntaxKind.EQUAL_TOKEN ||
+                nextNextTokenKind == SyntaxKind.IDENTIFIER_TOKEN && peek(3).kind == SyntaxKind.EQUAL_TOKEN;
     }
 
     /**
