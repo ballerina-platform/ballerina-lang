@@ -115,7 +115,7 @@ public class BObjectType extends BStructureType implements ObjectType {
     }
 
     @Override
-    public MethodType getInitializer() {
+    public MethodType getInitMethod() {
         return initializer;
     }
 

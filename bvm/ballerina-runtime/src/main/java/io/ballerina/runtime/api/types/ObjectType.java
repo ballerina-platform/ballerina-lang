@@ -33,7 +33,7 @@ public interface ObjectType extends StructureType, SelectivelyImmutableReference
      *
      * @return {@link MethodType} of the initializer function
      */
-    MethodType getInitializer();
+    MethodType getInitMethod();
 
     /**
      * Provides given @{@link ObjectType} is isolated.

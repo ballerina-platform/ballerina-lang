@@ -477,7 +477,7 @@ public class Values {
 
     public static BArray getParamNamesFromObjectInit(BObject object) {
         ObjectType objectType = object.getType();
-        MethodType initMethodtype = objectType.getInitializer();
+        MethodType initMethodtype = objectType.getInitMethod();
         Parameter[] parameters = initMethodtype.getParameters();
         BArray paramNames = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING));
         for (int i = 0; i < parameters.length; i++) {
