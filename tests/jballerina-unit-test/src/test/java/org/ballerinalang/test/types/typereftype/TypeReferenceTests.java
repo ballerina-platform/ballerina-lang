@@ -37,6 +37,11 @@ public class TypeReferenceTests {
     }
 
     @Test
+    public void testErrorTypeReferenceTypeTest() {
+        BRunUtil.invoke(result, "errorTypeReferenceTypeTest");
+    }
+
+    @Test
     public void testTypeRef() {
         BRunUtil.invoke(result, "testTypeRef");
     }
