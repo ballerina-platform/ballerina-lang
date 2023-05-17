@@ -54,7 +54,7 @@ public class Find {
         int adjustedStartIndex = getSurrogateAdjustedStartIndex((int) startIndex, surrogates);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
         BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
-        matcher.region(adjustedStartIndex, str.length());
+        matcher.region(adjustedStartIndex, str.getValue().length());
         if (matcher.find()) {
             if (matcher.groupCount() != 0) {
                 BArray spanArr = RegexUtil.getMatcherGroupsAsSpanArr(str, matcher, surrogates);
@@ -74,9 +74,10 @@ public class Find {
     public static BArray findAll(BRegexpValue regExp, BString str, long startIndex) {
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
-        BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
-        matcher.region((int) startIndex, str.length());
         int[] surrogates = getSurrogatePositions(str);
+        int adjustedStartIndex = getSurrogateAdjustedStartIndex((int) startIndex, surrogates);
+        BArray resultArray = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
+        matcher.region(adjustedStartIndex, str.getValue().length());
         while (matcher.find()) {
             resultArray.append(RegexUtil.getGroupZeroAsSpan(str, matcher, surrogates));
         }
@@ -89,9 +90,10 @@ public class Find {
     public static BArray findAllGroups(BRegexpValue regExp, BString str, long startIndex) {
         checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
-        matcher.region((int) startIndex, str.length());
-        BArray groupArray = ValueCreator.createArrayValue(RegexUtil.GROUPS_ARRAY_TYPE);
         int[] surrogates = getSurrogatePositions(str);
+        int adjustedStartIndex = getSurrogateAdjustedStartIndex((int) startIndex, surrogates);
+        matcher.region(adjustedStartIndex, str.getValue().length());
+        BArray groupArray = ValueCreator.createArrayValue(RegexUtil.GROUPS_ARRAY_TYPE);
         while (matcher.find()) {
             BArray group = RegexUtil.getMatcherGroupsAsSpanArr(str, matcher, surrogates);
             if (group.getLength() != 0) {
