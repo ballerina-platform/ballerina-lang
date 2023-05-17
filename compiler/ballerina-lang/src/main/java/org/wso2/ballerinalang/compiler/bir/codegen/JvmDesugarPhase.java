@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_GEN_BB_ID_NAME;
 
 /**
  * BIR desugar phase related methods at JVM code generation.
@@ -84,7 +85,7 @@ public class JvmDesugarPhase {
 
     public static BIRBasicBlock insertAndGetNextBasicBlock(List<BIRBasicBlock> basicBlocks,
                                                            InitMethodGen initMethodGen) {
-        BIRBasicBlock nextbb = new BIRBasicBlock(getNextDesugarBBId(initMethodGen));
+        BIRBasicBlock nextbb = new BIRBasicBlock(WRAPPER_GEN_BB_ID_NAME, getNextDesugarBBId(initMethodGen));
         basicBlocks.add(nextbb);
         return nextbb;
     }

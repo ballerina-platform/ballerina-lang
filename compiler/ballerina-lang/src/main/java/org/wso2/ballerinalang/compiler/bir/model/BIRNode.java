@@ -489,11 +489,6 @@ public abstract class BIRNode {
         public String toString() {
             return id.value;
         }
-
-        public void setId(int bbNumber) {
-            this.number = bbNumber;
-            this.id = new Name(BIR_BASIC_BLOCK_PREFIX + number);
-        }
     }
 
     /**
