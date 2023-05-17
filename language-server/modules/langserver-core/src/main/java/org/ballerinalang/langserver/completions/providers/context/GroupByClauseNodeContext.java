@@ -53,15 +53,19 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
         List<LSCompletionItem> completionItems = new ArrayList<>();
         SeparatedNodeList<Node> groupingKey = node.groupingKey();
         
-        if (!groupingKey.isEmpty() 
-                && groupingKey.get(groupingKey.separatorSize()).kind() == SyntaxKind.GROUPING_KEY_VAR_DECLARATION) {
-            
-            GroupingKeyVarDeclarationNode groupingKeyVarDeclNode = (GroupingKeyVarDeclarationNode) groupingKey
-                    .get(groupingKey.separatorSize());
-            return getGroupingKeyVarDeclCompletions(context, node,  groupingKeyVarDeclNode);
-        } 
-        
+        if (!groupingKey.isEmpty()) {
+            Node groupingKeyNode = groupingKey.get(groupingKey.separatorSize());
+
+            if (groupingKeyNode.kind() == SyntaxKind.GROUPING_KEY_VAR_DECLARATION) {
+                return getGroupingKeyVarDeclCompletions(context, node, (GroupingKeyVarDeclarationNode) groupingKeyNode);
+            } else if (cursorAtTheEndOfClause(groupingKeyNode, context.getCursorPositionInTree())) {
+                completionItems.addAll(this.getKeywordCompletions(context, node));
+                this.sort(context, node, completionItems);
+                return completionItems;
+            }
+        }
         completionItems.addAll(this.expressionCompletions(context));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
         this.sort(context, node, completionItems);
         return completionItems;
     }
@@ -86,17 +90,13 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
                 /*
                 Covers the case where the cursor is within the typed binding pattern context.
                 Eg:
-                (1) group by <cursor>
-                (2) group by v<cursor>
-                (3) group by var item = foo(), v<cursor>
+                (1) group by int:<cursor>
                 */
             NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
             if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
                 return this.getCompletionItemList(QNameRefCompletionUtil.getTypesInModule(context, qNameRef), context);
             }
-            completionItems.addAll(this.expressionCompletions(context));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
         } else {
                 /*
                 Covers the case where the cursor is within the expression context.
@@ -119,6 +119,10 @@ public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<Grou
         return cursor < typeDescriptorNode.textRange().startOffset() ||
                 cursor >= typeDescriptorNode.textRange().startOffset()
                         && cursor <= typeDescriptorNode.textRange().endOffset();
+    }
+
+    protected boolean cursorAtTheEndOfClause(Node node, int cursor) {
+        return cursor > node.textRange().endOffset();
     }
 
     @Override
