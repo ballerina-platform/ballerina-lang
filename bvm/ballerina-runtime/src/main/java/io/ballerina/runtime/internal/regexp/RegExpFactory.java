@@ -15,6 +15,7 @@
  */
 package io.ballerina.runtime.internal.regexp;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
@@ -184,9 +185,7 @@ public class RegExpFactory {
             return createLiteralCharOrEscape("\\&");
         }
         if (value.startsWith("\\u{") && value.endsWith("}")) {
-            int codePoint = Integer.parseInt(value.substring(3, value.length() - 1), 16);
-            char[] chars = Character.toChars(codePoint);
-            return createLiteralCharOrEscape(new String(chars));
+            return createLiteralCharOrEscape(Utils.unescapeBallerina(value));
         }
         return charOrEscape;
     }

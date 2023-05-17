@@ -2220,14 +2220,93 @@ function testTranslatingDiffNodesInCharClass() {
 }
 
 function testRegexpWithUnicodeChars() {
+    string startChar = string `\u{0d9c}`;
+    string endChar = string `\u{1F310}`;
     regexp:Span? resA1 = regexp:find(re = re `\u{1F30D}`, str = "😀 Hello, 🌍! ❤️");
     assertTrue(resA1 is regexp:Span);
-    regexp:Span? resA2 = regexp:find(re = re `\u{1F31F}`, str = "😀 Hello, 🌍! ❤️");
+    regexp:Span? resA2 = regexp:find(re `\u{1F30D}`, "🌍😀 Hello! ❤️", 5);
     assertTrue(resA2 is ());
-    regexp:Span? resA3 = regexp:find(re = re `\u{0d9c}`, str = "පරිගණක 10");
+    regexp:Span? resA3 = regexp:find(re `\u{1F30D}`, "😀 Hello 🌍! ❤️", 6);
     assertTrue(resA3 is regexp:Span);
-    regexp:Span[] resA4 = regexp:findAll(re = re `\u{1F30D}`, str = "😀 Hello, 🌍🌍! ❤️");
-    assertTrue(resA4 is regexp:Span[]);
+    regexp:Span? resA4 = regexp:find(re `\u{1F31F}`, "😀 Hello, 🌍! ❤️");
+    assertTrue(resA4 is ());
+    regexp:Span? resA5 = regexp:find(re `\u{0d9c}`, "පරිගණක 10");
+    assertTrue(resA5 is regexp:Span);
+    regexp:Span? resA6 = regexp:find(re `[${startChar}${endChar}]`, "😀 Hello, 🌏! ❤️");
+    assertTrue(resA6 is regexp:Span);
+    regexp:Span? resA7 = regexp:find(re `[${startChar}${endChar}]`, "😀 Hello,! ❤️");
+    assertTrue(resA7 is regexp:Span);
+    // Invalid code point range
+    regexp:Span? resA8 = regexp:find(re `\u{FF3AD}`, "😀 Hello, 🌍! ❤️");
+    assertTrue(resA8 is ());
+
+    regexp:Span[] resB1 = regexp:findAll(re `\u{1F30D}`, "😀 Hello, 🌍! ❤️");
+    assertTrue(resB1.length() == 1);
+    regexp:Span[] resB2 = regexp:findAll(re `\u{1F30D}`, "🌍😀 Hello! ❤️", 5);
+    assertTrue(resB2.length() == 0);
+    regexp:Span[] resB3 = regexp:findAll(re `\u{1F30D}`, "😀 Hello 🌍! 🌍❤️", 6);
+    assertTrue(resB3.length() == 2);
+    regexp:Span[] resB4 = regexp:findAll(re `\u{1F31F}`, "😀 Hello, 🌍! ❤️");
+    assertTrue(resB4.length() == 0);
+    regexp:Span[] resB5 = regexp:findAll(re `\u{0d9c}`, "පරිගණක 10");
+    assertTrue(resB5.length() == 1);
+    regexp:Span[] resB6 = regexp:findAll(re `[${startChar}${endChar}]`, "😀 Hello, 🌏! ❤️");
+    assertTrue(resB6.length() == 1);
+    regexp:Span[] resB7 = regexp:findAll(re `[${startChar}${endChar}]`, "😀 Hello,! ❤️");
+    assertTrue(resB7.length() == 1);
+    // Invalid code point range
+    regexp:Span[] resB8 = regexp:findAll(re `\u{FF3AD}`, "😀 Hello, 🌍! ❤️");
+    assertTrue(resB8.length() == 0);
+
+    regexp:Groups? resC1 = regexp:findGroups(re `o\u{1F30D}`, "😀 Hello🌍! ❤️o🌍");
+    assertTrue(resC1 is regexp:Groups);
+    regexp:Groups? resC2 = regexp:findGroups(re `l\u{1F30D}`, "😀 Hello🌍! ❤️o🌍");
+    assertTrue(resC2 is ());
+    
+    regexp:Groups[] resD1 = regexp:findAllGroups(re `o\u{1F30D}`, "😀 Hello🌍! ❤️o🌍");
+    assertTrue(resD1.length() == 2);
+    regexp:Groups[] resD2 = regexp:findAllGroups(re `o\u{1F301}`, "😀 Hello🌍! ❤️o🌍");
+    assertTrue(resD2.length() == 0);
+
+    boolean resE1 = regexp:isFullMatch(re `.*\u{1F30D}.*`, "😀 Hello, 🌍!");
+    assertTrue(resE1);
+    boolean resE2 = regexp:isFullMatch(re `.*\u{1F310}.*`, "😀 Hello, 🌍!");
+    assertFalse(resE2);
+
+    regexp:Groups? resF1 = regexp:fullMatchGroups(re `.*o\u{1F30D}.*`, "😀 Hello🌍! ❤️o🌍");
+    assertTrue(resF1 is regexp:Groups);
+    regexp:Groups? resF2 = regexp:fullMatchGroups(re `.*o\u{1F301}.*`, "😀 Hello🌍! ❤️o🌍");
+    assertTrue(resF2 is ());
+    
+    string resG1 = regexp:replace(re `o\u{1F30D}`, "😀 Hello🌍! ❤️o🌍", "\u{1F3D6}");
+    assertEquality("😀 Hell🏖! ❤️o🌍", resG1);
+    string resG2 = regexp:replace(re `o\u{1F30D}`, "😀 Hello🌍! ❤️o🌍", "==");
+    assertEquality("😀 Hell==! ❤️o🌍", resG2);
+    string resG3 = regexp:replace(re `\u{1F30D}`, "😀 Hello🌍! ❤️o🌍", "\u{1F3D6}", 8);
+    assertEquality("😀 Hello🌍! ❤️o🏖", resG3);    
+
+    string resH1 = regexp:replaceAll(re `\u{1F30D}`, "😀 Hello🌍! ❤️o🌍", "\u{1F3D6}");
+    assertEquality("😀 Hello🏖! ❤️o🏖", resH1);
+    string resH2 = regexp:replaceAll(re `\u{1F30D}`, "😀 Hello🌍! ❤️o🌍", "==");
+    assertEquality("😀 Hello==! ❤️o==", resH2);
+    string resH3 = regexp:replaceAll(re `\u{1F30D}`, "😀 Hello🌍! ❤️o🌍+🌍!!", "\u{1F3D6}", 8);
+    assertEquality("😀 Hello🌍! ❤️o🏖+🏖!!", resH3);
+
+    string[] resI1 = regexp:split(re `\u{1F30D}`, "😀 Hello🌍Our🌍Earth");
+    assertEquality("😀 Hello", resI1[0]);
+    string[] resI2 = regexp:split(re `\u{1F310}`, "😀 Hello🌍Our🌍Earth");
+    assertEquality("😀 Hello🌍Our🌍Earth", resI2[0]);
+
+    regexp:Span? resJ1 = regexp:matchAt(re `\u{1F30D}.*`, "🌍😀 Hello🌍! ❤️o🌍");
+    assertTrue(resJ1 is regexp:Span);
+    regexp:Span? resJ2 = regexp:matchAt(re `\u{1F30D}.*`, "😀 Hello🌍! ❤️o🌍", 7);
+    assertTrue(resJ2 is regexp:Span);
+    regexp:Span? resJ3 = regexp:matchAt(re `\u{1F30D}.*`, "😀 Hello🌍! ❤️o🌍");
+    assertTrue(resJ3 is ());
+    regexp:Span? resJ4 = regexp:matchAt(re `\u{1F310}`, "😀 Hello🌍! ❤️o🌍");
+    assertTrue(resJ4 is ());
+    regexp:Span? resJ5 = regexp:matchAt(re `\u{1F30D}`, "😀 Hello🌍! ❤️o", 10);
+    assertTrue(resJ5 is ());
 }
 
 function assertEquality(any|error expected, any|error actual) {
