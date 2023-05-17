@@ -111,9 +111,9 @@ public class XmlFactory {
         } catch (BError e) {
             throw e;
         } catch (DeferredParsingException e) {
-            throw ErrorCreator.createError(StringUtils.fromString((e.getCause().getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString(e.getCause().getMessage()));
         } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString((PARSE_ERROR_PREFIX + e.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString(PARSE_ERROR_PREFIX + e.getMessage()));
         }
     }
 
@@ -131,9 +131,9 @@ public class XmlFactory {
         } catch (BError e) {
             throw e;
         } catch (DeferredParsingException e) {
-            throw ErrorCreator.createError(StringUtils.fromString((e.getCause().getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString(e.getCause().getMessage()));
         } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString((PARSE_ERROR_PREFIX + e.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString(PARSE_ERROR_PREFIX + e.getMessage()));
         }
     }
 
@@ -189,7 +189,7 @@ public class XmlFactory {
                     if (firsOfRightSeq.getNodeType() == XmlNodeType.TEXT) {
                         concatenatedList.remove(lastIndexOFLeftChildren); // remove last item, from already copied list
                         concatenatedList.addAll(rightChildren);
-                        String merged = ((XmlText) lastItem).getTextValue() + ((XmlText) firsOfRightSeq).getTextValue();
+                        String merged = lastItem.getTextValue() + firsOfRightSeq.getTextValue();
                         concatenatedList.set(lastIndexOFLeftChildren, new XmlText(merged));
                         return new XmlSequence(concatenatedList);
                     }
@@ -246,8 +246,8 @@ public class XmlFactory {
                 !isEqual(startTagName.getUri(), endTagName.getUri()) ||
                 !isEqual(startTagName.getPrefix(), endTagName.getPrefix())) {
             throw ErrorCreator
-                    .createError(StringUtils.fromString(("start and end tag names mismatch: '" + startTagName + "' " +
-                            "and '" + endTagName + "'")));
+                    .createError(StringUtils.fromString("start and end tag names mismatch: '" + startTagName + "' " +
+                            "and '" + endTagName + "'"));
         }
         return createXMLElement(startTagName, defaultNsUri);
     }
