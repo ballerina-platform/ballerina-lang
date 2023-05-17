@@ -454,7 +454,8 @@ public class ServiceTemplateGenerator {
         if (typeSymbol.typeKind() == TypeDescKind.UNION) {
             //Here we consider the first service type of the union. 
             Optional<TypeSymbol> memberType = ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors()
-                    .stream().map(CommonUtil::getRawType).filter(member -> member.typeKind() == TypeDescKind.OBJECT).findFirst();
+                    .stream().map(CommonUtil::getRawType)
+                    .filter(member -> member.typeKind() == TypeDescKind.OBJECT).findFirst();
             if (memberType.isEmpty()) {
                 return Optional.empty();
             }
