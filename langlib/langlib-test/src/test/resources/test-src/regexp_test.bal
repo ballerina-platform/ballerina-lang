@@ -1761,60 +1761,57 @@ function testFromStringNegative() {
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Missing ']' character", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: missing close bracket ']' token in '['", <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString(string `${"[[]]"}`);
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Invalid character ']'", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: missing backslash before ']' token in '[[]]'", <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString(string `${"(?im-gi:ABC)"}`);
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: invalid flag in regular expression", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: invalid flag 'g' in '(?im-gi:ABC)'", <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString(string `${"(?im-si:ABC)"}`);
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: duplicate flag 'i'", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: duplicate flag 'i' in '(?im-si:ABC)'", <string> checkpanic x1.detail()["message"]);
     }
-
 
     x1 = regexp:fromString(string `${"?:ABC"}`);
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Invalid character '?'", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: missing backslash before '?' token in '?:ABC'", <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString(string `${"\\b"}`);
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Invalid character '\\b'", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: invalid character 'b' after backslash in '\\b'", <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString(string `${"[]"}`);
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Empty character class disallowed", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: empty character class disallowed in '[]'", <string> checkpanic x1.detail()["message"]);
     }
 
-    // Need to address in https://github.com/ballerina-platform/ballerina-lang/issues/39932
-
-    // x1 = regexp:fromString(string `[z-a]`);
-    // assertTrue(x1 is error);
-    // if (x1 is error) {
-    //     assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-    //     assertEquality("Failed to parse regular expression: Invalid character '\\'", <string> checkpanic x1.detail()["message"]);
-    // }
+    x1 = regexp:fromString(string `[z-a]`);
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: invalid character class range 'z'-'a' in '[z-a]'", <string> checkpanic x1.detail()["message"]);
+    }
 }
 
 function testModuleLevelPatterns() {
