@@ -92,6 +92,9 @@ public class CommandUtil {
     public static final String DEVCONTAINER = "devcontainer";
     public static final String NEW_CMD_DEFAULTS = "new_cmd_defaults";
     public static final String CREATE_CMD_TEMPLATES = "create_cmd_templates";
+    public static final String DEFAULT_TEMPLATE = "default";
+    public static final String MAIN_TEMPLATE = "main";
+    public static final String FILE_STRING_SEPARATOR = ", ";
     private static FileSystem jarFs;
     private static Map<String, String> env;
     private static PrintStream errStream;
@@ -722,18 +725,19 @@ public class CommandUtil {
      * @param path project path
      * @param packageName name of the package
      * @param template package template
+     * @param balFilesExist if bal files exist in the project
      * @throws IOException  If any IO exception occurred
      * @throws URISyntaxException If any URISyntaxException occurred
      */
-    public static void initPackageByTemplate(Path path, String packageName, String template) throws IOException,
-            URISyntaxException {
+    public static void initPackageByTemplate(Path path, String packageName, String template, boolean balFilesExist)
+            throws IOException, URISyntaxException {
         // We will be creating following in the project directory
         // - Ballerina.toml
         // - main.bal
         // - .gitignore       <- git ignore file
         // - .devcontainer.json
 
-        applyTemplate(path, template);
+        applyTemplate(path, template, balFilesExist);
         if (template.equalsIgnoreCase("lib")) {
             initLibPackage(path, packageName);
             Path source = path.resolve("lib.bal");
@@ -817,16 +821,22 @@ public class CommandUtil {
      *
      * @param modulePath path to the module
      * @param template template name
+     * @param balFilesExist if bal files exist in the project                
      * @throws IOException if any IOException occurred
      * @throws URISyntaxException if any URISyntaxException occurred
      */
-    public static void applyTemplate(Path modulePath, String template) throws IOException, URISyntaxException {
+    public static void applyTemplate(Path modulePath, String template, boolean balFilesExist)
+            throws IOException, URISyntaxException {
         Path templateDir = getTemplatePath().resolve(template);
-        if (template.equalsIgnoreCase("main")) {
-            templateDir = getTemplatePath().resolve("default");
-            Path tempDirTest = getTemplatePath().resolve("main");
+        if (template.equalsIgnoreCase(MAIN_TEMPLATE)) {
+            templateDir = getTemplatePath().resolve(DEFAULT_TEMPLATE);
+            Path tempDirTest = getTemplatePath().resolve(MAIN_TEMPLATE);
             Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
             Files.walkFileTree(tempDirTest, new FileUtils.Copy(tempDirTest, modulePath));
+        } else if (template.equalsIgnoreCase(DEFAULT_TEMPLATE)) {
+            if (!balFilesExist) {
+                Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
+            }
         } else {
             Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
         }
@@ -942,4 +952,58 @@ public class CommandUtil {
     private static String removeLastCharacter(String str) {
         return str.substring(0, str.length() - 1);
     }
+
+    /**
+     * Check if files of the given template exist in a given path.
+     *
+     * @param template given string
+     * @param packagePath given path
+     * @throws URISyntaxException if URI syntax exception occurred
+     * @throws IOException if IO exception occurred
+     */
+    public static String checkTemplateFilesExists(String template, Path packagePath) throws URISyntaxException,
+            IOException {
+        Path templateDir = getTemplatePath().resolve(template);
+        Stream<Path> paths = Files.list(templateDir);
+        List<Path> templateFilePathList = paths.collect(Collectors.toList());
+        String existingFiles = "";
+        for (Path path : templateFilePathList) {
+            String fileName = path.getFileName().toString();
+            if (!fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT) && Files.exists(packagePath.resolve(fileName))) {
+                existingFiles += fileName + FILE_STRING_SEPARATOR;
+            }
+        }
+        return existingFiles;
+    }
+
+    /**
+     * Check if common files of a package exist in a given path.
+     *
+     * @param packagePath given path
+     */
+    public static String checkPackageFilesExists(Path packagePath) {
+        String[] packageFiles = {DEPENDENCIES_TOML, ProjectConstants.PACKAGE_MD_FILE_NAME,
+                ProjectConstants.MODULE_MD_FILE_NAME, ProjectConstants.MODULES_ROOT, ProjectConstants.TEST_DIR_NAME,
+                ProjectConstants.GITIGNORE_FILE_NAME, ProjectConstants.DEVCONTAINER};
+        String existingFiles = "";
+
+        for (String file : packageFiles) {
+            if (Files.exists(packagePath.resolve(file))) {
+                existingFiles += file + FILE_STRING_SEPARATOR;
+            }
+        }
+        return existingFiles;
+    }
+
+    /**
+     * Check if .bal files exist in a given path.
+     *
+     * @param packagePath given path
+     * @return error message if files exists
+     */
+    public static boolean balFilesExists(Path packagePath) throws IOException {
+        //Only skip the bal file to be created if any other .bal files exists
+        return Files.list(packagePath).anyMatch(path -> path.toString().endsWith(ProjectConstants.BLANG_SOURCE_EXT));
+    }
 }
+
