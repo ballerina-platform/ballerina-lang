@@ -109,6 +109,9 @@ function testInvocation() {
     var x15 = from var {name, price1} in input
                 collect avg(price1);    
     assertEquality(14.66666666666666666666666666666667d, x15);
+    var x16 = from var {price1} in input
+                collect <decimal?> [price1].length() + avg(price1);    
+    assertEquality(20.66666666666666666666666666666667d, x16);
 }
 
 function testEmptyGroups1() {
@@ -267,6 +270,10 @@ function testEmptyGroups2() {
                     where name == "XX"
                     collect from var item in [2] let var x = avg(price1) collect [x];
     assertEquality([], x10);
+    var x11 = from var {price1} in input
+                where price1 == -1
+                collect <decimal?> [price1].length() + avg(price1);    
+    assertEquality(x11 is (), true);    
 }
 
 function testGroupByAndCollectInSameQuery() {
@@ -409,6 +416,12 @@ function testMultipleCollect() {
     var x11 = from var {price1} in input1
                 select (from var p in [price1] where p == -1 collect int:avg(p));
     assertEquality([null, null, null, null, null, null], x11);
+    var x12 = from var {price1} in input1
+                collect from var p in [price1] collect avg(p);    
+    assertEquality(11d, x12);
+    var x13 = from var {price1} in input1
+                collect (from var _ in [price1] collect [price1]);    
+    assertEquality([11, 11, 10, 10, 12, 12], x13);
 }
 
 function testDoClause() {

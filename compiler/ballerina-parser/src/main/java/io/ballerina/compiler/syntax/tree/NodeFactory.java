@@ -2070,7 +2070,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static CollectClauseNode createCollectClauseNode(
             Token collectKeyword,
             ExpressionNode expression) {
-        Objects.requireNonNull(collectKeyword, "selectKeyword must not be null");
+        Objects.requireNonNull(collectKeyword, "collectKeyword must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stSelectClauseNode = STNodeFactory.createCollectClauseNode(

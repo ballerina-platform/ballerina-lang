@@ -2133,7 +2133,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         BType type;
         if (symbol.type.tag == TypeTags.SEQUENCE) {
             BType elementType = ((BSequenceType) symbol.type).elementType;
-            type = symbol.type = new BTupleType(null, new ArrayList<>(0), elementType, 0);
+            List<BTupleMember> tupleMembers = new ArrayList<>(1);
+            tupleMembers.add(new BTupleMember(elementType, Symbols.createVarSymbolForTupleMember(elementType)));
+            type = symbol.type = new BTupleType(null, tupleMembers, elementType, 0);
         } else {
             type = symbol.type;
         }
@@ -2566,8 +2568,8 @@ public class QueryDesugar extends BLangNodeVisitor {
         for (Map.Entry<String, BSymbol> identifier : identifiers.entrySet()) {
             BSymbol symbol = symResolver.lookupClosureVarSymbol(env, Names.fromString(identifier.getKey()),
                     SymTag.SEQUENCE);
-            if (symbol != symTable.notFoundSymbol) {
-                identifiers.put(identifier.getKey(), symbol);
+            if (symbol != symTable.notFoundSymbol && !identifier.getValue().closure) {
+                    identifiers.put(identifier.getKey(), symbol);
             }
         }
     }
