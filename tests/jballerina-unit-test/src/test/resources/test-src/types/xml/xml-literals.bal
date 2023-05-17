@@ -78,22 +78,22 @@ function testXMLSequence() {
     'xml:Text x16 = xml `text ${v1}`;
     test:assertEquals(x16.toString(), "text interpolation1");
     
-    any x30 = xml `foo<e></e>`; 
-    test:assertEquals(x30.toString(), "foo<e></e>");
+    any x30 = xml `foo<e></e>`;
+    test:assertEquals(x30.toString(), "foo<e/>");
     anydata x31 = xml `bar<e></e>`; 
-    test:assertEquals(x31.toString(), "bar<e></e>");
+    test:assertEquals(x31.toString(), "bar<e/>");
     any|Template x32 = xml `foo<elem></elem>`;
-    test:assertEquals(x32.toString(), "foo<elem></elem>");
+    test:assertEquals(x32.toString(), "foo<elem/>");
     Template|any x33 = xml `bar<elem></elem>`; 
-    test:assertEquals(x33.toString(), "bar<elem></elem>");
+    test:assertEquals(x33.toString(), "bar<elem/>");
     xml|error x34 = xml `world<elem></elem>`;
     if (x34 is xml) {
-        test:assertEquals(x34.toString(), "world<elem></elem>");
+        test:assertEquals(x34.toString(), "world<elem/>");
     }
     xml|xml<xml:Text>|xml:Text x35 = xml `hello<e></e>`;
-    test:assertEquals(x35.toString(), "hello<e></e>");
+    test:assertEquals(x35.toString(), "hello<e/>");
     xml|xml<xml:Text|xml:Comment> x36 = xml `world<e></e>`;
-    test:assertEquals(x36.toString(), "world<e></e>");
+    test:assertEquals(x36.toString(), "world<e/>");
 }
 
 public type Template object {
