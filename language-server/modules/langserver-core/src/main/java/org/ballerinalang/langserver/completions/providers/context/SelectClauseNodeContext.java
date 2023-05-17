@@ -142,7 +142,6 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
         langLibMethods.addAll(types.STREAM.langLibMethods());
         langLibMethods.addAll(types.TYPEDESC.langLibMethods());
         langLibMethods.addAll(types.XML.langLibMethods());
-        langLibMethods.addAll(types.COMPILATION_ERROR.langLibMethods());
 
         return langLibMethods.stream().distinct().collect(Collectors.toList());
     }
