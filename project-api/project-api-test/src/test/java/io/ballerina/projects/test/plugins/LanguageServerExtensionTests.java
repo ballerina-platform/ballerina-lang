@@ -187,6 +187,7 @@ public class LanguageServerExtensionTests {
         Assert.assertFalse(completionItem.getAdditionalTextEdits().isEmpty());
         TextEdit edit = completionItem.getAdditionalTextEdits().get(0);
         Assert.assertTrue(edit.text().equals("#Sample service with foo resource" +
-                CompletionUtil.LINE_BREAK) && edit.range().startOffset() == 113 && edit.range().length() == 0);
+                CompletionUtil.LINE_BREAK) && edit.range().startOffset() == nodeAtCursor.textRange().startOffset()
+                && edit.range().length() == 0);
     }
 }
