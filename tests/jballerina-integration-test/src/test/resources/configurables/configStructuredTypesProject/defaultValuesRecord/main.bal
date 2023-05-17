@@ -67,6 +67,12 @@ configurable map<table<type_defs:Numbers>> numberTableMap = ?;
 configurable map<table<configLib:Symbols>> symbolTableMap = ?;
 configurable map<table<WordsContainer>> containerTableMap = ?;
 
+configurable type_defs:Endpoint endpoint = ?;
+configurable type_defs:Endpoint[] endpointArr = ?;
+configurable table<type_defs:Endpoint> endpointTable = ?;
+configurable map<type_defs:Endpoint> endpointMap = ?;
+configurable map<table<type_defs:Endpoint>> endpointTableMap = ?;
+
 function testDefaultValues() {
     test:assertEquals(words.toString(), "{\"word1\":\"word 1\",\"word2\":\"word 2\",\"word3\":\"word 3\"," +
     "\"word4\":\"word 4\",\"word5\":\"word 5\",\"word6\":null,\"word7\":\"word 7\"}");
@@ -130,6 +136,16 @@ function testDefaultValues() {
     "\"word2\":\"word 2\",\"word3\":\"word 3\",\"word4\":\"word 4\",\"word5\":\"word 5\",\"word6\":null," +
     "\"word7\":\"word 7\"}}],\"map2\":[{\"words\":{\"word1\":\"word 10\",\"word2\":\"word 20\",\"word3\":\"word 30\"," +
     "\"word4\":\"word 40\",\"word5\":\"word 50\",\"word6\":null,\"word7\":\"word 70\"}}]}");
+
+    test:assertEquals(endpoint.toString(), "{\"basePath\":\"/api/v1\",\"url\":[],\"port\":9090}");
+    test:assertEquals(endpointArr.toString(), "[{\"basePath\":\"/api/v2\",\"url\":[],\"port\":9090},{\"basePath\":" +
+    "\"/api/v3\",\"url\":[\"http://localhost:8080\"],\"port\":9080}]");
+    test:assertEquals(endpointTable.toString(), "[{\"basePath\":\"/api/v4\",\"url\":[],\"port\":9090},{\"basePath\":" +
+    "\"/api/v5\",\"url\":[\"http://localhost:8080\"],\"port\":9081}]");
+    test:assertEquals(endpointMap.toString(), "{\"entry1\":{\"basePath\":\"/api/v6\",\"url\":[],\"port\":9090}," +
+    "\"entry2\":{\"basePath\":\"/api/v7\",\"url\":[\"http://localhost:8080\"],\"port\":9082}}");
+    test:assertEquals(endpointTableMap.toString(), "{\"map1\":[{\"basePath\":\"/api/v8\",\"url\":[],\"port\":9090}]," +
+    "\"map2\":[{\"basePath\":\"/api/v9\",\"url\":[\"http://localhost:8080\"],\"port\":9083}]}");
 }
 
 isolated function getWord() returns string {
