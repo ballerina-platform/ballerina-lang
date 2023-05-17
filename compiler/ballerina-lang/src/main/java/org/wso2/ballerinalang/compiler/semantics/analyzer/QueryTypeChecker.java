@@ -22,6 +22,7 @@ import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -377,7 +378,7 @@ public class QueryTypeChecker extends TypeChecker {
                     // contextually expected type not given (i.e var).
                     selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), env, type, data);
                     BType checkedType = symTable.semanticError;
-                    if (selectType == symTable.semanticError) {
+                    if (selectType == symTable.semanticError || isMapOfAnyOrError(selectType)) {
                         checkedType = checkExpr(selectExp, env, data);
                     }
 
@@ -414,6 +415,22 @@ public class QueryTypeChecker extends TypeChecker {
                 checkExpr(selectExp, env, errorTypes.iterator().next(), data);
             }
         }
+    }
+
+    private boolean isMapOfAnyOrError(BType selectType) {
+        if (selectType.getKind() != TypeKind.MAP) {
+            return false;
+        }
+
+        BType constraint = ((BMapType) selectType).getConstraint();
+        if (constraint.getKind() != TypeKind.UNION) {
+            return false;
+        }
+
+        return ((BUnionType) constraint)
+                .getMemberTypes()
+                .stream()
+                .allMatch(type -> type.getKind() == TypeKind.ANY || type.getKind() == TypeKind.ERROR);
     }
 
     private BType getQueryTableType(BLangQueryExpr queryExpr, BType constraintType, BType resolvedType, SymbolEnv env) {
