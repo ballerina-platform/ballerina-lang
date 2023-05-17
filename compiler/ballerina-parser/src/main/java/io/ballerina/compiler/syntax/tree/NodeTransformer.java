@@ -536,6 +536,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(selectClauseNode);
     }
 
+    public T transform(CollectClauseNode collectClauseNode) {
+        return transformSyntaxNode(collectClauseNode);
+    }
+
     public T transform(QueryExpressionNode queryExpressionNode) {
         return transformSyntaxNode(queryExpressionNode);
     }

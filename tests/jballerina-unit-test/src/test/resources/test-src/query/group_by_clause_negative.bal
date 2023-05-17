@@ -166,3 +166,15 @@ function testTypeMatchInSeqVar() {
                         group by name
                         select int:avg(...[price]); // error
 }
+
+function testInvalidGroupingKeys() {
+    var input = [{name: "SAMAN", err: error("msg1")}, 
+                    {name: "SAMAN", err: error("msg2")}]; 
+
+    var x = from var {name, err} in input
+                group by error str = err // error
+                select [name];     
+    var y = from var {name, err} in input
+                group by err // error
+                select [name];     
+}

@@ -2255,7 +2255,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         List<BType> restMemberTypes = new ArrayList<>();
     }
 
-    // TODO: Return BTupleType
     protected BType getInferredTupleType(BLangListConstructorExpr listConstructor, BType expType, AnalyzerData data) {
 
         InferredTupleDetails inferredTupleDetails = checkExprList(listConstructor.exprs, expType, data);

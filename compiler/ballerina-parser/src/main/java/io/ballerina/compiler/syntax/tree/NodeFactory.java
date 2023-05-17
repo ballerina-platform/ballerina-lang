@@ -2067,6 +2067,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stSelectClauseNode.createUnlinkedFacade();
     }
 
+    public static CollectClauseNode createCollectClauseNode(
+            Token collectKeyword,
+            ExpressionNode expression) {
+        Objects.requireNonNull(collectKeyword, "collectKeyword must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stSelectClauseNode = STNodeFactory.createCollectClauseNode(
+                collectKeyword.internalNode(),
+                expression.internalNode());
+        return stSelectClauseNode.createUnlinkedFacade();
+    }
+
     public static QueryExpressionNode createQueryExpressionNode(
             QueryConstructTypeNode queryConstructType,
             QueryPipelineNode queryPipeline,
