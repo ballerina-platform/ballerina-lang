@@ -7138,7 +7138,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 checkTypeParamExpr(vararg, actualType, iExpr.langLibInvocation, data);
             } else {
                 checkTypeParamExpr(vararg, listTypeRestArg, iExpr.langLibInvocation, data);
-            } // int[] : seq int
+            }
             restType = data.resultType;
         } else if (!iExpr.restArgs.isEmpty()) {
             if (listTypeRestArg.tag == TypeTags.ARRAY) {
