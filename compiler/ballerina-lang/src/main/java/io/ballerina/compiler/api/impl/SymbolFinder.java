@@ -223,6 +223,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.ballerinalang.model.tree.NodeKind.RESOURCE_PATH_PARAM_SEGMENT;
+import static org.ballerinalang.model.tree.NodeKind.RESOURCE_PATH_REST_PARAM_SEGMENT;
 
 /**
  * Finds the enclosing AST node's symbol for the given position.
@@ -316,15 +318,11 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangResourcePathSegment pathSegment) {
-        switch (pathSegment.getKind()) {
-            case RESOURCE_PATH_PARAM_SEGMENT:
-            case RESOURCE_PATH_REST_PARAM_SEGMENT:
-                lookupNode(pathSegment.typeNode);
-            case RESOURCE_PATH_IDENTIFIER_SEGMENT:
-            default:
-                setEnclosingNode(pathSegment.symbol, pathSegment.symbol.pos);
-                break;
+        if (pathSegment.getKind() == RESOURCE_PATH_PARAM_SEGMENT
+                || pathSegment.getKind() == RESOURCE_PATH_REST_PARAM_SEGMENT) {
+            lookupNode(pathSegment.typeNode);
         }
+        setEnclosingNode(pathSegment.symbol, pathSegment.symbol.pos);
     }
 
     @Override
