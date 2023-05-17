@@ -15,8 +15,11 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
@@ -28,10 +31,13 @@ import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,9 +67,12 @@ public class MappingConstructorExpressionNodeContext extends
             return completionItems;
         }
 
+        Scope scope = Scope.OTHER;
         if (this.withinValueExpression(context, evalNode.get())) {
+            scope = Scope.VALUE_EXPR;
             completionItems.addAll(getCompletionsInValueExpressionContext(context));
         } else if (this.withinComputedNameContext(context, evalNode.get())) {
+            scope = Scope.COMPUTED_FIELD_NAME;
             if (QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
                 completionItems.addAll(this.getExpressionsCompletionsForQNameRef(context, qNameRef));
@@ -71,9 +80,10 @@ public class MappingConstructorExpressionNodeContext extends
                 completionItems.addAll(this.getComputedNameCompletions(context));
             }
         } else {
+            scope = Scope.FIELD_NAME;
             completionItems.addAll(this.getFieldCompletionItems(context, node, evalNode.get()));
         }
-        this.sort(context, node, completionItems);
+        this.sort(context, node, completionItems, scope);
         return completionItems;
     }
 
@@ -83,6 +93,47 @@ public class MappingConstructorExpressionNodeContext extends
         return !node.openBrace().isMissing() && !node.closeBrace().isMissing()
                 && cursor > node.openBrace().textRange().startOffset()
                 && cursor < node.closeBrace().textRange().endOffset();
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, MappingConstructorExpressionNode node,
+                     List<LSCompletionItem> completionItems, Object... metaData) {
+        final Scope scope;
+        if (metaData.length > 0 && metaData[0] instanceof Scope) {
+            scope = (Scope) metaData[0];
+        } else {
+            scope = Scope.OTHER;
+        }
+
+        Optional<TypeSymbol> contextType = context.getContextType();
+        if (contextType.isEmpty()) {
+            super.sort(context, node, completionItems);
+            return;
+        }
+
+        completionItems.forEach(lsCItem -> {
+            // In the field name context, we have to give a special consideration to the map type variables
+            // suggested with the spread operator (...map1).
+            if (scope == Scope.FIELD_NAME && lsCItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+                SymbolCompletionItem symbolCItem = (SymbolCompletionItem) lsCItem;
+                Optional<TypeSymbol> mapTypeParam = symbolCItem.getSymbol()
+                        .flatMap(SymbolUtil::getTypeDescriptor)
+                        .filter(typeDesc -> typeDesc.typeKind() == TypeDescKind.MAP)
+                        .map(typeDesc -> (MapTypeSymbol) typeDesc)
+                        .map(MapTypeSymbol::typeParam);
+                // If the completion item is a map type variable and is the spread operator, we give it priority
+                if (mapTypeParam.isPresent() && mapTypeParam.get().subtypeOf(contextType.get())
+                        && lsCItem.getCompletionItem().getLabel().startsWith("...")) {
+                    int rank = SortingUtil.toRank(context, lsCItem);
+                    String sortText = SortingUtil.genSortText(1) + SortingUtil.genSortText(rank);
+                    lsCItem.getCompletionItem().setSortText(sortText);
+                    return;
+                }
+            }
+
+            String sortText = SortingUtil.genSortTextByAssignability(context, lsCItem, contextType.get());
+            lsCItem.getCompletionItem().setSortText(sortText);
+        });
     }
 
     private boolean withinComputedNameContext(BallerinaCompletionContext context, Node evalNodeAtCursor) {
@@ -116,5 +167,12 @@ public class MappingConstructorExpressionNodeContext extends
                         && ((SpecificFieldNode) field).fieldName().kind() == SyntaxKind.IDENTIFIER_TOKEN)
                 .map(field -> ((IdentifierToken) ((SpecificFieldNode) field).fieldName()).text())
                 .collect(Collectors.toList());
+    }
+    
+    private enum Scope {
+        VALUE_EXPR,
+        FIELD_NAME,
+        COMPUTED_FIELD_NAME,
+        OTHER
     }
 }

@@ -851,9 +851,11 @@ public class Types {
             return true;
         }
 
-        if (sourceTag == TypeTags.SEQUENCE && targetTag == TypeTags.ARRAY) {
-            return isAssignable(((BSequenceType) source).elementType, ((BArrayType) target).eType,
-                    unresolvedTypes);
+        if (sourceTag == TypeTags.SEQUENCE) {
+            BSequenceType seqType = (BSequenceType) source;
+            if (targetTag == TypeTags.ARRAY) {
+                return isAssignable(seqType.elementType, ((BArrayType) target).eType, unresolvedTypes);
+            }
         }
 
         if (!Symbols.isFlagOn(source.flags, Flags.PARAMETERIZED) &&
@@ -6618,6 +6620,14 @@ public class Types {
             case TypeTags.TYPEREFDESC:
                 visitedTypeSet.add(type);
                 return isNeverTypeOrStructureTypeWithARequiredNeverMember(getReferredType(type), visitedTypeSet);
+            case UNION:
+                BUnionType unionType = (BUnionType) type;
+                for (BType memType : unionType.getMemberTypes()) {
+                    if (!isNeverTypeOrStructureTypeWithARequiredNeverMember(memType, visitedTypeSet)) {
+                        return false;
+                    }
+                }
+                return true;
             default:
                 return false;
         }

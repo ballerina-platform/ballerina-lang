@@ -3595,7 +3595,13 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     private BLangNode createXMLEmptyLiteral(Node expressionNode) {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
         xmlTextLiteral.pos = getPosition(expressionNode);
-        xmlTextLiteral.textFragments.add(createEmptyStringLiteral(xmlTextLiteral.pos));
+        Location expressionPos = xmlTextLiteral.pos;
+        if (expressionNode.kind() == SyntaxKind.XML_TEMPLATE_EXPRESSION) {
+            TemplateExpressionNode templateExprNode = (TemplateExpressionNode) expressionNode;
+            expressionPos = getPosition(templateExprNode.startBacktick(), templateExprNode.endBacktick());
+        }
+
+        xmlTextLiteral.textFragments.add(createEmptyStringLiteral(expressionPos));
         return xmlTextLiteral;
     }
 
@@ -5680,10 +5686,6 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         Location pos = getPosition(reSimpleCharClassEscapeNode);
         BLangExpression escapeChar = createStringLiteral(backSlash.value.toString() +
                 simpleCharClassEscapeNode.value.toString(), pos);
-        // Return the literal for escape sequence if it's in a character class.
-        if (this.isInCharacterClass) {
-            return escapeChar;
-        }
         BLangReAtomCharOrEscape reAtomCharOrEscape =
                 (BLangReAtomCharOrEscape) TreeBuilder.createReAtomCharOrEscapeNode();
         reAtomCharOrEscape.charOrEscape = escapeChar;
@@ -5825,8 +5827,25 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         charSetRange.dash = (BLangExpression) charSetRangeNode.minusToken().apply(this);
         charSetRange.rhsCharSetAtom = (BLangExpression) charSetRangeNode.rhsReCharSetAtom().apply(this);
         charSetRange.pos = getPosition(charSetRangeNode);
-        // lhsCharSetAtom value should be less than rhsCharSetAtom value.
-        checkRangeValidity((BLangLiteral) charSetRange.lhsCharSetAtom, (BLangLiteral) charSetRange.rhsCharSetAtom);
+        return validateAndRefactorCharSetRange(charSetRange);
+    }
+
+    private BLangReCharSetRange validateAndRefactorCharSetRange(BLangReCharSetRange charSetRange) {
+        BLangExpression lhsCharSetAtom = charSetRange.lhsCharSetAtom;
+        BLangExpression rhsCharSetAtom = charSetRange.rhsCharSetAtom;
+        if (lhsCharSetAtom.getKind() != NodeKind.REG_EXP_ATOM_CHAR_ESCAPE
+                && rhsCharSetAtom.getKind() != NodeKind.REG_EXP_ATOM_CHAR_ESCAPE) {
+            // lhsCharSetAtom value should be less than rhsCharSetAtom value.
+            checkRangeValidity((BLangLiteral) lhsCharSetAtom, (BLangLiteral) rhsCharSetAtom);
+        }
+        if (isInCharacterClass) {
+            if (lhsCharSetAtom.getKind() == NodeKind.REG_EXP_ATOM_CHAR_ESCAPE) {
+                charSetRange.lhsCharSetAtom = ((BLangReAtomCharOrEscape) lhsCharSetAtom).charOrEscape;
+            }
+            if (charSetRange.rhsCharSetAtom.getKind() == NodeKind.REG_EXP_ATOM_CHAR_ESCAPE) {
+                charSetRange.rhsCharSetAtom = ((BLangReAtomCharOrEscape) rhsCharSetAtom).charOrEscape;
+            }
+        }
         return charSetRange;
     }
 
@@ -5863,7 +5882,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         charSetRange.dash = (BLangExpression) charSetRangeNode.minusToken().apply(this);
         charSetRange.rhsCharSetAtom = (BLangExpression) charSetRangeNode.reCharSetAtom().apply(this);
         charSetRange.pos = getPosition(charSetRangeNode);
-        return charSetRange;
+        return validateAndRefactorCharSetRange(charSetRange);
     }
 
     @Override

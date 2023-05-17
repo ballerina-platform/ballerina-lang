@@ -44,6 +44,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
@@ -737,6 +739,20 @@ public class EnvironmentResolver extends BaseVisitor {
     public void visit(BLangArrowFunction bLangArrowFunction) {
         this.acceptNodes(bLangArrowFunction.params, this.symbolEnv);
         this.acceptNode(bLangArrowFunction.body, this.symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, groupByClause.getPosition())) {
+            return;
+        }
+        this.scope = groupByClause.env;
+        this.acceptNodes(groupByClause.getGroupingKeyList(), groupByClause.env);
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKeyClause) {
+        this.acceptNode((BLangNode) groupingKeyClause.getGroupingKey(), this.symbolEnv);
     }
 
     private void acceptNodes(List<? extends BLangNode> nodes, SymbolEnv env) {

@@ -39,6 +39,7 @@ public class MockConstants {
     public static final String INVALID_MOCK_OBJECT_ERROR = "InvalidObjectError";
     public static final String FUNCTION_SIGNATURE_MISMATCH_ERROR = "FunctionSignatureMismatchError";
     public static final String INVALID_MEMBER_FIELD_ERROR = "InvalidMemberFieldError";
+    public static final String NON_PUBLIC_MEMBER_FIELD_ERROR = "NonPublicMemberFieldError";
 
     public static final String FUNCTION_CALL_ERROR = "FunctionCallError";
 }

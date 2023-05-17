@@ -20,8 +20,11 @@ package io.ballerina.compiler.api.impl;
 
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.model.clauses.GroupingKeyNode;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -61,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPatt
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -293,7 +297,7 @@ public class ReferenceFinder extends BaseVisitor {
         find(funcNode.returnTypeNode);
         find(funcNode.body);
 
-        if (funcNode.symbol.origin != VIRTUAL) {
+        if (funcNode.symbol != null && funcNode.symbol.origin != VIRTUAL) {
             addIfSameSymbol(funcNode.symbol, funcNode.name.pos);
         }
     }
@@ -640,6 +644,18 @@ public class ReferenceFinder extends BaseVisitor {
     public void visit(BLangOrderByClause orderByClause) {
         for (OrderKeyNode orderKeyNode : orderByClause.orderByKeyList) {
             find((BLangOrderKey) orderKeyNode);
+        }
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        for (GroupingKeyNode keyNode : groupByClause.getGroupingKeyList()) {
+            Node groupingKey = keyNode.getGroupingKey();
+            if (groupingKey.getKind() == NodeKind.VARIABLE_DEF) {
+                find((BLangSimpleVariableDef) keyNode.getGroupingKey());
+            } else if (groupingKey.getKind() == NodeKind.VARIABLE) {
+                find((BLangSimpleVarRef) keyNode.getGroupingKey());
+            }
         }
     }
 
@@ -1407,7 +1423,7 @@ public class ReferenceFinder extends BaseVisitor {
                 && this.targetSymbol.name.equals(symbol.name)
                 && this.targetSymbol.pkgID.equals(symbol.pkgID)
                 && this.targetSymbol.pos.equals(symbol.pos)
-                && (this.withDefinition || !symbol.pos.equals(location))) {
+                && (this.withDefinition || (symbol.getOrigin() != VIRTUAL && !symbol.pos.equals(location)))) {
             this.referenceLocations.add(location);
             return true;
         }

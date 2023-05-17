@@ -712,7 +712,6 @@ public class TreeTraverser {
 
         if (this.mode == ParserMode.RE_FLAGS_START && peek() == Terminals.QUESTION_MARK) {
             this.reader.advance();
-            switchMode(ParserMode.RE_FLAGS);
             return getRegExpToken(TokenKind.QUESTION_MARK_TOKEN);
         }
 
@@ -730,7 +729,7 @@ public class TreeTraverser {
         }
 
         if (!isReFlag(peek())) {
-            throw new BallerinaException(errorMsgStart + getMarkedChars() + "'");
+            throw new BallerinaException("invalid flag in regular expression");
         }
 
         this.reader.advance();

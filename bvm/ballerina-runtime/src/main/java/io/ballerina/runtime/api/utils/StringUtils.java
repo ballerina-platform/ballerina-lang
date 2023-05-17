@@ -335,7 +335,7 @@ public class StringUtils {
         if (exprValue.startsWith("xml")) {
             String xml = exprValue.substring(exprValue.indexOf('`') + 1,
                     exprValue.lastIndexOf('`')).trim();
-            return BalStringUtils.parseXmlExpressionStringValue(xml, parent);
+            return BalStringUtils.parseXmlExpressionStringValue(xml);
         }
         if (exprValue.startsWith("re")) {
             String regexp = exprValue.substring(exprValue.indexOf('`') + 1,
@@ -375,15 +375,14 @@ public class StringUtils {
     }
 
     private static String stringToJson(BString value) {
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        JsonGenerator gen = new JsonGenerator(byteOut);
-        try {
+        try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+             JsonGenerator gen = new JsonGenerator(byteOut)) {
             gen.writeString(value.getValue());
             gen.flush();
+            return byteOut.toString();
         } catch (IOException e) {
             throw new BallerinaException("Error in converting string value to a json string: " + e.getMessage(), e);
         }
-        return byteOut.toString();
     }
 
     private StringUtils() {

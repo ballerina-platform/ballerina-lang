@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -44,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BSequenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -236,6 +238,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     private SymbolEnv env;
     private SymbolEnv queryEnv;
     private boolean containsCheckExpr;
+    private boolean withinQuery = false;
+    private boolean afterGroupBy = false;
     private boolean withinLambdaOrArrowFunc = false;
     private HashSet<BType> checkedErrorList;
 
@@ -1659,18 +1663,27 @@ public class QueryDesugar extends BLangNodeVisitor {
         List<BLangExpression> restArgs = invocation.restArgs;
         for (int i = 0; i < restArgs.size(); i++) {
             BLangExpression arg = restArgs.get(i);
-            if (arg.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                BLangSimpleVarRef varRef = (BLangSimpleVarRef) arg;
-                BSymbol symbol = varRef.symbol;
-                if (symbol != null && (symbol.tag & SymTag.SEQUENCE) == SymTag.SEQUENCE) {
-                    BType elementType = ((BSequenceType) symbol.type).elementType;
-                    BType type = symbol.type = new BTupleType(null, new ArrayList<>(0), elementType, 0);
-                    varRef.setBType(type);
-                    restArgs.set(i, createRestArgsExpression(varRef, type));
-                }
+            if (arg.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                continue;
             }
-            this.acceptNode(restArgs.get(i));
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) arg;
+            BSymbol symbol = varRef.symbol;
+            if (symbol == null || (symbol.tag & SymTag.SEQUENCE) != SymTag.SEQUENCE) {
+                continue;
+            }
+            BType type;
+            if (symbol.type.tag == TypeTags.SEQUENCE) {
+                BType elementType = ((BSequenceType) symbol.type).elementType;
+                List<BTupleMember> tupleMembers = new ArrayList<>(1);
+                tupleMembers.add(new BTupleMember(elementType, Symbols.createVarSymbolForTupleMember(elementType)));
+                type = symbol.type = new BTupleType(null, tupleMembers, elementType, 0);
+            } else {
+                type = symbol.type;
+            }
+            varRef.setBType(type);
+            restArgs.set(i, createRestArgsExpression(varRef, type));
         }
+        restArgs.forEach(this::acceptNode);
     }
 
     private BLangRestArgsExpression createRestArgsExpression(BLangSimpleVarRef expr, BType type) {
@@ -1800,8 +1813,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
                 if (symbol instanceof BVarSymbol) {
                     ((BVarSymbol) symbol).originalSymbol = null;
-                    if (withinLambdaOrArrowFunc) {
-                        if (symbol.closure) {
+                    if (withinLambdaOrArrowFunc || withinQuery) {
+                        if (!withinLambdaOrArrowFunc || symbol.closure) {
                             // When there's a closure in a lambda inside a query lambda the symbol.closure is
                             // true for all its usages. Therefore mark symbol.closure = false for the existing
                             // symbol and create a new symbol with the same properties.
@@ -1829,7 +1842,8 @@ public class QueryDesugar extends BLangNodeVisitor {
                     }
                 }
                 identifiers.put(identifier, symbol);
-            } else if (identifiers.containsKey(identifier) && withinLambdaOrArrowFunc) {
+            } else if (identifiers.containsKey(identifier) && (withinLambdaOrArrowFunc || withinQuery)
+                    && !afterGroupBy) {
                 symbol = identifiers.get(identifier);
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
@@ -1978,17 +1992,23 @@ public class QueryDesugar extends BLangNodeVisitor {
             return;
         }
         BSymbol symbol = ((BLangSimpleVarRef) expr).symbol;
-        if (symbol != null && (symbol.tag & SymTag.SEQUENCE) == SymTag.SEQUENCE) {
-            BType elementType = ((BSequenceType) symbol.type).elementType;
-            expr.expectedType = symbol.type =
-                    new BTupleType(null, new ArrayList<>(0), elementType, 0);
-            expr.setBType(symbol.type);
-            BLangListConstructorSpreadOpExpr spreadOpExpr = new BLangListConstructorSpreadOpExpr();
-            spreadOpExpr.expr = expr;
-            spreadOpExpr.pos = expr.pos;
-            expressions.clear();
-            expressions.add(spreadOpExpr);
+        if (symbol == null || (symbol.tag & SymTag.SEQUENCE) != SymTag.SEQUENCE) {
+            return;
         }
+        BType type;
+        if (symbol.type.tag == TypeTags.SEQUENCE) {
+            BType elementType = ((BSequenceType) symbol.type).elementType;
+            type = symbol.type = new BTupleType(null, new ArrayList<>(0), elementType, 0);
+        } else {
+            type = symbol.type;
+        }
+        expr.expectedType = type;
+        expr.setBType(type);
+        BLangListConstructorSpreadOpExpr spreadOpExpr = new BLangListConstructorSpreadOpExpr();
+        spreadOpExpr.expr = expr;
+        spreadOpExpr.pos = expr.pos;
+        expressions.clear();
+        expressions.add(spreadOpExpr);
     }
 
     @Override
@@ -2281,17 +2301,28 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangQueryAction queryAction) {
         SymbolEnv prevQueryEnv = this.queryEnv;
+        boolean prevWithinQuery = withinQuery;
+        // This can be set to true directly since it's invoked only for nested queries.
+        this.withinQuery = true;
         queryAction.getQueryClauses().forEach(this::acceptNode);
+        this.withinQuery = prevWithinQuery;
         this.queryEnv = prevQueryEnv;
     }
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
         SymbolEnv prevQueryEnv = this.queryEnv;
+        boolean prevWithinQuery = withinQuery;
+        // This can be set to true directly since it's invoked only for nested queries.
+        this.withinQuery = true;
+        boolean prevAfterGroupBy = this.afterGroupBy;
+        this.afterGroupBy = false;
         queryExpr.getQueryClauses().forEach(this::acceptNode);
+        this.withinQuery = prevWithinQuery;
         this.queryEnv = prevQueryEnv;
+        this.afterGroupBy = prevAfterGroupBy;
     }
-
+    
     @Override
     public void visit(BLangForeach foreach) {
         this.acceptNode(foreach.collection);
@@ -2302,6 +2333,12 @@ public class QueryDesugar extends BLangNodeVisitor {
     public void visit(BLangFromClause fromClause) {
         this.queryEnv = fromClause.env;
         this.acceptNode(fromClause.collection);
+        VariableNode var = fromClause.variableDefinitionNode.getVariable();
+        // TODO: Extend this for other variables kinds such as record, list.
+        if (var.getKind() == NodeKind.VARIABLE) {
+            BLangSimpleVariable simpleVar = (BLangSimpleVariable) fromClause.variableDefinitionNode.getVariable();
+            identifiers.put(simpleVar.name.value, simpleVar.symbol);
+        }
         //we don't have to reset the env to the prev env because from clause is the init clause for the query
     }
 
@@ -2309,12 +2346,16 @@ public class QueryDesugar extends BLangNodeVisitor {
     public void visit(BLangJoinClause joinClause) {
         this.acceptNode(joinClause.collection);
         joinClause.collection.accept(this);
+        this.acceptNode(((BLangVariable) joinClause.variableDefinitionNode.getVariable()));
         this.acceptNode((BLangNode) joinClause.onClause.getLeftExpression());
         this.acceptNode((BLangNode) joinClause.onClause.getRightExpression());
     }
 
     @Override
     public void visit(BLangLetClause letClause) {
+        for (BLangLetVariable letVar : letClause.letVarDeclarations) {
+            this.acceptNode((BLangNode) letVar.definitionNode);
+        }
     }
 
     @Override
@@ -2345,6 +2386,18 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangOrderByClause orderByClause) {
         orderByClause.orderByKeyList.forEach(key -> this.acceptNode(((BLangOrderKey) key).expression));
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        afterGroupBy = true;
+        groupByClause.groupingKeyList.forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKey) {
+        this.acceptNode(groupingKey.variableDef);
+        this.acceptNode(groupingKey.variableRef);
     }
 
     @Override

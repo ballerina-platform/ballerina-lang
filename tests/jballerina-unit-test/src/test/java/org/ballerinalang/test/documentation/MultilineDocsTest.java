@@ -28,6 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -63,7 +64,7 @@ public class MultilineDocsTest {
             "```" + System.lineSeparator() + "\n";
 
     @BeforeClass
-    public void setup() throws Exception {
+    public void setup() throws IOException {
         String sourceRoot =
                 "test-src" + File.separator + "documentation" + File.separator + "multi_line_docs_project";
         io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);

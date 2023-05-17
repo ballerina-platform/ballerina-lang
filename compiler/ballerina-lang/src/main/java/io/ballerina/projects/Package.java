@@ -1,5 +1,6 @@
 package io.ballerina.projects;
 
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyManifestBuilder;
 import io.ballerina.projects.internal.ManifestBuilder;
@@ -366,6 +367,14 @@ public class Package {
         return new Modifier(this);
     }
 
+    public PackageResolution getResolution(ResolutionOptions resolutionOptions) {
+        boolean offline = resolutionOptions.offline();
+        boolean sticky = resolutionOptions.sticky();
+        CompilationOptions newCompOptions = CompilationOptions.builder().setOffline(offline).setSticky(sticky).build();
+        newCompOptions = newCompOptions.acceptTheirs(project.currentPackage().compilationOptions());
+        return getResolution(newCompOptions);
+    }
+
     private static class ModuleIterable implements Iterable {
 
         private final Collection<Module> moduleList;
@@ -582,8 +591,10 @@ public class Package {
                     this.compilationOptions, this.moduleContextMap, DependencyGraph.emptyGraph());
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
 
-            DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage().getResolution()
-                    .dependencyGraph();
+            CompilationOptions offlineCompOptions = CompilationOptions.builder().setOffline(true).build();
+            offlineCompOptions = offlineCompOptions.acceptTheirs(project.currentPackage().compilationOptions());
+            DependencyGraph<ResolvedPackageDependency> newDepGraph = this.project.currentPackage()
+                    .getResolution(offlineCompOptions).dependencyGraph();
             cleanPackageCache(this.dependencyGraph, newDepGraph);
             return this.project.currentPackage();
         }

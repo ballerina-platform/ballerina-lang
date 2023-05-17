@@ -60,6 +60,8 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPatt
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -1474,6 +1476,16 @@ class NodeFinder extends BaseVisitor {
         lookupNode(reFlagExpression.questionMark);
         lookupNode(reFlagExpression.flagsOnOff);
         lookupNode(reFlagExpression.colon);
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        lookupNodes(groupByClause.getGroupingKeyList());
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKeyClause) {
+        lookupNode((BLangNode) groupingKeyClause.getGroupingKey());
     }
 
     private boolean setEnclosingNode(BLangNode node, Location pos) {

@@ -20,6 +20,11 @@ package io.ballerina.projects.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JvmTarget;
@@ -77,6 +82,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -159,6 +165,40 @@ public class ProjectUtils {
         return validateDotSeparatedIdentifiers(packageName)
                 && validateUnderscoresOfName(packageName)
                 && validateInitialNumericsOfName(packageName);
+    }
+
+    public static Set<String> getPackageImports(Package pkg) {
+        Set<String> imports = new HashSet<>();
+        for (ModuleId moduleId : pkg.moduleIds()) {
+            Module module = pkg.module(moduleId);
+            Collection<DocumentId> documentIds = module.documentIds();
+            getPackageImports(imports, module, documentIds);
+            Collection<DocumentId> testDocumentIds = module.testDocumentIds();
+            getPackageImports(imports, module, testDocumentIds);
+        }
+        return imports;
+    }
+
+    private static void getPackageImports(Set<String> imports, Module module, Collection<DocumentId> documentIds) {
+        for (DocumentId docId : documentIds) {
+            Document document = module.document(docId);
+
+            ModulePartNode modulePartNode = document.syntaxTree().rootNode();
+
+            for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
+                String orgName = "";
+                if (importDcl.orgName().isPresent()) {
+                    orgName = importDcl.orgName().get().orgName().text();
+                }
+                SeparatedNodeList<IdentifierToken> identifierTokenList = importDcl.moduleName();
+                StringJoiner stringJoiner = new StringJoiner(".");
+                for (int i = 0; i < identifierTokenList.size(); i++) {
+                    stringJoiner.add(identifierTokenList.get(i).text());
+                }
+                String moduleName = stringJoiner.toString();
+                imports.add(orgName + "/" + moduleName);
+            }
+        }
     }
 
     /**
@@ -772,6 +812,7 @@ public class ProjectUtils {
         content.append("[ballerina]\n");
         content.append("dependencies-toml-version = \"").append(ProjectConstants.DEPENDENCIES_TOML_VERSION)
                 .append("\"\n");
+        content.append("distribution-version = \"").append(RepoUtils.getBallerinaShortVersion()).append("\"\n");
 
         // write dependencies from package dependency graph
         pkgDependencies.forEach(dependency -> {
@@ -1094,6 +1135,12 @@ public class ProjectUtils {
             }
         }
         return allMatchingPaths;
+    }
+
+    public static boolean isNewUpdateDistribution(SemanticVersion prevDistributionVersion,
+                                            SemanticVersion currentDistributionVersion) {
+        return currentDistributionVersion.major() == prevDistributionVersion.major()
+                && currentDistributionVersion.minor() > prevDistributionVersion.minor();
     }
 
     private static void removeNegatedIncludePaths(String pattern, List<Path> allMatchingPaths) {
