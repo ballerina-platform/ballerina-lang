@@ -658,7 +658,6 @@ class _GroupByFunction {
                 f = check pf.process();
             }
             self.groupedStream = self.convertToStream(self.tbl);
-            // self.printStream(self.groupedStream);
         }
 
         stream<_Frame> s = <stream<_Frame>>self.groupedStream;
@@ -684,14 +683,7 @@ class _GroupByFunction {
 
     private function convertToStream(table<RowGroupedData> key(groupingKey) tbl) returns stream<_Frame> {
         _Frame[] groupedFrames = [];
-        // TODO: Consider this again
-        // if tbl.length() == 0 {
-        //     _Frame groupedFrame = {};
-        //     foreach var nonGroupingKey in self.nonGroupingKeys {
-        //         groupedFrame[nonGroupingKey] = [];
-        //     }  
-        //     groupedFrames.push(groupedFrame);          
-        // }
+
         foreach var entry in tbl {
             _Frame groupedFrame = {};
             _Frame firstFrame = entry.frames[0];
@@ -715,21 +707,6 @@ class _GroupByFunction {
             groupedFrames.push(groupedFrame);
         }
         return groupedFrames.toStream();
-    }
-
-    // TODO: Delete this later
-    private function printStream(stream<_Frame>? s) {
-        if s is () {
-            panic error("stream is ()");
-        } else {
-            string str = "";
-            record {|_Frame value;|}? next = s.next();
-            while next !is () {
-                str = str + next.value.toString();
-                next = s.next();
-            }
-            panic error(str);
-        }
     }
 }
 
