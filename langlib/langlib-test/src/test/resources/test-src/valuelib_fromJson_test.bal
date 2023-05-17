@@ -719,83 +719,65 @@ function testFromJsonWithTypeOnRegExpNegative() {
     string s = "AB+^*";
     RegExpType|error x1 = s.fromJsonWithType(RegExpType);
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}ConversionError", x1.message());
-        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '*'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing backslash before '*' token in 'AB+^*'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "AB\\hCD";
     x1 = s.fromJsonWithType(RegExpType);
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}ConversionError", x1.message());
-        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\h'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: invalid character 'h' after backslash in 'AB\\hCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "AB\\pCD";
     x1 = s.fromJsonWithType(RegExpType);
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}ConversionError", x1.message());
-        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\p'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing open brace '{' token in 'AB\\pCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "AB\\uCD";
     x1 = s.fromJsonWithType(RegExpType);
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}ConversionError", x1.message());
-        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\u'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: invalid character 'u' after backslash in 'AB\\uCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "AB\\u{001CD";
     x1 = s.fromJsonWithType(RegExpType);
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}ConversionError", x1.message());
-        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\u{001CD'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing close brace '}' token in 'AB\\u{001CD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "AB\\p{sc=Lu";
     x1 = s.fromJsonWithType(RegExpType);
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}ConversionError", x1.message());
-        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Missing '}' character",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing close brace '}' token in 'AB\\p{sc=Lu'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "[^abc";
     x1 = s.fromJsonWithType(RegExpType);
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}ConversionError", x1.message());
-        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Missing ']' character",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing close bracket ']' token in '[^abc'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "(abc";
     x1 = s.fromJsonWithType(RegExpType);
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}ConversionError", x1.message());
-        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Missing ')' character",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing close parenthesis ')' token in '(abc'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "(ab^*)";
     x1 = s.fromJsonWithType(RegExpType);
     assert(x1 is error, true);
-    if (x1 is error) {
-        assert("{ballerina/lang.value}ConversionError", x1.message());
-        assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '*'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assert("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assert("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing backslash before '*' token in '(ab^*)'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 }
 
 type Assertion [string, string];
