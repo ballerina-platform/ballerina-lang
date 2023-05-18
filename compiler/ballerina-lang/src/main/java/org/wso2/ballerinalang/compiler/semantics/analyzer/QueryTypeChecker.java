@@ -377,13 +377,20 @@ public class QueryTypeChecker extends TypeChecker {
                 default:
                     // contextually expected type not given (i.e var).
                     selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), env, type, data);
-                    BType checkedType = symTable.semanticError;
-                    if (selectType == symTable.semanticError || isMapOfAnyOrError(selectType)) {
-                        checkedType = checkExpr(selectExp, env, data);
-                    }
+                    BType inferredSelectType = checkExprSilent(nodeCloner.cloneNode(selectExp), env, symTable.noType, data);
+                    if(selectType != symTable.semanticError && inferredSelectType != symTable.semanticError) {
+                        selectType = types.getTypeIntersection(
+                                        Types.IntersectionContext.compilerInternalIntersectionTestContext(),
+                                        selectType, inferredSelectType, env);
+                    } else {
+                        BType checkedType = symTable.semanticError;
+                        if (selectType == symTable.semanticError) {
+                            checkedType = checkExpr(selectExp, env, data);
+                        }
 
-                    if (checkedType != symTable.semanticError && expTypes.size() == 1) {
-                        selectType = checkedType;
+                        if (checkedType != symTable.semanticError && expTypes.size() == 1) {
+                            selectType = checkedType;
+                        }
                     }
 
                     if (queryExpr.isMap) { // A query-expr that constructs a mapping must start with the map keyword.
@@ -415,22 +422,6 @@ public class QueryTypeChecker extends TypeChecker {
                 checkExpr(selectExp, env, errorTypes.iterator().next(), data);
             }
         }
-    }
-
-    private boolean isMapOfAnyOrError(BType selectType) {
-        if (selectType.getKind() != TypeKind.MAP) {
-            return false;
-        }
-
-        BType constraint = ((BMapType) selectType).getConstraint();
-        if (constraint.getKind() != TypeKind.UNION) {
-            return false;
-        }
-
-        return ((BUnionType) constraint)
-                .getMemberTypes()
-                .stream()
-                .allMatch(type -> type.getKind() == TypeKind.ANY || type.getKind() == TypeKind.ERROR);
     }
 
     private BType getQueryTableType(BLangQueryExpr queryExpr, BType constraintType, BType resolvedType, SymbolEnv env) {
