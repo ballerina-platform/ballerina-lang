@@ -29,9 +29,9 @@ public interface ObjectType extends StructureType, SelectivelyImmutableReference
     MethodType[] getMethods();
 
     /**
-     * Get the method type of the initializer function.
+     * Get the type of the object init method.
      *
-     * @return {@link MethodType} of the initializer function
+     * @return {@link MethodType} of the init method.
      */
     MethodType getInitMethod();
 

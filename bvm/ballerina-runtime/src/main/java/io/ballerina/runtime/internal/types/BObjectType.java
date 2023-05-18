@@ -145,11 +145,11 @@ public class BObjectType extends BStructureType implements ObjectType {
         this.methodTypes = methodTypes;
     }
 
-    public void setInitializer(MethodType initializer) {
+    public void setInitMethod(MethodType initializer) {
         this.initializer = initializer;
     }
 
-    public void setGeneratedInitializer(BMethodType generatedInitializer) {
+    public void setGeneratedInitMethod(BMethodType generatedInitializer) {
         this.generatedInitializer = generatedInitializer;
     }
 

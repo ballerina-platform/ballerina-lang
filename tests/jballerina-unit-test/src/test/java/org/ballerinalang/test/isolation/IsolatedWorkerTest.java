@@ -421,9 +421,9 @@ public class IsolatedWorkerTest {
     public static boolean isMethodIsolated(Object val, String methodName) {
         BObjectType objectType = (BObjectType) getType(val);
         List<MethodType> methodTypes = Lists.of(objectType.getMethods());
-        MethodType initializer = objectType.getInitMethod();
-        if (initializer != null) {
-            methodTypes.add(initializer);
+        MethodType initMethod = objectType.getInitMethod();
+        if (initMethod != null) {
+            methodTypes.add(initMethod);
         }
         return isIsolated(methodTypes, methodName);
     }

@@ -89,7 +89,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.METHOD_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.POPULATE_ATTACHED_FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RESOURCE_METHOD_TYPE_ARRAY_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RESOURCE_METHOD_TYPE_IMPL_INIT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_INITIALIZER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.SET_METHODS;
@@ -284,10 +284,10 @@ public class JvmObjectTypeGen {
         mv.visitInsn(DUP);
         mv.visitInsn(POP);
         if (isGeneratedInit) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setGeneratedInitializer",
+            mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setGeneratedInitMethod",
                     METHOD_TYPE_IMPL_PARAM, false);
         } else {
-            mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setInitializer", SET_INITIALIZER, false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, OBJECT_TYPE_IMPL, "setInitMethod", SET_INIT_METHOD, false);
         }
     }
 
