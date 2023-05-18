@@ -52,8 +52,8 @@ import static io.ballerina.runtime.api.TypeTags.SERVICE_TAG;
 public class BObjectType extends BStructureType implements ObjectType {
 
     private MethodType[] methodTypes;
-    private MethodType initializer;
-    public MethodType generatedInitializer;
+    private MethodType initMethod;
+    public MethodType generatedInitMethod;
 
     private final boolean readonly;
     protected IntersectionType immutableType;
@@ -116,7 +116,11 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     @Override
     public MethodType getInitMethod() {
-        return initializer;
+        return initMethod;
+    }
+
+    public MethodType getGeneratedInitMethod() {
+        return generatedInitMethod;
     }
 
     @Override
@@ -145,12 +149,12 @@ public class BObjectType extends BStructureType implements ObjectType {
         this.methodTypes = methodTypes;
     }
 
-    public void setInitMethod(MethodType initializer) {
-        this.initializer = initializer;
+    public void setInitMethod(MethodType initMethod) {
+        this.initMethod = initMethod;
     }
 
-    public void setGeneratedInitMethod(BMethodType generatedInitializer) {
-        this.generatedInitializer = generatedInitializer;
+    public void setGeneratedInitMethod(BMethodType generatedInitMethod) {
+        this.generatedInitMethod = generatedInitMethod;
     }
 
     public void computeStringRepresentation() {

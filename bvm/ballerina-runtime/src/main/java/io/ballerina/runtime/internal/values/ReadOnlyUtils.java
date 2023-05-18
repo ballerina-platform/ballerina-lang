@@ -268,7 +268,7 @@ public class ReadOnlyUtils {
                         Utils.decodeIdentifier(origObjectType.getName().concat(" & readonly")),
                         origObjectType.getPackage(), origObjectType.flags |= SymbolFlags.READONLY);
                 immutableObjectType.setFields(immutableObjectFields);
-                immutableObjectType.generatedInitializer = origObjectType.generatedInitializer;
+                immutableObjectType.generatedInitMethod = origObjectType.getGeneratedInitMethod();
                 immutableObjectType.setInitMethod(origObjectType.getInitMethod());
                 immutableObjectType.setMethods(origObjectType.getMethods());
 
