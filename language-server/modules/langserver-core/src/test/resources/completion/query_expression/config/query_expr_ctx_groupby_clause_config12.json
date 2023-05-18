@@ -726,6 +726,15 @@
       "sortText": "BN",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "var",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "BQ",
+      "filterText": "var",
+      "insertText": "var ",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

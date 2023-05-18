@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
@@ -748,6 +749,15 @@ public class EnvironmentResolver extends BaseVisitor {
         }
         this.scope = groupByClause.env;
         this.acceptNodes(groupByClause.getGroupingKeyList(), groupByClause.env);
+    }
+
+    @Override
+    public void visit(BLangCollectClause collectClause) {
+        if (!PositionUtil.withinRightInclusive(this.linePosition, collectClause.getPosition())) {
+            return;
+        }
+        this.scope = collectClause.env;
+        this.acceptNode(collectClause.expression, collectClause.env);
     }
 
     @Override
