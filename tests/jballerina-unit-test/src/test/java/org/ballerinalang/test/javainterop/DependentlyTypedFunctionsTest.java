@@ -215,6 +215,7 @@ public class DependentlyTypedFunctionsTest {
                 {"testVarRefInMapConstraint"},
                 {"testVarRefUseInMultiplePlaces"},
                 {"testSimpleTypes"},
+                {"testReferredTypes"},
                 {"testUnionTypes"},
                 {"testArrayTypes"},
                 {"testXML"},
