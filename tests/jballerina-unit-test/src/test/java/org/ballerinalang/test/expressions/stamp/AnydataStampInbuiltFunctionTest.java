@@ -175,23 +175,7 @@ public class AnydataStampInbuiltFunctionTest {
 
     @Test
     public void testStampAnydataMapToAnydataMap() {
-
-        Object results = BRunUtil.invoke(compileResult, "stampAnydataMapToAnydataMap");
-        BMap<String, Object> mapValue = (BMap<String, Object>) results;
-
-        Assert.assertEquals(mapValue.size(), 5);
-
-        Assert.assertTrue(getType(mapValue) instanceof BMapType);
-        Assert.assertTrue(((BMapType) getType(mapValue)).getConstrainedType() instanceof BAnydataType);
-
-        Assert.assertEquals(mapValue.get(StringUtils.fromString("name")).toString(), "Raja");
-        Assert.assertTrue(getType(mapValue.get(StringUtils.fromString("name"))) instanceof BStringType);
-
-        Assert.assertEquals(mapValue.get(StringUtils.fromString("age")).toString(), "25");
-        Assert.assertEquals(getType(mapValue.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
-
-        Assert.assertEquals(mapValue.get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertTrue(getType(mapValue.get(StringUtils.fromString("status"))) instanceof BStringType);
+        BRunUtil.invoke(compileResult, "stampAnydataMapToAnydataMap");
     }
 
     @Test

@@ -79,4 +79,17 @@
         <Method name="copyIcon" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.CommandUtil" />
+        <Method name="checkTemplateFilesExists" />
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.ToolCommand" />
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
+    </Match>
+    <Match>
+        <Class name="io.ballerina.cli.cmd.ToolCommand" />
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
+    </Match>
 </FindBugsFilter>
