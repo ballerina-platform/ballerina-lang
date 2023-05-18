@@ -16,6 +16,8 @@
 
 import ballerina/lang.regexp;
 
+string moduleLevelPattern = "\\p{";
+
 function testFind() {
     string str1 = "HelloWorld";
     var regExpr1 = re `World`;
@@ -1743,6 +1745,12 @@ function testFromString() {
     if (x1 is string:RegExp) {
        assertTrue(re `A&B\s|&D` == x1);
     }
+
+    x1 = regexp:fromString("\\p{Ll}|\\p{Mn}|\\p{Nd}|\\p{Sm}|\\p{Pc}|\\p{Cc}|\\p{Zs}");
+    assertTrue(x1 is string:RegExp);
+    if (x1 is string:RegExp) {
+       assertTrue(re `\p{Ll}|\p{Mn}|\p{Nd}|\p{Sm}|\p{Pc}|\p{Cc}|\p{Zs}` == x1);
+    }
 }
 
 function testFromStringNegative() {
@@ -1750,158 +1758,179 @@ function testFromStringNegative() {
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: missing backslash before '*' token in 'AB+^*'",
+            <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString("AB\\hCD");
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Invalid character '\\h'", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: invalid character 'h' after backslash in 'AB\\hCD'",
+            <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString("AB\\pCD");
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Invalid character '\\p'", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: missing open brace '{' token in 'AB\\pCD'",
+            <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString("AB\\uCD");
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Invalid character '\\u'", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: invalid character 'u' after backslash in 'AB\\uCD'",
+            <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString("AB\\u{001CD");
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Invalid character '\\u{001CD'", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: missing close brace '}' token in 'AB\\u{001CD'",
+            <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString("AB\\p{sc=Lu");
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Missing '}' character", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: missing close brace '}' token in 'AB\\p{sc=Lu'",
+            <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString("[^abc");
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Missing ']' character", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: missing close bracket ']' token in '[^abc'",
+            <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString("(abc");
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Missing ')' character", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: missing close parenthesis ')' token in '(abc'",
+            <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString("(ab^*)");
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Invalid character '*'", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: missing backslash before '*' token in '(ab^*)'",
+            <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString("\\p{");
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Invalid end of characters", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: invalid end character in '\\p{'",
+            <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString("\\p{sc=^}");
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Invalid character '^'", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: invalid Unicode property value '^' in '\\p{sc=^}'",
+            <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString("\\p{sc=L^}");
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Invalid character 'L^'", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: invalid Unicode property value 'L^' in '\\p{sc=L^}'",
+            <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString("\\p{gc=");
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Invalid end of characters", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: invalid end character in '\\p{gc='",
+            <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString("[");
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Missing ']' character", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: missing close bracket ']' token in '['",
+            <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString(string `${"["}`);
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Missing ']' character", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: missing close bracket ']' token in '['", <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString(string `${"[[]]"}`);
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Invalid character ']'", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: missing backslash before ']' token in '[[]]'", <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString(string `${"(?im-gi:ABC)"}`);
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: invalid flag in regular expression", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: invalid flag 'g' in '(?im-gi:ABC)'", <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString(string `${"(?im-si:ABC)"}`);
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: duplicate flag 'i'", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: duplicate flag 'i' in '(?im-si:ABC)'", <string> checkpanic x1.detail()["message"]);
     }
-
 
     x1 = regexp:fromString(string `${"?:ABC"}`);
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Invalid character '?'", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: missing backslash before '?' token in '?:ABC'", <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString(string `${"\\b"}`);
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Invalid character '\\b'", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: invalid character 'b' after backslash in '\\b'", <string> checkpanic x1.detail()["message"]);
     }
 
     x1 = regexp:fromString(string `${"[]"}`);
     assertTrue(x1 is error);
     if (x1 is error) {
         assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-        assertEquality("Failed to parse regular expression: Empty character class disallowed", <string> checkpanic x1.detail()["message"]);
+        assertEquality("Failed to parse regular expression: empty character class disallowed in '[]'", <string> checkpanic x1.detail()["message"]);
     }
 
-    // Need to address in https://github.com/ballerina-platform/ballerina-lang/issues/39932
+    x1 = regexp:fromString(string `[z-a]`);
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: invalid character class range 'z'-'a' in '[z-a]'", <string> checkpanic x1.detail()["message"]);
+    }
+}
 
-    // x1 = regexp:fromString(string `[z-a]`);
-    // assertTrue(x1 is error);
-    // if (x1 is error) {
-    //     assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
-    //     assertEquality("Failed to parse regular expression: Invalid character '\\'", <string> checkpanic x1.detail()["message"]);
-    // }
+function testModuleLevelPatterns() {
+    string:RegExp|error x1 = regexp:fromString(moduleLevelPattern);
+    assertTrue(x1 is error);
+    if (x1 is error) {
+        assertEquality("{ballerina/lang.regexp}RegularExpressionParsingError", x1.message());
+        assertEquality("Failed to parse regular expression: invalid end character in '\\p{'",
+            <string> checkpanic x1.detail()["message"]);
+    }
 }
 
 function testSplit() {
@@ -2219,6 +2248,346 @@ function testTranslatingDiffNodesInCharClass() {
     assertEquality("A", (<regexp:Span>res8).substring());
 }
 
+function testRegexpInterpolation() {
+    string pattern1 = "^ABC";
+    string:RegExp reg1 = re `${pattern1}`;
+    assertTrue(reg1.toString() == pattern1);
+
+    string pattern2 = "ABC$";
+    string:RegExp reg2 = re `${pattern2}`;
+    assertTrue(reg2.toString() == pattern2);
+
+    string pattern3 = "x|y|Z|^Ab$";
+    string:RegExp reg3 = re `${pattern3}`;
+    assertTrue(reg3.toString() == pattern3);
+
+    string pattern4 = "A*|B+|AB?|A{2,4}|A{2,}|A{2}";
+    string:RegExp reg4 = re `${pattern4}`;
+    assertTrue(reg4.toString() == pattern4);
+
+    string pattern5 = "A{2,4}?|AB??|A*?|A+?";
+    string:RegExp reg5 = re `${pattern5}`;
+    assertTrue(reg5.toString() == pattern5);
+
+    string pattern6 = "A.B+C{1,3}?";
+    string:RegExp reg6 = re `${pattern6}`;
+    assertTrue(reg6.toString() == pattern6);
+
+    string pattern7 = "A.*?";
+    string:RegExp reg7 = re `${pattern7}`;
+    assertTrue(reg7.toString() == pattern7);
+
+    string pattern8 = "[^A-Z\\w]";
+    string:RegExp reg8 = re `${pattern8}`;
+    assertTrue(reg8.toString() == pattern8);
+
+    string pattern9 = "[^\\u{1234}]|[\\u{5C}]";
+    string:RegExp reg9 = re `${pattern9}`;
+    assertTrue(reg9.toString() == pattern9);
+
+    string pattern10 = "[^\\r]|[\\n]|[\\t]";
+    string:RegExp reg10 = re `${pattern10}`;
+    assertTrue(reg10.toString() == pattern10);
+
+    string pattern11 = "[^\\^]|[\\*][\\[]";
+    string:RegExp reg11 = re `${pattern11}`;
+    assertTrue(reg11.toString() == pattern11);
+
+    string pattern12 = "[^\\p{sc=Latin}]|[\\p{gc=Lu}]|[\\P{Lu}]";
+    string:RegExp reg12 = re `${pattern12}`;
+    assertTrue(reg12.toString() == pattern12);
+
+    string pattern13 = "[\\w\\d\\s\\S\\D\\W]";
+    string:RegExp reg13 = re `${pattern13}`;
+    assertTrue(reg13.toString() == pattern13);
+
+    string pattern14 = "[\\-]";
+    string:RegExp reg14 = re `${pattern14}`;
+    assertTrue(reg14.toString() == pattern14);
+
+    string pattern15 = "[^\\nd-hM-N\\tQ-T]|";
+    string:RegExp reg15 = re `${pattern15}`;
+    assertTrue(reg15.toString() == pattern15);
+
+    string pattern16 = "(D*)|(A.*?)|(?m:AAD*)|(?ms-ix:[^ABC]{1245,3212})";
+    string:RegExp reg16 = re `${pattern16}`;
+    assertTrue(reg16.toString() == pattern16);
+
+    string pattern17 = "^\\P{Ll}+\\)$";
+    string:RegExp reg17 = re `${pattern17}`;
+    assertTrue(reg17.toString() == pattern17);
+}
+
+function testRegexpInterpolationNegative() {
+    string pattern1 = "(ABC)+\\k";
+    string:RegExp|error reg1 = trap re `${pattern1}`;
+    assertTrue(reg1 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg1).message());
+    assertEquality("invalid character 'k' after backslash in insertion substring '(ABC)+\\k'",
+        <string>checkpanic (<error>reg1).detail()["message"]);
+
+    string pattern2 = "\\p";
+    string:RegExp|error reg2 = trap re `${pattern2}`;
+    assertTrue(reg2 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg2).message());
+    assertEquality("missing open brace '{' token in insertion substring '\\p'",
+        <string>checkpanic (<error>reg2).detail()["message"]);
+
+    string pattern3 = "\\p{gx=}";
+    string:RegExp|error reg3 = trap re `${pattern3}`;
+    assertTrue(reg3 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg3).message());
+    assertEquality("invalid Unicode general category value 'gx=' in insertion substring '\\p{gx=}'",
+        <string>checkpanic (<error>reg3).detail()["message"]);
+
+    string pattern4 = "\\p{sk=}";
+    string:RegExp|error reg4 = trap re `${pattern4}`;
+    assertTrue(reg4 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg4).message());
+    assertEquality("invalid Unicode general category value 'sk=' in insertion substring '\\p{sk=}'",
+        <string>checkpanic (<error>reg4).detail()["message"]);
+
+    string pattern5 = "\\p{gc=Z}";
+    string:RegExp|error reg5 = trap re `${pattern5}`;
+    assertTrue(reg5 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg5).message());
+    assertEquality("invalid Unicode general category value 'Z' in insertion substring '\\p{gc=Z}'",
+        <string>checkpanic (<error>reg5).detail()["message"]);
+
+    string pattern6 = "\\p{Lz}";
+    string:RegExp|error reg6 = trap re `${pattern6}`;
+    assertTrue(reg6 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg6).message());
+    assertEquality("invalid Unicode general category value 'L' in insertion substring '\\p{Lz}'",
+        <string>checkpanic (<error>reg6).detail()["message"]);
+
+    string pattern7 = "\\p{Ll";
+    string:RegExp|error reg7 = trap re `${pattern7}`;
+    assertTrue(reg7 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg7).message());
+    assertEquality("missing close brace '}' token in insertion substring '\\p{Ll'",
+        <string>checkpanic (<error>reg7).detail()["message"]);
+
+    string pattern8 = "ABC{2";
+    string:RegExp|error reg8 = trap re `${pattern8}`;
+    assertTrue(reg8 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg8).message());
+    assertEquality("missing close brace '}' token in insertion substring 'ABC{2'",
+        <string>checkpanic (<error>reg8).detail()["message"]);
+
+    string pattern9 = "ABC{2,";
+    string:RegExp|error reg9 = trap re `${pattern9}`;
+    assertTrue(reg9 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg9).message());
+    assertEquality("missing close brace '}' token in insertion substring 'ABC{2,'",
+        <string>checkpanic (<error>reg9).detail()["message"]);
+
+    string pattern10 = "ABC{2,3";
+    string:RegExp|error reg10 = trap re `${pattern10}`;
+    assertTrue(reg10 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg10).message());
+    assertEquality("missing close brace '}' token in insertion substring 'ABC{2,3'",
+        <string>checkpanic (<error>reg10).detail()["message"]);
+
+    string pattern11 = "[z-a]";
+    string:RegExp|error reg11 = trap re `${pattern11}`;
+    assertTrue(reg11 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg11).message());
+    assertEquality("invalid character class range 'z'-'a' in insertion substring '[z-a]'",
+        <string>checkpanic (<error>reg11).detail()["message"]);
+
+    string pattern12 = "[ab-kZ-A]";
+    string:RegExp|error reg12 = trap re `${pattern12}`;
+    assertTrue(reg12 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg12).message());
+    assertEquality("invalid character class range 'Z'-'A' in insertion substring '[ab-kZ-A]'",
+        <string>checkpanic (<error>reg12).detail()["message"]);
+
+    string pattern13 = "\\p{sc=Lati*}";
+    string:RegExp|error reg13 = trap re `${pattern13}`;
+    assertTrue(reg13 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg13).message());
+    assertEquality("invalid Unicode property value 'Lati*' in insertion substring '\\p{sc=Lati*}'",
+        <string>checkpanic (<error>reg13).detail()["message"]);
+
+    string pattern14 = "[a-z";
+    string:RegExp|error reg14 = trap re `${pattern14}`;
+    assertTrue(reg14 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg14).message());
+    assertEquality("missing close bracket ']' token in insertion substring '[a-z'",
+        <string>checkpanic (<error>reg14).detail()["message"]);
+
+    string pattern15 = "(?ik-m:abc)";
+    string:RegExp|error reg15 = trap re `${pattern15}`;
+    assertTrue(reg15 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg15).message());
+    assertEquality("invalid flag 'k' in insertion substring '(?ik-m:abc)'",
+        <string>checkpanic (<error>reg15).detail()["message"]);
+
+    string pattern16 = "(?im-si:abc)";
+    string:RegExp|error reg16 = trap re `${pattern16}`;
+    assertTrue(reg16 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg16).message());
+    assertEquality("duplicate flag 'i' in insertion substring '(?im-si:abc)'",
+        <string>checkpanic (<error>reg16).detail()["message"]);
+
+    string pattern17 = "(?im-s:abc";
+    string:RegExp|error reg17 = trap re `${pattern17}`;
+    assertTrue(reg17 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg17).message());
+    assertEquality("missing close parenthesis ')' token in insertion substring '(?im-s:abc'",
+        <string>checkpanic (<error>reg17).detail()["message"]);
+
+    string pattern18 = "\\p";
+    string:RegExp|error reg18 = trap re `${pattern18}`;
+    assertTrue(reg18 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg18).message());
+    assertEquality("missing open brace '{' token in insertion substring '\\p'",
+        <string>checkpanic (<error>reg18).detail()["message"]);
+
+    string pattern19 = "\\p{Ll";
+    string:RegExp|error reg19 = trap re `${pattern19}`;
+    assertTrue(reg19 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg19).message());
+    assertEquality("missing close brace '}' token in insertion substring '\\p{Ll'",
+        <string>checkpanic (<error>reg19).detail()["message"]);
+
+    string pattern20 = "abc\\w[a-!]";
+    string:RegExp|error reg20 = trap re `${pattern20}`;
+    assertTrue(reg20 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg20).message());
+    assertEquality("invalid character class range 'a'-'!' in insertion substring 'abc\\w[a-!]'",
+        <string>checkpanic (<error>reg20).detail()["message"]);
+
+    string pattern21 = "abc\\w[a--]";
+    string:RegExp|error reg21 = trap re `${pattern21}`;
+    assertTrue(reg21 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg21).message());
+    assertEquality("invalid character class range 'a'-'-' in insertion substring 'abc\\w[a--]'",
+        <string>checkpanic (<error>reg21).detail()["message"]);
+
+    string pattern22 = "abc[a-z[A-Z]]";
+    string:RegExp|error reg22 = trap re `${pattern22}`;
+    assertTrue(reg22 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg22).message());
+    assertEquality("missing backslash before ']' token in insertion substring 'abc[a-z[A-Z]]'",
+        <string>checkpanic (<error>reg22).detail()["message"]);
+
+    string pattern23 = "abc[a-zZ-A]";
+    string:RegExp|error reg23 = trap re `${pattern23}`;
+    assertTrue(reg23 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg23).message());
+    assertEquality("invalid character class range 'Z'-'A' in insertion substring 'abc[a-zZ-A]'",
+        <string>checkpanic (<error>reg23).detail()["message"]);
+
+    string pattern24 = "\\p{Mz}";
+    string:RegExp|error reg24 = trap re `${pattern24}`;
+    assertTrue(reg24 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg24).message());
+    assertEquality("invalid Unicode general category value 'M' in insertion substring '\\p{Mz}'",
+        <string>checkpanic (<error>reg24).detail()["message"]);
+
+    string pattern25 = "\\p{Nz}";
+    string:RegExp|error reg25 = trap re `${pattern25}`;
+    assertTrue(reg25 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg25).message());
+    assertEquality("invalid Unicode general category value 'N' in insertion substring '\\p{Nz}'",
+        <string>checkpanic (<error>reg25).detail()["message"]);
+
+    string pattern26 = "\\p{Pz}";
+    string:RegExp|error reg26 = trap re `${pattern26}`;
+    assertTrue(reg26 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg26).message());
+    assertEquality("invalid Unicode general category value 'P' in insertion substring '\\p{Pz}'",
+        <string>checkpanic (<error>reg26).detail()["message"]);
+
+    string pattern27 = "\\p{Sz}";
+    string:RegExp|error reg27 = trap re `${pattern27}`;
+    assertTrue(reg27 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg27).message());
+    assertEquality("invalid Unicode general category value 'S' in insertion substring '\\p{Sz}'",
+        <string>checkpanic (<error>reg27).detail()["message"]);
+
+    string pattern28 = "\\p{Zz}";
+    string:RegExp|error reg28 = trap re `${pattern28}`;
+    assertTrue(reg28 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg28).message());
+    assertEquality("invalid Unicode general category value 'Z' in insertion substring '\\p{Zz}'",
+        <string>checkpanic (<error>reg28).detail()["message"]);
+
+    string pattern29 = "\\p{Cz}";
+    string:RegExp|error reg29 = trap re `${pattern29}`;
+    assertTrue(reg29 is error);
+    assertEquality("{ballerina}RegularExpressionParsingError", (<error>reg29).message());
+    assertEquality("invalid Unicode general category value 'C' in insertion substring '\\p{Cz}'",
+        <string>checkpanic (<error>reg29).detail()["message"]);
+}
+
+function testCharClassesWithMultipleRangesAndAtoms() returns error? {
+    string:RegExp pattern1 = check regexp:fromString("[a-zA-Z0-9]");
+    assertTrue(pattern1 is string:RegExp);
+    assertTrue(re `[a-zA-Z0-9]` == <string:RegExp>pattern1);
+    regexp:Span? res1 = (<string:RegExp>pattern1).find("ABC");
+    assertTrue(res1 is regexp:Span);
+    assertEquality("A", (<regexp:Span>res1).substring());
+
+    string:RegExp pattern2 = check regexp:fromString("[abc-mzABC-FGH012-5]");
+    assertTrue(pattern2 is string:RegExp);
+    assertTrue(re `[abc-mzABC-FGH012-5]` == <string:RegExp>pattern2);
+    regexp:Span? res2 = (<string:RegExp>pattern2).find("abc");
+    assertTrue(res2 is regexp:Span);
+    assertEquality("a", (<regexp:Span>res2).substring());
+
+    string:RegExp pattern3 = check regexp:fromString("[a-z\\d\\s]");
+    assertTrue(pattern3 is string:RegExp);
+    assertTrue(re `[a-z\d\s]` == <string:RegExp>pattern3);
+    regexp:Span? res3 = (<string:RegExp>pattern3).find("abc");
+    assertTrue(res3 is regexp:Span);
+    assertEquality("a", (<regexp:Span>res3).substring());
+
+    string:RegExp pattern4 = check regexp:fromString("[\\w-\\d\\s]");
+    assertTrue(pattern4 is string:RegExp);
+    assertTrue(re `[\w-\d\s]` == <string:RegExp>pattern4);
+    regexp:Span? res4 = (<string:RegExp>pattern4).find("abc");
+    assertTrue(res4 is regexp:Span);
+    assertEquality("a", (<regexp:Span>res4).substring());
+
+    string:RegExp pattern5 = check regexp:fromString("[ABC-MZ.a-z]");
+    assertTrue(pattern5 is string:RegExp);
+    assertTrue(re `[ABC-MZ.a-z]` == <string:RegExp>pattern5);
+    regexp:Span? res5 = (<string:RegExp>pattern5).find("abc");
+    assertTrue(res5 is regexp:Span);
+    assertEquality("a", (<regexp:Span>res5).substring());
+
+    string:RegExp pattern6 = check regexp:fromString("[^a-zA-Z*]");
+    assertTrue(pattern6 is string:RegExp);
+    assertTrue(re `[^a-zA-Z*]` == <string:RegExp>pattern6);
+    regexp:Span? res6 = (<string:RegExp>pattern6).find("123");
+    assertTrue(res6 is regexp:Span);
+    assertEquality("1", (<regexp:Span>res6).substring());
+
+    string:RegExp pattern7 = check regexp:fromString("[a-z.\\s\\w]");
+    assertTrue(pattern7 is string:RegExp);
+    assertTrue(re `[a-z.\s\w]` == <string:RegExp>pattern7);
+    regexp:Span? res7 = (<string:RegExp>pattern7).find("abc");
+    assertTrue(res7 is regexp:Span);
+    assertEquality("a", (<regexp:Span>res7).substring());
+
+    string:RegExp pattern8 = check regexp:fromString("[\\s]");
+    assertTrue(pattern8 is string:RegExp);
+    assertTrue(re `[\s]` == <string:RegExp>pattern8);
+    regexp:Span? res8 = (<string:RegExp>pattern8).find("abc ");
+    assertTrue(res8 is regexp:Span);
+    assertEquality(" ", (<regexp:Span>res8).substring());
+
+    string:RegExp pattern9 = check regexp:fromString("[\\p{Ll}]");
+    assertTrue(pattern9 is string:RegExp);
+    assertTrue(re `[\p{Ll}]` == <string:RegExp>pattern9);
+    regexp:Span? res9 = (<string:RegExp>pattern9).find("Abc BCa");
+    assertTrue(res9 is regexp:Span);
+    assertEquality("b", (<regexp:Span>res9).substring());
+}
+
 function testRegexpWithUnicodeChars() {
     string startChar = string `\u{0d9c}`;
     string endChar = string `\u{1F310}`;
@@ -2262,7 +2631,7 @@ function testRegexpWithUnicodeChars() {
     assertTrue(resC1 is regexp:Groups);
     regexp:Groups? resC2 = regexp:findGroups(re `l\u{1F30D}`, "😀 Hello🌍! ❤️o🌍");
     assertTrue(resC2 is ());
-    
+
     regexp:Groups[] resD1 = regexp:findAllGroups(re `o\u{1F30D}`, "😀 Hello🌍! ❤️o🌍");
     assertTrue(resD1.length() == 2);
     regexp:Groups[] resD2 = regexp:findAllGroups(re `o\u{1F301}`, "😀 Hello🌍! ❤️o🌍");
@@ -2277,13 +2646,13 @@ function testRegexpWithUnicodeChars() {
     assertTrue(resF1 is regexp:Groups);
     regexp:Groups? resF2 = regexp:fullMatchGroups(re `.*o\u{1F301}.*`, "😀 Hello🌍! ❤️o🌍");
     assertTrue(resF2 is ());
-    
+
     string resG1 = regexp:replace(re `o\u{1F30D}`, "😀 Hello🌍! ❤️o🌍", "\u{1F3D6}");
     assertEquality("😀 Hell🏖! ❤️o🌍", resG1);
     string resG2 = regexp:replace(re `o\u{1F30D}`, "😀 Hello🌍! ❤️o🌍", "==");
     assertEquality("😀 Hell==! ❤️o🌍", resG2);
     string resG3 = regexp:replace(re `\u{1F30D}`, "😀 Hello🌍! ❤️o🌍", "\u{1F3D6}", 8);
-    assertEquality("😀 Hello🌍! ❤️o🏖", resG3);    
+    assertEquality("😀 Hello🌍! ❤️o🏖", resG3);
 
     string resH1 = regexp:replaceAll(re `\u{1F30D}`, "😀 Hello🌍! ❤️o🌍", "\u{1F3D6}");
     assertEquality("😀 Hello🏖! ❤️o🏖", resH1);
