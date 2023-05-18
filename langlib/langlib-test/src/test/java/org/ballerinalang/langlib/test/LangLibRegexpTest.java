@@ -78,7 +78,11 @@ public class LangLibRegexpTest {
                 "testEmptyRegexpFind",
                 "testRegexpFromString",
                 "testEmptyRegexpMatch",
-                "testTranslatingDiffNodesInCharClass"
+                "testTranslatingDiffNodesInCharClass",
+                "testRegexpInterpolation",
+                "testRegexpInterpolationNegative",
+                "testCharClassesWithMultipleRangesAndAtoms",
+                "testModuleLevelPatterns"
         };
     }
 

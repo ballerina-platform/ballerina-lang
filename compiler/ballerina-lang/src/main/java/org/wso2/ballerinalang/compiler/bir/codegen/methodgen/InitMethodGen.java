@@ -56,6 +56,7 @@ import java.util.Map;
 
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.objectweb.asm.Opcodes.AALOAD;
+import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
@@ -64,19 +65,21 @@ import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETFIELD;
+import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.INVOKEVIRTUAL;
+import static org.objectweb.asm.Opcodes.IRETURN;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.RETURN;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isBuiltInPackage;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GRACEFUL_EXIT_METHOD_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_ARG_VAR_PREFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAMBDA_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAIN_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_EXECUTE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
@@ -84,6 +87,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_IN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TEST_EXECUTION_STATE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.ADD_VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_SCHEDULER;
@@ -136,8 +141,9 @@ public class InitMethodGen {
     }
 
     public void generateLambdaForModuleExecuteFunction(ClassWriter cw, String initClass, JvmCastGen jvmCastGen,
-                                                       BIRNode.BIRFunction mainFunc) {
-        String lambdaFuncName = "$lambda$" + MODULE_EXECUTE_METHOD + "$";
+                                                       BIRNode.BIRFunction mainFunc,
+                                                       BIRNode.BIRFunction testExecuteFunc) {
+        String lambdaFuncName = LAMBDA_PREFIX + MODULE_EXECUTE_METHOD + "$";
         MethodVisitor mv = visitFunction(cw, lambdaFuncName);
         mv.visitCode();
         String methodDesc;
@@ -148,22 +154,30 @@ public class InitMethodGen {
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, STRAND_CLASS);
 
-        if (mainFunc != null) {
-            BType returnType = mainFunc.type.retType;
-            List<BType> paramTypes = mainFunc.type.paramTypes;
-            // load and cast param values
+        if (mainFunc == null && testExecuteFunc == null) {
+            methodDesc = JvmSignatures.MODULE_START;
+        } else {
+            List<BType> paramTypes;
+            BType returnType;
+
+            if (mainFunc != null) {
+                paramTypes = mainFunc.type.paramTypes;
+                returnType = mainFunc.type.retType;
+            } else {
+                paramTypes = testExecuteFunc.type.paramTypes;
+                returnType = testExecuteFunc.type.retType;
+            }
             int paramIndex = 1;
-            for (BType pType : paramTypes) {
+            for (BType paramType : paramTypes) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitIntInsn(BIPUSH, paramIndex);
                 mv.visitInsn(AALOAD);
-                jvmCastGen.addUnboxInsn(mv, pType);
+                jvmCastGen.addUnboxInsn(mv, paramType);
                 paramIndex += 1;
             }
             methodDesc = JvmCodeGenUtil.getMethodDesc(paramTypes, returnType);
-        } else {
-            methodDesc = JvmSignatures.MODULE_START;
         }
+
         mv.visitMethodInsn(INVOKESTATIC, initClass, JvmConstants.MODULE_EXECUTE_METHOD, methodDesc, false);
         jvmCastGen.addBoxInsn(mv, errorOrNilType);
         MethodGenUtils.visitReturn(mv, lambdaFuncName, initClass);
@@ -225,7 +239,8 @@ public class InitMethodGen {
     public void enrichPkgWithInitializers(Map<String, BIRFunctionWrapper> birFunctionMap,
                                           Map<String, JavaClass> jvmClassMap, String typeOwnerClass,
                                           BIRNode.BIRPackage pkg, List<PackageID> moduleImports,
-                                          boolean serviceEPAvailable, BIRNode.BIRFunction mainFunc) {
+                                          boolean serviceEPAvailable, BIRNode.BIRFunction mainFunc,
+                                          BIRNode.BIRFunction testExecuteFunc) {
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
         BIRNode.BIRFunction initFunc = generateDefaultFunction(moduleImports, pkg, MODULE_INIT_METHOD,
                 MethodGenUtils.INIT_FUNCTION_SUFFIX);
@@ -241,7 +256,8 @@ public class InitMethodGen {
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_START_METHOD,
                 JvmPackageGen.getFunctionWrapper(startFunc, pkg.packageID, typeOwnerClass));
 
-        BIRNode.BIRFunction execFunc = generateExecuteFunction(pkg, serviceEPAvailable, mainFunc, typeOwnerClass);
+        BIRNode.BIRFunction execFunc = generateExecuteFunction(pkg, serviceEPAvailable, mainFunc, testExecuteFunc,
+                typeOwnerClass);
         javaClass.functions.add(execFunc);
         pkg.functions.add(execFunc);
         birFunctionMap.put(JvmCodeGenUtil.getPackageName(pkg.packageID) + MODULE_EXECUTE_METHOD,
@@ -249,41 +265,63 @@ public class InitMethodGen {
     }
 
     private BIRNode.BIRFunction generateExecuteFunction(BIRNode.BIRPackage pkg, boolean serviceEPAvailable,
-                                                        BIRNode.BIRFunction mainFunc, String typeOwnerClass) {
+                                                        BIRNode.BIRFunction mainFunc,
+                                                        BIRNode.BIRFunction testExecuteFunc, String typeOwnerClass) {
         BIRNode.BIRVariableDcl retVar = new BIRNode.BIRVariableDcl(null, errorOrNilType, new Name("%ret"),
                 VarScope.FUNCTION, VarKind.RETURN, "");
         BIROperand retVarRef = new BIROperand(retVar);
-        List<BIROperand> mainArgs = new ArrayList<>();
+        List<BIROperand> functionArgs = new ArrayList<>();
         BInvokableType funcType = new BInvokableType(Collections.emptyList(), null, errorOrNilType, null);
-        BIRNode.BIRFunction modExecFunc =
-                new BIRNode.BIRFunction(null, new Name(MODULE_EXECUTE_METHOD), 0, funcType, null, 0, VIRTUAL);
+        BIRNode.BIRFunction modExecFunc = new BIRNode.BIRFunction(null, new Name(MODULE_EXECUTE_METHOD), 0,
+                funcType, null, 0, VIRTUAL);
+        List<BType> paramTypes = new ArrayList<>();
+        List<BIRNode.BIRFunctionParameter> parameters = new ArrayList<>();
+        List<BIRNode.BIRParameter> requiredParameters = new ArrayList<>();
+        int argsCount = 0;
+
         if (mainFunc != null) {
-            funcType.paramTypes = mainFunc.type.paramTypes;
-            modExecFunc.parameters = mainFunc.parameters;
-            modExecFunc.requiredParams = mainFunc.requiredParams;
-            modExecFunc.argsCount = modExecFunc.parameters.size();
-            for (BIRNode.BIRFunctionParameter parameter : mainFunc.parameters) {
-                BIRNode.BIRVariableDcl paramVar = new BIRNode.BIRVariableDcl(null, parameter.type,
-                        new Name(MAIN_ARG_VAR_PREFIX + parameter.jvmVarName), VarScope.FUNCTION, VarKind.ARG, "");
-                BIROperand paramVarRef = new BIROperand(paramVar);
-                modExecFunc.localVars.add(paramVar);
-                mainArgs.add(paramVarRef);
-            }
+            paramTypes = mainFunc.type.paramTypes;
+            parameters = mainFunc.parameters;
+            requiredParameters = mainFunc.requiredParams;
+            argsCount += modExecFunc.parameters.size();
+        } else if (testExecuteFunc != null) {
+            paramTypes = testExecuteFunc.type.paramTypes;
+            parameters = testExecuteFunc.parameters;
+            requiredParameters = testExecuteFunc.requiredParams;
+            argsCount += modExecFunc.parameters.size();
         }
+
+        funcType.paramTypes = paramTypes;
+        modExecFunc.parameters = parameters;
+        modExecFunc.requiredParams = requiredParameters;
+        modExecFunc.argsCount = argsCount;
+        for (BIRNode.BIRFunctionParameter param : parameters) {
+            BIRNode.BIRVariableDcl paramVar = new BIRNode.BIRVariableDcl(null, param.type,
+                    new Name("%param" + param.jvmVarName), VarScope.FUNCTION, VarKind.ARG, "");
+            BIROperand varRef = new BIROperand(paramVar);
+            modExecFunc.localVars.add(paramVar);
+            functionArgs.add(varRef);
+        }
+
         modExecFunc.localVars.add(retVar);
         addAndGetNextBasicBlock(modExecFunc);
-
         BIRNode.BIRVariableDcl boolVal = addAndGetNextVar(modExecFunc, symbolTable.booleanType);
         BIROperand boolRef = new BIROperand(boolVal);
         addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_INIT_METHOD, retVarRef, boolRef);
 
         if (mainFunc != null) {
-            injectDefaultArgs(mainArgs, mainFunc, modExecFunc, boolRef, pkg.globalVars);
-            addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, MAIN_METHOD, retVarRef, boolRef, mainArgs,
+            injectDefaultArgs(functionArgs, mainFunc, modExecFunc, boolRef, pkg.globalVars);
+            addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, MAIN_METHOD, retVarRef, boolRef, functionArgs,
                     mainFunc.annotAttachments);
         }
+
         BIRNode.BIRBasicBlock lastBB =
                 addCheckedInvocation(modExecFunc, pkg.packageID, MODULE_START_METHOD, retVarRef, boolRef);
+
+        if (testExecuteFunc != null) {
+            lastBB = addCheckedInvocationWithArgs(modExecFunc, pkg.packageID, TEST_EXECUTE_METHOD, retVarRef, boolRef,
+                    functionArgs, Collections.emptyList());
+        }
 
         if (!serviceEPAvailable && !JvmPackageGen.isLangModule(pkg.packageID)) {
             lastBB = addCheckedInvocationForExitCall(modExecFunc, retVarRef, boolRef, typeOwnerClass);
@@ -327,7 +365,6 @@ public class InitMethodGen {
                         mainArgs.subList(0, i));
             }
         }
-
     }
 
     private void injectEqualsCheck(BIRNode.BIRFunction modExecFunc, BIROperand boolRef, BType type,
@@ -349,12 +386,13 @@ public class InitMethodGen {
         BIRNode.BIRGlobalVariableDcl defaultFuncVar = getDefaultFuncFPGlobalVar(defaultFunc.name, globalVars);
         BIROperand defaultFP = new BIROperand(defaultFuncVar);
         boolean workerDerivative = Symbols.isFlagOn(defaultFunc.flags, Flags.WORKER);
-        return new BIRTerminator.FPCall(null, InstructionKind.FP_CALL, defaultFP, args, argOperand, false, thenBB, null,
-                workerDerivative);
+        return new BIRTerminator.FPCall(null, InstructionKind.FP_CALL, defaultFP, args, argOperand, false,
+                thenBB, null, workerDerivative);
     }
 
     private BIRNode.BIRGlobalVariableDcl getDefaultFuncFPGlobalVar(Name name,
                                                                    List<BIRNode.BIRGlobalVariableDcl> globalVars) {
+
         for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
             if (globalVar.name.value.equals(name.value)) {
                 return globalVar;
@@ -447,7 +485,7 @@ public class InitMethodGen {
         BIRNode.BIRBasicBlock lastBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         BIRNode.BIRBasicBlock nextBB = addAndGetNextBasicBlock(func);
         // TODO remove once lang.annotation is fixed
-        if (isBuiltInPackage(modId)) {
+        if (JvmCodeGenUtil.isBuiltInPackage(modId)) {
             lastBB.terminator = new BIRTerminator.Call(null, InstructionKind.CALL, false, modId,
                     new Name(initFuncName), args, null, nextBB, calleeAnnotAttachments, Collections.emptySet());
             return nextBB;
@@ -497,7 +535,17 @@ public class InitMethodGen {
         mv.visitFieldInsn(GETFIELD, STRAND_CLASS, "scheduler", GET_SCHEDULER);
         mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, GRACEFUL_EXIT_METHOD_NAME, "()V", false);
         mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, GRACEFUL_EXIT_METHOD_NAME, SCHEDULER);
+        mv.visitEnd();
+    }
+
+    public void generateGetTestExecutionState(ClassWriter cw, String className) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, GET_TEST_EXECUTION_STATE, "()I",
+                null, null);
+        mv.visitCode();
+        mv.visitFieldInsn(GETSTATIC, className, TEST_EXECUTION_STATE, "I");
+        mv.visitInsn(IRETURN);
+        JvmCodeGenUtil.visitMaxStackForMethod(mv, GET_TEST_EXECUTION_STATE, className);
         mv.visitEnd();
     }
 }
