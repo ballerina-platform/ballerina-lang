@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 /**
  * Finds references for the given symbol within documentation (parameters).
  *
- * @since 2201.7.0
+ * @since 2201.6.0
  */
 public class DocumentationReferenceFinder extends NodeTransformer<List<Location>> {
 
@@ -85,14 +85,13 @@ public class DocumentationReferenceFinder extends NodeTransformer<List<Location>
      * @return List of locations of the parameters within the documentation
      */
     private List<Location> getParameterLocations(MarkdownDocumentationNode mdNode) {
-        List<Location> paramLocations = mdNode.documentationLines().stream()
+        return mdNode.documentationLines().stream()
                 .filter(line -> line.kind() == SyntaxKind.MARKDOWN_PARAMETER_DOCUMENTATION_LINE)
                 .map(line -> (MarkdownParameterDocumentationLineNode) line)
                 .map(line -> line.parameterName())
                 .filter(token -> token.text().equals(symbol.getName().get()))
                 .map(paramToken -> paramToken.location())
                 .collect(Collectors.toList());
-        return paramLocations;
     }
 
     @Override
