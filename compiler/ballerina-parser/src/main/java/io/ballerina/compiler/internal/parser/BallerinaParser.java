@@ -11994,7 +11994,7 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN) {
             return false;
         }
-        if (nextToken instanceof STMissingToken) {
+        if (!(nextToken instanceof STIdentifierToken)) {
             return false;
         }
         String tokenText = ((STIdentifierToken) nextToken).text;
@@ -12037,7 +12037,7 @@ public class BallerinaParser extends AbstractParser {
             case CONFLICT_KEYWORD:
                 return null;
             default:
-                if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+                if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN && nextToken instanceof STIdentifierToken) {
                     if (((STIdentifierToken) nextToken).text.equals(SyntaxKind.COLLECT_KEYWORD.stringValue())) {
                         return parseCollectClause(isRhsExpr);
                     }
