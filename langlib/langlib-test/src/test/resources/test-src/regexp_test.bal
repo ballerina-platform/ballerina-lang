@@ -2611,10 +2611,16 @@ function testRegexpWithUnicodeChars() {
 
     regexp:Span[] resB1 = regexp:findAll(re `\u{1F30D}`, "😀 Hello, 🌍! ❤️");
     assertTrue(resB1.length() == 1);
+    assertTrue(resB1[0].startIndex == 9);
+    assertTrue(resB1[0].endIndex == 10);
     regexp:Span[] resB2 = regexp:findAll(re `\u{1F30D}`, "🌍😀 Hello! ❤️", 5);
     assertTrue(resB2.length() == 0);
     regexp:Span[] resB3 = regexp:findAll(re `\u{1F30D}`, "😀 Hello 🌍! 🌍❤️", 6);
     assertTrue(resB3.length() == 2);
+    assertTrue(resB3[0].startIndex == 8);
+    assertTrue(resB3[0].endIndex == 9);
+    assertTrue(resB3[1].startIndex == 11);
+    assertTrue(resB3[1].endIndex == 12);
     regexp:Span[] resB4 = regexp:findAll(re `\u{1F31F}`, "😀 Hello, 🌍! ❤️");
     assertTrue(resB4.length() == 0);
     regexp:Span[] resB5 = regexp:findAll(re `\u{0d9c}`, "පරිගණක 10");
@@ -2634,6 +2640,10 @@ function testRegexpWithUnicodeChars() {
 
     regexp:Groups[] resD1 = regexp:findAllGroups(re `o\u{1F30D}`, "😀 Hello🌍! ❤️o🌍");
     assertTrue(resD1.length() == 2);
+    assertTrue(resD1[0][0].startIndex == 6);
+    assertTrue(resD1[0][0].endIndex == 8);
+    assertTrue(resD1[1][0].startIndex == 11);
+    assertTrue(resD1[1][0].endIndex == 13);
     regexp:Groups[] resD2 = regexp:findAllGroups(re `o\u{1F301}`, "😀 Hello🌍! ❤️o🌍");
     assertTrue(resD2.length() == 0);
 
