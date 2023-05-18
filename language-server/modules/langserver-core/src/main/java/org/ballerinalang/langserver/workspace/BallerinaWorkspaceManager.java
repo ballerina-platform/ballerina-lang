@@ -21,6 +21,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.BalToolToml;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.CloudToml;
@@ -372,6 +373,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.COMPILER_PLUGIN_TOML))) {
             // Create or update Compiler-plugin.toml
             updateCompilerPluginToml(params.getTextDocument().getText(), projectPair, true);
+        } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.BAL_TOOL_TOML))) {
+            // Create or update BalTool.toml
+            updateBalToolToml(params.getTextDocument().getText(), projectPair, true);
         } else if (ProjectPaths.isBalFile(filePath) && project.kind() != ProjectKind.BALA_PROJECT) {
             // Create or update .bal document
             updateBalDocument(filePath, params.getTextDocument().getText(), projectPair, true);
@@ -403,6 +407,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.COMPILER_PLUGIN_TOML))) {
             // create or update Compiler-plugin.toml
             updateCompilerPluginToml(params.getContentChanges().get(0).getText(), projectPair, false);
+        } else if (filePath.equals(project.sourceRoot().resolve(ProjectConstants.BAL_TOOL_TOML))) {
+            // create or update BalTool.toml
+            updateBalToolToml(params.getContentChanges().get(0).getText(), projectPair, false);
         } else if (ProjectPaths.isBalFile(filePath) && project.kind() != ProjectKind.BALA_PROJECT) {
             // Update .bal document
             updateBalDocument(filePath, params.getContentChanges().get(0).getText(), projectPair, false);
@@ -438,8 +445,10 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         boolean isDependenciesTomlChange = filePath.endsWith(ProjectConstants.DEPENDENCIES_TOML);
         boolean isCloudTomlChange = filePath.endsWith(ProjectConstants.CLOUD_TOML);
         boolean isCompilerPluginTomlChange = filePath.endsWith(ProjectConstants.COMPILER_PLUGIN_TOML);
+        boolean isBalToolTomlChange = filePath.endsWith(ProjectConstants.BAL_TOOL_TOML);
         if (fileEvent.getType() == FileChangeType.Created &&
-                (isBallerinaSourceChange || isBallerinaTomlChange || isCloudTomlChange || isCompilerPluginTomlChange)
+                (isBallerinaSourceChange || isBallerinaTomlChange || isCloudTomlChange || isCompilerPluginTomlChange
+                        || isBalToolTomlChange)
                 && hasDocumentOrToml(filePath, project)) {
             // Document might already exists when text/didOpen hits before workspace/didChangeWatchedFiles,
             // Thus, return silently
@@ -461,6 +470,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             handleWatchedDependenciesTomlChange(filePath, fileEvent, projectPair);
         } else if (isCompilerPluginTomlChange) {
             handleWatchedCompilerPluginTomlChange(filePath, fileEvent, projectPair);
+        } else if (isBalToolTomlChange) {
+            handleWatchedBalToolTomlChange(filePath, fileEvent, projectPair);
         } else {
             handleWatchedModuleChange(filePath, fileEvent, projectPair);
         }
@@ -561,6 +572,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                                                              boolean isDependenciesTomlChange,
                                                              boolean isCloudTomlChange,
                                                              boolean isCompilerPluginTomlChange,
+                                                             boolean isBalToolTomlChange,
                                                              boolean isModuleChange) {
         if (isBallerinaSourceChange) {
             if (fileEvent.getType() == FileChangeType.Created) {
@@ -610,7 +622,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 // Check for a project downgrade from a build-project to a single-file
                 return projectPair(filePath.getParent());
             }
-        } else if (isCloudTomlChange || isCompilerPluginTomlChange || isDependenciesTomlChange) {
+        } else if (isCloudTomlChange || isCompilerPluginTomlChange || isBalToolTomlChange || isDependenciesTomlChange) {
             return projectPair(filePath.getParent());
         } else if (isModuleChange) {
             Path projectRoot;
@@ -828,6 +840,42 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
+    private void handleWatchedBalToolTomlChange(Path filePath, FileEvent fileEvent, ProjectPair projectPair)
+            throws WorkspaceDocumentException {
+        switch (fileEvent.getType()) {
+            case Created:
+                try {
+                    updateBalToolToml(Files.readString(filePath), projectPair, true);
+                    clientLogger.logTrace(String.format("Operation '%s' {fileUri: '%s'} created",
+                            LSContextOperation.WS_WF_CHANGED.getName(),
+                            fileEvent.getUri()));
+                } catch (IOException e) {
+                    throw new WorkspaceDocumentException("Could not handle BalTool.toml creation!", e);
+                }
+                break;
+            case Changed: {
+                if (!this.openedDocuments.contains(filePath)) {
+                    reloadProject(projectPair, filePath, LSContextOperation.WS_WF_CHANGED.getName());
+                }
+                break;
+            }
+            case Deleted:
+                // When removing BalTool.toml, we are just reloading the project due to api-limitations.
+                Lock lock = projectPair.lockAndGet();
+                try {
+                    clientLogger.logTrace(String.format("Operation '%s' {fileUri: '%s'} removed",
+                            LSContextOperation.WS_WF_CHANGED.getName(),
+                            fileEvent.getUri()));
+                    Path ballerinaTomlFile = filePath.getParent().resolve(ProjectConstants.BALLERINA_TOML);
+                    projectPair.setProject(
+                            createProject(ballerinaTomlFile, LSContextOperation.WS_WF_CHANGED.getName()).project());
+                } finally {
+                    // Unlock Project Instance
+                    lock.unlock();
+                }
+        }
+    }
+
     private void handleWatchedModuleChange(Path filePath, FileEvent fileEvent, ProjectPair projectPair) {
         String fileName = filePath.getFileName().toString();
         switch (fileEvent.getType()) {
@@ -994,6 +1042,39 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
+    private void updateBalToolToml(String content, ProjectPair projectPair, boolean createIfNotExists)
+            throws WorkspaceDocumentException {
+        // Lock Project Instance
+        Lock lock = projectPair.lockAndGet();
+        try {
+            Optional<BalToolToml> balToolToml =
+                    projectPair.project().currentPackage().balToolToml();
+            // Get toml
+            if (balToolToml.isEmpty()) {
+                if (createIfNotExists) {
+                    DocumentConfig documentConfig = DocumentConfig.from(
+                            DocumentId.create(ProjectConstants.BAL_TOOL_TOML, null), content,
+                            ProjectConstants.BAL_TOOL_TOML
+                    );
+                    Package pkg = projectPair.project().currentPackage().modify()
+                            .addBalToolToml(documentConfig)
+                            .apply();
+                    // Update project instance
+                    projectPair.setProject(pkg.project());
+                    return;
+                }
+                throw new WorkspaceDocumentException(ProjectConstants.BAL_TOOL_TOML + " does not exists!");
+            }
+            // Update toml
+            BalToolToml updatedToml = balToolToml.get().modify().withContent(content).apply();
+            // Update project instance
+            projectPair.setProject(updatedToml.packageInstance().project());
+        } finally {
+            // Unlock Project Instance
+            lock.unlock();
+        }
+    }
+
     private void updateBalDocument(Path filePath, String content, ProjectPair projectPair, boolean createIfNotExists)
             throws WorkspaceDocumentException {
         // Lock Project Instance
@@ -1126,6 +1207,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 return project.currentPackage().cloudToml().isPresent();
             case ProjectConstants.COMPILER_PLUGIN_TOML:
                 return project.currentPackage().compilerPluginToml().isPresent();
+            case ProjectConstants.BAL_TOOL_TOML:
+                return project.currentPackage().balToolToml().isPresent();
             case ProjectConstants.DEPENDENCIES_TOML:
                 return project.currentPackage().dependenciesToml().isPresent();
             default:
@@ -1297,6 +1380,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         boolean isDependenciesTomlChange = filePath.endsWith(ProjectConstants.DEPENDENCIES_TOML);
         boolean isCloudTomlChange = filePath.endsWith(ProjectConstants.CLOUD_TOML);
         boolean isCompilerPluginTomlChange = filePath.endsWith(ProjectConstants.COMPILER_PLUGIN_TOML);
+        boolean isBalToolTomlChange = filePath.endsWith(ProjectConstants.BAL_TOOL_TOML);
 
         // NOTE: Need to specifically check Deleted events, since `filePath.toFile().isDirectory()`
         // fails when physical file is deleted from the disk
@@ -1304,12 +1388,13 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                 filePath.getParent().endsWith(ProjectConstants.MODULES_ROOT) ||
                 filePath.getParent().endsWith(ProjectConstants.GENERATED_MODULES_ROOT) ||
                 (fileEvent.getType() == FileChangeType.Deleted && !isBallerinaSourceChange && !isBallerinaTomlChange &&
-                        !isCloudTomlChange && !isDependenciesTomlChange && !isCompilerPluginTomlChange);
+                        !isCloudTomlChange && !isDependenciesTomlChange && !isCompilerPluginTomlChange &&
+                        !isBalToolTomlChange);
 
         return projectOfWatchedFileChange(filePath, fileEvent,
                 isBallerinaSourceChange, isBallerinaTomlChange,
                 isDependenciesTomlChange, isCloudTomlChange,
-                isCompilerPluginTomlChange, isModuleChange);
+                isCompilerPluginTomlChange, isBalToolTomlChange, isModuleChange);
     }
 
     private boolean hasBallerinaToml(Path filePath) {

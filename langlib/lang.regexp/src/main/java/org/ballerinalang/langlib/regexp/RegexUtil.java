@@ -81,7 +81,7 @@ public class RegexUtil {
     static Matcher getMatcher(BRegexpValue regexpVal, String inputStr) {
         // Map the required ballerina regexp constructs to java.
         RegExpValue translatedRegExpVal = RegExpFactory.translateRegExpConstructs((RegExpValue) regexpVal);
-        String patternStr = StringUtils.getStringValue(translatedRegExpVal, null);
+        String patternStr = StringUtils.getStringValue(translatedRegExpVal);
         Pattern pattern = Pattern.compile(patternStr, Pattern.UNICODE_CHARACTER_CLASS);
         return pattern.matcher(inputStr);
     }
