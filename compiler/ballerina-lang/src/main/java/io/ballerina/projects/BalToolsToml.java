@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
@@ -55,6 +56,10 @@ public class BalToolsToml {
         StringBuilder content = new StringBuilder();
         if (!balToolsTomlPath.toFile().exists()) {
             try {
+                Path parentDirectory = balToolsTomlPath.getParent();
+                if (parentDirectory != null && !parentDirectory.toFile().exists()) {
+                    Files.createDirectories(parentDirectory);
+                }
                 Files.createFile(balToolsTomlPath);
             } catch (IOException e) {
                 throw new RuntimeException("Error while creating bal-tools.toml :" + e);
