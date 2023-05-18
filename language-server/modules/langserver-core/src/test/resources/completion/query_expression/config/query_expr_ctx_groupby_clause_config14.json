@@ -7,28 +7,37 @@
   "description": "",
   "items": [
     {
-      "label": "where",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "CQ",
-      "filterText": "where",
-      "insertText": "where ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "let",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CQ",
+      "sortText": "BQ",
       "filterText": "let",
       "insertText": "let",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "from",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "BQ",
+      "filterText": "from",
+      "insertText": "from ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "where",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "BQ",
+      "filterText": "where",
+      "insertText": "where ",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "let clause",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "CP",
+      "sortText": "BP",
       "filterText": "let",
       "insertText": "let ${1:var} ${2:varName} = ${3}",
       "insertTextFormat": "Snippet"
@@ -37,7 +46,7 @@
       "label": "outer",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CQ",
+      "sortText": "BQ",
       "filterText": "outer",
       "insertText": "outer ",
       "insertTextFormat": "Snippet"
@@ -46,7 +55,7 @@
       "label": "join",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CQ",
+      "sortText": "BQ",
       "filterText": "join",
       "insertText": "join ",
       "insertTextFormat": "Snippet"
@@ -55,7 +64,7 @@
       "label": "join clause",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "CP",
+      "sortText": "BP",
       "filterText": "join",
       "insertText": "join ${1:var} ${2:varName} in ${3:expr} on ${4:onExpr} equals ${5:equalsExpr}",
       "insertTextFormat": "Snippet"
@@ -64,7 +73,7 @@
       "label": "order by",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CQ",
+      "sortText": "BQ",
       "filterText": "order by",
       "insertText": "order by ",
       "insertTextFormat": "Snippet"
@@ -73,7 +82,7 @@
       "label": "limit",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CQ",
+      "sortText": "BQ",
       "filterText": "limit",
       "insertText": "limit ",
       "insertTextFormat": "Snippet"
@@ -82,7 +91,7 @@
       "label": "do",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "CP",
+      "sortText": "BP",
       "filterText": "do",
       "insertText": "do {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
@@ -91,25 +100,16 @@
       "label": "select",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CQ",
+      "sortText": "BQ",
       "filterText": "select",
       "insertText": "select ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "from",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "CQ",
-      "filterText": "from",
-      "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "group by",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "CQ",
+      "sortText": "BQ",
       "filterText": "group by",
       "insertText": "group by ",
       "insertTextFormat": "Snippet"
@@ -118,7 +118,7 @@
       "label": "group by clause",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "CP",
+      "sortText": "BP",
       "filterText": "group by",
       "insertText": "group by ${1:var} ${2:item} = ${3}",
       "insertTextFormat": "Snippet"

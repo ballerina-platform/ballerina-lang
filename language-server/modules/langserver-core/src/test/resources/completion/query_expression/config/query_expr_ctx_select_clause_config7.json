@@ -746,6 +746,14 @@
       "filterText": "from",
       "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "price",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "F",
+      "insertText": "price",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
