@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BBooleanType} represents boolean type in Ballerina.
+ * {@code BooleanType} represents boolean type in Ballerina.
  *
  * @since 2.0.0
  */

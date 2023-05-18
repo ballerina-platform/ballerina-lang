@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -52,7 +53,6 @@ import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
-import io.ballerina.runtime.internal.values.RefValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -232,10 +232,10 @@ public class JsonInternalUtils {
      * @return returns true if provided JSON is a JSON Array.
      */
     public static boolean isJSONArray(Object json) {
-        if (!(json instanceof RefValue)) {
+        if (!(json instanceof BRefValue)) {
             return false;
         }
-        return ((RefValue) json).getType().getTag() == TypeTags.ARRAY_TAG;
+        return ((BRefValue) json).getType().getTag() == TypeTags.ARRAY_TAG;
     }
 
     /**
@@ -245,11 +245,11 @@ public class JsonInternalUtils {
      * @return returns true if provided JSON is a JSON Object.
      */
     public static boolean isJSONObject(Object json) {
-        if (!(json instanceof RefValue)) {
+        if (!(json instanceof BRefValue)) {
             return false;
         }
 
-        Type type = TypeUtils.getReferredType(((RefValue) json).getType());
+        Type type = TypeUtils.getReferredType(((BRefValue) json).getType());
         int typeTag = type.getTag();
         return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG;
     }

@@ -35,6 +35,7 @@ import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
@@ -69,7 +70,6 @@ import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
-import io.ballerina.runtime.internal.values.RefValue;
 import io.ballerina.runtime.internal.values.RegExpValue;
 import io.ballerina.runtime.internal.values.StreamValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
@@ -527,8 +527,8 @@ public class TypeChecker {
         if (isSimpleBasicType(type)) {
             return new TypedescValueImpl(new BFiniteType(value.toString(), Set.of(value), 0));
         }
-        if (value instanceof RefValue) {
-            return (TypedescValue) ((RefValue) value).getTypedesc();
+        if (value instanceof BRefValue) {
+            return (TypedescValue) ((BRefValue) value).getTypedesc();
         }
         return new TypedescValueImpl(type);
     }
@@ -2061,7 +2061,7 @@ public class TypeChecker {
             return false;
         }
 
-        return !((RefValue) value).isFrozen();
+        return !((BRefValue) value).isFrozen();
     }
 
     private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type) {
