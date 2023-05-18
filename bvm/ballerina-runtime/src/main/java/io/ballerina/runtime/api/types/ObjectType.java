@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BObjectType} represents a user defined object type in Ballerina.
+ * {@code ObjectType} represents a user defined object type in Ballerina.
  *
  * @since 2.0.0
  */

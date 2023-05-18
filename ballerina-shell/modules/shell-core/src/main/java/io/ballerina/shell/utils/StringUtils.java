@@ -149,7 +149,7 @@ public class StringUtils {
      * @return Converted string.
      */
     public static String getExpressionStringValue(Object object) {
-        return io.ballerina.runtime.api.utils.StringUtils.getExpressionStringValue(object, null);
+        return io.ballerina.runtime.api.utils.StringUtils.getExpressionStringValue(object);
     }
 
     /**

@@ -1,0 +1,15 @@
+NAME
+       bal-tool-list - List all the tools available in the bal tool chain
+
+SYNOPSIS
+       bal tool list
+
+OPTIONS
+       -h, --help
+           Print the usage details of tool list command.
+
+DESCRIPTION
+       List the tool-id and the version of all locally available tools.
+
+       When there are multiple versions of the same tool, a row is printed
+       for each version.

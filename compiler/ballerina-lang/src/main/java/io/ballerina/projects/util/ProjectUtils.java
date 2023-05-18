@@ -126,6 +126,7 @@ public class ProjectUtils {
     private static final Pattern onlyDotsPattern = Pattern.compile("^[.]+$");
     private static final Pattern onlyNonAlphanumericPattern = Pattern.compile("^[^a-zA-Z0-9]+$");
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
+    private static final Pattern separatedIdentifierWithHyphenPattern = Pattern.compile("^[a-zA-Z0-9_.-]*$");
 
     /**
      * Validates the org-name.
@@ -148,6 +149,18 @@ public class ProjectUtils {
         return validateDotSeparatedIdentifiers(packageName)
                 && validateUnderscoresOfName(packageName)
                 && validateInitialNumericsOfName(packageName);
+    }
+
+    /**
+     * Validates the package name.
+     *
+     * @param toolName The package name.
+     * @return True if valid package name, else false.
+     */
+    public static boolean validateToolName(String toolName) {
+        return validateDotSeparatedIdentifiersWithHyphen(toolName)
+                && validateUnderscoresOfName(toolName)
+                && validateInitialNumericsOfName(toolName);
     }
 
     /**
@@ -760,6 +773,13 @@ public class ProjectUtils {
 
     private static boolean validateDotSeparatedIdentifiers(String identifiers) {
         Matcher m = separatedIdentifierPattern.matcher(identifiers);
+        Matcher mm = onlyDotsPattern.matcher(identifiers);
+
+        return m.matches() && !mm.matches();
+    }
+
+    private static boolean validateDotSeparatedIdentifiersWithHyphen(String identifiers) {
+        Matcher m = separatedIdentifierWithHyphenPattern.matcher(identifiers);
         Matcher mm = onlyDotsPattern.matcher(identifiers);
 
         return m.matches() && !mm.matches();
