@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ExplicitNewExpressionNode} context.
@@ -141,8 +142,10 @@ public class ExplicitNewExpressionNodeContext extends InvocationNodeContextProvi
             return this.getCompletionItemList(QNameRefCompletionUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
         }
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.expressionCompletions(ctx));
-
+        if (isNotInNamedArgOnlyContext(ctx, 
+                node.parenthesizedArgList().arguments().stream().collect(Collectors.toList()))) {
+            completionItems.addAll(this.expressionCompletions(ctx));
+        }
         completionItems.addAll(getNamedArgExpressionCompletionItems(ctx, node));
 
         return completionItems;
