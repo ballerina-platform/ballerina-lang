@@ -21,18 +21,24 @@ package io.ballerina.cli.cmd;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
+import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
 import io.ballerina.projects.internal.model.Dependency;
+import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -57,6 +63,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +77,7 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
+import static io.ballerina.projects.util.ProjectUtils.deleteDirectory;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -88,10 +96,12 @@ public class CommandUtil {
     public static final String ORG_NAME = "ORG_NAME";
     public static final String PKG_NAME = "PKG_NAME";
     public static final String DIST_VERSION = "DIST_VERSION";
+    public static final String USER_HOME = "user.home";
     public static final String GITIGNORE = "gitignore";
     public static final String DEVCONTAINER = "devcontainer";
     public static final String NEW_CMD_DEFAULTS = "new_cmd_defaults";
     public static final String CREATE_CMD_TEMPLATES = "create_cmd_templates";
+    public static final String LIBS_DIR = "libs";
     public static final String DEFAULT_TEMPLATE = "default";
     public static final String MAIN_TEMPLATE = "main";
     public static final String FILE_STRING_SEPARATOR = ", ";
@@ -821,7 +831,7 @@ public class CommandUtil {
      *
      * @param modulePath path to the module
      * @param template template name
-     * @param balFilesExist if bal files exist in the project                
+     * @param balFilesExist if bal files exist in the project
      * @throws IOException if any IOException occurred
      * @throws URISyntaxException if any URISyntaxException occurred
      */
@@ -1005,5 +1015,73 @@ public class CommandUtil {
         //Only skip the bal file to be created if any other .bal files exists
         return Files.list(packagePath).anyMatch(path -> path.toString().endsWith(ProjectConstants.BLANG_SOURCE_EXT));
     }
-}
 
+    /**
+     * Get the latest version from a given list of versions.
+     *
+     * @param versions the list of strings
+     * @return the latest version
+     */
+    static String getLatestVersion(List<String> versions) {
+        String latestVersion = versions.get(0);
+        for (String version : versions) {
+            if (SemanticVersion.from(version).greaterThan(SemanticVersion.from(latestVersion))) {
+                latestVersion = version;
+            }
+        }
+        return latestVersion;
+    }
+
+    /**
+     * Pull the dependencies of a given package from central.
+     *
+     * @param orgName org name of the dependent package
+     * @param packageName name of the dependent package
+     * @param version version of the dependent package
+     * @return true if the dependent package compilation has errors
+     */
+    static boolean pullDependencyPackages(String orgName, String packageName, String version) {
+        Path ballerinaUserHomeDirPath = ProjectUtils.createAndGetHomeReposPath();
+        Path centralRepositoryDirPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
+        Path balaDirPath = centralRepositoryDirPath.resolve(ProjectConstants.BALA_DIR_NAME);
+        Path balaPath = ProjectUtils.getPackagePath(balaDirPath, orgName, packageName, version);
+        String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
+        Path cacheDir = centralRepositoryDirPath.resolve(
+                ProjectConstants.CACHES_DIR_NAME + "-" + ballerinaShortVersion);
+
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        defaultBuilder.addCompilationCacheFactory(new FileSystemCache.FileSystemCacheFactory(cacheDir));
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+
+        // Delete package cache if available
+        Path packageCacheDir = cacheDir.resolve(orgName).resolve(packageName).resolve(version);
+        if (packageCacheDir.toFile().exists()) {
+            deleteDirectory(packageCacheDir);
+        }
+
+        // getResolution pulls all dependencies of the pulled package
+        PackageCompilation packageCompilation = balaProject.currentPackage().getCompilation();
+        Collection<Diagnostic> resolutionDiagnostics = packageCompilation.getResolution()
+                .diagnosticResult().diagnostics();
+        if (!resolutionDiagnostics.isEmpty()) {
+            printDiagnostics(resolutionDiagnostics);
+        }
+        if (packageCompilation.getResolution().diagnosticResult().hasErrors()) {
+            return true;
+        }
+
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        Collection<Diagnostic> backendDiagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
+        if (!backendDiagnostics.isEmpty()) {
+            printDiagnostics(backendDiagnostics);
+        }
+        return jBallerinaBackend.diagnosticResult().hasErrors();
+    }
+
+    private static void printDiagnostics(Collection<Diagnostic> diagnostics) {
+        for (Diagnostic diagnostic: diagnostics) {
+            CommandUtil.printError(errStream, diagnostic.toString(), null, false);
+        }
+    }
+}
