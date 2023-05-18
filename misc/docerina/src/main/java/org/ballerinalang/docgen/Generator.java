@@ -174,8 +174,15 @@ public class Generator {
             module.records.add(getRecordTypeModel((RecordTypeDescriptorNode) typeDefinition.typeDescriptor(),
                     typeName, metaDataNode, semanticModel));
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
-            module.objectTypes.add(getObjectTypeModel((ObjectTypeDescriptorNode) typeDefinition.typeDescriptor(),
-                    typeName, metaDataNode, semanticModel));
+            ObjectTypeDescriptorNode objectTypeDescriptorNode =
+                    (ObjectTypeDescriptorNode) typeDefinition.typeDescriptor();
+            if (containsToken(objectTypeDescriptorNode.objectTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD)) {
+                module.serviceTypes.add(getObjectTypeModel((ObjectTypeDescriptorNode) typeDefinition.typeDescriptor(),
+                        typeName, metaDataNode, semanticModel));
+            } else {
+                module.objectTypes.add(getObjectTypeModel((ObjectTypeDescriptorNode) typeDefinition.typeDescriptor(),
+                        typeName, metaDataNode, semanticModel));
+            }
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
             Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
             if (unionType.memberTypes.stream().allMatch(type ->
@@ -188,7 +195,8 @@ public class Generator {
                 module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(),
                         typeName, metaDataNode, semanticModel));
             }
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
             if (refType.category.equals("errors")) {
                 module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
@@ -266,7 +274,8 @@ public class Generator {
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.XML_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.FUNCTION_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.ANYDATA_TYPE_DESC ||
-                typeDefinition.typeDescriptor().kind() == SyntaxKind.STRING_TYPE_DESC) {
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.STRING_TYPE_DESC ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.ANY_TYPE_DESC) {
             module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode, semanticModel));
         } else {
             return false;
@@ -431,6 +440,7 @@ public class Generator {
         boolean isDeprecated = isDeprecated(classDefinitionNode.metadata());
         boolean isReadOnly = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.READONLY_KEYWORD);
         boolean isIsolated = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.ISOLATED_KEYWORD);
+        boolean isService = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD);
 
         List<DefaultableVariable> fields = getDefaultableVariableList(classDefinitionNode.members(),
                 classDefinitionNode.metadata(), semanticModel);
@@ -460,12 +470,12 @@ public class Generator {
         functions.addAll(classFunctions);
 
         if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
-            return new Client(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
+            return new Client(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         } else if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.LISTENER_KEYWORD)
                 || name.equals("Listener")) {
-            return new Listener(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
+            return new Listener(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         } else {
-            return new BClass(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
+            return new BClass(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         }
     }
 

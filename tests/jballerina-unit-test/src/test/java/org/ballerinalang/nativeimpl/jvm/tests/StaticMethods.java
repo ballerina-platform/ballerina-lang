@@ -336,6 +336,10 @@ public class StaticMethods {
         }
     }
 
+    public static long acceptIntErrorUnionReturnWhichThrowsUncheckedException() throws RuntimeException {
+        return 5;
+    }
+
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
             throws JavaInteropTestCheckedException {
         switch (flag) {

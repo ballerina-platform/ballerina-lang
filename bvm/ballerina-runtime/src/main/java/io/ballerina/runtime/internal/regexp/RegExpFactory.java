@@ -15,6 +15,7 @@
  */
 package io.ballerina.runtime.internal.regexp;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
@@ -43,6 +44,7 @@ import io.ballerina.runtime.internal.values.RegExpValue;
  * @since 2201.3.0
  */
 public class RegExpFactory {
+
     private RegExpFactory() {
     }
 
@@ -111,8 +113,8 @@ public class RegExpFactory {
             TreeBuilder treeBuilder = new TreeBuilder(tokenReader);
             return treeBuilder.parse();
         } catch (BallerinaException e) {
-            throw ErrorCreator.createError(StringUtils.fromString("Failed to parse regular expression: " +
-                    e.getMessage()));
+            throw ErrorCreator.createError(StringUtils.fromString("Failed to parse regular expression: "
+                    + e.getMessage() + " in '" + regExpStr + "'"));
         }
     }
 
@@ -124,7 +126,8 @@ public class RegExpFactory {
             treeBuilder.parseInsertion();
         } catch (BallerinaException e) {
             throw ErrorCreator.createError(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
-                    StringUtils.fromString("Invalid insertion in regular expression: " + e.getMessage()));
+                    StringUtils.fromString(e.getMessage() + " in insertion substring '"
+                            + regExpStr.substring(3, regExpStr.length() - 1) + "'"));
         }
     }
 
@@ -183,6 +186,9 @@ public class RegExpFactory {
         if ("&".equals(value)) {
             return createLiteralCharOrEscape("\\&");
         }
+        if (value.startsWith("\\u{") && value.endsWith("}")) {
+            return createLiteralCharOrEscape(Utils.unescapeBallerina(value));
+        }
         return charOrEscape;
     }
 
@@ -191,7 +197,7 @@ public class RegExpFactory {
     }
 
     private static RegExpCharacterClass createCharacterClass(String negation, Object[] charSet) {
-        return new RegExpCharacterClass("[", negation, new RegExpCharSet(charSet) , "]");
+        return new RegExpCharacterClass("[", negation, new RegExpCharSet(charSet), "]");
     }
 
     private static RegExpAtom translateCharacterClass(RegExpCharacterClass charClass) {
@@ -226,6 +232,10 @@ public class RegExpFactory {
         if ("&".equals(originalValue)) {
             return "\\&";
         }
+        if (originalValue.startsWith("\\u{") && originalValue.endsWith("}")) {
+            return Utils.unescapeBallerina(originalValue);
+        }
+
         return originalValue;
     }
 }
