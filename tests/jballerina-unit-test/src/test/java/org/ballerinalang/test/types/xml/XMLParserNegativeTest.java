@@ -22,12 +22,47 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
+
 /**
  * Negative test cases to cover xml parsing.
  *
  * @since 1.2.0
  */
 public class XMLParserNegativeTest {
+
+    @Test
+    public void testCreateXmlFromInputStreamAndReader() {
+        String invalidXMLString = "<!-- comments cannot have -- in it -->";
+        String expectedErrorMessage = "failed to parse xml: ParseError at [row,col]:[1,29]\n" +
+                "Message: The string \"--\" is not permitted within comments.";
+        String testFailErrorMessage = "Negative test failed for: `" + invalidXMLString +
+                "'. Expected exception with message: " + expectedErrorMessage;
+
+        try (InputStream xmlStream1 = new ByteArrayInputStream(invalidXMLString.getBytes())) {
+            XmlFactory.parse(xmlStream1);
+            Assert.fail(testFailErrorMessage);
+        } catch (Exception e) {
+            Assert.assertEquals(e.getMessage(), expectedErrorMessage);
+        }
+
+        try (InputStream xmlStream2 = new ByteArrayInputStream(invalidXMLString.getBytes())) {
+            XmlFactory.parse(xmlStream2, "UTF-8");
+            Assert.fail(testFailErrorMessage);
+        } catch (Exception e) {
+            Assert.assertEquals(e.getMessage(), expectedErrorMessage);
+        }
+
+        try (Reader xmlReader = new StringReader(invalidXMLString)) {
+            XmlFactory.parse(xmlReader);
+            Assert.fail(testFailErrorMessage);
+        } catch (Exception e) {
+            Assert.assertEquals(e.getMessage(), expectedErrorMessage);
+        }
+    }
 
     @Test(dataProvider = "xmlValues")
     public void testXmlArg(String xmlValue, String expectedErrorMessage) {

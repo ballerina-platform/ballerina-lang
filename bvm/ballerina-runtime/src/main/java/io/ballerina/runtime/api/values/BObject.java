@@ -20,7 +20,6 @@ package io.ballerina.runtime.api.values;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.values.RefValue;
 
 import java.util.HashMap;
 
@@ -31,10 +30,14 @@ import java.util.HashMap;
  *
  * @since 1.1.0
  */
-public interface BObject extends RefValue {
+public interface BObject extends BRefValue {
 
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     Object call(Strand strand, String funcName, Object... args);
 
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     BFuture start(Strand strand, String funcName, Object... args);
 
     /**

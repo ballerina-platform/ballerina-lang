@@ -35,6 +35,7 @@ import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
@@ -69,7 +70,6 @@ import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.HandleValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
-import io.ballerina.runtime.internal.values.RefValue;
 import io.ballerina.runtime.internal.values.RegExpValue;
 import io.ballerina.runtime.internal.values.StreamValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
@@ -525,8 +525,8 @@ public class TypeChecker {
         if (isSimpleBasicType(type)) {
             return new TypedescValueImpl(new BFiniteType(value.toString(), Set.of(value), 0));
         }
-        if (value instanceof RefValue) {
-            return (TypedescValue) ((RefValue) value).getTypedesc();
+        if (value instanceof BRefValue) {
+            return (TypedescValue) ((BRefValue) value).getTypedesc();
         }
         return new TypedescValueImpl(type);
     }
@@ -2059,7 +2059,7 @@ public class TypeChecker {
             return false;
         }
 
-        return !((RefValue) value).isFrozen();
+        return !((BRefValue) value).isFrozen();
     }
 
     private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type) {
@@ -2879,34 +2879,26 @@ public class TypeChecker {
 
     private static boolean checkIsLikeErrorType(Object sourceValue, BErrorType targetType,
                                                 List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        Type sourceType = getType(sourceValue);
-        if (sourceValue == null || sourceType.getTag() != TypeTags.ERROR_TAG) {
+        Type sourceTypeReferredType = TypeUtils.getReferredType(getType(sourceValue));
+        if (sourceValue == null || sourceTypeReferredType.getTag() != TypeTags.ERROR_TAG) {
             return false;
         }
-
         if (!checkIsLikeType(null, ((ErrorValue) sourceValue).getDetails(), targetType.detailType,
                 unresolvedValues, allowNumericConversion, null)) {
             return false;
         }
-
         if (targetType.typeIdSet == null) {
             return true;
         }
-
-        BTypeIdSet sourceIdSet = ((BErrorType) sourceType).typeIdSet;
+        BTypeIdSet sourceIdSet = ((BErrorType) sourceTypeReferredType).typeIdSet;
         if (sourceIdSet == null) {
             return false;
         }
-
         return sourceIdSet.containsAll(targetType.typeIdSet);
     }
 
     static boolean isSimpleBasicType(Type type) {
         return type.getTag() < TypeTags.NULL_TAG;
-    }
-
-    private static boolean isHandleType(Type type) {
-        return type.getTag() == TypeTags.HANDLE_TAG;
     }
 
     /**

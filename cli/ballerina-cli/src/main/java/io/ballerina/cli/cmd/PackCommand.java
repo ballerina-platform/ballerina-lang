@@ -37,6 +37,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
  *
  * @since 2.0.0
  */
+@CommandLine.Command(name = PACK_COMMAND, description = "Create distribution format of the current package")
 public class PackCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
@@ -280,8 +281,7 @@ public class PackCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("packages the current package into a .bala file after verifying that it can build with \n");
-        out.append("all its dependencies. Created .bala file contains the distribution format of the current package");
+        out.append(BLauncherCmd.getCommandUsageInfo(PACK_COMMAND));
 
     }
 
