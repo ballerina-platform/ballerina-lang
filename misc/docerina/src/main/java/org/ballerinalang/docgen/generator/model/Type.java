@@ -568,6 +568,10 @@ public class Type {
                 return "types";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.INTERSECTION)) {
                 return getIntersectionTypeCategory((IntersectionTypeSymbol) typeDescriptor);
+            } else if (typeDescriptor.typeKind().equals(TypeDescKind.ANY)) {
+                return "types";
+            } else {
+                return "types";
             }
         } else if (typeDescriptor.kind().equals(SymbolKind.CLASS)) {
             Qualifiable classSymbol = (Qualifiable) typeDescriptor;
