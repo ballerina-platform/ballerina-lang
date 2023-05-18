@@ -382,7 +382,7 @@ public class QueryTypeChecker extends TypeChecker {
                                 data);
                     }
 
-                    if(selectType != symTable.semanticError && inferredSelectType != symTable.semanticError
+                    if (selectType != symTable.semanticError && inferredSelectType != symTable.semanticError
                             && inferredSelectType != symTable.noType) {
                         selectType = types.getTypeIntersection(
                                         Types.IntersectionContext.compilerInternalIntersectionTestContext(),
