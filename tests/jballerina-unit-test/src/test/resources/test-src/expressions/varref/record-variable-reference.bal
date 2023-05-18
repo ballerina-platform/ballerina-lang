@@ -369,34 +369,25 @@ function testMappingBindingWithSingleNameFieldBinding() {
     assertEquality("bar4", b);
 }
 
-function testMappingBindingPatternInListBindingPattern() {
-
+function testMappingBindingPatternWithinOtherStructs() {
     [Some, Some] r1 = [{var1: "A", var2: "B"}, {var1: "C", var2: "D"}];
-
-    [record {int a; int b;}] r2 = [{a: 1, b: 2}];
-
-    int a;
-    int b;
-
-    [{a, b}] = r2;
-
-    [record {int a; int b;}] v = r2;
-
-    [record {int a; int b; stream<int> c;}] r3 = [{a: 1, b: 2, c: new}];
-
-    [{a, b}] = r3;
-
     string xVar1;
     string xVar2;
-
     [{var1: xVar1}, {var1: xVar2}] = r1;
+
+    [record {int a; int b;}] r2 = [{a: 1, b: 2}];
+    int a;
+    int b;
+    [{a, b}] = r2;
+
+    [record {int a; int b; stream<int> c;}] r3 = [{a: 1, b: 2, c: new}];
+    [{a, b}] = r3;
 
     string fname;
     string lname;
     string id;
     int age;
     string nextId;
-
     [{id, fname, lname}, {id: nextId, age}] = [{id: "u1001", fname: "John", lname: "doe"}, {id: "xVar", age: 10}];
 
     int p1;
@@ -404,9 +395,9 @@ function testMappingBindingPatternInListBindingPattern() {
     int p3;
     int p4;
     int p5;
-
     [[{p1, p2}], [[{p3, p4}], {p5}]] = [[{p1: 10, p2: 12}], [[{p3: 13, p4: 14}], {p5: 15}]];
 
+    var getMap = function () returns record {record {int p1; int p2;} p3;} => {p3: {p1: 2, p2: 3}};
     {p3: {p1, p2}} = getMap();
 
     // TODO: Uncomment after fixing #40312
@@ -414,10 +405,6 @@ function testMappingBindingPatternInListBindingPattern() {
     // error<record { record { int d; } x; }> err = error("Transaction Failure", x = {d: 0});
 
     // error(x = {d}) = err;
-}
-
-function getMap() returns record {record {int p1; int p2;} p3;} {
-    return {p3: {p1: 2, p2: 3}};
 }
 
 function assertEquality(anydata expected, anydata actual) {
