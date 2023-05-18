@@ -855,9 +855,18 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 return getExpectedType(bLangNode);
             }
             BLangInvocation bLangInvocation = (BLangInvocation) bLangNode;
-            List<BVarSymbol> params = ((BInvokableSymbol) bLangInvocation.symbol).params;
+            if (bLangInvocation.symbol == null) {
+                return Optional.empty();
+            }
+            BInvokableSymbol symbol = ((BInvokableSymbol) bLangInvocation.symbol);
+            //`params` contains path params and path rest params as well. We need to skip those
+            List<BVarSymbol> params = symbol.params.stream().filter(param ->
+                    param.getKind() != SymbolKind.PATH_PARAMETER
+                            && param.getKind() != SymbolKind.PATH_REST_PARAMETER).collect(Collectors.toList());
             BVarSymbol restPram = ((BInvokableSymbol) bLangInvocation.symbol).restParam;
             TypeSymbol restParamMemberType = null;
+
+
             if (restPram != null) {
                 Optional<TypeSymbol> restParamType = getTypeFromBType(restPram.type);
                 if (restParamType.isPresent() && restParamType.get().typeKind() == TypeDescKind.ARRAY) {
