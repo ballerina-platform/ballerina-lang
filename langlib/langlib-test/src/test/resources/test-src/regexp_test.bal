@@ -2603,11 +2603,13 @@ function testRegexpWithUnicodeChars() {
     assertTrue(resA5 is regexp:Span);
     regexp:Span? resA6 = regexp:find(re `[${startChar}${endChar}]`, "😀 Hello, 🌏! ❤️");
     assertTrue(resA6 is regexp:Span);
-    regexp:Span? resA7 = regexp:find(re `[${startChar}${endChar}]`, "😀 Hello,! ❤️");
+    regexp:Span? resA7 = regexp:find(re `[\u{1F600}\u{1F310}]`, "😀 Hello, 😀🌏! ❤️");
     assertTrue(resA7 is regexp:Span);
+    regexp:Span? resA8 = regexp:find(re `[\u{0d9c}-\u{1F310}]`, "😀 Hello, 🌏! ❤️");
+    assertTrue(resA8 is regexp:Span);
     // Invalid code point range
-    regexp:Span? resA8 = regexp:find(re `\u{FF3AD}`, "😀 Hello, 🌍! ❤️");
-    assertTrue(resA8 is ());
+    regexp:Span? resA9 = regexp:find(re `\u{FF3AD}`, "😀 Hello, 🌍! ❤️");
+    assertTrue(resA9 is ());
 
     regexp:Span[] resB1 = regexp:findAll(re `\u{1F30D}`, "😀 Hello, 🌍! ❤️");
     assertTrue(resB1.length() == 1);
@@ -2625,13 +2627,15 @@ function testRegexpWithUnicodeChars() {
     assertTrue(resB4.length() == 0);
     regexp:Span[] resB5 = regexp:findAll(re `\u{0d9c}`, "පරිගණක 10");
     assertTrue(resB5.length() == 1);
-    regexp:Span[] resB6 = regexp:findAll(re `[${startChar}${endChar}]`, "😀 Hello, 🌏! ❤️");
+    regexp:Span[] resB6 = regexp:findAll(re `[\u{1F600}\u{1F310}]`, "😀 Hello, 🌏! ❤️");
     assertTrue(resB6.length() == 1);
     regexp:Span[] resB7 = regexp:findAll(re `[${startChar}${endChar}]`, "😀 Hello,! ❤️");
     assertTrue(resB7.length() == 1);
+    regexp:Span[] resB8 = regexp:findAll(re `[\u{1F30C}-\u{1F30F}]`, "Hello, 🌏! ❤️");
+    assertTrue(resB8.length() == 1);
     // Invalid code point range
-    regexp:Span[] resB8 = regexp:findAll(re `\u{FF3AD}`, "😀 Hello, 🌍! ❤️");
-    assertTrue(resB8.length() == 0);
+    regexp:Span[] resB9 = regexp:findAll(re `\u{FF3AD}`, "😀 Hello, 🌍! ❤️");
+    assertTrue(resB9.length() == 0);
 
     regexp:Groups? resC1 = regexp:findGroups(re `o\u{1F30D}`, "😀 Hello🌍! ❤️o🌍");
     assertTrue(resC1 is regexp:Groups);

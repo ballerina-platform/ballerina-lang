@@ -232,6 +232,10 @@ public class RegExpFactory {
         if ("&".equals(originalValue)) {
             return "\\&";
         }
+        if (originalValue.startsWith("\\u{") && originalValue.endsWith("}")) {
+            return Utils.unescapeBallerina(originalValue);
+        }
+
         return originalValue;
     }
 }
