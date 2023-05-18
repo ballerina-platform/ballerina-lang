@@ -362,8 +362,7 @@ public class JvmTerminatorGen {
                                       moduleClassName, attachedType, funcName);
                 return;
             case BRANCH:
-                this.genBranchTerm((BIRTerminator.Branch) terminator, funcName, currentBB, stateVarIndex,
-                        loopVarIndex, loopLabel);
+                this.genBranchTerm((BIRTerminator.Branch) terminator, funcName);
                 return;
             case RETURN:
                 this.genReturnTerm(returnVarRefIndex, func, invocationVarIndex);
@@ -486,38 +485,12 @@ public class JvmTerminatorGen {
         this.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "handleChannelError", HANDLE_CHANNEL_ERROR, false);
     }
 
-    private void genBranchTerm(BIRTerminator.Branch branchIns, String funcName, BIRNode.BIRBasicBlock currentBB,
-                               int stateVarIndex, int loopVarIndex, Label loopLabel) {
-        String trueBBId = branchIns.trueBB.id.value;
-        String falseBBId = branchIns.falseBB.id.value;
-        int currentBBNumber = currentBB.number;
-        int trueBBNumber = branchIns.trueBB.number;
-        int falseBBNumber = branchIns.falseBB.number;
+    private void genBranchTerm(BIRTerminator.Branch branchIns, String funcName) {
         this.loadVar(branchIns.op.variableDcl);
-        if (currentBBNumber <= trueBBNumber) {
-            Label trueBBLabel = this.labelGen.getLabel(funcName + trueBBId);
-            this.mv.visitJumpInsn(IFGT, trueBBLabel);
-        } else {
-            Label condition = new Label();
-            this.mv.visitJumpInsn(IFGT, condition);
-            this.mv.visitInsn(ICONST_1);
-            this.mv.visitVarInsn(ISTORE, loopVarIndex);
-            this.mv.visitIntInsn(SIPUSH, trueBBNumber);
-            this.mv.visitVarInsn(ISTORE, stateVarIndex);
-            this.mv.visitJumpInsn(GOTO, loopLabel);
-            this.mv.visitLabel(condition);
-        }
-
-        if (currentBBNumber <= falseBBNumber) {
-            Label falseBBLabel = this.labelGen.getLabel(funcName + falseBBId);
-            this.mv.visitJumpInsn(GOTO, falseBBLabel);
-        } else {
-            this.mv.visitInsn(ICONST_1);
-            this.mv.visitVarInsn(ISTORE, loopVarIndex);
-            this.mv.visitIntInsn(SIPUSH, falseBBNumber);
-            this.mv.visitVarInsn(ISTORE, stateVarIndex);
-            this.mv.visitJumpInsn(GOTO, loopLabel);
-        }
+        Label trueBBLabel = this.labelGen.getLabel(funcName + branchIns.trueBB.id.value);
+        this.mv.visitJumpInsn(IFGT, trueBBLabel);
+        Label falseBBLabel = this.labelGen.getLabel(funcName + branchIns.falseBB.id.value);
+        this.mv.visitJumpInsn(GOTO, falseBBLabel);
     }
 
     private void genCallTerm(BIRTerminator.Call callIns, int localVarOffset) {

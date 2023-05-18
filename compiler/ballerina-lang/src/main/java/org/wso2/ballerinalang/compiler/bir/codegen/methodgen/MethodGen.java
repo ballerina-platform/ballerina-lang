@@ -580,9 +580,9 @@ public class MethodGen {
 
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {
-                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), bb, thenBB, funcName, localVarOffset,
-                        yieldLocationVarIndex, terminator.pos, fullyQualifiedFuncName, yieldStatus, stateVarIndex,
-                        yieldStatusVarIndex, loopLabel, loopVarIndex);
+                JvmCodeGenUtil.genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, localVarOffset,
+                        yieldLocationVarIndex, terminator.pos, fullyQualifiedFuncName, yieldStatus,
+                        yieldStatusVarIndex);
             }
         }
     }
