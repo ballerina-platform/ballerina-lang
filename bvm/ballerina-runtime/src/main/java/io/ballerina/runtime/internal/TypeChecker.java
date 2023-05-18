@@ -3540,12 +3540,12 @@ public class TypeChecker {
         if (type.getTag() == TypeTags.SERVICE_TAG) {
             return false;
         } else {
-            MethodType generatedInitializer = type.generatedInitializer;
-            if (generatedInitializer == null) {
+            MethodType generatedInitMethod = type.getGeneratedInitMethod();
+            if (generatedInitMethod == null) {
                 // abstract objects doesn't have a filler value.
                 return false;
             }
-            FunctionType initFuncType = generatedInitializer.getType();
+            FunctionType initFuncType = generatedInitMethod.getType();
             // Todo: check defaultable params of the init func as well
             boolean noParams = initFuncType.getParameters().length == 0;
             boolean nilReturn = initFuncType.getReturnType().getTag() == TypeTags.NULL_TAG;
