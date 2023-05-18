@@ -82,7 +82,9 @@ public class LangLibRegexpTest {
                 "testRegexpInterpolation",
                 "testRegexpInterpolationNegative",
                 "testCharClassesWithMultipleRangesAndAtoms",
-                "testModuleLevelPatterns"
+                "testModuleLevelPatterns",
+                "testTranslatingDiffNodesInCharClass",
+                "testRegexpWithUnicodeChars",
         };
     }
 
