@@ -31,11 +31,13 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BXml;
@@ -88,6 +90,10 @@ public class StaticMethods {
     private StaticMethods() {
     }
 
+    public static void throwNPE() {
+        throw new NullPointerException();
+    }
+
     public static void acceptNothingAndReturnNothing() {
     }
 
@@ -113,6 +119,14 @@ public class StaticMethods {
 
     public static Integer acceptThreeParamsAndReturnSomething(Integer s1, Integer s2, Integer s3) {
         return s1 + s2 + s3;
+    }
+
+    public static BDecimal getBDecimalValue() {
+        return ValueCreator.createDecimalValue("5.0");
+    }
+
+    public static BDecimal getNullInsteadOfBDecimal() {
+        return null;
     }
 
     // This scenario is for map value to be passed to interop and return array value.
@@ -322,6 +336,10 @@ public class StaticMethods {
         }
     }
 
+    public static long acceptIntErrorUnionReturnWhichThrowsUncheckedException() throws RuntimeException {
+        return 5;
+    }
+
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
             throws JavaInteropTestCheckedException {
         switch (flag) {
@@ -498,7 +516,7 @@ public class StaticMethods {
         return new ArrayValueImpl(new BArrayType(new BUnionType(new ArrayList(2) {{
             add(PredefinedTypes.TYPE_INT);
             add(PredefinedTypes.TYPE_STRING);
-        }}), length, true), length, entries);
+        }}), length, true), entries);
     }
 
     public static Object echoAnydataAsAny(Object value) {
@@ -729,5 +747,71 @@ public class StaticMethods {
         integers.forEach(i -> {
             throw ErrorCreator.createError(StringUtils.fromString("error!!!"));
         });
+    }
+
+    public static int getResource() {
+        return 1;
+    }
+
+    public static int getResource(BArray paths) {
+        return paths.size();
+    }
+
+    public static int getResource(BObject client, BArray path) {
+        return path.size();
+    }
+
+    public static int getResource(BObject client, BArray paths, double value, BString str) {
+        return paths.size();
+    }
+
+    public static int getResource(BObject client, BArray path, BString p2, double value, BString str) {
+        return path.size();
+    }
+
+    public static int getResource(BObject client, long p1, BString p2, double value, BString str) {
+        return 1;
+    }
+
+    public static BString getResource(Environment env, BObject client, BArray path, BString str) {
+        return str;
+    }
+
+    public static BString getResource(Environment env, BArray path, BObject client, BString str, BArray arr) {
+        return str;
+    }
+
+    public static BString getResource(Environment env, BObject client, BArray path, BString str, BArray arr) {
+        return str;
+    }
+
+    public static BString getResourceOne(Environment env, BObject client, BArray path, BTypedesc recordType) {
+        return StringUtils.fromString("getResourceOne");
+    }
+
+    public static BString getResourceTwo(Environment env, BObject client, BTypedesc recordType) {
+        return StringUtils.fromString("getResourceTwo");
+    }
+
+    public static void getStringWithBalEnv(Environment env) {
+        Future balFuture = env.markAsync();
+        BString output = StringUtils.fromString("Hello World!");
+        balFuture.complete(output);
+    }
+
+    public static void getIntWithBalEnv(Environment env) {
+        Future balFuture = env.markAsync();
+        long output = 7;
+        balFuture.complete(output);
+    }
+
+    public static void getMapValueWithBalEnv(Environment env, BString name, long age,
+                                             MapValue<BString, Object> results) {
+        Future balFuture = env.markAsync();
+        BMap<BString, Object> output = ValueCreator.createMapValue();
+        output.put(StringUtils.fromString("name"), name);
+        output.put(StringUtils.fromString("age"), age);
+        output.put(StringUtils.fromString("results"), results);
+        balFuture.complete(output);
     }
 }

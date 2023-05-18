@@ -34,10 +34,16 @@ public class AddDocumentationTest extends AbstractCodeActionTest {
         return "add-documentation";
     }
 
-    @Override
     @Test(dataProvider = "codeaction-data-provider")
+    @Override
     public void test(String config) throws IOException, WorkspaceDocumentException {
         super.test(config);
+    }
+
+    @Test(dataProvider = "negativeDataProvider")
+    @Override
+    public void negativeTest(String config) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config);
     }
 
     @DataProvider(name = "codeaction-data-provider")
@@ -56,10 +62,19 @@ public class AddDocumentationTest extends AbstractCodeActionTest {
                 {"singleDocGeneration8.json"},
                 {"singleDocGeneration9.json"},
                 {"singleDocGeneration10.json"},
+                {"singleDocGeneration11.json"},
+                {"singleDocGeneration12.json"},
                 // Within Service
                 {"serviceDocumentation1.json"},
                 // Already documented nodes
                 {"documentAlreadyDocumentedConfig1.json"},
+        };
+    }
+
+    @DataProvider
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"negativeDocGeneration1.json"},
         };
     }
 }

@@ -197,10 +197,10 @@ function testFilteringNullElements() returns Person[] {
 
 function testMapWithArity() returns boolean {
     map<any> m = {a: "1A", b: "2B", c: "3C", d: "4D"};
-    var val = from var v in m
+    var val = map from var v in m
                    where <string> v == "1A"
-                   select <string>v;
-    return val == ["1A"];
+                   select ["a", v];
+    return val == {a: "1A"};
 }
 
 function testJSONArrayWithArity() returns boolean {
@@ -528,6 +528,42 @@ function testUsingAnIntersectionTypeInQueryExpr2() {
             teamId: tm.teamId
         };
     assertEquality([{email : "peter@abc.com", teamId: 2}], j);
+}
+
+function testMethodCallExprsOnQueryExprs() {
+    string[] words = ["a", "b", "c"];
+    var len = (from string str in words
+        select str).length();
+    assertEquality(3, len);
+
+    len = (from string str in words
+        where str == "a"
+        select str).length();
+    assertEquality(1, len);
+
+    string word = (from string str in words
+        select str).pop();
+    assertEquality("c", word);
+
+    int? index = (from string str in words
+        select str).indexOf("b");
+    assertEquality(1, index);
+
+    boolean isReadonly = (from string str in words
+        select str).isReadOnly();
+    assertEquality(false, isReadonly);
+
+    word = (from string str in words
+        select str).remove(0);
+    assertEquality("a", word);
+
+    words = (from string str in words
+        select str).filter(w => w is string);
+    assertEquality(["a", "b", "c"], words);
+
+    words = (from string str in words
+        select str).reverse();
+    assertEquality(["c", "b", "a"], words);
 }
 
 function assertEquality(anydata expected, anydata actual) {

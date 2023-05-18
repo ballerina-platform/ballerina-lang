@@ -18,68 +18,16 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.flags.SymbolFlags;
-import io.ballerina.runtime.api.types.MethodType;
-import io.ballerina.runtime.api.types.RemoteMethodType;
-import io.ballerina.runtime.api.types.ResourceMethodType;
 import io.ballerina.runtime.api.types.ServiceType;
 
-import java.util.ArrayList;
-
 /**
- * {@code BServiceType} represents a service in Ballerina.
+ * {@code BServiceType} represents a service object in Ballerina.
  *
  * @since 0.995.0
  */
-public class BServiceType extends BObjectType implements ServiceType {
-
-    private ResourceMethodType[] resourceMethods;
-    private volatile RemoteMethodType[] remoteMethods;
-
+public class BServiceType extends BNetworkObjectType implements ServiceType {
     public BServiceType(String typeName, Module pkg, long flags) {
         super(typeName, pkg, flags);
-    }
-
-    public void setResourceMethods(ResourceMethodType[] resourceMethods) {
-        this.resourceMethods = resourceMethods;
-    }
-
-    /**
-     * Gen an array of remote functions defined in the service object.
-     *
-     * @return array of remote functions
-     */
-    @Override
-    public RemoteMethodType[] getRemoteMethods() {
-        if (remoteMethods == null) {
-            RemoteMethodType[] funcs = getRemoteMethods(getMethods());
-            synchronized (this) {
-                if (remoteMethods == null) {
-                    remoteMethods = funcs;
-                }
-            }
-        }
-        return remoteMethods;
-    }
-
-    private RemoteMethodType[] getRemoteMethods(MethodType[] methodTypes) {
-        ArrayList<MethodType> functions = new ArrayList<>();
-        for (MethodType funcType : methodTypes) {
-            if (SymbolFlags.isFlagOn(((BMethodType) funcType).flags, SymbolFlags.REMOTE)) {
-                functions.add(funcType);
-            }
-        }
-        return functions.toArray(new RemoteMethodType[]{});
-    }
-
-    /**
-     * Get array containing resource functions defined in service object.
-     *
-     * @return resource functions
-     */
-    @Override
-    public ResourceMethodType[] getResourceMethods() {
-        return resourceMethods;
     }
 
     @Override
@@ -94,7 +42,7 @@ public class BServiceType extends BObjectType implements ServiceType {
         type.setMethods(duplicateArray(getMethods()));
         type.immutableType = this.immutableType;
         type.typeIdSet = this.typeIdSet;
-        type.setResourceMethods(duplicateArray(resourceMethods));
+        type.setResourceMethods(duplicateArray(getResourceMethods()));
         return type;
     }
 }

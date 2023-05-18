@@ -49,5 +49,5 @@ function sleep_and_wait() {
 }
 
 function sleep_and_wait_nested() {
-    runtime:sleep(10);
+    runtime:sleep(100);
 }

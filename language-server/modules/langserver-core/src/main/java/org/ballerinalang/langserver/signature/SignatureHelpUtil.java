@@ -15,22 +15,35 @@
  */
 package org.ballerinalang.langserver.signature;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
+import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.api.symbols.resourcepath.PathRestParam;
+import io.ballerina.compiler.api.symbols.resourcepath.PathSegmentList;
+import io.ballerina.compiler.api.symbols.resourcepath.ResourcePath;
+import io.ballerina.compiler.api.symbols.resourcepath.util.NamedPathSegment;
+import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import io.ballerina.compiler.syntax.tree.ChildNodeList;
+import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
+import io.ballerina.compiler.syntax.tree.ComputedResourceAccessSegmentNode;
 import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
@@ -40,6 +53,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
@@ -102,6 +116,7 @@ public class SignatureHelpUtil {
                 sKind != SyntaxKind.FUNCTION_CALL &&
                 sKind != SyntaxKind.METHOD_CALL &&
                 sKind != SyntaxKind.REMOTE_METHOD_CALL_ACTION &&
+                sKind != SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION &&
                 sKind != SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
                 sKind != SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
             evalNode = evalNode.parent();
@@ -112,43 +127,71 @@ public class SignatureHelpUtil {
             // Could not find a valid invocation node.
             return null;
         }
-
-        ChildNodeList childrenInParen = evalNode.children();
+        
+        int activeParamIndex = 0;
         switch (sKind) {
             case IMPLICIT_NEW_EXPRESSION:
                 Optional<ParenthesizedArgList> implicitArgList =
                         ((ImplicitNewExpressionNode) evalNode).parenthesizedArgList();
                 if (implicitArgList.isPresent()) {
-                    childrenInParen = implicitArgList.get().children();
+                    activeParamIndex = getActiveParamIndex(context, implicitArgList.get().children());
                 }
                 break;
             case EXPLICIT_NEW_EXPRESSION:
-                childrenInParen = ((ExplicitNewExpressionNode) evalNode).parenthesizedArgList().children();
+                activeParamIndex = getActiveParamIndex(context, 
+                        ((ExplicitNewExpressionNode) evalNode).parenthesizedArgList().children());
+                break;
+            case CLIENT_RESOURCE_ACCESS_ACTION:
+                Optional<ParenthesizedArgList> parenthesizedArgList =
+                        ((ClientResourceAccessActionNode) evalNode).arguments();
+                if (parenthesizedArgList.isEmpty()) {
+                    break;
+                }
+                activeParamIndex = getActiveParamIndex(context, parenthesizedArgList.get().children());
+                break;
+            case REMOTE_METHOD_CALL_ACTION:
+                SeparatedNodeList<FunctionArgumentNode> arguments = ((RemoteMethodCallActionNode) evalNode).arguments();
+                int cursorPosition = context.getCursorPositionInTree();
+                for (Node child : arguments) {
+                    int childPosition = child.textRange().endOffset();
+                    if (cursorPosition <= childPosition) {
+                        break;
+                    }
+                    activeParamIndex++;
+                }
                 break;
             default:
+                activeParamIndex = getActiveParamIndex(context, evalNode.children());
                 break;
         }
 
-        // Find parameter index
-        int activeParamIndex = 0;
-        int cursorPosition = context.getCursorPositionInTree();
-        for (Node child : childrenInParen) {
-            int childPosition = child.textRange().endOffset();
-            if (cursorPosition < childPosition) {
-                break;
-            }
-            if (child.kind() == SyntaxKind.COMMA_TOKEN) {
-                activeParamIndex++;
-            }
-        }
-
-        // Search function invocation symbol
-        List<SignatureInformation> signatures = new ArrayList<>(SignatureHelpUtil.getSignatureInformation(context));
+        // Get signature information
+        List<SignatureInformation> signatureInformation = SignatureHelpUtil.getSignatureInformation(context);
+        List<SignatureInformation> signatures = new ArrayList<>(signatureInformation);
         SignatureHelp signatureHelp = new SignatureHelp();
         signatureHelp.setActiveParameter(activeParamIndex);
         signatureHelp.setActiveSignature(0);
         signatureHelp.setSignatures(signatures);
         return signatureHelp;
+    }
+
+    private static int getActiveParamIndex(SignatureContext context, ChildNodeList childrenInParen) {
+        // Find parameter index
+        int activeParamIndex = 0;
+        int cursorPosition = context.getCursorPositionInTree();
+
+        if (childrenInParen != null) {
+            for (Node child : childrenInParen) {
+                int childPosition = child.textRange().endOffset();
+                if (cursorPosition < childPosition) {
+                    break;
+                }
+                if (child.kind() == SyntaxKind.COMMA_TOKEN) {
+                    activeParamIndex++;
+                }
+            }
+        }
+        return activeParamIndex;
     }
 
     /**
@@ -187,6 +230,7 @@ public class SignatureHelpUtil {
                     || (nonTerminalNode.kind() != SyntaxKind.FUNCTION_CALL
                     && nonTerminalNode.kind() != SyntaxKind.METHOD_CALL)
                     && nonTerminalNode.kind() != SyntaxKind.REMOTE_METHOD_CALL_ACTION
+                    && nonTerminalNode.kind() != SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION
                     && nonTerminalNode.kind() != SyntaxKind.IMPLICIT_NEW_EXPRESSION)
                     && nonTerminalNode.kind() != SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
                 nonTerminalNode = nonTerminalNode.parent();
@@ -261,9 +305,19 @@ public class SignatureHelpUtil {
                     .flatMap(semanticModel -> semanticModel.typeOf(nodeAtCursor))
                     .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
             methodName = Names.USER_DEFINED_INIT_SUFFIX.getValue();
+        } else if (nodeAtCursor.kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION) {
+            ClientResourceAccessActionNode clientResourceAccess = (ClientResourceAccessActionNode) nodeAtCursor;
+            typeDesc = getTypeDesc(context, clientResourceAccess.expression());
+            if (typeDesc.isEmpty()) {
+                return Optional.empty();
+            }
+            return getFunctionSymbolsForTypeDesc(typeDesc.get()).stream()
+                    .filter(resourceMethodFilter(clientResourceAccess, context))
+                    .findAny();
         } else {
             return Optional.empty();
         }
+
         if (typeDesc.isEmpty()) {
             return Optional.empty();
         }
@@ -407,5 +461,93 @@ public class SignatureHelpUtil {
         functionSymbols.addAll(typeDescriptor.langLibMethods());
 
         return functionSymbols;
+    }
+
+    private static Predicate<FunctionSymbol> resourceMethodFilter(ClientResourceAccessActionNode resourceNode,
+                                                                  SignatureContext context) {
+        return (symbol) -> {
+            if (symbol.kind() != SymbolKind.RESOURCE_METHOD) {
+                return false;
+            }
+
+            ResourceMethodSymbol resourceMethodSymbol = (ResourceMethodSymbol) symbol;
+            ResourcePath resourcePath = resourceMethodSymbol.resourcePath();
+            String resourceMethodName = resourceMethodSymbol.getName().orElse("");
+
+            if (resourceMethodName.isEmpty()) {
+                return false;
+            }
+            String clientResourceAccessMethodName = resourceNode.methodName().flatMap(simpleNameReferenceNode ->
+                    Optional.of(simpleNameReferenceNode.name().text())).orElse("");
+
+            if (!resourceMethodName.equals(clientResourceAccessMethodName) 
+                    && !(clientResourceAccessMethodName.isEmpty() && "get".equals(resourceMethodName))) {
+                return false;
+            }
+
+            List<Node> resourcePathSegments = resourceNode.resourceAccessPath().stream()
+                    .filter(segmentNode -> !segmentNode.isMissing()).collect(Collectors.toList());
+
+            List<PathSegment> segments;
+            if (resourcePath.kind() == ResourcePath.Kind.PATH_SEGMENT_LIST) {
+                segments = ((PathSegmentList) resourcePath).list();
+            } else if (resourcePath.kind() == ResourcePath.Kind.PATH_REST_PARAM) {
+                PathParameterSymbol parameterSymbol = ((PathRestParam) resourcePath).parameter();
+                segments = List.of(parameterSymbol);
+            } else {
+                segments = new ArrayList<>();
+            }
+            Optional<PathSegment> pathRestParam =
+                    segments.stream().filter(pathSegment ->
+                            pathSegment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER).findFirst();
+
+            if (segments.size() < resourcePathSegments.size() && pathRestParam.isEmpty()) {
+                return false;
+            }
+
+            for (int i = 0; i < resourcePathSegments.size(); i++) {
+                Node evalNode = resourcePathSegments.get(i);
+                PathSegment segment;
+                if (i > segments.size() - 1) {
+                    if (pathRestParam.isEmpty()) {
+                        return false;
+                    }
+                    segment = pathRestParam.get();
+                } else {
+                    segment = segments.get(i);
+                }
+                if (evalNode.kind() == SyntaxKind.IDENTIFIER_TOKEN && 
+                        segment.pathSegmentKind() == PathSegment.Kind.NAMED_SEGMENT) {
+                    String currentPath = ((IdentifierToken) evalNode).text().strip();
+                    String expectedPath = ((NamedPathSegment) segment).name();
+                    if (!currentPath.equals(expectedPath)) {
+                        return false;
+                    }
+                    continue;
+                } else if (segment.pathSegmentKind() == PathSegment.Kind.PATH_PARAMETER
+                        || segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
+                    TypeSymbol typeSymbol = segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER ?
+                            ((ArrayTypeSymbol) (((PathParameterSymbol) segment).typeDescriptor()))
+                                    .memberTypeDescriptor() : ((PathParameterSymbol) segment).typeDescriptor();
+                    if (evalNode.kind() == SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT) {
+                        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+                        if (semanticModel.isEmpty()) {
+                            return false;
+                        }
+                        Optional<TypeSymbol> exprType =
+                                semanticModel.get().typeOf(((ComputedResourceAccessSegmentNode) evalNode).expression());
+                        if (exprType.isEmpty() || !exprType.get().subtypeOf(typeSymbol)) {
+                            return false;
+                        }
+                        continue;
+                    } else if (evalNode.kind() == SyntaxKind.IDENTIFIER_TOKEN
+                            && typeSymbol.typeKind() == TypeDescKind.STRING) {
+                        continue;
+                    }
+                }
+                return false;
+            }
+            return true;
+        };
     }
 }

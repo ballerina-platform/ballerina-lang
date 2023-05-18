@@ -43,12 +43,18 @@ public class CompilerPluginCodeActionTests extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"compiler_plugin_code_action_config1.json"}
+                {"compiler_plugin_code_action_config1.json"},
+                {"compiler_plugin_code_action_single_file_config1.json"}
         };
     }
 
     @Override
     public String getResourceDir() {
         return "compiler-plugins";
+    }
+
+    @Override
+    protected Object convertActionData(Object actionData) {
+        return super.convertActionData(actionData);
     }
 }

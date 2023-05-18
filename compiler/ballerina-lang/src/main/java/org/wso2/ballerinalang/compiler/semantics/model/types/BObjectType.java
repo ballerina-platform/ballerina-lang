@@ -104,11 +104,14 @@ public class BObjectType extends BStructureType implements ObjectType {
             }
             BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) this.tsymbol;
             for (BAttachedFunction fun : objectSymbol.attachedFuncs) {
-                if (Symbols.isFlagOn(fun.symbol.flags, Flags.PUBLIC)) {
-                    sb.append(SPACE).append(PUBLIC);
-                } else if (Symbols.isFlagOn(fun.symbol.flags, Flags.PRIVATE)) {
-                    sb.append(SPACE).append(PRIVATE);
+                if (!Symbols.isResource(fun.symbol)) {
+                    if (Symbols.isFlagOn(fun.symbol.flags, Flags.PUBLIC)) {
+                        sb.append(SPACE).append(PUBLIC);
+                    } else if (Symbols.isFlagOn(fun.symbol.flags, Flags.PRIVATE)) {
+                        sb.append(SPACE).append(PRIVATE);
+                    }
                 }
+
                 sb.append(SPACE).append(fun).append(SEMI_COLON);
             }
             sb.append(SPACE).append(RIGHT_CURL);

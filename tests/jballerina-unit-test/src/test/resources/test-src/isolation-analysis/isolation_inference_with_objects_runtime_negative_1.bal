@@ -641,11 +641,11 @@ public class Listener {
 
 int[] x = [];
 
-//function testInvalidCopyInWithNonObjectSelf1(int[] 'self) {
-//    lock {
-//        x = 'self;
-//    }
-//}
+function testInvalidCopyInWithNonObjectSelf1(int[] 'self) {
+    lock {
+        x = 'self;
+    }
+}
 
 function testInvalidCopyInWithNonObjectSelf2() {
     lock {
@@ -882,8 +882,7 @@ function testIsolatedInference() {
     assertFalse(isResourceIsolated(q, "get", "corge"));
     assertFalse(isMethodIsolated(q, "quuz"));
 
-    // https://github.com/ballerina-platform/ballerina-lang/issues/31365.
-    // assertFalse(<any> testInvalidCopyInWithNonObjectSelf1 is isolated function);
+    assertFalse(<any> testInvalidCopyInWithNonObjectSelf1 is isolated function);
     assertFalse(<any> testInvalidCopyInWithNonObjectSelf2 is isolated function);
 
     NonIsolatedClassWithInvalidCopyInInMethodCall r = new;

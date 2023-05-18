@@ -17,8 +17,12 @@
  */
 package org.ballerinalang.langserver.completion;
 
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
 
 /**
  * Expression Context tests.
@@ -32,6 +36,12 @@ public class ModulePartNodeContextTest extends CompletionTest {
     public void init() throws Exception {
         super.init();
         preLoadAndInit();
+    }
+
+    @Test(dataProvider = "completion-data-provider")
+    @Override
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
+        super.test(config, configPath);
     }
 
     @DataProvider(name = "completion-data-provider")

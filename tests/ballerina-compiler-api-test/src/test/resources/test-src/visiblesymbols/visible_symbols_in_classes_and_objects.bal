@@ -56,3 +56,11 @@ function testObjectConstructor() {
         }
     };
 }
+
+function testAnonClientObject() {
+    client object {
+              resource function get .();
+        } objectVar6 = client object {
+            resource function get .() {}
+        };
+}

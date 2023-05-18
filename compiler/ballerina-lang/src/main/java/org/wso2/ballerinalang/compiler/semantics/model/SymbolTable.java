@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -53,9 +54,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRegexpType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -127,8 +130,9 @@ public class SymbolTable {
     public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BArrayType arrayType = new BArrayType(anyType);
     public final BArrayType arrayStringType = new BArrayType(stringType);
-
-    public final BType tupleType = new BTupleType(Lists.of(noType));
+    BVarSymbol varSymbol = new BVarSymbol(0, null, null,
+            noType, null, null, SymbolOrigin.VIRTUAL);
+    public final BType tupleType = new BTupleType(Lists.of(new BTupleMember(noType, varSymbol)));
     public final BType recordType = new BRecordType(null);
     public final BType stringArrayType = new BArrayType(stringType);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
@@ -169,6 +173,7 @@ public class SymbolTable {
     public final BXMLSubType xmlPIType = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI);
     public final BXMLSubType xmlCommentType = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT);
     public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY);
+    public final BRegexpType regExpType = new BRegexpType(TypeTags.REGEXP, Names.REGEXP_TYPE);
     public final BType xmlNeverType = new BXMLType(neverType,  null);
     public final BType xmlElementSeqType = new BXMLType(xmlElementType, null);
 
@@ -213,6 +218,8 @@ public class SymbolTable {
     public BPackageSymbol langRuntimeModuleSymbol;
     public BPackageSymbol langTransactionModuleSymbol;
     public BPackageSymbol internalTransactionModuleSymbol;
+
+    public BPackageSymbol langRegexpModuleSymbol;
 
     private Names names;
     private Types types;
@@ -277,6 +284,7 @@ public class SymbolTable {
         initializeTSymbol(xmlPIType, Names.XML_PI, PackageID.XML);
         initializeTSymbol(xmlCommentType, Names.XML_COMMENT, PackageID.XML);
         initializeTSymbol(xmlTextType, Names.XML_TEXT, PackageID.XML);
+        initializeTSymbol(regExpType, Names.REGEXP_TYPE, PackageID.REGEXP);
 
         BLangLiteral trueLiteral = new BLangLiteral();
         trueLiteral.setBType(this.booleanType);
@@ -374,6 +382,8 @@ public class SymbolTable {
                 return unsigned8IntType;
             case TypeTags.CHAR_STRING:
                 return charStringType;
+            case TypeTags.REGEXP:
+                return regExpType;
             default:
                 return semanticError;
         }
@@ -404,6 +414,8 @@ public class SymbolTable {
                 return this.xmlCommentType;
             case Names.STRING_XML_TEXT:
                 return this.xmlTextType;
+            case Names.STRING_REGEXP:
+                return this.regExpType;
         }
         throw new IllegalStateException("LangLib Subtype not found: " + name);
     }
@@ -423,7 +435,8 @@ public class SymbolTable {
                                                 Map.entry(Names.TABLE, this.langTableModuleSymbol),
                                                 Map.entry(Names.TRANSACTION, this.langTransactionModuleSymbol),
                                                 Map.entry(Names.TYPEDESC, this.langTypedescModuleSymbol),
-                                                Map.entry(Names.XML, this.langXmlModuleSymbol));
+                                                Map.entry(Names.XML, this.langXmlModuleSymbol)
+                );
     }
 
     public void initializeType(BType type, String name, SymbolOrigin origin) {
@@ -447,6 +460,7 @@ public class SymbolTable {
 
     public void updateBuiltinSubtypeOwners() {
         updateIntSubtypeOwners();
+        updateRegExpTypeOwners();
         updateStringSubtypeOwners();
         updateXMLSubtypeOwners();
     }
@@ -469,6 +483,10 @@ public class SymbolTable {
         this.xmlCommentType.tsymbol.owner = this.langXmlModuleSymbol;
         this.xmlPIType.tsymbol.owner = this.langXmlModuleSymbol;
         this.xmlTextType.tsymbol.owner = this.langXmlModuleSymbol;
+    }
+    
+    public void updateRegExpTypeOwners() {
+        this.regExpType.tsymbol.owner = this.langRegexpModuleSymbol;
     }
 
     public void defineOperators() {
@@ -568,6 +586,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.EQUALS, anydataType, nilType, booleanType);
         defineBinaryOperator(OperatorKind.EQUALS, nilType, anydataType, booleanType);
         defineBinaryOperator(OperatorKind.EQUALS, nilType, nilType, booleanType);
+        defineBinaryOperator(OperatorKind.EQUAL, regExpType, regExpType, booleanType);
 
         // Binary reference equality operators ===, !==
         defineBinaryOperator(OperatorKind.REF_EQUAL, intType, intType, booleanType);
@@ -586,6 +605,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, stringType, stringType, booleanType);
         defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, intType, byteType, booleanType);
         defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, byteType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, regExpType, regExpType, booleanType);
 
         // Binary comparison operators <=, <, >=, >
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType);
@@ -1121,6 +1141,13 @@ public class SymbolTable {
         BInvokableType opType = new BInvokableType(paramTypes, retType, null);
         BOperatorSymbol symbol = new BOperatorSymbol(name, rootPkgSymbol.pkgID, opType, rootPkgSymbol, this.builtinPos,
                                                      BUILTIN);
+
+        BInvokableTypeSymbol typeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, Flags.ANY_FUNCTION,
+                rootPkgSymbol.pkgID, opType, rootPkgSymbol, this.builtinPos, BUILTIN);
+
+        typeSymbol.returnType = retType;
+        opType.tsymbol = typeSymbol;
+
         rootScope.define(name, symbol);
     }
 

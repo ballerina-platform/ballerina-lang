@@ -68,8 +68,10 @@ public class BallerinaSingletonTypeBuilder implements TypeBuilder.SINGLETON {
             throw new IllegalArgumentException("The value provided to the singleton type can not be null");
         }
 
-        // TODO: Validate if the valueTypeSymbol is matching the value's type.
-        // TODO: Need further discussion on how to proceed on this case.
+        if (!isValidValueType(value, valueTypeSymbol)) {
+            throw new IllegalArgumentException("Type of value provided doesn't match with the provided type symbol");
+        }
+
         BLangLiteral valueLiteral = new BLangLiteral(value, getValueBType(valueTypeSymbol));
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.PUBLIC,
                 Names.fromString(value.toString()), symTable.rootPkgSymbol.pkgID, null, symTable.rootPkgSymbol,
@@ -84,6 +86,26 @@ public class BallerinaSingletonTypeBuilder implements TypeBuilder.SINGLETON {
         this.valueTypeSymbol = null;
 
         return singletonTypeSymbol;
+    }
+
+    private boolean isValidValueType(Object value, TypeSymbol typeSymbol) {
+        switch (typeSymbol.typeKind()) {
+            case STRING:
+                return value instanceof String || value instanceof Character;
+            case INT:
+                return value instanceof Integer;
+            case DECIMAL:
+            case FLOAT:
+                return value instanceof Float || value instanceof Double;
+            case BYTE:
+                return value instanceof Byte;
+            case BOOLEAN:
+                return value instanceof Boolean;
+            case NIL:
+                return value.equals("()");
+        }
+
+        return false;
     }
 
     private BType getValueBType(TypeSymbol typeSymbol) {

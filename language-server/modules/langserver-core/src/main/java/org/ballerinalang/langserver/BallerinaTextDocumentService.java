@@ -26,11 +26,13 @@ import org.ballerinalang.langserver.codelenses.LSCodeLensesProviderHolder;
 import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.BallerinaDefinitionContext;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.CodeActionResolveContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.DocumentSymbolContext;
 import org.ballerinalang.langserver.commons.FoldingRangeContext;
 import org.ballerinalang.langserver.commons.HoverContext;
+import org.ballerinalang.langserver.commons.InlayHintContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.PrepareRenameContext;
 import org.ballerinalang.langserver.commons.ReferencesContext;
@@ -38,6 +40,7 @@ import org.ballerinalang.langserver.commons.RenameContext;
 import org.ballerinalang.langserver.commons.SemanticTokensContext;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.definition.DefinitionUtil;
@@ -46,6 +49,7 @@ import org.ballerinalang.langserver.eventsync.EventSyncPubSubHolder;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.foldingrange.FoldingRangeProvider;
 import org.ballerinalang.langserver.hover.HoverUtil;
+import org.ballerinalang.langserver.inlayhint.InlayHintProvider;
 import org.ballerinalang.langserver.references.ReferencesUtil;
 import org.ballerinalang.langserver.rename.RenameUtil;
 import org.ballerinalang.langserver.semantictokens.SemanticTokensUtils;
@@ -72,9 +76,12 @@ import org.eclipse.lsp4j.FoldingRange;
 import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.HoverParams;
+import org.eclipse.lsp4j.InlayHint;
+import org.eclipse.lsp4j.InlayHintParams;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.PrepareRenameDefaultBehavior;
 import org.eclipse.lsp4j.PrepareRenameParams;
 import org.eclipse.lsp4j.PrepareRenameResult;
 import org.eclipse.lsp4j.Range;
@@ -90,6 +97,7 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.CompletableFutures;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
 import java.net.URISyntaxException;
@@ -325,7 +333,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             String fileUri = params.getTextDocument().getUri();
             try {
                 CodeActionContext context = ContextBuilder.buildCodeActionContext(fileUri,
-                        workspaceManagerProxy.get(),
+                        this.workspaceManagerProxy.get(fileUri),
                         this.serverContext,
                         params,
                         cancelChecker);
@@ -343,6 +351,38 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         range.getStart(), range.getEnd());
             }
             return Collections.emptyList();
+        });
+    }
+
+    @Override
+    public CompletableFuture<CodeAction> resolveCodeAction(CodeAction codeAction) {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
+            try {
+                ResolvableCodeAction resolvableCodeAction = ResolvableCodeAction.from(codeAction);
+                if (resolvableCodeAction.getData() == null || resolvableCodeAction.getData().getFileUri() == null) {
+                   // Probably not a resolvable code action. Can be the client sending resolve request for a
+                   // scenario where code action's text edit is empty
+                    this.clientLogger.logWarning("Invalid resolvable code action received: " + codeAction.getTitle());
+                    return codeAction;
+                }
+                String fileUri = resolvableCodeAction.getData().getFileUri();
+                CodeActionResolveContext resolveContext = ContextBuilder.buildCodeActionResolveContext(
+                        fileUri,
+                        workspaceManagerProxy.get(fileUri),
+                        this.serverContext,
+                        cancelChecker);
+                return LangExtensionDelegator.instance().resolveCodeAction(resolvableCodeAction, resolveContext);
+            } catch (UserErrorException e) {
+                this.clientLogger.notifyUser("Resolve Code Action", e);
+            } catch (CancellationException ignore) {
+                // Ignore the cancellation exception
+            } catch (Throwable e) {
+                String msg = "Operation 'text/resolveCodeAction' failed!";
+                this.clientLogger.logError(LSContextOperation.TXT_RESOLVE_CODE_ACTION, msg, e, null,
+                        (Position) null);
+            }
+
+            return codeAction;
         });
     }
 
@@ -465,7 +505,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
     }
 
     @Override
-    public CompletableFuture<Either<Range, PrepareRenameResult>> prepareRename(PrepareRenameParams params) {
+    public CompletableFuture<Either3<Range, PrepareRenameResult, PrepareRenameDefaultBehavior>>
+    prepareRename(PrepareRenameParams params) {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
                 String fileUri = params.getTextDocument().getUri();
@@ -477,7 +518,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         cancelChecker);
                 Optional<Range> range = RenameUtil.prepareRename(context);
                 if (range.isPresent()) {
-                    return Either.forLeft(range.get());
+                    return Either3.forFirst(range.get());
                 }
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Rename", e);
@@ -632,6 +673,30 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
 
             return new SemanticTokens(new ArrayList<>());
+        });
+    }
+
+    @Override
+    public CompletableFuture<List<InlayHint>> inlayHint(InlayHintParams params) {
+        return CompletableFutures.computeAsync((cancelChecker) -> {
+            try {
+                InlayHintContext context = ContextBuilder.buildInlayHintContext(
+                        params.getTextDocument().getUri(),
+                        this.workspaceManagerProxy.get(),
+                        this.serverContext,
+                        cancelChecker);
+
+                return InlayHintProvider.getInlayHint(context);
+            } catch (CancellationException ignore) {
+                // Ignore cancellation exception
+            } catch (Throwable e) {
+                String msg = "Operation 'textDocument/inlayHint' failed!";
+                this.clientLogger.logError(LSContextOperation.TXT_INLAY_HINT, msg, e,
+                        new TextDocumentIdentifier(params.getTextDocument().getUri()),
+                        (Position) null);
+            }
+
+            return Collections.emptyList();
         });
     }
 }

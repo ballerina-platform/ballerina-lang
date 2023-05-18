@@ -20,12 +20,14 @@ package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.AnnotatableType;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.FunctionType;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MethodType;
@@ -41,6 +43,8 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.utils.ValueUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
@@ -50,10 +54,13 @@ import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BRecordType;
-import org.ballerinalang.langlib.value.FromJsonWithType;
+import io.ballerina.runtime.internal.types.BServiceType;
+import io.ballerina.runtime.internal.types.BTupleType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,9 +76,12 @@ import java.util.Optional;
  */
 public class Values {
 
-    private static final Module objectModule = new Module("testorg", "runtime_api.objects", "1");
-    private static final Module recordModule = new Module("testorg", "runtime_api.records", "1");
+    private static final Module objectModule = new Module("testorg", "values.objects", "1");
+    private static final Module recordModule = new Module("testorg", "values.records", "1");
     private static final Module invalidValueModule = new Module("testorg", "invalid_values", "1");
+    private static final BString intAnnotation = StringUtils.fromString("testorg/types.typeref:1:Int");
+    private static final BError constraintError =
+            ErrorCreator.createError(StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
 
     public static BMap<BString, Object> getRecord(BString recordName) {
         HashMap<String, Object> address = new HashMap<>();
@@ -79,6 +89,40 @@ public class Values {
         address.put("country", StringUtils.fromString("Sri Lanka"));
         address.put("postalCode", 10250);
         return ValueCreator.createRecordValue(recordModule, recordName.getValue(), address);
+    }
+
+    public static BMap<BString, Object> getRecordWithInitialValues() {
+        BMap<BString, Object> address = ValueCreator.createMapValue();
+        address.put(StringUtils.fromString("city"), StringUtils.fromString("Nugegoda"));
+        address.put(StringUtils.fromString("country"), StringUtils.fromString("Sri Lanka"));
+        address.put(StringUtils.fromString("postalCode"), 10250);
+        return ValueCreator.createRecordValue(recordModule, "Address", address);
+    }
+
+    public static BMap<BString, Object> getRecordWithInvalidInitialValues() {
+        BMap<BString, Object> address = ValueCreator.createMapValue();
+        address.put(StringUtils.fromString("city"), StringUtils.fromString("Nugegoda"));
+        address.put(StringUtils.fromString("district"), StringUtils.fromString("Colombo"));
+        address.put(StringUtils.fromString("country"), StringUtils.fromString("Sri Lanka"));
+        address.put(StringUtils.fromString("postalCode"), StringUtils.fromString("10250"));
+        return ValueCreator.createRecordValue(recordModule, "Address", address);
+    }
+
+    public static BMap<BString, Object> getReadOnlyRecordWithInitialValues() {
+        BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("name"), StringUtils.fromString("NameOfStudent1"))};
+        BMap<BString, Object> student = ValueCreator.createMapValue(
+                TypeCreator.createMapType(PredefinedTypes.TYPE_STRING), mapInitialValueEntries);
+        return ValueCreator.createReadonlyRecordValue(recordModule, "Student", student);
+    }
+
+    public static BMap<BString, Object> getReadOnlyRecordWithInvalidInitialValues() {
+        BMapInitialValueEntry[] mapInitialValueEntries = {ValueCreator.createKeyFieldEntry(
+                StringUtils.fromString("name"), StringUtils.fromString("NameOfStudent2"))};
+        BMap<BString, Object> student = ValueCreator.createMapValue(
+                TypeCreator.createMapType(PredefinedTypes.TYPE_STRING), mapInitialValueEntries);
+        student.put(StringUtils.fromString("postalCode"), StringUtils.fromString("10250"));
+        return ValueCreator.createReadonlyRecordValue(recordModule, "Student", student);
     }
 
     public static BObject getObject(BString objectName) {
@@ -94,7 +138,7 @@ public class Values {
         TupleType tupleType = TypeCreator.createTupleType(List.of(PredefinedTypes.TYPE_STRING,
                 PredefinedTypes.TYPE_BOOLEAN, PredefinedTypes.TYPE_STRING));
         if (funcType.isEmpty()) {
-            return ValueCreator.createArrayValue(TypeCreator.createArrayType(tupleType, 0), 0);
+            return ValueCreator.createArrayValue(TypeCreator.createArrayType(tupleType, 0));
         }
         RemoteMethodType remoteType = (RemoteMethodType) funcType.get();
         Parameter[] parameters = remoteType.getParameters();
@@ -109,7 +153,7 @@ public class Values {
             elements[i] = ValueCreator
                     .createListInitialValueEntry(ValueCreator.createTupleValue(tupleType, 3, initialTupleValues));
         }
-        return ValueCreator.createArrayValue(TypeCreator.createArrayType(tupleType), len, elements);
+        return ValueCreator.createArrayValue(TypeCreator.createArrayType(tupleType), elements);
     }
 
     public static BString getFunctionString(BObject object, BString methodName) {
@@ -142,8 +186,8 @@ public class Values {
         assert arrayType.isPresent();
         List<Type> constituentTypes = arrayType.get().getConstituentTypes();
         int size = constituentTypes.size();
-        BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, size)
-                , size);
+        BArray arrayValue =
+                ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, size));
         int index = 0;
         for (Type type : constituentTypes) {
             arrayValue.add(index, StringUtils.fromString(type.toString()));
@@ -153,10 +197,10 @@ public class Values {
     }
 
     public static BArray getTypeIds(BObject bObject) {
-        List<TypeId> typeIds = bObject.getType().getTypeIdSet().getIds();
+        List<TypeId> typeIds = ((ObjectType) bObject.getType()).getTypeIdSet().getIds();
         int size = typeIds.size();
         BArray arrayValue = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING,
-                size), size);
+                size));
         int index = 0;
         for (TypeId typeId : typeIds) {
             arrayValue.add(index, StringUtils.fromString(typeId.getName()));
@@ -205,7 +249,7 @@ public class Values {
     }
 
     public static Object getRecordValueFromJson(Object jsonValue, BTypedesc type) {
-        return FromJsonWithType.convert(jsonValue, type.getDescribingType());
+        return ValueUtils.convert(jsonValue, type.getDescribingType());
     }
 
     public static BObject getInvalidObject(BString objectName) {
@@ -226,6 +270,14 @@ public class Values {
         return StringUtils.fromString(IdentifierUtils.decodeIdentifier(identifier.getValue()));
     }
 
+    public static BString escapeSpecialCharacters(BString identifier) {
+        return StringUtils.fromString(IdentifierUtils.escapeSpecialCharacters(identifier.getValue()));
+    }
+
+    public static BString unescapeSpecialCharacters(BString string) {
+        return StringUtils.fromString(IdentifierUtils.unescapeBallerina(string.getValue()));
+    }
+
     public static BMap<BString, Object> getRecordNegative(BString recordName) {
         ArrayList<Integer> arrayList = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));
         Map<String, Object> map = Map.ofEntries(
@@ -239,7 +291,7 @@ public class Values {
         Map<String, Object> map = Map.ofEntries(
                 Map.entry("arrList", arrayList)
                                                );
-        return ValueCreator.createRecordValue(recordModule, recordName.getValue(), null);
+        return ValueCreator.createRecordValue(recordModule, recordName.getValue(), (Map<String, Object>) null);
     }
 
     public static BMap<BString, Object> getReadonlyRecordNegative(BString recordName) {
@@ -265,28 +317,25 @@ public class Values {
     public static Object validate(Object value, BTypedesc typedesc) {
         Type describingType = typedesc.getDescribingType();
         BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
-        BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
-        if (annotations.containsKey(annotKey)) {
-            Object annotValue = annotations.get(annotKey);
+        if (annotations.containsKey(intAnnotation)) {
+            Object annotValue = annotations.get(intAnnotation);
             Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
             if (((Long) value) >= minValue) {
                 return value;
             }
         }
-        return ErrorCreator.createError(StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
+        return constraintError;
     }
 
     public static Object validateRecord(Object value, BTypedesc typedesc) {
         Type describingType = typedesc.getDescribingType();
         Long age = ((BMap) value).getIntValue(StringUtils.fromString("age"));
-        BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
         for (Field field : ((BRecordType) describingType).getFields().values()) {
             BMap<BString, Object> annotations = ((AnnotatableType) field.getFieldType()).getAnnotations();
-            if (annotations.containsKey(annotKey)) {
-                Long minValue = (Long) ((BMap) annotations.get(annotKey)).get(StringUtils.fromString("minValue"));
+            if (annotations.containsKey(intAnnotation)) {
+                Long minValue = (Long) ((BMap) annotations.get(intAnnotation)).get(StringUtils.fromString("minValue"));
                 if (age < minValue) {
-                    return ErrorCreator.createError(
-                            StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
+                    return constraintError;
                 }
             }
         }
@@ -296,9 +345,8 @@ public class Values {
     public static Object validateArrayElements(Object value, BTypedesc typedesc) {
         Type describingType = typedesc.getDescribingType();
         BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
-        BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
-        if (annotations.containsKey(annotKey)) {
-            Object annotValue = annotations.get(annotKey);
+        if (annotations.containsKey(intAnnotation)) {
+            Object annotValue = annotations.get(intAnnotation);
             Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
             for (Object element : ((BArray) value).getValues()) {
                 if (((Long) element) >= minValue) {
@@ -306,13 +354,13 @@ public class Values {
                 }
             }
         }
-        return ErrorCreator.createError(StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
+        return constraintError;
     }
 
     public static Object validateArrayConstraint(Object value, BTypedesc typedesc) {
         Type describingType = typedesc.getDescribingType();
         BMap<BString, Object> annotations = ((AnnotatableType) describingType).getAnnotations();
-        BString annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Array");
+        BString annotKey = StringUtils.fromString("testorg/types.typeref:1:Array");
         if (annotations.containsKey(annotKey)) {
             Object annotValue = annotations.get(annotKey);
             Long maxLength = (Long) ((BMap) annotValue).get(StringUtils.fromString("maxLength"));
@@ -323,22 +371,118 @@ public class Values {
             }
             AnnotatableType eType = (AnnotatableType) ((ReferenceType) ((BArrayType) ((ReferenceType) describingType)
                     .getReferredType()).getElementType()).getReferredType();
-            annotKey = StringUtils.fromString("testorg/runtime_api_types.typeref:1:Int");
             annotations = eType.getAnnotations();
-            if (!annotations.containsKey(annotKey)) {
-                return ErrorCreator.createError(
-                        StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
+            if (!annotations.containsKey(intAnnotation)) {
+                return constraintError;
             }
-            annotValue = annotations.get(annotKey);
+            annotValue = annotations.get(intAnnotation);
             Long minValue = (Long) ((BMap) annotValue).get(StringUtils.fromString("minValue"));
             for (int i = 0; i < array.getLength(); i++) {
                 if (((Long) array.get(i)) < minValue) {
-                    return ErrorCreator.createError(
-                            StringUtils.fromString("Validation failed for 'minValue' constraint(s)."));
+                    return constraintError;
                 }
             }
         }
         return value;
     }
 
+    public static Object validateFunctionParameterExtern(BFunctionPointer fpValue) {
+        return validateFunctionType((FunctionType) fpValue.getType());
+    }
+
+    @Nullable
+    private static BError validateFunctionType(FunctionType functionType) {
+        Parameter[] parameters = functionType.getParameters();
+        assert parameters[0].type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG;
+        AnnotatableType annotatableType = (AnnotatableType) parameters[0].type;
+        if (annotatableType.getAnnotation(intAnnotation) == null) {
+            return constraintError;
+        }
+        assert parameters[1].type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG;
+        annotatableType = (AnnotatableType) parameters[1].type;
+        if (annotatableType.getAnnotation(intAnnotation) == null) {
+            return constraintError;
+        }
+        return null;
+    }
+
+    public static Object validateFunctionParameterFromObject(BObject object) {
+        ObjectType type = object.getType();
+        for (MethodType methodType : type.getMethods()) {
+            if (methodType.getName() == "testFunction") {
+                return validateFunctionType(methodType.getType());
+            }
+        }
+        return constraintError;
+    }
+
+    public static BArray getIntArray(BTypedesc typedesc) {
+        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
+        BArray arrayValue = ValueCreator.createArrayValue(arrayType);
+        arrayValue.add(0, 1L);
+        arrayValue.add(1, 2L);
+        arrayValue.add(2, 3L);
+        return arrayValue;
+    }
+
+    public static BArray getIntArrayWithInitialValues(BTypedesc typedesc, BArray array) {
+        BArrayType arrayType = (BArrayType) TypeUtils.getReferredType(typedesc.getDescribingType());
+        int size = array.size();
+        BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
+        for (int i = 0; i < size; i++) {
+            elements[i] = ValueCreator.createListInitialValueEntry(array.get(i));
+        }
+        return ValueCreator.createArrayValue(arrayType, elements);
+    }
+
+    public static BArray getTupleWithInitialValues(BTypedesc typedesc, BArray array) {
+        BTupleType tupleType = (BTupleType) TypeUtils.getReferredType(typedesc.getDescribingType());
+        int size = array.size();
+        BListInitialValueEntry[] elements = new BListInitialValueEntry[size];
+        for (int i = 0; i < size; i++) {
+            elements[i] = ValueCreator.createListInitialValueEntry(array.get(i));
+        }
+        return ValueCreator.createTupleValue(tupleType, elements);
+    }
+
+    public static Boolean checkInlineRecordAnnotations(BTypedesc typedesc, BTypedesc constraint) {
+        Type describingType = typedesc.getDescribingType();
+        if (describingType.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG &&
+                ((ReferenceType) describingType).getReferredType().getTag() == TypeTags.INTERSECTION_TAG) {
+            describingType = ((IntersectionType)
+                    ((ReferenceType) describingType).getReferredType()).getConstituentTypes().get(0);
+        }
+        if (!(describingType instanceof AnnotatableType)) {
+            throw ErrorCreator.createError(StringUtils.fromString("Invalid type found."));
+        }
+        Object annotation = ((AnnotatableType) describingType).getAnnotation(StringUtils.fromString("$field$.title"));
+        if (annotation == null) {
+            throw ErrorCreator.createError(StringUtils.fromString("Annotation is not available."));
+        }
+        BString annotKey = StringUtils.fromString("testorg/types.typeref:1:String");
+        return TypeChecker.checkIsType(((BMap) annotation).get(annotKey), constraint.getDescribingType());
+    }
+
+    public static BString getParameterName(BFunctionPointer fpValue) {
+        Parameter parameter = ((BFunctionType) fpValue.getType()).getParameters()[0];
+        return StringUtils.fromString(parameter.name);
+    }
+
+    public static BString getParameterNameFromResource(BTypedesc type) {
+        BServiceType serviceType = (BServiceType) type.getDescribingType();
+        ResourceMethodType resourceMethod = serviceType.getResourceMethods()[0];
+        Parameter parameter = resourceMethod.getParameters()[0];
+        return StringUtils.fromString(parameter.name);
+    }
+
+    public static BArray getParamNamesFromObjectInit(BObject object) {
+        ObjectType objectType = object.getType();
+        MethodType initMethodtype = objectType.getInitMethod();
+        Parameter[] parameters = initMethodtype.getParameters();
+        BArray paramNames = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING));
+        for (int i = 0; i < parameters.length; i++) {
+            paramNames.add(i, StringUtils.fromString(parameters[i].name));
+        }
+        return paramNames;
+    }
 }

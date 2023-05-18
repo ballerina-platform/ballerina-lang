@@ -423,13 +423,13 @@ function testIncompatibleSelectType(stream<string, error?> clientStream) returns
 
 function testMapBindingPatternsAnydataType() {
     map<anydata> keyValsMap = {foo:"sss", bar:"ffff"};
-    var x = from var {k} in keyValsMap
+    var x = map from var {k} in keyValsMap
                  select k;
 }
 
 function testMapBindingPatternsAnyType() {
     map<any> keyValsMap = {foo:"sss", bar:"ffff"};
-    var x = from var {k} in keyValsMap
+    var x = map from var {k} in keyValsMap
                  select k;
 }
 
@@ -519,32 +519,72 @@ function testInvalidTypeInOnConflictClauseWithQueryConstructingTable() {
                     where user.age > 21 && user.age < 60
                     select {user} on conflict msg;
 }
-type CustomError1 distinct error;
 
-type CustomError2 distinct error;
+function testQueryUsedAsFuncArg() {
+    int len = getLength(from string s in ["A", "B"]
+        select s);
 
-function getCustomErrorOrInt() returns CustomError1|int {
-    return error CustomError1("Custom error");
+    string[][] ar = [];
+    int[][] newAr = from var c in ar
+        select foo(from var s in c
+            select s.trim());
 }
 
-function getCustomErrorOrIntArray() returns CustomError1|int[] {
-    return error CustomError1("Custom error");
+function getLength(int[] arr) returns int {
+    return arr.length();
 }
 
-function testDistinctErrorThrownFromQueryAction1() {
-    //expected 'CustomError2?', found 'CustomError1?'
-    CustomError2? res = from int i in 1 ... 3
-        do {
-            _ = check getCustomErrorOrInt();
-        };
+function foo(int[] s) returns int[] {
+    return s;
 }
 
-function testDistinctErrorThrownFromQueryAction2() {
-    //expected 'CustomError2?', found 'CustomError1?'
-    CustomError2? res = from int i in 1 ... 3
-        do {
-            check from int j in check getCustomErrorOrIntArray()
-                do {
-                };
-        };
+function testInvalidCheckExpressionInQueryAction() returns string|error {
+    from int _ in [1, 3, 5]
+    do {
+        check returnNil();
+        return "string 1";
+    };
+    return "string 2";
+}
+
+function testInvalidCheckExpressionInQueryAction2() returns error? {
+    from int _ in [1, 3, 5]
+    do {
+        check returnNil();
+        return;
+    };
+    return;
+}
+
+function returnNil() {
+}
+
+type PersonA record {|
+    string firstName;
+    string lastName;
+    int age;
+|};
+
+type Persons PersonA[];
+
+function testInvalidContextuallyExpectedTypes() {
+
+    PersonA[] personList = [];
+    int outputPersonList =
+            from var person in personList
+    let int newAge = 20
+    where person.age == 33
+    select person.firstName;
+
+    Persons outputPersons =
+                from var person in personList
+    let int newAge = 20
+    where person.age == 33
+    select person.firstName;
+
+    PersonA outputPerson =
+                from var person in personList
+    let int newAge = 20
+    where person.age == 33
+    select person.firstName;
 }

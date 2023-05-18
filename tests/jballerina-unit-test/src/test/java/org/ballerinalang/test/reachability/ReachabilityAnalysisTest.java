@@ -353,7 +353,7 @@ public class ReachabilityAnalysisTest {
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1031, 5);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1041, 9);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1051, 9);
-        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1059, 9);
+        validateError(result, i++, ERROR_UNREACHABLE_CODE, 1059, 13);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1067, 13);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1077, 13);
         validateError(result, i++, ERROR_UNREACHABLE_CODE, 1087, 13);

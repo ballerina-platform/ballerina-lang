@@ -1,0 +1,18 @@
+{
+  "range": {
+    "start": {
+      "line": 1,
+      "character": 22
+    },
+    "end": {
+      "line": 6,
+      "character": 27
+    }
+  },
+  "source": "extractToVariableInObjectConstructor.bal",
+  "expected": [
+    {
+      "title": "Extract to local variable"
+    }
+  ]
+}

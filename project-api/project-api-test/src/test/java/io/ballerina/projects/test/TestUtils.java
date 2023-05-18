@@ -19,21 +19,30 @@
 package io.ballerina.projects.test;
 
 import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.util.ProjectConstants;
+import org.testng.Assert;
+import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Locale;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -46,18 +55,23 @@ public class TestUtils {
 
     private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
 
+    public static String getDiagnosticsAsString(DiagnosticResult diagnosticResult) {
+        return diagnosticResult.diagnostics().stream().map(
+                diagnostic -> diagnostic.toString() + "\n").collect(Collectors.joining());
+    }
+
     public static BuildProject loadBuildProject(Path projectPath) {
         BuildOptions buildOptions = BuildOptions.builder().setOffline(true).build();
         return BuildProject.load(projectPath, buildOptions);
     }
 
-    static BuildProject loadBuildProject(Path projectPath, BuildOptions options) {
+    public static BuildProject loadBuildProject(Path projectPath, BuildOptions options) {
         BuildOptions buildOptions = BuildOptions.builder().setOffline(true).build();
         BuildOptions mergedOptions = options.acceptTheirs(buildOptions);
         return BuildProject.load(projectPath, mergedOptions);
     }
 
-    static BuildProject loadBuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
+    public static BuildProject loadBuildProject(ProjectEnvironmentBuilder environmentBuilder, Path projectPath) {
         BuildOptions buildOptions = BuildOptions.builder().setOffline(true).setSkipTests(false).build();
         return BuildProject.load(environmentBuilder, projectPath, buildOptions);
     }
@@ -189,5 +203,44 @@ public class TestUtils {
         } catch (IOException e) {
             throw new ProjectException("Failed to write dependencies to the 'Dependencies.toml' file");
         }
+    }
+
+    static void assertTomlFilesEquals(Path actualTomlFilePath, Path expectedTomlFilePath) throws IOException {
+        Assert.assertEquals(readFileAsString(actualTomlFilePath),
+                insertDistributionVersionToDependenciesToml(readFileAsString(expectedTomlFilePath)));
+    }
+
+    private static String insertDistributionVersionToDependenciesToml(String dependenciesToml) {
+        String distributionVersion = RepoUtils.getBallerinaShortVersion();
+        return dependenciesToml.replace("**INSERT_DISTRIBUTION_VERSION_HERE**", distributionVersion);
+    }
+
+    public static void replaceDistributionVersionOfDependenciesToml(Path projectDirPath, String newDistributionVersion)
+            throws IOException {
+        String filename = projectDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML).toString();
+        String searchText = "distribution-version = ";
+        String replaceText;
+        if (newDistributionVersion == null) {
+            replaceText = "";
+        } else {
+            replaceText = "distribution-version = " + "\"" + newDistributionVersion + "\"";
+        }
+        File tempFile = new File(filename + "-temp.toml");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+            String currentLine;
+            while ((currentLine = reader.readLine()) != null) {
+                if (currentLine.contains(searchText)) {
+                    writer.write(replaceText);
+                } else {
+                    writer.write(currentLine);
+                }
+                writer.newLine();
+            }
+        }
+        File originalFile = new File(filename);
+        originalFile.delete();
+        tempFile.renameTo(originalFile);
     }
 }

@@ -13,6 +13,19 @@
           "range": {
             "start": {
               "line": 22,
+              "character": 4
+            },
+            "end": {
+              "line": 22,
+              "character": 4
+            }
+          },
+          "newText": "HelloReply|E1 sayHello = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 22,
               "character": 38
             },
             "end": {
@@ -21,34 +34,17 @@
             }
           },
           "newText": "\n    if sayHello is HelloReply {\n\n    }"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 22,
-              "character": 38
-            },
-            "end": {
-              "line": 22,
-              "character": 38
-            }
-          },
-          "newText": "\n    if sayHello is E1 {\n\n    }"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 22,
-              "character": 4
-            },
-            "end": {
-              "line": 22,
-              "character": 4
-            }
-          },
-          "newText": "HelloReply|E1 sayHello \u003d "
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable9.bal",
+          389
+        ]
+      },
+      "resolvable": false
     },
     {
       "title": "Create variable and check error",
@@ -65,7 +61,7 @@
               "character": 4
             }
           },
-          "newText": "HelloReply sayHello \u003d "
+          "newText": "HelloReply sayHello = "
         },
         {
           "range": {
@@ -93,7 +89,16 @@
           },
           "newText": " returns error?"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable9.bal",
+          401
+        ]
+      },
+      "resolvable": false
     },
     {
       "title": "Create variable",
@@ -110,28 +115,18 @@
               "character": 4
             }
           },
-          "newText": "HelloReply|E1 sayHello \u003d "
+          "newText": "HelloReply|E1 sayHello = "
         }
-      ]
-    },
-    {
-      "title": "Ignore return value",
-      "kind": "quickfix",
-      "edits": [
-        {
-          "range": {
-            "start": {
-              "line": 22,
-              "character": 4
-            },
-            "end": {
-              "line": 22,
-              "character": 4
-            }
-          },
-          "newText": "_ \u003d "
-        }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariable9.bal",
+          389
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

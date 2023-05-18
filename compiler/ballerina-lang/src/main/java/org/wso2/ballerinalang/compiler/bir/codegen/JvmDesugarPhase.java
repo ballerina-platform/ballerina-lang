@@ -19,7 +19,6 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import io.ballerina.identifier.Utils;
-import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.codegen.methodgen.InitMethodGen;
@@ -29,15 +28,12 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunctionParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
-import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
-import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
-import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -51,9 +47,10 @@ import org.wso2.ballerinalang.util.Lists;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DESUGARED_BB_ID_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_GEN_BB_ID_NAME;
 
 /**
  * BIR desugar phase related methods at JVM code generation.
@@ -69,28 +66,6 @@ public class JvmDesugarPhase {
         BInvokableType type = func.type;
         func.type.paramTypes = updateParamTypesWithDefaultableBooleanVar(func.type.paramTypes,
                                                                          type.restType, booleanType);
-        int index = 0;
-        List<BIRVariableDcl> updatedVars = new ArrayList<>();
-        List<BIRVariableDcl> localVars = func.localVars;
-        int nameIndex = 0;
-
-        for (BIRVariableDcl localVar : localVars) {
-            updatedVars.add(index, localVar);
-            index += 1;
-
-            if (!(localVar instanceof BIRFunctionParameter)) {
-                continue;
-            }
-
-            // An additional boolean arg is gen for each function parameter.
-            String argName = "%syn" + nameIndex;
-            nameIndex += 1;
-            BIRFunctionParameter booleanVar = new BIRFunctionParameter(null, booleanType,
-                    new Name(argName), VarScope.FUNCTION, VarKind.ARG, "", false);
-            updatedVars.add(index, booleanVar);
-            index += 1;
-        }
-        func.localVars = updatedVars;
     }
 
     public static void enrichWithDefaultableParamInits(BIRFunction currentFunc, InitMethodGen initMethodGen) {
@@ -106,62 +81,17 @@ public class JvmDesugarPhase {
         }
 
         initMethodGen.resetIds();
-
-        List<BIRBasicBlock> basicBlocks = new ArrayList<>();
-
-        BIRBasicBlock nextBB = insertAndGetNextBasicBlock(basicBlocks, DESUGARED_BB_ID_NAME, initMethodGen);
-
-        int paramCounter = 0;
-        Location pos = currentFunc.pos;
-        while (paramCounter < functionParams.size()) {
-            BIRFunctionParameter funcParam = functionParams.get(paramCounter);
-            if (funcParam != null && funcParam.hasDefaultExpr) {
-                int boolParam = paramCounter + 1;
-                BIRFunctionParameter funcBooleanParam = getFunctionParam(functionParams.get(boolParam));
-                BIROperand boolRef = new BIROperand(funcBooleanParam);
-                UnaryOP notOp = new UnaryOP(pos, InstructionKind.NOT, boolRef, boolRef);
-                nextBB.instructions.add(notOp);
-                List<BIRBasicBlock> bbArray = currentFunc.parameters.get(funcParam);
-                BIRBasicBlock trueBB = bbArray.get(0);
-                basicBlocks.addAll(bbArray);
-                BIRBasicBlock falseBB = insertAndGetNextBasicBlock(basicBlocks, DESUGARED_BB_ID_NAME, initMethodGen);
-                nextBB.terminator = new Branch(pos, boolRef, trueBB, falseBB);
-
-                BIRBasicBlock lastBB = bbArray.get(bbArray.size() - 1);
-                lastBB.terminator = new GOTO(pos, falseBB);
-
-                nextBB = falseBB;
-            }
-            paramCounter += 2;
-        }
-
-        if (basicBlocks.size() == 1) {
-            // this means only one block added, if there are default vars, there must be more than one block
-            return;
-        }
-        if (currentFunc.basicBlocks.isEmpty()) {
-            currentFunc.basicBlocks = basicBlocks;
-            return;
-        }
-
-        BIRBasicBlock firstBB = currentFunc.basicBlocks.get(0);
-
-        nextBB.terminator = new GOTO(pos, firstBB);
-        basicBlocks.addAll(currentFunc.basicBlocks);
-
-        currentFunc.basicBlocks = basicBlocks;
     }
 
     public static BIRBasicBlock insertAndGetNextBasicBlock(List<BIRBasicBlock> basicBlocks,
-                                                           String prefix, InitMethodGen initMethodGen) {
-        BIRBasicBlock nextbb = new BIRBasicBlock(getNextDesugarBBId(prefix, initMethodGen));
+                                                           InitMethodGen initMethodGen) {
+        BIRBasicBlock nextbb = new BIRBasicBlock(WRAPPER_GEN_BB_ID_NAME, getNextDesugarBBId(initMethodGen));
         basicBlocks.add(nextbb);
         return nextbb;
     }
 
-    public static Name getNextDesugarBBId(String prefix, InitMethodGen initMethodGen) {
-        int nextId = initMethodGen.incrementAndGetNextId();
-        return new Name(prefix + nextId);
+    public static int getNextDesugarBBId(InitMethodGen initMethodGen) {
+        return initMethodGen.incrementAndGetNextId();
     }
 
     private static List<BType> updateParamTypesWithDefaultableBooleanVar(List<BType> funcParams, BType restType,
@@ -170,19 +100,13 @@ public class JvmDesugarPhase {
         List<BType> paramTypes = new ArrayList<>();
 
         int counter = 0;
-        int index = 0;
-        // Update the param types to add boolean variables to indicate if the previous variable contains a user
-        // given value
         int size = funcParams == null ? 0 : funcParams.size();
         while (counter < size) {
-            paramTypes.add(index, funcParams.get(counter));
-            paramTypes.add(index + 1, booleanType);
-            index += 2;
+            paramTypes.add(counter, funcParams.get(counter));
             counter += 1;
         }
         if (restType != null) {
-            paramTypes.add(index, restType);
-            paramTypes.add(index + 1, booleanType);
+            paramTypes.add(counter, restType);
         }
         return paramTypes;
     }
@@ -218,7 +142,7 @@ public class JvmDesugarPhase {
 
         // Inject an additional parameter to accept the self-record value into the init function
         BIRFunctionParameter selfParam = new BIRFunctionParameter(null, receiver.type, receiver.name,
-                                                                  receiver.scope, VarKind.ARG, paramName, false);
+                receiver.scope, VarKind.ARG, paramName, false, false);
 
         List<BType> updatedParamTypes = Lists.of(receiver.type);
         updatedParamTypes.addAll(func.type.paramTypes);
@@ -251,6 +175,7 @@ public class JvmDesugarPhase {
         HashMap<String, String> encodedVsInitialIds = new HashMap<>();
         encodePackageIdentifiers(module.packageID, encodedVsInitialIds);
         encodeGlobalVariableIdentifiers(module.globalVars, encodedVsInitialIds);
+        encodeImportedGlobalVariableIdentifiers(module.importedGlobalVarsDummyVarDcls, encodedVsInitialIds);
         encodeFunctionIdentifiers(module.functions, encodedVsInitialIds);
         encodeTypeDefIdentifiers(module.typeDefs, encodedVsInitialIds);
         return encodedVsInitialIds;
@@ -307,13 +232,28 @@ public class JvmDesugarPhase {
                 localVar.metaVarName = encodeNonFunctionIdentifier(localVar.metaVarName, encodedVsInitialIds);
             }
             for (BIRNode.BIRParameter parameter : function.requiredParams) {
-                if (parameter.name == null) {
-                    continue;
-                }
                 parameter.name = Names.fromString(encodeNonFunctionIdentifier(parameter.name.value,
                                                                               encodedVsInitialIds));
             }
+            if (function.type.tsymbol != null) {
+                for (BVarSymbol parameter : ((BInvokableTypeSymbol) function.type.tsymbol).params) {
+                    parameter.name = Names.fromString(encodeNonFunctionIdentifier(parameter.name.value,
+                            encodedVsInitialIds));
+                }
+            }
+            encodeDefaultFunctionName(function.type, encodedVsInitialIds);
             encodeWorkerName(function, encodedVsInitialIds);
+        }
+    }
+
+    private static void encodeDefaultFunctionName(BInvokableType type, HashMap<String, String> encodedVsInitialIds) {
+        BInvokableTypeSymbol typeSymbol = (BInvokableTypeSymbol) type.tsymbol;
+        if (typeSymbol == null) {
+            return;
+        }
+        for (BInvokableSymbol defaultFunc : typeSymbol.defaultValues.values()) {
+            defaultFunc.name = Names.fromString(encodeFunctionIdentifier(defaultFunc.name.value,
+                    encodedVsInitialIds));
         }
     }
 
@@ -343,11 +283,19 @@ public class JvmDesugarPhase {
         }
     }
 
+    private static void encodeImportedGlobalVariableIdentifiers(Set<BIRNode.BIRGlobalVariableDcl> globalVars,
+                                                                HashMap<String, String> encodedVsInitialIds) {
+        for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
+            globalVar.name = Names.fromString(encodeNonFunctionIdentifier(globalVar.name.value, encodedVsInitialIds));
+        }
+    }
+
     // Replace encoding identifiers
     static void replaceEncodedModuleIdentifiers(BIRNode.BIRPackage module,
                                                 HashMap<String, String> encodedVsInitialIds) {
         replaceEncodedPackageIdentifiers(module.packageID, encodedVsInitialIds);
         replaceEncodedGlobalVariableIdentifiers(module.globalVars, encodedVsInitialIds);
+        replaceEncodedImportedGlobalVariableIdentifiers(module.importedGlobalVarsDummyVarDcls, encodedVsInitialIds);
         replaceEncodedFunctionIdentifiers(module.functions, encodedVsInitialIds);
         replaceEncodedTypeDefIdentifiers(module.typeDefs, encodedVsInitialIds);
     }
@@ -396,12 +344,26 @@ public class JvmDesugarPhase {
                 localVar.metaVarName = getInitialIdString(localVar.metaVarName, encodedVsInitialIds);
             }
             for (BIRNode.BIRParameter parameter : function.requiredParams) {
-                if (parameter.name == null) {
-                    continue;
-                }
                 parameter.name = getInitialIdString(parameter.name, encodedVsInitialIds);
             }
+            if (function.type.tsymbol != null) {
+                for (BVarSymbol parameter : ((BInvokableTypeSymbol) function.type.tsymbol).params) {
+                    parameter.name = getInitialIdString(parameter.name, encodedVsInitialIds);
+                }
+            }
+            replaceEncodedDefaultFunctionName(function.type, encodedVsInitialIds);
             replaceEncodedWorkerName(function, encodedVsInitialIds);
+        }
+    }
+
+    private static void replaceEncodedDefaultFunctionName(BInvokableType type,
+                                                          HashMap<String, String> encodedVsInitialIds) {
+        BInvokableTypeSymbol typeSymbol = (BInvokableTypeSymbol) type.tsymbol;
+        if (typeSymbol == null) {
+            return;
+        }
+        for (BInvokableSymbol defaultFunc : typeSymbol.defaultValues.values()) {
+            defaultFunc.name = getInitialIdString(defaultFunc.name, encodedVsInitialIds);
         }
     }
 
@@ -425,6 +387,13 @@ public class JvmDesugarPhase {
             if (globalVar == null) {
                 continue;
             }
+            globalVar.name = getInitialIdString(globalVar.name, encodedVsInitialIds);
+        }
+    }
+
+    private static void replaceEncodedImportedGlobalVariableIdentifiers(Set<BIRNode.BIRGlobalVariableDcl> globalVars,
+                                                                        HashMap<String, String> encodedVsInitialIds) {
+        for (BIRNode.BIRGlobalVariableDcl globalVar : globalVars) {
             globalVar.name = getInitialIdString(globalVar.name, encodedVsInitialIds);
         }
     }

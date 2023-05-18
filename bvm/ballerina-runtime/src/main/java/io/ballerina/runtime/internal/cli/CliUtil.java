@@ -24,8 +24,10 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.internal.values.DecimalValue;
+import io.ballerina.runtime.internal.TypeConverter;
 
 import java.util.List;
 
@@ -34,7 +36,6 @@ import java.util.List;
  */
 public class CliUtil {
 
-    private static final String HEX_PREFIX = "0X";
     private static final String INVALID_ARGUMENT_ERROR = "invalid argument '%s' for parameter '%s', expected %s value";
 
 
@@ -66,17 +67,45 @@ public class CliUtil {
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
                 return StringUtils.fromString(value);
+            case TypeTags.CHAR_STRING_TAG:
+                return getCharValue(value, parameterName);
             case TypeTags.INT_TAG:
+            case TypeTags.SIGNED32_INT_TAG:
+            case TypeTags.SIGNED16_INT_TAG:
+            case TypeTags.SIGNED8_INT_TAG:
+            case TypeTags.UNSIGNED32_INT_TAG:
+            case TypeTags.UNSIGNED16_INT_TAG:
+            case TypeTags.UNSIGNED8_INT_TAG:
                 return getIntegerValue(value, parameterName);
+            case TypeTags.BYTE_TAG:
+                return getByteValue(value, parameterName);
             case TypeTags.FLOAT_TAG:
                 return getFloatValue(value, parameterName);
             case TypeTags.DECIMAL_TAG:
                 return getDecimalValue(value, parameterName);
+            case TypeTags.TYPE_REFERENCED_TYPE_TAG:
+                return getBValue(TypeUtils.getReferredType(type), value, parameterName);
             case TypeTags.BOOLEAN_TAG:
                 throw ErrorCreator.createError(StringUtils.fromString("the option '" + parameterName + "' of type " +
                                                                               "'boolean' is expected without a value"));
             default:
                 throw getUnsupportedTypeException(type);
+        }
+    }
+
+    private static Object getCharValue(String argument, String parameterName) {
+        try {
+            return TypeConverter.stringToChar(StringUtils.fromString(argument));
+        } catch (BError e) {
+            throw getInvalidArgumentError(argument, parameterName, "string:Char");
+        }
+    }
+
+    private static Object getByteValue(String argument, String parameterName) {
+        try {
+            return TypeConverter.stringToByte(argument);
+        } catch (NumberFormatException | BError e) {
+            throw getInvalidArgumentError(argument, parameterName, "byte");
         }
     }
 
@@ -102,32 +131,31 @@ public class CliUtil {
 
     private static long getIntegerValue(String argument, String parameterName) {
         try {
-            if (argument.toUpperCase().startsWith(HEX_PREFIX)) {
-                return Long.parseLong(argument.toUpperCase().replace(HEX_PREFIX, ""), 16);
-            }
-            return Long.parseLong(argument);
+            return TypeConverter.stringToInt(argument);
         } catch (NumberFormatException e) {
-            throw ErrorCreator.createError(
-                    StringUtils.fromString(String.format(INVALID_ARGUMENT_ERROR, argument, parameterName, "integer")));
+            throw getInvalidArgumentError(argument, parameterName, "integer");
         }
     }
 
     private static double getFloatValue(String argument, String parameterName) {
         try {
-            return Double.parseDouble(argument);
+            return TypeConverter.stringToFloat(argument);
         } catch (NumberFormatException e) {
-            throw ErrorCreator.createError(
-                    StringUtils.fromString(String.format(INVALID_ARGUMENT_ERROR, argument, parameterName, "float")));
+            throw getInvalidArgumentError(argument, parameterName, "float");
         }
     }
 
-    private static DecimalValue getDecimalValue(String argument, String parameterName) {
+    private static BDecimal getDecimalValue(String argument, String parameterName) {
         try {
-            return new DecimalValue(argument);
+            return TypeConverter.stringToDecimal(argument);
         } catch (NumberFormatException | BError e) {
-            throw ErrorCreator.createError(
-                    StringUtils.fromString(String.format(INVALID_ARGUMENT_ERROR, argument, parameterName, "decimal")));
+            throw getInvalidArgumentError(argument, parameterName, "decimal");
         }
+    }
+
+    private static BError getInvalidArgumentError(String argument, String parameterName, String type) {
+        return ErrorCreator.createError(
+                StringUtils.fromString(String.format(INVALID_ARGUMENT_ERROR, argument, parameterName, type)));
     }
 
     static boolean isSupportedType(int tag) {

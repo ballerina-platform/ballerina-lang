@@ -103,7 +103,7 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
                               new LogLeecher[]{testLog1, testLog2}, testFileLocation + "/testProject");
         testLog1.waitForText(5000);
-        testLog1.waitForText(5000);
+        testLog2.waitForText(5000);
 
         // Testing `bal test` command error log for configurables
         String errorMsg = "error: [Config.toml:(3:1,3:22)] configurable variable 'invalidMap' is expected to be of " +
@@ -117,20 +117,47 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
-    public void testEnvironmentVariableBasedConfigurable() throws BallerinaTestException {
+    public void testFileEnvVariableBasedConfigurable() throws BallerinaTestException {
 
         // test config file location through `BAL_CONFIG_FILES` env variable
         String configFilePaths = Paths.get(testFileLocation, "config_files", "Config-A.toml") +
                 File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-B.toml");
         executeBalCommand("", "envVarPkg",
-                          addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE,
-                                                                          configFilePaths))));
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePaths))));
+    }
 
+    @Test
+    public void testDataEnvVariableBasedConfigurable() throws BallerinaTestException {
         // test configuration through `BAL_CONFIG_DATA` env variable
         String configData = "[envVarPkg] intVar = 42 floatVar = 3.5 stringVar = \"abc\" booleanVar = true " +
                 "decimalVar = 24.87 intArr = [1,2,3] floatArr = [9.0, 5.6] " +
                 "stringArr = [\"red\", \"yellow\", \"green\"] booleanArr = [true, false,false, true] " +
                 "decimalArr = [8.9, 4.5, 6.2]";
+        executeBalCommand("", "envVarPkg",
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
+
+    }
+
+    @Test
+    public void testDataEnvVariableBasedConfigurableWithNewLine() throws BallerinaTestException {
+        String configData = "[envVarPkg]\nintVar = 42\nfloatVar = 3.5\nstringVar = \"abc\"\nbooleanVar = true\n" +
+                "decimalVar = 24.87\nintArr = [1,2,3]\nfloatArr = [9.0, 5.6]\n" +
+                "stringArr = [\"red\", \"yellow\", \"green\"]\nbooleanArr = [true, false,false, true]\n" +
+                "decimalArr = [8.9, 4.5, 6.2]";
+        executeBalCommand("", "envVarPkg",
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
+
+        configData = "[envVarPkg]\\nintVar = 42\\nfloatVar = 3.5\\nstringVar = \"abc\"\\nbooleanVar = true\\n" +
+                "decimalVar = 24.87\\nintArr = [1,2,3]\\nfloatArr = [9.0, 5.6]\\n" +
+                "stringArr = [\"red\", \"yellow\", \"green\"]\\nbooleanArr = [true, false,false, true]\\n" +
+                "decimalArr = [8.9, 4.5, 6.2]";
+        executeBalCommand("", "envVarPkg",
+                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
+
+        configData = "[envVarPkg]\\n\\rintVar = 42\\n\\rfloatVar = 3.5\\n\\rstringVar = \"abc\"\\n\\r" +
+                "booleanVar = true\\n\\rdecimalVar = 24.87\\n\\rintArr = [1,2,3]\\n\\r" +
+                "floatArr = [9.0, 5.6]\\n\\rstringArr = [\"red\", \"yellow\", \"green\"]\\n\\r" +
+                "booleanArr = [true, false,false, true]\\n\\rdecimalArr = [8.9, 4.5, 6.2]";
         executeBalCommand("", "envVarPkg",
                 addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
     }
@@ -271,6 +298,7 @@ public class ConfigurableTest extends BaseTest {
                 {"configMapType", "Config_maps.toml"},
                 {"configComplexXml", "Config_xml.toml"},
                 {"configTupleType", "Config_tuples.toml"},
+                {"configTableArray", "Config_table_arrays.toml"},
                 {"configRecordType", "Config_records_inline.toml"},
                 {"configOpenRecord", "Config_open_records_inline.toml"},
                 {"defaultValuesRecord", "Config_default_values_inline.toml"},

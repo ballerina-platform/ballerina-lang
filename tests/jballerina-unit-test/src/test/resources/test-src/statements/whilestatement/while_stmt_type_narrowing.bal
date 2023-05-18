@@ -150,7 +150,7 @@ type B record {|
 
 function test7(A|B x) {
     while x !is A {
-        A _ = x; // error incompatible types: expected 'A', found 'B'
+        B _ = x; // error incompatible types: expected 'B', found '(A|B)'
     }
 }
 
@@ -158,7 +158,7 @@ type C A|B;
 
 function test8(C v) {
     while v !is B {
-        B _ = v; // error incompatible types: expected 'B', found 'A'
+        A _ = v; // error incompatible types: expected 'A', found 'C'
     }
 }
 
@@ -258,7 +258,7 @@ type Y record {|
 
 function test16(V|W|X|Y v) {
     while !(v is V|W) {
-        X|V _ = v; // error incompatible types: expected '(X|V)', found '(X|Y)'
+        X|Y _ = v; // error incompatible types: expected '(X|Y)', found '(W|X|Y)'
     }
 
     while v !is V|W|X {
@@ -268,8 +268,8 @@ function test16(V|W|X|Y v) {
 
 function test17([int]|[string] x) {
     while x !is [int] {
-        [int] _ = x; // error incompatible types: expected '[int]', found '[string]'
-        [string] _ = x; // OK
+        [string] _ = x; // error incompatible types: expected '[string]', found '([int]|[string])'
+
         [int|string] _ = x; // OK
         [int]|[string] _ = x; // OK
     }
@@ -285,8 +285,8 @@ function test18(([int]|[string]) & readonly x) {
 
 function test19(int[]|string[] x) {
     while x !is int[] {
-        int[] _ = x; // error incompatible types: expected 'int[]', found 'string[]'
-        string[] _ = x; // OK
+        string[] _ = x; // error incompatible types: expected 'string[]', found '(int[]|string[])'
+
         (int|string)[] _ = x; // OK
         int[]|string[] _ = x; // OK
     }

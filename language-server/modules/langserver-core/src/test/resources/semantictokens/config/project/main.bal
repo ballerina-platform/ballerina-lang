@@ -1,6 +1,6 @@
 import ballerina/iox;
 import ballerina/httpx;
-import ballerina/log;
+import ballerina/logx;
 import project.module1 as mod1;
 import ballerina/test;
 

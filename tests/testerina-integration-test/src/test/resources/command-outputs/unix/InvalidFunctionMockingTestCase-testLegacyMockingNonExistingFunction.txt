@@ -1,0 +1,4 @@
+Compiling source
+	intg_tests/non_existent_function_mock:0.1.0
+ERROR [tests/test.bal:(3:1,5:2)] could not find function 'createJdbcClient' in module 'intg_tests/non_existent_function_mock:0.1.0'
+error: compilation contains errors

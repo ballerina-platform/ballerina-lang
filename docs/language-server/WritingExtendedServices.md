@@ -158,7 +158,7 @@ public class CustomServiceClientCapabilitySetter
 ```
 
 __Note:__
-> It is important to note that the `nameOfService` which has been used in four places above, should be the same string value since the particular string value is used to correlate the capabilites with the services.
+> It is important to note that the `nameOfService` which has been used in four places above, should be the same string value since the particular string value is used to correlate the capabilities with the services.
 
 <a name="Checklist"></a>
 # Developer Checklist

@@ -28,7 +28,7 @@ public function main() {
     foobar();
 }
 
-function foobar() {
+public function foobar() {
     foo();
 }
 

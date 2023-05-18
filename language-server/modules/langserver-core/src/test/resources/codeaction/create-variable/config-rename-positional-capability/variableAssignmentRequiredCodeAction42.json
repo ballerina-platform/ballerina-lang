@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 2,
+    "character": 4
+  },
+  "source": "createVariable7.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 4
+            }
+          },
+          "newText": "object {public isolated function next() returns record {|int value;|}?;} iterator = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariable7.bal",
+          {
+            "line": 2,
+            "character": 77
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

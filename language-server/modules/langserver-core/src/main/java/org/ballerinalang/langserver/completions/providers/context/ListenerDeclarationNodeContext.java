@@ -110,7 +110,8 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
                 String sortText;
                 if (SortingUtil.isTypeCompletionItem(lsItem)) {
                     sortText = genSortText(1);
-                } else if (SortingUtil.isModuleCompletionItem(lsItem)) {
+                } else if (SortingUtil.isModuleCompletionItem(lsItem)
+                        && !SortingUtil.isLangLibModuleCompletionItem(lsItem)) {
                     sortText = genSortText(2) + genSortTextForModule(context, lsItem);
                 } else {
                     sortText = genSortText(3);
@@ -172,7 +173,8 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         Token listenerKeyword = node.listenerKeyword();
 
         // Added +1 since the completion is valid after listener <cursor>
-        return !listenerKeyword.isMissing() && listenerKeyword.textRange().endOffset() + 1 <= cursor;
+        return !listenerKeyword.isMissing() && listenerKeyword.textRange().endOffset() + 1 <= cursor
+                && cursor <= node.semicolonToken().textRange().endOffset();
     }
 
     private List<LSCompletionItem> typeDescriptorContextItems(BallerinaCompletionContext context) {

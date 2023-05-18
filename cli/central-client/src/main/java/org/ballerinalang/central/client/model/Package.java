@@ -43,6 +43,12 @@ public class Package {
     public static final String JSON_PROPERTY_LANGUAGE_SPECIFICATION_VERSION = "languageSpecificationVersion";
     @SerializedName(JSON_PROPERTY_LANGUAGE_SPECIFICATION_VERSION) private String languageSpecificationVersion;
 
+    public static final String JSON_PROPERTY_IS_DEPRECATED = "isDeprecated";
+    @SerializedName(JSON_PROPERTY_IS_DEPRECATED) private Boolean isDeprecated;
+
+    public static final String JSON_PROPERTY_DEPRECATE_MESSAGE = "deprecateMessage";
+    @SerializedName(JSON_PROPERTY_DEPRECATE_MESSAGE) private Boolean deprecateMessage;
+
     public static final String JSON_PROPERTY_U_R_L = "URL";
     @SerializedName(JSON_PROPERTY_U_R_L) private String url;
 
@@ -152,6 +158,22 @@ public class Package {
 
     public void setLanguageSpecificationVersion(String languageSpecificationVersion) {
         this.languageSpecificationVersion = languageSpecificationVersion;
+    }
+
+    public Boolean getDeprecated() {
+        return isDeprecated;
+    }
+
+    public void setDeprecated(Boolean deprecated) {
+        isDeprecated = deprecated;
+    }
+
+    public Boolean getDeprecateMessage() {
+        return deprecateMessage;
+    }
+
+    public void setDeprecateMessage(Boolean deprecateMessage) {
+        this.deprecateMessage = deprecateMessage;
     }
 
     public Package url(String url) {

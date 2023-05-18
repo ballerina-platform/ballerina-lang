@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
-import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,12 +43,9 @@ public class ForEach {
     public static void forEach(BMap<?, ?> m, BFunctionPointer<Object, Object> func) {
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
-        Strand parentStrand = Scheduler.getStrand();
         Object[] keys = m.getKeys();
         AsyncUtils.invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                () -> new Object[]{parentStrand,
-                        m.get(keys[index.incrementAndGet()]), true},
-                result -> {
+                () -> new Object[]{m.get(keys[index.incrementAndGet()]), true}, result -> {
                 }, () -> null, Scheduler.getStrand().scheduler);
     }
 }

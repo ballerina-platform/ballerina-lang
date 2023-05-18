@@ -135,20 +135,20 @@ function testTypeNarrowing() returns error? {
 
     int[] res3 = [];
     int[] expectedRes3 = [1, 2, 3, 4];
-    check from IntOrStr i in data1
-        where i is int
-        do {
-            res3.push(i);
-        };
+    from IntOrStr i in data1
+    where i is int
+    do {
+        res3.push(i);
+    };
     assertEquality(expectedRes3, res3);
 
     string[] res4 = [];
     string[] expectedRes4 = ["5"];
-    check from IntOrStr i in data1
-        where i !is int
-        do {
-            res4.push(i);
-        };
+    from IntOrStr i in data1
+    where i !is int
+    do {
+        res4.push(i);
+    };
     assertEquality(expectedRes4, res4);
 
     //     Should be enabled once issue #33709 is fixed
@@ -162,21 +162,21 @@ function testTypeNarrowing() returns error? {
 
     //    Should be enabled once issue #35264 is fixed
     //    IntOrStr[] data = [1, "2"];
-    //    check from var item in data
-    //        where item is int
-    //        do {
-    //            item = "2";
-    //            assertEquality("2", item);
-    //        };
+    //    from var item in data
+    //    where item is int
+    //    do {
+    //        item = "2";
+    //        assertEquality("2", item);
+    //    };
 
     (int|string)[] arr = [1, 2, 3, 4];
     int[] evenNums = [];
-    check from int|string item in arr
-        where item is int && item % 2 == 0
-        let int evenNum = item
-        do {
-            evenNums.push(evenNum);
-        };
+    from int|string item in arr
+    where item is int && item % 2 == 0
+    let int evenNum = item
+    do {
+        evenNums.push(evenNum);
+    };
     int[] expectedEvenNums = [2, 4];
     assertEquality(expectedEvenNums, evenNums);
 }

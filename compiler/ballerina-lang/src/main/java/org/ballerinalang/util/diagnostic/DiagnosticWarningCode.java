@@ -51,6 +51,7 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     INVALID_DEPRECATION_DOCUMENTATION("BCE20019", "invalid.deprecation.documentation"),
     DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE("BCE20020", "deprecation.documentation.should.available"),
     DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED("BCE20021", "deprecated.parameters.documentation.not.allowed"),
+    ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL("BCE20022", "attempt.expose.non.public.symbol"),
 
     // Parser diagnostic codes
     SYNTAX_WARNING("BCE20200", "syntax.warning"),
@@ -68,7 +69,7 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
 
     INVALID_METADATA_ON_DUPLICATE_ENUM_MEMBER("BCE20405", "invalid.metadata.on.duplicate.enum.member"),
 
-    USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED("BCE20406", "strand.annotation.will.be.deprecated")
+    USAGE_OF_STRAND_ANNOTATION_WILL_BE_DEPRECATED("BCE20406", "strand.annotation.will.be.deprecated"),
     ;
 
     private String diagnosticId;

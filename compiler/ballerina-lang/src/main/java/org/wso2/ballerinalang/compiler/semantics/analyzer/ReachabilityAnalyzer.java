@@ -516,7 +516,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
         resetLastStatement(data);
         resetUnreachableBlock(data);
         analyzeReachability(onFailClause, data);
-        data.statementReturnsPanicsOrFails = currentStatementReturns;
+        data.statementReturnsPanicsOrFails = currentStatementReturns && data.statementReturnsPanicsOrFails;
     }
 
     @Override
@@ -582,7 +582,7 @@ public class ReachabilityAnalyzer extends SimpleBLangNodeAnalyzer<ReachabilityAn
     private Location getEndCharPos(Location pos) {
         LineRange lineRange = pos.lineRange();
         LinePosition endLinePos = lineRange.endLine();
-        return new BLangDiagnosticLocation(lineRange.filePath(), endLinePos.line(), endLinePos.line(),
+        return new BLangDiagnosticLocation(lineRange.fileName(), endLinePos.line(), endLinePos.line(),
                 endLinePos.offset() - 1, endLinePos.offset(),
                 pos.textRange().startOffset() + pos.textRange().length() - 1, 1);
     }

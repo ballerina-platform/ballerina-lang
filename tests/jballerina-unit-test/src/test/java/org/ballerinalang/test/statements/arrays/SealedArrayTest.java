@@ -129,7 +129,7 @@ public class SealedArrayTest {
 
     @Test
     public void testUnionAndMatchSealedArrayStatement() {
-        BArray bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT), 4);
+        BArray bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT));
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
@@ -139,7 +139,7 @@ public class SealedArrayTest {
         Assert.assertFalse(returnValues == null, "Invalid Return Values.");
         Assert.assertEquals(returnValues.toString(), "matched float array", "Couldn't match sealed array type");
 
-        bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT), 5);
+        bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT, 5));
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
@@ -165,7 +165,7 @@ public class SealedArrayTest {
 
     @Test
     public void testUnionAndMatchNoSealedArrayStatement() {
-        BArray bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT), 4);
+        BArray bFloatArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_FLOAT, 4));
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
         bFloatArray.add(0, 23.3);
@@ -300,13 +300,13 @@ public class SealedArrayTest {
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 18, 4);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                22, 15);
+                21, 16);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                23, 43);
+                26, 15);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                24, 40);
+                27, 43);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
-                32, 16);
+                28, 40);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
                 36, 24);
         BAssertUtil.validateError(codeAnalysisNegative, i++, "length of the array cannot be inferred from the context",
@@ -388,7 +388,7 @@ public class SealedArrayTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 5, size: 3.*")
     public void accessInvalidIndexOfMatchedSealedArray() {
-        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 3);
+        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT, 3));
         bIntArray.add(0, 1);
         bIntArray.add(0, 3);
         bIntArray.add(0, 5);
@@ -430,7 +430,7 @@ public class SealedArrayTest {
 
     @Test
     public void testSealedArrayConstrainedMap() {
-        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 3);
+        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT, 3));
         bIntArray.add(0, 1);
         bIntArray.add(1, 3);
         bIntArray.add(2, 5);
@@ -447,7 +447,7 @@ public class SealedArrayTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*error:.*array index out of range: index: 3, size: 3.*")
     public void testSealedArrayConstrainedMapInvalidIndex() {
-        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 3);
+        BArray bIntArray = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT, 3));
         bIntArray.add(0, 1);
         bIntArray.add(1, 3);
         bIntArray.add(2, 5);

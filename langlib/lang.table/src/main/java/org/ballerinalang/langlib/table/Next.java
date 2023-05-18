@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BObject;
@@ -90,8 +91,7 @@ public class Next {
             }
         }
 
-        BArray currentKeyArray = (BArray) ValueCreator.createArrayValue((ArrayType) keys.getType(),
-                                                                        currentKeys.size());
+        BArray currentKeyArray = ValueCreator.createArrayValue((ArrayType) TypeUtils.getReferredType(keys.getType()));
         for (int i = 0; i < currentKeys.size(); i++) {
             Object key = currentKeys.get(i);
             currentKeyArray.add(i, key);

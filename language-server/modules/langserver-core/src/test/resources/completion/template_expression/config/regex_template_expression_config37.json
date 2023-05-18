@@ -1,0 +1,18 @@
+{
+  "position": {
+    "line": 2,
+    "character": 28
+  },
+  "source": "template_expression/source/regex_template_expression_source11.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "?",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "?",
+      "insertText": "?",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

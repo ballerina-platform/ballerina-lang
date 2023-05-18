@@ -19,18 +19,35 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code {@link Parameter } represents the parameter of a function in ballerina.
+ * {@code Parameter} represents the parameter of a function in ballerina.
  *
  * @since 2.0
  */
 public class Parameter {
     public final String name;
     public final boolean isDefault;
+    public final String defaultFunctionName;
     public Type type;
 
-    public Parameter(String name, Boolean isDefault, Type type) {
+    public Parameter(String name, boolean isDefault, String defaultFunctionName, Type type) {
         this.name = name;
         this.isDefault = isDefault;
+        this.defaultFunctionName = defaultFunctionName;
         this.type = type;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof Parameter)) {
+            return false;
+        }
+
+        Parameter that = (Parameter) o;
+        return this.name.equals(that.name) && this.type.equals(that.type) && this.isDefault == that.isDefault;
+    }
+
 }

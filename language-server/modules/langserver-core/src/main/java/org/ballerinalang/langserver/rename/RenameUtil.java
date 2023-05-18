@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.rename;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.FieldBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FieldBindingPatternVarnameNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
@@ -107,7 +108,8 @@ public class RenameUtil {
         
         // Check if symbol at cursor is empty
         Optional<Symbol> symbolAtCursor = ReferencesUtil.getSymbolAtCursor(context);
-        if (symbolAtCursor.isEmpty()) {
+        if (symbolAtCursor.isEmpty()
+                || symbolAtCursor.get().kind() == SymbolKind.RESOURCE_METHOD) {
             return Optional.empty();
         }
         
@@ -154,9 +156,11 @@ public class RenameUtil {
         Range cursorPosRange = new Range(context.getCursorPosition(), context.getCursorPosition());
         NonTerminalNode nodeAtCursor = CommonUtil.findNode(cursorPosRange, document.get().syntaxTree());
 
+        Optional<Symbol> symbolAtCursor = ReferencesUtil.getSymbolAtCursor(context);
         // For clients that doesn't support prepare rename, we do this check here as well
-        if (onImportDeclarationNode(context, nodeAtCursor) 
-                || (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE && isSelfClassSymbol(context))) {
+        if (onImportDeclarationNode(context, nodeAtCursor)
+                || (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE && isSelfClassSymbol(context)) || 
+                (symbolAtCursor.isPresent() && symbolAtCursor.get().kind() == SymbolKind.RESOURCE_METHOD)) {
             return Collections.emptyMap();
         }
 

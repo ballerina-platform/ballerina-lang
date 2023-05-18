@@ -19,6 +19,7 @@ package io.ballerina.semver.checker.util;
 
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -26,6 +27,7 @@ import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -109,11 +111,31 @@ public class SyntaxTreeUtils {
     /**
      * Returns the identifier for a given class definition node.
      *
-     * @param classNode constant declaration syntax node
+     * @param classNode class definition syntax node
      * @return the service identifier
      */
     public static String getClassIdentifier(ClassDefinitionNode classNode) {
         return classNode.className().text().trim();
+    }
+
+    /**
+     * Returns the identifier for a given type definition node.
+     *
+     * @param typeDefNode type definition syntax node
+     * @return the type definition identifier
+     */
+    public static String getTypeDefIdentifier(TypeDefinitionNode typeDefNode) {
+        return typeDefNode.typeName().text().trim();
+    }
+
+    /**
+     * Returns the identifier for a given enum declaration node.
+     *
+     * @param enumNode enum declaration syntax node
+     * @return the type definition identifier
+     */
+    public static String getEnumIdentifier(EnumDeclarationNode enumNode) {
+        return enumNode.identifier().text().trim();
     }
 
     /**

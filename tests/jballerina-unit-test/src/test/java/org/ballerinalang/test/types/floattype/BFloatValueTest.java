@@ -291,6 +291,45 @@ public class BFloatValueTest {
         BRunUtil.invoke(result, "testOutOfRangeIntWithFloat");
     }
 
+    @Test
+    public void testFloatValuesWithSyntaxErrors() {
+        CompileResult result = BCompileUtil.compile("test-src/types/float/float_values_with_syntax_errors.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "'0x' is out of range for 'float'", 18, 23);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 18, 23);
+        BAssertUtil.validateError(result, i++, "missing digit after exponent indicator", 18, 26);
+        BAssertUtil.validateError(result, i++, "missing semicolon token", 18, 26);
+        BAssertUtil.validateError(result, i++, "missing digit after exponent indicator", 18, 31);
+        BAssertUtil.validateError(result, i++, "missing equal token", 18, 31);
+        BAssertUtil.validateError(result, i++, "missing semicolon token", 18, 34);
+        BAssertUtil.validateError(result, i++, "unknown type 'b2'", 18, 34);
+        BAssertUtil.validateError(result, i++, "'0x' is out of range for 'float'", 19, 9);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 19, 9);
+        BAssertUtil.validateError(result, i++, "missing digit after exponent indicator", 19, 12);
+        BAssertUtil.validateError(result, i++, "missing semicolon token", 19, 12);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'A3'", 19, 14);
+        BAssertUtil.validateError(result, i++, "missing digit after exponent indicator", 19, 16);
+        BAssertUtil.validateError(result, i++, "missing equal token", 19, 16);
+        BAssertUtil.validateError(result, i++, "invalid expression statement", 19, 19);
+        BAssertUtil.validateError(result, i++, "missing semicolon token", 19, 19);
+        BAssertUtil.validateError(result, i++, "undefined symbol 'b2p'", 19, 19);
+        BAssertUtil.validateError(result, i++, "'0x' is out of range for 'float'", 20, 9);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 20, 9);
+        BAssertUtil.validateError(result, i++, "invalid token ':'", 20, 11);
+        BAssertUtil.validateError(result, i++, "missing digit after exponent indicator", 20, 12);
+        BAssertUtil.validateError(result, i++, "missing semicolon token", 20, 12);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected '4Ef', found '-45.0f'", 20, 17);
+        BAssertUtil.validateError(result, i++, "missing equal token", 20, 17);
+        BAssertUtil.validateError(result, i++, "'0x' is out of range for 'float'", 21, 9);
+        BAssertUtil.validateError(result, i++, "missing hex number after hex indicator", 21, 9);
+        BAssertUtil.validateError(result, i++, "invalid token ','", 21, 11);
+        BAssertUtil.validateError(result, i++, "missing digit after exponent indicator", 21, 12);
+        BAssertUtil.validateError(result, i++, "missing semicolon token", 21, 12);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'b2P'", 21, 14);
+        BAssertUtil.validateError(result, i++, "missing equal token", 21, 17);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

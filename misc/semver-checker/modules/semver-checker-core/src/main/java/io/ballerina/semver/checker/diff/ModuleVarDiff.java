@@ -32,7 +32,7 @@ import java.util.Optional;
 public class ModuleVarDiff extends NodeDiffImpl<ModuleVariableDeclarationNode> {
 
     private ModuleVarDiff(ModuleVariableDeclarationNode newNode, ModuleVariableDeclarationNode oldNode) {
-        super(newNode, oldNode);
+        super(newNode, oldNode, DiffKind.MODULE_VAR);
     }
 
     @Override
@@ -78,7 +78,6 @@ public class ModuleVarDiff extends NodeDiffImpl<ModuleVariableDeclarationNode> {
 
         @Override
         public Optional<ModuleVarDiff> build() {
-            moduleVarDiff.setKind(DiffKind.MODULE_VAR);
             if (!moduleVarDiff.getChildDiffs().isEmpty()) {
                 moduleVarDiff.computeVersionImpact();
                 moduleVarDiff.setType(DiffType.MODIFIED);

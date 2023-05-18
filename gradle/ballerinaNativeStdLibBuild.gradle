@@ -63,6 +63,7 @@ dependencies {
     //distributionBala project(path: ':ballerina-lang-test', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:query', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:transaction', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:regexp', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:runtime', configuration: 'distributionBala')
 }
 

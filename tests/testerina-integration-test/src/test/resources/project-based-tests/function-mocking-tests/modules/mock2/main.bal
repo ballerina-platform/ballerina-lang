@@ -22,3 +22,7 @@ public function intAdd2(int a, int b) returns (int) {
 public function intSubtract7(int a, int b, int c) returns (int) {
     return a - b - c;
 }
+
+public function module2_intAdd(int a, int b) returns (int) {
+    return a + b;
+}

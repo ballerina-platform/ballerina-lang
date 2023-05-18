@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.array;
 import ballerina/lang.'float;
 import ballerina/lang.'xml;
 
@@ -174,19 +175,18 @@ function testMultipleJoinClausesWithInnerQueries3() returns boolean {
 
     DeptPerson[] deptPersonList = [];
 
-    error? x =
-        from var emp in (stream from var e in empList select e)
-        join Person psn in (table key() from var p in personList select p)
-            on emp.personId equals psn.id
-        join Department dept in (from var d in deptList
-                let string deptName = "Engineering"
-                where d.name == deptName
-                select d)
-            on emp.deptId equals dept.id
-        do {
-            DeptPerson dp = {fname : psn.fname, lname : psn.lname, dept : dept.name};
-            deptPersonList[deptPersonList.length()] = dp;
-        };
+    from var emp in (stream from var e in empList select e)
+    join Person psn in (table key() from var p in personList select p)
+        on emp.personId equals psn.id
+    join Department dept in (from var d in deptList
+            let string deptName = "Engineering"
+            where d.name == deptName
+            select d)
+        on emp.deptId equals dept.id
+    do {
+        DeptPerson dp = {fname : psn.fname, lname : psn.lname, dept : dept.name};
+        deptPersonList[deptPersonList.length()] = dp;
+    };
 
     boolean testPassed = true;
     DeptPerson dp;
@@ -539,7 +539,7 @@ function testQueryConstructingTableHavingInnerQueriesWithOnConflictClause() retu
         assertEquality("Duplicate Key in Inner Query", tbl9.message());
     }
 
-    TokenTable|error tbl10 = table key(idx) from Token j in (check from var m in (check table key(idx) from int i in (from int n in 1 ... 3 select n)
+    TokenTable|error tbl10 = table key(idx) from Token j in (from var m in (check table key(idx) from int i in (from int n in 1 ... 3 select n)
                 select {
                     idx: i,
                     value: "A" + i.toString()
@@ -564,7 +564,7 @@ function testQueryConstructingTableHavingInnerQueriesWithOnConflictClause() retu
         assertEquality("Duplicate Key in Inner Query", tbl11.message());
     }
 
-    TokenTable|error tbl12 = table key(idx) from Token j in (check from var m in (check table key(idx) from int i in (from int n in 1 ... 3 select n)
+    TokenTable|error tbl12 = table key(idx) from Token j in (from var m in (check table key(idx) from int i in (from int n in 1 ... 3 select n)
                 select {
                     idx: i,
                     value: "A" + i.toString()
@@ -584,7 +584,7 @@ function testQueryConstructingTableHavingInnerQueriesWithOnConflictClause() retu
 
     TokenTable|error tbl13 = table key(idx) from int i in 1 ... 3
         let TokenTable tb = table []
-        where tb == from var j in (from Token m in (table key(idx) from var j in [1, 2]
+        where tb == from var j in (from Token m in (check table key(idx) from var j in [1, 2]
                         select {
                             idx: j,
                             value: "A"
@@ -603,7 +603,7 @@ function testQueryConstructingTableHavingInnerQueriesWithOnConflictClause() retu
     }
 
     TokenTable|error tbl14 = table key(idx) from int i in 1 ... 3
-        let table<Token> tb = from var j in (from Token m in (table key(idx) from var j in [1, 2]
+        let table<Token> tb = from var j in (from Token m in (check table key(idx) from var j in [1, 2]
                         select {
                             idx: j,
                             value: "A"
@@ -647,7 +647,7 @@ function getOnconflictErrorFromInnerQuery2() returns TokenTable|error {
 }
 
 function getOnconflictErrorFromInnerQuery3() returns TokenTable|error {
-    return check table key(idx) from Token j in (check from var m in (check table key(idx) from int i in (from int n in [1, 2, 1] select n)
+    return table key(idx) from Token j in (from var m in (check table key(idx) from int i in (from int n in [1, 2, 1] select n)
                 select {
                     idx: i,
                     value: "A" + i.toString()
@@ -659,6 +659,56 @@ function getOnconflictErrorFromInnerQuery3() returns TokenTable|error {
             value: "A" + j.idx.toString()
         }
         on conflict error("Duplicate Key in Outer Query");
+}
+
+function testQueryAsFuncArgument() {
+    string[][] arr = [["ABCD ", "BCDE"], ["DEFG ", "EFGH"]];
+    string[][] expected = [["ABCD", "BCDE"], ["DEFG", "EFGH"]];
+
+    string[][] newArr1 = from string[] subArr in arr
+        let string[] strArr = fooFunc(from string str in subArr
+            select str.trim())
+        select strArr;
+    assertEquality(expected, newArr1);
+
+    string[][] newArr2 = from string[] subArr in arr
+        select fooFunc(from string str in subArr
+            select str.trim());
+    assertEquality(expected, newArr2);
+
+    int arrLength = array:length(from int i in 1 ... 3
+        select i);
+    assertEquality(3, arrLength);
+}
+
+function fooFunc(string[] s) returns string[] {
+    return s;
+}
+
+function testInnerQueryExprWithLangLibCallsWithArrowFunctions() {
+    int[] idList = [4, 5];
+
+    int[] v1 = from var i in (from int id in idList
+            where personList.some(person => person.id == id)
+            select id)
+        where [40, 50].some(k => k == i * 10)
+        select i + 10;
+    assertEquality(true, v1 == [14]);
+
+    boolean[] v2 = from Person[] personList in (from int id in [4]
+            let string name = personList.filter(person => person.id == id).pop().fname
+            select personList.filter(person => person.fname == name))
+        select personList.some(person => person.lname == "Crowley");
+    assertEquality(true, v2 == [true]);
+
+    boolean[] v3 = from var i in (from int id in idList
+            where personList.some(person => person.id == id)
+            select id)
+        from Person[] personList in (from int k in [40]
+            let string name = personList.filter(person => person.id == k/10).pop().fname
+            select personList.filter(person => person.fname == name))
+        select personList.some(person => person.lname == "Crowley");
+    assertEquality(true, v3 == [true]);
 }
 
 function assertEquality(any|error expected, any|error actual) {

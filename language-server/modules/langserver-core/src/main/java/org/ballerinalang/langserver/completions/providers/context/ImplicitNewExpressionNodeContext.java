@@ -30,15 +30,16 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -113,7 +114,12 @@ public class ImplicitNewExpressionNodeContext extends InvocationNodeContextProvi
             return this.getCompletionItemList(QNameRefCompletionUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
         }
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.expressionCompletions(ctx));
+        List<Node> arguments = node.parenthesizedArgList().isPresent() ?
+                node.parenthesizedArgList().get().arguments().stream().collect(Collectors.toList())
+                : Collections.emptyList();
+        if (isNotInNamedArgOnlyContext(ctx, arguments)) {
+            completionItems.addAll(this.expressionCompletions(ctx));
+        }
         completionItems.addAll(getNamedArgExpressionCompletionItems(ctx, node));
 
         return completionItems;
@@ -122,8 +128,12 @@ public class ImplicitNewExpressionNodeContext extends InvocationNodeContextProvi
     private List<LSCompletionItem> getNamedArgExpressionCompletionItems(BallerinaCompletionContext context,
                                                                         ImplicitNewExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> type = node.parent().apply(resolver);
+        Optional<TypeSymbol> type = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            LinePosition linePosition = node.parent().location().lineRange().startLine();
+            type = context.currentSemanticModel().get().expectedType(context.currentDocument().get(), linePosition);
+        }
+
         if (type.isEmpty()) {
             return completionItems;
         }

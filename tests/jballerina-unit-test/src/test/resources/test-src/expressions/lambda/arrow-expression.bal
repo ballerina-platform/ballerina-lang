@@ -173,7 +173,8 @@ class Bar {
 
 function testArrowExprInRecord() returns int {
     Foo f = {};
-    return f.lambda(5);
+    function (int) returns int fp = f.lambda;
+    return fp(5);
 }
 
 function testArrowExprInObject() returns int {
@@ -253,6 +254,27 @@ function testGlobalArrowExpressionsWithClosure() {
     var c = b(6);
     result = c(7);
     assertEquality(expected, result);
+}
+
+function testExpressionBodiedFunctionWithBinaryExpr() {
+    string[] a = ["foo","bar","baz"].map(s => s + "1");
+    assertEquality(<string[]> ["foo1", "bar1", "baz1"], a);
+
+    int[] intArr = [1, 2];
+    int[]b = intArr.map(i => 10 + i);
+    assertEquality(<int[]> [11, 12], b);
+
+    string[] strArr = [];
+    string[] c = strArr.map(s => "1" + s);
+    assertEquality(<string[]> [], c);
+
+    [int, int] intTup = [100, 200];
+    int[] d = intTup.map(i => 1 + i);
+    assertEquality(<int[]> [101, 201], d);
+
+    [string] strTup = ["str"];
+    string[] e = strTup.map(s => "1" + s);
+    assertEquality(<string[]> ["1str"], e);
 }
 
 const ASSERTION_ERR_REASON = "AssertionError";

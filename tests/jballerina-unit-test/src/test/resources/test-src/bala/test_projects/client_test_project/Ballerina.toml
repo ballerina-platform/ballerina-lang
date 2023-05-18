@@ -1,0 +1,4 @@
+[package]
+org = "testorg"
+name = "client_classes"
+version = "0.1.0"

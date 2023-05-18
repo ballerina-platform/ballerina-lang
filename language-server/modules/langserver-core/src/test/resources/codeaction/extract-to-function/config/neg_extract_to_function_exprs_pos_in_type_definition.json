@@ -1,0 +1,13 @@
+{
+  "position": {
+    "line": 1,
+    "character": 19
+  },
+  "source": "neg_extract_to_function_exprs_pos_in_mod_level_declarations.bal",
+  "expected": [
+    {
+      "title": "Extract to function"
+    }
+  ],
+  "description": "Extract to function for expressions, cursor inside a basic literal inside a type definition"
+}

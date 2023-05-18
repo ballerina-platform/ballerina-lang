@@ -28,16 +28,22 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.CodeActionResolveContext;
+import org.ballerinalang.langserver.commons.codeaction.ResolvableCodeAction;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
+import org.ballerinalang.langserver.commons.codeaction.spi.ResolvableCodeActionProvider;
 import org.ballerinalang.langserver.telemetry.TelemetryUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
 
 import static org.ballerinalang.langserver.codeaction.CodeActionUtil.computePositionDetails;
 
@@ -61,10 +67,15 @@ public class CodeActionRouter {
                 = CodeActionProvidersHolder.getInstance(ctx.languageServercontext());
 
         // Get available range based code-actions
-        SyntaxTree syntaxTree = ctx.currentSyntaxTree().orElseThrow();
+        Optional<SyntaxTree> syntaxTree = ctx.currentSyntaxTree();
+        if (syntaxTree.isEmpty()) {
+            clientLogger.logTrace(LSContextOperation.TXT_CODE_ACTION.getName() + " " +
+                    " Syntax tree is empty for file " + ctx.fileUri());
+            return Collections.emptyList();
+        }
         Range highlightedRange = ctx.range();
         // Run code action node analyzer
-        CodeActionNodeAnalyzer analyzer = CodeActionNodeAnalyzer.analyze(highlightedRange, syntaxTree);
+        CodeActionNodeAnalyzer analyzer = CodeActionNodeAnalyzer.analyze(highlightedRange, syntaxTree.get());
         Optional<NonTerminalNode> codeActionNode = analyzer.getCodeActionNode();
         SyntaxKind syntaxKind = analyzer.getSyntaxKind();
         if (codeActionNode.isPresent() && syntaxKind != SyntaxKind.NONE) {
@@ -96,6 +107,8 @@ public class CodeActionRouter {
                                 TelemetryUtil.addReportFeatureUsageCommandToCodeAction(codeAction, provider));
                         codeActions.addAll(codeActionsOut);
                     }
+                } catch (CancellationException ignore) {
+                    // Ignore the cancellation exception
                 } catch (Exception e) {
                     String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
                     clientLogger.logError(LSContextOperation.TXT_CODE_ACTION, msg, e, null, (Position) null);
@@ -108,7 +121,8 @@ public class CodeActionRouter {
                         .isRangeWithinRange(highlightedRange, PositionUtil.toRange(diag.location().lineRange()))
                 )
                 .forEach(diagnostic -> {
-                    DiagBasedPositionDetails positionDetails = computePositionDetails(syntaxTree, diagnostic, ctx);
+                    DiagBasedPositionDetails positionDetails =
+                            computePositionDetails(syntaxTree.get(), diagnostic, ctx);
                     codeActionProvidersHolder.getActiveDiagnosticsBasedProviders(ctx)
                             .forEach(provider -> {
                                 try {
@@ -125,6 +139,8 @@ public class CodeActionRouter {
                                             TelemetryUtil.addReportFeatureUsageCommandToCodeAction(codeAction,
                                                     provider));
                                     codeActions.addAll(codeActionsOut);
+                                } catch (CancellationException ignore) {
+                                    // Ignore the cancellation exception
                                 } catch (Exception e) {
                                     String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
                                     clientLogger.logError(LSContextOperation.TXT_CODE_ACTION, msg, e, null,
@@ -133,6 +149,20 @@ public class CodeActionRouter {
                             });
                 });
         return codeActions;
+    }
+
+    public static CodeAction resolveCodeAction(ResolvableCodeAction codeAction,
+                                               CodeActionResolveContext resolveContext) {
+        CodeActionProvidersHolder codeActionProvidersHolder = CodeActionProvidersHolder
+                .getInstance(resolveContext.languageServercontext());
+        Optional<? extends LSCodeActionProvider> provider = codeActionProvidersHolder.getProviderByName(
+                codeAction.getData().getCodeActionName());
+        CodeAction action = codeAction;
+        if (provider.isPresent() && provider.get() instanceof ResolvableCodeActionProvider) {
+            action = ((ResolvableCodeActionProvider) provider.get()).resolve(codeAction, resolveContext);
+        }
+
+        return action;
     }
 
     private static Optional<TypeSymbol> getMatchedTypeSymbol(CodeActionContext context, Node node) {

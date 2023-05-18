@@ -71,3 +71,7 @@ type Record2 record {|
     FloatBooleanTuple2 a;
     () b;
 |};
+
+public type Seconds decimal;
+
+public type SecondsOrNil Seconds?;

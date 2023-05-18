@@ -26,8 +26,10 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -68,16 +70,18 @@ public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
 
     @Override
     public TupleTypeSymbol build() {
-        List<BType> memberBTypes = new ArrayList<>();
-        for (TypeSymbol memberType : memberTypes) {
-            memberBTypes.add(getMemberType(memberType));
+        List<BTupleMember> memberTypes = new ArrayList<>();
+        for (TypeSymbol memberType : this.memberTypes) {
+            BType type = getMemberType(memberType);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(type);
+            memberTypes.add(new BTupleMember(type, varSymbol));
         }
 
         BTypeSymbol tupleSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.PUBLIC, Names.EMPTY,
                 symTable.rootPkgSymbol.pkgID, null,
                 symTable.rootPkgSymbol, symTable.builtinPos, SymbolOrigin.COMPILED_SOURCE);
 
-        BTupleType tupleType = new BTupleType(tupleSymbol, memberBTypes);
+        BTupleType tupleType = new BTupleType(tupleSymbol, memberTypes);
         tupleSymbol.type = tupleType;
         BType restBType = getRestType(restType);
         if (restBType != null) {
@@ -99,7 +103,6 @@ public class BallerinaTupleTypeBuilder implements TypeBuilder.TUPLE {
         if (memberType instanceof AbstractTypeSymbol) {
             return ((AbstractTypeSymbol) memberType).getBType();
         }
-
         return symTable.noType;
     }
 

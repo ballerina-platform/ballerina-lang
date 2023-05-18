@@ -42,14 +42,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 
 /**
  * This class represents the "bal build" command.
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = BUILD_COMMAND, description = "bal build - Build Ballerina module(s) and generate " +
-                                                         "executable output.")
+@CommandLine.Command(name = BUILD_COMMAND, description = "Compile the current package")
 public class BuildCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
@@ -99,6 +99,17 @@ public class BuildCommand implements BLauncherCmd {
         this.exitWhenFinish = exitWhenFinish;
         this.targetDir = targetDir;
         this.offline = true;
+    }
+
+    BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                 boolean dumpBuildTime, boolean nativeImage) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.dumpBuildTime = dumpBuildTime;
+        this.offline = true;
+        this.nativeImage = nativeImage;
     }
 
     @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
@@ -158,6 +169,17 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--export-openapi", description = "generate openAPI contract files for all" +
             " the services in the current package")
     private Boolean exportOpenAPI;
+
+    @CommandLine.Option(names = "--export-component-model", description = "generate a model to represent " +
+            "interactions between the package components (i.e. service/type definitions) and, export it in JSON format",
+            hidden = true)
+    private Boolean exportComponentModel;
+
+    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
+    private Boolean enableCache;
+
+    @CommandLine.Option(names = "--native", description = "enable native image generation")
+    private Boolean nativeImage;
 
     public void execute() {
         long start = 0;
@@ -228,6 +250,10 @@ public class BuildCommand implements BLauncherCmd {
                 return;
         }
 
+        if (project.buildOptions().nativeImage()) {
+            this.outStream.println("WARNING: Ballerina GraalVM Native Image generation is an experimental feature");
+        }
+
         // Validate Settings.toml file
         try {
             RepoUtils.readSettings();
@@ -235,13 +261,16 @@ public class BuildCommand implements BLauncherCmd {
             this.outStream.println("warning: " + e.getMessage());
         }
 
+        // Check package files are modified after last build
+        boolean isPackageModified = isProjectUpdated(project);
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 // clean the target directory(projects only)
-                .addTask(new CleanTargetDirTask(), isSingleFileBuild)
+                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
                 // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
                 // compile the modules
-                .addTask(new CompileTask(outStream, errStream))
+                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateExecutableTask(outStream, this.output))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
@@ -267,7 +296,10 @@ public class BuildCommand implements BLauncherCmd {
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
                 .setConfigSchemaGen(configSchemaGen)
-                .setExportOpenAPI(exportOpenAPI);
+                .setExportOpenAPI(exportOpenAPI)
+                .setExportComponentModel(exportComponentModel)
+                .setEnableCache(enableCache)
+                .setNativeImage(nativeImage);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
@@ -284,16 +316,7 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Build a Ballerina project and produce an executable JAR file. The \n");
-        out.append("executable \".jar\" file will be created in the <PROJECT-ROOT>/target/bin directory. \n");
-        out.append("\n");
-        out.append("Build a single Ballerina file. This creates an executable .jar file in the \n");
-        out.append("current directory. The name of the executable file will be \n");
-        out.append("<ballerina-file-name>.jar. \n");
-        out.append("\n");
-        out.append("If the output file is specified with the -o flag, the output \n");
-        out.append("will be written to the given output file name. The -o flag will only \n");
-        out.append("work for single files. \n");
+        out.append(BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND));
     }
 
     @Override

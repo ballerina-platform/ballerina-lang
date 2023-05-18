@@ -9,7 +9,7 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "U",
+      "sortText": "Q",
       "filterText": "readonly",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
@@ -18,7 +18,7 @@
       "label": "employee",
       "kind": "Variable",
       "detail": "Employee",
-      "sortText": "AB",
+      "sortText": "B",
       "insertText": "employee",
       "insertTextFormat": "Snippet"
     }

@@ -19,3 +19,10 @@ public function add(int x, int y) returns int => x + y;
 function concat(string s1, string s2) returns string {
     return s1 + s2;
 }
+
+public function testFnA(function(int x, float... y) returns string fn) returns int {
+    return 5;
+}
+
+public function testFnB(function(int x, function(string s, int... t) returns float fA) returns string fn) {
+}

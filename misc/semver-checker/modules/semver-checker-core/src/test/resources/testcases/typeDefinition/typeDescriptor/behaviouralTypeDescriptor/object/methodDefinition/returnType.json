@@ -1,0 +1,32 @@
+[
+  {
+    "description": "Change the type of return type in a function\n",
+    "oldCode": "public type Person object{\npublic function add(int x , int y) returns int {return 5;}\n}\n",
+    "newCode": "public type Person object{\npublic function add(int x , int y) returns string {return “5”;}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Remove return and make it as a non return function\n",
+    "oldCode": "public service type Person object{\nremote function add(int x , int y) returns int {return 5;}\n}\n",
+    "newCode": "public service type Person object{\nremote function add(int x , int y) {}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Change a function to a return function\n",
+    "oldCode": "public type Person object{\npublic function add(int x , int y) {}\n}\n",
+    "newCode": "public type Person object{\npublic function add(int x , int y) returns int {return 5;}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Add return type annotation to a function.",
+    "oldCode": "public type Person object{\npublic function add(int x , int y) returns int{return 5;}\n}\n",
+    "newCode": "public type Person object{\npublic function add(int x , int y) returns @tainted  int{return 5;}\n}\n",
+    "expectedOutput": {}
+  },
+  {
+    "description": "Modify return type annotation from a function.\n",
+    "oldCode": "public type Person object{\npublic function add(int x , int y) returns @tainted int{return 5;}\n}\n",
+    "newCode": "public type Person object{\npublic function add(int x , int y) returns @untainted  int{return 5;}\n}\n",
+    "expectedOutput": {}
+  }
+]

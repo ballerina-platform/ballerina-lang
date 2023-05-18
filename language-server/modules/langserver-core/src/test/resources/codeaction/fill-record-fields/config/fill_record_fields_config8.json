@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 3,
+    "character": 19
+  },
+  "source": "fill_record_fields_source5.bal",
+  "expected": [
+    {
+      "title": "Fill 'record {|readonly string first; readonly string last; anydata & readonly...;|}' required fields",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 19
+            },
+            "end": {
+              "line": 3,
+              "character": 19
+            }
+          },
+          "newText": "last: \"\", first: \"\""
+        }
+      ]
+    }
+  ],
+  "description": "Fill record fields in table constructor expression"
+}

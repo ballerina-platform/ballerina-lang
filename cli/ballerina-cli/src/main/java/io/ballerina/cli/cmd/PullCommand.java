@@ -53,8 +53,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = PULL_COMMAND,
-        description = "download the module source and binaries from a remote repository")
+@CommandLine.Command(name = PULL_COMMAND, description = "Pull a package from Ballerina Central")
 public class PullCommand implements BLauncherCmd {
 
     private static final String USAGE_TEXT =
@@ -177,6 +176,7 @@ public class PullCommand implements BLauncherCmd {
                     "unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
         }
 
+        CommandUtil.setPrintStream(errStream);
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             try {
                 Settings settings;
@@ -188,10 +188,21 @@ public class PullCommand implements BLauncherCmd {
                     settings = Settings.from();
                 }
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                                                               initializeProxy(settings.getProxy()),
-                                                               getAccessTokenOfCLI(settings));
+                        initializeProxy(settings.getProxy()),
+                        getAccessTokenOfCLI(settings));
                 client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
                                    RepoUtils.getBallerinaVersion(), false);
+                if (version.equals(Names.EMPTY.getValue())) {
+                    List<String> versions = client.getPackageVersions(orgName, packageName, supportedPlatform,
+                            RepoUtils.getBallerinaVersion());
+                    version = CommandUtil.getLatestVersion(versions);
+                }
+                boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(orgName, packageName, version);
+                if (hasCompilationErrors) {
+                    CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
             } catch (PackageAlreadyExistsException e) {
                 errStream.println(e.getMessage());
                 CommandUtil.exitError(this.exitWhenFinish);
@@ -213,7 +224,7 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Download modules to the user repository \n");
+        out.append(BLauncherCmd.getCommandUsageInfo(PULL_COMMAND));
     }
 
     @Override

@@ -18,8 +18,10 @@ package org.ballerinalang.langserver.codeaction.providers.changetype;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
@@ -67,11 +69,12 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
             return false;
         }
 
-        //Suggest the code action only if the immediate parent of the matched node is a return statement 
-        // and the return statement corresponds to the enclosing function's signature. 
-        NonTerminalNode parentNode = positionDetails.matchedNode().parent();
-        if (parentNode != null && parentNode.kind() != SyntaxKind.RETURN_STATEMENT &&
-                positionDetails.matchedNode().kind() != SyntaxKind.CHECK_EXPRESSION) {
+        //Suggest the code action only if the immediate parent of the matched node is either of return statement,
+        //check expression, check action.
+        NonTerminalNode matchedNode = positionDetails.matchedNode();
+        if (matchedNode.parent() != null && matchedNode.parent().kind() != SyntaxKind.RETURN_STATEMENT &&
+                matchedNode.kind() != SyntaxKind.CHECK_EXPRESSION && 
+                matchedNode.kind() != SyntaxKind.CHECK_ACTION) {
             return false;
         }
 
@@ -101,7 +104,7 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
         }
 
         Optional<FunctionDefinitionNode> funcDef = CodeActionUtil.getEnclosedFunction(positionDetails.matchedNode());
-        if (funcDef.isEmpty() || RuntimeConstants.MAIN_FUNCTION_NAME.equals(funcDef.get().functionName().text())) {
+        if (funcDef.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -119,6 +122,10 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
                 types.add(Collections.singleton("error?"));
             }
         } else {
+            // Not going to provide code action to change return type of the main() function
+            if (RuntimeConstants.MAIN_FUNCTION_NAME.equals(funcDef.get().functionName().text())) {
+                return Collections.emptyList();
+            }
             List<List<String>> combinedTypes = new ArrayList<>();
             ReturnStatementFinder returnStatementFinder = new ReturnStatementFinder();
             returnStatementFinder.visit(funcDef.get());
@@ -140,6 +147,12 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
                 } else {
                     combinedTypes.add(CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context));
                 }
+            }
+            
+            CheckExprNodeFinder checkExprNodeFinder = new CheckExprNodeFinder();
+            funcDef.get().accept(checkExprNodeFinder);
+            if (checkExprNodeFinder.containCheckExprNode()) {
+                combinedTypes.add(Collections.singletonList("error"));
             }
 
             types = getPossibleCombinations(combinedTypes, types);
@@ -215,5 +228,26 @@ public class FixReturnTypeCodeAction implements DiagnosticBasedCodeActionProvide
             typeList = updatedTypes;
         }
         return typeList;
+    }
+
+    /**
+     * A visitor to find check expression exist inside a Node.
+     */
+    static class CheckExprNodeFinder extends NodeVisitor {
+
+        private CheckExpressionNode checkExpressionNode = null;
+
+        public void visit(FunctionDefinitionNode functionDefinitionNode) {
+            functionDefinitionNode.functionBody().accept(this);
+        }
+
+        @Override
+        public void visit(CheckExpressionNode checkExpressionNode) {
+            this.checkExpressionNode = checkExpressionNode;
+        }
+
+        boolean containCheckExprNode() {
+            return this.checkExpressionNode != null;
+        }
     }
 }

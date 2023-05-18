@@ -78,8 +78,14 @@ public class TypeCastTest extends AbstractCodeActionTest {
                 {"type_cast_in_binary_operation6.json"},
                 {"type_cast_in_binary_operation7.json"},
                 {"type_cast_in_binary_operation8.json"},
-                {"type_cast_in_binary_operation9.json"}
-
+                {"type_cast_in_binary_operation9.json"},
+                {"type_cast_in_assignment1.json"},
+                {"type_cast_in_conditional_expr1.json"},
+                {"type_cast_in_conditional_expr2.json"},
+                {"type_cast_in_conditional_expr3.json"},
+                {"type_cast_numeric1.json"},
+                {"type_cast_in_obj_field_config1.json"},
+                {"type_cast_in_obj_field_config2.json"}
         };
     }
 
@@ -91,6 +97,9 @@ public class TypeCastTest extends AbstractCodeActionTest {
                 {"typeCastNegative3.json"},
                 {"typeCastNegative4.json"},
                 {"typeCastNegative5.json"},
+                {"typeCastNegative6.json"},
+                {"typeCastNegativeInLangLib.json"},
+                {"type_cast_no_ctx_type_negative1.json"}
         };
     }
 }

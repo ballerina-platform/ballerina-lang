@@ -54,7 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecation
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -208,30 +208,12 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
     @Override
     public void visit(BLangTypeDefinition typeDefinition, AnalyzerData data) {
         BLangType typeNode = typeDefinition.getTypeNode();
-        if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE) {
-            List<BLangSimpleVariable> fields = ((BLangObjectTypeNode) typeNode).fields;
-            validateParameters(typeDefinition, fields, null, DiagnosticWarningCode.UNDOCUMENTED_FIELD,
-                    DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED);
-            validateReturnParameter(typeDefinition, null, false);
-            validateReferences(typeDefinition, data);
-            for (BLangSimpleVariable field : fields) {
-                validateReferences(field, data);
-                validateDeprecationDocumentation(field.getMarkdownDocumentationAttachment(),
-                        Symbols.isFlagOn(field.symbol.flags, Flags.DEPRECATED),
-                        field.getPosition());
-            }
-
+        NodeKind kind = typeDefinition.typeNode.getKind();
+        if (kind == NodeKind.OBJECT_TYPE || kind == NodeKind.RECORD_TYPE) {
+            validateDocumentationOfObjectOrRecord(typeDefinition, ((BLangStructureTypeNode) typeNode).fields, data);
+        }
+        if (kind == NodeKind.OBJECT_TYPE) {
             ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(t -> visitNode(t, data));
-        } else if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
-            List<BLangSimpleVariable> fields = ((BLangRecordTypeNode) typeNode).fields;
-            validateParameters(typeDefinition, fields, null, DiagnosticWarningCode.UNDOCUMENTED_FIELD,
-                    DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED);
-            validateReturnParameter(typeDefinition, null, false);
-            validateReferences(typeDefinition, data);
-
-            for (SimpleVariableNode field : fields) {
-                validateReferences(field, data);
-            }
         }
         if (typeDefinition.symbol != null) {
             validateDeprecationDocumentation(typeDefinition.markdownDocumentationAttachment,
@@ -318,9 +300,23 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
         }
     }
 
+    private void validateDocumentationOfObjectOrRecord(BLangTypeDefinition typeDefinition,
+                                                       List<BLangSimpleVariable> fields, AnalyzerData data) {
+        validateParameters(typeDefinition, fields, null, DiagnosticWarningCode.UNDOCUMENTED_FIELD,
+                DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticWarningCode.FIELD_ALREADY_DOCUMENTED);
+        validateReturnParameter(typeDefinition, null, false);
+        validateReferences(typeDefinition, data);
+        for (BLangSimpleVariable field : fields) {
+            validateReferences(field, data);
+            validateDeprecationDocumentation(field.getMarkdownDocumentationAttachment(),
+                    Symbols.isFlagOn(field.symbol.flags, Flags.DEPRECATED),
+                    field.getPosition());
+        }
+    }
+
     private DocReferenceErrorType validateIdentifier(BLangMarkdownReferenceDocumentation reference,
                                                      DocumentableNode documentableNode, AnalyzerData data) {
-        int tag = -1;
+        long tag = -1;
         SymbolEnv env = data.env;
         // Lookup namespace to validate the identifier.
         switch (reference.getType()) {
@@ -366,7 +362,7 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
     }
 
     private BSymbol resolveFullyQualifiedSymbol(Location location, SymbolEnv env, String packageId,
-                                                String type, String identifier, int tag) {
+                                                String type, String identifier, long tag) {
         Name identifierName = names.fromString(identifier);
         Name pkgName = names.fromString(packageId);
         Name typeName = names.fromString(type);
@@ -374,7 +370,7 @@ public class DocumentationAnalyzer extends SimpleBLangNodeAnalyzer<Documentation
 
         if (pkgName != Names.EMPTY) {
             BSymbol pkgSymbol = symResolver.resolvePrefixSymbol(env, pkgName,
-                    names.fromString(location.lineRange().filePath()));
+                    names.fromString(location.lineRange().fileName()));
 
             if (pkgSymbol == symTable.notFoundSymbol) {
                 return symTable.notFoundSymbol;

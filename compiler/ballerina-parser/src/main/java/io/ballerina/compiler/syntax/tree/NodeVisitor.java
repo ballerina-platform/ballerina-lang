@@ -831,6 +831,110 @@ public abstract class NodeVisitor {
         visitSyntaxNode(spreadMemberNode);
     }
 
+    public void visit(ClientResourceAccessActionNode clientResourceAccessActionNode) {
+        visitSyntaxNode(clientResourceAccessActionNode);
+    }
+
+    public void visit(ComputedResourceAccessSegmentNode computedResourceAccessSegmentNode) {
+        visitSyntaxNode(computedResourceAccessSegmentNode);
+    }
+
+    public void visit(ResourceAccessRestSegmentNode resourceAccessRestSegmentNode) {
+        visitSyntaxNode(resourceAccessRestSegmentNode);
+    }
+
+    public void visit(ReSequenceNode reSequenceNode) {
+        visitSyntaxNode(reSequenceNode);
+    }
+
+    public void visit(ReAtomQuantifierNode reAtomQuantifierNode) {
+        visitSyntaxNode(reAtomQuantifierNode);
+    }
+
+    public void visit(ReAtomCharOrEscapeNode reAtomCharOrEscapeNode) {
+        visitSyntaxNode(reAtomCharOrEscapeNode);
+    }
+
+    public void visit(ReQuoteEscapeNode reQuoteEscapeNode) {
+        visitSyntaxNode(reQuoteEscapeNode);
+    }
+
+    public void visit(ReSimpleCharClassEscapeNode reSimpleCharClassEscapeNode) {
+        visitSyntaxNode(reSimpleCharClassEscapeNode);
+    }
+
+    public void visit(ReUnicodePropertyEscapeNode reUnicodePropertyEscapeNode) {
+        visitSyntaxNode(reUnicodePropertyEscapeNode);
+    }
+
+    public void visit(ReUnicodeScriptNode reUnicodeScriptNode) {
+        visitSyntaxNode(reUnicodeScriptNode);
+    }
+
+    public void visit(ReUnicodeGeneralCategoryNode reUnicodeGeneralCategoryNode) {
+        visitSyntaxNode(reUnicodeGeneralCategoryNode);
+    }
+
+    public void visit(ReCharacterClassNode reCharacterClassNode) {
+        visitSyntaxNode(reCharacterClassNode);
+    }
+
+    public void visit(ReCharSetRangeWithReCharSetNode reCharSetRangeWithReCharSetNode) {
+        visitSyntaxNode(reCharSetRangeWithReCharSetNode);
+    }
+
+    public void visit(ReCharSetRangeNode reCharSetRangeNode) {
+        visitSyntaxNode(reCharSetRangeNode);
+    }
+
+    public void visit(ReCharSetAtomWithReCharSetNoDashNode reCharSetAtomWithReCharSetNoDashNode) {
+        visitSyntaxNode(reCharSetAtomWithReCharSetNoDashNode);
+    }
+
+    public void visit(ReCharSetRangeNoDashWithReCharSetNode reCharSetRangeNoDashWithReCharSetNode) {
+        visitSyntaxNode(reCharSetRangeNoDashWithReCharSetNode);
+    }
+
+    public void visit(ReCharSetRangeNoDashNode reCharSetRangeNoDashNode) {
+        visitSyntaxNode(reCharSetRangeNoDashNode);
+    }
+
+    public void visit(ReCharSetAtomNoDashWithReCharSetNoDashNode reCharSetAtomNoDashWithReCharSetNoDashNode) {
+        visitSyntaxNode(reCharSetAtomNoDashWithReCharSetNoDashNode);
+    }
+
+    public void visit(ReCapturingGroupsNode reCapturingGroupsNode) {
+        visitSyntaxNode(reCapturingGroupsNode);
+    }
+
+    public void visit(ReFlagExpressionNode reFlagExpressionNode) {
+        visitSyntaxNode(reFlagExpressionNode);
+    }
+
+    public void visit(ReFlagsOnOffNode reFlagsOnOffNode) {
+        visitSyntaxNode(reFlagsOnOffNode);
+    }
+
+    public void visit(ReFlagsNode reFlagsNode) {
+        visitSyntaxNode(reFlagsNode);
+    }
+
+    public void visit(ReAssertionNode reAssertionNode) {
+        visitSyntaxNode(reAssertionNode);
+    }
+
+    public void visit(ReQuantifierNode reQuantifierNode) {
+        visitSyntaxNode(reQuantifierNode);
+    }
+
+    public void visit(ReBracedQuantifierNode reBracedQuantifierNode) {
+        visitSyntaxNode(reBracedQuantifierNode);
+    }
+  
+    public void visit(MemberTypeDescriptorNode memberTypeDescriptorNode) {
+        visitSyntaxNode(memberTypeDescriptorNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

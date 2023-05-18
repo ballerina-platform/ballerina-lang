@@ -31,6 +31,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -42,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
@@ -49,7 +51,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = RUN_COMMAND, description = "Build and execute a Ballerina program.")
+@CommandLine.Command(name = RUN_COMMAND, description = "Compile and run the current package")
 public class RunCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
@@ -96,6 +98,9 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--target-dir", description = "target directory path")
     private Path targetDir;
+
+    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
+    private Boolean enableCache;
 
     private static final String runCmd =
             "bal run [--debug <port>] <executable-jar> \n" +
@@ -192,10 +197,23 @@ public class RunCommand implements BLauncherCmd {
             }
         }
 
+        // If project is empty
+        if (ProjectUtils.isProjectEmpty(project)) {
+            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
+        // Check package files are modified after last build
+        boolean isPackageModified = isProjectUpdated(project);
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
-                .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
-                .addTask(new CompileTask(outStream, errStream)) // compile the modules
+                // clean target dir for projects
+                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
+                // resolve maven dependencies in Ballerina.toml
+                .addTask(new ResolveMavenDependenciesTask(outStream))
+                // compile the modules
+                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new RunExecutableTask(args, outStream, errStream))
                 .build();
@@ -210,14 +228,7 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Run command runs a compiled Ballerina program. \n");
-        out.append("\n");
-        out.append("If a Ballerina source file is given, \n");
-        out.append("run command compiles and runs it. \n");
-        out.append("\n");
-        out.append("By default, 'bal run' executes the main function. \n");
-        out.append("If the main function is not there, it executes services. \n");
-        out.append("\n");
+        out.append(BLauncherCmd.getCommandUsageInfo(RUN_COMMAND));
     }
 
     @Override

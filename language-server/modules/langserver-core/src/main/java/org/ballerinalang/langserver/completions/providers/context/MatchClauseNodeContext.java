@@ -20,6 +20,7 @@ import io.ballerina.compiler.syntax.tree.MatchClauseNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -53,6 +54,14 @@ public class MatchClauseNodeContext extends MatchStatementContext<MatchClauseNod
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else if (onSuggestIfClause(context, node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IF.get()));
+        } else if (onSuggestionsAfterDoubleArrow(context, node)) {
+            /*
+            Handles the following
+            eg: match v {
+                    1 => <cursor>
+                }
+             */
+            return completionItems;
         } else {
             completionItems.addAll(this.getPatternClauseCompletions(context));
         }
@@ -60,11 +69,20 @@ public class MatchClauseNodeContext extends MatchStatementContext<MatchClauseNod
 
         return completionItems;
     }
-    
+
+    private boolean onSuggestionsAfterDoubleArrow(BallerinaCompletionContext context, MatchClauseNode node) {
+        Token rightDoubleArrow = node.rightDoubleArrow();
+        return !rightDoubleArrow.isMissing() 
+                && context.getCursorPositionInTree() >= rightDoubleArrow.textRange().endOffset();
+    }
+
     private boolean onSuggestIfClause(BallerinaCompletionContext context, MatchClauseNode node) {
         int cursor = context.getCursorPositionInTree();
         SeparatedNodeList<Node> matchPatterns = node.matchPatterns();
+        Token rightDoubleArrow = node.rightDoubleArrow();
         
-        return !matchPatterns.isEmpty() && cursor > matchPatterns.get(matchPatterns.size() - 1).textRange().endOffset();
+        return !matchPatterns.isEmpty() && cursor > matchPatterns.get(matchPatterns.size() - 1).textRange().endOffset()
+                && (rightDoubleArrow.isMissing() || (!rightDoubleArrow.isMissing() 
+                && cursor <= rightDoubleArrow.textRange().startOffset()));
     }
 }

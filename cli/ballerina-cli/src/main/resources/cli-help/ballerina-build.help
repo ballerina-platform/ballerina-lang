@@ -51,6 +51,12 @@ OPTIONS
        --target-dir <path>
            Target directory path.
 
+       --native
+           Generate a GraalVM native image. Native image generation is an
+           experimental feature which supports only a limited set of
+           functionality.
+
+
 
 EXAMPLES
        Build the current package. This will generate an 'app.jar' file in the

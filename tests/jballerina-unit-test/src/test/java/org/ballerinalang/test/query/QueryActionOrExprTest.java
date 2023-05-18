@@ -69,8 +69,16 @@ public class QueryActionOrExprTest {
                 "testQueryActionOrExprWithAllQueryClauses",
                 "testQueryActionOrExprWithNestedQueryActionOrExpr",
                 "testQueryActionOrExprWithQueryConstructingTable",
-                "testQueryActionOrExprWithQueryConstructingStream"
+                "testQueryActionOrExprWithQueryConstructingStream",
+                "testQueryActionOrExprWithClientResourceAccessAction",
+                "testQueryActionOrExprWithGroupedClientResourceAccessAction",
+                "testNestedQueryActionOrExprWithClientResourceAccessAction"
         };
+    }
+
+    @Test
+    public void testQueryingEmptyTuple() {
+        BRunUtil.invoke(compileResult, "testQueryingEmptyTuple");
     }
 
     @Test

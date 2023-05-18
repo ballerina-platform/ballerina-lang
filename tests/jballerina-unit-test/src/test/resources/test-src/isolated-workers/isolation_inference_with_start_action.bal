@@ -296,6 +296,12 @@ service class NonPublicServiceClass2 {
         NonPublicIsolatedClass2 cl = new;
         future<int> _ = start cl->foo(tt);
     }
+
+    resource function post bam() returns error? {
+        string[] tt = [];
+        NonPublicIsolatedClass2 cl = new;
+        future<int> _ = start cl->foo(tt);
+    }
 }
 
 function testServiceClassMethodIsolationInference() {
@@ -311,6 +317,7 @@ function testServiceClassMethodIsolationInference() {
     assertFalse(isResourceIsolated(NonPublicServiceClass2, "get", "foo"));
     assertFalse(isRemoteMethodIsolated(NonPublicServiceClass2, "bar"));
     assertFalse(isMethodIsolated(NonPublicServiceClass2, "func"));
+    assertFalse(isResourceIsolated(NonPublicServiceClass2, "post", "bam"));
 
     assertFalse(isResourceIsolated(PublicServiceClass, "get", "foo"));
     assertFalse(isRemoteMethodIsolated(PublicServiceClass, "bar"));

@@ -33,6 +33,10 @@ type DetailType Detail;
 
 # Returns the error's message.
 #
+# ```ballerina
+# error("IO error").message() ⇒ IO error
+# ```
+#
 # + e - the error value
 # + return - error message
 public isolated function message(error e) returns string = @java:Method {
@@ -42,6 +46,14 @@ public isolated function message(error e) returns string = @java:Method {
 
 # Returns the error's cause.
 #
+# ```ballerina
+# error fileNotFoundError = error("file not found", file = "test.bal");
+# fileNotFoundError.cause() is () ⇒ true
+#
+# error ioError = error("IO error", fileNotFoundError);
+# ioError.cause() ⇒ error("file not found",file="test.bal")
+# ```
+#
 # + e - the error value
 # + return - error cause
 public isolated function cause(error e) returns error? = @java:Method {
@@ -50,6 +62,10 @@ public isolated function cause(error e) returns error? = @java:Method {
 } external;
 
 # Returns the error's detail record.
+#
+# ```ballerina
+# error("file not found", file = "test.bal").detail() ⇒ {"file":"test.bal"}
+# ```
 #
 # The returned value will be immutable.
 # + e - the error value
@@ -71,6 +87,10 @@ public type StackFrame readonly & object {
 
 # Returns an object representing the stack trace of the error.
 #
+# ```ballerina
+# error("IO error").stackTrace() ⇒ [callableName: main  fileName: test.bal lineNumber: 5]
+# ```
+#
 # + e - the error value
 # + return - a new object representing the stack trace of the error value
 # The first member of the array represents the top of the call stack.
@@ -91,6 +111,10 @@ public isolated function stackTrace(error e) returns StackFrame[] {
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the direct style.
 #
+# ```ballerina
+# error("invalid salary", value = 0d).toString() ⇒ error("invalid salary",value=0)
+# ```
+#
 # + e - the error to be converted to a string
 # + return - a string resulting from the conversion
 public isolated function toString(error e) returns string = @java:Method {
@@ -103,6 +127,10 @@ public isolated function toString(error e) returns string = @java:Method {
 #
 # The details of the conversion are specified by the ToString abstract operation
 # defined in the Ballerina Language Specification, using the expression style.
+#
+# ```ballerina
+# error("invalid salary", value = 0d).toBalString() ⇒ error("invalid salary",value=0d)
+# ```
 #
 # + e - the error to be converted to a string
 # + return - a string resulting from the conversion

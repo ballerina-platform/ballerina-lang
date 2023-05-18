@@ -127,6 +127,21 @@ public class TypeCastExpressionsTest {
                 79, 51);
         validateError(resultNegative, errIndex++, "incompatible mapping constructor expression for type '(record {| " +
                 "string[] a; anydata...; |}|record {| string a; anydata...; |})'", 82, 49);
+        validateError(resultNegative, errIndex++, "incompatible types: expected 'Obj', found 'object { int i; }'", 96,
+                      15);
+        // https://github.com/ballerina-platform/ballerina-lang/issues/38104
+        validateError(resultNegative, errIndex++, "incompatible types: expected 'Obj', found 'object { int i; }'", 96,
+                      15);
+        validateError(resultNegative, errIndex++, "incompatible types: expected 'int', found 'string'", 110, 52);
+        validateError(resultNegative, errIndex++, "missing non-defaultable required record field 'empCount'", 119, 46);
+        validateError(resultNegative, errIndex++, "missing required parameter 'j' in call to 'new()'", 123, 15);
+        validateError(resultNegative, errIndex++, "missing error detail arg for error detail field 'code'", 129, 23);
+
+        // https://github.com/ballerina-platform/ballerina-lang/issues/38105
+        validateError(resultNegative, errIndex++, "invalid usage of 'object constructor expression' with type '" +
+                "(int|object { string id; }|object { int id; })'", 135, 52);
+        validateError(resultNegative, errIndex++, "incompatible types: 'object { int index; }' cannot be cast to " +
+                "'int'", 137, 19);
         Assert.assertEquals(resultNegative.getErrorCount(), errIndex);
     }
 
@@ -212,7 +227,7 @@ public class TypeCastExpressionsTest {
         };
     }
 
-    @Test(dataProvider = "positiveTests")
+    @Test(dataProvider = "mappingToRecordTests")
     public void testJsonMappingToRecordPositive(String functionName) {
         BRunUtil.invoke(result, functionName);
     }
@@ -241,6 +256,23 @@ public class TypeCastExpressionsTest {
                 "testFiniteTypeToRefTypeCastNegative", "testValueTypeToFiniteTypeCastNegative",
                 "testFiniteTypeToFiniteTypeCastNegative", "testCastOfFiniteTypeWithIntersectingBuiltInSubType",
                 "testFiniteTypeArrayNegative"
+        };
+    }
+
+    @Test(dataProvider = "typeCastWithConstructorTests")
+    public void testTypeCastWithConstructors(String testFuncName) {
+        BRunUtil.invoke(result, testFuncName);
+    }
+
+    @DataProvider
+    public Object[] typeCastWithConstructorTests() {
+        return new Object[]{
+                "testTypeCastWithObjectConstructorExpr",
+                "testTypeCastWithRawTemplateExpr",
+                "testTypeCastWithTableConstructorExpr",
+                "testTypeCastWithNewExpr",
+                "testTypeCastWithErrorConstructorExpr",
+                "testTypeCastWithObjectConstructorExprTemporaryFix"
         };
     }
 

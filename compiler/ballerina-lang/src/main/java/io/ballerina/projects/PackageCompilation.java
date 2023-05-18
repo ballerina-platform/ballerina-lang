@@ -97,13 +97,17 @@ public class PackageCompilation {
     private static PackageCompilation compile(PackageCompilation compilation) {
         // Compile modules in the dependency graph
         compilation.compileModules();
-
         // Now the modules are compiled, initialize the compiler plugin manager
         CompilerPluginManager compilerPluginManager = CompilerPluginManager.from(compilation);
         compilation.setCompilerPluginManager(compilerPluginManager);
 
-        // Do not run code analyzers, if the code generators are enabled.
-        if (compilation.compilationOptions().withCodeGenerators()) {
+        // Run code analyzers, if project has updated only
+        if (compilation.packageContext().defaultModuleContext().compilationState() != ModuleCompilationState.COMPILED) {
+            return compilation;
+        }
+        // Do not run code analyzers, if the code generators or code modifiers are enabled.
+        if (compilation.compilationOptions().withCodeGenerators()
+                || compilation.compilationOptions().withCodeModifiers()) {
             return compilation;
         }
 
@@ -137,11 +141,12 @@ public class PackageCompilation {
 
     public SemanticModel getSemanticModel(ModuleId moduleId) {
         ModuleContext moduleContext = this.rootPackageContext.moduleContext(moduleId);
-        // We check whether the particular module compilation state equal to the typecheck phase here. 
+        // We check whether the particular module compilation state equal to the COMPILED/LIBRARY_GENERATED phase here.
         // If the states do not match, then this is a illegal state exception.
-        if (moduleContext.compilationState() != ModuleCompilationState.COMPILED) {
+        ModuleCompilationState state = moduleContext.compilationState();
+        if (state != ModuleCompilationState.COMPILED && state != ModuleCompilationState.PLATFORM_LIBRARY_GENERATED) {
             throw new IllegalStateException("Semantic model cannot be retrieved when the module is in " +
-                    "compilation state '" + moduleContext.compilationState().name() + "'. " +
+                    "compilation state '" + state.name() + "'. " +
                     "This is an internal error which will be fixed in a later release.");
         }
 
@@ -194,10 +199,13 @@ public class PackageCompilation {
         // add dependency manifest diagnostics
         diagnostics.addAll(packageContext().dependencyManifest().diagnostics().allDiagnostics);
         // add compilation diagnostics
-        for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
-            moduleContext.compile(compilerContext);
-            for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
+        if (!packageResolution.diagnosticResult().hasErrors()) {
+            for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
+                moduleContext.compile(compilerContext);
+                for (Diagnostic diagnostic : moduleContext.diagnostics()) {
+                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(),
+                            moduleContext.project()));
+                }
             }
         }
         // add plugin diagnostics

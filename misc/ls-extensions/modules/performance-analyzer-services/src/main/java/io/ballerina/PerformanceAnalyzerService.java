@@ -39,11 +39,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import static io.ballerina.Constants.ENDPOINT_RESOLVE_ERROR;
-import static io.ballerina.Constants.ERROR;
 import static io.ballerina.Constants.MESSAGE;
-import static io.ballerina.Constants.NO_DATA;
-import static io.ballerina.Constants.SUCCESS;
 import static io.ballerina.Constants.TYPE;
 import static io.ballerina.PerformanceAnalyzerNodeVisitor.ACTION_INVOCATION_KEY;
 import static io.ballerina.PerformanceAnalyzerNodeVisitor.ENDPOINTS_KEY;
@@ -77,27 +73,15 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
 
         return CompletableFuture.supplyAsync(() -> {
             String fileUri = request.getDocumentIdentifier().getUri();
-            JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, request.getRange());
+            JsonObject response = new JsonObject();
+            PerformanceAnalyzerResponse data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager,
+                    request.getRange(), false);
 
-            if (data.entrySet().isEmpty()) {
-                JsonObject obj = new JsonObject();
-                obj.addProperty(TYPE, ERROR);
-                obj.addProperty(MESSAGE, ENDPOINT_RESOLVE_ERROR);
-                return obj;
-            }
-
-            if (data.get(ACTION_INVOCATION_KEY).getAsJsonObject().get("nextNode").isJsonNull()) {
-                JsonObject obj = new JsonObject();
-                obj.addProperty(TYPE, ERROR);
-                obj.addProperty(MESSAGE, NO_DATA);
-                return obj;
-            }
-
-            if (data.get(TYPE) == null) {
-                data.addProperty(TYPE, SUCCESS);
-                data.addProperty(MESSAGE, SUCCESS);
-            }
-            return data;
+            response.addProperty(TYPE, data.getType());
+            response.addProperty(MESSAGE, data.getMessage());
+            response.add(ACTION_INVOCATION_KEY, data.getActionInvocations());
+            response.add(ENDPOINTS_KEY, data.getEndpoints());
+            return response;
         });
     }
 
@@ -133,33 +117,14 @@ public class PerformanceAnalyzerService implements ExtendedLanguageServerService
 
                 LineRange range = resource.getLineRange();
                 Range lineRange = new Range(new Position(range.startLine().line(), range.startLine().offset()),
-                                            new Position(range.endLine().line(), range.endLine().offset()));
+                        new Position(range.endLine().line(), range.endLine().offset()));
 
-                PerformanceAnalyzerResponse response = new PerformanceAnalyzerResponse();
+                boolean workerSupported = request.isWorkerSupported();
+                PerformanceAnalyzerResponse response = EndpointsFinder.getEndpoints(fileUri,
+                        this.workspaceManager, lineRange, workerSupported);
+
                 response.setName(resource.getName());
                 response.setResourcePos(lineRange);
-
-                JsonObject data = EndpointsFinder.getEndpoints(fileUri, this.workspaceManager, lineRange);
-
-                if (data.entrySet().isEmpty()) {
-                    response.setType(ERROR);
-                    response.setMessage(ENDPOINT_RESOLVE_ERROR);
-                    resourcesWithEndpoints.add(response);
-                    return resourcesWithEndpoints;
-                }
-
-                if (data.get(ACTION_INVOCATION_KEY).getAsJsonObject().get("nextNode").isJsonNull()) {
-                    response.setType(ERROR);
-                    response.setMessage(NO_DATA);
-                    resourcesWithEndpoints.add(response);
-                    return resourcesWithEndpoints;
-                }
-
-                response.setType(SUCCESS);
-                response.setMessage(SUCCESS);
-
-                response.setEndpoints(data.get(ENDPOINTS_KEY).getAsJsonObject());
-                response.setActionInvocations(data.get(ACTION_INVOCATION_KEY).getAsJsonObject());
                 resourcesWithEndpoints.add(response);
             }
             return resourcesWithEndpoints;

@@ -58,4 +58,4 @@ Set up the [Ballerina plugin for VS Code](https://marketplace.visualstudio.com/i
 
 ## Propose changes to Ballerina
 
-Start the discussion on the changes you propose in the [Ballerina Slack channel](https://ballerina-platform.slack.com/). Once there is enough consensus around the proposal, you will likely be asked to file an issue on GitHub and label it as `Type/Proposal` to continue a detailed discussion there.
+Start the discussion on the changes you propose in the [Ballerina Discord](https://discord.com/invite/wAJYFbMrG2). Once there is enough consensus around the proposal, you will likely be asked to file an issue on GitHub and label it as `Type/Proposal` to continue a detailed discussion there.

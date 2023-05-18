@@ -27,6 +27,7 @@ dependencies {
     distributionBala project(path: ':ballerina-lang:internal', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:array', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:map', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:regexp', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:string', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:value', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:error', configuration: 'distributionBala')

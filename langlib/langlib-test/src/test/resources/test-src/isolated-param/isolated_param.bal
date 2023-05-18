@@ -73,6 +73,19 @@ function testIsolatedParamWithTypeRefTypedRestArg() {
     }
 }
 
+isolated function testArgAnalysisWithFixedLengthArrayRestArg() {
+    int[3] x = [21, 2, 3];
+    int i = int:min(...x);
+    assertEquality(2, i);
+}
+
+isolated function testIsolatedFuncArgInFixedLengthArrayRestArg() {
+    int[] marks = [75, 80, 45, 90];
+    (isolated function (int x) returns boolean)[1] fns = [x => x > 79];
+    int[] filtered = marks.filter(...fns);
+    assertEquality(<int[]> [80, 90], filtered);
+}
+
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

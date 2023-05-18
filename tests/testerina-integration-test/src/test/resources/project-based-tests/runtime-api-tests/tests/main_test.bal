@@ -31,6 +31,18 @@ public class TestPerson {
     public function getPersonCity() returns string {
         return self.address.city;
     }
+
+    public function play(string sport = "cricket") returns string {
+        return sport;
+    }
+
+    public function callPlayWithArgs(string s) returns string = @java:Method {
+        'class: "org.ballerinalang.testerina.utils.RuntimeApi"
+    } external;
+
+    public function callPlayWithoutArgs() returns string = @java:Method {
+        'class: "org.ballerinalang.testerina.utils.RuntimeApi"
+    } external;
 }
 
 public type TestAddress record {
@@ -75,4 +87,6 @@ function testRuntimeApi() {
     error userError2 = getError("TestGenericError");
     test:assertTrue(userError1 is GenericError);
     test:assertTrue(userError2 is TestGenericError);
+    test:assertEquals(p2.callPlayWithArgs("football"), "football");
+    test:assertEquals(p2.callPlayWithoutArgs(), "cricket");
 }

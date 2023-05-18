@@ -55,7 +55,7 @@ function testStartsWithFunctionInString() returns boolean {
     return 'strings:startsWith(str, "Hello");
 }
 
-function testCallInFunction()returns any|error {
+function testCallInFunction() returns any|error {
     return func:call(testSumFunctionInDecimal, 10.5d, 20.5d);
 }
 

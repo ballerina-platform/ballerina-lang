@@ -27,23 +27,14 @@ apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 dependencies {
     implementation 'org.slf4j:slf4j-api'
     implementation project(':ballerina-lang')
-    implementation project(':testerina:testerina-core')
-    implementation project(':ballerina-cli')
-//    implementation project(':ballerina-http')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(':ballerina-lang-test')
     implementation project(':ballerina-runtime')
-    implementation project(':docerina')
     implementation project(':ballerina-lang:value');
+    implementation project(':ballerina-lang:regexp');
+    implementation project(':observability-symbol-collector');
 
-    implementation 'org.testng:testng'
-    testCompile 'org.awaitility:awaitility'
-    testCompile 'com.zaxxer:HikariCP'
-    testCompile 'org.slf4j:slf4j-jdk14'
-    testCompile 'org.hsqldb:hsqldb'
     testCompile 'org.mockito:mockito-all'
-    testCompile 'io.netty:netty-transport'
-    testCompile 'io.netty:netty-codec'
     testCompile 'org.wso2.transport.http:org.wso2.transport.http.netty'
     testCompile 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
     testCompile 'org.testng:testng'
@@ -83,6 +74,8 @@ test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "enableJBallerinaTests", "true"
 
+    jvmArgs = ['-Xms512m', '-Xmx3g']
+
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
@@ -108,6 +101,7 @@ configurations {
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
     testCompile.exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
     testCompile.exclude group: 'org.codehaus.woodstox', module: 'stax2-api'
+    testCompile.exclude(group: 'com.fasterxml.woodstox', module: 'woodstox-core')
 }
 
 configurations.all {

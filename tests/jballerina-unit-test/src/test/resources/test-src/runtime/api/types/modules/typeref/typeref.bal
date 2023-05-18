@@ -16,13 +16,15 @@
 
 import ballerina/test;
 import ballerina/jballerina.java;
-import testorg/runtime_api_types.objects as o;
+import types.objects as o;
 
 public annotation IntConstraints Int on type, record field;
 
 public annotation ArrayConstraints Array on type, record field;
 
 public annotation X on type;
+
+public annotation Y on type;
 
 type IntConstraints record {|
     int minValue?;
@@ -70,12 +72,36 @@ type Employee2 record {
 
 type EmpError error<Employee>;
 
+public class Service {
+    function testFunction(PositiveInt intVal, Foo arr = []) returns string {
+        return intVal.toString();
+    }
+
+}
+
 public function validateTypeRef() {
     validateType();
     validateRecordField();
     validateTypeAnnotations();
     testRuntimeTypeRef();
     validateArray();
+    validateFunctionParameters();
+    validateRuntimeAPIs();
+    validateValueWithUnion();
+    validateTableMultipleKey();
+    validateInlineRecordField();
+}
+
+function validateFunctionParameters() {
+    test:assertEquals(testFunction(25), "25");
+    test:assertEquals(validateFunctionParameterExtern(testFunction), ());
+
+    Service s = new ();
+    test:assertEquals(validateFunctionParameterFromObject(s), ());
+}
+
+function testFunction(PositiveInt intVal, Foo arr = []) returns string {
+    return intVal.toString();
 }
 
 function testRuntimeTypeRef() {
@@ -189,6 +215,9 @@ type JSON json;
 @X
 type Byte byte;
 
+@Y
+type TupleRef Tuple;
+
 function validateTypeAnnotations() {
     typedesc<any> anyTd = Nil;
     test:assertTrue(anyTd.@X is true);
@@ -212,6 +241,12 @@ function validateTypeAnnotations() {
 
     anyTd = Tuple;
     test:assertTrue(anyTd.@X is true);
+    test:assertTrue(Tuple.@X is true);
+
+    anyTd = TupleRef;
+    test:assertTrue(anyTd.@Y is true);
+    test:assertTrue(TupleRef.@Y is true);
+    test:assertTrue(TupleRef.@X is ());
     test:assertTrue(Tuple.@X is true);
 
     anyTd = Map;
@@ -408,6 +443,65 @@ function validateArray() {
     }
 }
 
+public type StringConstraints record {|
+    int length?;
+    int minLength?;
+    int maxLength?;
+|};
+
+public annotation StringConstraints String on record field;
+
+type InlineAlbum readonly & record {|
+    @String {
+        minLength: 1
+    }
+    string title;
+    string artist;
+|};
+
+type MutableAlbum record {|
+    @String {
+        maxLength: 5,
+        minLength: 1
+    }
+    string title;
+    string artist;
+|};
+
+MutableAlbum mutableAlbum = {
+    artist: "testA",
+    title: "testssA"
+};
+
+InlineAlbum inlineImmutableAlbum = {
+    artist: "testB",
+    title: "testssB"
+};
+
+record {|
+    @String {
+        minLength: 1
+    }
+    string title;
+    string artist;
+|} inlineAlbum = {
+    artist: "testC",
+    title: "testssC"
+};
+
+function validateInlineRecordField() {
+    boolean s1 = checkInlineRecordAnnotations(MutableAlbum, StringConstraints);
+    boolean s2 = checkInlineRecordAnnotations(InlineAlbum, StringConstraints);
+    boolean s3 = checkInlineRecordAnnotations(typeof inlineAlbum, StringConstraints);
+    test:assertTrue(s1);
+    test:assertTrue(s2);
+    test:assertTrue(s3);
+}
+
+public isolated function checkInlineRecordAnnotations(typedesc<any> t1, typedesc<any> t2) returns boolean = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
 # Validates the provided value against the configured annotations.
 #
 # + value - The `anydata` type value to be constrained
@@ -441,5 +535,13 @@ public isolated function validateArrayElements(anydata value, typedesc<anydata> 
 # + td - The type descriptor of the value to be constrained
 # + return - The type descriptor of the value which is validated or else an `constraint:Error` in case of an error
 public isolated function validateArrayConstraint(anydata value, typedesc<anydata> td = <>) returns td|error = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public isolated function validateFunctionParameterExtern(function value) returns error? = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
+} external;
+
+public isolated function validateFunctionParameterFromObject(Service value) returns error? = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;

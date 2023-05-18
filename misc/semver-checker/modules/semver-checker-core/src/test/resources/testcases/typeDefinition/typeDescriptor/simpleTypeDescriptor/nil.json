@@ -1,0 +1,8 @@
+[
+  {
+    "description": "Change type descriptor from null to ()\n",
+    "oldCode": "public type Age null;\n",
+    "newCode": "public type Age ();\n",
+    "expectedOutput": {}
+  }
+]

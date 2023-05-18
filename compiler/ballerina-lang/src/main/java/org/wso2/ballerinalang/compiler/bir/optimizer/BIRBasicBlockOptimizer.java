@@ -18,14 +18,13 @@
 
 package org.wso2.ballerinalang.compiler.bir.optimizer;
 
+import org.wso2.ballerinalang.compiler.bir.BIRGenUtils;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRVisitor;
-import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,9 +41,6 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
 
     private BIROptimizer.OptimizerEnv env;
     private final Map<BIRBasicBlock, List<BIRBasicBlock>> predecessorMap = new HashMap<>();
-
-    private int currentBBId = -1;
-    private static final String BIR_BASIC_BLOCK_PREFIX = "bb";
 
     public void optimizeNode(BIRNode node, BIROptimizer.OptimizerEnv env) {
         if (node == null) {
@@ -73,6 +69,7 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
 
     @Override
     public void visit(BIRNode.BIRFunction birFunction) {
+        BIRGenUtils.rearrangeBasicBlocks(birFunction);
         BIROptimizer.OptimizerEnv funcEnv = new BIROptimizer.OptimizerEnv();
 
         // Get basic blocks vs predecessors map
@@ -82,14 +79,7 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
         Set<BIRBasicBlock> removableGOTOBasicBlocks = getRemovableBasicBlocks(birFunction, funcEnv);
         resetEndBasicBlock(birFunction, removableGOTOBasicBlocks);
         birFunction.basicBlocks.removeAll(removableGOTOBasicBlocks);
-
-        // Re-arrange basic blocks
-        birFunction.parameters.values().forEach(basicBlocks -> basicBlocks.forEach(this::rearrangeBasicBlocks));
-        birFunction.basicBlocks.forEach(this::rearrangeBasicBlocks);
-        // Re-arrange error entries
-        birFunction.errorTable.sort(Comparator.comparingInt(o ->
-                Integer.parseInt(o.trapBB.id.value.replace(BIR_BASIC_BLOCK_PREFIX, ""))));
-        currentBBId = -1;
+        BIRGenUtils.rearrangeBasicBlocks(birFunction);
     }
 
     // Basic block vs it's predecessors map
@@ -116,15 +106,33 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
 
     private Set<BIRBasicBlock> getRemovableBasicBlocks(BIRNode.BIRFunction birFunction,
                                                        BIROptimizer.OptimizerEnv funcEnv) {
+        Set<BIRBasicBlock> errorTableTargetBBs = new HashSet<>();
+        for (BIRNode.BIRErrorEntry birErrorEntry : birFunction.errorTable) {
+            errorTableTargetBBs.add(birErrorEntry.targetBB);
+        }
+
         Set<BIRBasicBlock> removableBasicBlocks = new HashSet<>();
         for (int i = birFunction.basicBlocks.size() - 1; i >= 0; --i) {
             BIRBasicBlock basicBlock = birFunction.basicBlocks.get(i);
 
             // Remove basic blocks with unnecessary jump statement
             if (basicBlock.terminator instanceof BIRTerminator.GOTO && basicBlock.instructions.isEmpty()
-                    && basicBlock.terminator.pos == null) {
+                    && basicBlock.terminator.pos == null && !errorTableTargetBBs.contains(basicBlock)) {
+                boolean isLoopBB = false;
+                BIRBasicBlock targetBB = ((BIRTerminator.GOTO) basicBlock.terminator).targetBB;
+                List<BIRBasicBlock> predecessorBBs = predecessorMap.get(targetBB);
+                for (BIRBasicBlock bb : predecessorBBs) {
+                    if (targetBB.number < bb.number) {
+                        isLoopBB = true;
+                        break;
+                    }
+                }
+                if (isLoopBB) {
+                    // If target bb is in a loop, that GOTO bb will not be removed.
+                    continue;
+                }
                 funcEnv.currentBB = basicBlock;
-                funcEnv.nextBB = ((BIRTerminator.GOTO) basicBlock.terminator).targetBB;
+                funcEnv.nextBB = targetBB;
                 this.optimizeNode(basicBlock, funcEnv);
                 birFunction.errorTable.forEach(errorEntry -> this.optimizeNode(errorEntry, funcEnv));
                 updatePredecessorMap(basicBlock);
@@ -132,11 +140,6 @@ public class BIRBasicBlockOptimizer extends BIRVisitor {
             }
         }
         return removableBasicBlocks;
-    }
-
-    private void rearrangeBasicBlocks(BIRNode.BIRBasicBlock bb) {
-        currentBBId++;
-        bb.id = new Name(BIR_BASIC_BLOCK_PREFIX + currentBBId);
     }
 
     private void resetEndBasicBlock(BIRNode.BIRFunction birFunc, Set<BIRBasicBlock> removableBBs) {

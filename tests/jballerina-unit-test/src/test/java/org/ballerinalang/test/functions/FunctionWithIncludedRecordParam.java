@@ -116,10 +116,29 @@ public class FunctionWithIncludedRecordParam {
                 "parameter when an argument is specified for the included record parameter", 245, 20);
         BAssertUtil.validateError(result, i++, "cannot specify a named argument for a field of an included record " +
                 "parameter when an argument is specified for the included record parameter", 259, 9);
+        BAssertUtil.validateError(result, i++, "expected a record type as an included parameter", 264, 14);
+        BAssertUtil.validateError(result, i++, "unknown type 'Boo'", 264, 14);
+        BAssertUtil.validateError(result, i++, "expected a record type as an included parameter", 268, 18);
+        BAssertUtil.validateError(result, i++, "unknown type 'Boo'", 268, 18);
+        BAssertUtil.validateError(result, i++, "expected a record type as an included parameter", 271, 19);
+        BAssertUtil.validateError(result, i++, "a type compatible with mapping constructor expressions " +
+                "not found in type 'int'", 280, 21);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn5()'", 296, 23);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn5()'", 297, 16);
+        BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'j'", 298, 23);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn6()'", 299, 37);
+        BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'j'", 300, 9);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn6()'", 300, 30);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn9()'", 301, 37);
+        BAssertUtil.validateError(result, i++, "redeclared symbol 'r'", 308, 15);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn8()'", 315, 20);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn8()'", 316, 20);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn8()'", 316, 27);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn5()'", 317, 13);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn6()'", 318, 17);
+        BAssertUtil.validateError(result, i++, "too many arguments in call to 'fn9()'", 319, 17);
         Assert.assertEquals(i, result.getErrorCount());
     }
-
-
 
     @Test
     public void testFuctionWithIncludedRecordParameters() {

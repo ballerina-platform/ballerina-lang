@@ -274,19 +274,19 @@ public class BIREmitter {
 // TODO improve this to be able to plug custom error emitters as there may be
 // TODO cnt - custom error entries @platform specific code gen sides
 //
-//   -------------------------------
-//   | trapBB       | errorOp      |
-//   -------------------------------
-//   | bb1          | op1          |
+//   -------------------------------------------------------------
+//   | trapBB       | endBB        | targetBB     | errorOp      |
+//   -------------------------------------------------------------
+//   | bb1          | bb2          | bb3          | %1           |
 
     private String emitErrorEntries(List<BIRNode.BIRErrorEntry> errorEntries, int tabs) {
 
         StringBuilder str = new StringBuilder();
-        if (errorEntries.size() == 0) {
+        if (errorEntries.isEmpty()) {
             return str.toString();
         }
         str.append(emitTabs(tabs));
-        str.append("---------------------------------------------");
+        str.append("-------------------------------------------------------------");
         str.append(emitLBreaks(1));
         str.append(emitTabs(tabs));
         str.append("|");
@@ -299,19 +299,23 @@ public class BIREmitter {
         str.append(emitSpaces(8));
         str.append("|");
         str.append(emitSpaces(1));
+        str.append("targetBB");
+        str.append(emitSpaces(5));
+        str.append("|");
+        str.append(emitSpaces(1));
         str.append("errorOp");
         str.append(emitSpaces(6));
         str.append("|");
         str.append(emitLBreaks(1));
         str.append(emitTabs(tabs));
-        str.append("---------------------------------------------");
+        str.append("-------------------------------------------------------------");
         str.append(emitLBreaks(1));
         for (BIRNode.BIRErrorEntry err : errorEntries) {
             str.append(emitErrorEntry(err, tabs));
             str.append(emitLBreaks(1));
         }
         str.append(emitTabs(tabs));
-        str.append("---------------------------------------------");
+        str.append("-------------------------------------------------------------");
         return str.toString();
     }
 
@@ -333,6 +337,12 @@ public class BIREmitter {
         str += emitSpaces(endBBSpaces);
         str += "|";
         str += emitSpaces(1);
+        String targetBBRef = emitBasicBlockRef(err.targetBB);
+        int targetBBSpaces = calculateSpaces(targetBBRef);
+        str += targetBBRef;
+        str += emitSpaces(targetBBSpaces);
+        str += "|";
+        str += emitSpaces(1);
         String varRef = emitVarRef(err.errorOp);
         int varRefSpaces = calculateSpaces(varRef);
         str += varRef;
@@ -342,7 +352,6 @@ public class BIREmitter {
     }
 
     private int calculateSpaces(String str) {
-
         return 13 - str.length();
     }
 }

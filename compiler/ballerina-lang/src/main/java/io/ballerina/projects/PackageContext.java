@@ -47,6 +47,7 @@ class PackageContext {
     private final TomlDocumentContext dependenciesTomlContext;
     private final TomlDocumentContext cloudTomlContext;
     private final TomlDocumentContext compilerPluginTomlContext;
+    private final TomlDocumentContext balToolTomlContext;
     private final MdDocumentContext packageMdContext;
 
     private final CompilationOptions compilationOptions;
@@ -73,6 +74,7 @@ class PackageContext {
                    TomlDocumentContext dependenciesTomlContext,
                    TomlDocumentContext cloudTomlContext,
                    TomlDocumentContext compilerPluginTomlContext,
+                   TomlDocumentContext balToolTomlContext,
                    MdDocumentContext packageMdContext,
                    CompilationOptions compilationOptions,
                    Map<ModuleId, ModuleContext> moduleContextMap,
@@ -85,6 +87,7 @@ class PackageContext {
         this.dependenciesTomlContext = dependenciesTomlContext;
         this.cloudTomlContext = cloudTomlContext;
         this.compilerPluginTomlContext = compilerPluginTomlContext;
+        this.balToolTomlContext = balToolTomlContext;
         this.packageMdContext = packageMdContext;
         this.compilationOptions = compilationOptions;
         this.moduleIds = Collections.unmodifiableCollection(moduleContextMap.keySet());
@@ -108,6 +111,7 @@ class PackageContext {
                           packageConfig.dependenciesToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
                           packageConfig.cloudToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
                           packageConfig.compilerPluginToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
+                          packageConfig.balToolToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
                           packageConfig.packageMd().map(c -> MdDocumentContext.from(c)).orElse(null),
                           compilationOptions, moduleContextMap, packageConfig.packageDescDependencyGraph());
     }
@@ -158,6 +162,10 @@ class PackageContext {
 
     Optional<TomlDocumentContext> compilerPluginTomlContext() {
         return Optional.ofNullable(compilerPluginTomlContext);
+    }
+
+    Optional<TomlDocumentContext> balToolTomlContext() {
+        return Optional.ofNullable(balToolTomlContext);
     }
 
     Optional<MdDocumentContext> packageMdContext() {
@@ -227,6 +235,7 @@ class PackageContext {
                 .setDumpRawGraphs(this.compilationOptions.dumpRawGraphs())
                 .setListConflictedClasses(this.compilationOptions.listConflictedClasses())
                 .setConfigSchemaGen(this.compilationOptions.configSchemaGen())
+                .setEnableCache(this.compilationOptions.enableCache())
                 .build();
         CompilationOptions mergedOptions = options.acceptTheirs(compilationOptions);
         return PackageCompilation.from(this, mergedOptions);
@@ -247,7 +256,6 @@ class PackageContext {
         packageResolution = PackageResolution.from(this, compilationOptions);
         return packageResolution;
     }
-
     Collection<PackageDependency> packageDependencies() {
         return packageDependencies;
     }
@@ -303,7 +311,7 @@ class PackageContext {
 
         return new PackageContext(project, this.packageId, this.packageManifest,
                 this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
-                this.cloudTomlContext, this.compilerPluginTomlContext, this.packageMdContext,
+                this.cloudTomlContext, this.compilerPluginTomlContext, this.balToolTomlContext, this.packageMdContext,
                 this.compilationOptions, duplicatedModuleContextMap, this.pkgDescDependencyGraph);
     }
 }

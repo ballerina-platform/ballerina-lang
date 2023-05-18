@@ -1,0 +1,28 @@
+{
+  "position": {
+    "line": 0,
+    "character": 17
+  },
+  "source": "create_type_in_record_type.bal",
+  "expected": [
+    {
+      "title": "Create record 're'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "type re record {\n    \n};\n\n"
+        }
+      ]
+    }
+  ]
+}

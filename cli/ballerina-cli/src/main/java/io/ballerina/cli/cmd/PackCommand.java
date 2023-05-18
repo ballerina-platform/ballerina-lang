@@ -10,12 +10,11 @@ import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
-import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
@@ -30,6 +29,7 @@ import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.PACK_COMMAND;
 import static io.ballerina.projects.internal.ManifestBuilder.getStringValueFromTomlTableNode;
+import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
@@ -37,12 +37,13 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
  *
  * @since 2.0.0
  */
+@CommandLine.Command(name = PACK_COMMAND, description = "Create distribution format of the current package")
 public class PackCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
-    private boolean exitWhenFinish;
-    private boolean skipCopyLibsFromDist;
+    private final boolean exitWhenFinish;
+    private final boolean skipCopyLibsFromDist;
 
     @CommandLine.Option(names = {"--offline"}, description = "Build/Compile offline without downloading " +
             "dependencies.")
@@ -80,6 +81,9 @@ public class PackCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
+
+    @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
+    private Boolean enableCache;
 
     public PackCommand() {
         this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
@@ -152,7 +156,7 @@ public class PackCommand implements BLauncherCmd {
         }
 
         // If project is empty
-        if (isProjectEmpty(project) && project.currentPackage().compilerPluginToml().isEmpty()) {
+        if (ProjectUtils.isProjectEmpty(project) && project.currentPackage().compilerPluginToml().isEmpty()) {
             CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null,
                         false);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -233,10 +237,13 @@ public class PackCommand implements BLauncherCmd {
             this.outStream.println("warning: " + e.getMessage());
         }
 
+        // Check package files are modified after last build
+        boolean isPackageModified = isProjectUpdated(project);
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask(), isSingleFileBuild)
+                .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
                 .addTask(new ResolveMavenDependenciesTask(outStream))
-                .addTask(new CompileTask(outStream, errStream))
+                .addTask(new CompileTask(outStream, errStream, true, isPackageModified, buildOptions.enableCache()))
                 .addTask(new CreateBalaTask(outStream))
                 .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                 .build();
@@ -257,23 +264,14 @@ public class PackCommand implements BLauncherCmd {
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setDumpBuildTime(dumpBuildTime)
                 .setSticky(sticky)
-                .setConfigSchemaGen(configSchemaGen);
+                .setConfigSchemaGen(configSchemaGen)
+                .setEnableCache(enableCache);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
         }
 
         return buildOptionsBuilder.build();
-    }
-
-    private boolean isProjectEmpty(Project project) {
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
-            Module module = project.currentPackage().module(moduleId);
-            if (!module.documentIds().isEmpty() || !module.testDocumentIds().isEmpty()) {
-                return false;
-            }
-        }
-        return true;
     }
 
     @Override
@@ -283,8 +281,7 @@ public class PackCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("packages the current package into a .bala file after verifying that it can build with \n");
-        out.append("all its dependencies. Created .bala file contains the distribution format of the current package");
+        out.append(BLauncherCmd.getCommandUsageInfo(PACK_COMMAND));
 
     }
 

@@ -82,7 +82,7 @@ public class ClassComparator extends NodeComparator<ClassDefinitionNode> {
     }
 
     /**
-     * Analyzes and returns the diff for changes on class declaration metadata (documentation + annotations).
+     * Analyzes and returns the diff for changes on class definition metadata (documentation + annotations).
      */
     public List<Diff> compareMetadata() {
         List<Diff> metadataDiffs = new LinkedList<>();
@@ -97,7 +97,7 @@ public class ClassComparator extends NodeComparator<ClassDefinitionNode> {
         NodeList<AnnotationNode> newAnnots = newMeta.map(MetadataNode::annotations).orElse(null);
         NodeList<AnnotationNode> oldAnnots = oldMeta.map(MetadataNode::annotations).orElse(null);
         DumbNodeListComparator<AnnotationNode> annotsComparator = new DumbNodeListComparator<>(newAnnots, oldAnnots,
-                DiffKind.SERVICE_ANNOTATION.toString());
+                DiffKind.SERVICE_ANNOTATION);
         annotsComparator.computeDiff().ifPresent(metadataDiffs::add);
 
         return metadataDiffs;
@@ -249,13 +249,11 @@ public class ClassComparator extends NodeComparator<ClassDefinitionNode> {
         DiffExtractor<ObjectFieldNode> varDiffExtractor = new DiffExtractor<>(newClassFields, oldClassFields);
         varDiffExtractor.getAdditions().forEach((name, field) -> {
             NodeDiffBuilder classVarDiffBuilder = new ObjectFieldDiff.Builder(field, null);
-            classVarDiffBuilder.withVersionImpact(SemverImpact.MINOR).withKind(DiffKind.OBJECT_FIELD).build()
-                    .ifPresent(memberDiffs::add);
+            classVarDiffBuilder.withVersionImpact(SemverImpact.MINOR).build().ifPresent(memberDiffs::add);
         });
         varDiffExtractor.getRemovals().forEach((name, field) -> {
             NodeDiffBuilder classVarDiffBuilder = new ObjectFieldDiff.Builder(null, field);
-            classVarDiffBuilder.withVersionImpact(SemverImpact.MAJOR).withKind(DiffKind.OBJECT_FIELD).build()
-                    .ifPresent(memberDiffs::add);
+            classVarDiffBuilder.withVersionImpact(SemverImpact.MAJOR).build().ifPresent(memberDiffs::add);
         });
         varDiffExtractor.getCommons().forEach((name, classFields) -> new ObjectFieldComparator(classFields.getKey(),
                 classFields.getValue()).computeDiff().ifPresent(memberDiffs::add));

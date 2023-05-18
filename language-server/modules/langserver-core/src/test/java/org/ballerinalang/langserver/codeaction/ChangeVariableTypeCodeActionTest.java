@@ -53,6 +53,18 @@ public class ChangeVariableTypeCodeActionTest extends AbstractCodeActionTest {
         return new Object[][]{
                 {"changeVarType1.json"},
                 {"changeVarType2.json"},
+                {"changeVarType3.json"},
+                {"changeVarType4.json"},
+                {"changeVarType3.json"},
+                {"changeVarType5.json"},
+                {"changeVarType6.json"},
+                {"changeVarType_int_to_float.json"},
+                {"changeVarType_int_to_float_in_constant.json"},
+                {"changeVarTypeInObjectFields1.json"},
+                {"changeVarTypeInObjectFields2.json"},
+                {"changeVarTypeInObjectFields3.json"},
+                {"changeVarType_in_let_clause.json"},
+                {"changeVarType_in_select_clause.json"},
         };
     }
 
@@ -62,6 +74,7 @@ public class ChangeVariableTypeCodeActionTest extends AbstractCodeActionTest {
                 {"negative_changeVarType1.json"},
                 {"negative_changeVarType2.json"},
                 {"negative_changeVarType3.json"},
+                {"negative_changeVarTypeWithBase16.json"},
         };
     }
 }

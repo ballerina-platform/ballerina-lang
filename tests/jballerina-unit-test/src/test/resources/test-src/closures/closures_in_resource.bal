@@ -41,7 +41,7 @@ type LiftRecord record {
     anydata status;
 };
 
-class Lift {
+public class Lift {
     int id;
     anydata status;
 

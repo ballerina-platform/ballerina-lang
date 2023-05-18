@@ -116,7 +116,7 @@ When to Use
 **3. How to get the children of a Syntax node**  
 **Answer:** _Use the APIs provided in each of the node. For example the `FunctionDefinition` contains an API
 called `qualifierList` to get the qualifiers in the function. Try to avoid the usage of `children` API since it is too
-generic and includes whitesapces as well_
+generic and includes white spaces as well_
 
 **4. How to access the position details**  
 **Answer:** _Use either the offset or line-column approach. In either case, stick to one usage without mixing them both.

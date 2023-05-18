@@ -17,6 +17,8 @@
  */
 package io.ballerina.compiler.linter.impl.codeactions;
 
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -65,10 +67,31 @@ public class QualifiedIdentifierCodeAction extends LinterCodeAction {
         final String updatedText;
         SyntaxKind kind = node.kind();
         if (kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            final QualifiedNameReferenceNode qualifiedNameReferenceNode = (QualifiedNameReferenceNode) node;
-            updatedText = qualifiedNameReferenceNode.modulePrefix().text()
-                    + qualifiedNameReferenceNode.colon().toSourceCode().strip()
-                    + qualifiedNameReferenceNode.identifier().toSourceCode().strip();
+            final QualifiedNameReferenceNode qNameRefNode = (QualifiedNameReferenceNode) node;
+            // If identifier is missing, we don't provide the code action. Here's an example scenario
+            // function myFunction() {
+            //      http:<cursor>    
+            // }
+            if (qNameRefNode.identifier().isMissing() || context.cursorPosition().isEmpty()) {
+                return Optional.empty();
+            }
+            // Check if the resulting qualified name reference (once space is removed), is a valid type. i.e if the 
+            // resultant type exists in the target module
+            boolean validQName = context.currentSemanticModel()
+                    .visibleSymbols(context.currentDocument(), context.cursorPosition().get()).stream()
+                    .filter(symbol -> symbol.kind() == SymbolKind.MODULE)
+                    .map(symbol -> (ModuleSymbol) symbol)
+                    .filter(moduleSymbol -> qNameRefNode.modulePrefix().text().equals(moduleSymbol.id().modulePrefix()))
+                    .anyMatch(moduleSymbol -> moduleSymbol.allSymbols().stream()
+                            .filter(symbol -> symbol.getName().isPresent())
+                            .anyMatch(symbol -> symbol.getName().get().equals(qNameRefNode.identifier().text())));
+            if (!validQName) {
+                return Optional.empty();
+            }
+
+            updatedText = qNameRefNode.modulePrefix().text()
+                    + qNameRefNode.colon().toSourceCode().strip()
+                    + qNameRefNode.identifier().toSourceCode().strip();
         } else if (kind == SyntaxKind.XML_QUALIFIED_NAME) {
             final XMLQualifiedNameNode xmlQualifiedNameNode = (XMLQualifiedNameNode) node;
             updatedText = xmlQualifiedNameNode.prefix().name().text()

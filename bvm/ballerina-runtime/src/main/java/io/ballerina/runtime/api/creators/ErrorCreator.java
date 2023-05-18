@@ -141,7 +141,9 @@ public class ErrorCreator {
         if (error instanceof BError) {
             return (BError) error;
         }
-        return createError(StringUtils.fromString(error.getMessage()));
+        BError bError = createError(StringUtils.fromString(error.toString()));
+        bError.setStackTrace(error.getStackTrace());
+        return bError;
     }
 
     /**
@@ -179,7 +181,7 @@ public class ErrorCreator {
      * @param typeIdPkg  type id module
      * @param message  error message
      * @return new error
-     * @deprecated Use @createError(module, errorTypeName, message, cause, details) to create a distinct error.
+     * @deprecated Use {@link #createError(Module, String, BString, BError, BMap)} to create a distinct error.
      */
     @Deprecated
     public static BError createDistinctError(String typeIdName, Module typeIdPkg, BString message) {
@@ -195,7 +197,7 @@ public class ErrorCreator {
      * @param message  error message
      * @param details  error details
      * @return new error
-     * @deprecated Use @createError(module, errorTypeName, message, cause, details) to create a distinct error.
+     * @deprecated Use {@link #createError(Module, String, BString, BError, BMap)} to create a distinct error.
      */
     @Deprecated
     public static BError createDistinctError(String typeIdName, Module typeIdPkg, BString message,
@@ -213,7 +215,7 @@ public class ErrorCreator {
      * @param message     error message
      * @param cause      error cause
      * @return new error
-     * @deprecated Use @createError(module, errorTypeName, message, cause, details) to create a distinct error.
+     * @deprecated Use {@link #createError(Module, String, BString, BError, BMap)} to create a distinct error.
      */
     @Deprecated
     public static BError createDistinctError(String typeIdName, Module typeIdPkg, BString message,

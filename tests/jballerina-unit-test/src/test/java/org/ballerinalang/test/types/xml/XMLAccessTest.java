@@ -254,6 +254,16 @@ public class XMLAccessTest {
     }
 
     @Test
+    public void testInvalidXMLAccessWithNegativeIndex() {
+        BRunUtil.invoke(result, "testInvalidXMLAccessWithNegativeIndex");
+    }
+
+    @Test
+    public void testXmlAccessWithLargerIndex() {
+        BRunUtil.invoke(result, "testXmlAccessWithLargerIndex");
+    }
+
+    @Test
     public void testXMLNavExpressionNegative() {
         String methodInvocMessage = "method invocations are not yet supported within XML navigation expressions, " +
                 "use a grouping expression (parenthesis) " +
@@ -288,10 +298,13 @@ public class XMLAccessTest {
 
     @Test
     void testXMLFilterExpressionsNegative() {
-        BAssertUtil.validateError(navigationFilterNegative, 0,
-                "incompatible types: expected 'xml', found 'any'", 4, 14);
-        BAssertUtil.validateError(navigationFilterNegative, 1,
-                "incompatible types: expected 'xml', found 'int'", 6, 14);
-        Assert.assertEquals(navigationFilterNegative.getErrorCount(), 2);
+        int index = 0;
+        BAssertUtil.validateError(navigationFilterNegative, index++,
+                "incompatible types: expected 'xml', found 'any'", 6, 14);
+        BAssertUtil.validateError(navigationFilterNegative, index++,
+                "incompatible types: expected 'xml', found 'int'", 8, 14);
+        BAssertUtil.validateError(navigationFilterNegative, index++,
+                "cannot find xml namespace prefix 'foo'", 13, 16);
+        Assert.assertEquals(navigationFilterNegative.getErrorCount(), index);
     }
 }

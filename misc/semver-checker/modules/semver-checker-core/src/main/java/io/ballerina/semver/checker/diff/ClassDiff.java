@@ -32,7 +32,7 @@ import java.util.Optional;
 public class ClassDiff extends NodeDiffImpl<ClassDefinitionNode> {
 
     private ClassDiff(ClassDefinitionNode newNode, ClassDefinitionNode oldNode) {
-        super(newNode, oldNode);
+        super(newNode, oldNode, DiffKind.CLASS);
     }
 
     @Override
@@ -65,26 +65,25 @@ public class ClassDiff extends NodeDiffImpl<ClassDefinitionNode> {
     }
 
     /**
-     * Function diff builder implementation.
+     * Class diff builder implementation.
      */
     public static class Builder extends NodeDiffImpl.Builder<ClassDefinitionNode> {
 
-        private final ClassDiff moduleConstDiff;
+        private final ClassDiff classDiff;
 
         public Builder(ClassDefinitionNode newNode, ClassDefinitionNode oldNode) {
             super(newNode, oldNode);
-            moduleConstDiff = new ClassDiff(newNode, oldNode);
+            classDiff = new ClassDiff(newNode, oldNode);
         }
 
         @Override
         public Optional<ClassDiff> build() {
-            moduleConstDiff.setKind(DiffKind.CLASS);
-            if (!moduleConstDiff.getChildDiffs().isEmpty()) {
-                moduleConstDiff.computeVersionImpact();
-                moduleConstDiff.setType(DiffType.MODIFIED);
-                return Optional.of(moduleConstDiff);
-            } else if (moduleConstDiff.getType() == DiffType.NEW || moduleConstDiff.getType() == DiffType.REMOVED) {
-                return Optional.of(moduleConstDiff);
+            if (!classDiff.getChildDiffs().isEmpty()) {
+                classDiff.computeVersionImpact();
+                classDiff.setType(DiffType.MODIFIED);
+                return Optional.of(classDiff);
+            } else if (classDiff.getType() == DiffType.NEW || classDiff.getType() == DiffType.REMOVED) {
+                return Optional.of(classDiff);
             }
 
             return Optional.empty();
@@ -92,31 +91,31 @@ public class ClassDiff extends NodeDiffImpl<ClassDefinitionNode> {
 
         @Override
         public NodeDiffBuilder withType(DiffType diffType) {
-            moduleConstDiff.setType(diffType);
+            classDiff.setType(diffType);
             return this;
         }
 
         @Override
         public NodeDiffBuilder withVersionImpact(SemverImpact versionImpact) {
-            moduleConstDiff.setVersionImpact(versionImpact);
+            classDiff.setVersionImpact(versionImpact);
             return this;
         }
 
         @Override
         public NodeDiffBuilder withMessage(String message) {
-            moduleConstDiff.setMessage(message);
+            classDiff.setMessage(message);
             return this;
         }
 
         @Override
         public NodeDiffBuilder withChildDiff(Diff childDiff) {
-            moduleConstDiff.childDiffs.add(childDiff);
+            classDiff.childDiffs.add(childDiff);
             return this;
         }
 
         @Override
         public NodeDiffBuilder withChildDiffs(Collection<? extends Diff> childDiffs) {
-            moduleConstDiff.childDiffs.addAll(childDiffs);
+            classDiff.childDiffs.addAll(childDiffs);
             return this;
         }
     }

@@ -80,8 +80,21 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReDisjunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagsOnOff;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -321,11 +334,17 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         analyzeNode(node, data);
         visit((BLangFunction) node, data);
         visitNode(node.methodName, data);
-        visitNode(node.resourcePath, data);
+        visitNode(node.resourcePathSegments, data);
         visitNode(node.restPathParam, data);
         visitNode(node.pathParams, data);
     }
 
+    public void visit(BLangResourcePathSegment node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.name, data);
+        visitNode(node.typeNode, data);
+    }
+    
     public void visit(BLangRetrySpec node, T data) {
         analyzeNode(node, data);
         visitNode(node.retryManagerType, data);
@@ -712,6 +731,11 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
     }
 
     public void visit(BLangInvocation.BLangActionInvocation node, T data) {
+        analyzeNode(node, data);
+        visit((BLangInvocation) node, data);
+    }
+
+    public void visit(BLangInvocation.BLangResourceAccessInvocation node, T data) {
         analyzeNode(node, data);
         visit((BLangInvocation) node, data);
     }
@@ -1335,6 +1359,87 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
         visitNode(node.xmlnsDecl, data);
     }
 
+    public void visit(BLangRegExpTemplateLiteral node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.reDisjunction, data);
+    }
+
+    public void visit(BLangReSequence node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.termList, data);
+    }
+
+    public void visit(BLangReAtomQuantifier node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.atom, data);
+        visitNode(node.quantifier, data);
+    }
+
+    public void visit(BLangReAtomCharOrEscape node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.charOrEscape, data);
+    }
+
+    public void visit(BLangReQuantifier node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.quantifier, data);
+        visitNode(node.nonGreedyChar, data);
+    }
+
+    public void visit(BLangReCharacterClass node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.characterClassStart, data);
+        visitNode(node.negation, data);
+        visitNode(node.charSet, data);
+        visitNode(node.characterClassEnd, data);
+    }
+
+    public void visit(BLangReCharSet node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.charSetAtoms, data);
+    }
+
+    public void visit(BLangReCharSetRange node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.lhsCharSetAtom, data);
+        visitNode(node.dash, data);
+        visitNode(node.rhsCharSetAtom, data);
+    }
+
+    public void visit(BLangReAssertion node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.assertion, data);
+    }
+
+    @Override
+    public void visit(BLangReCapturingGroups node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.openParen, data);
+        visitNode(node.flagExpr, data);
+        visitNode(node.disjunction, data);
+        visitNode(node.closeParen, data);
+    }
+
+    @Override
+    public void visit(BLangReDisjunction node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.sequenceList, data);
+    }
+
+    @Override
+    public void visit(BLangReFlagsOnOff node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.flags, data);
+    }
+
+    @Override
+    public void visit(BLangReFlagExpression node, T data) {
+        analyzeNode(node, data);
+        visitNode(node.questionMark, data);
+        visitNode(node.questionMark, data);
+        visitNode(node.questionMark, data);
+    }
+
     // Types
 
     public void visit(BLangArrayType node, T data) {
@@ -1409,7 +1514,7 @@ public abstract class SimpleBLangNodeAnalyzer<T> extends BLangNodeAnalyzer<T> {
 
     public void visit(BLangTupleTypeNode node, T data) {
         analyzeNode(node, data);
-        visitNode(node.memberTypeNodes, data);
+        visitNode(node.members, data);
         visitNode(node.restParamType, data);
     }
 

@@ -83,6 +83,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.UNSIGNED8_INT:
             case TypeTags.UNSIGNED16_INT:
             case TypeTags.UNSIGNED32_INT:
+            case TypeTags.REGEXP:
                 return true;
             case TypeTags.TYPEREFDESC:
                 return isAnydata(((BTypeReferenceType) type).referredType);
@@ -202,8 +203,8 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
         if (!visited.add(type)) {
             return isAnydata;
         }
-        for (BType member : type.tupleTypes) {
-            if (!visit(member)) {
+        for (BType memberType : type.getTupleTypes()) {
+            if (!visit(memberType)) {
                 type.isAnyData = false;
                 return false;
             }

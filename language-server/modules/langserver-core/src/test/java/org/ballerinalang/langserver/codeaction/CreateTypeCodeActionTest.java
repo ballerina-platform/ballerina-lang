@@ -39,7 +39,8 @@ public class CreateTypeCodeActionTest extends AbstractCodeActionTest {
     public Object[][] dataProvider() {
         return new Object[][]{
                 {"create_type_in_return_type1.json"},
-                {"create_type_in_function_body1.json"}
+                {"create_type_in_function_body1.json"},
+                {"create_type_in_record_type.json"}
         };
     }
 

@@ -189,7 +189,6 @@ public class Module {
         private final Map<DocumentId, ResourceContext> resourceContextMap;
         private final Map<DocumentId, ResourceContext> testResourceContextMap;
 
-
         private Modifier(Module oldModule) {
             moduleId = oldModule.moduleId();
             moduleDescriptor = oldModule.descriptor();
@@ -349,8 +348,8 @@ public class Module {
                 Modifier module = this.packageInstance.module(dependentDescriptor.name()).modify();
                 moduleContextSet.add(new ModuleContext(this.project,
                         module.moduleId, dependentDescriptor, module.isDefaultModule, module.srcDocContextMap,
-                        module.testDocContextMap, module.moduleMdContext, module.dependencies, this.resourceContextMap,
-                        this.testResourceContextMap));
+                        module.testDocContextMap, module.moduleMdContext, module.dependencies,
+                        module.resourceContextMap, module.testResourceContextMap));
             }
 
             Package newPackage = this.packageInstance.modify().updateModules(moduleContextSet).apply();
@@ -363,7 +362,10 @@ public class Module {
         }
 
         private Collection<ModuleDescriptor> getAllDependants(ModuleDescriptor updatedModuleDescriptor) {
-            packageInstance.getResolution(); // this will build the dependency graph if it is not built yet
+            CompilationOptions offlineCompOptions = CompilationOptions.builder().setOffline(true).build();
+            offlineCompOptions = offlineCompOptions.acceptTheirs(project.currentPackage().compilationOptions());
+            // this will build the dependency graph if it is not built yet
+            packageInstance.getResolution(offlineCompOptions);
             return getAllDependants(updatedModuleDescriptor, new HashSet<>(), new HashSet<>());
         }
 

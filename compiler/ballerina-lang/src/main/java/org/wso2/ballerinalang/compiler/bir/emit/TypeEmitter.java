@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -116,6 +117,8 @@ class TypeEmitter {
                 return "decimal";
             case TypeTags.CHAR_STRING:
                 return "string:Char";
+            case TypeTags.REGEXP:
+                return "regexp:RegExp";
             case TypeTags.UNION:
                 return emitBUnionType((BUnionType) bType, tabs);
             case TypeTags.INTERSECTION:
@@ -231,11 +234,11 @@ class TypeEmitter {
             return bType.toString();
         }
         StringBuilder tupleStr = new StringBuilder("(");
-        int length = bType.tupleTypes.size();
+        int length = bType.getMembers().size();
         int i = 0;
-        for (BType mType : bType.tupleTypes) {
-            if (mType != null) {
-                tupleStr.append(emitTypeRef(mType, tabs));
+        for (BTupleMember tupleMember : bType.getMembers()) {
+            if (tupleMember != null) {
+                tupleStr.append(emitTypeRef(tupleMember.type, tabs));
                 i += 1;
                 if (i < length) {
                     tupleStr.append(",");
@@ -250,15 +253,17 @@ class TypeEmitter {
     private static String emitBInvokableType(BInvokableType bType, int tabs) {
 
         StringBuilder invString = new StringBuilder("function(");
-        int pLength = bType.paramTypes.size();
         int i = 0;
-        for (BType pType : bType.paramTypes) {
-            if (pType != null) {
-                invString.append(emitTypeRef(pType, tabs));
-                i += 1;
-                if (i < pLength) {
-                    invString.append(",");
-                    invString.append(emitSpaces(1));
+        if (bType.paramTypes != null) {
+            int pLength = bType.paramTypes.size();
+            for (BType pType : bType.paramTypes) {
+                if (pType != null) {
+                    invString.append(emitTypeRef(pType, tabs));
+                    i += 1;
+                    if (i < pLength) {
+                        invString.append(",");
+                        invString.append(emitSpaces(1));
+                    }
                 }
             }
         }

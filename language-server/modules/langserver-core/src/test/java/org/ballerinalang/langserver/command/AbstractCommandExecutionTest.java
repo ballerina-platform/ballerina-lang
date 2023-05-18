@@ -46,7 +46,7 @@ public abstract class AbstractCommandExecutionTest {
 
     private Endpoint serviceEndpoint;
 
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
 
     private final JsonParser parser = new JsonParser();
 

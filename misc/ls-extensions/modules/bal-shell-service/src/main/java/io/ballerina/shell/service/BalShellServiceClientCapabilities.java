@@ -23,50 +23,50 @@ import org.ballerinalang.langserver.commons.registration.BallerinaClientCapabili
  * @since 2201.1.1
  */
 public class BalShellServiceClientCapabilities extends BallerinaClientCapability {
-    private boolean isGetResult;
-    private boolean isGetShellFileSource;
-    private boolean isGetVariableValues;
-    private boolean isDeleteDeclarations;
-    private boolean isRestartNotebook;
+    private boolean getResult;
+    private boolean getShellFileSource;
+    private boolean getVariableValues;
+    private boolean deleteDeclarations;
+    private boolean restartNotebook;
 
     public boolean isGetResult() {
-        return isGetResult;
+        return getResult;
     }
 
     public void setGetResult(boolean getResult) {
-        isGetResult = getResult;
+        this.getResult = getResult;
     }
 
     public boolean isGetShellFileSource() {
-        return isGetShellFileSource;
+        return getShellFileSource;
     }
 
     public void setGetShellFileSource(boolean getShellFileSource) {
-        isGetShellFileSource = getShellFileSource;
+        this.getShellFileSource = getShellFileSource;
     }
 
     public boolean isGetVariableValues() {
-        return isGetVariableValues;
+        return getVariableValues;
     }
 
     public void setGetVariableValues(boolean getVariableValues) {
-        isGetVariableValues = getVariableValues;
+        this.getVariableValues = getVariableValues;
     }
 
     public boolean isDeleteDeclarations() {
-        return isDeleteDeclarations;
+        return deleteDeclarations;
     }
 
     public void setDeleteDeclarations(boolean deleteDeclarations) {
-        isDeleteDeclarations = deleteDeclarations;
+        this.deleteDeclarations = deleteDeclarations;
     }
 
     public boolean isRestartNotebook() {
-        return isRestartNotebook;
+        return restartNotebook;
     }
 
     public void setRestartNotebook(boolean restartNotebook) {
-        isRestartNotebook = restartNotebook;
+        this.restartNotebook = restartNotebook;
     }
 
     public BalShellServiceClientCapabilities() {

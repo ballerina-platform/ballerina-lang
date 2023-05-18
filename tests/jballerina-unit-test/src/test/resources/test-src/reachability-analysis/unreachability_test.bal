@@ -1053,11 +1053,11 @@ function testUnreachableStatementInQueryAction2() returns error? {
 }
 
 function testUnreachableStatementInQueryAction3() returns error? {
-    from var item in 1 ... 5
-    where false
-    do {
-        int _ = 10; // unreachable code
-    };
+    checkpanic from var _ in new IterableWithError()
+        where false
+        do {
+            int _ = 10; // unreachable code
+        };
 }
 
 function testUnreachableStatementInQueryAction4() returns error? {
@@ -1099,7 +1099,7 @@ function testUnreachableStatementInQueryAction7() returns error? {
 }
 
 function testUnreachableStatementInQueryAction8() returns error? {
-    return from var item in 1 ... 5
+    checkpanic from var _ in new IterableWithError()
         where false
         do {
             int _ = 10; // unreachable code
@@ -1228,7 +1228,7 @@ function testUnreachableStatementInQueryAction20() returns error? {
     return a;
 }
 
-function testUnreachableStatementInQueryAction21() {
+function testUnreachableStatementInQueryAction21() returns error? {
     from var item in 1 ... 5
     where false
     do {
@@ -1422,7 +1422,7 @@ function testLoggingExpectedUnreachableErrors16() {
     int _ = 10; // unreachable code
 }
 
-function testUnreachableStatementInQueryAction25() {
+function testUnreachableStatementInQueryAction25() returns error? {
     from var item in 1 ... 5
     where true
     do {
@@ -1755,4 +1755,18 @@ function testUnreachabilityWithCombinationOfBreakAndContinue10() returns int {
         }
     }
     return 4;
+}
+
+class IterableWithError {
+    *object:Iterable;
+    public function iterator() returns object {
+
+        public isolated function next() returns record {|int value;|}|error?;
+    } {
+        return object {
+            public isolated function next() returns record {|int value;|}|error? {
+               return error("Custom error thrown.");
+            }
+        };
+    }
 }

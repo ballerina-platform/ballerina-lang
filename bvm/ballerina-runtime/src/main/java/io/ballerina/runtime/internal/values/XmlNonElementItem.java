@@ -25,6 +25,10 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlNonElementItem;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import org.apache.axiom.om.OMAbstractFactory;
+import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNode;
 
 import java.io.ByteArrayOutputStream;
@@ -33,7 +37,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_NULL_VALUE;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 
 /**
  * Functionality common to PI, COMMENT and TEXT nodes.
@@ -41,6 +44,8 @@ import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
  * @since 1.2.0
  */
 public abstract class XmlNonElementItem extends XmlValue implements BXmlNonElementItem {
+
+    OMFactory factory = OMAbstractFactory.getOMFactory();
 
     @Override
     public boolean isSingleton() {
@@ -139,7 +144,11 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
         if (index == 0) {
             return this;
         }
-        return new XmlSequence();
+        if (index > 0) {
+            return new XmlSequence();
+        }
+        throw BLangExceptionHelper.getRuntimeException(
+                RuntimeErrors.XML_SEQUENCE_INDEX_OUT_OF_RANGE, 1, index);
     }
 
     @Override
@@ -215,7 +224,7 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
     @Override
     public void freezeDirect() {
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
-        this.typedesc = createSingletonTypedesc(this);
+        this.typedesc = null;
     }
 
     @Override

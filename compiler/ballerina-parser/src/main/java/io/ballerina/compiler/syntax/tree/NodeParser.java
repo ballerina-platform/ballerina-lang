@@ -147,4 +147,27 @@ public class NodeParser {
         BallerinaParser parser = ParserFactory.getParser(text);
         return parser.parse().createUnlinkedFacade();
     }
+
+    /**
+     * Parses the input as an intermediate clause.
+     *
+     * @param text the input
+     * @param allowActions Allow actions
+     * @return a {@code IntermediateClauseNode}
+     */
+    public static IntermediateClauseNode parseIntermediateClause(String text, boolean allowActions) {
+        BallerinaParser parser = ParserFactory.getParser(text);
+        return parser.parseAsIntermediateClause(allowActions).createUnlinkedFacade();
+    }
+
+    /**
+     * Parses the input as a let variable declaration.
+     *
+     * @param text the input
+     * @return a {@code LetVariableDeclarationNode}
+     */
+    public static LetVariableDeclarationNode parseLetVarDeclaration(String text, boolean allowActions) {
+        BallerinaParser parser = ParserFactory.getParser(text);
+        return parser.parseAsLetVarDeclaration(allowActions).createUnlinkedFacade();
+    }
 }

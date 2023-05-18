@@ -97,10 +97,10 @@ function retryErrorWithFail() returns string|error {
             fail trxError();
         }
         str += (" attempt "+ count.toString() + ":result returned end.");
-        return str;
     } on fail error e {
         str += "-> error handled";
     }
+    return str;
 }
 
 function retryErrorWithFailWithoutVariableVariationOne() returns string|error {
@@ -113,10 +113,10 @@ function retryErrorWithFailWithoutVariableVariationOne() returns string|error {
             fail trxError();
         }
         str += (" attempt "+ count.toString() + ":result returned end.");
-        return str;
     } on fail {
         str += "-> error handled";
     }
+    return str;
 }
 
 function retryErrorWithFailWithoutVariableVariationTwo() returns string|error {

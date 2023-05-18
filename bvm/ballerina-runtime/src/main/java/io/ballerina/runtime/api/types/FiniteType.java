@@ -21,7 +21,7 @@ package io.ballerina.runtime.api.types;
 import java.util.Set;
 
 /**
- * {@code BFiniteType} represents the finite type in Ballerina.
+ * {@code FiniteType} represents the finite type in Ballerina.
  *
  * @since 2.0.0
  */

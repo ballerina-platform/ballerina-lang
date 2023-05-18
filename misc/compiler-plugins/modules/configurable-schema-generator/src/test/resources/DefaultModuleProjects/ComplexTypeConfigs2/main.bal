@@ -14,7 +14,7 @@ configurable table<Employee> key(name) t = table [
     { name: "John", salary: 100 },
     { name: "Jane", salary: 200 }
 ];
-configurable map<int> itemCodes = {"item1": 11, "item2": 12, "item3": 45};
+configurable map<int> item\ Codes = {"item1": 11, "item2": 12, "item3": 45};
 configurable Color itemColor = RED;
 configurable Foo val = 1;
 configurable Color|Foo myVal = 1.4;

@@ -15,7 +15,7 @@
 // under the License.
 
 public function main() {
-    int abs = int:abs(12);
+    float abs = float:abs(12);
 }
 
 function sum(int a, int b) returns int {

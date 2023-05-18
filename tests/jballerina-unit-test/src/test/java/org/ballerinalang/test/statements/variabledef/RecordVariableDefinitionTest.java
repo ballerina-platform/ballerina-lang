@@ -373,10 +373,71 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid field binding pattern; can only bind required fields", 310, 16);
         BAssertUtil.validateError(resultNegative, ++i,
-                "invalid field binding pattern; can only bind required fields", 313, 11);
-        BAssertUtil.validateError(resultNegative, ++i,
                 "invalid field binding pattern; can only bind required fields", 316, 40);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'int', found 'int?'", 328, 18);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'int', found 'int?'", 331, 14);
+        BAssertUtil.validateError(resultNegative, ++i,
+                "incompatible types: expected 'record {| int b?; anydata...; |}[1]', " +
+                        "found 'record {| int b?; anydata...; |}[1]?'", 344, 29);
+
+        BAssertUtil.validateError(resultNegative, ++i,
+                "invalid record binding pattern with type 'record {| int b?; anydata...; |}[1]'", 349, 17);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'int?', found 'string?'",
+                360, 19);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'record {| readonly (string[] & " +
+                "readonly) x; readonly string y; |} & readonly', found 'ReadOnlyRecord'", 373, 17);
+        BAssertUtil.validateError(resultNegative, ++i, "incompatible types: expected 'int[] & readonly', found " +
+                "'int[]'", 381, 9);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
+    }
+
+    @Test
+    public void testOptionalFieldRecordAssignment() {
+        BRunUtil.invoke(result, "testOptionalFieldRecordAssignment1");
+        BRunUtil.invoke(result, "testOptionalFieldRecordAssignment2");
+        BRunUtil.invoke(result, "testOptionalFieldRecordAssignment3");
+        BRunUtil.invoke(result, "testOptionalFieldRecordAssignment4");
+        BRunUtil.invoke(result, "testOptionalFieldRecordAssignment5");
+        BRunUtil.invoke(result, "testOptionalFieldRecordAssignment6");
+        BRunUtil.invoke(result, "testOptionalFieldRecordAssignment7");
+        BRunUtil.invoke(result, "testOptionalFieldRecordAssignment8");
+        BRunUtil.invoke(result, "testOptionalFieldRecordAssignment9");
+        BRunUtil.invoke(result, "testOptionalFieldRecordAssignment10");
+    }
+
+    @Test
+    public void testRecordDefinitionWithOptionalFields() {
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields1");
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields2");
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields3");
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields4");
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields5");
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields6");
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields7");
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields8");
+        BRunUtil.invoke(result, "testRecordDefinitionWithOptionalFields9");
+    }
+
+    @Test
+    public void testRecordFieldBindingPatternsWithIdentifierEscapes() {
+        BRunUtil.invoke(result, "testRecordFieldBindingPatternsWithIdentifierEscapes");
+    }
+
+    @Test
+    public void testReadOnlyRecordWithMappingBindingPattern() {
+        BRunUtil.invoke(result, "testReadOnlyRecordWithMappingBindingPatternInVarDecl");
+    }
+
+    @Test
+    public void testRecordVariableWithAnonymousType() {
+        BRunUtil.invoke(result, "testRecordVariableWithAnonymousType");
+    }
+
+    @Test
+    public void testNestedRecordVariableWithAnonymousType() {
+        BRunUtil.invoke(result, "testNestedRecordVariableWithAnonymousType");
     }
 
     @AfterClass

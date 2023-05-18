@@ -21,9 +21,11 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+
 /**
  * This class contains type reference type related test cases.
  */
@@ -36,14 +38,21 @@ public class TypeReferenceTests {
         result = BCompileUtil.compile("test-src/types/typereftype/type_reference.bal");
     }
 
-    @Test
-    public void testTypeRef() {
-        BRunUtil.invoke(result, "testTypeRef");
+    @Test(dataProvider = "typeReferenceTestFunctions")
+    public void testTypeReferenceTypes(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
-    @Test
-    public void testUnionTypeRefWithMap() {
-        BRunUtil.invoke(result, "testUnionTypeRefWithMap");
+    @DataProvider
+    public Object[] typeReferenceTestFunctions() {
+        return new Object[]{
+                "testTypeRef",
+                "testTypeRef2",
+                "testUnionTypeRefWithMap",
+                "testObjectTypeReferenceType",
+                "testTableTypeReferenceType",
+                "errorTypeReferenceTypeTest"
+        };
     }
 
     @Test(description = "Test basics types")
@@ -63,6 +72,10 @@ public class TypeReferenceTests {
         validateError(compileResult, index++, "incompatible types: expected 'Foo', found 'int'", 28, 16);
         validateError(compileResult, index++, "incompatible types: expected 'string', " +
                 "found 'ImmutableIntArray'", 32, 16);
+        validateError(compileResult, index++, "incompatible types: expected 'StudentRef', found 'string'", 52, 22);
+        validateError(compileResult, index++, "incompatible types: expected 'string', found 'StudentRef'", 55, 16);
+        validateError(compileResult, index++, "incompatible types: expected 'BarTable', found 'string'", 67, 21);
+        validateError(compileResult, index++, "incompatible types: expected 'string', found 'BTable'", 70, 16);
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

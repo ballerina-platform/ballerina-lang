@@ -49,6 +49,9 @@ public class BallerinaLexer extends AbstractLexer {
             case TEMPLATE:
                 token = readTemplateToken();
                 break;
+            case REGEXP:
+                token = readRegExpTemplateToken();
+                break;
             case INTERPOLATION:
                 processLeadingTrivia();
                 token = readTokenInInterpolation();
@@ -914,8 +917,6 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.PANIC_KEYWORD);
             case LexerTerminals.IMPORT:
                 return getSyntaxToken(SyntaxKind.IMPORT_KEYWORD);
-            case LexerTerminals.VERSION:
-                return getSyntaxToken(SyntaxKind.VERSION_KEYWORD);
             case LexerTerminals.AS:
                 return getSyntaxToken(SyntaxKind.AS_KEYWORD);
             case LexerTerminals.SERVICE:
@@ -1012,7 +1013,6 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.MATCH_KEYWORD);
             case LexerTerminals.CONFLICT:
                 return getSyntaxToken(SyntaxKind.CONFLICT_KEYWORD);
-
             case LexerTerminals.CLASS:
                 return getSyntaxToken(SyntaxKind.CLASS_KEYWORD);
             case LexerTerminals.CONFIGURABLE:
@@ -1037,12 +1037,61 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
             case LexerTerminals.JOIN:
                 return getSyntaxToken(SyntaxKind.JOIN_KEYWORD);
+            case LexerTerminals.RE:
+                if (getNextNonWSOrNonCommentChar() == LexerTerminals.BACKTICK) {
+                    return getSyntaxToken(SyntaxKind.RE_KEYWORD);
+                }
+                return getIdentifierToken();
             default:
 //                if (this.keywordModes.contains(KeywordMode.QUERY)) {
 //                    return getQueryCtxKeywordOrIdentifier(tokenText);
 //                }
                 return getIdentifierToken();
         }
+    }
+
+    private int getNextNonWSOrNonCommentChar() {
+        int lookaheadCount = 0;
+        char nextChar = reader.peek(lookaheadCount);
+        while (nextChar != Character.MAX_VALUE) {
+            switch (nextChar) {
+                case LexerTerminals.SPACE:
+                case LexerTerminals.TAB:
+                case LexerTerminals.FORM_FEED:
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.NEWLINE:
+                    lookaheadCount++;
+                    break;
+                case LexerTerminals.SLASH:
+                    if (reader.peek(lookaheadCount + 1) == LexerTerminals.SLASH) {
+                        lookaheadCount += 2;
+                        lookaheadCount = skipComment(lookaheadCount);
+                        break;
+                    }
+                    return nextChar;
+                default:
+                    return nextChar;
+            }
+            nextChar = reader.peek(lookaheadCount);
+        }
+        return nextChar;
+    }
+
+    private int skipComment(int lookaheadCount) {
+        int nextChar = reader.peek(lookaheadCount);
+        while (nextChar != Character.MAX_VALUE) {
+            switch (nextChar) {
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                    break;
+                default:
+                    lookaheadCount++;
+                    nextChar = reader.peek(lookaheadCount);
+                    continue;
+            }
+            break;
+        }
+        return lookaheadCount;
     }
 
 //    private STToken getQueryCtxKeywordOrIdentifier(String tokenText) {
@@ -1249,35 +1298,6 @@ public class BallerinaLexer extends AbstractLexer {
     }
 
     /**
-     * Process numeric escape.
-     * <p>
-     * <code>NumericEscape := \ u { CodePoint }</code>
-     */
-    private void processNumericEscape() {
-        // Process '\ u {'
-        this.reader.advance(3);
-
-        // Process code-point
-        if (!isHexDigit(peek())) {
-            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
-            return;
-        }
-
-        reader.advance();
-        while (isHexDigit(peek())) {
-            reader.advance();
-        }
-
-        // Process close brace
-        if (peek() != LexerTerminals.CLOSE_BRACE) {
-            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
-            return;
-        }
-
-        this.reader.advance();
-    }
-
-    /**
      * Process any token that starts with '!'.
      *
      * @return One of the tokens: <code>'!', '!=', '!=='</code>
@@ -1463,6 +1483,65 @@ public class BallerinaLexer extends AbstractLexer {
                 }
         }
 
+        return getLiteral(SyntaxKind.TEMPLATE_STRING);
+    }
+
+    /**
+     * Read a regular expression template token.
+     * Continues reading as a single token until it finds an interpolation or a backtick.
+     * Interpolations are treated as a single literal if they are nested within a character class.
+     *
+     * @return The regexp literal.
+     */
+    private STToken readRegExpTemplateToken() {
+        boolean shouldProcessInterpolations = true;
+        reader.mark();
+        if (reader.isEOF()) {
+            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        char nextChar = this.reader.peek();
+        switch (nextChar) {
+            case LexerTerminals.BACKTICK:
+                reader.advance();
+                endMode();
+                return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+            case LexerTerminals.DOLLAR:
+                if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                    // Switch to interpolation mode. Then the next token will be read in that mode.
+                    startMode(ParserMode.INTERPOLATION);
+                    reader.advance(2);
+
+                    return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
+                }
+                // fall through
+            default:
+                if (nextChar == LexerTerminals.OPEN_BRACKET) {
+                    shouldProcessInterpolations = false;
+                }
+                while (!reader.isEOF()) {
+                    reader.advance();
+                    nextChar = this.reader.peek();
+                    switch (nextChar) {
+                        case LexerTerminals.DOLLAR:
+                            if (shouldProcessInterpolations && this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                                break;
+                            }
+                            continue;
+                        case LexerTerminals.BACKTICK:
+                            break;
+                        case LexerTerminals.OPEN_BRACKET:
+                            shouldProcessInterpolations = false;
+                            continue;
+                        case LexerTerminals.CLOSE_BRACKET:
+                            shouldProcessInterpolations = true;
+                            continue;
+                        default:
+                            continue;
+                    }
+                    break;
+                }
+        }
         return getLiteral(SyntaxKind.TEMPLATE_STRING);
     }
 

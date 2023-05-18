@@ -18,11 +18,9 @@
 
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -34,12 +32,11 @@ import org.testng.annotations.Test;
  */
 public class ErrorQueryTest {
 
-    private CompileResult result, negativeResult;
+    private CompileResult result;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/query/query_expr_with_errors.bal");
-        negativeResult = BCompileUtil.compile("test-src/query/query_expr_with_errors_negative.bal");
     }
 
     @Test
@@ -128,86 +125,26 @@ public class ErrorQueryTest {
     }
 
     @Test
-    public void testErrorReturnedFromStreamConstruction() {
-        BRunUtil.invoke(result, "testErrorReturnedFromStreamConstruction");
+    public void testErrorReturnedFromQueryAction() {
+        BRunUtil.invoke(result, "testErrorReturnedFromQueryAction");
+    }
+    @Test
+    public void testCompleteEarlyErrorsWithinQueryAction() {
+        BRunUtil.invoke(result, "testCompleteEarlyErrorsWithinQuery");
     }
 
     @Test
-    public void testErrorReturnedFromTableConstruction() {
-        BRunUtil.invoke(result, "testErrorReturnedFromTableConstruction");
+    public void testErrorReturnedFromStreams() {
+        BRunUtil.invoke(result, "testErrorReturnedFromStreams");
     }
 
     @Test
-    public void testErrorReturnedFromXmlConstruction() {
-        BRunUtil.invoke(result, "testErrorReturnedFromXmlConstruction");
-    }
-
-    @Test
-    public void testErrorReturnedFromArrayConstruction() {
-        BRunUtil.invoke(result, "testErrorReturnedFromArrayConstruction");
-    }
-
-    @Test(description = "Test negative scenarios for different constructors with queries")
-    public void testNegativeScenarios() {
-        int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int,error>', " +
-                "found 'stream<int>'", 84, 28);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', " +
-                "found 'stream<int,CustomError?>'", 91, 21);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int,error>', " +
-                "found 'stream<int,CustomError?>'", 95, 28);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', " +
-                "found 'stream<int,CustomError?>'", 105, 21);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', " +
-                "found 'stream<int,CustomError?>'", 109, 21);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', " +
-                "found 'stream<int,CustomError?>'", 113, 21);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int,error>', " +
-                "found 'stream<int,CustomError?>'", 118, 28);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int,error>', " +
-                "found 'stream<int,(CustomError|error)?>'", 123, 28);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'stream<int>', " +
-                "found 'stream<int,error>'", 127, 21);
-
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'CustomerTable', " +
-                "found '(table<Customer> key(id)|error)'", 136, 36);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'CustomerTable', " +
-                "found '(table<Customer> key(id)|error)'", 143, 36);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'CustomerTable', " +
-                "found '(table<Customer> key(id)|error)'", 148, 36);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected '(CustomerTable|CustomError)', " +
-                "found '(table<Customer> key(id)|CustomError|error)'", 152, 48);
-
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
-                "found '(int[]|CustomError)'", 161, 18);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
-                "found '(int[]|CustomError)'", 171, 15);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
-                "found '(int[]|CustomError)'", 175, 15);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
-                "found '(int[]|CustomError)'", 179, 15);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
-                "found '(int[]|error)'", 192, 15);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', " +
-                "found '(int[]|error)'", 196, 15);
-
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'xml', " +
-                "found '(xml|error)'", 206, 13);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'xml', " +
-                "found '(xml|error)'", 210, 13);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'xml', " +
-                "found '(xml|CustomError)'", 214, 13);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: '(xml[]|error)' " +
-                "is not an iterable collection", 219, 30);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'xml', " +
-                "found '(xml|error)'", 224, 13);
-
-        Assert.assertEquals(negativeResult.getErrorCount(), i);
+    public void testErrorsFailAndReturnedInQuery() {
+        BRunUtil.invoke(result, "testErrorsFailAndReturnedInQuery");
     }
 
     @AfterClass
     public void tearDown() {
         result = null;
-        negativeResult = null;
     }
 }

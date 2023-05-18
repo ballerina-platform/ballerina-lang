@@ -32,6 +32,7 @@ distinct class String {
     #
     # + return - The `string` form of the Java object instance.
     function toString() returns string {
-        return java:toString(self.jObj) ?: "null";
+        return java:toString(self.jObj) ?: "";
     }
+
 }

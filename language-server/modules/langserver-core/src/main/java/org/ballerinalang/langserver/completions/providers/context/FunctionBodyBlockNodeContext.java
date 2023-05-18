@@ -17,7 +17,10 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -45,7 +48,12 @@ public class FunctionBodyBlockNodeContext extends BlockNodeContextProvider<Funct
         List<LSCompletionItem> completionItems = new ArrayList<>(super.getCompletions(context, node));
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (!QNameRefCompletionUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_WORKER.get()));
+            List<Token> qualifiers = CommonUtil.getQualifiersOfNode(context, nodeAtCursor);
+            // Workers can be added either with no qualifiers or after transactional qualifier
+            if (qualifiers.isEmpty() || 
+                    qualifiers.get(qualifiers.size() - 1).kind() == SyntaxKind.TRANSACTIONAL_KEYWORD) {
+                completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_WORKER.get()));
+            }
         }
         this.sort(context, node, completionItems);
 

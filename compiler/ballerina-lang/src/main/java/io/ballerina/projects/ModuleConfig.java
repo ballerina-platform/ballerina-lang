@@ -35,7 +35,7 @@ public class ModuleConfig {
     private final List<ModuleDescriptor> dependencies;
     private final DocumentConfig moduleMd;
     private final List<ResourceConfig> resources;
-    private List<ResourceConfig> testResources;
+    private final List<ResourceConfig> testResources;
 
     private ModuleConfig(ModuleId moduleId,
                          ModuleDescriptor moduleDescriptor,

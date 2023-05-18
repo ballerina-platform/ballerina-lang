@@ -42,6 +42,7 @@ public class PackageDiff extends DiffImpl {
     public PackageDiff(Package newPackage, Package oldPackage) {
         this.newPackage = newPackage;
         this.oldPackage = oldPackage;
+        this.diffKind = DiffKind.PACKAGE;
     }
 
     public Optional<Package> getNewPackage() {

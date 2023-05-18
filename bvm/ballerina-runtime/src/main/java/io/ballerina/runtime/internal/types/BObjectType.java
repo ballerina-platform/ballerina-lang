@@ -52,8 +52,8 @@ import static io.ballerina.runtime.api.TypeTags.SERVICE_TAG;
 public class BObjectType extends BStructureType implements ObjectType {
 
     private MethodType[] methodTypes;
-    public MethodType initializer;
-    public MethodType generatedInitializer;
+    private MethodType initMethod;
+    public MethodType generatedInitMethod;
 
     private final boolean readonly;
     protected IntersectionType immutableType;
@@ -84,14 +84,12 @@ public class BObjectType extends BStructureType implements ObjectType {
         Strand currentStrand = Scheduler.getStrand();
         Map<String, Field> fieldsMap = objectType.getFields();
         Field[] fields = fieldsMap.values().toArray(new Field[0]);
-        Object[] fieldValues = new Object[fields.length * 2];
+        Object[] fieldValues = new Object[fields.length];
 
         for (int i = 0, j = 0; i < fields.length; i++) {
             Type type = fields[i].getFieldType();
             // Add default value of the field type as initial argument.
             fieldValues[j++] = type.getZeroValue();
-            // Add boolean value for each argument to indicate the default value case.
-            fieldValues[j++] = false;
         }
         return ValueUtils.createObjectValue(currentStrand, packageId, objectType.getName(), fieldValues);
     }
@@ -117,6 +115,15 @@ public class BObjectType extends BStructureType implements ObjectType {
     }
 
     @Override
+    public MethodType getInitMethod() {
+        return initMethod;
+    }
+
+    public MethodType getGeneratedInitMethod() {
+        return generatedInitMethod;
+    }
+
+    @Override
     public boolean isIsolated() {
         return SymbolFlags.isFlagOn(getFlags(), SymbolFlags.ISOLATED);
     }
@@ -128,8 +135,8 @@ public class BObjectType extends BStructureType implements ObjectType {
                 return method.isIsolated();
             }
         }
-        if (this.getTag() == SERVICE_TAG) {
-            for (ResourceMethodType method : ((BServiceType) this).getResourceMethods()) {
+        if (this.getTag() == SERVICE_TAG || (this.flags & SymbolFlags.CLIENT) == SymbolFlags.CLIENT) {
+            for (ResourceMethodType method : ((BNetworkObjectType) this).getResourceMethods()) {
                 if (method.getName().equals(methodName)) {
                     return method.isIsolated();
                 }
@@ -142,12 +149,12 @@ public class BObjectType extends BStructureType implements ObjectType {
         this.methodTypes = methodTypes;
     }
 
-    public void setInitializer(BMethodType initializer) {
-        this.initializer = initializer;
+    public void setInitMethod(MethodType initMethod) {
+        this.initMethod = initMethod;
     }
 
-    public void setGeneratedInitializer(BMethodType generatedInitializer) {
-        this.generatedInitializer = generatedInitializer;
+    public void setGeneratedInitMethod(BMethodType generatedInitMethod) {
+        this.generatedInitMethod = generatedInitMethod;
     }
 
     public void computeStringRepresentation() {

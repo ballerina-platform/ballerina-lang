@@ -86,8 +86,6 @@ public class ModuleTupleVariableTest {
         validateError(compileResultNegative, index++,
                 "invalid error binding pattern with type 'float'", 47, 30);
         validateError(compileResultNegative, index++,
-                "invalid list binding pattern; member variable count mismatch with member type count", 51, 1);
-        validateError(compileResultNegative, index++,
                 "field binding pattern inside list binding pattern", 51, 8);
         assertEquals(compileResultNegative.getErrorCount(), index);
     }

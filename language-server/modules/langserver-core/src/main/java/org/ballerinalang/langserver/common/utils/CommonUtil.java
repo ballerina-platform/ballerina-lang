@@ -112,6 +112,7 @@ public class CommonUtil {
 
     public static final String EXPR_SCHEME = "expr";
 
+    //lang.array, regexp, lang.value, lang.runtime, jballerina.java are not pre-declared.
     public static final List<String> PRE_DECLARED_LANG_LIBS = Arrays.asList("lang.boolean", "lang.decimal",
             "lang.error", "lang.float", "lang.function", "lang.future", "lang.int", "lang.map", "lang.object",
             "lang.stream", "lang.string", "lang.table", "lang.transaction", "lang.typedesc", "lang.xml");
@@ -120,7 +121,7 @@ public class CommonUtil {
 
     public static final Set<SyntaxKind> QUALIFIER_KINDS = Set.of(SyntaxKind.SERVICE_KEYWORD,
             SyntaxKind.CLIENT_KEYWORD, SyntaxKind.ISOLATED_KEYWORD, SyntaxKind.TRANSACTIONAL_KEYWORD,
-            SyntaxKind.PUBLIC_KEYWORD, SyntaxKind.PRIVATE_KEYWORD);
+            SyntaxKind.PUBLIC_KEYWORD, SyntaxKind.PRIVATE_KEYWORD, SyntaxKind.CONFIGURABLE_KEYWORD);
 
     private static final Pattern TYPE_NAME_DECOMPOSE_PATTERN = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
 
@@ -230,6 +231,17 @@ public class CommonUtil {
     }
 
     /**
+     * As per LSP, characters like \ and $ should be escaped when using them as insert text.
+     *
+     * @param text The text to be processed
+     * @return Processed text
+     */
+    public static String escapeSpecialCharsInInsertText(String text) {
+        return text.replaceAll("\\\\", "\\\\\\\\")
+                .replaceAll("\\$", Matcher.quoteReplacement("\\$"));
+    }
+
+    /**
      * Find node of this range.
      *
      * @param range      {@link Range}
@@ -289,8 +301,8 @@ public class CommonUtil {
     /**
      * Check if the provided union type is a union of members of provided type desc kind.
      *
-     * @param typeSymbol Union type symbol
-     * @param typeDescKind    Type desc kind
+     * @param typeSymbol   Union type symbol
+     * @param typeDescKind Type desc kind
      * @return true if provided union contains members of provided type desc kind
      */
     public static boolean isUnionOfType(TypeSymbol typeSymbol, TypeDescKind typeDescKind) {
@@ -304,16 +316,16 @@ public class CommonUtil {
     /**
      * Get the completion item label for a given package.
      *
-     * @param pkg {@link Package} package info to evaluate
+     * @param module {@link Package} module info to evaluate
      * @return {@link String} label computed
      */
-    public static String getPackageLabel(LSPackageLoader.PackageInfo pkg) {
+    public static String getPackageLabel(LSPackageLoader.ModuleInfo module) {
         String orgName = "";
-        if (pkg.packageOrg().value() != null && !pkg.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
-            orgName = pkg.packageOrg().value() + "/";
+        if (!module.packageOrg().value().isEmpty() && !module.packageOrg().value().equals(Names.ANON_ORG.getValue())) {
+            orgName = module.packageOrg().value() + "/";
         }
 
-        return orgName + pkg.packageName().value();
+        return orgName + module.packageName().value();
     }
 
     /**
@@ -436,9 +448,14 @@ public class CommonUtil {
                 List<Token> qualsAtCursor = getQualifiersAtCursor(context);
                 Set<SyntaxKind> foundQuals = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
                 context.getNodeAtCursor().leadingInvalidTokens().stream()
-                        .filter(token -> QUALIFIER_KINDS.contains(token.kind())
-                                && !foundQuals.contains(token.kind())).forEach(qualifiers::add);
-                qualifiers.addAll(qualsAtCursor);
+                        .filter(token -> QUALIFIER_KINDS.contains(token.kind()))
+                        .filter(token -> !foundQuals.contains(token.kind()))
+                        .forEach(qualifiers::add);
+                // Avoid duplicating the token at cursor.
+                qualsAtCursor.stream()
+                        .filter(token -> qualifiers.stream()
+                                .noneMatch(qual -> qual.textRange().equals(token.textRange())))
+                        .forEach(qualifiers::add);
                 return qualifiers;
             default:
         }
@@ -603,5 +620,52 @@ public class CommonUtil {
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         return CommonUtil.isLangLib(functionSymbol.getModule().get().id())
                 && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
+    }
+
+    /**
+     * Returns ballerina text edit for a given lsp4j text edit.
+     *
+     * @param syntaxTree syntax tree
+     * @param textEdit   lsp4j text edit
+     * @return Ballerina text edit
+     */
+    public static io.ballerina.tools.text.TextEdit getTextEdit(SyntaxTree syntaxTree,
+                                                               org.eclipse.lsp4j.TextEdit textEdit) {
+        TextDocument textDocument = syntaxTree.textDocument();
+        int start = textDocument.textPositionFrom(PositionUtil.getLinePosition(textEdit.getRange().getStart()));
+        int end = textDocument.textPositionFrom(PositionUtil.getLinePosition(textEdit.getRange().getEnd()));
+        return io.ballerina.tools.text.TextEdit.from(TextRange.from(start, end - start), textEdit.getNewText());
+    }
+
+    /**
+     * Get the last appearing qualifier token of a given node.
+     *
+     * @param context completion context.
+     * @param node    node.
+     * @return {@link Token} lastQualifier.
+     */
+    public static Optional<Token> getLastQualifier(BallerinaCompletionContext context, Node node) {
+        List<Token> qualifiers = getQualifiersOfNode(context, node);
+        if (qualifiers.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(qualifiers.get(qualifiers.size() - 1));
+    }
+
+    /**
+     * Returns the matching node for a given node.
+     *
+     * @param nodeAtCursor node
+     * @return node
+     */
+    public static Optional<Node> getMappingContextEvalNode(Node nodeAtCursor) {
+        Predicate<Node> predicate = node ->
+                node.kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        || node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR
+                        || node.kind() == SyntaxKind.MAPPING_MATCH_PATTERN
+                        || node.parent().kind() == SyntaxKind.MAPPING_MATCH_PATTERN
+                        || node.kind() == SyntaxKind.SPECIFIC_FIELD
+                        || node.kind() == SyntaxKind.COMPUTED_NAME_FIELD;
+        return CommonUtil.getMatchingNode(nodeAtCursor, predicate);
     }
 }

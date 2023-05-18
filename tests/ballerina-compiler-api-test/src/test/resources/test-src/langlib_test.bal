@@ -64,11 +64,14 @@ function test() {
 
     table<PathConfig> tbl;
     table<PathConfig> key(path) tbl2;
+    table<PathConfig> key<NeverType> tbl3;
 
     xml xm = xml `<Greeting>Hello</Greeting>`;
     'xml:Element xm2 = xml `<Greeting>Hola</Greeting>`;
 
     int[] & readonly iarr = [1, 2];
+    
+    object { string target; } & readonly readonlyObjIntersec = object { string target = "t1" };
 
     T1 t1 = 2;
 
@@ -89,3 +92,5 @@ type ErrX distinct error;
 type ErrY distinct error;
 
 type Err ErrX|ErrY|error<map<anydata>>;
+
+type NeverType never;

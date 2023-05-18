@@ -41,6 +41,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_LOC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_STATUS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRING;
+import static org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen.FUNCTION_INVOCATION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.methodgen.MethodGen.STATE;
 
 /**
  * Generates Jvm byte code for the generateFrame classes.
@@ -78,8 +80,8 @@ public class FrameClassGen {
         String frameClassName = MethodGenUtils.getFrameClassName(JvmCodeGenUtil.getPackageName(packageID),
                                                                  func.name.value, attachedType);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        if (func.pos != null && func.pos.lineRange().filePath() != null) {
-            cw.visitSource(func.pos.lineRange().filePath(), null);
+        if (func.pos != null && func.pos.lineRange().fileName() != null) {
+            cw.visitSource(func.pos.lineRange().fileName(), null);
         }
         cw.visit(V1_8, Opcodes.ACC_PUBLIC + ACC_SUPER, frameClassName, null, OBJECT,
                 new String[]{FUNCTION_FRAME});
@@ -100,7 +102,9 @@ public class FrameClassGen {
             k = k + 1;
         }
 
-        FieldVisitor fv = cw.visitField(Opcodes.ACC_PUBLIC, "state", "I", null, null);
+        FieldVisitor fv = cw.visitField(Opcodes.ACC_PUBLIC, STATE, "I", null, null);
+        fv.visitEnd();
+        fv = cw.visitField(Opcodes.ACC_PUBLIC, FUNCTION_INVOCATION, "I", null, null);
         fv.visitEnd();
         fv = cw.visitField(Opcodes.ACC_PUBLIC, YIELD_LOCATION, GET_STRING, null, null);
         fv.visitEnd();

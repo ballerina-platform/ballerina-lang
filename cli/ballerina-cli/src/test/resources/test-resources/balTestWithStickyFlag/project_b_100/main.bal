@@ -1,8 +1,7 @@
 import pramjs/pkg_a;
-import ballerina/io;
 
 public function main(string a) {
-    io:println(helloFunction());
+    _ = helloFunction();
 }
 
 public function helloFunction() returns string {

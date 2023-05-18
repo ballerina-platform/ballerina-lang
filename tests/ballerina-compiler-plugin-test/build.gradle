@@ -49,6 +49,7 @@ dependencies {
     testRuntime project(':ballerina-runtime')
     testRuntime project(':ballerina-lang:internal')
     testRuntime project(':ballerina-lang:query')
+    testRuntime project(':ballerina-lang:regexp')
     testRuntime project(':ballerina-lang:transaction')
     testRuntime 'org.slf4j:slf4j-jdk14'
 }

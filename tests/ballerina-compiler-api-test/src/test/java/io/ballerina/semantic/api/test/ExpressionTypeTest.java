@@ -79,38 +79,38 @@ public class ExpressionTypeTest {
     @DataProvider(name = "LiteralPosProvider")
     public Object[][] getLiteralPos() {
         return new Object[][]{
-                {17, 21, 17, 22, INT},
-                {17, 24, 17, 29, FLOAT},
-                {17, 31, 17, 36, DECIMAL},
-                {17, 38, 17, 42, BOOLEAN},
-                {17, 44, 17, 46, NIL},
-                {17, 48, 17, 53, STRING},
-                {18, 13, 18, 17, NIL},
+                {19, 21, 19, 22, INT},
+                {19, 24, 19, 29, FLOAT},
+                {19, 31, 19, 36, DECIMAL},
+                {19, 38, 19, 42, BOOLEAN},
+                {19, 44, 19, 46, NIL},
+                {19, 48, 19, 53, STRING},
+                {20, 13, 20, 17, NIL},
         };
     }
 
     @Test
     public void testByteLiteral() {
-        TypeSymbol type = getExprType(19, 15, 19, 44);
+        TypeSymbol type = getExprType(21, 15, 21, 44);
         assertEquals(type.typeKind(), ARRAY);
         assertEquals(((ArrayTypeSymbol) type).memberTypeDescriptor().typeKind(), BYTE);
     }
 
     @Test
     public void testStringTemplateExpr() {
-        assertType(23, 15, 23, 36, STRING);
+        assertType(25, 15, 25, 36, STRING);
     }
 
     @Test
     public void testXMLTemplateExpr() {
-        TypeSymbol type = getExprType(24, 12, 24, 45);
+        TypeSymbol type = getExprType(26, 12, 26, 45);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
         assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), XML_ELEMENT);
     }
 
     @Test
     public void testRawTemplate() {
-        TypeSymbol type = getExprType(25, 29, 25, 50);
+        TypeSymbol type = getExprType(27, 29, 27, 50);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
 
         TypeSymbol objType = ((TypeReferenceTypeSymbol) type).typeDescriptor();
@@ -122,7 +122,7 @@ public class ExpressionTypeTest {
 
     @Test
     public void testArrayLiteral() {
-        TypeSymbol type = getExprType(29, 20, 29, 34);
+        TypeSymbol type = getExprType(31, 20, 31, 34);
         assertEquals(type.typeKind(), ARRAY);
 
         TypeSymbol memberType = ((ArrayTypeSymbol) type).memberTypeDescriptor();
@@ -146,8 +146,8 @@ public class ExpressionTypeTest {
     @DataProvider(name = "TupleLiteralPosProvider")
     public Object[][] getTuplePos() {
         return new Object[][]{
-                {30, 15, 30, 27, List.of(INT, INT, INT)},
-                {32, 31, 32, 49, List.of(INT, STRING, FLOAT)},
+                {32, 15, 32, 27, List.of(INT, INT, INT)},
+                {33, 31, 33, 49, List.of(INT, STRING, FLOAT)},
         };
     }
 

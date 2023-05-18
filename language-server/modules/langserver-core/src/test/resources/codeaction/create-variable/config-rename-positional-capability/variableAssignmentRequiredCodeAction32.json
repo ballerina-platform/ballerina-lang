@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 44,
+    "character": 4
+  },
+  "source": "createVariable5.bal",
+  "expected": [
+    {
+      "title": "Create variable with 'record {|string name; int age; record {|int maths; int physics; int chemistry;|} grades; string city; string country;|}'",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 44,
+              "character": 4
+            },
+            "end": {
+              "line": 44,
+              "character": 4
+            }
+          },
+          "newText": "record {|string name; int age; record {|int maths; int physics; int chemistry;|} grades; string city; string country;|} mappingResult = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariable5.bal",
+          {
+            "line": 44,
+            "character": 124
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

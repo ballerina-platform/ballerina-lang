@@ -41,6 +41,7 @@ import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.StringType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypedescType;
+import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.types.XmlAttributesType;
 import io.ballerina.runtime.api.types.XmlType;
 import io.ballerina.runtime.internal.IteratorUtils;
@@ -149,6 +150,7 @@ public class PredefinedTypes {
                                                                                   TYPE_PROCESSING_INSTRUCTION,
                                                                                   TYPE_TEXT)), EMPTY_MODULE);
 
+    public static final Type TYPE_READONLY_XML = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_XML);
 
     public static final AnyType TYPE_ANY = new BAnyType(TypeConstants.ANY_TNAME, EMPTY_MODULE, false);
     public static final AnyType TYPE_READONLY_ANY = new BAnyType(TypeConstants.READONLY_ANY_TNAME, EMPTY_MODULE, true);
@@ -170,19 +172,22 @@ public class PredefinedTypes {
     public static final ArrayType TYPE_JSON_ARRAY;
     public static final AnydataType TYPE_ANYDATA;
     public static final AnydataType TYPE_READONLY_ANYDATA;
+    public static final ArrayType TYPE_ANYDATA_ARRAY;
     public static final MapType TYPE_DETAIL;
     public static final Type TYPE_ERROR_DETAIL;
     public static final ErrorType TYPE_ERROR;
-    public static final BUnionType TYPE_CLONEABLE;
+    public static final UnionType TYPE_CLONEABLE;
 
-    public static final BUnionType TYPE_JSON_DECIMAL;
-    public static final BUnionType TYPE_JSON_FLOAT;
+    public static final UnionType TYPE_JSON_DECIMAL;
+    public static final UnionType TYPE_JSON_FLOAT;
 
     public static final RecordType STRING_ITR_NEXT_RETURN_TYPE =
             IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_STRING_CHAR);
 
     public static final Type ANY_AND_READONLY_TYPE = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_ANY);
     public static final Type ANY_AND_READONLY_OR_ERROR_TYPE;
+
+    private PredefinedTypes() {}
 
     // type anydata =  ()|boolean|int|float|decimal|string|xml|anydata[]|map<anydata>|table<map<anydata>>
     static {
@@ -196,9 +201,7 @@ public class PredefinedTypes {
         members.add(TYPE_XML);
         TYPE_ANYDATA = getAnydataType(members, TypeConstants.ANYDATA_TNAME, false);
         TYPE_READONLY_ANYDATA = getAnydataType(members, TypeConstants.READONLY_ANYDATA_TNAME, true);
-    }
-
-    private PredefinedTypes() {
+        TYPE_ANYDATA_ARRAY = new BArrayType(TYPE_ANYDATA);
     }
 
     private static BAnydataType getAnydataType(List<Type> members, String typeName, boolean readonly) {

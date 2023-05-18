@@ -28,6 +28,7 @@ import com.sun.jdi.request.StepRequest;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.identifier.Utils;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.debugadapter.breakpoint.BalBreakpoint;
 import org.ballerinalang.debugadapter.completion.CompletionGenerator;
@@ -71,6 +72,8 @@ import org.eclipse.lsp4j.debug.ExitedEventArguments;
 import org.eclipse.lsp4j.debug.InitializeRequestArguments;
 import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.PauseArguments;
+import org.eclipse.lsp4j.debug.RunInTerminalRequestArguments;
+import org.eclipse.lsp4j.debug.RunInTerminalResponse;
 import org.eclipse.lsp4j.debug.Scope;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
@@ -95,12 +98,15 @@ import org.eclipse.lsp4j.debug.VariablesArguments;
 import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolServer;
+import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -112,6 +118,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -125,7 +132,6 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.loadProject;
 
 /**
  * JBallerina debug server implementation.
@@ -156,6 +162,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final String VALUE_UNKNOWN = "unknown";
     private static final String EVAL_ARGS_CONTEXT_VARIABLES = "variables";
     private static final String COMPILATION_ERROR_MESSAGE = "error: compilation contains errors";
+    private static final String TERMINAL_TITLE = "Ballerina Debug Terminal";
+    private static final String RUN_IN_TERMINAL_REQUEST = "runInTerminal";
 
     public JBallerinaDebugServer() {
         context = new ExecutionContext(this);
@@ -197,6 +205,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         capabilities.setSupportsExceptionInfoRequest(false);
 
         context.setClient(client);
+        context.setSupportsRunInTerminalRequest(args.getSupportsRunInTerminalRequest() != null &&
+                args.getSupportsRunInTerminalRequest());
         eventProcessor = new JDIEventProcessor(context);
         client.initialized();
         this.outputLogger = new DebugOutputLogger(client);
@@ -216,8 +226,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             }
 
             SetBreakpointsResponse breakpointsResponse = new SetBreakpointsResponse();
-            String sourcePath = args.getSource().getPath();
-            Optional<String> qualifiedClassName = getQualifiedClassName(context, sourcePath);
+            String sourcePathUri = args.getSource().getPath();
+            Optional<String> qualifiedClassName = getQualifiedClassName(context, sourcePathUri);
             qualifiedClassName.ifPresent(className -> {
                 eventProcessor.enableBreakpoints(className, breakpointsMap);
                 BreakpointProcessor breakpointProcessor = eventProcessor.getBreakpointProcessor();
@@ -242,14 +252,19 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             clearState();
             context.setDebugMode(ExecutionContext.DebugMode.LAUNCH);
             clientConfigHolder = new ClientLaunchConfigHolder(args);
-            context.setSourceProject(loadProject(clientConfigHolder.getSourcePath()));
+            Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
+            context.setSourceProject(sourceProject);
             String sourceProjectRoot = context.getSourceProjectRoot();
             BProgramRunner programRunner = context.getSourceProject() instanceof SingleFileProject ?
                     new BSingleFileRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot) :
                     new BPackageRunner((ClientLaunchConfigHolder) clientConfigHolder, sourceProjectRoot);
 
-            context.setLaunchedProcess(programRunner.start());
-            startListeningToProgramOutput();
+            if (context.getSupportsRunInTerminalRequest() && clientConfigHolder.getRunInTerminalKind() != null) {
+                launchInTerminal(programRunner);
+            } else {
+                context.setLaunchedProcess(programRunner.start());
+                startListeningToProgramOutput();
+            }
             return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
             outputLogger.sendErrorOutput("Failed to launch the ballerina program due to: " + e);
@@ -263,7 +278,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             clearState();
             context.setDebugMode(ExecutionContext.DebugMode.ATTACH);
             clientConfigHolder = new ClientAttachConfigHolder(args);
-            context.setSourceProject(loadProject(clientConfigHolder.getSourcePath()));
+            Project sourceProject = context.getProjectCache().getProject(Path.of(clientConfigHolder.getSourcePath()));
+            context.setSourceProject(sourceProject);
             ClientAttachConfigHolder configHolder = (ClientAttachConfigHolder) clientConfigHolder;
 
             String hostName = configHolder.getHostName().orElse("");
@@ -582,6 +598,63 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         context.setTerminateRequestReceived(true);
         terminateDebugServer(true, true);
         return CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public CompletableFuture<RunInTerminalResponse> runInTerminal(RunInTerminalRequestArguments args) {
+        Endpoint endPoint = new GenericEndpoint(context.getClient());
+        endPoint.request(RUN_IN_TERMINAL_REQUEST, args).thenApply((response) -> {
+            int tryCounter = 0;
+
+            // attach to target VM
+            while (context.getDebuggeeVM() == null && tryCounter < 10) {
+                try {
+                    TimeUnit.SECONDS.sleep(3);
+                    attachToRemoteVM("", clientConfigHolder.getDebuggePort());
+                } catch (IOException ignored) {
+                    tryCounter++;
+                } catch (IllegalConnectorArgumentsException | ClientConfigurationException | InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            // if the VM is not attached within 60 seconds
+            if (context.getDebuggeeVM() == null) {
+                // shut down debug server
+                outputLogger.sendErrorOutput("Failed to attach to the target VM");
+                terminateDebugServer(false, true);
+
+                // shut down client terminal
+                int shellProcessId = ((RunInTerminalResponse) response).getShellProcessId();
+                ProcessHandle.of(shellProcessId).ifPresent(ProcessHandle::destroyForcibly);
+            } else {
+                outputLogger.sendDebugServerOutput("Attached to target VM");
+            }
+            return CompletableFuture.completedFuture(null);
+        });
+
+        return CompletableFuture.completedFuture(null);
+    }
+
+    /**
+     * Launches the debug process in a separate terminal by setting the required request params and calling the request.
+     *
+     * @param programRunner - the instantiated Ballerina program runner for the source
+     */
+    private void launchInTerminal(BProgramRunner programRunner) throws ClientConfigurationException {
+        String sourceProjectRoot = context.getSourceProjectRoot();
+        RunInTerminalRequestArguments runInTerminalRequestArguments = new RunInTerminalRequestArguments();
+
+        runInTerminalRequestArguments.setKind(clientConfigHolder.getRunInTerminalKind());
+        runInTerminalRequestArguments.setTitle(TERMINAL_TITLE);
+        runInTerminalRequestArguments.setCwd(sourceProjectRoot);
+
+        String[] command = new String[programRunner.getBallerinaCommand(sourceProjectRoot).size()];
+        programRunner.getBallerinaCommand(sourceProjectRoot).toArray(command);
+        runInTerminalRequestArguments.setArgs(command);
+
+        outputLogger.sendConsoleOutput("Launching debugger in terminal");
+        context.getAdapter().runInTerminal(runInTerminalRequestArguments);
     }
 
     /**
@@ -946,7 +1019,19 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      * @return true if its a valid ballerina frame
      */
     static boolean isValidFrame(StackFrame stackFrame) {
-        return stackFrame != null && stackFrame.getSource() != null && stackFrame.getLine() > 0;
+        return stackFrame != null && stackFrame.getSource() != null && stackFrame.getLine() > 0
+                && !isCompilerGeneratedFrame(stackFrame);
+    }
+
+    /**
+     * Validates whether the provided stack frame is a compiler generated one during the codegen phase.
+     *
+     * @param stackFrame stack frame instance
+     * @return true if the provided stack frame is a compiler generated one during the codegen phase
+     */
+    private static boolean isCompilerGeneratedFrame(StackFrame stackFrame) {
+        String frameName = stackFrame.getName();
+        return frameName != null && frameName.startsWith("$") && frameName.endsWith("$");
     }
 
     /**

@@ -40,4 +40,23 @@ public class IdentifierUtils {
         return Utils.decodeIdentifier(encodedIdentifier);
     }
 
+    /**
+     * Escape the special characters in an identifier with a preceding `\`.
+     *
+     * @param identifier identifier string
+     * @return a string of characters with special characters converted to their escaped form
+     */
+    public static String escapeSpecialCharacters(String identifier) {
+        return Utils.escapeSpecialCharacters(identifier);
+    }
+
+    /**
+     * Unescapes a ballerina string.
+     *
+     * @param text ballerina string to unescape
+     * @return a string of characters with any escaped characters converted to their unescaped form
+     */
+    public static String unescapeBallerina(String text) {
+        return Utils.unescapeBallerina(text);
+    }
 }

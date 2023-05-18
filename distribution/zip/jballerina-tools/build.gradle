@@ -181,6 +181,7 @@ dependencies {
     balDoc project(path: ':ballerina-lang:runtime', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:query', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:transaction', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:regexp', configuration: 'balDoc')
 
     // ballerinax modules
     balDoc project(path: ':ballerina-lang:jballerina.java', configuration: 'balDoc')
@@ -212,6 +213,7 @@ dependencies {
     distributionBala project(path: ':ballerina-lang:typedesc', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:value', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:xml', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:regexp', configuration: 'distributionBala')
 
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
 }

@@ -7,7 +7,21 @@
   "expected": [
     {
       "title": "Create variable and type guard",
+      "kind": "quickfix",
       "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 4
+            },
+            "end": {
+              "line": 5,
+              "character": 4
+            }
+          },
+          "newText": "int|error apple = "
+        },
         {
           "range": {
             "start": {
@@ -20,21 +34,9 @@
             }
           },
           "newText": "\n    if apple is int {\n\n    }"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 5,
-              "character": 4
-            },
-            "end": {
-              "line": 5,
-              "character": 4
-            }
-          },
-          "newText": "int|error apple \u003d "
         }
-      ]
+      ],
+      "resolvable": false
     }
   ]
 }

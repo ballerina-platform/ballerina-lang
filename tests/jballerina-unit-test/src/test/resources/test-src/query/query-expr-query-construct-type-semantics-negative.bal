@@ -20,7 +20,7 @@ type Person record {|
     int age;
 |};
 
-function testOnConflictClauseWithNonTableTypes() returns error? {
+function testOnConflictClauseWithNonTableTypes() {
     error onConflictError = error("Key Conflict", message = "cannot insert.");
     Person p1 = {firstName: "Alex", lastName: "George", age: 33};
     Person p2 = {firstName: "John", lastName: "David", age: 35};
@@ -28,7 +28,7 @@ function testOnConflictClauseWithNonTableTypes() returns error? {
     Person[] personList = [p1, p2, p3];
 
     Person[] _ =
-            check from var person in personList
+            from var person in personList
             let int newAge = 34
             where person.age == 33
             select {
@@ -47,7 +47,7 @@ type Token record {|
 type TokenTable table<Token> key(idx);
 
 function testQueryConstructingNonTableTypeHavingInnerQueriesWithOnConflictClause() returns error? {
-    Token[] _ = check from Token i in (table key(idx) from var j in [1, 1]
+    Token[] _ = from Token i in (table key(idx) from var j in [1, 1]
             select {
                 idx: j,
                 value: "A"
@@ -58,7 +58,7 @@ function testQueryConstructingNonTableTypeHavingInnerQueriesWithOnConflictClause
         }
         on conflict error("Duplicate Key In Outer Query");
 
-    Token[] _ = check from int i in 1 ... 3
+    Token[] _ = from int i in 1 ... 3
         from Token j in (table key(idx) from var j in [1, 1]
             select {
                 idx: j,
@@ -70,7 +70,7 @@ function testQueryConstructingNonTableTypeHavingInnerQueriesWithOnConflictClause
         }
         on conflict error("Duplicate Key In Outer Query");
 
-    Token[] _ = check from int i in 1 ... 3
+    Token[] _ = from int i in 1 ... 3
         join Token j in (table key(idx) from var j in [1, 1]
             select {
                 idx: j,
@@ -83,7 +83,7 @@ function testQueryConstructingNonTableTypeHavingInnerQueriesWithOnConflictClause
         }
         on conflict error("Duplicate Key In Outer Query");
 
-    Token[] _ = check from Token i in (from var j in (from var m in (table key(idx) from var j in [1, 1]
+    Token[] _ = from Token i in (from var j in (from var m in (table key(idx) from var j in [1, 1]
             select {
                 idx: j,
                 value: "A"
@@ -94,7 +94,7 @@ function testQueryConstructingNonTableTypeHavingInnerQueriesWithOnConflictClause
         }
         on conflict error("Duplicate Key In Outer Query");
 
-    Token[] _ = check from Token i in (check from var j in (check from var m in (check table key(idx) from var j in [1, 1]
+    Token[] _ = from Token i in (check table key(idx) from var j in (from var m in (check table key(idx) from var j in [1, 1]
                 select {
                     idx: j,
                     value: "A"
@@ -106,7 +106,7 @@ function testQueryConstructingNonTableTypeHavingInnerQueriesWithOnConflictClause
             value: "A"
         };
 
-    Token[] _ = check from int i in [1, 2, 1]
+    Token[] _ = from int i in [1, 2, 1]
         let Token[] arr = from var j in (from var m in (table key(idx) from var j in [1, 1]
                         select {
                             idx: j,
@@ -118,8 +118,8 @@ function testQueryConstructingNonTableTypeHavingInnerQueriesWithOnConflictClause
         }
         on conflict error("Duplicate Key");
 
-    Token[] _ = check from int i in [1, 2, 1]
-        let Token[] arr = check from var j in (from var m in (table key(idx) from var j in [1, 1]
+    Token[] _ = from int i in [1, 2, 1]
+        let Token[] arr = from var j in (from var m in (table key(idx) from var j in [1, 1]
                         select {
                             idx: j,
                             value: "A"
@@ -130,7 +130,7 @@ function testQueryConstructingNonTableTypeHavingInnerQueriesWithOnConflictClause
         }
         on conflict error("Duplicate Key");
 
-    Token[] _ = check from int i in [1, 2, 1]
+    Token[] _ = from int i in [1, 2, 1]
         let TokenTable tb = table []
         where tb == from var j in (from var m in (table key(idx) from var j in [1, 1]
                         select {

@@ -162,6 +162,23 @@ public class PartialParserTests {
         Assert.assertEquals(json.getSyntaxTree(), expected);
     }
 
+    @Test(description = "Test getting ST for an expression with insert modification")
+    public void testModifiedSTForExpression() throws ExecutionException, InterruptedException, FileNotFoundException {
+        String expression = "";
+        String modification = "(population - infantCount) * 20;";
+        String file = "expression.json";
+
+        STModification stModification = new STModification(0, 0, 0, 0, modification);
+        PartialSTRequest request = new PartialSTRequest(expression, stModification);
+        CompletableFuture<?> result = serviceEndpoint.request(EXPRESSION, request);
+        STResponse json = (STResponse) result.get();
+
+        BufferedReader br = new BufferedReader(getFileReader(file));
+        JsonObject expected = JsonParser.parseReader(br).getAsJsonObject();
+
+        Assert.assertEquals(json.getSyntaxTree(), expected);
+    }
+
     @Test(description = "Test getting ST for a record")
     public void testSTForRecordMembers() throws ExecutionException, InterruptedException, IOException {
 

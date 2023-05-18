@@ -293,6 +293,17 @@ public class LangLibValueTest {
         BRunUtil.invoke(testFile, "testXmlToBalString");
         BRunUtil.invoke(testFile, "testObjectToBalString");
         BRunUtil.invoke(testFile, "testToBalStringOnCycles");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithLiterals");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithEscapes");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithCharacterClass");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithCharacterClass2");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithCapturingGroups");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithCapturingGroups2");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithCapturingGroups3");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithCapturingGroups4");
+        BRunUtil.invoke(testFile, "testToBalStringOnRegExpValueWithCapturingGroups5");
+        BRunUtil.invoke(testFile, "testToBalStringOnComplexRegExpValue");
+        BRunUtil.invoke(testFile, "testToBalStringComplexRegExpValue2");
     }
 
     @Test
@@ -311,6 +322,8 @@ public class LangLibValueTest {
         BRunUtil.invoke(file, "testObjectFromString");
         BRunUtil.invoke(file, "testFromBalStringOnCycles");
         BRunUtil.invoke(file, "testFromBalStringNegative");
+        BRunUtil.invoke(file, "testFromStringOnRegExp");
+        BRunUtil.invoke(file, "testFromStringOnRegExpNegative");
     }
 
     @DataProvider(name = "mergeJsonFunctions")
@@ -350,12 +363,22 @@ public class LangLibValueTest {
                 "testCloneWithTypeDecimalToIntSubType", "testCloneWithTypeTupleToJSON",
                 "testCloneWithTypeImmutableStructuredTypes", "testCloneWithTypeWithFiniteArrayTypeFromIntArray",
                 "testCloneWithTypeWithFiniteType", "testCloneWithTypeWithUnionOfFiniteType",
-                "testCloneWithTypeWithFiniteArrayTypeFromIntArray",
+                "testCloneWithTypeWithFiniteArrayTypeFromIntArray", "testCloneWithTypeToArrays",
                 "testCloneWithTypeWithUnionOfFiniteTypeArraysFromIntArray",
                 "testCloneWithTypeWithUnionTypeArrayFromIntArray",
                 "testCloneWithTypeWithFiniteTypeArrayFromIntArrayNegative", "testConvertJsonToNestedRecordsWithErrors",
                 "testCloneWithTypeNestedStructuredTypesNegative", "testCloneWithTypeJsonToRecordRestField",
-                "testCloneWithTypeWithAmbiguousUnion"
+                "testCloneWithTypeWithAmbiguousUnion", "testCloneWithTypeXmlToUnion",
+                "testCloneWithTypeWithTuples", "testCloneWithTypeToJson",
+                "testCloneWithTypeToUnion",
+                "testCloneWithTypeTable",
+                "testCloneWithTypeOnRegExp",
+                "testCloneWithTypeOnRegExpNegative",
+                "testCloneWithTypeWithXML", "testConversionsBetweenXml",
+                "testCloneWithTypeRecordWithXMLField",
+                "testConvertToUnionWithAmbiguousMemberTypes", "testConvertingToReferenceTypes",
+                "testCloneWithTypeTableToAnydata", "testUnionNestedTypeConversionErrors",
+                "testCloneWithTypeToUnionOfTypeReference", "testCloneWithTypeToTableNegative"
         };
     }
 
@@ -366,20 +389,21 @@ public class LangLibValueTest {
 
     @DataProvider(name = "cloneWithTypeToTupleTypeFunctions")
     public Object[][] cloneWithTypeToTupleTypeFunctions() {
-        return new Object[][] {
-                { "testCloneWithTypeArrayToTupleWithRestType" },
-                { "testCloneWithTypeArrayToTupleWithRestTypeUnionType" },
-                { "testCloneWithTypeArrayToUnionTupleNegative" },
-                { "testCloneWithTypeArrayToTupleWithMoreTargetTypes" },
-                { "testCloneWithTypeArrayToTupleWithUnionRestTypeNegative" },
-                { "testCloneWithTypeArrayToTupleNegative" },
-                { "testCloneWithTypeArrayToTupleWithStructureRestTypeNegative" },
-                { "testCloneWithTypeTupleRestType" },
-                { "testCloneWithTypeUnionTuple" },
-                { "testCloneWithTypeTupleRestTypeNegative" },
-                { "testCloneWithTypeUnionTupleRestTypeNegative" },
-                { "testCloneWithTypeToTupleTypeWithFiniteTypesNegative" },
-                { "testCloneWithTypeTupleConsideringFillerValues" }
+        return new Object[][]{
+                {"testCloneWithTypeArrayToTupleWithRestType"},
+                {"testCloneWithTypeArrayToTupleWithRestTypeUnionType"},
+                {"testCloneWithTypeArrayToUnionTupleNegative"},
+                {"testCloneWithTypeArrayToTupleWithMoreTargetTypes"},
+                {"testCloneWithTypeArrayToTupleWithUnionRestTypeNegative"},
+                {"testCloneWithTypeArrayToTupleNegative"},
+                {"testCloneWithTypeArrayToTupleWithStructureRestTypeNegative"},
+                {"testCloneWithTypeTupleRestType"},
+                {"testCloneWithTypeUnionTuple"},
+                {"testCloneWithTypeTupleRestTypeNegative"},
+                {"testCloneWithTypeUnionTupleRestTypeNegative"},
+                {"testCloneWithTypeToTupleTypeWithFiniteTypesNegative"},
+                {"testCloneWithTypeTupleConsideringFillerValues"},
+                {"testCloneWithTypeConsideringReadOnlyFillerValues"}
         };
     }
 
@@ -422,7 +446,10 @@ public class LangLibValueTest {
                 { "testFromJsonWithTypeWithNullValuesNegative" },
                 { "testFromJsonWithTypeWithInferredArgument" },
                 { "testFromJsonWithTypeWithTypeReferences" },
-                { "testFromJsonWithTypeNestedRecordsNegative" }
+                { "testFromJsonWithTypeNestedRecordsNegative" },
+                { "testFromJsonWithTypeOnRegExp" },
+                { "testFromJsonWithTypeOnRegExpNegative" },
+                {"testFromJsonWithTypeToUnionOfTypeReference"}
         };
     }
 
@@ -499,5 +526,20 @@ public class LangLibValueTest {
     public void testDecimalToString() {
         BRunUtil.invoke(compileResult, "testDecimalZeroToString");
         BRunUtil.invoke(compileResult, "testDecimalNonZeroToString");
+    }
+
+    @Test
+    public void testCount() {
+        BRunUtil.invoke(compileResult, "testCount");
+    }
+
+    @Test
+    public void testFirst() {
+        BRunUtil.invoke(compileResult, "testFirst");
+    }
+
+    @Test
+    public void testLast() {
+        BRunUtil.invoke(compileResult, "testLast");
     }
 }

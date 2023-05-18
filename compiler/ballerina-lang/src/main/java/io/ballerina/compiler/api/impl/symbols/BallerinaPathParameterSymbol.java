@@ -21,13 +21,13 @@ package io.ballerina.compiler.api.impl.symbols;
 import io.ballerina.compiler.api.SymbolTransformer;
 import io.ballerina.compiler.api.SymbolVisitor;
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
-import org.ballerinalang.model.symbols.AnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttachmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -47,6 +47,7 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
     private final PathSegment.Kind segmentKind;
     private TypeSymbol typeDescriptor;
     private List<AnnotationSymbol> annots;
+    private List<io.ballerina.compiler.api.symbols.AnnotationAttachmentSymbol> annotAttachments;
     private String signature;
 
     public BallerinaPathParameterSymbol(PathSegment.Kind kind, BSymbol symbol, CompilerContext context) {
@@ -64,12 +65,30 @@ public class BallerinaPathParameterSymbol extends BallerinaSymbol implements Pat
         SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
         List<AnnotationSymbol> annotSymbols = new ArrayList<>();
 
-        for (AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
+        for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
             annotSymbols.add(symbolFactory.createAnnotationSymbol((BAnnotationAttachmentSymbol) annot));
         }
 
         this.annots = Collections.unmodifiableList(annotSymbols);
         return this.annots;
+    }
+
+    @Override
+    public List<AnnotationAttachmentSymbol> annotAttachments() {
+        if (this.annotAttachments != null) {
+            return this.annotAttachments;
+        }
+
+        BVarSymbol symbol = (BVarSymbol) this.getInternalSymbol();
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        List<AnnotationAttachmentSymbol> annotAttachments = new ArrayList<>();
+
+        for (org.ballerinalang.model.symbols.AnnotationAttachmentSymbol annot : symbol.getAnnotations()) {
+            annotAttachments.add(symbolFactory.createAnnotAttachment((BAnnotationAttachmentSymbol) annot));
+        }
+
+        this.annotAttachments = Collections.unmodifiableList(annotAttachments);
+        return this.annotAttachments;
     }
 
     @Override

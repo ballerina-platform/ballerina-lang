@@ -35,17 +35,20 @@ public class STFunctionBodyBlockNode extends STFunctionBodyNode {
     public final STNode namedWorkerDeclarator;
     public final STNode statements;
     public final STNode closeBraceToken;
+    public final STNode semicolonToken;
 
     STFunctionBodyBlockNode(
             STNode openBraceToken,
             STNode namedWorkerDeclarator,
             STNode statements,
-            STNode closeBraceToken) {
+            STNode closeBraceToken,
+            STNode semicolonToken) {
         this(
                 openBraceToken,
                 namedWorkerDeclarator,
                 statements,
                 closeBraceToken,
+                semicolonToken,
                 Collections.emptyList());
     }
 
@@ -54,18 +57,21 @@ public class STFunctionBodyBlockNode extends STFunctionBodyNode {
             STNode namedWorkerDeclarator,
             STNode statements,
             STNode closeBraceToken,
+            STNode semicolonToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.FUNCTION_BODY_BLOCK, diagnostics);
         this.openBraceToken = openBraceToken;
         this.namedWorkerDeclarator = namedWorkerDeclarator;
         this.statements = statements;
         this.closeBraceToken = closeBraceToken;
+        this.semicolonToken = semicolonToken;
 
         addChildren(
                 openBraceToken,
                 namedWorkerDeclarator,
                 statements,
-                closeBraceToken);
+                closeBraceToken,
+                semicolonToken);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -74,6 +80,7 @@ public class STFunctionBodyBlockNode extends STFunctionBodyNode {
                 this.namedWorkerDeclarator,
                 this.statements,
                 this.closeBraceToken,
+                this.semicolonToken,
                 diagnostics);
     }
 
@@ -81,12 +88,14 @@ public class STFunctionBodyBlockNode extends STFunctionBodyNode {
             STNode openBraceToken,
             STNode namedWorkerDeclarator,
             STNode statements,
-            STNode closeBraceToken) {
+            STNode closeBraceToken,
+            STNode semicolonToken) {
         if (checkForReferenceEquality(
                 openBraceToken,
                 namedWorkerDeclarator,
                 statements,
-                closeBraceToken)) {
+                closeBraceToken,
+                semicolonToken)) {
             return this;
         }
 
@@ -95,6 +104,7 @@ public class STFunctionBodyBlockNode extends STFunctionBodyNode {
                 namedWorkerDeclarator,
                 statements,
                 closeBraceToken,
+                semicolonToken,
                 diagnostics);
     }
 

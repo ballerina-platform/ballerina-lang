@@ -1,0 +1,10 @@
+{
+  "position": {
+    "line": 26,
+    "character": 24
+  },
+  "source": "source.bal",
+  "expected": [
+  ],
+  "description": "Test const declaration when expecting a string type"
+}

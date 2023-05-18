@@ -32,7 +32,7 @@ public class BIntegerValueNegativeTest {
     @Test
     public void testIntegerValue() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/integer/integer-value-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 8);
+        Assert.assertEquals(compileResult.getErrorCount(), 14);
 
         int index = 0;
         String expectedError = "'0xFFFFFFFFFFFFFFFF' is out of range for 'int'";
@@ -58,5 +58,23 @@ public class BIntegerValueNegativeTest {
 
         expectedError = "missing semicolon token";
         BAssertUtil.validateError(compileResult, index++, expectedError, 18, 1);
+
+        expectedError = "incompatible types: expected 'int:Signed8', found 'int'";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 26, 21);
+
+        expectedError = "incompatible types: expected 'int:Signed16', found 'int'";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 28, 22);
+
+        expectedError = "incompatible types: expected 'int:Signed32', found 'int'";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 30, 22);
+
+        expectedError = "incompatible types: expected 'int:Signed32', found 'int'";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 33, 22);
+
+        expectedError = "incompatible types: expected 'int:Signed16', found 'int'";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 35, 22);
+
+        expectedError = "incompatible types: expected 'int:Signed8', found 'int'";
+        BAssertUtil.validateError(compileResult, index++, expectedError, 37, 21);
     }
 }

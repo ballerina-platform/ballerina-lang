@@ -3,7 +3,7 @@
     "line": 10,
     "character": 12
   },
-  "source": "fixReturnTypeInUnionContext1.bal",
+  "source": "fixReturnTypeInUnionContext2.bal",
   "expected": [
     {
       "title": "Change return type to 'boolean|map<int>|int'",

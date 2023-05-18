@@ -25,6 +25,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 
@@ -37,6 +38,8 @@ import static org.objectweb.asm.Opcodes.ACC_FINAL;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 import static org.objectweb.asm.Opcodes.ACC_STATIC;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
 import static org.objectweb.asm.Opcodes.NEW;
@@ -50,6 +53,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_CO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_METHOD_PREFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_MODULE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.genMethodReturn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmConstantGenCommons.generateConstantsClassInit;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
@@ -62,9 +66,7 @@ import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion
 public class JvmModuleConstantsGen {
 
     private final HashMap<PackageID, String> moduleVarMap;
-
     private final String moduleConstantClass;
-
     private final AtomicInteger constantIndex = new AtomicInteger();
 
     public JvmModuleConstantsGen(BIRNode.BIRPackage module) {
@@ -107,7 +109,8 @@ public class JvmModuleConstantsGen {
         int methodCount = 0;
         for (Map.Entry<PackageID, String> entry : moduleVarMap.entrySet()) {
             if (moduleCount % MAX_MODULES_PER_METHOD == 0) {
-                mv = cw.visitMethod(ACC_STATIC, MODULE_INIT_METHOD_PREFIX + methodCount++, "()V", null, null);
+                mv = cw.visitMethod(ACC_STATIC, MODULE_INIT_METHOD_PREFIX + methodCount++, VOID_METHOD_DESC, null,
+                        null);
             }
             PackageID packageID = entry.getKey();
             String varName = entry.getValue();
@@ -116,6 +119,11 @@ public class JvmModuleConstantsGen {
             mv.visitLdcInsn(Utils.decodeIdentifier(packageID.orgName.value));
             mv.visitLdcInsn(Utils.decodeIdentifier(packageID.name.value));
             mv.visitLdcInsn(getMajorVersion(packageID.version.value));
+            if (packageID.isTestPkg) {
+                mv.visitInsn(ICONST_1);
+            } else {
+                mv.visitInsn(ICONST_0);
+            }
             mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
                     INIT_MODULE, false);
             mv.visitFieldInsn(Opcodes.PUTSTATIC, moduleConstantClass, varName, GET_MODULE);
@@ -123,10 +131,10 @@ public class JvmModuleConstantsGen {
             if (moduleCount % MAX_MODULES_PER_METHOD == 0) {
                 if (moduleCount != moduleVarMap.size()) {
                     mv.visitMethodInsn(INVOKESTATIC, moduleConstantClass,
-                                       MODULE_INIT_METHOD_PREFIX + methodCount, "()V", false);
+                                       MODULE_INIT_METHOD_PREFIX + methodCount, VOID_METHOD_DESC, false);
                     mv.visitInsn(RETURN);
                 }
-                mv.visitMaxs(0, 0);
+                JvmCodeGenUtil.visitMaxStackForMethod(mv, MODULE_INIT_METHOD_PREFIX, moduleConstantClass);
                 mv.visitEnd();
             }
         }
@@ -137,8 +145,8 @@ public class JvmModuleConstantsGen {
     }
 
     private void generateStaticInitializer(ClassWriter cw) {
-        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, "()V", null, null);
-        mv.visitMethodInsn(INVOKESTATIC, moduleConstantClass, MODULE_INIT_METHOD_PREFIX + 0, "()V", false);
+        MethodVisitor mv = cw.visitMethod(ACC_STATIC, JVM_STATIC_INIT_METHOD, VOID_METHOD_DESC, null, null);
+        mv.visitMethodInsn(INVOKESTATIC, moduleConstantClass, MODULE_INIT_METHOD_PREFIX + 0, VOID_METHOD_DESC, false);
         genMethodReturn(mv);
     }
 

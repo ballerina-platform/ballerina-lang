@@ -26,16 +26,19 @@ import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -70,6 +73,10 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
 
     @Override
     public TypeBuilder.TABLE withRowType(TypeSymbol rowType) {
+        if (rowType.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+            return this.withRowType(((TypeReferenceTypeSymbol) rowType).typeDescriptor());
+        }
+
         this.rowType = rowType;
         return this;
     }
@@ -151,12 +158,14 @@ public class BallerinaTableTypeBuilder implements TypeBuilder.TABLE {
             return checkKeyConstraintBType(keyTypes.get(0), rowType);
         }
 
-        List<BType> tupleMemberTypes = new ArrayList<>();
+        List<BTupleMember> tupleMembers = new ArrayList<>();
         for (TypeSymbol keyType : keyTypes) {
-            tupleMemberTypes.add(checkKeyConstraintBType(keyType, rowType));
+            BType constraintType = checkKeyConstraintBType(keyType, rowType);
+            BVarSymbol varSymbol = Symbols.createVarSymbolForTupleMember(constraintType);
+            tupleMembers.add(new BTupleMember(constraintType, varSymbol));
         }
 
-        return new BTupleType(tupleMemberTypes);
+        return new BTupleType(tupleMembers);
     }
 
     private BType checkKeyConstraintBType(TypeSymbol keyType, TypeSymbol rowType) {

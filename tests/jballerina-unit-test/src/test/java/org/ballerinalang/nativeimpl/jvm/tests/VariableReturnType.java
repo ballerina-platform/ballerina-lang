@@ -150,7 +150,7 @@ public class VariableReturnType {
 
     public static BStream getStreamOfRecords(ObjectValue objectValue, BStream strm, BTypedesc typedesc) {
         RecordType streamConstraint = (RecordType) typedesc.getDescribingType();
-        assert streamConstraint == strm.getConstraintType();
+        assert streamConstraint == TypeUtils.getReferredType(strm.getConstraintType());
         return strm;
     }
 
@@ -400,6 +400,16 @@ public class VariableReturnType {
         }
 
         return mediaType.length() + header.length() + i;
+    }
+
+    public static Object getResource(BObject client, BArray path, BTypedesc targetType) {
+        int targetTypeTag = targetType.getDescribingType().getTag();
+        if (targetTypeTag == STRING_TAG) {
+            return StringUtils.fromString(path.toString());
+        }
+        
+        assert targetTypeTag == INT_TAG;
+        return 0;
     }
 
     public static Object getSimpleUnion(Object val, BTypedesc td) {
