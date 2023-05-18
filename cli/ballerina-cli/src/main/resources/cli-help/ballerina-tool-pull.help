@@ -13,8 +13,8 @@ DESCRIPTION
        as a command in the bal tool chain.
 
        If the tool version is specified, that specific version will be fetched.
-       If the version is not specified, the latest version of the tool will
-       get pulled.
+       If the tool version is not specified, the latest version will be
+       fetched.
 
-       When there are multiple versions of the same tool pulled, the latest
-       version will be used.
+       When there are multiple versions of the same tool available locally, the
+       latest version will be used.
