@@ -43,7 +43,7 @@ public interface BObject extends BRefValue {
     /**
      * Gets the type of ballerina object.
      *
-     * @return The type of Ballerina object.
+     * @return the type of the Ballerina object.
      * The API {@link BValue#getType()} should be used after fixing the issue #39850.
      */
     Type getType();
