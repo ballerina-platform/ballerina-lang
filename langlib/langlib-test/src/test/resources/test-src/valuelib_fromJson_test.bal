@@ -833,13 +833,14 @@ function testFromJsonStringWithUnexpectedChars() {
     string s2 = "[1, 2,]";
     string s3 = "{\"a\":1,}";
     string s4 = "{\"a\": [1, 2,]}";
+    string s5 = "[{\"x\": 1}, {\"y\": 2]";
 
     error err = <error> s1.fromJsonStringWithType(json);
-    assertEquality(<string> checkpanic err.detail()["message"], "expected 'a field value' at line: 1 column: 6");
+    assertEquality(<string> checkpanic err.detail()["message"], "expected a field value at line: 1 column: 6");
     assertEquality(err.message(), "{ballerina/lang.value}ConversionError");
 
     err = <error> s2.fromJsonStringWithType(json);
-    assertEquality(<string> checkpanic err.detail()["message"], "expected 'an array element' at line: 1 column: 9");
+    assertEquality(<string> checkpanic err.detail()["message"], "expected an array element at line: 1 column: 9");
     assertEquality(err.message(), "{ballerina/lang.value}ConversionError");
 
     err = <error> s3.fromJsonString();
@@ -847,7 +848,11 @@ function testFromJsonStringWithUnexpectedChars() {
     assertEquality(err.message(), "{ballerina/lang.value}FromJsonStringError");
 
     err = <error> s4.fromJsonString();
-    assertEquality(<string> checkpanic err.detail()["message"], "expected 'an array element' at line: 1 column: 15");
+    assertEquality(<string> checkpanic err.detail()["message"], "expected an array element at line: 1 column: 15");
+    assertEquality(err.message(), "{ballerina/lang.value}FromJsonStringError");
+
+    err = <error> s5.fromJsonString();
+    assertEquality(<string> checkpanic err.detail()["message"], "expected ',' or ']' at line: 1 column: 22");
     assertEquality(err.message(), "{ballerina/lang.value}FromJsonStringError");
 }
 
