@@ -195,7 +195,8 @@ public class Generator {
                 module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(),
                         typeName, metaDataNode, semanticModel));
             }
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
             if (refType.category.equals("errors")) {
                 module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
@@ -273,7 +274,8 @@ public class Generator {
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.XML_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.FUNCTION_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.ANYDATA_TYPE_DESC ||
-                typeDefinition.typeDescriptor().kind() == SyntaxKind.STRING_TYPE_DESC) {
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.STRING_TYPE_DESC ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.ANY_TYPE_DESC) {
             module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode, semanticModel));
         } else {
             return false;
