@@ -2881,34 +2881,26 @@ public class TypeChecker {
 
     private static boolean checkIsLikeErrorType(Object sourceValue, BErrorType targetType,
                                                 List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        Type sourceType = getType(sourceValue);
-        if (sourceValue == null || sourceType.getTag() != TypeTags.ERROR_TAG) {
+        Type sourceTypeReferredType = TypeUtils.getReferredType(getType(sourceValue));
+        if (sourceValue == null || sourceTypeReferredType.getTag() != TypeTags.ERROR_TAG) {
             return false;
         }
-
         if (!checkIsLikeType(null, ((ErrorValue) sourceValue).getDetails(), targetType.detailType,
                 unresolvedValues, allowNumericConversion, null)) {
             return false;
         }
-
         if (targetType.typeIdSet == null) {
             return true;
         }
-
-        BTypeIdSet sourceIdSet = ((BErrorType) sourceType).typeIdSet;
+        BTypeIdSet sourceIdSet = ((BErrorType) sourceTypeReferredType).typeIdSet;
         if (sourceIdSet == null) {
             return false;
         }
-
         return sourceIdSet.containsAll(targetType.typeIdSet);
     }
 
     static boolean isSimpleBasicType(Type type) {
         return type.getTag() < TypeTags.NULL_TAG;
-    }
-
-    private static boolean isHandleType(Type type) {
-        return type.getTag() == TypeTags.HANDLE_TAG;
     }
 
     /**
@@ -3548,12 +3540,12 @@ public class TypeChecker {
         if (type.getTag() == TypeTags.SERVICE_TAG) {
             return false;
         } else {
-            MethodType generatedInitializer = type.generatedInitializer;
-            if (generatedInitializer == null) {
+            MethodType generatedInitMethod = type.getGeneratedInitMethod();
+            if (generatedInitMethod == null) {
                 // abstract objects doesn't have a filler value.
                 return false;
             }
-            FunctionType initFuncType = generatedInitializer.getType();
+            FunctionType initFuncType = generatedInitMethod.getType();
             // Todo: check defaultable params of the init func as well
             boolean noParams = initFuncType.getParameters().length == 0;
             boolean nilReturn = initFuncType.getReturnType().getTag() == TypeTags.NULL_TAG;
