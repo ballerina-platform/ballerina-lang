@@ -46,7 +46,7 @@ import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = NEW_COMMAND, description = "Create a new Ballerina project")
+@CommandLine.Command(name = NEW_COMMAND, description = "Create a new Ballerina package")
 public class NewCommand implements BLauncherCmd {
 
     private PrintStream errStream;
@@ -299,7 +299,7 @@ public class NewCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("create a new Ballerina project");
+        out.append(BLauncherCmd.getCommandUsageInfo(NEW_COMMAND));
     }
 
     @Override
