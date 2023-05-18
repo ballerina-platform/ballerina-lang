@@ -78,16 +78,18 @@ public class XMLParserNegativeTest {
     @DataProvider(name = "xmlValues")
     public Object[][] xmlValues() {
         return new Object[][]{
-                {"<book name=\"irshad<\"></book>" , "Unexpected character '<' (code 60) in attribute value\n" +
-                        " at [row,col {unknown-source}]: [1,19]"},
+                {"<book name=\"irshad<\"></book>" , "Unexpected character '<' (code 60) in attribute value" +
+                        System.lineSeparator() + " at [row,col {unknown-source}]: [1,19]"},
                 {"<!-- comments cannot have -- in it -->" , "[com.ctc.wstx.exc.WstxLazyException] String '--' not " +
-                        "allowed in comment (missing '>'?)\n at [row,col {unknown-source}]: [1,4]"},
-                {"<-note>irshad</-note>", "Unexpected character '-' (code 45) in prolog, after '<'.\n" +
-                        " at [row,col {unknown-source}]: [1,2]"},
+                        "allowed in comment (missing '>'?)" +
+                        System.lineSeparator() + " at [row,col {unknown-source}]: [1,4]"},
+                {"<-note>irshad</-note>", "Unexpected character '-' (code 45) in prolog, after '<'." +
+                        System.lineSeparator() + " at [row,col {unknown-source}]: [1,2]"},
                 {"<note><.b>irshad</.b></note>", "Unexpected character '.' (code 46) in content after '<' " +
-                        "(malformed start element?).\n at [row,col {unknown-source}]: [1,8]"},
+                        "(malformed start element?)." + System.lineSeparator() +
+                        " at [row,col {unknown-source}]: [1,8]"},
                 {"<?pi cannot contain ?> in it?><book></book>", "Unexpected character 'i' (code 105) in prolog; " +
-                        "expected '<'\n at [row,col {unknown-source}]: [1,24]"}
+                        "expected '<'" + System.lineSeparator() + " at [row,col {unknown-source}]: [1,24]"}
         };
     }
 }

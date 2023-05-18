@@ -36,8 +36,8 @@ public class XMLSecurityTest {
                 "<!ENTITY xxe SYSTEM \"https://www.w3schools.com/xml/note.xml\" >]>" +
                 "<foo>&xxe;</foo>";
         String expectedErrorMessage = "failed to parse xml: Encountered a reference to external entity \"xxe\", " +
-                "but stream reader has feature \"javax.xml.stream.isSupportingExternalEntities\" disabled\n " +
-                "at [row,col {unknown-source}]: [1,146]";
+                "but stream reader has feature \"javax.xml.stream.isSupportingExternalEntities\" disabled" +
+                System.lineSeparator() + " at [row,col {unknown-source}]: [1,146]";
         try {
             XmlFactory.parse(xmlString);
             Assert.fail("Negative test failed for: `" + xmlString + "'. Expected exception with message: " +
