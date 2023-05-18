@@ -64,8 +64,8 @@ EXAMPLES
        Create a package with the 'main' function with tests.
            $ bal new -t main myApp
 
-       Create a package with a Ballerina service template.
+      Create a package with a Ballerina service template.
            $ bal new -t service myService
 
-       Create a package with a Ballerina library template.
+      Create a package with a Ballerina library template.
            $ bal new -t lib myLib
