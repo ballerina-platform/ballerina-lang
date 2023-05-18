@@ -22,7 +22,6 @@ import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
@@ -379,10 +378,12 @@ public class QueryTypeChecker extends TypeChecker {
                     BType inferredSelectType = symTable.semanticError;
                     selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), env, type, data);
                     if (type != symTable.noType) {
-                        inferredSelectType = checkExprSilent(nodeCloner.cloneNode(selectExp), env, symTable.noType, data);
+                        inferredSelectType = checkExprSilent(nodeCloner.cloneNode(selectExp), env, symTable.noType,
+                                data);
                     }
 
-                    if(selectType != symTable.semanticError && inferredSelectType != symTable.semanticError) {
+                    if(selectType != symTable.semanticError && inferredSelectType != symTable.semanticError
+                            && inferredSelectType != symTable.noType) {
                         selectType = types.getTypeIntersection(
                                         Types.IntersectionContext.compilerInternalIntersectionTestContext(),
                                         selectType, inferredSelectType, env);
