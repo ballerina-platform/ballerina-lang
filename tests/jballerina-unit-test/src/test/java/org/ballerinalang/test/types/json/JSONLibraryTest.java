@@ -91,15 +91,18 @@ public class JSONLibraryTest {
     }
 
     @Test
-    public void testBasicJsonObjectGenValues() throws IOException {
+    public void testBasicJsonObjectGenValues() {
         String json = "{\"a\":\"abc\", \"b\":1, \"c\":3.14, \"d\":true, \"e\":false, \"f\":null, "
                 + "\"g\":{\"1\":\"a\", \"2\":\"b\"}, \"h\":[\"A\", 20, 30, \"D\"]}";
         Object node = JsonParser.parse(json);
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        JsonGenerator gen = new JsonGenerator(byteOut);
-        gen.serialize(node);
-        gen.flush();
-        Assert.assertEquals(new String(byteOut.toByteArray()), json);
+        try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+             JsonGenerator gen = new JsonGenerator(byteOut)) {
+            gen.serialize(node);
+            gen.flush();
+            Assert.assertEquals(byteOut.toString(), json);
+        } catch (IOException e) {
+            Assert.fail("Error while generating json");
+        }
     }
 
     @Test

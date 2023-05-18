@@ -21,7 +21,6 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.internal.types.BMapType;
-import io.ballerina.runtime.internal.types.BTupleType;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -87,44 +86,12 @@ public class NativeConversionWithStampTypesTest {
 
     @Test(description = "Test converting a record into a map and check previous values are not changed")
     public void testConvertStampRecordToMap() {
-
-        Object arr = BRunUtil.invoke(compileResult, "testConvertStampRecordToMap");
-        BArray results = (BArray) arr;
-        BMap<String, Object> employee = (BMap<String, Object>) results.get(0);
-        BMap<String, Object> map = (BMap<String, Object>) results.get(1);
-
-        Assert.assertEquals(results.size(), 2);
-        Assert.assertEquals(map.getType().getClass(), BMapType.class);
-
-        Assert.assertEquals(employee.size(), 4);
-        Assert.assertEquals(map.size(), 4);
-
-        Assert.assertEquals(employee.get(StringUtils.fromString("name")).toString(), "Mike");
-        Assert.assertEquals(map.get(StringUtils.fromString("name")).toString(), "Waruna");
+        BRunUtil.invoke(compileResult, "testConvertStampRecordToMap");
     }
 
     @Test(description = "Test converting a tuple into a map and check previous values are not changed")
     public void testConvertStampTupleToMap() {
-
-        Object arr = BRunUtil.invoke(compileResult, "testConvertStampTupleToMap");
-        BArray results = (BArray) arr;
-        BArray original = (BArray) results.get(0);
-        BArray converted = (BArray) results.get(1);
-
-        Assert.assertEquals(results.size(), 2);
-        Assert.assertEquals(original.getValues().length, 2);
-        Assert.assertEquals(converted.getValues().length, 2);
-
-        Assert.assertEquals(converted.getType().getClass(), BTupleType.class);
-
-        Assert.assertEquals(original.getValues()[0].toString(), "Vinod");
-        Assert.assertEquals(converted.getValues()[0].toString(), "Chathura");
-
-        BMap<String, Object> originalMap = ((BMap<String, Object>) original.getValues()[1]);
-        BMap<String, Object> convertedMap = ((BMap<String, Object>) converted.getValues()[1]);
-
-        Assert.assertEquals(originalMap.get(StringUtils.fromString("school")).toString(), "ABC College");
-        Assert.assertEquals(convertedMap.get(StringUtils.fromString("school")).toString(), "ABC College");
+        BRunUtil.invoke(compileResult, "testConvertStampTupleToMap");
     }
 
     @Test
