@@ -1766,19 +1766,21 @@ public class QueryDesugar extends BLangNodeVisitor {
             if (symbol == null || (symbol.tag & SymTag.SEQUENCE) != SymTag.SEQUENCE) {
                 continue;
             }
-            BType type;
-            if (symbol.type.tag == TypeTags.SEQUENCE) {
-                BType elementType = ((BSequenceType) symbol.type).elementType;
-                List<BTupleMember> tupleMembers = new ArrayList<>(1);
-                tupleMembers.add(new BTupleMember(elementType, Symbols.createVarSymbolForTupleMember(elementType)));
-                type = symbol.type = new BTupleType(null, tupleMembers, elementType, 0);
-            } else {
-                type = symbol.type;
-            }
+            BType type = changeSeqSymbolType(symbol);
             varRef.setBType(type);
             restArgs.set(i, createRestArgsExpression(varRef, type));
         }
         restArgs.forEach(this::acceptNode);
+    }
+    
+    private BType changeSeqSymbolType(BSymbol symbol) {
+        if (symbol.type.tag == TypeTags.SEQUENCE) {
+            BType elementType = ((BSequenceType) symbol.type).elementType;
+            List<BTupleMember> tupleMembers = new ArrayList<>(1);
+            tupleMembers.add(new BTupleMember(elementType, Symbols.createVarSymbolForTupleMember(elementType)));
+            symbol.type = new BTupleType(null, tupleMembers, elementType, 0);
+        }
+        return symbol.type;
     }
 
     private BLangRestArgsExpression createRestArgsExpression(BLangSimpleVarRef expr, BType type) {
@@ -2130,15 +2132,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         if (symbol == null || (symbol.tag & SymTag.SEQUENCE) != SymTag.SEQUENCE) {
             return;
         }
-        BType type;
-        if (symbol.type.tag == TypeTags.SEQUENCE) {
-            BType elementType = ((BSequenceType) symbol.type).elementType;
-            List<BTupleMember> tupleMembers = new ArrayList<>(1);
-            tupleMembers.add(new BTupleMember(elementType, Symbols.createVarSymbolForTupleMember(elementType)));
-            type = symbol.type = new BTupleType(null, tupleMembers, elementType, 0);
-        } else {
-            type = symbol.type;
-        }
+        BType type = changeSeqSymbolType(symbol);
         expr.expectedType = type;
         expr.setBType(type);
         BLangListConstructorSpreadOpExpr spreadOpExpr = new BLangListConstructorSpreadOpExpr();

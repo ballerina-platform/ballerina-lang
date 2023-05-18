@@ -1,0 +1,369 @@
+Test-Case: output
+Description: Test the result of the trap expression being `e`,
+             when evaluation of the expression completes abruptly with panic with associated value `e`.
+Labels: error-type, function-call-expr, function-defn, optional-type, panic, trap-expr
+
+function foo() {
+    panic error("foo panics");
+}
+
+function init() {
+    error? e1 = trap foo();
+    io:println(e1); // @output error("foo panics")
+}
+
+Test-Case: output
+Description: Test the result of the trap expression being `v`,
+             when evaluation of the expression does not complete abruptly with panic.
+Labels: error-type, function-call-expr, function-defn, int, nil-literal, nil-type, optional-type, trap-expr, union-type
+
+function init() {
+    int? nilVal = ();
+    int|error? e = trap nilVal;
+    io:println(e is ()); // @output true
+}
+
+Test-Case: error
+Description: If type of expr is T, then type of trap expr is T|error.
+Labels: error-type, int, multiplicative-expr, nil-literal, optional-type, string, trap-expr, union-type
+
+function errorFunction() {
+    int zero = 0;
+    int? nilVal = ();
+    int _ = trap 2 / zero; // @error incompatible types: expected 'int', found '(int|error)'
+    string|error? x = trap nilVal; // @error incompatible types: expected '(string|error)?', found '(int|error)?'
+    int _ = trap 2; // @error incompatible types: expected 'int', found '(int|error)'
+    string _ = trap "str"; // @error incompatible types: expected 'string', found '(string|error)'
+    float _ = trap 2.3f; // @error incompatible types: expected 'float', found '(float|error)'
+}
+
+Test-Case: error
+Description: If type of `expr` is `T`, then type of `trap expr` is `T|error`.
+Fail-Issue: ballerina-platform/ballerina-lang#36472
+Labels: error-type, int, multiplicative-expr, trap-expr
+
+function errorFunction() {
+    int zero = 0;
+    error e1 = trap 2 / zero; // @error incompatible types: expected 'error', found 'int'
+    error e2 = trap zero;; // @error incompatible types: expected 'error', found 'int'
+}
+
+Test-Case: output
+Description: Test trap expression when the type of expression is never.
+Labels: boolean, error-constructor-expr, error-type, function-call-expr, function-defn, int, never, panic, return-stmt, trap-expr, union-type
+
+function funcNeverReturns(string message) returns never {
+    panic error(message);
+}
+
+function init() {
+    never|error e1 = trap funcNeverReturns("message1");
+    io:println(e1); // @output error("message1")
+    error e2 = trap funcNeverReturns("message2");
+    io:println(e2); // @output error("message2")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a nil-literal and it does not panic.
+Labels: error-type, is-expr, nil-literal, nil-type, null, optional-type, trap-expr, union-type
+
+function foo(boolean nilLiteral) returns () {
+    if nilLiteral {
+        return null;
+    } else {
+        panic error("Don't return boolean");
+    }
+}
+
+function init() {
+    ()|error t = trap foo(true);
+    io:println(t is ()); // @output true
+    t = trap foo(false);
+    io:println(t); // @output error("Don't return boolean")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a function call which returns int or panic.
+Labels: decimal, error-type, float, function-call-expr, int, trap-expr, union-type
+
+function foo(string str) returns int {
+    return checkpanic int:fromString(str);
+}
+
+function init() {
+    int|error a = trap foo("1");
+    io:println(a); // @output 1
+    a = trap foo("a");
+    io:println(a); // @output error("{ballerina/lang.int}NumberParsingError",message="'string' value 'a' cannot be converted to 'int'")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a function call which returns string or panic.
+Labels: string, trap-expr, union-type
+
+function init() {
+    string|error e = trap string:fromCodePointInt(100);
+    io:println(e); // @output d
+    e = trap string:fromCodePointInt(1000000000000000);
+    io:println(e); // @output error("Invalid codepoint: 1000000000000000")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a byte-array-literal and it does not panic.
+Labels: byte, byte-array-literal, error-type, trap-expr, union-type
+
+function init() {
+    byte[]|error t1 = trap base16 `aeeecdefabcd12345567888822`;
+    io:println(t1); // @output [174,238,205,239,171,205,18,52,85,103,136,136,34]
+    t1 = trap base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
+    io:println(t1); // @output [104,101,108,108,111,32,98,97,108,108,101,114,105,110,97,32,33,33,33]
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a string-template-expr and it does not panic.
+Labels: error-type, string-template-expr, trap-expr, union-type
+
+function init() {
+    string|error t1 = trap string `Hello World!`;
+    io:println(t1); // @output Hello World!
+    string s = string `Hello World!`;
+    string|error t2 = trap string `${s}`;
+    io:println(t2); // @output Hello World!
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a xml-template-expr and it does not panic.
+Labels: error-type, trap-expr, union-type, xml-template-expr
+
+function init() {
+    xml|error t1 = trap xml `<Greeting>Hello!</Greeting>`;
+    io:println(t1); // @output <Greeting>Hello!</Greeting>
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a list constructor expression.
+Labels: array-type, error-type, function-call-expr, function-defn, int, list-constructor-expr, return-stmt, string, trap-expr, type-cast-expr, union-type
+
+function foo() returns int|string {
+    return "2";
+}
+
+function init() {
+    (int|string)[]|error t1 = trap [1, "2", 3, "4"];
+    io:println(t1); // @output [1,"2",3,"4"]
+    int[]|error t2 = trap [1, 2, <int> foo(), 4];
+    io:println(t2); // @output error("{ballerina}TypeCastError",message="incompatible types: 'string' cannot be cast to 'int'")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a table constructor expression.
+Labels: error-type, int, multiplicative-expr, record-type, record-type-readonly-field, string, table-constructor-expr, union-type, trap-expr
+
+function init() {
+    (table<record {|readonly string name; int id;|}> key(name))|error tbl1 = trap table key(name) [
+        {name: "John Doe", id: 9223372036854775807*2}
+    ];
+    io:println(tbl1); // @output error("{ballerina}NumberOverflow",message="int range overflow")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a object constructor expression.
+Labels: error-type, function-type, method-call-expr, object-constructor-expr, optional-type, panic, trap-expr
+
+function init() {
+    object { function bar(); } obj = object {
+                                        error? i = ();
+                                        function bar() {
+                                            self.i = self.foo();
+                                        }
+                                        function foo() {
+                                            panic error("msg");
+                                        }
+                                    };
+    error? e = trap obj.bar();
+    io:println(e); // @output error("msg")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a new expression.
+Labels: error-constructor-expr, error-type, function-defn, method-call-expr, module-class-defn, new-expr, optional-type, panic, trap-expr
+
+class Obj {
+    function bar() {
+        panic error("msg");
+    }
+}
+
+function init() {
+    Obj obj = new();
+    error? t = trap obj.bar();
+    io:println(t); // @output error("msg")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a member access expression.
+Labels: array-type, error-type, int, member-access-expr, trap-expr
+
+function init() {
+    int[] i = [];
+    io:println(trap i[3]); // @output error("{ballerina/lang.array}IndexOutOfRange",message="array index out of range: index: 3, size: 0")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a function call expression.
+Labels: array-type, error-constructor-expr, error-type, function-call-expr, function-defn, int, optional-type, return-stmt, trap-expr, union-type
+
+function foo() returns int {
+    int[] i = [];
+    return i[3];
+}
+
+function bar() {
+    panic error("msg");
+}
+
+function init() {
+    int|error t1 = trap foo();
+    io:println(t1); // @output error("{ballerina/lang.array}IndexOutOfRange",message="array index out of range: index: 3, size: 0")
+    error? t2 = trap bar();
+    io:println(t2); // @output error("msg")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a type cast expression.
+Labels: error-type, function-call-expr, function-defn, int, return-stmt, string, trap-expr, type-cast-expr, union-type
+
+function foo() returns int|string {
+    return "str";
+}
+
+function init() {
+    int|error t1 = trap <int>foo();
+    io:println(t1); // @output error("{ballerina}TypeCastError",message="incompatible types: 'string' cannot be cast to 'int'")
+    string|error t2 = trap <string>foo();
+    io:println(t2); // @output str
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a unary logical expression.
+Labels: boolean, error-type, function-call-expr, function-defn, int, return-stmt, trap-expr, union-type
+
+function foo() returns int|boolean {
+    return 23;
+}
+
+function init() {
+    boolean|error t1 = trap !<boolean>foo();
+    io:println(t1); // @output error("{ballerina}TypeCastError",message="incompatible types: 'int' cannot be cast to 'boolean'")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a multiplicative expression.
+Labels: boolean, error-type, function-call-expr, function-defn, int, multiplicative-expr, trap-expr, union-type
+
+function init() {
+    int zero = 0;
+    int|error t1 = trap 2 / zero;
+    io:println(t1); // @output error("{ballerina}DivisionByZero",message=" / by zero")
+    int|error t2 = trap int:MAX_VALUE * int:MAX_VALUE;
+    io:println(t2); // @output error("{ballerina}NumberOverflow",message="int range overflow")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a trap expression.
+Labels: boolean, error-type, function-call-expr, function-defn, int, multiplicative-expr, trap-expr, union-type
+
+function init() {
+    int zero = 0;
+    int|error t1 = trap trap 2 / zero;
+    io:println(t1); // @output error("{ballerina}DivisionByZero",message=" / by zero")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a checking expression.
+Labels: boolean, check, checkpanic, error-type, int, multiplicative-expr, trap-expr, union-type
+
+function init() {
+    int zero = 0;
+    int|error e1 = trap (check 2 / zero);
+    io:println(e1); // @output error("{ballerina}DivisionByZero",message=" / by zero")
+    int|error e2 = trap (checkpanic 2 / zero);
+    io:println(e2); // @output error("{ballerina}DivisionByZero",message=" / by zero")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a function call which returns char or panic.
+Labels: boolean, error-type, function-call-expr, string:Char, trap-expr, union-type
+
+function foo(boolean character) returns string:Char {
+    if character {
+        return "c";
+    } else {
+        panic error("Don't return char");
+    }
+}
+
+function init() {
+    string:Char c = "c";
+    string:Char|error e = trap foo(true);
+    io:println(e); // @output c
+    e = trap foo(false);
+    io:println(e); // @output error("Don't return char")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a function call which returns byte or panic.
+Labels: boolean, byte, error-type, function-call-expr, trap-expr, union-type
+
+function foo(boolean byteValue) returns byte {
+    if byteValue {
+        return 0;
+    } else {
+        panic error("Don't return byte");
+    }
+}
+
+function init() {
+    byte b = 0;
+    byte|error e = trap foo(true);
+    io:println(e); // @output 0
+    e = trap foo(false);
+    io:println(e); // @output error("Don't return byte")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a function call which returns subtype of int or panic.
+Labels: boolean, error-type, function-call-expr, int:Signed32, int:Unsigned32, trap-expr, union-type
+
+function foo(boolean signedInt) returns int:Signed32 {
+    if signedInt {
+        return -12;
+    } else {
+        panic error("Don't return signed int");
+    }
+}
+
+function init() {
+    int:Signed32|error e1 = trap foo(true);
+    io:println(e1); // @output -12
+    e1 = trap foo(false);
+    io:println(e1); // @output error("Don't return signed int")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a query expression
+Labels: array-type, error-type, list-constructor-expr, query-expr, trap-expr, union-type
+
+function init() {
+    int[]|error res = trap from var item in [1, 0, 4]
+                                  select 5/item;
+    io:println(res); // @output error("{ballerina}DivisionByZero",message=" / by zero")
+}
+
+Test-Case: output
+Description: Test trap expression when the expression is a transactional expression and it does not panic.
+Labels: transactional-expr, trap-expr
+
+function init() {
+    io:println(trap transactional); // @output false
+}

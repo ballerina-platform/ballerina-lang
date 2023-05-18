@@ -118,6 +118,8 @@ public class CollectClauseTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'seq int'", 107, 25);
         BAssertUtil.validateError(negativeResult, i++, "user defined functions are not allowed when arguments" +
                 " contain aggregated variable", 107, 25);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', found '[seq int]'",
+                109, 25);
         BAssertUtil.validateError(negativeResult, i++, "user defined functions are not allowed when arguments" +
                 " contain aggregated variable", 109, 26);
         BAssertUtil.validateError(negativeResult, i++, "'price1' is sequenced more than once", 123, 26);

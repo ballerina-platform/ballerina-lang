@@ -609,7 +609,7 @@ public class QueryTypeChecker extends TypeChecker {
         return true;
     }
 
-    private BType checkExpr(BLangExpression expr, TypeChecker.AnalyzerData data) {
+    private BType checkInvocation(BLangExpression expr, TypeChecker.AnalyzerData data) {
         return checkExpr(expr, data.env, symTable.noType, data);
     }
 
@@ -881,7 +881,7 @@ public class QueryTypeChecker extends TypeChecker {
         }
         BType invocationType;
         if (iExpr.expr != null) {
-            invocationType = checkExpr(iExpr.expr, data);
+            invocationType = checkInvocation(iExpr.expr, data);
             iExpr.argExprs.add(0, iExpr.expr);
         } else {
             BType firstArgType = silentTypeCheckExpr(iExpr.argExprs.get(0), symTable.noType, data);
@@ -1103,14 +1103,7 @@ public class QueryTypeChecker extends TypeChecker {
                 }
             }
         }
-        if (expType.tag == TypeTags.NONE || expType.tag == TypeTags.READONLY) {
-            BType inferredType = getInferredTupleType(listConstructor, expType, data);
-            checkTupleWithSequence(inferredType);
-            data.resultType = inferredType == symTable.semanticError ?
-                    symTable.semanticError : types.checkType(listConstructor, inferredType, expType);
-            return;
-        }
-        data.resultType = checkListConstructorCompatibility(expType, listConstructor, data);
+        super.visit(listConstructor, data);
     }
 
     private void checkTupleWithSequence(BType type) {
