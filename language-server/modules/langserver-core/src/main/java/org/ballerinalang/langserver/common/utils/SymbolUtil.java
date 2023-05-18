@@ -443,17 +443,19 @@ public class SymbolUtil {
             return Collections.emptyList();
         }
 
-        Map<String, Symbol> symbolMap = new HashMap<>();
+        Map<String, Symbol> symbolMapWithoutPrefix = new HashMap<>();
+        Map<String, Symbol> symbolMapWithPrefix = new HashMap<>();
         for (Symbol symbol : symbolList) {
             if (symbol.getName().isEmpty()) {
                 continue;
             }
             String symbolName = symbol.getName().get();
-            symbolMap.put(symbolName, symbol);
+            symbolMapWithoutPrefix.put(symbolName, symbol);
+
             if (moduleId.modulePrefix().isEmpty()) {
-                symbolMap.put(moduleId.moduleName() + ":" + symbolName, symbol);
+                symbolMapWithPrefix.put(moduleId.moduleName() + ":" + symbolName, symbol);
             } else {
-                symbolMap.put(moduleId.modulePrefix() + ":" + symbolName, symbol);
+                symbolMapWithPrefix.put(moduleId.modulePrefix() + ":" + symbolName, symbol);
             }
         }
 
@@ -462,13 +464,22 @@ public class SymbolUtil {
         if (!completionSearchProvider.checkModuleIndexed(moduleId)) {
             completionSearchProvider.indexModule(moduleId, symbolList.stream()
                     .map(symbol -> symbol.getName().get())
-                    .collect(Collectors.toList()), new ArrayList<>(symbolMap.keySet()));
+                    .collect(Collectors.toList()), new ArrayList<>(symbolMapWithPrefix.keySet()));
         }
 
         List<String> stringList = completionSearchProvider.getSuggestions(prefix);
 
-        return symbolMap.entrySet().stream()
-                .filter(stringSymbolEntry -> stringList.contains(stringSymbolEntry.getKey().toLowerCase()))
-                .map(Map.Entry::getValue).collect(Collectors.toList());
+        if (symbolMapWithoutPrefix.entrySet().stream().anyMatch(stringSymbolEntry -> stringList.contains(
+                stringSymbolEntry.getKey().toLowerCase()))) {
+            return getFilteredList(symbolMapWithoutPrefix, stringList);
+        } else {
+            return getFilteredList(symbolMapWithPrefix, stringList);
+        }
+    }
+
+    private static List<Symbol> getFilteredList(Map<String, Symbol> symbolMap, List<String> stringList) {
+        return symbolMap.entrySet().stream().filter(stringSymbolEntry ->
+                        stringList.contains(stringSymbolEntry.getKey().toLowerCase())).map(Map.Entry::getValue)
+                .collect(Collectors.toList());
     }
 }
