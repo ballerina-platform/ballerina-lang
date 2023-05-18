@@ -9152,11 +9152,10 @@ public class BallerinaParser extends AbstractParser {
             case LIMIT_KEYWORD:
             case SELECT_KEYWORD:
                 return parseAsyncSendAction(expression, rightArrow, name);
-            case IDENTIFIER_TOKEN:
+            default:
                 if (isGroupOrCollectKeyword(nextToken)) {
                     return parseAsyncSendAction(expression, rightArrow, name);
                 }
-            default:
                 recover(peek(), ParserRuleContext.REMOTE_CALL_OR_ASYNC_SEND_END);
                 return parseRemoteCallOrAsyncSendEnd(expression, rightArrow, name);
         }
@@ -10924,11 +10923,10 @@ public class BallerinaParser extends AbstractParser {
                 return false;
             case IN_KEYWORD:
                 return true;
-            case IDENTIFIER_TOKEN:
+            default:
                 if (isGroupOrCollectKeyword(nextToken)) {
                     return true;
                 }
-            default:
                 return !isTypeStartingToken(tokenKind, nextNextToken);
         }
     }
@@ -12038,14 +12036,15 @@ public class BallerinaParser extends AbstractParser {
             case ON_KEYWORD:
             case CONFLICT_KEYWORD:
                 return null;
-            case IDENTIFIER_TOKEN:
-                if (((STIdentifierToken) nextToken).text.equals(SyntaxKind.COLLECT_KEYWORD.stringValue())) {
-                    return parseCollectClause(isRhsExpr);
-                }
-                if (((STIdentifierToken) nextToken).text.equals(SyntaxKind.GROUP_KEYWORD.stringValue())) {
-                    return parseGroupByClause(isRhsExpr);
-                }
             default:
+                if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+                    if (((STIdentifierToken) nextToken).text.equals(SyntaxKind.COLLECT_KEYWORD.stringValue())) {
+                        return parseCollectClause(isRhsExpr);
+                    }
+                    if (((STIdentifierToken) nextToken).text.equals(SyntaxKind.GROUP_KEYWORD.stringValue())) {
+                        return parseGroupByClause(isRhsExpr);
+                    }
+                }
                 recover(peek(), ParserRuleContext.QUERY_PIPELINE_RHS);
                 return parseIntermediateClause(isRhsExpr, allowActions);
         }
