@@ -10931,18 +10931,6 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    static boolean isEndOfLetVarDeclarations(SyntaxKind tokenKind, STToken nextNextToken) {
-        switch (tokenKind) {
-            case COMMA_TOKEN:
-            case AT_TOKEN:
-                return false;
-            case IN_KEYWORD:
-                return true;
-            default:
-                return !isTypeStartingToken(tokenKind, nextNextToken);
-        }
-    }
-
     /**
      * Parse let variable declaration.
      * <p>
@@ -11991,10 +11979,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private static boolean isGroupOrCollectKeyword(STToken nextToken) {
-        if (nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN) {
-            return false;
-        }
-        if (!(nextToken instanceof STIdentifierToken)) {
+        if (nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN || !(nextToken instanceof STIdentifierToken)) {
             return false;
         }
         String tokenText = ((STIdentifierToken) nextToken).text;
