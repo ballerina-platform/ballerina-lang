@@ -128,7 +128,8 @@ public class TomlProviderNegativeTest {
         Assert.assertEquals(diagnosticLog.getErrorCount(), 4);
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(),
-                "error: value not provided for required configurable variable 'intVar'");
+                "error: [NoModuleConfig.toml:(2:10,2:12)] invalid toml structure found for module 'myOrg.mod'." +
+                        " Please provide the module name as '[myOrg.mod]'");
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(),
                 "error: value not provided for required configurable variable 'stringVar'");
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(2).toString(), "error: [NoModuleConfig.toml:(1:1," +
