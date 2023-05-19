@@ -43,6 +43,7 @@ public class ObjectTest {
             "cannot use 'check' in the default expression of a record field";
     private static final String INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT =
             "cannot use 'check' in an object field initializer of an object with no 'init' method";
+    private static final String CANNOT_ASSIGN_TO_FINAL_SELF = "cannot assign a value to final 'self'";
 
     private CompileResult checkInInitializerResult;
     private CompileResult checkFunctionReferencesResult;
@@ -511,6 +512,16 @@ public class ObjectTest {
                 19, 5);
         BAssertUtil.validateError(result, 1, "object 'init' method cannot have an 'external' implementation",
                 23, 5);
+    }
+
+    @Test
+    public void testObjectSelfBeingImplicitlyFinal() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_self_final_negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(result, index++, CANNOT_ASSIGN_TO_FINAL_SELF, 25, 9);
+        BAssertUtil.validateError(result, index++, CANNOT_ASSIGN_TO_FINAL_SELF, 40, 9);
+        BAssertUtil.validateError(result, index++, CANNOT_ASSIGN_TO_FINAL_SELF, 47, 13);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 
     @Test(description = "Test nillable initialization")

@@ -312,3 +312,21 @@ function testAnonIsolatedFuncAccessingImplicitlyFinalVarsNegative(int[] i) {
 
    isolated function (int[]) returns int[] fn9 = let int[] k = i in (l) => k;
 }
+
+class TestInvalidAccessOfSelfAsCapturedVariableInIsolatedFunction {
+    string[] words = [];
+    int length = 3;
+
+    isolated function getCount() returns int =>
+        self.words.filter(
+            isolated function (string word) returns boolean => word.length() == self.length).length();
+}
+
+object {} testInvalidAccessOfSelfAsCapturedVariableInIsolatedFunction = object {
+    string[] words = [];
+    int length = 3;
+
+    isolated function getCount() returns int =>
+        self.words.filter(
+            isolated function (string word) returns boolean => self.length == word.length()).length();
+};
