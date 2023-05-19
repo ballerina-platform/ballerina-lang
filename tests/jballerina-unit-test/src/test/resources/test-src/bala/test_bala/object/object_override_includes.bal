@@ -73,6 +73,14 @@ public function testObjectWithOverriddenFieldsAndMethods() {
     assertEquality("Hello Director, John", p.getName());
 }
 
+readonly service class FooClass {
+    *foo:FooObj;
+
+    isolated remote function execute(int aVar, int bVar) {
+
+    }
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

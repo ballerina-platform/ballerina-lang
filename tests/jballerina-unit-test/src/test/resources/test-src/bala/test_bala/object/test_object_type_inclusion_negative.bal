@@ -51,3 +51,11 @@ public class PartTimeEmployee4 {
         return 1000.00 * ratio * <float>months;
     }
 }
+
+readonly service class FooClass {
+    *foo:FooObj;
+
+    isolated remote function execute(int aVar, int bVar) {
+
+    }
+}
