@@ -742,8 +742,9 @@ public class BIRTypeWriter implements TypeVisitor {
 
     private void writeBddNode(BddNode bddNode) {
         Atom atom = bddNode.atom;
-        buff.writeBoolean(atom instanceof RecAtom);
-        if (atom instanceof RecAtom) {
+        boolean isRecAtom = atom instanceof RecAtom;
+        buff.writeBoolean(isRecAtom);
+        if (isRecAtom) {
             RecAtom recAtom = (RecAtom) atom;
             buff.writeInt(recAtom.index);
         } else {
@@ -822,20 +823,20 @@ public class BIRTypeWriter implements TypeVisitor {
         }
     }
 
-    private void writeStringSubtype(StringSubtype ss) {
-        CharStringSubtype charData = ss.getChar();
+    private void writeStringSubtype(StringSubtype stringSubtype) {
+        CharStringSubtype charData = stringSubtype.getChar();
         buff.writeBoolean(charData.allowed);
-        EnumerableCharString[] values = charData.values;
-        buff.writeInt(values.length);
-        for (EnumerableCharString ecs : values) {
+        EnumerableCharString[] charValues = charData.values;
+        buff.writeInt(charValues.length);
+        for (EnumerableCharString ecs : charValues) {
             buff.writeInt(addStringCPEntry(ecs.value));
         }
-        NonCharStringSubtype nonCharData = ss.getNonChar();
+        NonCharStringSubtype nonCharData = stringSubtype.getNonChar();
         buff.writeBoolean(nonCharData.allowed);
-        EnumerableString[] values1 = nonCharData.values;
-        buff.writeInt(values1.length);
-        for (EnumerableString ecs1 : values1) {
-            buff.writeInt(addStringCPEntry(ecs1.value));
+        EnumerableString[] nonCharValues = nonCharData.values;
+        buff.writeInt(nonCharValues.length);
+        for (EnumerableString ecs : nonCharValues) {
+            buff.writeInt(addStringCPEntry(ecs.value));
         }
     }
 

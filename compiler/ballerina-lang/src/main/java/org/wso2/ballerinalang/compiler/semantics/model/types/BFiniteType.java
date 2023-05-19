@@ -109,5 +109,6 @@ public class BFiniteType extends BType implements FiniteType {
         if (!this.nullable && value.getBType() != null &&  value.getBType().isNullable()) {
             this.nullable = true;
         }
+        // TODO:  if exits, can we modify semtype in parallel here?
     }
 }
