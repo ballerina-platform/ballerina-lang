@@ -100,6 +100,7 @@ public class CommandUtil {
     public static final String ORG_NAME = "ORG_NAME";
     public static final String PKG_NAME = "PKG_NAME";
     public static final String DIST_VERSION = "DIST_VERSION";
+    public static final String TOOL_ID = "TOOL_ID";
     public static final String USER_HOME = "user.home";
     public static final String GITIGNORE = "gitignore";
     public static final String DEVCONTAINER = "devcontainer";
