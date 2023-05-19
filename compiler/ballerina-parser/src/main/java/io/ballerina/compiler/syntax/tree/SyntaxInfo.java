@@ -33,8 +33,6 @@ public class SyntaxInfo {
 
     private static final List<String> BALLERINA_KEYWORDS = Arrays.stream(SyntaxKind.values())
             .filter(syntaxKind -> SyntaxKind.RE_KEYWORD.compareTo(syntaxKind) > 0)
-            .filter(syntaxKind -> SyntaxKind.GROUP_KEYWORD.compareTo(syntaxKind) > 0)
-            .filter(syntaxKind -> SyntaxKind.COLLECT_KEYWORD.compareTo(syntaxKind) > 0)
             .map(SyntaxKind::stringValue)
             .collect(Collectors.toList());
 
