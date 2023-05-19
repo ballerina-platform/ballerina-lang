@@ -1451,9 +1451,18 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         for (BLangExpression expressionOrLiteral : finiteTypeNode.valueSpace) {
             finiteType.addValue(expressionOrLiteral);
         }
+        setSemType(finiteType);
         finiteTypeSymbol.type = finiteType;
 
         return finiteType;
+    }
+
+    private void setSemType(BFiniteType finiteType) {
+        if (!this.semtypeEnabled) {
+            return;
+        }
+
+        finiteType.setSemtype(symbolEnter.resolveSingletonType(new ArrayList<>(finiteType.getValueSpace())));
     }
 
     @Override

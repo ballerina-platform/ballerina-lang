@@ -170,6 +170,7 @@ public class Types {
             new CompilerContext.Key<>();
     private final Unifier unifier;
     private SymbolTable symTable;
+    private SymbolEnter symbolEnter;
     private SymbolResolver symResolver;
     private BLangDiagnosticLog dlog;
     private Names names;
@@ -208,6 +209,7 @@ public class Types {
         context.put(TYPES_KEY, this);
 
         this.symTable = SymbolTable.getInstance(context);
+        this.symbolEnter = SymbolEnter.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.names = Names.getInstance(context);
@@ -4238,8 +4240,17 @@ public class Types {
                 finiteType.tsymbol.owner, finiteType.tsymbol.pos,
                 VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, matchingValues);
+        setSemType(intersectingFiniteType);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
+    }
+
+    private void setSemType(BFiniteType finiteType) {
+        if (!this.semtypeEnabled) {
+            return;
+        }
+
+        finiteType.setSemtype(symbolEnter.resolveSingletonType(new ArrayList<>(finiteType.getValueSpace())));
     }
 
     private boolean isAssignableToFiniteTypeMemberInUnion(BLangLiteral expr, BType targetType) {
@@ -5919,6 +5930,7 @@ public class Types {
                 originalType.tsymbol.owner, originalType.tsymbol.pos,
                 VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, remainingValueSpace);
+        setSemType(intersectingFiniteType);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
     }

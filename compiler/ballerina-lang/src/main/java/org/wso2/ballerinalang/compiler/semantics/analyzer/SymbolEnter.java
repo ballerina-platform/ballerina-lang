@@ -776,17 +776,20 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private SemType resolveSingletonType(BLangFiniteTypeNode td, Env semtypeEnv) {
-        if (td.valueSpace.size() > 1) {
-            return resolveFiniteTypeUnion(td, semtypeEnv);
-        }
-        return resolveSingletonType(td, 0);
+        return resolveSingletonType(td.valueSpace);
     }
 
-    private SemType resolveSingletonType(BLangFiniteTypeNode td, int index) {
+    SemType resolveSingletonType(List<BLangExpression> valueSpace) {
         // In case we encounter unary expressions in finite type, we will be replacing them with numeric literals
-        replaceUnaryExprWithNumericLiteral(td);
+        replaceUnaryExprWithNumericLiteral(valueSpace);
 
-        BLangLiteral literal = (BLangLiteral) td.valueSpace.get(index);
+        if (valueSpace.size() > 1) {
+            return resolveFiniteTypeUnion(valueSpace);
+        }
+        return resolveSingletonType((BLangLiteral) valueSpace.get(0));
+    }
+
+    private SemType resolveSingletonType(BLangLiteral literal) {
         Object litVal = literal.value;
         switch (literal.getBType().getKind()) {
             case FLOAT:
@@ -800,6 +803,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
                 return SemTypes.floatConst(value);
             case INT:
+            case BYTE:
                 return SemTypes.intConst((long) litVal);
             case STRING:
                 return SemTypes.stringConst((String) litVal);
@@ -807,34 +811,32 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return SemTypes.booleanConst((Boolean) litVal);
             case DECIMAL:
                 return SemTypes.decimalConst((String) litVal);
+            case NIL:
+                return PredefinedType.NIL;
             default:
                 throw new UnsupportedOperationException("Finite type not implemented for: " + literal);
         }
     }
 
-    private void replaceUnaryExprWithNumericLiteral(BLangFiniteTypeNode finiteTypeNode) {
-        BLangExpression value;
-        NodeKind valueKind;
-        for (int i = 0; i < finiteTypeNode.valueSpace.size(); i++) {
-            value = finiteTypeNode.valueSpace.get(i);
-            valueKind = value.getKind();
-
-            if (valueKind == NodeKind.UNARY_EXPR) {
+    private void replaceUnaryExprWithNumericLiteral(List<BLangExpression> valueSpace) {
+        for (int i = 0; i < valueSpace.size(); i++) {
+            BLangExpression value = valueSpace.get(i);
+            if (value.getKind() == NodeKind.UNARY_EXPR) {
                 BLangUnaryExpr unaryExpr = (BLangUnaryExpr) value;
                 if (unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL) {
                     // Replacing unary expression with numeric literal type for + and - numeric values
                     BLangNumericLiteral newNumericLiteral =
                             Types.constructNumericLiteralFromUnaryExpr(unaryExpr);
-                    finiteTypeNode.valueSpace.set(i, newNumericLiteral);
+                    valueSpace.set(i, newNumericLiteral);
                 }
             }
         }
     }
 
-    private SemType resolveFiniteTypeUnion(BLangFiniteTypeNode td, Env semtypeEnv) {
+    private SemType resolveFiniteTypeUnion(List<BLangExpression> valueSpace) {
         List<SemType> types = new ArrayList<>();
-        for (int i = 0; i < td.valueSpace.size(); i++) {
-            types.add(resolveSingletonType(td, i));
+        for (BLangExpression bLangExpression : valueSpace) {
+            types.add(resolveSingletonType((BLangLiteral) bLangExpression));
         }
 
         Iterator<SemType> iter = types.iterator();

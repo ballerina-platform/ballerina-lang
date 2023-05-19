@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -44,11 +45,13 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -73,6 +76,7 @@ public class TypeNarrower extends BLangNodeVisitor {
     private Types types;
     private SymbolEnter symbolEnter;
     private TypeChecker typeChecker;
+    private boolean semtypeEnabled;
     private static final CompilerContext.Key<TypeNarrower> TYPE_NARROWER_KEY = new CompilerContext.Key<>();
 
     private TypeNarrower(CompilerContext context) {
@@ -88,6 +92,9 @@ public class TypeNarrower extends BLangNodeVisitor {
         if (typeNarrower == null) {
             typeNarrower = new TypeNarrower(context);
         }
+
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        typeNarrower.semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
         return typeNarrower;
     }
 
@@ -422,9 +429,17 @@ public class TypeNarrower extends BLangNodeVisitor {
             expr.setBType(symTable.getTypeFromTag(expr.getBType().tag));
             finiteType.addValue(expr);
         }
+        setSemType(finiteType);
         finiteTypeSymbol.type = finiteType;
-
         return finiteType;
+    }
+
+    private void setSemType(BFiniteType finiteType) {
+        if (!this.semtypeEnabled) {
+            return;
+        }
+
+        finiteType.setSemtype(symbolEnter.resolveSingletonType(new ArrayList<>(finiteType.getValueSpace())));
     }
 
     private void narrowTypeForEqualOrNotEqual(BLangBinaryExpr binaryExpr, BLangExpression lhsExpr,
