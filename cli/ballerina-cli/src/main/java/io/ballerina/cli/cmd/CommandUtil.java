@@ -30,6 +30,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
 import io.ballerina.projects.bala.BalaProject;
+import io.ballerina.projects.internal.bala.BalToolJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
@@ -74,9 +75,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
+import static io.ballerina.projects.util.ProjectConstants.BAL_TOOL_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
+import static io.ballerina.projects.util.ProjectConstants.LIB_DIR;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
+import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
 import static io.ballerina.projects.util.ProjectUtils.deleteDirectory;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
@@ -199,8 +203,10 @@ public class CommandUtil {
         Gson gson = new Gson();
         Path packageJsonPath = balaPath.resolve(PACKAGE_JSON);
         Path dependencyGraphJsonPath = balaPath.resolve(DEPENDENCY_GRAPH_JSON);
+        Path balToolJsonPath = balaPath.resolve(TOOL_DIR).resolve(ProjectConstants.BAL_TOOL_JSON);
         PackageJson templatePackageJson = null;
         DependencyGraphJson templateDependencyGraphJson = null;
+        BalToolJson templateBalToolJson = null;
 
         try (InputStream inputStream = new FileInputStream(String.valueOf(packageJsonPath))) {
             Reader fileReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
@@ -226,6 +232,19 @@ public class CommandUtil {
             }
         }
 
+        if (balToolJsonPath.toFile().exists()) {
+            try (InputStream inputStream = new FileInputStream(String.valueOf(balToolJsonPath))) {
+                Reader fileReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+                templateBalToolJson = gson.fromJson(fileReader, BalToolJson.class);
+            } catch (IOException e) {
+                printError(errStream,
+                        "Error while reading the bal-tool json file: " + e.getMessage(),
+                        null,
+                        false);
+                getRuntime().exit(1);
+            }
+        }
+
         if (!templatePackageJson.getTemplate()) {
             throw createLauncherException("unable to create the package: " +
                     "specified package is not a template");
@@ -242,6 +261,14 @@ public class CommandUtil {
             Path dependenciesToml = projectPath.resolve(DEPENDENCIES_TOML);
             Files.createFile(dependenciesToml);
             writeDependenciesToml(projectPath, templateDependencyGraphJson, templatePackageJson);
+        }
+
+        if (balToolJsonPath.toFile().exists()) {
+            // Create BalTool.toml and copy dependency jars
+            Path balToolToml = projectPath.resolve(BAL_TOOL_TOML);
+            Files.createFile(balToolToml);
+            writeBalToolToml(balToolToml, templateBalToolJson, packageName);
+            copyToolDependencies(projectPath, balaPath.resolve(TOOL_DIR).resolve(LIBS_DIR));
         }
 
         // Create Package.md
@@ -572,6 +599,40 @@ public class CommandUtil {
     }
 
     /**
+     * Write to BalTool.toml file.
+     *
+     * @param balToolTomlPath path to BalTool.toml
+     * @param balToolJson Bal-tool.json content
+     */
+    public static void writeBalToolToml(Path balToolTomlPath, BalToolJson balToolJson, String packageName)
+            throws IOException {
+        Files.writeString(balToolTomlPath, "[tool]", StandardOpenOption.APPEND);
+        Files.writeString(balToolTomlPath, "\nid = \"" + packageName + "\"\n",
+                StandardOpenOption.APPEND);
+
+        List<String> dependencyPaths = balToolJson.dependencyPaths();
+        StringBuilder dependenciesContent = new StringBuilder();
+        for (String dependencyPath: dependencyPaths) {
+            dependenciesContent.append("\n[[dependency]]\n").append("path = \"").append(dependencyPath).append("\"\n");
+        }
+        Files.writeString(balToolTomlPath, dependenciesContent.toString(), StandardOpenOption.APPEND);
+    }
+
+    /**
+     * Copy dependency jars to new package from template package.
+     *
+     * @param projectPath path to new project
+     * @param toolsLibPath Path to /tool/libs directory containing dependencies
+     */
+    public static void copyToolDependencies(Path projectPath, Path toolsLibPath) throws IOException {
+        Path toolDirectory = projectPath.resolve(TOOL_DIR);
+        Files.createDirectory(toolDirectory);
+        Files.createDirectory(toolDirectory.resolve(LIBS_DIR));
+        Files.walkFileTree(toolsLibPath, new FileUtils.Copy(toolsLibPath, toolDirectory.resolve(LIBS_DIR)));
+
+    }
+
+    /**
      * Get formatted dependencies array content for Dependencies.toml dependency.
      *
      * @param packageDependency package dependency
@@ -750,11 +811,13 @@ public class CommandUtil {
         // - .devcontainer.json
 
         applyTemplate(path, template, balFilesExist);
-        if (template.equalsIgnoreCase("lib")) {
+        if (template.equalsIgnoreCase(LIB_DIR)) {
             initLibPackage(path, packageName);
             Path source = path.resolve("lib.bal");
             Files.move(source, source.resolveSibling(guessPkgName(packageName, template) + ".bal"),
                     StandardCopyOption.REPLACE_EXISTING);
+        } else if (template.equalsIgnoreCase(TOOL_DIR)) {
+            initToolPackage(path, packageName);
         } else {
             initPackage(path, packageName);
         }
@@ -894,6 +957,33 @@ public class CommandUtil {
         write(path.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME), packageMd.getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * Initialize a new ballerina tool package in the given path.
+     *
+     * @param path Project path
+     * @param packageName package name
+     * @throws IOException If any IO exception occurred
+     */
+    private static void initToolPackage(Path path, String packageName) throws IOException {
+        Path ballerinaToml = path.resolve(ProjectConstants.BALLERINA_TOML);
+        Files.createFile(ballerinaToml);
+
+        String defaultManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-app.toml");
+        defaultManifest = defaultManifest
+                .replaceAll(ORG_NAME, ProjectUtils.guessOrgName())
+                .replaceAll(PKG_NAME, guessPkgName(packageName, TOOL_DIR))
+                .replaceAll(DIST_VERSION, RepoUtils.getBallerinaShortVersion());
+        Files.write(ballerinaToml, defaultManifest.getBytes(StandardCharsets.UTF_8));
+
+        Path balToolToml = path.resolve(ProjectConstants.BAL_TOOL_TOML);
+        Files.createFile(balToolToml);
+
+        String balToolManifest = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + "manifest-tool.toml");
+        balToolManifest = balToolManifest.replaceAll(TOOL_ID, guessPkgName(packageName, TOOL_DIR));
+
+        write(balToolToml, balToolManifest.getBytes(StandardCharsets.UTF_8));
+    }
+
     protected static PackageVersion findLatest(List<PackageVersion> packageVersions) {
         if (packageVersions.isEmpty()) {
             return null;
@@ -1002,7 +1092,7 @@ public class CommandUtil {
      * @param packagePath given path
      */
     public static String checkPackageFilesExists(Path packagePath) {
-        String[] packageFiles = {DEPENDENCIES_TOML, ProjectConstants.PACKAGE_MD_FILE_NAME,
+        String[] packageFiles = {DEPENDENCIES_TOML, BAL_TOOL_TOML, ProjectConstants.PACKAGE_MD_FILE_NAME,
                 ProjectConstants.MODULE_MD_FILE_NAME, ProjectConstants.MODULES_ROOT, ProjectConstants.TEST_DIR_NAME};
         String existingFiles = "";
 

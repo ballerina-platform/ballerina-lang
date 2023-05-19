@@ -117,6 +117,10 @@ public class JBallerinaBalaWriter extends BalaWriter {
             List<String> compilerPluginLibPaths = new ArrayList<>();
             List<String> compilerPluginDependencies = this.compilerPluginToml.get().getCompilerPluginDependencies();
 
+            if (compilerPluginDependencies.get(0) == null) {
+                throw new ProjectException("No dependencies found in CompilerPlugin.toml file");
+            }
+
             if (!compilerPluginDependencies.isEmpty()) {
 
                 // Iterate through compiler plugin dependencies and add them to bala
@@ -165,6 +169,10 @@ public class JBallerinaBalaWriter extends BalaWriter {
         if (this.balToolToml.isPresent()) {
             List<String> balToolLibPaths = new ArrayList<>();
             List<String> balToolDependencies = this.balToolToml.get().getBalToolDependencies();
+
+            if (balToolDependencies.get(0) == null) {
+                throw new ProjectException("No dependencies found in BalTool.toml file");
+            }
 
             if (!balToolDependencies.isEmpty()) {
                 // Iterate through bal tool dependencies and add them to bala

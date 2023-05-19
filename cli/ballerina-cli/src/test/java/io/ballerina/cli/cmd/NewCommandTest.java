@@ -503,6 +503,51 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
+    @Test(description = "Test new command with tool template")
+    public void testNewCommandWithTool() throws IOException {
+        System.setProperty(USER_NAME, "testuserorg");
+        Path packageDir = tmpDir.resolve("tool_sample");
+        String[] args = {packageDir.toString(), "-t", "tool"};
+        NewCommand newCommand = new NewCommand(printStream, false);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+        // Check with spec
+        // project_name/
+        // - Ballerina.toml
+        // - BalTool.toml
+        // - Package.md
+        // - tool
+        // - .gitignore       <- git ignore file
+
+        Assert.assertTrue(Files.exists(packageDir));
+        Assert.assertTrue(Files.isDirectory(packageDir));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String packageName = Paths.get(args[0]).getFileName().toString();
+        String tomlContent = Files.readString(
+                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
+        String expectedContent = "[package]\n" +
+                "org = \"testuserorg\"\n" +
+                "name = \"" + packageName + "\"\n" +
+                "version = \"0.1.0\"\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
+                "observabilityIncluded = true\n";
+        Assert.assertEquals(tomlContent.trim(), expectedContent.trim());
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BAL_TOOL_TOML)));
+        String toolTomlContent = Files.readString(
+                packageDir.resolve(ProjectConstants.BAL_TOOL_TOML), StandardCharsets.UTF_8);
+        String expectedToolTomlContent = "[tool]\n" +
+                "id = \"" + packageName + "\"\n\n" +
+                "[[dependency]]\n";
+        Assert.assertTrue(toolTomlContent.contains(expectedToolTomlContent));
+
+        Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.TOOL_DIR)));
+
+        Assert.assertTrue(readOutput().contains("Created new package"));
+    }
+
     @Test(description = "Test new command with invalid project name", dataProvider = "invalidProjectNames")
     public void testNewCommandWithInvalidProjectName(String projectName, String derivedPkgName) throws IOException {
         // Test if no arguments was passed in
