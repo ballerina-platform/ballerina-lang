@@ -21,12 +21,12 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
@@ -48,6 +48,8 @@ import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
+import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -140,8 +142,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     public TupleValueImpl(Type type, BListInitialValueEntry[] initialValues) {
         this.type = type;
         this.tupleType = (TupleType) TypeUtils.getReferredType(type);
-
-                List<Type> memTypes = this.tupleType.getTupleTypes();
+        List<Type> memTypes = this.tupleType.getTupleTypes();
         int memCount = memTypes.size();
 
         if (tupleType.getRestType() != null) {
@@ -456,7 +457,7 @@ public class TupleValueImpl extends AbstractArrayValue {
                     sj.add("null");
                     break;
                 default:
-                    sj.add(StringUtils.getStringValue(value, new CycleUtils.Node(this, parentNode)));
+                    sj.add(getStringVal(value, new CycleUtils.Node(this, parentNode)));
                     break;
             }
         }
@@ -467,7 +468,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     public String expressionStringValue(BLink parent) {
         StringJoiner sj = new StringJoiner(",");
         for (int i = 0; i < this.size; i++) {
-            sj.add(StringUtils.getExpressionStringValue(this.refValues[i], new CycleUtils.Node(this, parent)));
+            sj.add(getExpressionStringVal(this.refValues[i], new CycleUtils.Node(this, parent)));
         }
         return "[" + sj + "]";
     }
@@ -507,8 +508,8 @@ public class TupleValueImpl extends AbstractArrayValue {
         refs.put(this, refValueArray);
         IntStream.range(0, this.size).forEach(i -> {
             Object value = this.refValues[i];
-            if (value instanceof RefValue) {
-                values[i] = ((RefValue) value).copy(refs);
+            if (value instanceof BRefValue) {
+                values[i] = ((BRefValue) value).copy(refs);
             } else {
                 values[i] = value;
             }
@@ -594,8 +595,8 @@ public class TupleValueImpl extends AbstractArrayValue {
         this.tupleType = (TupleType) TypeUtils.getReferredType(type);
         for (int i = 0; i < this.size; i++) {
             Object value = this.get(i);
-            if (value instanceof RefValue) {
-                ((RefValue) value).freezeDirect();
+            if (value instanceof BRefValue) {
+                ((BRefValue) value).freezeDirect();
             }
         }
         this.typedesc = null;
