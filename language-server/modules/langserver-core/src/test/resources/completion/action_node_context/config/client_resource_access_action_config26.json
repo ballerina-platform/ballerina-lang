@@ -1,11 +1,47 @@
 {
   "position": {
-    "line": 29,
-    "character": 24
+    "line": 27,
+    "character": 21
   },
-  "source": "action_node_context/source/client_resource_access_action_source24.bal",
-  "description": "Test completions in named argument context",
+  "source": "action_node_context/source/client_resource_access_action_source26.bal",
+  "description": "Test completions in positional argument context",
   "items": [
+    {
+      "label": "start",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "start",
+      "insertText": "start ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "wait",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "wait",
+      "insertText": "wait ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "flush",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "U",
+      "filterText": "flush",
+      "insertText": "flush ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "from clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "T",
+      "filterText": "from",
+      "insertText": "from ${1:var} ${2:item} in ${3}",
+      "insertTextFormat": "Snippet"
+    },
     {
       "label": "test/project2",
       "kind": "Module",
@@ -613,14 +649,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "MyClass",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "O",
-      "insertText": "MyClass",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "cl",
       "kind": "Variable",
       "detail": "MyClass",
@@ -629,11 +657,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "R",
-      "insertText": "Thread",
+      "label": "Pet",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "Q",
+      "insertText": "Pet",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myString",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "F",
+      "insertText": "myString",
       "insertTextFormat": "Snippet"
     },
     {
@@ -652,11 +688,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myInt",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "AB",
-      "insertText": "myInt",
+      "label": "MyClass",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "O",
+      "insertText": "MyClass",
       "insertTextFormat": "Snippet"
     },
     {
@@ -671,11 +707,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myString",
+      "label": "myInt",
       "kind": "Variable",
-      "detail": "string",
-      "sortText": "F",
-      "insertText": "myString",
+      "detail": "int",
+      "sortText": "AB",
+      "insertText": "myInt",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "R",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -691,14 +735,6 @@
       "sortText": "AC",
       "filterText": "getInt",
       "insertText": "getInt()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Pet",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "Q",
-      "insertText": "Pet",
       "insertTextFormat": "Snippet"
     },
     {
@@ -755,6 +791,33 @@
       "detail": "Byte",
       "sortText": "R",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "id = ...",
+      "kind": "Snippet",
+      "detail": "id = 0",
+      "sortText": "AR",
+      "filterText": "id",
+      "insertText": "id = ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name = ...",
+      "kind": "Snippet",
+      "detail": "name = \"\"",
+      "sortText": "AR",
+      "filterText": "name",
+      "insertText": "name = ${1:\"\"}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "age = ...",
+      "kind": "Snippet",
+      "detail": "age = 0",
+      "sortText": "AR",
+      "filterText": "age",
+      "insertText": "age = ${1:0}",
       "insertTextFormat": "Snippet"
     }
   ]

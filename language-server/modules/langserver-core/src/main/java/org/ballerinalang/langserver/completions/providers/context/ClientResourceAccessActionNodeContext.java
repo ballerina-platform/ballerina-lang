@@ -44,7 +44,6 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -113,7 +112,7 @@ public class ClientResourceAccessActionNodeContext
                 completionItems.addAll(items);
             } else {
                 List<Node> arguments = new ArrayList<>();
-                node.arguments().ifPresent(argList -> 
+                node.arguments().ifPresent(argList ->
                         arguments.addAll(argList.arguments().stream().collect(Collectors.toList())));
                 if (isNotInNamedArgOnlyContext(context, arguments)) {
                     completionItems.addAll(this.actionKWCompletions(context));
@@ -212,20 +211,6 @@ public class ClientResourceAccessActionNodeContext
                 completionItem.getCompletionItem().setSortText(sortText);
             });
             return;
-        }
-
-        if (isInResourceMethodParameterContext(node, context) && context.currentSemanticModel().isPresent()
-                && context.currentDocument().isPresent()) {
-            Optional<TypeSymbol> expectedType = context.currentSemanticModel().get()
-                    .expectedType(context.currentDocument().get(),
-                            PositionUtil.getLinePosition(context.getCursorPosition()));
-            if (expectedType.isPresent()) {
-                completionItems.forEach(completionItem -> {
-                    completionItem.getCompletionItem().setSortText(SortingUtil.genSortTextByAssignability(context,
-                            completionItem, expectedType.get()));
-                });
-                return;
-            }
         }
 
         super.sort(context, node, completionItems);

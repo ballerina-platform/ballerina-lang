@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 30,
-    "character": 27
+    "line": 28,
+    "character": 24
   },
-  "source": "action_node_context/source/client_resource_access_action_source24.bal",
+  "source": "action_node_context/source/client_resource_access_action_source26.bal",
   "description": "Test completions in positional argument context",
   "items": [
     {
@@ -649,14 +649,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "MyClass",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "O",
-      "insertText": "MyClass",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "cl",
       "kind": "Variable",
       "detail": "MyClass",
@@ -665,11 +657,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "R",
-      "insertText": "Thread",
+      "label": "Pet",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "Q",
+      "insertText": "Pet",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myString",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "AB",
+      "insertText": "myString",
       "insertTextFormat": "Snippet"
     },
     {
@@ -688,11 +688,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myInt",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "F",
-      "insertText": "myInt",
+      "label": "MyClass",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "O",
+      "insertText": "MyClass",
       "insertTextFormat": "Snippet"
     },
     {
@@ -707,11 +707,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myString",
+      "label": "myInt",
       "kind": "Variable",
-      "detail": "string",
-      "sortText": "AB",
-      "insertText": "myString",
+      "detail": "int",
+      "sortText": "F",
+      "insertText": "myInt",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "R",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -727,14 +735,6 @@
       "sortText": "G",
       "filterText": "getInt",
       "insertText": "getInt()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Pet",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "Q",
-      "insertText": "Pet",
       "insertTextFormat": "Snippet"
     },
     {
@@ -797,7 +797,7 @@
       "label": "name = ...",
       "kind": "Snippet",
       "detail": "name = \"\"",
-      "sortText": "R",
+      "sortText": "AR",
       "filterText": "name",
       "insertText": "name = ${1:\"\"}",
       "insertTextFormat": "Snippet"
@@ -806,7 +806,7 @@
       "label": "age = ...",
       "kind": "Snippet",
       "detail": "age = 0",
-      "sortText": "R",
+      "sortText": "AR",
       "filterText": "age",
       "insertText": "age = ${1:0}",
       "insertTextFormat": "Snippet"
