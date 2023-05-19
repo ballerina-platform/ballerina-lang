@@ -25,6 +25,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -38,6 +39,7 @@ public class WhileStmtTest {
     private CompileResult negativeCompileResult;
     private CompileResult onfailCompileResult;
     private CompileResult onfailNegativeCompileResult;
+    private CompileResult onfailNegativeUnreachableCompileResult;
 
     @BeforeClass
     public void setup() {
@@ -46,6 +48,8 @@ public class WhileStmtTest {
         onfailCompileResult = BCompileUtil.compile("test-src/statements/whilestatement/while-stmt-on-fail.bal");
         onfailNegativeCompileResult = BCompileUtil.compile(
                 "test-src/statements/whilestatement/while-stmt-on-fail-negative.bal");
+        onfailNegativeUnreachableCompileResult = BCompileUtil.compile(
+                "test-src/statements/whilestatement/while-stmt-on-fail-negative-reachability.bal");
     }
 
     @Test(description = "Test while loop with a condition which evaluates to true")
@@ -242,23 +246,44 @@ public class WhileStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Check not incompatible types and reachable statements.")
+    @Test(description = "Check incompatible types.")
     public void testNegative1() {
         int index = 0;
-        BAssertUtil.validateError(onfailNegativeCompileResult, index++, "unreachable code", 17, 6);
-        BAssertUtil.validateWarning(onfailNegativeCompileResult, index++, "unused variable 'e'", 19, 12);
         BAssertUtil.validateError(onfailNegativeCompileResult, index++, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 34, 12);
-        BAssertUtil.validateWarning(onfailNegativeCompileResult, index++, "unused variable 'e'", 34, 12);
-        BAssertUtil.validateWarning(onfailNegativeCompileResult, index++, "unused variable 'e'", 49, 12);
-        BAssertUtil.validateWarning(onfailNegativeCompileResult, index++, "unused variable 'e'", 65, 12);
-        BAssertUtil.validateError(onfailNegativeCompileResult, index++, "unreachable code", 68, 7);
-        BAssertUtil.validateError(onfailNegativeCompileResult, index++, "this function must return a result", 83, 1);
+                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 17, 12);
+        BAssertUtil.validateError(onfailNegativeCompileResult, index++,
+                "incompatible types: expected 'ErrorTypeA', found 'ErrorTypeB'", 17, 12);
         BAssertUtil.validateError(onfailNegativeCompileResult, index++, "incompatible error definition type: " +
-                "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 102, 12);
-        BAssertUtil.validateError(onfailNegativeCompileResult, index++, "unreachable code", 116, 9);
-        BAssertUtil.validateError(onfailNegativeCompileResult, index++, "unreachable code", 118, 5);
+                "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 41, 12);
+        BAssertUtil.validateError(onfailNegativeCompileResult, index++,
+                "incompatible types: expected '(ErrorTypeA|ErrorTypeB)', found 'ErrorTypeA'", 41, 12);
+        BAssertUtil.validateError(onfailNegativeCompileResult, index++, "invalid error variable; " +
+                "expecting an error type but found '(SampleComplexError|SampleError)' in type definition", 72, 15);
         Assert.assertEquals(onfailNegativeCompileResult.getDiagnostics().length, index);
+    }
+
+    @Test(description = "Check unreachable statements.")
+    public void testNegative2() {
+        int index = 0;
+        BAssertUtil.validateError(onfailNegativeUnreachableCompileResult, index++,
+                "unreachable code", 17, 6);
+        BAssertUtil.validateWarning(onfailNegativeUnreachableCompileResult, index++,
+                "unused variable 'e'", 19, 12);
+        BAssertUtil.validateWarning(onfailNegativeUnreachableCompileResult, index++,
+                "unused variable 'e'", 34, 12);
+        BAssertUtil.validateWarning(onfailNegativeUnreachableCompileResult, index++,
+                "unused variable 'e'", 49, 12);
+        BAssertUtil.validateWarning(onfailNegativeUnreachableCompileResult, index++,
+                "unused variable 'e'", 65, 12);
+        BAssertUtil.validateError(onfailNegativeUnreachableCompileResult, index++,
+                "unreachable code", 68, 7);
+        BAssertUtil.validateError(onfailNegativeUnreachableCompileResult, index++,
+                "this function must return a result", 83, 1);
+        BAssertUtil.validateError(onfailNegativeUnreachableCompileResult, index++,
+                "unreachable code", 111, 9);
+        BAssertUtil.validateError(onfailNegativeUnreachableCompileResult, index++,
+                "unreachable code", 113, 5);
+        Assert.assertEquals(onfailNegativeUnreachableCompileResult.getDiagnostics().length, index);
     }
 
     @Test(description = "Test type narrowing for while statement")
@@ -295,6 +320,38 @@ public class WhileStmtTest {
         BAssertUtil.validateError(compileResult, index++,
                 "incompatible types: expected 'string', found '(boolean|string)'", 327, 20); // issue #34307
         Assert.assertEquals(compileResult.getDiagnostics().length, index);
+    }
+
+    @Test(dataProvider = "onFailClauseWithErrorBPTestDataProvider")
+    public void testOnFailWithErrorBP(String funcName) {
+        BRunUtil.invoke(onfailCompileResult, funcName);
+    }
+
+    @DataProvider(name = "onFailClauseWithErrorBPTestDataProvider")
+    public Object[] onFailClauseWithErrorBPTestDataProvider() {
+        return new Object[]{
+                "testSimpleOnFailWithErrorBP",
+                "testSimpleOnFailWithErrorBPWithVar",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithError",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithVar",
+                "testOnFailWithErrorBPHavingUserDefinedType",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail1",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail2",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail3",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail4",
+                "testOnFailWithErrorBPHavingAnonDetailRecord",
+                "testOnFailWithErrorBPHavingAnonDetailRecordWithVar",
+                "testOnFailWithErrorBPHavingAnonDetailRecordWithUnionType",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP1",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP2",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP3",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP4",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP5",
+                "testNestedOnFailWithErrorBP",
+                "testNestedOnFailWithErrorBPWithErrorArgsHavingBP",
+                "testMultiLevelOnFailWithErrorBP",
+                "testMultiLevelOnFailWithoutErrorInOneLevel"
+        };
     }
 
     @Test(description = "Test type narrowing for while statement with no errors")

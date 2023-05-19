@@ -24,6 +24,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -33,12 +34,16 @@ import org.testng.annotations.Test;
  */
 public class MatchStatementOnFailTest {
 
-    private CompileResult result, resultNegative;
+    private CompileResult result, resultNegative1, resultNegative2;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/statements/matchstmt/matchstmt_on_fail.bal");
-        resultNegative = BCompileUtil.compile("test-src/statements/matchstmt/matchstmt_on_fail_negative.bal");
+        resultNegative1 =
+                BCompileUtil.compile("test-src/statements/matchstmt/matchstmt_on_fail_negative.bal");
+        resultNegative2 =
+                BCompileUtil.compile("test-src/statements/matchstmt/matchstmt_on_fail" +
+                        "_negative_unreachable.bal");
     }
 
     @Test(description = "Test basics of static pattern match statement with fail statement")
@@ -71,29 +76,71 @@ public class MatchStatementOnFailTest {
         BRunUtil.invoke(result, "testVarInMatchPatternWithinOnfail", new Object[]{});
     }
 
-    @Test(description = "Check not incompatible types and reachable statements.")
+    @Test(dataProvider = "onFailClauseWithErrorBPTestDataProvider")
+    public void testOnFailWithErrorBP(String funcName) {
+        BRunUtil.invoke(result, funcName);
+    }
+
+    @DataProvider(name = "onFailClauseWithErrorBPTestDataProvider")
+    public Object[] onFailClauseWithErrorBPTestDataProvider() {
+        return new Object[]{
+                "testSimpleOnFailWithErrorBP",
+                "testSimpleOnFailWithErrorBPWithVar",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithError",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithVar",
+                "testOnFailWithErrorBPHavingUserDefinedType",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail1",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail2",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail3",
+                "testOnFailWithErrorBPHavingUserDefinedTypeWithErrDetail4",
+                "testOnFailWithErrorBPHavingAnonDetailRecord",
+                "testOnFailWithErrorBPHavingAnonDetailRecordWithVar",
+                "testOnFailWithErrorBPHavingAnonDetailRecordWithUnionType",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP1",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP2",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP3",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP4",
+                "testOnFailWithErrorBPWithErrorArgsHavingBP5",
+                "testMultiLevelOnFailWithErrorBP",
+                "testMultiLevelOnFailWithoutErrorInOneLevel"
+        };
+    }
+
+    @Test(description = "Check incompatible types.")
     public void testNegative1() {
-        int i = -1;
-        BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 29, 14);
-        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 31, 15);
-        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'err'", 56, 14);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
+        int i = 0;
+        BAssertUtil.validateError(resultNegative1, i++, "incompatible error definition type: " +
+                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 30, 15);
+        BAssertUtil.validateError(resultNegative1, i++, "incompatible types: " +
+                "expected 'ErrorTypeA', found 'ErrorTypeB'", 30, 15);
+        BAssertUtil.validateError(resultNegative1, i++, "incompatible error definition type: " +
                 "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 59, 15);
-        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 59, 15);
-        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'err'", 85, 14);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 88, 15);
-        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 88, 15);
-        BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 90, 9);
-        BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 124, 15);
-        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 124, 15);
-        Assert.assertEquals(resultNegative.getDiagnostics().length, i + 1);
+        BAssertUtil.validateError(resultNegative1, i++, "incompatible types: " +
+                "expected 'ErrorTypeA', found 'ErrorTypeB'", 59, 15);
+        BAssertUtil.validateError(resultNegative1, i++, "incompatible error definition type: " +
+                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 94, 15);
+        BAssertUtil.validateError(resultNegative1, i++, "incompatible types: " +
+                "expected '(ErrorTypeA|ErrorTypeB)', found 'ErrorTypeB'", 94, 15);
+        BAssertUtil.validateError(resultNegative1, i++, "invalid error variable; expecting an error " +
+                "type but found '(SampleComplexError|SampleError)' in type definition", 125, 15);
+        Assert.assertEquals(resultNegative1.getErrorCount(), i);
+    }
+
+    @Test(description = "Check reachable statements.")
+    public void testNegative2() {
+        int i = -1;
+        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 29, 14);
+        BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'e'", 31, 15);
+        BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'err'", 57, 14);
+        BAssertUtil.validateWarning(resultNegative2, ++i, "unused variable 'e'", 60, 15);
+        BAssertUtil.validateError(resultNegative2, ++i, "unreachable code", 62, 9);
+        Assert.assertEquals(resultNegative2.getDiagnostics().length, i + 1);
     }
 
     @AfterClass
     public void tearDown() {
         result = null;
-        resultNegative = null;
+        resultNegative1 = null;
+        resultNegative2 = null;
     }
 }

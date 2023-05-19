@@ -6,23 +6,6 @@ type ErrorTypeB distinct error;
 
 const TYPE_B_ERROR_REASON = "TypeB_Error";
 
-function testUnreachableAfterFail (int i) returns string {
-   string str = "";
-   int count = i;
-   while (count < 5) {
-     count += 1;
-     error err = error("custom error", message = "error value");
-     str += "Before failure throw";
-     fail err;
-     str += "After failure throw";
-   }
-   on fail error e {
-      str += "-> Error caught ! ";
-   }
-   str += "-> Execution continues...";
-   return str;
-}
-
 function testIncompatibleErrorTypeOnFail (int i) returns string {
    string str = "";
    int count = i;
@@ -36,50 +19,6 @@ function testIncompatibleErrorTypeOnFail (int i) returns string {
    }
    str += "-> Execution continues...";
    return str;
-}
-
-function testIgnoreReturnInOnFail (int i) returns string {
-   string str = "";
-   int count = i;
-   while (count < 5) {
-     count += 1;
-     str += "Before failure throw";
-     fail error ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
-   }
-   on fail ErrorTypeA e {
-      str += "-> Error caught ! ";
-      return str;
-   }
-   str += "-> Execution continues...";
-   return str;
-}
-
-function testUnreachableInOnFail (int i) returns string {
-   string str = "";
-   int count = i;
-   while (count < 5) {
-     count += 1;
-     str += "Before failure throw";
-     fail error ErrorTypeA(TYPE_A_ERROR_REASON, message = "Error Type A");
-   }
-   on fail ErrorTypeA e {
-      str += "-> Error caught ! ";
-      return str;
-      str += "-> After returning string";
-   }
-   str += "-> Execution continues...";
-   return str;
-}
-
-function testReturnWitihinDo(int i) returns string {
-  string str = "";
-  int count = i;
-  while (count < 5) {
-      count += 1;
-      str = str + "do statement start";
-      return str;
-  }
-  str = str + "do statemtnt finished";
 }
 
 function testOnFailWithUnion (int i) returns string {
@@ -107,13 +46,29 @@ function testOnFailWithUnion (int i) returns string {
    return str;
 }
 
-function testErrroDuplication() returns error? {
-    string str = "";
-    int i = 3;
-    while (i > 2) {
-        i -= 1;
-        fail error("Custom Error");
-        str += "-> unreachable";
+type SampleErrorData record {|
+    int code;
+    string reason;
+|};
+
+type SampleError error<SampleErrorData>;
+
+type SampleComplexErrorData record {|
+    int code;
+    int[2] pos;
+    record {string moreInfo;} infoDetails;
+|};
+
+type SampleComplexError error<SampleComplexErrorData>;
+int whileIndex = 0;
+
+function testOnFailWithMultipleErrors() {
+    while whileIndex >= 0 {
+        whileIndex = whileIndex + 1;
+        if whileIndex == 1 {
+            fail error SampleComplexError("Transaction Failure", code = 20, pos = [30, 45], infoDetails = {moreInfo: "deadlock condition"});
+        }
+        fail error SampleError("Transaction Failure", code = 50, reason = "deadlock condition");
+    } on fail var error(msg) {
     }
-    str += "-> unreachable";
 }
