@@ -4970,8 +4970,12 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 isOptionalFloatOrDecimal(referredExpType)) {
             lhsType = checkAndGetType(binaryExpr.lhsExpr, data.env, binaryExpr, data);
         } else {
-            lhsType = checkOperandTypeForAdditiveExpressions(binaryExpr.lhsExpr,
-                    binaryExpr.expectedType, data.env, data);
+            if (binaryExpr.opKind == OperatorKind.ADD) {
+                lhsType = checkOperandTypeForAdditiveExpressions(binaryExpr.lhsExpr,
+                        binaryExpr.expectedType, data.env, data);
+            } else {
+                lhsType = checkExpr(binaryExpr.lhsExpr, data);
+            }
         }
 
         if (binaryExpr.opKind == OperatorKind.AND) {
