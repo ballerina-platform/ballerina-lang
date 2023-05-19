@@ -82,6 +82,27 @@ public class NativeUtils {
             Map<String, String> testUtilityFunctions = testSuiteMap.get(moduleName).getTestUtilityFunctions();
             //Add init class
             if (testUtilityFunctions.containsKey(TEST_EXEC_FUNCTION)) {
+                ReflectConfigClass testTestExecuteGeneratedRefConfClz = new ReflectConfigClass(
+                        testSuiteMap.get(moduleName).getTestUtilityFunctions().get(TEST_EXEC_FUNCTION));
+                testTestExecuteGeneratedRefConfClz.addReflectConfigClassMethod(
+                        new ReflectConfigClassMethod(
+                                TEST_EXEC_FUNCTION,
+                                new String[]{
+                                        "io.ballerina.runtime.internal.scheduling.Strand",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString"
+                                }
+                        )
+                );
+                classList.add(testTestExecuteGeneratedRefConfClz);
                 ReflectConfigClass testInitRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, name, version,
                         MODULE_INIT_CLASS_NAME));
 
