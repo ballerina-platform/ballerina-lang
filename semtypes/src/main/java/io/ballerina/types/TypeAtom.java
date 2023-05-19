@@ -26,7 +26,7 @@ public class TypeAtom implements Atom {
     public final long index;
     public final AtomicType atomicType;
 
-    public TypeAtom(long index, AtomicType atomicType) {
+    private TypeAtom(long index, AtomicType atomicType) {
         this.index = index;
         this.atomicType = atomicType;
     }

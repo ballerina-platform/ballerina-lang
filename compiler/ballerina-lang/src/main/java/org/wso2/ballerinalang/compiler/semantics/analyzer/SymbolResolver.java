@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.types.SemType;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -112,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -162,6 +165,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     private final Unifier unifier;
     private final SemanticAnalyzer semanticAnalyzer;
     private final Stack<String> anonTypeNameSuffixes;
+    private boolean semtypeEnabled;
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -169,6 +173,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             symbolResolver = new SymbolResolver(context);
         }
 
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        symbolResolver.semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
         return symbolResolver;
     }
 
@@ -555,9 +561,30 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         }
 
         validateDistinctType(typeNode, resultType);
+        resolveSemType(typeNode, env, resultType);
 
         typeNode.setBType(resultType);
         return resultType;
+    }
+
+    private void resolveSemType(BLangType typeNode, SymbolEnv env, BType resultType) {
+        if (!this.semtypeEnabled) {
+            return;
+        }
+
+        if (typeNode.semType != null) {
+            // For type definitions, we will have the semType resolved already
+            resultType.setSemtype(typeNode.semType);
+        } else {
+            try {
+                SemType s = symbolEnter.resolveTypeDescSubset(env.enclPkg.semtypeEnv, env.enclPkg.modTable, null, 0,
+                        typeNode);
+                resultType.setSemtype(s);
+            } catch (UnsupportedOperationException e) {
+                // Do nothing
+                // TODO: semType: remove once all types are supported
+            }
+        }
     }
 
     private void validateDistinctType(BLangType typeNode, BType type) {
@@ -1424,9 +1451,18 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
         for (BLangExpression expressionOrLiteral : finiteTypeNode.valueSpace) {
             finiteType.addValue(expressionOrLiteral);
         }
+        setSemType(finiteType);
         finiteTypeSymbol.type = finiteType;
 
         return finiteType;
+    }
+
+    private void setSemType(BFiniteType finiteType) {
+        if (!this.semtypeEnabled) {
+            return;
+        }
+
+        finiteType.setSemtype(symbolEnter.resolveSingletonType(new ArrayList<>(finiteType.getValueSpace())));
     }
 
     @Override

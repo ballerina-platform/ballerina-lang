@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.SemType;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -31,8 +32,11 @@ import org.wso2.ballerinalang.util.Flags;
 public class BStringSubType extends BType {
 
     public BStringSubType(int tag, Name name) {
+        this(tag, name, null);
+    }
 
-        super(tag, null, name, Flags.READONLY);
+    public BStringSubType(int tag, Name name, SemType semType) {
+        super(tag, null, name, Flags.READONLY, semType);
     }
 
     public boolean isNullable() {

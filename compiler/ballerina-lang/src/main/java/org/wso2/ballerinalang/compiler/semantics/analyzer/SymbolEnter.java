@@ -256,6 +256,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
     private boolean semtypeEnabled;
+    private boolean semtypeTest;
 
     private static final String DEPRECATION_ANNOTATION = "deprecated";
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
@@ -268,6 +269,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         symbolEnter.semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
+        symbolEnter.semtypeTest = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE_TEST));
         return symbolEnter;
     }
 
@@ -440,8 +442,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.typeDefinitions.forEach(typDef -> typeAndClassDefs.add(typDef));
         List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
         classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
-        defineTypeNodes(typeAndClassDefs, pkgEnv);
         if (this.semtypeEnabled) {
+            // We may need to move this next to defineTypeNodes() to support constants
+            defineSemTypesSubset(typeAndClassDefs, pkgEnv);
+        }
+        defineTypeNodes(typeAndClassDefs, pkgEnv);
+        if (this.semtypeTest) {
             defineSemTypes(typeAndClassDefs, pkgEnv);
         }
 
@@ -536,11 +542,120 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineReferencedClassFields(classDefinition, typeDefEnv, objType, false);
     }
 
-    private void addSemtypeBType(BLangType typeNode, SemType semType) {
-        if (typeNode != null) {
-            typeNode.getBType().setSemtype(semType);
+    // --------------------------------------- SemType Integration ----------------------------------------------
+
+    // All methods end with suffix "Subset", support only subset of ported semtypes.
+    // Once we extend semtype integrated types we can get rid of these methods.
+    private void defineSemTypesSubset(List<BLangNode> moduleDefs, SymbolEnv pkgEnv) {
+        Map<String, BLangNode> modTable = new LinkedHashMap<>();
+        for (BLangNode typeAndClassDef : moduleDefs) {
+            modTable.put(getTypeOrClassName(typeAndClassDef), typeAndClassDef);
+        }
+        modTable = Collections.unmodifiableMap(modTable);
+
+        for (BLangNode def : moduleDefs) {
+            if (def.getKind() == NodeKind.TYPE_DEFINITION) {
+                BLangTypeDefinition typeDefinition = (BLangTypeDefinition) def;
+                resolveTypeDefnSubset(pkgEnv.enclPkg.semtypeEnv, modTable, typeDefinition, 0);
+            }
+        }
+        pkgEnv.enclPkg.modTable = modTable;
+    }
+
+    private SemType resolveTypeDefnSubset(Env semtypeEnv, Map<String, BLangNode> mod, BLangTypeDefinition defn,
+                                          int depth) {
+        if (defn.semType != null) {
+            return defn.semType;
+        }
+
+        if (depth == defn.cycleDepth) {
+            // TODO: semType: enable error log once all types are supported
+            // dlog.error(defn.pos, DiagnosticErrorCode.INVALID_TYPE_CYCLE, defn.name);
+            return null;
+        }
+        defn.cycleDepth = depth;
+
+        SemType s;
+        try {
+            s = resolveTypeDescSubset(semtypeEnv, mod, defn, depth, defn.typeNode);
+        } catch (UnsupportedOperationException e) {
+            return null;
+        }
+
+        setSemType(defn.getTypeNode(), s);
+        if (defn.semType == null) {
+            defn.semType = s;
+            defn.cycleDepth = -1;
+            semtypeEnv.addTypeDef(defn.name.value, s);
+            return s;
+        } else {
+            return s;
         }
     }
+
+    private void setSemType(BLangType typeNode, SemType semType) {
+        if (typeNode != null) {
+            typeNode.semType = semType;
+        }
+    }
+
+    public SemType resolveTypeDescSubset(Env semtypeEnv, Map<String, BLangNode> mod, BLangTypeDefinition defn,
+                                         int depth, BLangType td) {
+        if (td == null) {
+            return null;
+        }
+        switch (td.getKind()) {
+            case BUILT_IN_REF_TYPE:
+                return resolveTypeDesc((BLangBuiltInRefTypeNode) td, semtypeEnv);
+            case VALUE_TYPE:
+                return resolveTypeDesc((BLangValueType) td, semtypeEnv);
+            case FINITE_TYPE_NODE:
+                return resolveSingletonType((BLangFiniteTypeNode) td, semtypeEnv);
+            case USER_DEFINED_TYPE:
+                return resolveTypeDescSubset((BLangUserDefinedType) td, semtypeEnv, mod, depth);
+            case CONSTRAINED_TYPE: // map<?> and typedesc<?>
+            case RECORD_TYPE:
+            case ARRAY_TYPE:
+            case TUPLE_TYPE_NODE:
+            case ERROR_TYPE:
+            case TABLE_TYPE:
+            case FUNCTION_TYPE:
+            case OBJECT_TYPE:
+            case STREAM_TYPE:
+            case UNION_TYPE_NODE:
+            case INTERSECTION_TYPE_NODE:
+            default:
+                throw new UnsupportedOperationException("type not implemented: " + td.getKind());
+        }
+    }
+
+    private SemType resolveTypeDescSubset(BLangUserDefinedType td, Env semtypeEnv, Map<String, BLangNode> mod,
+                                          int depth) {
+        String name = td.typeName.value;
+        // Need to replace this with a real package lookup
+        if (td.pkgAlias.value.equals("int")) {
+            return resolveIntSubtype(name);
+        } else if (td.pkgAlias.value.equals("string") && name.equals("Char")) {
+            return SemTypes.CHAR;
+        } else if (td.pkgAlias.value.equals("xml")) {
+            return resolveXmlSubtype(name);
+        }
+
+        BLangNode moduleLevelDef = mod.get(name);
+        if (moduleLevelDef == null) {
+            // TODO: semType: enable once implementation is complete
+            // dlog.error(td.pos, DiagnosticErrorCode.REFERENCE_TO_UNDEFINED_TYPE, td.typeName);
+            throw new UnsupportedOperationException("Reference to undefined type: " + name);
+        }
+
+        if (moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
+            return resolveTypeDefnSubset(semtypeEnv, mod, (BLangTypeDefinition) moduleLevelDef, depth);
+        } else {
+            throw new UnsupportedOperationException("constants and class defns not implemented");
+        }
+    }
+
+    // --------------------------------------- SemType Testing ----------------------------------------------
 
     private void defineSemTypes(List<BLangNode> moduleDefs, SymbolEnv pkgEnv) {
         // note: Let's start mimicking what James do as it is easy to populate the types and use in testing.
@@ -551,12 +666,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             modTable.put(getTypeOrClassName(typeAndClassDef), typeAndClassDef);
         }
         modTable = Collections.unmodifiableMap(modTable);
-
         constResolver.resolve(pkgEnv.enclPkg.constants, pkgEnv.enclPkg.packageID, pkgEnv);
 
         for (BLangNode def : moduleDefs) {
             if (def.getKind() == NodeKind.CLASS_DEFN) {
-                throw new IllegalStateException("Semtype are not supported for class definitions yet");
+                // TODO: semType: support class definitions
+                throw new UnsupportedOperationException("Semtype are not supported for class definitions yet");
             } else if (def.getKind() == NodeKind.CONSTANT) {
                 resolveConstant(pkgEnv.enclPkg.semtypeEnv, modTable, (BLangConstant) def);
             } else {
@@ -588,7 +703,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case FLOAT:
                 return SemTypes.floatConst((double) constant.symbol.value.value);
             default:
-                throw new AssertionError("Expression type not implemented for const semtype");
+                throw new UnsupportedOperationException("Expression type not implemented for const semtype");
         }
     }
 
@@ -614,7 +729,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private SemType resolveTypeDesc(Env semtypeEnv, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
+    private void addSemtypeBType(BLangType typeNode, SemType semType) {
+        if (typeNode != null) {
+            typeNode.getBType().setSemtype(semType);
+        }
+    }
+
+    public SemType resolveTypeDesc(Env semtypeEnv, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
                                     BLangType td) {
         if (td == null) {
             return null;
@@ -646,21 +767,29 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return resolveSingletonType((BLangFiniteTypeNode) td, semtypeEnv);
             case TABLE_TYPE:
                 return resolveTypeDesc((BLangTableTypeNode) td, semtypeEnv, mod, depth);
+            case OBJECT_TYPE:
+            case STREAM_TYPE:
             default:
-                throw new AssertionError("not implemented");
+                // TODO: semType: support. e.g. STREAM_TYPE
+                throw new UnsupportedOperationException("type not implemented: " + td.getKind());
         }
-
     }
 
     private SemType resolveSingletonType(BLangFiniteTypeNode td, Env semtypeEnv) {
-        if (td.valueSpace.size() > 1) {
-            return resolveFiniteTypeUnion(td, semtypeEnv);
-        }
-        return resolveSingletonType(td, 0);
+        return resolveSingletonType(td.valueSpace);
     }
 
-    private SemType resolveSingletonType(BLangFiniteTypeNode td, int index) {
-        BLangLiteral literal = (BLangLiteral) td.valueSpace.get(index);
+    SemType resolveSingletonType(List<BLangExpression> valueSpace) {
+        // In case we encounter unary expressions in finite type, we will be replacing them with numeric literals
+        replaceUnaryExprWithNumericLiteral(valueSpace);
+
+        if (valueSpace.size() > 1) {
+            return resolveFiniteTypeUnion(valueSpace);
+        }
+        return resolveSingletonType((BLangLiteral) valueSpace.get(0));
+    }
+
+    private SemType resolveSingletonType(BLangLiteral literal) {
         Object litVal = literal.value;
         switch (literal.getBType().getKind()) {
             case FLOAT:
@@ -674,6 +803,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 }
                 return SemTypes.floatConst(value);
             case INT:
+            case BYTE:
                 return SemTypes.intConst((long) litVal);
             case STRING:
                 return SemTypes.stringConst((String) litVal);
@@ -681,15 +811,32 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return SemTypes.booleanConst((Boolean) litVal);
             case DECIMAL:
                 return SemTypes.decimalConst((String) litVal);
+            case NIL:
+                return PredefinedType.NIL;
             default:
-                throw new AssertionError("Finite type not implemented for: " + literal);
+                throw new UnsupportedOperationException("Finite type not implemented for: " + literal);
         }
     }
 
-    private SemType resolveFiniteTypeUnion(BLangFiniteTypeNode td, Env semtypeEnv) {
+    private void replaceUnaryExprWithNumericLiteral(List<BLangExpression> valueSpace) {
+        for (int i = 0; i < valueSpace.size(); i++) {
+            BLangExpression value = valueSpace.get(i);
+            if (value.getKind() == NodeKind.UNARY_EXPR) {
+                BLangUnaryExpr unaryExpr = (BLangUnaryExpr) value;
+                if (unaryExpr.expr.getKind() == NodeKind.NUMERIC_LITERAL) {
+                    // Replacing unary expression with numeric literal type for + and - numeric values
+                    BLangNumericLiteral newNumericLiteral =
+                            Types.constructNumericLiteralFromUnaryExpr(unaryExpr);
+                    valueSpace.set(i, newNumericLiteral);
+                }
+            }
+        }
+    }
+
+    private SemType resolveFiniteTypeUnion(List<BLangExpression> valueSpace) {
         List<SemType> types = new ArrayList<>();
-        for (int i = 0; i < td.valueSpace.size(); i++) {
-            types.add(resolveSingletonType(td, i));
+        for (BLangExpression bLangExpression : valueSpace) {
+            types.add(resolveSingletonType((BLangLiteral) bLangExpression));
         }
 
         Iterator<SemType> iter = types.iterator();
@@ -707,13 +854,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             case XML:
                 return PredefinedType.XML;
             default:
-                throw new AssertionError("Unknown type kind: " + td.typeKind);
+                // TODO: semType: support e.g. MAP
+                throw new UnsupportedOperationException("Built-in reference type not implemented: " + td.typeKind);
         }
     }
 
     private SemType resolveTypeDesc(BLangTableTypeNode td, Env semtypeEnv, Map<String, BLangNode> mod, int depth) {
-        SemType memberType =
-                resolveTypeDesc(semtypeEnv, mod, (BLangTypeDefinition) td.constraint.defn, depth, td.constraint);
+        SemType memberType = resolveTypeDesc(semtypeEnv, mod, (BLangTypeDefinition) td.constraint.defn, depth,
+                td.constraint);
         return SemTypes.tableContaining(memberType);
     }
 
@@ -740,7 +888,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BLangConstant constant = (BLangConstant) moduleLevelDef;
             return resolveTypeDefn(semtypeEnv, mod, constant.associatedTypeDefinition, depth);
         } else {
-            throw new AssertionError();
+            throw new UnsupportedOperationException("constants and class defns not implemented");
         }
     }
 
@@ -759,7 +907,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             case "Unsigned32":
                 return SemTypes.UINT32;
             default:
-                throw new IllegalStateException("Unknown int subtype: " + name);
+                // TODO: semtype: support MAX_VALUE
+                throw new UnsupportedOperationException("Unknown int subtype: " + name);
         }
     }
 
@@ -788,7 +937,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return resolveXmlTypeDesc(td, semtypeEnv, mod, depth, defn);
             case TYPEDESC:
             default:
-                throw new AssertionError("Unhandled type-kind: " + typeKind);
+                // TODO: semType: support. e.g. TYPEDESC
+                throw new UnsupportedOperationException("Constrained type not implemented: " + typeKind);
         }
     }
 
@@ -808,10 +958,14 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         MappingDefinition d = new MappingDefinition();
         td.defn = d;
+        try {
+            SemType rest = resolveTypeDesc(semtypeEnv, mod, typeDefinition, depth + 1, td.constraint);
 
-        SemType rest = resolveTypeDesc(semtypeEnv, mod, typeDefinition, depth + 1, td.constraint);
-
-        return d.define(semtypeEnv, Collections.emptyList(), rest);
+            return d.define(semtypeEnv, Collections.emptyList(), rest);
+        } catch (Exception e) {
+            td.defn = null;
+            throw new UnsupportedOperationException("error resolving map type");
+        }
     }
 
     private SemType resolveTypeDesc(BLangRecordTypeNode td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
@@ -823,21 +977,27 @@ public class SymbolEnter extends BLangNodeVisitor {
         MappingDefinition d = new MappingDefinition();
         td.defn = d;
 
-        List<Field> fields = new ArrayList<>();
-        for (BLangSimpleVariable field : td.fields) {
-            String name = field.name.value;
-            SemType t  = resolveTypeDesc(semtypeEnv, mod, typeDefinition, depth + 1, field.typeNode);
-            fields.add(Field.from(name, t));
-        }
+        try {
+            List<Field> fields = new ArrayList<>();
+            for (BLangSimpleVariable field : td.fields) {
+                String name = field.name.value;
+                SemType t  = resolveTypeDesc(semtypeEnv, mod, typeDefinition, depth + 1, field.typeNode);
+                fields.add(Field.from(name, t));
+            }
 
-        SemType rest;
-        if (!td.isSealed() && td.getRestFieldType() == null) {
-            throw new AssertionError("Open record not supported yet");
-        } else {
-            rest = resolveTypeDesc(semtypeEnv, mod, typeDefinition, depth + 1, td.restFieldType);
-        }
+            SemType rest;
+            if (!td.isSealed() && td.getRestFieldType() == null) {
+                // TODO: semType: handle open records
+                throw new UnsupportedOperationException("Open record not supported yet");
+            } else {
+                rest = resolveTypeDesc(semtypeEnv, mod, typeDefinition, depth + 1, td.restFieldType);
+            }
 
-        return d.define(semtypeEnv, fields, rest == null ? PredefinedType.NEVER : rest);
+            return d.define(semtypeEnv, fields, rest == null ? PredefinedType.NEVER : rest);
+        } catch (Exception e) {
+            td.defn = null;
+            throw new UnsupportedOperationException("error resolving record type");
+        }
     }
 
     private SemType resolveTypeDesc(BLangFunctionTypeNode td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
@@ -849,14 +1009,19 @@ public class SymbolEnter extends BLangNodeVisitor {
         FunctionDefinition d = new FunctionDefinition(semtypeEnv);
         td.defn = d;
 
-        List<SemType> paramTypes = new ArrayList<>();
-        for (BLangVariable p : td.params) {
-            paramTypes.add(resolveTypeDesc(semtypeEnv, mod, typeDefinition, depth + 1, p.typeNode));
-        }
+        try {
+            List<SemType> paramTypes = new ArrayList<>();
+            for (BLangVariable p : td.params) {
+                paramTypes.add(resolveTypeDesc(semtypeEnv, mod, typeDefinition, depth + 1, p.typeNode));
+            }
 
-        SemType rest = resolveTypeDesc(semtypeEnv, mod, typeDefinition, depth + 1, td.returnTypeNode);
-        SemType args = SemTypes.tuple(semtypeEnv, paramTypes.toArray(new SemType[]{}));
-        return d.define(semtypeEnv, args, rest);
+            SemType rest = resolveTypeDesc(semtypeEnv, mod, typeDefinition, depth + 1, td.returnTypeNode);
+            SemType args = SemTypes.tuple(semtypeEnv, paramTypes.toArray(new SemType[]{}));
+            return d.define(semtypeEnv, args, rest);
+        } catch (Exception e) {
+            td.defn = null;
+            throw new UnsupportedOperationException("error resolving function type");
+        }
     }
 
     private SemType resolveTypeDesc(BLangErrorType td, Env semtypeEnv, Map<String, BLangNode> mod, int depth,
@@ -935,20 +1100,25 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         ListDefinition d = new ListDefinition();
         td.defn = d;
-        SemType elementType = resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, td.elemtype);
+        try {
+            SemType elementType = resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, td.elemtype);
 
-        ArrayList<BLangExpression> reversed = new ArrayList<>(td.sizes);
-        for (BLangExpression t : reversed) {
-            // todo: We need to constFold this expression.
-            int size = constExprToInt(t);
-            if (size >= 0) {
-                elementType = d.define(semtypeEnv, new ArrayList<>(List.of(elementType)), size);
-            } else {
-                elementType = d.define(semtypeEnv, elementType);
+            ArrayList<BLangExpression> reversed = new ArrayList<>(td.sizes);
+            for (BLangExpression t : reversed) {
+                // todo: We need to constFold this expression.
+                int size = constExprToInt(t);
+                if (size >= 0) {
+                    elementType = d.define(semtypeEnv, new ArrayList<>(List.of(elementType)), size);
+                } else {
+                    elementType = d.define(semtypeEnv, elementType);
+                }
             }
-        }
 
-        return elementType;
+            return elementType;
+        } catch (Exception e) {
+            td.defn = null;
+            throw new UnsupportedOperationException("error resolving array type");
+        }
     }
 
     private int constExprToInt(BLangExpression t) {
@@ -968,17 +1138,24 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         ListDefinition d = new ListDefinition();
         td.defn = d;
-        List<SemType> members = new ArrayList<>();
-        for (BLangType memberTypeNode : td.getMemberTypeNodes()) {
-            members.add(resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, memberTypeNode));
-        }
-        SemType restType = resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, td.restParamType);
-        if (restType == null) {
-            restType = PredefinedType.NEVER;
-        }
+        try {
+            List<SemType> members = new ArrayList<>();
+            for (BLangType memberTypeNode : td.getMemberTypeNodes()) {
+                members.add(resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, memberTypeNode));
+            }
+            SemType restType = resolveTypeDesc(semtypeEnv, mod, moduleDefn, depth + 1, td.restParamType);
+            if (restType == null) {
+                restType = PredefinedType.NEVER;
+            }
 
-        return d.define(semtypeEnv, members, restType);
+            return d.define(semtypeEnv, members, restType);
+        } catch (Exception e) {
+            td.defn = null;
+            throw new UnsupportedOperationException("error resolving tuple type");
+        }
     }
+
+    // --------------------------------------- End of SemType ----------------------------------------------
 
     private void defineIntersectionTypes(SymbolEnv env) {
         for (BLangNode typeDescriptor : this.intersectionTypes) {

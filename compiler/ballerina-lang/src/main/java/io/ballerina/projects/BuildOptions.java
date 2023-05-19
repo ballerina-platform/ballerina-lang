@@ -98,6 +98,10 @@ public class BuildOptions {
         return this.compilationOptions.semtype();
     }
 
+    public boolean semtypeTest() {
+        return this.compilationOptions.semtype();
+    }
+
     CompilationOptions compilationOptions() {
         return this.compilationOptions;
     }
@@ -182,6 +186,7 @@ public class BuildOptions {
         buildOptionsBuilder.setExportComponentModel(compilationOptions.exportComponentModel);
         buildOptionsBuilder.setEnableCache(compilationOptions.enableCache);
         buildOptionsBuilder.setSemType(compilationOptions.semtype());
+        buildOptionsBuilder.setSemTypeTest(compilationOptions.semtypeTest());
 
         return buildOptionsBuilder.build();
     }
@@ -346,6 +351,11 @@ public class BuildOptions {
 
         public BuildOptionsBuilder setSemType(Boolean value) {
             compilationOptionsBuilder.setSemtype(value);
+            return this;
+        }
+
+        public BuildOptionsBuilder setSemTypeTest(Boolean value) {
+            compilationOptionsBuilder.setSemtypeTest(value);
             return this;
         }
 

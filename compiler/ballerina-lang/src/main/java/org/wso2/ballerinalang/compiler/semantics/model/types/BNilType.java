@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import io.ballerina.types.PredefinedType;
 import org.ballerinalang.model.types.NullType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -32,7 +33,7 @@ import org.wso2.ballerinalang.util.Flags;
 public class BNilType extends BType implements NullType {
 
     public BNilType() {
-        super(TypeTags.NIL, null, Flags.READONLY);
+        super(TypeTags.NIL, null, Flags.READONLY, PredefinedType.NIL);
     }
 
     @Override

@@ -56,7 +56,8 @@ OPTIONS
            experimental feature which supports only a limited set of
            functionality.
 
-
+       --semtype-enabled
+           Enable semtype based type checking.
 
 EXAMPLES
        Build the current package. This will generate an 'app.jar' file in the

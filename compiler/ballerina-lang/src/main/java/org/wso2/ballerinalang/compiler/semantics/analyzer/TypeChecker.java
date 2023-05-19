@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.identifier.Utils;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
@@ -172,6 +173,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -243,6 +245,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private final Types types;
     private final Unifier unifier;
     protected final QueryTypeChecker queryTypeChecker;
+    private boolean semtypeEnabled;
 
     static {
         listLengthModifierFunctions.add(FUNCTION_NAME_PUSH);
@@ -293,6 +296,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             typeChecker = new TypeChecker(context);
         }
 
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        typeChecker.semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
         return typeChecker;
     }
 
@@ -983,7 +988,17 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             return symTable.semanticError;
         }
 
-        return new BFiniteType(null, matchedValueSpace);
+        BFiniteType finiteType = new BFiniteType(null, matchedValueSpace);
+        setSemType(finiteType);
+        return finiteType;
+    }
+
+    private void setSemType(BFiniteType finiteType) {
+        if (!this.semtypeEnabled) {
+            return;
+        }
+
+        finiteType.setSemtype(symbolEnter.resolveSingletonType(new ArrayList<>(finiteType.getValueSpace())));
     }
 
     private BType getIntLiteralType(BType expType, Object literalValue, AnalyzerData data) {
@@ -5178,6 +5193,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 unaryExpr.pos, SOURCE);
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         finiteType.addValue(newNumericLiteral);
+        setSemType(finiteType);
         finiteTypeSymbol.type = finiteType;
 
         types.setImplicitCastExpr(unaryExpr, unaryExpr.expr.getBType(), data.expType);
@@ -8581,6 +8597,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     Set<BLangExpression> valueSpace = new LinkedHashSet<>();
                     finiteTypes.forEach(constituent -> valueSpace.addAll(constituent.getValueSpace()));
                     finiteType = new BFiniteType(null, valueSpace);
+                    setSemType(finiteType);
                 }
 
                 BType elementType = checkArrayIndexBasedAccess(indexBasedAccess, finiteType, arrayType);
@@ -8684,6 +8701,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     Set<BLangExpression> valueSpace = new LinkedHashSet<>();
                     finiteTypes.forEach(constituent -> valueSpace.addAll(constituent.getValueSpace()));
                     finiteType = new BFiniteType(null, valueSpace);
+                    setSemType(finiteType);
                 }
 
                 BType possibleType = checkTupleIndexBasedAccess(accessExpr, tuple, finiteType);
@@ -8870,6 +8888,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                     Set<BLangExpression> valueSpace = new LinkedHashSet<>();
                     finiteTypes.forEach(constituent -> valueSpace.addAll(constituent.getValueSpace()));
                     finiteType = new BFiniteType(null, valueSpace);
+                    setSemType(finiteType);
                 }
 
                 BType possibleType = checkRecordIndexBasedAccess(accessExpr, record, finiteType, data);
@@ -9381,7 +9400,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 return new LinkedHashSet<>(0);
             }
 
-            return new LinkedHashSet<>(1) {{ add(new BFiniteType(null, nonNilValueSpace)); }};
+            BFiniteType finiteType = new BFiniteType(null, nonNilValueSpace);
+            setSemType(finiteType);
+            return new LinkedHashSet<>(1) {{ add(finiteType); }};
         }
 
         BUnionType unionType = (BUnionType) referredType;
