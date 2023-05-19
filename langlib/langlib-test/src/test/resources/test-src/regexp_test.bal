@@ -1751,6 +1751,42 @@ function testFromString() {
     if (x1 is string:RegExp) {
        assertTrue(re `\p{Ll}|\p{Mn}|\p{Nd}|\p{Sm}|\p{Pc}|\p{Cc}|\p{Zs}` == x1);
     }
+    
+    x1 = regexp:fromString("\\d{2}-\\d{2}-\\d{4}");
+    assertTrue(x1 is string:RegExp);
+    if (x1 is string:RegExp) {
+       assertTrue(re `\d{2}-\d{2}-\d{4}` == x1);
+    }
+    
+    x1 = regexp:fromString("\\d{2}:\\d{2}:\\d{4}");
+    assertTrue(x1 is string:RegExp);
+    if (x1 is string:RegExp) {
+       assertTrue(re `\d{2}:\d{2}:\d{4}` == x1);
+    }
+    
+    x1 = regexp:fromString("(?:\\d{2}/\\d{2}/\\d{4})");
+    assertTrue(x1 is string:RegExp);
+    if (x1 is string:RegExp) {
+       assertTrue(re `(?:\d{2}/\d{2}/\d{4})` == x1);
+    }
+    
+    x1 = regexp:fromString("abc|de|");
+    assertTrue(x1 is string:RegExp);
+    if (x1 is string:RegExp) {
+       assertTrue(re `abc|de|` == x1);
+    }
+    
+    x1 = regexp:fromString("abc|de\\|");
+    assertTrue(x1 is string:RegExp);
+    if (x1 is string:RegExp) {
+       assertTrue(re `abc|de\|` == x1);
+    }
+    
+    x1 = regexp:fromString("[\\d{2}-\\d{2}-\\d{4}]");
+    assertTrue(x1 is string:RegExp);
+    if (x1 is string:RegExp) {
+       assertTrue(re `[\d{2}-\d{2}-\d{4}]` == x1);
+    }
 }
 
 function testFromStringNegative() {
