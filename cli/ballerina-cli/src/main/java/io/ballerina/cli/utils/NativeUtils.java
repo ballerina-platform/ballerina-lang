@@ -63,6 +63,20 @@ public class NativeUtils {
     private static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String TEST_EXEC_FUNCTION = "__execute__";
 
+    private static final ReflectConfigClassMethod REFLECTION_CONFIG_EXECUTE_METHOD = new  ReflectConfigClassMethod(
+            TEST_EXEC_FUNCTION, new String[]{"io.ballerina.runtime.internal.scheduling.Strand",
+                "io.ballerina.runtime.api.values.BString",
+                "io.ballerina.runtime.api.values.BString",
+                "io.ballerina.runtime.api.values.BString",
+                "io.ballerina.runtime.api.values.BString",
+                "io.ballerina.runtime.api.values.BString",
+                "io.ballerina.runtime.api.values.BString",
+                "io.ballerina.runtime.api.values.BString",
+                "io.ballerina.runtime.api.values.BString",
+                "io.ballerina.runtime.api.values.BString",
+                "io.ballerina.runtime.api.values.BString"
+            });
+
     //Add dynamically loading classes and methods to reflection config
     public static void createReflectConfig(Path nativeConfigPath, Package currentPackage,
                                            Map<String, TestSuite> testSuiteMap) throws IOException {
@@ -84,24 +98,7 @@ public class NativeUtils {
             if (testUtilityFunctions.containsKey(TEST_EXEC_FUNCTION)) {
                 ReflectConfigClass testTestExecuteGeneratedRefConfClz = new ReflectConfigClass(
                         testSuiteMap.get(moduleName).getTestUtilityFunctions().get(TEST_EXEC_FUNCTION));
-                testTestExecuteGeneratedRefConfClz.addReflectConfigClassMethod(
-                        new ReflectConfigClassMethod(
-                                TEST_EXEC_FUNCTION,
-                                new String[]{
-                                        "io.ballerina.runtime.internal.scheduling.Strand",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString",
-                                        "io.ballerina.runtime.api.values.BString"
-                                }
-                        )
-                );
+                testTestExecuteGeneratedRefConfClz.addReflectConfigClassMethod(REFLECTION_CONFIG_EXECUTE_METHOD);
                 classList.add(testTestExecuteGeneratedRefConfClz);
                 ReflectConfigClass testInitRefConfClz = new ReflectConfigClass(getQualifiedClassName(org, name, version,
                         MODULE_INIT_CLASS_NAME));
