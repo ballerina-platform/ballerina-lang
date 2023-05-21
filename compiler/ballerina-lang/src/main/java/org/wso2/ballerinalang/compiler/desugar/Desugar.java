@@ -7025,7 +7025,7 @@ private List<BLangVariable> desugarGlobalVariables(BLangVariable globalVar, Symb
         constraintTdExpr.resolvedType = constraintType;
         constraintTdExpr.setBType(constraintTdType);
 
-        BType completionType = referredStreamType.completionType;
+        BType completionType = ((BStreamType) Types.getReferredType(typeInitExpr.getBType())).completionType;
         BType completionTdType = new BTypedescType(completionType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr completionTdExpr = new BLangTypedescExpr();
         completionTdExpr.resolvedType = completionType;

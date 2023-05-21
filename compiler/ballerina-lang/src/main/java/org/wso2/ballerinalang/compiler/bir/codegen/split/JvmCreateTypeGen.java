@@ -419,10 +419,9 @@ public class JvmCreateTypeGen {
         Map<String, String> funcTypeClassMap = new HashMap<>();
         String fieldName;
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
+            BType bType = optionalTypeDef.type;
             int bTypeTag = bType.tag;
-            if (!(bTypeTag == TypeTags.RECORD || bTypeTag == TypeTags.ERROR || bTypeTag == TypeTags.OBJECT
-                    || bTypeTag == TypeTags.UNION || bTypeTag == TypeTags.TUPLE)) {
+            if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
                 continue;
             }
 

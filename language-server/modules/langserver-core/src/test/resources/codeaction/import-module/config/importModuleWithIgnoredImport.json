@@ -1,0 +1,29 @@
+{
+  "position": {
+    "line": 3,
+    "character": 10
+  },
+  "source": "importModuleWithIgnoredImport.bal",
+  "description": "Remove module alias when the import is ignored",
+  "expected": [
+    {
+      "title": "Remove module alias",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 24
+            },
+            "end": {
+              "line": 0,
+              "character": 29
+            }
+          },
+          "newText": ""
+        }
+      ]
+    }
+  ]
+}

@@ -646,14 +646,12 @@ public class JvmCodeGenUtil {
 
     public static void genYieldCheck(MethodVisitor mv, LabelGenerator labelGen, BIRNode.BIRBasicBlock thenBB,
                                      String funcName, int localVarOffset, int yieldLocationVarIndex,
-                                     Location terminatorPos, String fullyQualifiedFuncName,
-                                     String yieldStatus, int yieldStatusVarIndex) {
+                                     Location terminatorPos, String fullyQualifiedFuncName, String yieldStatus,
+                                     int yieldStatusVarIndex) {
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "isYielded", "()Z", false);
         generateSetYieldedStatus(mv, labelGen, funcName, yieldLocationVarIndex, terminatorPos,
                 fullyQualifiedFuncName, yieldStatus, yieldStatusVarIndex);
-
-        // goto thenBB
         Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
         mv.visitJumpInsn(GOTO, gotoLabel);
     }
@@ -720,6 +718,19 @@ public class JvmCodeGenUtil {
                 return isSimpleBasicType(getReferredType(bType));
             default:
                 return (TypeTags.isIntegerTypeTag(bType.tag)) || (TypeTags.isStringTypeTag(bType.tag));
+        }
+    }
+
+    public static boolean needNoTypeGeneration(int bTypeTag) {
+        switch (bTypeTag) {
+            case TypeTags.RECORD:
+            case TypeTags.ERROR:
+            case TypeTags.OBJECT:
+            case TypeTags.UNION:
+            case TypeTags.TUPLE:
+                return false;
+            default:
+                return true;
         }
     }
 

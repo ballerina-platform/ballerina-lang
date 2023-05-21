@@ -55,7 +55,7 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = TEST_COMMAND, description = "Test Ballerina modules")
+@CommandLine.Command(name = TEST_COMMAND, description = "Run package tests")
 public class TestCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
@@ -119,8 +119,7 @@ public class TestCommand implements BLauncherCmd {
         this.offline = true;
     }
 
-    @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
-            "dependencies.")
+    @CommandLine.Option(names = {"--offline"}, description = "Run package tests")
     private Boolean offline;
 
     @CommandLine.Parameters(description = "Program arguments")
@@ -290,6 +289,9 @@ public class TestCommand implements BLauncherCmd {
                     return;
                 }
             }
+            if (excludes != null && excludes.equals("")) {
+                this.outStream.println("warning: ignoring --excludes flag since given exclusion list is empty");
+            }
         } else {
             // Skip --includes flag if it is set without code coverage
             if (includes != null) {
@@ -307,6 +309,10 @@ public class TestCommand implements BLauncherCmd {
 
         if (project.buildOptions().nativeImage()) {
             this.outStream.println("WARNING: Ballerina GraalVM Native Image test is an experimental feature");
+        }
+
+        if (project.buildOptions().nativeImage() && project.buildOptions().codeCoverage()) {
+            this.outStream.println("WARNING: Code coverage generation is not supported with Ballerina native test");
         }
 
         Iterable<Module> originalModules = project.currentPackage().modules();
@@ -354,8 +360,8 @@ public class TestCommand implements BLauncherCmd {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setNativeImage(nativeImage)
-                .setEnableCache(enableCache)
-                .build();
+                .setEnableCache(enableCache);
+
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
@@ -371,7 +377,7 @@ public class TestCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Test a Ballerina project or a standalone Ballerina file. \n");
+        out.append(BLauncherCmd.getCommandUsageInfo(TEST_COMMAND));
     }
 
     @Override

@@ -63,7 +63,7 @@ public class ProjectFiles {
                 .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList(), null,
                         Collections.emptyList(), Collections.emptyList());
         return PackageData.from(filePath, defaultModule, Collections.emptyList(),
-                null, null, null, null, null);
+                null, null, null, null, null, null);
     }
 
     public static PackageData loadBuildProjectPackageData(Path packageDirPath) {
@@ -79,10 +79,11 @@ public class ProjectFiles {
         DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML));
         DocumentData cloudToml = loadDocument(packageDirPath.resolve(ProjectConstants.CLOUD_TOML));
         DocumentData compilerPluginToml = loadDocument(packageDirPath.resolve(ProjectConstants.COMPILER_PLUGIN_TOML));
+        DocumentData balToolToml = loadDocument(packageDirPath.resolve(ProjectConstants.BAL_TOOL_TOML));
         DocumentData packageMd = loadDocument(packageDirPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
 
-        return PackageData.from(packageDirPath, defaultModule, otherModules,
-                ballerinaToml, dependenciesToml, cloudToml, compilerPluginToml, packageMd);
+        return PackageData.from(packageDirPath, defaultModule, otherModules, ballerinaToml, dependenciesToml,
+                cloudToml, compilerPluginToml, balToolToml, packageMd);
     }
 
     private static List<ModuleData> loadNewGeneratedModules(Path packageDirPath) {

@@ -8,7 +8,10 @@ Running Tests
 
 	skip-when-beforeEach-fails.bal
 	[fail] beforeEach[before each test function for the test]:
-	     / by zero
+	    error("{ballerina}DivisionByZero",message=" / by zero")
+			callableName: beforeEach  fileName: skip-when-beforeEach-fails.bal lineNumber: 25
+			callableName: beforeEach$lambda1$  fileName: skip-when-beforeEach-fails.bal lineNumber: 53
+		
 
 
 		0 passing

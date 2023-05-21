@@ -50,7 +50,7 @@ import static io.ballerina.runtime.internal.util.RuntimeUtils.getEffectiveType;
  *  
  * @since 0.995.0
  */
-public class TypedescValueImpl implements  TypedescValue {
+public class TypedescValueImpl implements TypedescValue {
 
     final Type type;
     final Type describingType; // Type of the value describe by this typedesc.
@@ -92,10 +92,6 @@ public class TypedescValueImpl implements  TypedescValue {
         }
 
         return instantiate(s, new BInitialValueEntry[0]);
-    }
-
-    public MapValue getAnnotations() {
-        return annotations;
     }
 
     @Override
