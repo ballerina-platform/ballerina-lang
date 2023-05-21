@@ -1743,7 +1743,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return false;
         } else if (symbol.owner == null) {
             return false;
-        } else return symbol.owner.tag == SymTag.PACKAGE;
+        } else {
+            return symbol.owner.tag == SymTag.PACKAGE;
+        }
     }
 
     private boolean isVariableOrConstant(BSymbol symbol) {

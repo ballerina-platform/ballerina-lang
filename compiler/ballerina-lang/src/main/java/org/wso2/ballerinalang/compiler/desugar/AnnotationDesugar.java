@@ -167,7 +167,7 @@ public class AnnotationDesugar {
     BLangBlockStmt rewritePackageAnnotations(BLangPackage pkgNode, SymbolEnv env) {
         BLangFunction initFunction = pkgNode.initFunction;
         BLangBlockStmt blockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
-        defineTypeAnnotations(pkgNode, env, initFunction);
+        blockStmt.stmts.addAll(defineTypeAnnotations(pkgNode, env, initFunction).stmts);
         blockStmt.stmts.addAll(defineClassAnnotations(pkgNode, env, initFunction).stmts);
         blockStmt.stmts.addAll(defineFunctionAnnotations(pkgNode, env, initFunction).stmts);
         return blockStmt;
@@ -224,8 +224,8 @@ public class AnnotationDesugar {
                         // Add the lambda/invocation in a temporary block.
                         BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
                         target.pos = initBody.pos;
-                        addLambdaToGlobalAnnotMap(classDef.name.value, lambdaFunction, target);
                         blockStmt.stmts.addAll(target.stmts);
+                        blockStmt.stmts.add(addLambdaToGlobalAnnotMap(classDef.name.value, lambdaFunction, target));
                     } else {
                         // Add the lambda/invocation in a temporary block.
                         LocationData locationData = new LocationData(pkgID, owner, pos, initBody);
@@ -233,7 +233,7 @@ public class AnnotationDesugar {
                                 lambdaFunction, blockStmt);
                     }
                 } else {
-                    addInvocationToGlobalAnnotMap(classDef.name.value, lambdaFunction, initBody);
+                    blockStmt.stmts.add(addInvocationToGlobalAnnotMap(classDef.name.value, lambdaFunction, initBody));
                 }
             }
         }
@@ -278,16 +278,15 @@ public class AnnotationDesugar {
                 StringEscapeUtils.unescapeJava(classDef.name.value));
         indexAccessNode.expr = ASTBuilderUtil.createVariableRef(pos, annotationMap.symbol);
         indexAccessNode.setBType(((BMapType) annotationMap.getBType()).constraint);
-
+        allStmt.stmts.addAll(target.stmts);
         // $annotation_data[$anonType$_1] = $anon$anonType$_1_lamda
-        BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos, target);
+        BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos);
+        allStmt.stmts.add(assignmentStmt);
         assignmentStmt.expr = simpleVarRef;
         assignmentStmt.varRef = indexAccessNode;
 
         simpleVarRef.parent = initBody;
         assignmentStmt.parent = initBody;
-
-        allStmt.stmts.addAll(target.stmts);
     }
 
     private boolean isServiceDeclaration(BLangClassDefinition serviceClass) {
@@ -448,7 +447,8 @@ public class AnnotationDesugar {
         addAnnotsToLiteral(attachments, mapLiteral, location, env, false);
     }
 
-    private void defineTypeAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
+    private BLangBlockStmt defineTypeAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
+        BLangBlockStmt blockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
         for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
             if (typeDef.isBuiltinTypeDef) {
                 continue;
@@ -468,9 +468,11 @@ public class AnnotationDesugar {
             }
 
             if (lambdaFunction != null) {
-                addInvocationToGlobalAnnotMap(typeDef.name.value, lambdaFunction, initFunction.body);
+                blockStmt.stmts.add(addInvocationToGlobalAnnotMap(typeDef.name.value, lambdaFunction,
+                                                                  initFunction.body));
             }
         }
+        return blockStmt;
     }
 
     private BLangBlockStmt defineFunctionAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
@@ -494,16 +496,14 @@ public class AnnotationDesugar {
                 BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
                 target.pos = initFnBody.pos;
                 String identifier = function.attachedFunction ? function.symbol.name.value : function.name.value;
-
-                if (function.attachedFunction
-                        && Symbols.isFlagOn(function.receiver.getBType().flags, Flags.OBJECT_CTOR)) {
-                    addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
-                } else {
-                    addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target);
-                }
-
                 // Add the annotation assignment for resources to immediately before the service init.
                 blockStmt.stmts.addAll(target.stmts);
+                if (function.attachedFunction
+                        && Symbols.isFlagOn(function.receiver.getBType().flags, Flags.OBJECT_CTOR)) {
+                    blockStmt.stmts.add(addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target));
+                } else {
+                    blockStmt.stmts.add(addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target));
+                }
             }
         }
         return blockStmt;
@@ -968,24 +968,24 @@ public class AnnotationDesugar {
         addAnnotValueToLiteral(recordLiteral, name, arrayLiteral, pos);
     }
 
-    private void addInvocationToGlobalAnnotMap(String identifier, BLangLambdaFunction lambdaFunction,
+    private BLangAssignment addInvocationToGlobalAnnotMap(String identifier, BLangLambdaFunction lambdaFunction,
                                                BLangBlockStmt target) {
         // create: $annotation_data["identifier"] = $annot_func$.call();
-        addAnnotValueAssignmentToMap(annotationMap, identifier, target,
+        return addAnnotValueAssignmentToMap(annotationMap, identifier, target,
                                      getInvocation(lambdaFunction));
     }
 
-    private void addInvocationToGlobalAnnotMap(String identifier, BLangLambdaFunction lambdaFunction,
+    private BLangAssignment addInvocationToGlobalAnnotMap(String identifier, BLangLambdaFunction lambdaFunction,
                                                BLangFunctionBody target) {
         // create: $annotation_data["identifier"] = $annot_func$.call();
-        addAnnotValueAssignmentToMap(annotationMap, identifier, (BLangBlockFunctionBody) target,
+        return addAnnotValueAssignmentToMap(annotationMap, identifier, (BLangBlockFunctionBody) target,
                                      getInvocation(lambdaFunction));
     }
 
-    private void addLambdaToGlobalAnnotMap(String identifier, BLangLambdaFunction lambdaFunction,
+    private BLangAssignment addLambdaToGlobalAnnotMap(String identifier, BLangLambdaFunction lambdaFunction,
                                            BLangBlockStmt target) {
         // create: $annotation_data["identifier"] = $annot_func$;
-        addAnnotValueAssignmentToMap(annotationMap, identifier, target,
+        return addAnnotValueAssignmentToMap(annotationMap, identifier, target,
                                      ASTBuilderUtil.createVariableRef(lambdaFunction.pos,
                                                                       lambdaFunction.function.symbol));
     }
@@ -1013,10 +1013,10 @@ public class AnnotationDesugar {
         return funcInvocation;
     }
 
-    private void addAnnotValueAssignmentToMap(BLangSimpleVariable mapVar, String identifier,
+    private BLangAssignment addAnnotValueAssignmentToMap(BLangSimpleVariable mapVar, String identifier,
                                               BlockNode target, Location targetPos,
                                               BLangExpression expression) {
-        BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(targetPos, target);
+        BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(targetPos);
         assignmentStmt.expr = expression;
 
         BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
@@ -1026,16 +1026,17 @@ public class AnnotationDesugar {
         indexAccessNode.expr = ASTBuilderUtil.createVariableRef(targetPos, mapVar.symbol);
         indexAccessNode.setBType(((BMapType) mapVar.getBType()).constraint);
         assignmentStmt.varRef = indexAccessNode;
+        return assignmentStmt;
     }
 
-    private void addAnnotValueAssignmentToMap(BLangSimpleVariable mapVar, String identifier,
+    private BLangAssignment addAnnotValueAssignmentToMap(BLangSimpleVariable mapVar, String identifier,
                                               BLangBlockFunctionBody target, BLangExpression expression) {
-        addAnnotValueAssignmentToMap(mapVar, identifier, target, target.pos, expression);
+        return addAnnotValueAssignmentToMap(mapVar, identifier, target, target.pos, expression);
     }
 
-    private void addAnnotValueAssignmentToMap(BLangSimpleVariable mapVar, String identifier,
+    private BLangAssignment addAnnotValueAssignmentToMap(BLangSimpleVariable mapVar, String identifier,
                                               BLangBlockStmt target, BLangExpression expression) {
-        addAnnotValueAssignmentToMap(mapVar, identifier, target, target.pos, expression);
+        return addAnnotValueAssignmentToMap(mapVar, identifier, target, target.pos, expression);
     }
 
     private void addAnnotValueToLiteral(BLangRecordLiteral recordLiteral, String identifier,
