@@ -1445,6 +1445,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 analyzeNode(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr, env);
             }
         }
+        BType type = recordLiteral.getBType();
+        recordGlobalVariableReferenceRelationship(Types.getReferredType(type).tsymbol);
     }
 
     @Override
@@ -1544,6 +1546,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
+        analyzeNode(errorConstructorExpr.errorTypeRef, env);
         for (BLangExpression positionalArg : errorConstructorExpr.positionalArgs) {
             analyzeNode(positionalArg, env);
         }
@@ -1740,11 +1743,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return false;
         } else if (symbol.owner == null) {
             return false;
-        } else if (symbol.owner.tag != SymTag.PACKAGE) {
-            return false;
-        }
-
-        return isVariableOrConstant(symbol);
+        } else return symbol.owner.tag == SymTag.PACKAGE;
     }
 
     private boolean isVariableOrConstant(BSymbol symbol) {
@@ -2085,6 +2084,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
         BTypeSymbol tsymbol = Types.getReferredType(recordTypeNode.getBType()).tsymbol;
+        recordGlobalVariableReferenceRelationship(tsymbol);
         for (TypeNode type : recordTypeNode.getTypeReferences()) {
             BLangType bLangType = (BLangType) type;
             analyzeNode(bLangType, env);
@@ -2217,6 +2217,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorType errorType) {
+        analyzeNode(errorType.detailType, env);
     }
 
     @Override
@@ -2269,7 +2270,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
-        analyzeNode(bLangRecordVariable.typeNode, env);
+        BLangType typeNode = bLangRecordVariable.typeNode;
+        if (typeNode != null) {
+            analyzeNode(typeNode, env);
+        } else {
+            BType type = bLangRecordVariable.symbol.getType();
+            recordGlobalVariableReferenceRelationship(Types.getReferredType(type).tsymbol);
+        }
         populateUnusedVariableMapForNonSimpleBindingPatternVariables(this.unusedLocalVariables, bLangRecordVariable);
         this.currDependentSymbolDeque.push(bLangRecordVariable.symbol);
         analyzeNode(bLangRecordVariable.expr, env);

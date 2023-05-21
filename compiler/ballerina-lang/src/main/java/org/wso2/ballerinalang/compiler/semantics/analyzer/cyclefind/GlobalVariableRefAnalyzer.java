@@ -242,8 +242,6 @@ public class GlobalVariableRefAnalyzer {
 
         List<BSymbol> globalVarsAndDependentFuncs = getGlobalVariablesAndDependentFunctions();
 
-        pruneDependencyRelations();
-
         Set<BSymbol> sorted = new LinkedHashSet<>();
         LinkedList<BSymbol> dependencies = new LinkedList<>();
 
@@ -297,45 +295,6 @@ public class GlobalVariableRefAnalyzer {
             return symbolsProvidersOrdered;
         }
         return new ArrayList<>();
-    }
-
-    private void pruneDependencyRelations() {
-        List<BSymbol> dependents = new ArrayList<>(this.globalNodeDependsOn.keySet());
-        Set<BSymbol> visited = new HashSet<>();
-        for (BSymbol dependent : dependents) {
-            // Taking a copy as we need to modify the original list.
-            List<BSymbol> providers = new ArrayList<>(this.globalNodeDependsOn.get(dependent));
-            for (BSymbol provider : providers) {
-                pruneFunctions(dependent, provider, this.globalNodeDependsOn, visited);
-            }
-        }
-    }
-
-    private void pruneFunctions(BSymbol dependent, BSymbol provider, Map<BSymbol, Set<BSymbol>> globalNodeDependsOn,
-                                Set<BSymbol> visited) {
-        if (visited.contains(provider)) {
-            return;
-        } else {
-            visited.add(provider);
-        }
-
-        // Dependent has a dependency on a global var.
-        if (provider.tag != SymTag.FUNCTION) {
-            return;
-        }
-
-        // Provider is a function.
-        // And doesn't have dependency on a global variable. We can prune provider.
-        if (!globalNodeDependsOn.containsKey(provider) || globalNodeDependsOn.get(provider).isEmpty()) {
-            globalNodeDependsOn.get(dependent).remove(provider);
-            return;
-        }
-
-        // Taking a copy as we need to modify the original list.
-        List<BSymbol> providersProviders = new ArrayList<>(globalNodeDependsOn.get(provider));
-        for (BSymbol prov : providersProviders) {
-            pruneFunctions(provider, prov, globalNodeDependsOn, visited);
-        }
     }
 
     private void addDependenciesDependencies(LinkedList<BSymbol> dependencies, Set<BSymbol> sorted) {
