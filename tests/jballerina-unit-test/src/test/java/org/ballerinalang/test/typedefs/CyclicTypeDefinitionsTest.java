@@ -33,13 +33,19 @@ import org.testng.annotations.Test;
  */
 public class CyclicTypeDefinitionsTest {
 
-    private CompileResult unionCompileResult, negativeResult, tupleCompileResult;
+    private CompileResult unionCompileResult, negativeResult, tupleCompileResult, cyclicCompileResult;
 
     @BeforeClass
     public void setup() {
         unionCompileResult = BCompileUtil.compile("test-src/typedefs/union-type-definitions-cyclic.bal");
         negativeResult = BCompileUtil.compile("test-src/typedefs/type-definitions-cyclic-negative.bal");
+        cyclicCompileResult = BCompileUtil.compile("test-src/typedefs/cyclic-type-definitions.bal");
         tupleCompileResult = BCompileUtil.compile("test-src/typedefs/tuple-type-definitions-cyclic.bal");
+    }
+
+    @Test(dataProvider = "FunctionListCyclicTypeDef")
+    public void testCyclicTypeDefinition(String funcName) {
+        BRunUtil.invoke(cyclicCompileResult, funcName);
     }
 
     @Test(description = "Positive tests for tuple cyclic type definitions", dataProvider = "FunctionListTuple")
@@ -66,6 +72,24 @@ public class CyclicTypeDefinitionsTest {
                 {"testUnionWithCyclicTuplesHashCode"},
                 {"testCloneOnRecursiveTuples"},
                 {"testCyclicTuples"}
+        };
+    }
+
+    @DataProvider(name = "FunctionListCyclicTypeDef")
+    public Object[][] getTestCyclicTypeDefFunctions() {
+        return new Object[][]{
+                {"testCyclicRecordTypeDefinition"},
+                {"testCyclicFunctionTypeDefinition"},
+                {"testCyclicReadonlyFunctionTypeDefinition"},
+                {"testCyclicStreamTypeDefinition"},
+                {"testCyclicMapTypeDefinition"},
+                {"testCyclicReadonlyMapTypeDefinition"},
+                {"testCyclicErrorTypeDefinition"},
+                {"testCyclicReadonlyErrorTypeDefinition"},
+                {"testComplexCyclicRecordTypeDefinition"},
+                {"testCyclicReadonlyArrayTypeDefinition"},
+                {"testCyclicXMLTypeDefinition"},
+                {"testCyclicReadonlyXMLTypeDefinition"}
         };
     }
 
@@ -126,6 +150,10 @@ public class CyclicTypeDefinitionsTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "invalid usage of list constructor: type 'L[1]' does not have a filler value", 63, 11);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'ET', found 'int'", 75, 17);
+        BAssertUtil.validateError(negativeResult, i++, "invalid intersection type 'B1 & readonly': no intersection",
+                79, 9);
+        BAssertUtil.validateError(negativeResult, i++, "invalid constraint type. expected subtype of " +
+                "'map<any|error>' but found 'B2'", 82, 15);
         Assert.assertEquals(i, negativeResult.getErrorCount());
     }
 
@@ -133,6 +161,7 @@ public class CyclicTypeDefinitionsTest {
     public void tearDown() {
         negativeResult = null;
         unionCompileResult = null;
+        cyclicCompileResult = null;
         tupleCompileResult = null;
     }
 }

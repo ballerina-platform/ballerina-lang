@@ -75,3 +75,9 @@ function testCyclicTypeDef() {
             i : 2
         };
 }
+
+type A1 B1 & readonly;
+type B1 stream<A1>;
+
+type A2 table<B2>;
+type B2 A2 & readonly;
