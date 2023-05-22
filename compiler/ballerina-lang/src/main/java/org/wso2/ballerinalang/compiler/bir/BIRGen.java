@@ -1754,7 +1754,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructLiteral astStructLiteralExpr) {
-        BType type = astStructLiteralExpr.getBType();
+        BType type = Types.getReferredType(astStructLiteralExpr.getBType());
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(type, this.env.nextLocalVarId(names), VarScope.FUNCTION,
                                                        VarKind.TEMP);
         this.env.enclFunc.localVars.add(tempVarDcl);
