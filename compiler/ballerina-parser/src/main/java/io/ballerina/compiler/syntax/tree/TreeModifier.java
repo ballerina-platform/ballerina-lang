@@ -2129,20 +2129,32 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public CollectClauseNode transform(
+            CollectClauseNode collectClauseNode) {
+        Token collectKeyword =
+                modifyToken(collectClauseNode.collectKeyword());
+        ExpressionNode expression =
+                modifyNode(collectClauseNode.expression());
+        return collectClauseNode.modify(
+                collectKeyword,
+                expression);
+    }
+
+    @Override
     public QueryExpressionNode transform(
             QueryExpressionNode queryExpressionNode) {
         QueryConstructTypeNode queryConstructType =
                 modifyNode(queryExpressionNode.queryConstructType().orElse(null));
         QueryPipelineNode queryPipeline =
                 modifyNode(queryExpressionNode.queryPipeline());
-        SelectClauseNode selectClause =
-                modifyNode(queryExpressionNode.selectClause());
+        ClauseNode endClause =
+                modifyNode(queryExpressionNode.endClause());
         OnConflictClauseNode onConflictClause =
                 modifyNode(queryExpressionNode.onConflictClause().orElse(null));
         return queryExpressionNode.modify(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                endClause,
                 onConflictClause);
     }
 
@@ -3653,7 +3665,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 mostTimesMatchedDigit,
                 closeBraceToken);
     }
-  
+
+    @Override
     public MemberTypeDescriptorNode transform(
             MemberTypeDescriptorNode memberTypeDescriptorNode) {
         NodeList<AnnotationNode> annotations =

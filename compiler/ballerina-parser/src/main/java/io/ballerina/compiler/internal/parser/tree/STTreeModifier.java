@@ -1679,10 +1679,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STCollectClauseNode transform(
             STCollectClauseNode collectClauseNode) {
-        STNode selectKeyword = modifyNode(collectClauseNode.collectKeyword);
+        STNode collectKeyword = modifyNode(collectClauseNode.collectKeyword);
         STNode expression = modifyNode(collectClauseNode.expression);
         return collectClauseNode.modify(
-                selectKeyword,
+                collectKeyword,
                 expression);
     }
 
@@ -1691,12 +1691,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STQueryExpressionNode queryExpressionNode) {
         STNode queryConstructType = modifyNode(queryExpressionNode.queryConstructType);
         STNode queryPipeline = modifyNode(queryExpressionNode.queryPipeline);
-        STNode selectClause = modifyNode(queryExpressionNode.selectClause);
+        STNode endClause = modifyNode(queryExpressionNode.endClause);
         STNode onConflictClause = modifyNode(queryExpressionNode.onConflictClause);
         return queryExpressionNode.modify(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                endClause,
                 onConflictClause);
     }
 
@@ -2906,7 +2906,8 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 mostTimesMatchedDigit,
                 closeBraceToken);
     }
-  
+
+    @Override
     public STMemberTypeDescriptorNode transform(
             STMemberTypeDescriptorNode memberTypeDescriptorNode) {
         STNode annotations = modifyNode(memberTypeDescriptorNode.annotations);

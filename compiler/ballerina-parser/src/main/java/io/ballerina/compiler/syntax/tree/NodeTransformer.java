@@ -943,7 +943,7 @@ public abstract class NodeTransformer<T> {
     public T transform(ReBracedQuantifierNode reBracedQuantifierNode) {
         return transformSyntaxNode(reBracedQuantifierNode);
     }
-  
+
     public T transform(MemberTypeDescriptorNode memberTypeDescriptorNode) {
         return transformSyntaxNode(memberTypeDescriptorNode);
     }

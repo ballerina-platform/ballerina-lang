@@ -41,11 +41,7 @@ public class QueryExpressionNode extends ExpressionNode {
         return childInBucket(1);
     }
 
-    public SelectClauseNode selectClause() {
-        return childInBucket(2);
-    }
-
-    public Node finalClause() {
+    public ClauseNode endClause() {
         return childInBucket(2);
     }
 
@@ -68,19 +64,19 @@ public class QueryExpressionNode extends ExpressionNode {
         return new String[]{
                 "queryConstructType",
                 "queryPipeline",
-                "selectClause",
+                "endClause",
                 "onConflictClause"};
     }
 
     public QueryExpressionNode modify(
             QueryConstructTypeNode queryConstructType,
             QueryPipelineNode queryPipeline,
-            SelectClauseNode selectClause,
+            ClauseNode endClause,
             OnConflictClauseNode onConflictClause) {
         if (checkForReferenceEquality(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                endClause,
                 onConflictClause)) {
             return this;
         }
@@ -88,7 +84,7 @@ public class QueryExpressionNode extends ExpressionNode {
         return NodeFactory.createQueryExpressionNode(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                endClause,
                 onConflictClause);
     }
 
@@ -105,14 +101,14 @@ public class QueryExpressionNode extends ExpressionNode {
         private final QueryExpressionNode oldNode;
         private QueryConstructTypeNode queryConstructType;
         private QueryPipelineNode queryPipeline;
-        private SelectClauseNode selectClause;
+        private ClauseNode endClause;
         private OnConflictClauseNode onConflictClause;
 
         public QueryExpressionNodeModifier(QueryExpressionNode oldNode) {
             this.oldNode = oldNode;
             this.queryConstructType = oldNode.queryConstructType().orElse(null);
             this.queryPipeline = oldNode.queryPipeline();
-            this.selectClause = oldNode.selectClause();
+            this.endClause = oldNode.endClause();
             this.onConflictClause = oldNode.onConflictClause().orElse(null);
         }
 
@@ -129,10 +125,10 @@ public class QueryExpressionNode extends ExpressionNode {
             return this;
         }
 
-        public QueryExpressionNodeModifier withSelectClause(
-                SelectClauseNode selectClause) {
-            Objects.requireNonNull(selectClause, "selectClause must not be null");
-            this.selectClause = selectClause;
+        public QueryExpressionNodeModifier withEndClause(
+                ClauseNode endClause) {
+            Objects.requireNonNull(endClause, "endClause must not be null");
+            this.endClause = endClause;
             return this;
         }
 
@@ -146,7 +142,7 @@ public class QueryExpressionNode extends ExpressionNode {
             return oldNode.modify(
                     queryConstructType,
                     queryPipeline,
-                    selectClause,
+                    endClause,
                     onConflictClause);
         }
     }
