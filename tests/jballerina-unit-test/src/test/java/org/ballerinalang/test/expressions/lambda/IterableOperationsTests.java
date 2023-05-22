@@ -55,7 +55,7 @@ public class IterableOperationsTests {
 
     @Test()
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 33);
+        Assert.assertEquals(negative.getErrorCount(), 32);
         int index = 0;
         BAssertUtil.validateError(negative, index++, "undefined function 'forEach' in type 'int'", 6, 7);
         BAssertUtil.validateError(negative, index++, "undefined function 'map' in type 'string'", 8, 7);
@@ -70,9 +70,6 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int', found '()'", 46, 9);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected '[other,other]', found 'string[]'",
                 48, 18);
-        BAssertUtil.validateError(negative, index++,
-                                  "invalid list binding pattern: attempted to infer a list type, but found 'other'",
-                                  48, 18);
         BAssertUtil.validateError(negative, index++, "invalid operation: type 'string' does not support field access",
                 49, 35);
         BAssertUtil.validateError(negative, index++, "too many arguments in call to 'length()'", 55, 9);

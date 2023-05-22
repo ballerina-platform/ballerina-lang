@@ -209,9 +209,8 @@ public class ResilientParserTest {
     @Test
     public void testResilientParsingError() {
         CompileResult result = BCompileUtil.compile("test-src/parser/resilient-parsing-error.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'error', found 'other'", 2, 12);
-        BAssertUtil.validateError(result, 1, "missing equal token", 2, 12);
-        BAssertUtil.validateError(result, 2, "missing identifier", 2, 12);
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "missing equal token", 2, 12);
+        BAssertUtil.validateError(result, 1, "missing identifier", 2, 12);
     }
 }

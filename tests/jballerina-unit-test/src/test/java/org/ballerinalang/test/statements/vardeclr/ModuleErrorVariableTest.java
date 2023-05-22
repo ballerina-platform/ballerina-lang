@@ -75,10 +75,6 @@ public class ModuleErrorVariableTest {
         validateError(compileResultNegetive, index++,
                 "annotation 'annot' is not allowed on var", 36, 1);
         validateError(compileResultNegetive, index++,
-                "incompatible types: expected 'string', found 'other'", 40, 69);
-        validateError(compileResultNegetive, index++,
-                "incompatible types: expected 'int', found 'other'", 40, 94);
-        validateError(compileResultNegetive, index++,
                 "invalid record binding pattern with type '[int]'", 53, 33);
         validateError(compileResultNegetive, index++,
                 "cannot bind undefined error detail field 'fieldD'", 53, 44);

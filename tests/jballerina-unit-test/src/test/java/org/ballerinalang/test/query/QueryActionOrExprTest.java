@@ -102,7 +102,6 @@ public class QueryActionOrExprTest {
         validateError(negativeResult, i++, "async send action not yet supported as expression", 61, 27);
         validateError(negativeResult, i++, "async send action not yet supported as expression", 62, 25);
         validateError(negativeResult, i++, "async send action not yet supported as expression", 63, 20);
-        validateError(negativeResult, i++, "incompatible types: expected 'other', found 'int'", 71, 18);
         validateError(negativeResult, i++, "async send action not yet supported as expression", 71, 27);
         validateError(negativeResult, i++, "async send action not yet supported as expression", 72, 25);
         validateError(negativeResult, i++, "async send action not yet supported as expression", 74, 20);
@@ -113,9 +112,7 @@ public class QueryActionOrExprTest {
         validateError(negativeResult, i++, "async send action not yet supported as expression", 94, 25);
         validateError(negativeResult, i++, "async send action not yet supported as expression", 96, 20);
         validateError(negativeResult, i++, "incompatible types: '()' is not an iterable collection", 133, 27);
-        validateError(negativeResult, i++, "incompatible types: 'other' is not an iterable collection", 151, 27);
         validateError(negativeResult, i++, "invalid usage of receive expression, var not allowed", 151, 27);
-        validateError(negativeResult, i++, "incompatible types: 'other' is not an iterable collection", 168, 27);
         validateError(negativeResult, i++, "invalid usage of receive expression, var not allowed", 168, 27);
         validateError(negativeResult, i++, "multiple receive action not yet supported", 168, 30);
         validateError(negativeResult, i++, "multiple receive action not yet supported", 169, 28);
@@ -133,9 +130,7 @@ public class QueryActionOrExprTest {
         validateError(negativeResult, i++, "order by not supported for complex type fields, order key should " +
                 "belong to a basic type", 291, 18);
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 303, 15);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'other'", 303, 15);
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 315, 23);
-        validateError(negativeResult, i++, "incompatible types: expected 'int', found 'other'", 316, 21);
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 320, 50);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }

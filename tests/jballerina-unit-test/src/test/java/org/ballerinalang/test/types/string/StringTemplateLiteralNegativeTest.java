@@ -52,14 +52,13 @@ public class StringTemplateLiteralNegativeTest {
     @Test(description = "Test string template literal syntax errors")
     public void testStringTemplateLiteralSyntaxNegativeCases() {
         resultNegative = BCompileUtil.compile("test-src/types/string/string-template-literal-syntax-negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 13);
+        Assert.assertEquals(resultNegative.getErrorCount(), 12);
         int index = 0;
         BAssertUtil.validateError(resultNegative, index++, "invalid token ';'", 4, 75);
         BAssertUtil.validateError(resultNegative, index++, "invalid token 'return'", 5, 5);
         BAssertUtil.validateError(resultNegative, index++, "invalid token 's'", 5, 12);
         BAssertUtil.validateError(resultNegative, index++, "invalid token ';'", 5, 13);
         BAssertUtil.validateError(resultNegative, index++, "invalid escape sequence '\\l'", 10, 24);
-        BAssertUtil.validateError(resultNegative, index++, "invalid record binding pattern with type 'other'", 10, 24);
         BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 24);
         BAssertUtil.validateError(resultNegative, index++, "unknown type 'He\\llo'", 10, 24);
         BAssertUtil.validateError(resultNegative, index++, "invalid token '$'", 10, 33);

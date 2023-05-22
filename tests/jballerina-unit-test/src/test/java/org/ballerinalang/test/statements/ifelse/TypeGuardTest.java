@@ -1071,8 +1071,8 @@ public class TypeGuardTest {
                 "incompatible types: expected 'string', found '(string|int)'", 243, 20);
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected 'string', found '(string|int)'", 252, 20);
-        BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'int', found 'other'", 263, 17); // issue #34965
+//        BAssertUtil.validateError(result, index++,
+//                "incompatible types: expected 'int', found 'other'", 263, 17); // issue #34965
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected 'string', found '(string|int)'", 265, 20); // issue #34965
         BAssertUtil.validateError(result, index++,

@@ -48,7 +48,6 @@ public class VarDeclrSemanticTest {
         validateError(result, indx++, "listener variable incompatible types: 'foo' is not a Listener object", 17, 1);
         validateError(result, indx++, "incompatible types: expected '(function|error)', found '()'", 19, 13);
         validateError(result, indx++, "missing equal token", 19, 13);
-        validateError(result, indx++, "invalid record binding pattern with type 'other'", 19, 16);
         validateError(result, indx++, "missing semicolon token", 19, 16);
         validateError(result, indx++, "missing type descriptor", 19, 16);
         validateError(result, indx++, "missing semicolon token", 22, 1);

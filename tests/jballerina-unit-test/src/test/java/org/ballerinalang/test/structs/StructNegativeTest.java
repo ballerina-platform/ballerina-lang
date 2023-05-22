@@ -74,7 +74,6 @@ public class StructNegativeTest {
         BAssertUtil.validateError(result, i++, "missing colon token", 12, 30);
         BAssertUtil.validateError(result, i++, "missing comma token", 12, 33);
         BAssertUtil.validateError(result, i++, "missing identifier", 12, 33);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 16, 17);
         BAssertUtil.validateError(result, i++, "missing ellipsis token", 16, 17);
         BAssertUtil.validateError(result, i++, "undefined symbol 'a'", 16, 18);
         BAssertUtil.validateError(result, i++, "missing comma token", 16, 20);
@@ -89,7 +88,6 @@ public class StructNegativeTest {
     public void testExpressionAsStructLiteralKey() {
         CompileResult result = BCompileUtil.compile("test-src/structs/expression-as-struct-literal-key-negative.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "incompatible types: expected a map or a record, found 'other'", 7, 21);
         BAssertUtil.validateError(result, i++, "missing ellipsis token", 7, 21);
         BAssertUtil.validateError(result, i++, "undefined symbol 'a'", 7, 22);
         BAssertUtil.validateError(result, i++, "missing comma token", 7, 24);

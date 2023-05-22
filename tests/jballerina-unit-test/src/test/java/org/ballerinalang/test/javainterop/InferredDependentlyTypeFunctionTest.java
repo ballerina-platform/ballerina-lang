@@ -206,7 +206,6 @@ public class InferredDependentlyTypeFunctionTest {
                         "an argument for the parameter or a contextually-expected type to infer the argument", 196, 5);
         validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td2': expected " +
                 "an argument for the parameter or a contextually-expected type to infer the argument", 197, 5);
-        validateError(negativeResult, index++, "variable assignment is required", 197, 5);
         validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': expected " +
                 "an argument for the parameter or a contextually-expected type to infer the argument", 198, 5);
         validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': expected " +
