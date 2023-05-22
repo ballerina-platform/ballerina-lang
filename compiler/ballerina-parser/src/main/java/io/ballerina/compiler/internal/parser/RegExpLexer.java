@@ -286,9 +286,9 @@ public class RegExpLexer extends AbstractLexer {
             case 'm':
             case 'o':
                 this.reader.advance();
-                break;
+                return;
             default:
-                break;
+                checkInvalidTokenInUnicodeGeneralCategory();
         }
     }
 
@@ -298,9 +298,9 @@ public class RegExpLexer extends AbstractLexer {
             case 'c':
             case 'e':
                 this.reader.advance();
-                break;
+                return;
             default:
-                break;
+                checkInvalidTokenInUnicodeGeneralCategory();
         }
     }
 
@@ -310,9 +310,9 @@ public class RegExpLexer extends AbstractLexer {
             case 'l':
             case 'o':
                 this.reader.advance();
-                break;
+                return;
             default:
-                break;
+                checkInvalidTokenInUnicodeGeneralCategory();
         }
     }
 
@@ -323,9 +323,9 @@ public class RegExpLexer extends AbstractLexer {
             case 'k':
             case 'o':
                 this.reader.advance();
-                break;
+                return;
             default:
-                break;
+                checkInvalidTokenInUnicodeGeneralCategory();
         }
     }
 
@@ -339,9 +339,9 @@ public class RegExpLexer extends AbstractLexer {
             case 'f':
             case 'o':
                 this.reader.advance();
-                break;
+                return;
             default:
-                break;
+                checkInvalidTokenInUnicodeGeneralCategory();
         }
     }
 
@@ -351,9 +351,9 @@ public class RegExpLexer extends AbstractLexer {
             case 'l':
             case 'p':
                 this.reader.advance();
-                break;
+                return;
             default:
-                break;
+                checkInvalidTokenInUnicodeGeneralCategory();
         }
     }
 
@@ -364,9 +364,20 @@ public class RegExpLexer extends AbstractLexer {
             case 'o':
             case 'n':
                 this.reader.advance();
-                break;
+                return;
             default:
-                break;
+                checkInvalidTokenInUnicodeGeneralCategory();
+        }
+    }
+
+    private void checkInvalidTokenInUnicodeGeneralCategory() {
+        boolean invalidCharacterFound = false;
+        while (!isEndOfUnicodePropertyEscape()) {
+            invalidCharacterFound = true;
+            this.reader.advance();
+        }
+        if (invalidCharacterFound) {
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
         }
     }
 
