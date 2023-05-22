@@ -22,7 +22,6 @@ import com.google.gson.reflect.TypeToken;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.test.runtime.entity.MockFunctionReplaceVisitor;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
-import org.ballerinalang.test.runtime.entity.TestArguments;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.exceptions.BallerinaTestException;
@@ -80,7 +79,7 @@ public class BTestMain {
         if (args.length >= 4) {
             Path targetPath = Paths.get(args[0]);
             Path testCache = targetPath.resolve(ProjectConstants.CACHES_DIR_NAME)
-                            .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
+                    .resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
             String jacocoAgentJarPath = args[1];
             boolean report = Boolean.parseBoolean(args[2]);
             boolean coverage = Boolean.parseBoolean(args[3]);
@@ -125,10 +124,14 @@ public class BTestMain {
                             replaceMockedFunctions(testSuite, testExecutionDependencies, instrumentDir, coverage);
                         }
 
+                        String[] testArgs = new String[]{args[0], packageName, moduleName};
+                        for (int i = 2; i < args.length; i++) {
+                            testArgs = Arrays.copyOf(testArgs, testArgs.length + 1);
+                            testArgs[testArgs.length - 1] = args[i];
+                        }
+
                         result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, classLoader,
-                                new TestArguments(args[0], packageName, moduleName,
-                                        args[2], args[3], args[4], args[5], args[6], args[7],
-                                        args[8], args[9]), Arrays.copyOfRange(args, 10, args.length));
+                                testArgs);
                         exitStatus = (result == 1) ? result : exitStatus;
                     }
                 } else {
@@ -143,14 +146,11 @@ public class BTestMain {
     }
 
     private static int startTestSuit(Path sourceRootPath, TestSuite testSuite, ClassLoader classLoader,
-                                     TestArguments args, String[] cliArgs) {
-        int exitStatus = 0;
+                                     String[] args) {
         try {
-            TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader, args, cliArgs, out);
+            return TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader, args, out);
         } catch (RuntimeException e) {
-            exitStatus = 1;
-        } finally {
-            return exitStatus;
+            return 1;
         }
     }
 
