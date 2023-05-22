@@ -141,6 +141,7 @@ function executeTest(TestFunction testFunction) returns error? {
     if diagnoseError is error {
         lock {
             reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(testFunction));
+            println("\n****************************************************\n" + testFunction.name + " has failed.\n****************************************************\n");
         }
         enableExit();
         releaseWorker();
@@ -251,7 +252,7 @@ function executeDataDrivenTestSet(TestFunction testFunction) returns error? {
         }
         runtime:sleep(0.0001);
     }
-    
+
     if !isIntialJob {
         allocateWorker();
     }
@@ -280,6 +281,7 @@ function executeDataDrivenTest(TestFunction testFunction, string suffix, TestTyp
         lock {
             reportData.onFailed(name = testFunction.name, suffix = suffix, message = "[fail data provider for the function " + testFunction.name
                 + "]\n" + getErrorMessage(err), testType = testType);
+            println("\n****************************************************\n" + testFunction.name + ":" + suffix + " has failed.\n****************************************************\n");
             enableExit();
         }
     }
@@ -300,6 +302,7 @@ function executeNonDataDrivenTest(TestFunction testFunction) returns boolean {
         failed = true;
         lock {
             reportData.onFailed(name = testFunction.name, message = output.message(), testType = GENERAL_TEST);
+            println("\n****************************************************\n" + testFunction.name + " has failed.\n****************************************************\n");
         }
     }
 
@@ -491,6 +494,7 @@ function executeTestFunction(TestFunction testFunction, string suffix, TestType 
         enableExit();
         lock {
             reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output), testType = testType);
+            println("\n****************************************************\n" + testFunction.name + ":" + suffix + " has failed.\n****************************************************\n");
         }
         return true;
     } else if output is any {

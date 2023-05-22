@@ -117,3 +117,8 @@ isolated function currentTimeInMillis() returns decimal = @java:Method {
     name: "currentTimeInMillis",
     'class: "org.ballerinalang.testerina.natives.CommonUtils"
 } external;
+
+isolated function isFunctionParamConcurrencySafe(function func) returns boolean = @java:Method {
+    name: "isFunctionParamConcurrencySafe",
+    'class: "org.ballerinalang.testerina.natives.CommonUtils"
+} external;

@@ -46,25 +46,51 @@ public function registerTest(string name, function f) {
 function processConfigAnnotation(string name, function f) returns boolean {
     TestConfig? config = (typeof f).@Config;
     if config != () {
+        boolean isTestFunctionIsolated = f is isolated function;
+        boolean isDataProviderIsolated = true;
+        boolean isTestFunctionParamSafe = true;
+        boolean isSatisfiedParallelizableConditions = isTestFunctionIsolated;
+        string[] reasonToSerialExecution = [];
+
         DataProviderReturnType? params = ();
         error? diagnostics = ();
         if config.dataProvider != () {
             var providerFn = config.dataProvider;
 
             if providerFn is function () returns (DataProviderReturnType?) {
+                isDataProviderIsolated = (<function>providerFn is isolated function);
+                isTestFunctionParamSafe = isFunctionParamConcurrencySafe(f);
+                isSatisfiedParallelizableConditions = isTestFunctionIsolated && isDataProviderIsolated && isTestFunctionParamSafe;
                 DataProviderReturnType providerOutput = providerFn();
                 params = providerOutput;
             } else {
                 diagnostics = error("Failed to execute the data provider");
             }
+
+            if !isTestFunctionIsolated {
+                reasonToSerialExecution.push("non-isolated test function");
+            }
+
+            if !isDataProviderIsolated {
+                reasonToSerialExecution.push("non-isolated data-provider function");
+            }
+
+            if !isTestFunctionParamSafe {
+                reasonToSerialExecution.push("unsafe test parameters");
+            }
+            if !isSatisfiedParallelizableConditions && !config.serialExecution {
+                println("WARNING : Test function '" + name + "' cannot be parallelized due to " + string:'join(",", ...reasonToSerialExecution));
+            }
+
         }
+
         boolean enabled = config.enable && (filterGroups.length() == 0 ? true : hasGroup(config.groups, filterGroups))
             && (filterDisableGroups.length() == 0 ? true : !hasGroup(config.groups, filterDisableGroups)) && hasTest(name);
         config.groups.forEach(group => groupStatusRegistry.incrementTotalTest(group, enabled));
 
         testRegistry.addFunction(name = name, executableFunction = f, params = params, before = config.before,
             after = config.after, groups = config.groups, diagnostics = diagnostics, dependsOn = config.dependsOn,
-            enabled = enabled, dependsOnCount = config.dependsOn.length(), parallelizable = config.parallelizable, config = config);
+            enabled = enabled, dependsOnCount = config.dependsOn.length(), parallelizable = (!config.serialExecution && isSatisfiedParallelizableConditions), config = config);
         return true;
     }
     return false;
