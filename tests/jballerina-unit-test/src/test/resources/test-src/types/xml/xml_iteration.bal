@@ -33,7 +33,7 @@ xml bookstore = xml `<bookstore>
                     </bookstore>`;
 
 string[] titles = ["Everyday Italian", "Harry Potter", "XQuery Kick Start", "Learning XML"];
-string[] titlesOrigin = ["<root>interpolation1 text1 text2<foo>123</foo><bar></bar></root>",
+string[] titlesOrigin = ["<root>interpolation1 text1 text2<foo>123</foo><bar/></root>",
     "text2interpolation1", "<!--commentinterpolation1-->", "text3", "<?foo ?>"];
 
 function foreachTest() {
@@ -83,7 +83,7 @@ function mapOpTest() {
     xml elementChildren = seq[0].map(function (xml root) returns xml {
         return root/*;
     });
-    assert(elementChildren.toString(), "interpolation1 text1 text2<foo>123</foo><bar></bar>");
+    assert(elementChildren.toString(), "interpolation1 text1 text2<foo>123</foo><bar/>");
 }
 
 function filterOpTest() {
@@ -177,7 +177,7 @@ function testXmlElementSequenceIteration() {
     foreach 'xml:Element elem in seq {
         concatString(elem.toString());
     }
-    assert(output, "<foo>foo</foo>\n<bar></bar>\n");
+    assert(output, "<foo>foo</foo>\n<bar/>\n");
 
     record {| 'xml:Element value; |}? nextElement1 = seq.iterator().next();
     assert(nextElement1.toString(), "{\"value\":`<foo>foo</foo>`}");
@@ -240,7 +240,7 @@ function testXmlUnionSequenceIteration() {
     foreach 'xml:Element|'xml:Text elem in seq {
         concatString(elem.toString());
     }
-    assert(output, "<foo>foo</foo>\n<bar></bar>\n");
+    assert(output, "<foo>foo</foo>\n<bar/>\n");
 
     record {| 'xml:Element|'xml:Text value; |}? nextUnionXMLVal1 = seq.iterator().next();
     assert(nextUnionXMLVal1.toString(), "{\"value\":`<foo>foo</foo>`}");
@@ -255,21 +255,21 @@ function testXmlSequenceIteration() {
     foreach 'xml:Element|'xml:Text|'xml:Comment|'xml:ProcessingInstruction  elem in seq {
         concatString(elem.toString());
     }
-    assert(output, "<root>interpolation1 text1 text2<foo>123</foo><bar></bar></root>\ntext2interpolation1\n"+
+    assert(output, "<root>interpolation1 text1 text2<foo>123</foo><bar/></root>\ntext2interpolation1\n"+
     "<!--commentinterpolation1-->\ntext3\n<?foo ?>\n");
 
     output = "";
     foreach xml  elem in seq {
             concatString(elem.toString());
     }
-    assert(output, "<root>interpolation1 text1 text2<foo>123</foo><bar></bar></root>\ntext2interpolation1\n"+
+    assert(output, "<root>interpolation1 text1 text2<foo>123</foo><bar/></root>\ntext2interpolation1\n"+
         "<!--commentinterpolation1-->\ntext3\n<?foo ?>\n");
 
     record {| 'xml:Element|'xml:Text|'xml:Comment|'xml:ProcessingInstruction value; |}? nextXMLVal1 = seq.iterator().next();
-    assert(nextXMLVal1.toString(), "{\"value\":`<root>interpolation1 text1 text2<foo>123</foo><bar></bar></root>`}");
+    assert(nextXMLVal1.toString(), "{\"value\":`<root>interpolation1 text1 text2<foo>123</foo><bar/></root>`}");
 
     record {| xml value; |}? nextXMLVal2 = seq.iterator().next();
-    assert(nextXMLVal2.toString(), "{\"value\":`<root>interpolation1 text1 text2<foo>123</foo><bar></bar></root>`}");
+    assert(nextXMLVal2.toString(), "{\"value\":`<root>interpolation1 text1 text2<foo>123</foo><bar/></root>`}");
 }
 
 function xmlTypeParamCommentIter() {
