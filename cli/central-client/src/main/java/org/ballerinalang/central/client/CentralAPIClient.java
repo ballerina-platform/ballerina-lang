@@ -935,7 +935,7 @@ public class CentralAPIClient {
     }
 
     /**
-     * Search packages in registry.
+     * Search tools in central.
      */
     public ToolSearchResult searchTool(String keyword, String supportedPlatform, String ballerinaVersion)
             throws CentralClientException {

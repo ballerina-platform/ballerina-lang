@@ -28,7 +28,6 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
@@ -212,24 +211,21 @@ public class Main {
         private CommandLine parentCmdParser;
 
         public void execute() {
-            Map<String, CommandLine> subCommands = parentCmdParser.getSubcommands();
-
             if (helpCommands == null) {
-                String generalHelp = LauncherUtils.generateGeneralHelp(subCommands);
-                outStream.println(generalHelp);
+                printUsageInfo(BallerinaCliCommands.HELP);
                 return;
+
             } else if (helpCommands.size() > 1) {
                 throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
             }
 
             String userCommand = helpCommands.get(0);
-            if (subCommands.get(userCommand) == null) {
+            if (parentCmdParser.getSubcommands().get(userCommand) == null) {
                 throw LauncherUtils.createUsageExceptionWithHelp("unknown help topic `" + userCommand + "`");
             }
-            StringBuilder commandUsageInfo = new StringBuilder();
-            BLauncherCmd cmd = subCommands.get(userCommand).getCommand();
-            cmd.printLongDesc(commandUsageInfo);
-            outStream.println(commandUsageInfo);
+
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(userCommand);
+            errStream.println(commandUsageInfo);
         }
 
         @Override
@@ -391,9 +387,8 @@ public class Main {
                 printUsageInfo(argList.get(0));
                 return;
             }
-            Map<String, CommandLine> subCommands = parentCmdParser.getSubcommands();
-            String generalHelp = LauncherUtils.generateGeneralHelp(subCommands);
-            outStream.println(generalHelp);
+
+            printUsageInfo(BallerinaCliCommands.HELP);
         }
 
         @Override

@@ -55,6 +55,10 @@ public class BalToolsToml {
         StringBuilder content = new StringBuilder();
         if (!balToolsTomlPath.toFile().exists()) {
             try {
+                Path parentDirectory = balToolsTomlPath.getParent();
+                if (parentDirectory != null && !parentDirectory.toFile().exists()) {
+                    Files.createDirectories(parentDirectory);
+                }
                 Files.createFile(balToolsTomlPath);
             } catch (IOException e) {
                 throw new RuntimeException("Error while creating bal-tools.toml :" + e);

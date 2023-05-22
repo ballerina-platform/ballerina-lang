@@ -11,5 +11,5 @@ OPTIONS
 DESCRIPTION
        List the tool-id and the version of all locally available tools.
 
-       When there are multiple versions of the same tool, a row is printed
-       for each version.
+       When multiple versions of the same tool exist, the latest version
+       will be listed.
