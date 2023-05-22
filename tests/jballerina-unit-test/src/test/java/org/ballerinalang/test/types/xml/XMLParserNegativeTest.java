@@ -37,8 +37,8 @@ public class XMLParserNegativeTest {
     @Test
     public void testCreateXmlFromInputStreamAndReader() {
         String invalidXMLString = "<!-- comments cannot have -- in it -->";
-        String expectedErrorMessage = "failed to parse xml: ParseError at [row,col]:[1,29]\n" +
-                "Message: The string \"--\" is not permitted within comments.";
+        String expectedErrorMessage = "failed to parse xml: String '--' not allowed in comment (missing '>'?)" +
+                System.lineSeparator() + " at [row,col {unknown-source}]: [1,4]";
         String testFailErrorMessage = "Negative test failed for: `" + invalidXMLString +
                 "'. Expected exception with message: " + expectedErrorMessage;
 
@@ -80,8 +80,7 @@ public class XMLParserNegativeTest {
         return new Object[][]{
                 {"<book name=\"irshad<\"></book>" , "Unexpected character '<' (code 60) in attribute value" +
                         System.lineSeparator() + " at [row,col {unknown-source}]: [1,19]"},
-                {"<!-- comments cannot have -- in it -->" , "[com.ctc.wstx.exc.WstxLazyException] String '--' not " +
-                        "allowed in comment (missing '>'?)" +
+                {"<!-- comments cannot have -- in it -->" , "String '--' not allowed in comment (missing '>'?)" +
                         System.lineSeparator() + " at [row,col {unknown-source}]: [1,4]"},
                 {"<-note>irshad</-note>", "Unexpected character '-' (code 45) in prolog, after '<'." +
                         System.lineSeparator() + " at [row,col {unknown-source}]: [1,2]"},
