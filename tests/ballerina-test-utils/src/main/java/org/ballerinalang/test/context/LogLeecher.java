@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.test.context;
 
+import java.util.regex.Pattern;
+
 /**
  * A Leecher can attach to a {@link ServerLogReader} and wait until a specific text is printed in the log.
  */
@@ -24,7 +26,7 @@ public class LogLeecher {
 
     private LeecherType leecherType = LeecherType.INFO;
 
-    public String text;
+    private final Pattern pattern;
 
     private boolean textFound = false;
 
@@ -36,7 +38,7 @@ public class LogLeecher {
      * @param text The log line expected
      */
     public LogLeecher(String text) {
-        this.text = text;
+        this.pattern = Pattern.compile(text);
     }
 
     /**
@@ -46,7 +48,7 @@ public class LogLeecher {
      * @param leecherType type of the log leecher
      */
     public LogLeecher(String text, LeecherType leecherType) {
-        this.text = text;
+        this.pattern = Pattern.compile(text);
         this.leecherType = leecherType;
     }
 
@@ -63,7 +65,7 @@ public class LogLeecher {
      * @param logLine The log line which was read
      */
     void feedLine(String logLine) {
-        if (logLine.matches(text)) {
+        if (pattern.matcher(logLine).find()) {
             textFound = true;
             synchronized (this) {
                 this.notifyAll();
@@ -101,7 +103,7 @@ public class LogLeecher {
                     long waitingTime = timeout / 10;
                     this.wait(waitingTime);
                     if (System.currentTimeMillis() - startTime > timeout) {
-                        throw new BallerinaTestException("Timeout expired waiting for matching log: " + text);
+                        throw new BallerinaTestException("Timeout expired waiting for matching log: " + pattern);
                     }
                 } catch (InterruptedException e) {
                     throw new BallerinaTestException("Error waiting for text", e);
@@ -109,7 +111,7 @@ public class LogLeecher {
             }
 
             if (!textFound) {
-                throw new BallerinaTestException("Matching log not found prior to server shutdown for: " + text);
+                throw new BallerinaTestException("Matching log not found prior to server shutdown for: " + pattern);
             }
         }
     }
