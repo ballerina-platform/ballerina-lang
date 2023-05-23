@@ -7145,7 +7145,6 @@ public class Types {
         boolean breakToParallelQueryEnv = false;
         int letCount = 0;
         boolean nonErrorLoggingCheck = false;
-        boolean withinCollectClause = false;
     }
 
     /**
