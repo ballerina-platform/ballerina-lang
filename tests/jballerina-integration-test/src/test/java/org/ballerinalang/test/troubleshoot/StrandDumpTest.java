@@ -148,9 +148,9 @@ public class StrandDumpTest extends BaseTest {
         try {
             Process process = processBuilder.start();
             ServerLogReader serverInfoLogReader = new ServerLogReader("inputStream", process.getInputStream());
-            List<LogLeecher> steadyStateLeechers = new ArrayList<>();
+            List<RegexLogLeecher> steadyStateLeechers = new ArrayList<>();
             populateLeechers(steadyStateLeechers, steadyStateOutputFilePath, serverInfoLogReader);
-            List<LogLeecher> strandDumpLeechers = new ArrayList<>();
+            List<RegexLogLeecher> strandDumpLeechers = new ArrayList<>();
             populateLeechers(strandDumpLeechers, expectedOutputFilePath, serverInfoLogReader);
             serverInfoLogReader.start();
             waitForLeechers(steadyStateLeechers);
@@ -167,18 +167,18 @@ public class StrandDumpTest extends BaseTest {
         }
     }
 
-    private static void populateLeechers(List<LogLeecher> leecherList, Path leecherFilePath,
+    private static void populateLeechers(List<RegexLogLeecher> leecherList, Path leecherFilePath,
                                   ServerLogReader serverInfoLogReader) throws BallerinaTestException {
         List<String> nonEmptyLines = readFileNonEmptyLines(leecherFilePath);
         for (String str : nonEmptyLines) {
-            LogLeecher leecher = new LogLeecher(str, LogLeecher.LeecherType.INFO);
+            RegexLogLeecher leecher = new RegexLogLeecher(str, LogLeecher.LeecherType.INFO);
             leecherList.add(leecher);
             serverInfoLogReader.addLeecher(leecher);
         }
     }
 
-    private static void waitForLeechers(List<LogLeecher> logLeechers) throws BallerinaTestException {
-        for (LogLeecher leecher : logLeechers) {
+    private static void waitForLeechers(List<RegexLogLeecher> logLeechers) throws BallerinaTestException {
+        for (RegexLogLeecher leecher : logLeechers) {
             leecher.waitForText(TIMEOUT);
         }
     }
@@ -193,5 +193,22 @@ public class StrandDumpTest extends BaseTest {
 
     private static boolean isWindowsOS() {
         return Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows");
+    }
+}
+
+class RegexLogLeecher extends LogLeecher {
+
+    public RegexLogLeecher(String text, LeecherType leecherType) {
+        super(text, leecherType);
+    }
+
+    @Override
+    public void feedLine(String logLine) {
+        if (logLine.matches(text)) {
+            setTextFound();
+            synchronized (this) {
+                this.notifyAll();
+            }
+        }
     }
 }
