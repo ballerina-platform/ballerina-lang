@@ -62,20 +62,13 @@ public class LogLeecher {
      *
      * @param logLine The log line which was read
      */
-    public void feedLine(String logLine) {
-        if (logLine.contains(text)) {
-            setTextFound();
+    void feedLine(String logLine) {
+        if (logLine.matches(text)) {
+            textFound = true;
             synchronized (this) {
                 this.notifyAll();
             }
         }
-    }
-
-    /**
-     * Set that the expected text is found.
-     */
-    public void setTextFound() {
-        textFound = true;
     }
 
     /**
