@@ -76,8 +76,7 @@ public function testObjectWithOverriddenFieldsAndMethods() {
 readonly service class FooClass {
     *foo:FooObj;
 
-    isolated remote function execute(int aVar, int bVar) {
-
+    isolated remote function execute(string aVar, int bVar) {
     }
 }
 
