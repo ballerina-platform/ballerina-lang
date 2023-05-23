@@ -41,6 +41,7 @@ public class Package {
     private Optional<DependenciesToml> dependenciesToml = null;
     private Optional<CloudToml> cloudToml = null;
     private Optional<CompilerPluginToml> compilerPluginToml = null;
+    private Optional<BalToolToml> balToolToml = null;
 
     private Package(PackageContext packageContext, Project project) {
         this.packageContext = packageContext;
@@ -203,6 +204,14 @@ public class Package {
                     .map(c -> CompilerPluginToml.from(c, this));
         }
         return this.compilerPluginToml;
+    }
+
+    public Optional<BalToolToml> balToolToml() {
+        if (null == this.balToolToml) {
+            this.balToolToml = this.packageContext.balToolTomlContext()
+                    .map(c -> BalToolToml.from(c, this));
+        }
+        return this.balToolToml;
     }
 
     public Optional<PackageMd> packageMd() {
@@ -409,6 +418,7 @@ public class Package {
         private TomlDocumentContext dependenciesTomlContext;
         private TomlDocumentContext cloudTomlContext;
         private TomlDocumentContext compilerPluginTomlContext;
+        private TomlDocumentContext balToolTomlContext;
         private MdDocumentContext packageMdContext;
 
         public Modifier(Package oldPackage) {
@@ -423,6 +433,7 @@ public class Package {
             this.dependenciesTomlContext = oldPackage.packageContext.dependenciesTomlContext().orElse(null);
             this.cloudTomlContext = oldPackage.packageContext.cloudTomlContext().orElse(null);
             this.compilerPluginTomlContext = oldPackage.packageContext.compilerPluginTomlContext().orElse(null);
+            this.balToolTomlContext = oldPackage.packageContext.balToolTomlContext().orElse(null);
             this.packageMdContext = oldPackage.packageContext.packageMdContext().orElse(null);
         }
 
@@ -505,12 +516,35 @@ public class Package {
         }
 
         /**
+         * Adds a Bal tool toml.
+         *
+         * @param documentConfig configuration of the toml document
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier addBalToolToml(DocumentConfig documentConfig) {
+            TomlDocumentContext tomlDocumentContext = TomlDocumentContext.from(documentConfig);
+            this.balToolTomlContext = tomlDocumentContext;
+            updatePackageManifest();
+            return this;
+        }
+
+        /**
          * Remove Compiler plugin toml.
          *
          * @return Package.Modifier which contains the updated package
          */
         public Modifier removeCompilerPluginToml() {
             this.compilerPluginTomlContext = null;
+            return this;
+        }
+
+        /**
+         * Remove Bal tool toml.
+         *
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier removeBalToolToml() {
+            this.balToolTomlContext = null;
             return this;
         }
 
@@ -562,6 +596,11 @@ public class Package {
             return this;
         }
 
+        Modifier updateBalToolToml(BalToolToml balToolToml) {
+            this.balToolTomlContext = balToolToml.balToolTomlContext();
+            return this;
+        }
+
         Modifier updatePackageMd(MdDocumentContext packageMd) {
             this.packageMdContext = packageMd;
             return this;
@@ -587,8 +626,9 @@ public class Package {
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
                     this.dependencyManifest, this.ballerinaTomlContext, this.dependenciesTomlContext,
-                    this.cloudTomlContext, this.compilerPluginTomlContext, this.packageMdContext,
-                    this.compilationOptions, this.moduleContextMap, DependencyGraph.emptyGraph());
+                    this.cloudTomlContext, this.compilerPluginTomlContext, this.balToolTomlContext,
+                    this.packageMdContext, this.compilationOptions, this.moduleContextMap,
+                    DependencyGraph.emptyGraph());
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
 
             CompilationOptions offlineCompOptions = CompilationOptions.builder().setOffline(true).build();
