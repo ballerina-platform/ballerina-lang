@@ -68,7 +68,7 @@ public class DiagnosticsTest {
         List<Diagnostic> diagnostics = model.diagnostics(range);
 
         assertEquals(diagnostics.size(), 1);
-        assertDiagnostic(diagnostics.get(0), getExpectedErrors()[20]);
+        assertDiagnostic(diagnostics.get(0), getExpectedErrors()[19]);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class DiagnosticsTest {
                 LinePosition.from(39, 1));
         List<Diagnostic> diagnostics = model.diagnostics(range);
 
-        assertEquals(diagnostics.size(), 16);
+        assertEquals(diagnostics.size(), 15);
         assertDiagnosticProperties(diagnostics);
     }
 
@@ -105,7 +105,6 @@ public class DiagnosticsTest {
                 {"missing close parenthesis token", 27, 39},
 
                 {"invalid usage of receive expression, var not allowed", 37, 8},
-                {"variable assignment is required", 37, 8},
                 {"missing identifier", 38, 0},
                 {"missing semicolon token", 38, 0},
 
