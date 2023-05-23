@@ -59,12 +59,12 @@ public class StrandDumpTest extends BaseTest {
         bMainInstance = new BMainInstance(balServer);
     }
 
-    // TODO: enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/38737
-    @Test(enabled = false)
+    @Test
     public void testStrandDumpOfBalPackage() throws BallerinaTestException {
         Path expectedOutputFilePath = Paths.get(testFileLocation, "testOutputs",
                 "testPackageWithModulesStrandDumpRegEx.txt");
-        Path steadyStateOutputFilePath = Paths.get(testFileLocation, "testOutputs", "balProgram1SteadyStateOutput.txt");
+        Path steadyStateOutputFilePath = Paths.get(testFileLocation, "testOutputs",
+                "testPackageWithModulesSteadyState.txt");
         String sourceRoot = testFileLocation + "/";
         String packageName = "testPackageWithModules";
         Map<String, String> envProperties = new HashMap<>();
@@ -77,15 +77,14 @@ public class StrandDumpTest extends BaseTest {
                 steadyStateOutputFilePath);
     }
 
-    // TODO: enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/38737
-    @Test(enabled = false)
+    @Test
     public void testStrandDumpDuringBalTest() throws BallerinaTestException {
         if (isWindowsOS()) {
             return;
         }
 
         Path expectedOutputFilePath = Paths.get(testFileLocation, "testOutputs", "balTestStrandDumpRegEx.txt");
-        Path steadyStateOutputFilePath = Paths.get(testFileLocation, "testOutputs", "balProgram1SteadyStateOutput.txt");
+        Path steadyStateOutputFilePath = Paths.get(testFileLocation, "testOutputs", "balTestSteadyState.txt");
         String sourceRoot = testFileLocation + "/";
         String packageName = "testPackageWithModules";
         Map<String, String> envProperties = new HashMap<>();
