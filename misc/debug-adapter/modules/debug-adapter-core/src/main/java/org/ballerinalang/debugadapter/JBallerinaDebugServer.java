@@ -121,6 +121,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -144,6 +145,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private ClientConfigHolder clientConfigHolder;
     private DebugExecutionManager executionManager;
     private JDIEventProcessor eventProcessor;
+    private DebugExpressionEvaluator evaluator;
     private final ExecutionContext context;
     private ThreadReferenceProxyImpl activeThread;
     private SuspendedContext suspendedContext;
@@ -466,7 +468,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         if (args.getFrameId() == null) {
             context.getOutputLogger().sendErrorOutput(EvaluationExceptionKind.PREFIX + "Remote VM is not suspended " +
                     "and still in running state.");
-            return CompletableFuture.completedFuture(response);
+
+            return CompletableFuture.completedFuture(new EvaluateResponse());
         }
 
         // Evaluate arguments context becomes `variables` when we do a `Copy Value` from VS Code, and
