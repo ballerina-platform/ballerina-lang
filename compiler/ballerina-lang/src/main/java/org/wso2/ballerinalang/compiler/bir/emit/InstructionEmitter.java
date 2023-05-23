@@ -123,10 +123,25 @@ class InstructionEmitter {
                 return emitInsNewTypeDesc((BIRNonTerminator.NewTypeDesc) ins, tabs);
             case NEW_TABLE:
                 return emitInsNewTable((BIRNonTerminator.NewTable) ins, tabs);
+            case RECORD_DEFAULT_FP_LOAD:
+                return emitInsRecordDefaultFpLoad((BIRNonTerminator.RecordDefaultFPLoad) ins, tabs);
             default:
                 throw new IllegalStateException("Not an instruction");
 
         }
+    }
+
+    private static String emitInsRecordDefaultFpLoad(BIRNonTerminator.RecordDefaultFPLoad ins, int tabs) {
+        String anonLoadIns = "";
+        anonLoadIns += emitTabs(tabs);
+        anonLoadIns += "Record Default FP Load";
+        anonLoadIns += emitSpaces(1);
+        anonLoadIns += "<";
+        anonLoadIns += emitTypeRef(ins.enclosedType, tabs);
+        anonLoadIns += ">";
+        anonLoadIns += emitSpaces(1);
+        anonLoadIns += emitVarRef(ins.lhsOp);
+        return anonLoadIns;
     }
 
     private static String emitInsConstantLoad(BIRNonTerminator.ConstantLoad ins, int tabs) {
