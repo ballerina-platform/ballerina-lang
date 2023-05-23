@@ -22,7 +22,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 /**
  * Represents type for sequence variable.
  *
- * @since 2201.6.0
+ * @since 2201.7.0
  */
 public class BSequenceType extends BType {
     public BType elementType;

@@ -34,7 +34,7 @@ import java.util.StringJoiner;
 /**
  * Implementation of "group by" clause statement.
  *
- * @since 2201.6.0
+ * @since 2201.7.0
  */
 public class BLangGroupByClause extends BLangNode implements GroupByClauseNode {
 

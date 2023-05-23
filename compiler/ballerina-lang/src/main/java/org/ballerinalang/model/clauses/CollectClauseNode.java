@@ -23,7 +23,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 /**
  * The interface with the APIs to implement the "collect" clause.
  *
- * @since 2201.6.0
+ * @since 2201.7.0
  */
 public interface CollectClauseNode extends Node {
 
