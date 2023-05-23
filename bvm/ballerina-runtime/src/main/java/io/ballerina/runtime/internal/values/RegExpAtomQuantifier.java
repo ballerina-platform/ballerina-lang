@@ -17,10 +17,11 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
+
+import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 
 /**
  * <p>
@@ -72,6 +73,6 @@ public class RegExpAtomQuantifier extends RegExpCommonValue implements RegExpTer
 
     @Override
     public String stringValue(BLink parent) {
-        return StringUtils.getStringValue(this.reAtom, parent) + this.reQuantifier.stringValue(parent);
+        return getStringVal(this.reAtom, parent) + this.reQuantifier.stringValue(parent);
     }
 }

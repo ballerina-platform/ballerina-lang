@@ -20,7 +20,7 @@ package io.ballerina.runtime.api.types;
 import java.util.List;
 
 /**
- * {@code BUnionType} represents a union type in Ballerina.
+ * {@code UnionType} represents a union type in Ballerina.
  *
  * @since 2.0.0
  */
