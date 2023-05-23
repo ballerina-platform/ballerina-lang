@@ -113,7 +113,7 @@ public class StrandDumpTest extends BaseTest {
                 steadyStateOutputFilePath);
     }
 
-    private void runJarAndVerifyStrandDump(Map<String, String> envProperties, String jarPath, String commandDir,
+    private static void runJarAndVerifyStrandDump(Map<String, String> envProperties, String jarPath, String commandDir,
                                            Path expectedStrandDumpFilePath, Path steadyStateOutputFilePath)
             throws BallerinaTestException {
         if (isWindowsOS()) {
@@ -135,9 +135,10 @@ public class StrandDumpTest extends BaseTest {
                 steadyStateOutputFilePath, true);
     }
 
-    private void startProcessAndVerifyStrandDump(ProcessBuilder processBuilder, Map<String, String> envProperties,
-                                                 Path expectedOutputFilePath, Path steadyStateOutputFilePath,
-                                                 boolean isJar) throws BallerinaTestException {
+    private static void startProcessAndVerifyStrandDump(ProcessBuilder processBuilder,
+                                                        Map<String, String> envProperties,
+                                                        Path expectedOutputFilePath, Path steadyStateOutputFilePath,
+                                                        boolean isJar) throws BallerinaTestException {
 
         Map<String, String> env = processBuilder.environment();
         for (Map.Entry<String, String> entry : envProperties.entrySet()) {
@@ -159,13 +160,14 @@ public class StrandDumpTest extends BaseTest {
             waitForLeechers(strandDumpLeechers);
             Runtime.getRuntime().exec("kill -SIGINT " + balProcessID);
             process.waitFor();
+            serverInfoLogReader.stop();
             serverInfoLogReader.removeAllLeechers();
         } catch (InterruptedException | IOException e) {
             throw new BallerinaTestException("Error testing strand dump", e);
         }
     }
 
-    private void populateLeechers(List<LogLeecher> leecherList, Path leecherFilePath,
+    private static void populateLeechers(List<LogLeecher> leecherList, Path leecherFilePath,
                                   ServerLogReader serverInfoLogReader) throws BallerinaTestException {
         List<String> nonEmptyLines = readFileNonEmptyLines(leecherFilePath);
         for (String str : nonEmptyLines) {
@@ -175,13 +177,13 @@ public class StrandDumpTest extends BaseTest {
         }
     }
 
-    private void waitForLeechers(List<LogLeecher> logLeechers) throws BallerinaTestException {
+    private static void waitForLeechers(List<LogLeecher> logLeechers) throws BallerinaTestException {
         for (LogLeecher leecher : logLeechers) {
             leecher.waitForText(TIMEOUT);
         }
     }
 
-    private List<String> readFileNonEmptyLines(Path filePath) throws BallerinaTestException {
+    private static List<String> readFileNonEmptyLines(Path filePath) throws BallerinaTestException {
         try (Stream<String> fileLines = Files.lines(filePath)) {
             return fileLines.filter(s -> !s.isBlank()).collect(Collectors.toList());
         } catch (IOException e) {
