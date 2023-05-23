@@ -154,6 +154,7 @@ public class StrandDumpTest extends BaseTest {
             populateLeechers(strandDumpLeechers, expectedOutputFilePath, serverInfoLogReader);
             serverInfoLogReader.start();
             waitForLeechers(steadyStateLeechers);
+            Thread.sleep(1000);
             long balProcessID = isJar ? process.pid()
                     : process.children().findFirst().get().children().findFirst().get().pid();
             Runtime.getRuntime().exec("kill -SIGTRAP " + balProcessID);
@@ -171,7 +172,7 @@ public class StrandDumpTest extends BaseTest {
                                   ServerLogReader serverInfoLogReader) throws BallerinaTestException {
         List<String> nonEmptyLines = readFileNonEmptyLines(leecherFilePath);
         for (String str : nonEmptyLines) {
-            LogLeecher leecher = new LogLeecher(str, LogLeecher.LeecherType.INFO);
+            LogLeecher leecher = new LogLeecher(str, true, LogLeecher.LeecherType.INFO);
             leecherList.add(leecher);
             serverInfoLogReader.addLeecher(leecher);
         }
