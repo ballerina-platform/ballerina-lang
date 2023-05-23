@@ -726,6 +726,11 @@ public class BIROptimizer {
             this.optimizeNode(reFlagOnOff.flags, this.env);
         }
 
+        @Override
+        public void visit(BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad) {
+            this.optimizeNode(recordDefaultFPLoad.lhsOp, this.env);
+        }
+
         // Operands
         @Override
         public void visit(BIROperand birVarRef) {

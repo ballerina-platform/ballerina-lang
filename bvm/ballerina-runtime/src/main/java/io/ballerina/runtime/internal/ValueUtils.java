@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
@@ -34,6 +35,7 @@ import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.State;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
@@ -59,7 +61,17 @@ public class ValueUtils {
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(ValueCreator.getLookupKey(packageId, false));
         try {
-            return valueCreator.createRecordValue(recordTypeName);
+            MapValue<BString, Object> recordValue = valueCreator.createRecordValue(recordTypeName);
+            BRecordType type = (BRecordType) TypeUtils.getReferredType(recordValue.getType());
+            Map<String, FPValue> defaultValues = type.getDefaultValues();
+            if (defaultValues.isEmpty()) {
+                return recordValue;
+            }
+            for (Map.Entry<String, FPValue> field : defaultValues.entrySet()) {
+                recordValue.put(StringUtils.fromString(field.getKey()), field.getValue().call(
+                        new Object[] {Scheduler.getStrand()}));
+            }
+            return recordValue;
         } catch (BError e) {
             // If record type definition not found, get it from test module.
             String testLookupKey = ValueCreator.getLookupKey(packageId, true);

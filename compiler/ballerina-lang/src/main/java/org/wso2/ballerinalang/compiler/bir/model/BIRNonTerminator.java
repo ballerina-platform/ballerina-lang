@@ -1202,4 +1202,31 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             return new BIROperand[]{this.quantifier, this.nonGreedyChar};
         }
     }
+
+    /**
+     * New RecordDefaultFPLoad instruction.
+     *
+     * @since 2201.6.0
+     */
+    public static class RecordDefaultFPLoad extends BIRNonTerminator {
+        public BType enclosedType;
+        public String fieldName;
+
+        public RecordDefaultFPLoad(Location pos, BIROperand lhsOp, BType enclosedType, String fieldName) {
+            super(pos, InstructionKind.RECORD_DEFAULT_FP_LOAD);
+            this.lhsOp = lhsOp;
+            this.enclosedType = enclosedType;
+            this.fieldName = fieldName;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[]{this.lhsOp};
+        }
+    }
 }

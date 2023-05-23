@@ -634,6 +634,12 @@ public class BIRInstructionWriter extends BIRVisitor {
         reFlagsOnOff.flags.accept(this);
     }
 
+    @Override
+    public void visit(BIRNonTerminator.RecordDefaultFPLoad recordDefaultFPLoad) {
+        recordDefaultFPLoad.lhsOp.accept(this);
+        writeType(recordDefaultFPLoad.enclosedType);
+    }
+
     // Positions
     void writePosition(Location pos) {
         BIRWriterUtils.writePosition(pos, this.buf, this.cp);

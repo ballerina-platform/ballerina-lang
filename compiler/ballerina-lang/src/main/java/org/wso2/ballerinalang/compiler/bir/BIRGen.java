@@ -830,12 +830,34 @@ public class BIRGen extends BLangNodeVisitor {
         PackageID boundMethodPkgId = getPackageIdForBoundMethod(lambdaExpr, funcName.value);
         boolean isWorker = lambdaExpr.function.flagSet.contains(Flag.WORKER);
 
+        List<BIROperand> closureMapOperands = getClosureMapOperands(lambdaExpr);
         setScopeAndEmit(
                 new BIRNonTerminator.FPLoad(lambdaExpr.pos, pkgID, boundMethodPkgId != null ? boundMethodPkgId : pkgID,
-                                            funcName, lhsOp, params, getClosureMapOperands(lambdaExpr),
+                                            funcName, lhsOp, params, closureMapOperands,
                                             lambdaExpr.getBType(), lambdaExpr.function.symbol.strandName,
                                             lambdaExpr.function.symbol.schedulerPolicy, isWorker));
+        if (lambdaExpr.function.flagSet.contains(Flag.RECORD)) {
+            // If the function is for anonymous type and has captured variables, then we need to create a
+            // temp value in the type and keep it
+            BType targetType = getTargetType(funcName.value);
+            setScopeAndEmit(
+                    new BIRNonTerminator.RecordDefaultFPLoad(lhsOp.pos, lhsOp, targetType,
+                            getFieldName(funcName.value, targetType.tsymbol.name.value)));
+        }
         this.env.targetOperand = lhsOp;
+    }
+
+    private String getFieldName(String funcName, String typeName) {
+       return funcName.substring(funcName.lastIndexOf(typeName) + typeName.length() + 1);
+    }
+
+    private BType getTargetType(String funcName) {
+        for (BIRTypeDefinition type : this.env.enclPkg.typeDefs) {
+            if (funcName.contains(type.originalName.value)) {
+                return type.type;
+            }
+        }
+        return null;
     }
 
     private List<BIROperand> getClosureMapOperands(BLangLambdaFunction lambdaExpr) {

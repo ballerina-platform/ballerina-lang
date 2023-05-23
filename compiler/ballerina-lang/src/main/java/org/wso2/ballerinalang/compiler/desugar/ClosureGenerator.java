@@ -573,6 +573,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
             ((BInvokableTypeSymbol) symbol).defaultValues.put(paramName, varSymbol);
         } else {
             ((BRecordTypeSymbol) symbol).defaultValues.put(paramName, varSymbol);
+            lambdaFunction.function.flagSet.add(Flag.RECORD);
         }
         env.enclPkg.symbol.scope.define(function.symbol.name, function.symbol);
         env.enclPkg.functions.add(function);

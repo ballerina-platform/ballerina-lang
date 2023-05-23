@@ -29,7 +29,10 @@ import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.scheduling.Scheduler;
+import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
@@ -51,6 +54,8 @@ public class BRecordType extends BStructureType implements RecordType {
     private final boolean readonly;
     private IntersectionType immutableType;
     private IntersectionType intersectionType = null;
+
+    private Map<String, FPValue> defaultValues = new HashMap<>();
 
     /**
      * Create a {@code BRecordType} which represents the user defined record type.
@@ -120,7 +125,15 @@ public class BRecordType extends BStructureType implements RecordType {
         if (isReadOnly()) {
             return (V) ValueCreator.createReadonlyRecordValue(this.pkg, typeName, new HashMap<>());
         }
-        return (V) ValueCreator.createRecordValue(this.pkg, typeName);
+        BMap<BString, Object> recordValue = ValueCreator.createRecordValue(this.pkg, typeName);
+        if (defaultValues.isEmpty()) {
+            return (V) recordValue;
+        }
+        for (Map.Entry<String, FPValue> field : defaultValues.entrySet()) {
+            recordValue.put(StringUtils.fromString(field.getKey()),
+                    field.getValue().call(new Object[] {Scheduler.getStrand()}));
+        }
+        return (V) recordValue;
     }
 
     @SuppressWarnings("unchecked")
@@ -192,4 +205,13 @@ public class BRecordType extends BStructureType implements RecordType {
     public int getTypeFlags() {
         return typeFlags;
     }
+
+    public void setDefaultValue(String fieldName, FPValue defaultValue) {
+        defaultValues.put(fieldName, defaultValue);
+    }
+
+    public Map<String, FPValue> getDefaultValues() {
+        return defaultValues;
+    }
+
 }
