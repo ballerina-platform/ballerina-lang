@@ -28,7 +28,7 @@ import java.util.Collections;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 2201.6.0
+ * @since 2201.7.0
  */
 public class STCollectClauseNode extends STClauseNode {
     public final STNode collectKeyword;

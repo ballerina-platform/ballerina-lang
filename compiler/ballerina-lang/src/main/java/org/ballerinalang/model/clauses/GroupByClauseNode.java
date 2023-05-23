@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * The interface with the APIs to implement the "group by" clause.
  *
- * @since 2201.6.0
+ * @since 2201.7.0
  */
 public interface GroupByClauseNode extends Node {
     void addGroupingKey(BLangGroupingKey groupingKey);

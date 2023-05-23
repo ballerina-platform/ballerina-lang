@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
 /**
  * This contains methods to test nested query expressions.
  *
- * @since 2201.6.0
+ * @since 2201.7.0
  */
 public class CollectClauseTest {
     private CompileResult result;

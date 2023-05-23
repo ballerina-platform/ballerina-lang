@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * This is a generated syntax tree node.
  *
- * @since 2201.6.0
+ * @since 2201.7.0
  */
 public class CollectClauseNode extends ClauseNode {
 
@@ -78,7 +78,7 @@ public class CollectClauseNode extends ClauseNode {
     /**
      * This is a generated tree node modifier utility.
      *
-     * @since 2201.6.0
+     * @since 2201.7.0
      */
     public static class CollectClauseNodeModifier {
         private final CollectClauseNode oldNode;
