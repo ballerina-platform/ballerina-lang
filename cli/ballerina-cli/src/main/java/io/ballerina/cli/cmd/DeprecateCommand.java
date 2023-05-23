@@ -40,7 +40,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
  *
  * @since 2201.5.0
  */
-@CommandLine.Command(name = DEPRECATE_COMMAND, description = "deprecate a package in Ballerina Central")
+@CommandLine.Command(name = DEPRECATE_COMMAND, description = "Deprecate a package in Ballerina Central")
 public class DeprecateCommand implements BLauncherCmd {
 
     private PrintStream outStream;
@@ -103,9 +103,10 @@ public class DeprecateCommand implements BLauncherCmd {
             return;
         }
 
-        String packageValue = argList.get(0);
-        if (packageValue.split(":").length != 2) {
-            CommandUtil.printError(errStream, "invalid package. Provide the package with the version.",
+        // validate deprecation message
+        if (!validateDeprecationMsg(deprecationMsg)) {
+            CommandUtil.printError(errStream, "invalid deprecation message. The message cannot contain " +
+                            "non-space whitespace or back slash characters.",
                     USAGE_TEXT, false);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
@@ -115,11 +116,18 @@ public class DeprecateCommand implements BLauncherCmd {
         if (deprecationMsg != null && undoFlag) {
             this.outStream.println("warning: ignoring --message flag since this is an undo request");
         }
-        deprecateInCentral(packageValue);
+        deprecateInCentral(argList.get(0));
 
         if (this.exitWhenFinish) {
             Runtime.getRuntime().exit(0);
         }
+    }
+
+    private boolean validateDeprecationMsg(String deprecationMsg) {
+        if (deprecationMsg != null) {
+            return deprecationMsg.matches("^[^\\f\\n\\r\\t\\v\\\\]*$");
+        }
+        return true;
     }
 
     @Override
@@ -129,7 +137,7 @@ public class DeprecateCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("deprecates a package in Ballerina Central \n");
+        out.append(BLauncherCmd.getCommandUsageInfo(DEPRECATE_COMMAND));
     }
 
     @Override
@@ -156,10 +164,14 @@ public class DeprecateCommand implements BLauncherCmd {
                 // Ignore 'Settings.toml' parsing errors and return empty Settings object
                 settings = Settings.from();
             }
+            String packageValue = packageInfo;
+            if (packageInfo.split(":").length != 2) {
+                packageValue = packageInfo + ":*";
+            }
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
                     initializeProxy(settings.getProxy()),
                     getAccessTokenOfCLI(settings));
-            client.deprecatePackage(packageInfo, deprecationMsg,
+            client.deprecatePackage(packageValue, deprecationMsg,
                     JvmTarget.JAVA_11.code(),
                     RepoUtils.getBallerinaVersion(), this.undoFlag);
         } catch (CentralClientException e) {

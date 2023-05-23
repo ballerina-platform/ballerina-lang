@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 type Person record {|
     string name;
     int age;
@@ -29,42 +31,70 @@ type Employee record {
 };
 
 type AnydataMap map<anydata>;
+
 type String_Employee [string, Employee];
 
 function testConvertStampRecordToRecord() returns [Person, Employee]|error {
-    Person p = { name: "John", age:25, status: "single", batch: "Batch9", school: "ABC College" };
+    Person p = {name: "John", age: 25, status: "single", batch: "Batch9", school: "ABC College"};
     Employee e = check p.cloneWithType(Employee);
     e.name = "Waruna";
-    e["age"] =30;
+    e["age"] = 30;
     p.name = "Watson";
     return [p, e];
 }
 
 function testConvertStampRecordToJSON() returns [Employee, json]|error {
-    Employee e = { name: "Waruna", status: "married", batch: "Batch9", "school": "DEF College" };
+    Employee e = {name: "Waruna", status: "married", batch: "Batch9", "school": "DEF College"};
     json j = check e.cloneWithType(json);
     e.name = "John";
-    map<json> nj = <map<json>> j;
+    map<json> nj = <map<json>>j;
     nj["school"] = "ABC College";
     return [e, <json>nj];
 }
 
-function testConvertStampRecordToMap() returns [Employee, map<any>]|error {
-    Employee e = { name: "John", status: "single", batch: "Batch9", "school": "ABC College" };
-    map<anydata> m = check e.cloneWithType(AnydataMap);
+function testConvertStampRecordToMap() {
+    Employee e = {name: "John", status: "single", batch: "Batch9", "school": "ABC College"};
+    map<anydata> m = checkpanic e.cloneWithType(AnydataMap);
     m["name"] = "Waruna";
     e.name = "Mike";
-    return [e, m];
+    test:assertEquals(m["name"], "Waruna");
+    test:assertEquals(e.name, "Mike");
+    test:assertEquals(m["status"], "single");
+    test:assertEquals(m["batch"], "Batch9");
+    test:assertEquals(m["school"], "ABC College");
+    test:assertEquals(e.batch, "Batch9");
+    test:assertEquals(e.status, "single");
+    test:assertEquals(m.length(), 4);
+    test:assertEquals((typeof m).toString(), "typedesc AnydataMap");
 }
 
-function testConvertStampTupleToMap() returns [[string, Employee], [string, Employee]]|error {
-    [string, Person] tupleValue = ["Waruna", { name: "John", age: 25, status: "single", batch: "Batch9", school:
-    "ABC College" }];
-
-    [string, Employee] returnValue = check tupleValue.cloneWithType(String_Employee);
+function testConvertStampTupleToMap() {
+    [string, Person] tupleValue = [
+        "Waruna",
+        {
+            name: "John",
+            age: 25,
+            status: "single",
+            batch: "Batch9",
+            school: "ABC College"
+        }
+    ];
+    [string, Employee] returnValue = checkpanic tupleValue.cloneWithType(String_Employee);
     returnValue[0] = "Chathura";
     tupleValue[0] = "Vinod";
-    return [tupleValue, returnValue];
+    var val = [tupleValue, returnValue];
+    test:assertEquals(val[0][0], "Vinod");
+    test:assertEquals(val[0][1].name, "John");
+    test:assertEquals(val[0][1].age, 25);
+    test:assertEquals(val[0][1].status, "single");
+    test:assertEquals(val[0][1].batch, "Batch9");
+    test:assertEquals(val[0][1].school, "ABC College");
+    test:assertEquals(val[1][0], "Chathura");
+    test:assertEquals(val[1][1].name, "John");
+    test:assertEquals(val[1][1].status, "single");
+    test:assertEquals(val[1][1].batch, "Batch9");
+    test:assertEquals(val[1][1]["school"], "ABC College");
+    test:assertEquals((typeof returnValue).toString(), "typedesc String_Employee");
 }
 
 type OpenRecord record {
@@ -87,7 +117,7 @@ function testConvertMapJsonWithDecimalToOpenRecord() {
         panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
     }
 
-    OpenRecord castedValue = <OpenRecord> or;
+    OpenRecord castedValue = <OpenRecord>or;
     assert(castedValue["factor"], mp["factor"]);
     assert(castedValue["name"], mp["name"]);
 }
@@ -99,7 +129,7 @@ function testConvertMapJsonWithDecimalUnionTarget() {
         panic error("Invalid Response", detail = "Invalid type `error` recieved from cloneWithType");
     }
 
-    OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget> or;
+    OpenRecordWithUnionTarget castedValue = <OpenRecordWithUnionTarget>or;
     assert(castedValue["factor"], mp["factor"]);
     assert(castedValue["name"], mp["name"]);
 }

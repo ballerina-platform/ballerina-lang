@@ -461,6 +461,11 @@ public class ErrorTest {
     }
 
     @Test
+    public void testErrorWithIdentifierEscapesInDetail() {
+        BRunUtil.invoke(errorTestResult, "testErrorWithIdentifierEscapesInDetail");
+    }
+
+    @Test
     public void testErrorTypeAccessNegative() {
         CompileResult moduleResult = BCompileUtil.compile("test-src/error/error-negative-project");
         int i = 0;

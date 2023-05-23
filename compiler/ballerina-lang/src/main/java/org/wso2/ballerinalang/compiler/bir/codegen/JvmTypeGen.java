@@ -227,14 +227,15 @@ public class JvmTypeGen {
     void generateUserDefinedTypeFields(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
         // create the type
         for (BIRTypeDefinition typeDef : typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(typeDef.type);
-            if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
-                    || bType.tag == TypeTags.UNION || bType.tag == TypeTags.TUPLE) {
-                String name = typeDef.internalName.value;
-                generateTypeField(cw, name);
-                generateTypedescField(cw, name);
+            BType bType = typeDef.type;
+            int bTypeTag = bType.tag;
+            if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
+                // do not generate anything for other types (e.g.: finite type, type reference types etc.)
+                continue;
             }
-            // do not generate anything for other types (e.g.: finite type, unions, etc.)
+            String name = typeDef.internalName.value;
+            generateTypeField(cw, name);
+            generateTypedescField(cw, name);
         }
     }
 
@@ -952,18 +953,22 @@ public class JvmTypeGen {
                 false);
     }
 
-    private void loadFunctionParameters(MethodVisitor mv, BInvokableType invokableType) {
-
-        BInvokableTypeSymbol invokableSymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
+    protected void loadFunctionPathParameters(MethodVisitor mv, BInvokableTypeSymbol invokableSymbol) {
         List<BVarSymbol> params = new ArrayList<>();
-        if (invokableSymbol == null) {
-            if (!invokableType.paramTypes.isEmpty()) {
-                loadFunctionPointerParameters(mv, invokableType);
-                return;
+        if (invokableSymbol != null) {
+            for (BVarSymbol param : invokableSymbol.params) {
+                SymbolKind paramKind = param.getKind();
+                if (paramKind != SymbolKind.PATH_PARAMETER && paramKind != SymbolKind.PATH_REST_PARAMETER) {
+                    break;
+                }
+                params.add(param);
             }
-        } else {
-            params = invokableSymbol.params;
         }
+        populateFunctionParameters(mv, invokableSymbol, params);
+    }
+
+    private void populateFunctionParameters(MethodVisitor mv, BInvokableTypeSymbol invokableSymbol,
+                                            List<BVarSymbol> params) {
         mv.visitLdcInsn((long) params.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, FUNCTION_PARAMETER);
@@ -980,7 +985,7 @@ public class JvmTypeGen {
             } else {
                 mv.visitInsn(ICONST_0);
             }
-            BInvokableSymbol bInvokableSymbol = invokableSymbol.defaultValues.get(paramSymbol.name.value);
+            BInvokableSymbol bInvokableSymbol = invokableSymbol.defaultValues.get(paramSymbol.originalName.value);
             if (bInvokableSymbol == null) {
                 mv.visitInsn(ACONST_NULL);
             } else {
@@ -990,6 +995,20 @@ public class JvmTypeGen {
             mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_PARAMETER, JVM_INIT_METHOD, INIT_FUNCTION_PARAM, false);
             mv.visitInsn(AASTORE);
         }
+    }
+
+    private void loadFunctionParameters(MethodVisitor mv, BInvokableType invokableType) {
+        BInvokableTypeSymbol invokableSymbol = (BInvokableTypeSymbol) invokableType.tsymbol;
+        List<BVarSymbol> params = new ArrayList<>();
+        if (invokableSymbol == null) {
+            if (!invokableType.paramTypes.isEmpty()) {
+                loadFunctionPointerParameters(mv, invokableType);
+                return;
+            }
+        } else {
+            params = invokableSymbol.params;
+        }
+        populateFunctionParameters(mv, invokableSymbol, params);
     }
 
     private void loadFunctionPointerParameters(MethodVisitor mv, BInvokableType invokableType) {

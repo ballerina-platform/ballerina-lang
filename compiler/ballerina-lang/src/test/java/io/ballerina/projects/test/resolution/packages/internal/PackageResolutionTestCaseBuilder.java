@@ -141,7 +141,7 @@ public class PackageResolutionTestCaseBuilder {
 
     private static DependencyManifest getDependencyManifest(Path dependenciesTomlPath) {
         if (dependenciesTomlPath == null) {
-            return DependencyManifest.from("2.0.0", Collections.emptyList());
+            return DependencyManifest.from("2.0.0", null, Collections.emptyList());
         }
 
         List<DependencyManifest.Package> recordedDeps = new ArrayList<>();
@@ -159,7 +159,7 @@ public class PackageResolutionTestCaseBuilder {
             recordedDeps.add(new DependencyManifest.Package(pkgDesc.name(), pkgDesc.org(), pkgDesc.version(),
                     scope.getValue(), isTransitive, Collections.emptyList(), Collections.emptyList()));
         }
-        return DependencyManifest.from("2.0.0", recordedDeps);
+        return DependencyManifest.from("2.0.0", null, recordedDeps);
     }
 
     private static PackageManifest getPackageManifest(Path balTomlPath, PackageDescriptor rootPkgDesc) {

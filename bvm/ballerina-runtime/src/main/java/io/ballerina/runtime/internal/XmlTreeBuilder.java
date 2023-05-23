@@ -17,11 +17,11 @@
  */
 package io.ballerina.runtime.internal;
 
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.XmlComment;
 import io.ballerina.runtime.internal.values.XmlItem;
@@ -96,8 +96,11 @@ public class XmlTreeBuilder {
     }
 
     private void handleXMLStreamException(Exception e) {
-        // todo: do e.getMessage contain all the information? verify
-        throw new BallerinaException(e.getMessage(), e);
+        String reason = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
+        if (reason == null) {
+            throw ErrorCreator.createError(StringUtils.fromString(XmlFactory.PARSE_ERROR));
+        }
+        throw ErrorCreator.createError(StringUtils.fromString(XmlFactory.PARSE_ERROR_PREFIX + reason));
     }
 
     public BXml parse() {
@@ -214,8 +217,7 @@ public class XmlTreeBuilder {
             String uri = xmlStreamReader.getNamespaceURI(i);
             String prefix = xmlStreamReader.getNamespacePrefix(i);
             if (prefix == null || prefix.isEmpty()) {
-                attributesMap.put(StringUtils.fromString(XmlItem.XMLNS_NS_URI_PREFIX + "xmlns"),
-                                  StringUtils.fromString(uri));
+                attributesMap.put(XmlItem.XMLNS_PREFIX, StringUtils.fromString(uri));
             } else {
                 attributesMap.put(StringUtils.fromString(XmlItem.XMLNS_NS_URI_PREFIX + prefix),
                                   StringUtils.fromString(uri));

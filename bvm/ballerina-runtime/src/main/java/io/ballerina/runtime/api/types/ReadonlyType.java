@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BReadonlyType} represents the shapes that have their read-only bit on.
+ * {@code ReadonlyType} represents the shapes that have their read-only bit on.
  *
  * @since 1.3.0
  */

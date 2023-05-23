@@ -48,12 +48,13 @@ import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
  *  
  * @since 0.995.0
  */
-public class TypedescValueImpl implements  TypedescValue {
+public class TypedescValueImpl implements TypedescValue {
 
     final Type type;
     final Type describingType; // Type of the value describe by this typedesc.
     public MapValue[] closures;
     public MapValue annotations;
+    private BTypedesc typedesc;
 
     @Deprecated
     public TypedescValueImpl(Type describingType) {
@@ -89,10 +90,6 @@ public class TypedescValueImpl implements  TypedescValue {
         }
 
         return instantiate(s, new BInitialValueEntry[0]);
-    }
-
-    public MapValue getAnnotations() {
-        return annotations;
     }
 
     @Override
@@ -139,7 +136,10 @@ public class TypedescValueImpl implements  TypedescValue {
 
     @Override
     public BTypedesc getTypedesc() {
-        return new TypedescValueImpl(this.type);
+        if (this.typedesc == null) {
+            this.typedesc = new TypedescValueImpl(this.type);
+        }
+        return typedesc;
     }
 
     /**

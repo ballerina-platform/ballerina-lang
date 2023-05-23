@@ -20,11 +20,12 @@ import io.ballerina.compiler.api.Types;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.codeaction.CodeActionContextTypeResolver;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -66,7 +67,13 @@ public class ConvertToXmlOrStringTemplateCodeAction implements DiagnosticBasedCo
                                            DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
         TemplateExpressionNode templateExpressionNode = (TemplateExpressionNode) positionDetails.matchedNode();
-        Optional<TypeSymbol> typeSymbol = templateExpressionNode.apply(new CodeActionContextTypeResolver(context));
+        Node node = context.nodeAtRange();
+        LinePosition linePosition = node.location().lineRange().endLine();
+        Optional<TypeSymbol> typeSymbol = Optional.empty();
+        if (context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()) {
+            typeSymbol = context.currentSemanticModel().get()
+                    .expectedType(context.currentDocument().get(), linePosition);
+        }
 
         Set<String> typeSet = new HashSet<>();
         if (typeSymbol.isPresent()) {

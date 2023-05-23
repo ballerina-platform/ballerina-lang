@@ -38,8 +38,6 @@ public enum Snippet {
 
     DEF_FUNCTION_SIGNATURE(SnippetGenerator.getFunctionSignatureSnippet()),
 
-    DEF_MAIN_FUNCTION(SnippetGenerator.getMainFunctionSnippet()),
-
     DEF_OBJECT_TYPE_DESC_SNIPPET(SnippetGenerator.getObjectTypeDescSnippet()),
 
     DEF_OBJECT_SNIPPET(SnippetGenerator.getObjectDefinitionSnippet()),
@@ -180,8 +178,6 @@ public enum Snippet {
     KW_START(SnippetGenerator.getStartKeywordSnippet()),
 
     KW_AS(SnippetGenerator.getAsKeywordSnippet()),
-
-    KW_VERSION(SnippetGenerator.getVersionKeywordSnippet()),
 
     KW_FROM(SnippetGenerator.getFromKeywordSnippet()),
 

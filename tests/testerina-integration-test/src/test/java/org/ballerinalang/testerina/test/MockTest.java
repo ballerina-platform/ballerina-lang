@@ -62,18 +62,17 @@ public class MockTest extends BaseTestCase {
 
     @Test()
     public void testFunctionMocking() throws BallerinaTestException, IOException {
-        String msg1 = "14 passing";
-        String msg2 = "3 failing";
         String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("MockTest-testFunctionMocking.txt", output);
     }
 
     @Test
     public void testFunctionMockingLegacy() throws BallerinaTestException, IOException {
-        String msg1 = "1 passing";
-        String msg2 = "0 failing";
         String[] args = mergeCoverageArgs(new String[]{"legacy-function-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -82,12 +81,12 @@ public class MockTest extends BaseTestCase {
 
     @Test()
     public void testObjectMocking() throws BallerinaTestException, IOException {
-        String msg1 = "9 passing";
-        String msg2 = "7 failing";
-
         String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("MockTest-testObjectMocking.txt", output);
     }
 
@@ -98,7 +97,6 @@ public class MockTest extends BaseTestCase {
      */
     @Test()
     public void testObjectMockDouble() throws BallerinaTestException, IOException {
-        String msg1 = "1 passing";
         String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests2"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -107,17 +105,17 @@ public class MockTest extends BaseTestCase {
 
     @Test()
     public void testFunctionMockingModuleLevel() throws BallerinaTestException, IOException {
-        String msg1 = "3 passing";
-
         String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("MockTest-testFunctionMockingModuleLevel.txt", output);
     }
 
     @Test()
     public void testCoverageWithMocking() throws BallerinaTestException, IOException {
-        String msg1 = "2 passing";
         String[] args = mergeCoverageArgs(new String[]{"mocking-coverage-tests"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -157,6 +155,17 @@ public class MockTest extends BaseTestCase {
         AssertionUtils.assertOutput("MockTest-testFuncMockInMultiModulesWDepen.txt", output);
     }
 
+    @Test
+    public void testFunctionMockingThenReturnWithNilReturnValue() throws BallerinaTestException, IOException {
+        String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests-then-return-with-nil-ret-val"});
+        String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput("MockTest-testFunctionMockingThenReturnWithNilRetVal.txt",
+                output.replaceAll("\r\n|\r", "\n"));
+    }
+
     @Test(dataProvider = "testNegativeCases")
     public void testObjectMocking_NegativeCases(String message, String test, String baseOutputFile) throws
             BallerinaTestException, IOException {
@@ -164,10 +173,27 @@ public class MockTest extends BaseTestCase {
         String output =
                 balClient.runMainAndReadStdOut("test", args, new HashMap<>(),
                         projectBasedTestsPath.resolve("object-mocking-tests").toString(), false);
-        String firstString = "Generating Test Report\n\t";
+        String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
+
+        firstString = "tests.test_execute-generated_";
+        endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput(baseOutputFile, output);
+    }
+
+    @Test
+    public void testObjectMocking_NonPublicField() throws BallerinaTestException, IOException {
+        String[] args = mergeCoverageArgs(new String[]{"--tests",
+                "non_public_field_mock:testNonPublicMemberFieldMock"});
+        String output =
+                balClient.runMainAndReadStdOut("test", args, new HashMap<>(),
+                        projectBasedTestsPath.resolve("non-public-field-mock").toString(), false);
+        String firstString = "Generating Test Report";
+        String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        AssertionUtils.assertOutput("MockTest-testObjectMocking_NonPublicField.txt", output);
     }
 
     @DataProvider(name = "testNegativeCases")

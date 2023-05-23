@@ -195,7 +195,11 @@ public class FindRefsInExprsTest extends FindAllReferencesTest {
                 {190, 19, location(190, 18, 20),
                         List.of(location(190, 18, 20),
                                 location(191, 34, 36))
-                }
+                },
+                // Invalid expression
+                {201, 7, location(201, 5, 9),
+                        List.of(location(201, 5, 9))
+                },
         };
     }
 

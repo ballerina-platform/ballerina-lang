@@ -342,6 +342,7 @@ public class SignatureInfoModelBuilder {
         switch (symbol.kind()) {
             case FUNCTION:
             case METHOD:
+            case RESOURCE_METHOD:
                 return Optional.of(((FunctionSymbol) symbol).typeDescriptor());
             case VARIABLE:
                 type = ((VariableSymbol) symbol).typeDescriptor();

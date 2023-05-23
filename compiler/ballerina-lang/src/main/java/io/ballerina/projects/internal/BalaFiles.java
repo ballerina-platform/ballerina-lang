@@ -99,7 +99,7 @@ public class BalaFiles {
                 .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
         // load other modules
         List<ModuleData> otherModules = loadOtherModules(pkgName, balaPath);
-        return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, null, packageMd);
+        return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, null, null, packageMd);
     }
 
     private static PackageData loadPackageDataFromBalaFile(Path balaPath, PackageManifest packageManifest) {
@@ -113,7 +113,7 @@ public class BalaFiles {
                     .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
             // load other modules
             List<ModuleData> otherModules = loadOtherModules(pkgName, packageRoot);
-            return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, null, packageMd);
+            return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, null, null, packageMd);
         } catch (IOException e) {
             throw new ProjectException("Failed to read bala file:" + balaPath);
         }
@@ -300,9 +300,9 @@ public class BalaFiles {
                 throw new ProjectException("unable to read content from the file '" + DEPRECATED_META_FILE_NAME +
                         "'", e);
             }
-            // Remove the last new line character and pass it to the package manifest
+            // pass the deprecation message to the package manifest
             return getPackageManifest(packageJson, Optional.empty(), fileContents.substring(0, fileContents
-                    .length() - 2));
+                    .length() - 1));
         }
         return getPackageManifest(packageJson, Optional.empty(), null);
     }
@@ -470,8 +470,7 @@ public class BalaFiles {
                                                modules);
             packages.add(pkg);
         }
-
-        return DependencyManifest.from(null, packages);
+        return DependencyManifest.from(null, null, packages);
     }
 
     private static PackageJson readPackageJson(Path balaPath, Path packageJsonPath) {

@@ -126,7 +126,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATIO
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
@@ -285,7 +285,7 @@ public class JvmInstructionGen {
         this.asyncDataCollector = asyncDataCollector;
         this.jvmCastGen = jvmCastGen;
         this.jvmConstantsGen = jvmConstantsGen;
-        typeTestGen = new JvmTypeTestGen(this, types, mv, jvmTypeGen);
+        typeTestGen = new JvmTypeTestGen(this, types, mv, jvmTypeGen, jvmCastGen);
         this.functions = new HashMap<>();
         this.moduleInitClass = JvmCodeGenUtil.getModuleLevelClassName(currentPackage, MODULE_INIT_CLASS_NAME);
     }
@@ -611,13 +611,13 @@ public class JvmInstructionGen {
             String jMethodVMSig = callIns.jMethodVMSig;
             boolean hasBalEnvParam = jMethodVMSig.startsWith(BAL_ENV_PARAM);
             if (hasBalEnvParam) {
-                mv.visitTypeInsn(NEW, BAL_ENV);
+                mv.visitTypeInsn(NEW, BAL_ENV_CLASS);
                 mv.visitInsn(DUP);
                 // load the strand
                 this.mv.visitVarInsn(ALOAD, localVarOffset);
                 // load the current Module
                 mv.visitFieldInsn(GETSTATIC, this.moduleInitClass, CURRENT_MODULE_VAR_NAME, GET_MODULE);
-                mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV, JVM_INIT_METHOD,
+                mv.visitMethodInsn(INVOKESPECIAL, BAL_ENV_CLASS, JVM_INIT_METHOD,
                         INIT_BAL_ENV, false);
             }
 

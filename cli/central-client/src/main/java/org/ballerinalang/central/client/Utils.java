@@ -59,7 +59,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
+import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_DEV_CENTRAL;
+import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_STAGE_CENTRAL;
+import static org.ballerinalang.central.client.CentralClientConstants.DEV_REPO;
+import static org.ballerinalang.central.client.CentralClientConstants.PRODUCTION_REPO;
 import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_REQUESTED_URI;
+import static org.ballerinalang.central.client.CentralClientConstants.STAGING_REPO;
 
 /**
  * Utils class for this package.
@@ -67,7 +72,10 @@ import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_R
 public class Utils {
 
     public static final String DEPRECATED_META_FILE_NAME = "deprecated.txt";
-
+    public static final boolean SET_BALLERINA_STAGE_CENTRAL = Boolean.parseBoolean(
+            System.getenv(BALLERINA_STAGE_CENTRAL));
+    public static final boolean SET_BALLERINA_DEV_CENTRAL = Boolean.parseBoolean(
+            System.getenv(BALLERINA_DEV_CENTRAL));
     private Utils() {
     }
 
@@ -126,6 +134,19 @@ public class Utils {
 
         try {
             if (Files.isDirectory(balaCacheWithPkgPath) && Files.list(balaCacheWithPkgPath).findAny().isPresent()) {
+                // update the existing deprecation details
+                Path deprecatedFilePath = balaCacheWithPkgPath.resolve(DEPRECATED_META_FILE_NAME);
+                if (deprecatedFilePath.toFile().exists() && deprecationMsg == null) {
+                    // delete deprecated file if it exists
+                    Files.delete(deprecatedFilePath);
+                } else if (deprecationMsg != null) {
+                    // write deprecation details to the file
+                    try (BufferedWriter writer = new BufferedWriter(new FileWriter(deprecatedFilePath.toFile(),
+                            Charset.defaultCharset()))) {
+                        writer.write(deprecationMsg);
+                    }
+                }
+
                 downloadBody.ifPresent(ResponseBody::close);
                 throw new PackageAlreadyExistsException(
                         logFormatter.formatLog("package already exists in the home repository: " +
@@ -143,8 +164,8 @@ public class Utils {
 
         // Write balaFiles to tempPath
         writeBalaFile(balaDownloadResponse, tempPath.resolve(balaFile),
-                pkgOrg + "/" + pkgName +
-                ":" + validPkgVersion, responseContentLength, outStream, logFormatter);
+                pkgOrg + "/" + pkgName + ":" + validPkgVersion, responseContentLength,
+                outStream, logFormatter, pkgPathInBalaCache.resolve(validPkgVersion));
 
         // Once files are written to temp path, rename temp path with platform name
         try {
@@ -225,9 +246,10 @@ public class Utils {
      * @param resContentLength      response content length
      * @param outStream             Output print stream
      * @param logFormatter          log formatter
+     * @param homeRepo              path of the repo bala file is saved to
      */
     static void writeBalaFile(Response balaDownloadResponse, Path balaPath, String fullPkgName, long resContentLength,
-            PrintStream outStream, LogFormatter logFormatter) throws CentralClientException {
+            PrintStream outStream, LogFormatter logFormatter, Path homeRepo) throws CentralClientException {
         Optional<ResponseBody> body = Optional.ofNullable(balaDownloadResponse.body());
         if (body.isPresent()) {
             try {
@@ -237,7 +259,7 @@ public class Utils {
                         writeAndHandleProgressQuietly(inputStream, outputStream);
                     } else {
                         writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullPkgName,
-                                outStream, logFormatter);
+                                outStream, logFormatter, homeRepo);
                     }
                 } catch (IOException e) {
                     throw new CentralClientException(
@@ -306,16 +328,17 @@ public class Utils {
      * @param fullPkgName   full package name, <org-name>/<pkg-name>:<pkg-version>
      * @param outStream     Output print stream
      * @param logFormatter  log formatter
+     * @param homeRepo      path of the repo bala file is saved to
      */
     private static void writeAndHandleProgress(InputStream inputStream, FileOutputStream outputStream,
-            long totalSizeInKB, String fullPkgName, PrintStream outStream, LogFormatter logFormatter)
-            throws IOException {
+            long totalSizeInKB, String fullPkgName, PrintStream outStream, LogFormatter logFormatter,
+            Path homeRepo) throws IOException {
         int count;
         byte[] buffer = new byte[1024];
-
-        try (ProgressBar progressBar = new ProgressBar(fullPkgName + " [central.ballerina.io -> home repo] ",
-                                                       totalSizeInKB, 1000, outStream, ProgressBarStyle.ASCII, " KB",
-                                                       1)) {
+        String remoteRepo = getRemoteRepo();
+        String progressBarTask = fullPkgName + " [" + remoteRepo + " ->" + homeRepo + "] ";
+        try (ProgressBar progressBar = new ProgressBar(progressBarTask, totalSizeInKB, 1000,
+                                                        outStream, ProgressBarStyle.ASCII, " KB", 1)) {
             while ((count = inputStream.read(buffer)) > 0) {
                 outputStream.write(buffer, 0, count);
                 progressBar.step();
@@ -490,5 +513,19 @@ public class Utils {
      */
     public interface ProgressListener {
         void onRequestProgress(long bytesWritten, long contentLength) throws IOException;
+    }
+
+    /**
+     * Get the remote repo URL.
+     *
+     * @return URL of the remote repository
+     */
+    public static String getRemoteRepo() {
+        if (SET_BALLERINA_STAGE_CENTRAL) {
+            return STAGING_REPO;
+        } else if (SET_BALLERINA_DEV_CENTRAL) {
+            return DEV_REPO;
+        }
+        return PRODUCTION_REPO;
     }
 }

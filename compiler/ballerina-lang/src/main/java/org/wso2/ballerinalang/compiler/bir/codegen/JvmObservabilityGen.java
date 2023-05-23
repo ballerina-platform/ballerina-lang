@@ -328,7 +328,7 @@ class JvmObservabilityGen {
         Name org = new Name(Utils.decodeIdentifier(packageID.orgName.getValue()));
         Name module = new Name(Utils.decodeIdentifier(packageID.name.getValue()));
         PackageID currentPkgId = new PackageID(org, module, module, packageID.version, packageID.sourceFileName,
-                packageID.isTestPkg);
+                packageID.sourceRoot, packageID.isTestPkg, packageID.skipTests);
         BSymbol functionOwner;
         List<BIRFunction> scopeFunctionsList;
         if (attachedTypeDef == null) {
@@ -401,11 +401,11 @@ class JvmObservabilityGen {
                 BIRFunctionParameter funcParam;
                 if (arg.variableDcl.kind == VarKind.SELF) {
                     funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type, selfArgName,
-                            VarScope.FUNCTION, VarKind.SELF, selfArgName.getValue(), false);
+                            VarScope.FUNCTION, VarKind.SELF, selfArgName.getValue(), false, false);
                 } else {
                     Name argName = new Name("$funcParam%d" + i);
                     funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type,
-                            argName, VarScope.FUNCTION, VarKind.ARG, argName.getValue(), false);
+                            argName, VarScope.FUNCTION, VarKind.ARG, argName.getValue(), false, false);
                     desugaredFunc.localVars.add(funcParam);
                     desugaredFunc.parameters.add(funcParam);
                     desugaredFunc.requiredParams.add(new BIRParameter(asyncCallIns.pos, argName, 0));
@@ -890,7 +890,7 @@ class JvmObservabilityGen {
      * @return The injected new BB
      */
     private BIRBasicBlock insertBasicBlock(BIRFunction func, int insertIndex) {
-        BIRBasicBlock newBB = new BIRBasicBlock(new Name(NEW_BB_PREFIX + desugaredBBIndex++));
+        BIRBasicBlock newBB = new BIRBasicBlock(NEW_BB_PREFIX, desugaredBBIndex++);
         func.basicBlocks.add(insertIndex, newBB);
         return newBB;
     }

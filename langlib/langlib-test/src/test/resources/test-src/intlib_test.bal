@@ -225,3 +225,92 @@ function testIntNonOverflowWithSum() {
     result = a7.sum(a1, a6);
     test:assertValueEqual(5, result);
 }
+
+function testIntRange() {
+    int[] num = [];
+    object:Iterable itb = int:range(0, 6, 3);
+    var itr = itb.iterator();
+    var next = itr.next();
+    while next is record{} {
+        var value = next.value;
+        if value is int {
+            num.push(value);
+        }
+        next = itr.next();
+    }
+    test:assertValueEqual([0,3], num);
+}
+
+function testIntRangeDec() {
+    int[] num = [];
+    object:Iterable itb = int:range(6, 0, -3);
+    var itr = itb.iterator();
+    var next = itr.next();
+    while next is record{} {
+        var value = next.value;
+        if value is int {
+            num.push(value);
+        }
+        next = itr.next();
+    }
+    test:assertValueEqual([6,3], num);
+}
+
+function testZeroStepIntRangeError() {
+    int[]|error e = trap zeroStepRange();
+    assert(e is error, true);
+}
+
+function zeroStepRange() returns int[] {
+    int[] r =[];
+
+    foreach int i in int:range(0, 4, 0) {
+        r.push(i);
+    }
+
+    return r;
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
+}
+
+function testAvg() {
+    decimal a1 = int:avg(1, 2, 3, 4, 5);
+    test:assertValueEqual(3d, a1);
+
+    a1 = int:avg(1, 2, 3, -4, -5);
+    test:assertValueEqual(-0.6d, a1);
+
+    a1 = 0.avg(0, 1);
+    test:assertValueEqual(0.3333333333333333333333333333333333d, a1);
+
+    a1 = int:avg(0, 1);
+    test:assertValueEqual(0.5d, a1);
+
+    a1 = int:avg(int:MAX_VALUE, int:MAX_VALUE, int:MAX_VALUE, int:MAX_VALUE, int:MAX_VALUE);
+    test:assertValueEqual(<decimal>int:MAX_VALUE, a1);
+
+    a1 = int:avg(int:MAX_VALUE, int:MIN_VALUE);
+    test:assertValueEqual(-0.5d, a1);
+
+    int[] arr = [2, 3, 4, 5];
+    a1 = int:avg(1, ...arr);
+    test:assertValueEqual(3d, a1);
+
+    a1 = int:avg(1, ...[2, 3, 4, 5]);
+    test:assertValueEqual(3d, a1);
+
+    arr = [];
+    foreach int i in 0...1000 {
+        arr.push(int:MAX_VALUE);
+    }
+    test:assertValueEqual(<decimal>int:MAX_VALUE, int:avg(int:MAX_VALUE, ...arr));
+}

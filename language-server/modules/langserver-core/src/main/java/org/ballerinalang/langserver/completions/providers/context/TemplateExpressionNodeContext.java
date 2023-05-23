@@ -63,7 +63,9 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (node.kind() == SyntaxKind.REGEX_TEMPLATE_EXPRESSION) {
-            completionItems.addAll(RegexpCompletionProvider.getRegexCompletions(nodeAtCursor, context));
+            if (isCursorWithInBackticks(context, node)) {
+                completionItems.addAll(RegexpCompletionProvider.getRegexCompletions(nodeAtCursor, context));
+            }
         }
 
         Optional<InterpolationNode> interpolationNode = findInterpolationNode(nodeAtCursor, node);
@@ -162,6 +164,11 @@ public class TemplateExpressionNodeContext extends AbstractCompletionProvider<Te
     public boolean onPreValidation(BallerinaCompletionContext context, TemplateExpressionNode node) {
         return node.textRange().startOffset() <= context.getCursorPositionInTree()
                 && context.getCursorPositionInTree() <= node.textRange().endOffset();
+    }
+    
+    private boolean isCursorWithInBackticks(BallerinaCompletionContext context, TemplateExpressionNode node) {
+        return node.startBacktick().textRange().startOffset() < context.getCursorPositionInTree() && 
+                context.getCursorPositionInTree() < node.endBacktick().textRange().endOffset();
     }
 
     private Predicate<Symbol> symbolFilterPredicate() {

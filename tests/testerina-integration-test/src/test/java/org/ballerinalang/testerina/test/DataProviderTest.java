@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
+import org.ballerinalang.testerina.test.utils.CommonUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -53,21 +54,23 @@ public class DataProviderTest extends BaseTestCase {
 
     @Test (dependsOnMethods = "testValidDataProvider")
     public void testValidDataProviderWithFail() throws BallerinaTestException, IOException {
-        String msg1 = "1 passing";
-        String msg2 = "2 failing";
         String[] args = mergeCoverageArgs(new String[]{"--tests", "intDataProviderTest", "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("DataProviderTest-testValidDataProviderWithFail.txt", output);
     }
 
     @Test (dependsOnMethods = "testValidDataProviderWithFail")
     public void testRerunFailedTest() throws BallerinaTestException, IOException {
-        String msg1 = "0 passing";
-        String msg2 = "2 failing";
         String[] args = mergeCoverageArgs(new String[]{"--rerun-failed", "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("DataProviderTest-testRerunFailedTest.txt", output);
     }
 
@@ -75,8 +78,6 @@ public class DataProviderTest extends BaseTestCase {
     public void testValidDataProviderCase() throws BallerinaTestException, IOException {
         String[] args = mergeCoverageArgs(new String[]{"--tests", "dataproviders:jsonDataProviderTest#'json1'",
                 "data-providers"});
-        String msg1 = "1 passing";
-        String msg2 = "0 failing";
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         AssertionUtils.assertOutput("DataProviderTest-testValidDataProviderCase.txt", output);
@@ -84,8 +85,6 @@ public class DataProviderTest extends BaseTestCase {
 
     @Test (dependsOnMethods = "testValidDataProviderCase")
     public void testDataProviderWithMixedType() throws BallerinaTestException, IOException {
-        String msg1 = "2 passing";
-        String msg2 = "0 failing";
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testFunction1#'CaseNew*'",
                 "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
@@ -104,28 +103,32 @@ public class DataProviderTest extends BaseTestCase {
 
     @Test (dependsOnMethods = "testWithSpecialKeys")
     public void testArrayDataProviderWithFail() throws BallerinaTestException, IOException {
-        String msg1 = "1 passing";
-        String msg2 = "2 failing";
         String[] args = mergeCoverageArgs(new String[]{"--tests", "intArrayDataProviderTest", "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        firstString = "tests.test_execute-generated_";
+        endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("DataProviderTest-testArrayDataProviderWithFail.txt", output);
     }
 
     @Test (dependsOnMethods = "testArrayDataProviderWithFail")
     public void testArrayDataRerunFailedTest() throws BallerinaTestException, IOException {
-        String msg1 = "0 passing";
-        String msg2 = "2 failing";
         String[] args = mergeCoverageArgs(new String[]{"--rerun-failed", "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("DataProviderTest-testArrayDataRerunFailedTest.txt", output);
     }
 
     @Test (dependsOnMethods = "testArrayDataRerunFailedTest")
     public void testMultiModuleSingleTestExec() throws BallerinaTestException, IOException {
-        String msg1 = "1 passing";
-        String msg2 = "0 failing";
         String[] args = mergeCoverageArgs(new String[]{"--tests", "stringDataProviderMod1Test#1", "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -169,19 +172,18 @@ public class DataProviderTest extends BaseTestCase {
     @Test
     public void testMapValueDataProvider() throws BallerinaTestException, IOException {
 
-        String msg1 = "1 passing";
-        String msg2 = "1 failing";
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testGetState", "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("DataProviderTest-testMapValueDataProvider.txt", output);
 
     }
 
     @Test
     public void testValidDataProviderWithBeforeAfterFunctions() throws BallerinaTestException, IOException {
-        String msg1 = "6 passing";
-        String msg2 = "0 failing";
         String[] args = mergeCoverageArgs(new String[]{"--tests", "testExecutionOfBeforeAfter", "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
@@ -191,21 +193,18 @@ public class DataProviderTest extends BaseTestCase {
 
     @Test
     public void testValidDataProviderWithBeforeFailing() throws BallerinaTestException, IOException {
-        String msg1 = "5 passing";
-        String msg2 = "0 failing";
-        String msg3 = "1 skipped";
         String[] args = mergeCoverageArgs(new String[]{"--tests",
                 "testDividingValuesWithBeforeFailing,testExecutionOfBeforeFailing", "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+//        String firstString = "tests.test_execute-generated_";
+//        String endString = "lineNumber";
+//        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("DataProviderTest-testValidDataProviderWithBeforeFailing.txt", output);
     }
 
     @Test
     public void testValidDataProviderWithAfterFailing() throws BallerinaTestException, IOException {
-        String msg1 = "6 passing";
-        String msg2 = "0 failing";
-        String msg3 = "0 skipped";
         String[] args = mergeCoverageArgs(new String[]{"--tests",
                 "testDividingValuesWithAfterFailing,testExecutionOfAfterFailing", "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
@@ -215,13 +214,13 @@ public class DataProviderTest extends BaseTestCase {
 
     @Test
     public void testDataProviderSingleFailure() throws BallerinaTestException, IOException {
-        String msg1 = "5 passing";
-        String msg2 = "1 failing";
-        String msg3 = "0 skipped";
         String[] args = mergeCoverageArgs(new String[]{"--tests",
                 "testExecutionOfDataValueFailing", "data-providers"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("DataProviderTest-testDataProviderSingleFailure.txt", output);
     }
 }

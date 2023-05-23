@@ -395,7 +395,14 @@ public class Type {
             List<FunctionType> functionTypes = new ArrayList<>();
             objectTypeSymbol.methods().forEach((methodName, methodSymbol) -> {
                 FunctionType functionType = new FunctionType();
-                functionType.name = methodName;
+                functionType.resourcePath = "";
+                if (methodSymbol.qualifiers().contains(Qualifier.RESOURCE)) {
+                    functionType.name = "";
+                    functionType.accessor = methodName;
+                } else {
+                    functionType.name = methodName;
+                    functionType.accessor = "";
+                }
                 functionType.description = methodSymbol.documentation().isPresent() &&
                         methodSymbol.documentation().get().description().isPresent() ?
                         methodSymbol.documentation().get().description().get() : null;
@@ -561,6 +568,10 @@ public class Type {
                 return "types";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.INTERSECTION)) {
                 return getIntersectionTypeCategory((IntersectionTypeSymbol) typeDescriptor);
+            } else if (typeDescriptor.typeKind().equals(TypeDescKind.ANY)) {
+                return "types";
+            } else {
+                return "types";
             }
         } else if (typeDescriptor.kind().equals(SymbolKind.CLASS)) {
             Qualifiable classSymbol = (Qualifiable) typeDescriptor;
