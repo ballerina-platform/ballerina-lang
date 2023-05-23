@@ -20,12 +20,13 @@ package io.ballerina.runtime.internal;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.IteratorValue;
 import io.ballerina.runtime.internal.values.MapValue;
-import io.ballerina.runtime.internal.values.RefValue;
+import io.ballerina.runtime.internal.values.RegExpValue;
 import io.ballerina.runtime.internal.values.TableValue;
 
 import java.util.Map;
@@ -55,7 +56,7 @@ public class TableUtils {
             return 0L;
         }
 
-        if (obj instanceof RefValue) {
+        if (obj instanceof BRefValue) {
 
             Node node = new Node(obj, parent);
 
@@ -64,7 +65,7 @@ public class TableUtils {
                         .getErrorDetails(RuntimeErrors.CYCLIC_VALUE_REFERENCE, TypeChecker.getType(obj)));
             }
 
-            RefValue refValue = (RefValue) obj;
+            BRefValue refValue = (BRefValue) obj;
             Type refType = refValue.getType();
             if (refType.getTag() == TypeTags.MAP_TAG || refType.getTag() == TypeTags.RECORD_TYPE_TAG) {
                 MapValue mapValue = (MapValue) refValue;
@@ -93,6 +94,8 @@ public class TableUtils {
                     result = 31 * result + hash(tableIterator.next(), node);
                 }
                 return result;
+            } else if (refValue instanceof RegExpValue) {
+                return (long) refValue.toString().hashCode();
             } else {
                 return (long) obj.hashCode();
             }

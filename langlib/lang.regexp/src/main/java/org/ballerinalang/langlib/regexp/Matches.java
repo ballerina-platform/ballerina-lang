@@ -24,6 +24,10 @@ import io.ballerina.runtime.api.values.BString;
 
 import java.util.regex.Matcher;
 
+import static org.ballerinalang.langlib.regexp.RegexUtil.checkIndexWithinRange;
+import static org.ballerinalang.langlib.regexp.RegexUtil.getSurrogateAdjustedStartIndex;
+import static org.ballerinalang.langlib.regexp.RegexUtil.getSurrogatePositions;
+
 /**
  * Native implementation of lang.regexp:matches(string).
  *
@@ -31,20 +35,26 @@ import java.util.regex.Matcher;
  */
 public class Matches {
     public static BArray matchAt(BRegexpValue regExp, BString str, int startIndex) {
+        checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
-        matcher.region(startIndex, str.length());
+        int[] surrogates = getSurrogatePositions(str);
+        int adjustedStartIndex = getSurrogateAdjustedStartIndex(startIndex, surrogates);
+        matcher.region(adjustedStartIndex, str.getValue().length());
         if (matcher.matches()) {
-            return RegexUtil.getGroupZeroAsSpan(matcher);
+            return RegexUtil.getGroupZeroAsSpan(str, matcher, surrogates);
         }
         return null;
     }
 
     public static BArray matchGroupsAt(BRegexpValue regExp, BString str, int startIndex) {
+        checkIndexWithinRange(str, startIndex);
         Matcher matcher = RegexUtil.getMatcher(regExp, str);
-        matcher.region(startIndex, str.length());
+        int[] surrogates = getSurrogatePositions(str);
+        int adjustedStartIndex = getSurrogateAdjustedStartIndex(startIndex, surrogates);
+        matcher.region(adjustedStartIndex, str.getValue().length());
         BArray resultArray = null;
         if (matcher.matches()) {
-            resultArray = RegexUtil.getMatcherGroupsAsSpanArr(matcher);
+            resultArray = RegexUtil.getMatcherGroupsAsSpanArr(str, matcher, surrogates);
         }
         if (resultArray == null || resultArray.getLength() == 0) {
             return null;

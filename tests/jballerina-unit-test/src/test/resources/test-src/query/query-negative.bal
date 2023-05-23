@@ -423,13 +423,13 @@ function testIncompatibleSelectType(stream<string, error?> clientStream) returns
 
 function testMapBindingPatternsAnydataType() {
     map<anydata> keyValsMap = {foo:"sss", bar:"ffff"};
-    var x = from var {k} in keyValsMap
+    var x = map from var {k} in keyValsMap
                  select k;
 }
 
 function testMapBindingPatternsAnyType() {
     map<any> keyValsMap = {foo:"sss", bar:"ffff"};
-    var x = from var {k} in keyValsMap
+    var x = map from var {k} in keyValsMap
                  select k;
 }
 
@@ -557,4 +557,34 @@ function testInvalidCheckExpressionInQueryAction2() returns error? {
 }
 
 function returnNil() {
+}
+
+type PersonA record {|
+    string firstName;
+    string lastName;
+    int age;
+|};
+
+type Persons PersonA[];
+
+function testInvalidContextuallyExpectedTypes() {
+
+    PersonA[] personList = [];
+    int outputPersonList =
+            from var person in personList
+    let int newAge = 20
+    where person.age == 33
+    select person.firstName;
+
+    Persons outputPersons =
+                from var person in personList
+    let int newAge = 20
+    where person.age == 33
+    select person.firstName;
+
+    PersonA outputPerson =
+                from var person in personList
+    let int newAge = 20
+    where person.age == 33
+    select person.firstName;
 }

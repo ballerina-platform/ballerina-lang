@@ -19,16 +19,11 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
-import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.HoverContext;
 
 import java.util.ArrayList;
@@ -47,7 +42,6 @@ public class HoverSymbolResolver extends NodeTransformer<Optional<Symbol>> {
 
     private final SemanticModel semanticModel;
     private final HoverContext context;
-    private HoverConstructKind constructKind;
     private boolean isSymbolReferable = true;
 
     public HoverSymbolResolver(HoverContext context, SemanticModel semanticModel) {
@@ -72,75 +66,9 @@ public class HoverSymbolResolver extends NodeTransformer<Optional<Symbol>> {
     @Override
     public Optional<Symbol> transform(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
         Optional<Symbol> symbol = semanticModel.symbol(qualifiedNameReferenceNode);
-        symbol.ifPresent(this::findAndSetSymbolConstructKind);
         symbol.ifPresent(this::setSymbolReferable);
         
         return symbol;
-    }
-
-    private void findAndSetSymbolConstructKind(Symbol symbol) {
-        switch (symbol.kind()) {
-            case TYPE:
-                TypeSymbol typeSymbol = ((TypeReferenceTypeSymbol) symbol).typeDescriptor();
-                TypeDescKind typeDescKind = typeSymbol.typeKind();
-                if (typeDescKind == TypeDescKind.OBJECT) {
-                    if (SymbolUtil.isListener(symbol) && typeSymbol.kind() == SymbolKind.CLASS) {
-                        this.constructKind = HoverConstructKind.Listener;
-                        break;
-                    }
-                    if (SymbolUtil.isClient(symbol) && typeSymbol.kind() == SymbolKind.CLASS) {
-                        this.constructKind = HoverConstructKind.Client;
-                        break;
-                    }
-                    if (typeSymbol.kind() == SymbolKind.CLASS) {
-                        this.constructKind = HoverConstructKind.Class;
-                        break;
-                    }
-                    this.constructKind = HoverConstructKind.ObjectType;
-                    break;
-                }
-                if (typeDescKind == TypeDescKind.RECORD) {
-                    this.constructKind = HoverConstructKind.Record;
-                    break;
-                }
-                if (typeDescKind == TypeDescKind.ERROR) {
-                    this.constructKind = HoverConstructKind.Error;
-                    break;
-                }
-                this.constructKind = HoverConstructKind.Type;
-                break;
-            case TYPE_DEFINITION:
-                this.constructKind = HoverConstructKind.Type;
-                break;
-            case CLASS:
-                if (SymbolUtil.isListener(symbol)) {
-                    this.constructKind = HoverConstructKind.Listener;
-                    break;
-                } else if (SymbolUtil.isClient(symbol)) {
-                    this.constructKind = HoverConstructKind.Client;
-                    break;
-                }
-                this.constructKind = HoverConstructKind.Class;
-                break;
-            case FUNCTION:
-                this.constructKind = HoverConstructKind.Function;
-                break;
-            case CONSTANT:
-                this.constructKind = HoverConstructKind.Constant;
-                break;
-            case ANNOTATION:
-                this.constructKind = HoverConstructKind.Annotation;
-                break;
-            case VARIABLE:
-                this.constructKind = HoverConstructKind.Variable;
-                break;
-            case ENUM:
-                //Blocked by 
-                //this.constructKind = HoverConstructKind.Enum;
-                //break;
-            default:
-                //ignore
-        }
     }
 
     public void setSymbolReferable(Symbol symbol) {
@@ -157,10 +85,6 @@ public class HoverSymbolResolver extends NodeTransformer<Optional<Symbol>> {
             return;
         }
         this.isSymbolReferable = true;
-    }
-
-    public Optional<HoverConstructKind> getConstructKind() {
-        return Optional.ofNullable(this.constructKind);
     }
 
     public boolean isSymbolReferable() {

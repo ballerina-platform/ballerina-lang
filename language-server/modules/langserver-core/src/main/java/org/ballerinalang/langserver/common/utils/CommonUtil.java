@@ -231,6 +231,17 @@ public class CommonUtil {
     }
 
     /**
+     * As per LSP, characters like \ and $ should be escaped when using them as insert text.
+     *
+     * @param text The text to be processed
+     * @return Processed text
+     */
+    public static String escapeSpecialCharsInInsertText(String text) {
+        return text.replaceAll("\\\\", "\\\\\\\\")
+                .replaceAll("\\$", Matcher.quoteReplacement("\\$"));
+    }
+
+    /**
      * Find node of this range.
      *
      * @param range      {@link Range}
@@ -282,7 +293,11 @@ public class CommonUtil {
             if (typeRef.typeDescriptor().typeKind() == TypeDescKind.INTERSECTION) {
                 return getRawType(((IntersectionTypeSymbol) typeRef.typeDescriptor()).effectiveTypeDescriptor());
             }
-            return typeRef.typeDescriptor();
+            TypeSymbol rawType = typeRef.typeDescriptor();
+            if (rawType.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                return getRawType(rawType);
+            }
+            return rawType;
         }
         return typeDescriptor;
     }
@@ -437,9 +452,14 @@ public class CommonUtil {
                 List<Token> qualsAtCursor = getQualifiersAtCursor(context);
                 Set<SyntaxKind> foundQuals = qualifiers.stream().map(Node::kind).collect(Collectors.toSet());
                 context.getNodeAtCursor().leadingInvalidTokens().stream()
-                        .filter(token -> QUALIFIER_KINDS.contains(token.kind())
-                                && !foundQuals.contains(token.kind())).forEach(qualifiers::add);
-                qualifiers.addAll(qualsAtCursor);
+                        .filter(token -> QUALIFIER_KINDS.contains(token.kind()))
+                        .filter(token -> !foundQuals.contains(token.kind()))
+                        .forEach(qualifiers::add);
+                // Avoid duplicating the token at cursor.
+                qualsAtCursor.stream()
+                        .filter(token -> qualifiers.stream()
+                                .noneMatch(qual -> qual.textRange().equals(token.textRange())))
+                        .forEach(qualifiers::add);
                 return qualifiers;
             default:
         }

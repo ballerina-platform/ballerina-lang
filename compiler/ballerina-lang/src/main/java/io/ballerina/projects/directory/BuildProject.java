@@ -172,6 +172,15 @@ public class BuildProject extends Project {
                     return Optional.of(modulePath.get().resolve(module.document(documentId).name()));
                 }
             } else if (module.testDocumentIds().contains(documentId)) {
+                Optional<Path> generatedModulePath = generatedModulePath(moduleId);
+                if (generatedModulePath.isPresent() && Files.exists(
+                        generatedModulePath.get().resolve(ProjectConstants.TEST_DIR_NAME).
+                                resolve(module.document(documentId).name()
+                                        .split(ProjectConstants.TEST_DIR_NAME + "/")[1]))) {
+                    return Optional.of(generatedModulePath.get().resolve(ProjectConstants.TEST_DIR_NAME).
+                            resolve(module.document(documentId).name()
+                                    .split(ProjectConstants.TEST_DIR_NAME + "/")[1]));
+                }
                 if (modulePath.isPresent()) {
                     return Optional.of(modulePath.get()
                             .resolve(ProjectConstants.TEST_DIR_NAME).resolve(
@@ -225,8 +234,10 @@ public class BuildProject extends Project {
                     }
                 } else if (ProjectConstants.TEST_DIR_NAME.equals(parentFileName)) {
                     // this is a test file
-                    if (Optional.of(Optional.of(parent.getParent()).get().getFileName()).get().toString()
-                            .equals(moduleDirName)) {
+                    Path modulePath = Optional.of(parent.getParent()).get();
+                    if (Optional.of(modulePath.getFileName()).get().toString()
+                            .equals(moduleDirName) || Optional.of(Optional.of(modulePath.getParent()).get()
+                            .getFileName()).get().toString().equals(moduleDirName)) {
                         for (DocumentId documentId : module.testDocumentIds()) {
                             String[] splitName = module.document(documentId).name()
                                     .split(ProjectConstants.TEST_DIR_NAME + "/");

@@ -86,7 +86,7 @@ public class PackageConfigCreator {
         PackageDescriptor packageDesc = PackageDescriptor.from(PackageOrg.from(ProjectConstants.ANON_ORG),
                 PackageName.from(ProjectConstants.DOT), PackageVersion.from(ProjectConstants.DEFAULT_VERSION));
         PackageManifest packageManifest = PackageManifest.from(packageDesc);
-        DependencyManifest dependencyManifest = DependencyManifest.from(null, Collections.emptyList());
+        DependencyManifest dependencyManifest = DependencyManifest.from(null, null, Collections.emptyList());
 
         PackageData packageData = ProjectFiles.loadSingleFileProjectPackageData(filePath);
         return createPackageConfig(packageData, packageManifest, dependencyManifest);
@@ -143,12 +143,14 @@ public class PackageConfigCreator {
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
         DocumentConfig compilerPluginToml = packageData.compilerPluginToml()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
+        DocumentConfig balToolToml = packageData.balToolToml()
+                .map(data -> createDocumentConfig(data, null)).orElse(null);
         DocumentConfig packageMd = packageData.packageMd()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
 
         return PackageConfig
                 .from(packageId, packageData.packagePath(), packageManifest, dependencyManifest, ballerinaToml,
-                      dependenciesToml, cloudToml, compilerPluginToml, packageMd, moduleConfigs,
+                      dependenciesToml, cloudToml, compilerPluginToml, balToolToml, packageMd, moduleConfigs,
                       packageDependencyGraph);
     }
 

@@ -100,15 +100,15 @@ public class InferredDependentlyTypeFunctionTest {
         validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 54, 66);
         validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 56, 49);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'xml:Comment', found 'xml<xml:Comment>'", 65, 21);
+                "incompatible types: expected 'xml:Comment', found 'xml<XmlComment>'", 65, 21);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'xml<xml:Element>', found 'xml<xml:Comment>'", 66, 26);
+                "incompatible types: expected 'xml<xml:Element>', found 'xml<XmlComment>'", 66, 26);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'xml<xml:Text>', found 'xml<xml:Element>'", 67, 23);
+                "incompatible types: expected 'xml<xml:Text>', found 'xml<XmlElement>'", 67, 23);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'xml<xml:Comment>', found 'xml<xml:Element>'", 68, 26);
+                "incompatible types: expected 'xml<xml:Comment>', found 'xml<XmlElement>'", 68, 26);
         validateError(negativeResult, index++,
-                "incompatible types: expected 'typedesc<(xml:Element|xml:Comment)>', found 'typedesc<xml:Text>'",
+                "incompatible types: expected 'typedesc<(xml:Element|xml:Comment)>', found 'typedesc<XmlText>'",
                 69, 38);
         validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td' with " +
                 "'boolean?' as the contextually-expected type mapping to return type '(td|boolean)?'", 78, 18);
@@ -165,7 +165,7 @@ public class InferredDependentlyTypeFunctionTest {
         validateError(negativeResult, index++, "incompatible types: expected 'stream<int>?', found 'typedesc<int>'",
                 145, 67);
         validateError(negativeResult, index++, "incompatible types: expected '(stream<boolean>|readonly)', found '" +
-                "(readonly|stream<int>|handle)'", 146, 34);
+                "(readonly|IntStream|handle)'", 146, 34);
         validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td' with " +
                 "'(readonly|handle)' as the contextually-expected type mapping to return type '(readonly|td|handle)'",
                 147, 25);
@@ -211,6 +211,10 @@ public class InferredDependentlyTypeFunctionTest {
                 "an argument for the parameter or a contextually-expected type to infer the argument", 198, 5);
         validateError(negativeResult, index++, "cannot infer the 'typedesc' argument for parameter 'td': expected " +
                 "an argument for the parameter or a contextually-expected type to infer the argument", 199, 13);
+        validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 203, 13);
+        validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 205, 87);
+        validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 208, 13);
+        validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 210, 87);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 }

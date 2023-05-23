@@ -580,14 +580,18 @@ public class TypeParamAnalyzer {
         if (actualType.restType != null) {
             tupleTypes.add(actualType.restType);
         }
-        BUnionType tupleElementType = BUnionType.create(null, tupleTypes);
-        findTypeParam(loc, expType.eType, tupleElementType, env, resolvedTypes, result);
+
+        int size = tupleTypes.size();
+        BType type = size == 0 ? symTable.neverType :
+                (size == 1 ? tupleTypes.iterator().next() : BUnionType.create(null, tupleTypes));
+        findTypeParam(loc, expType.eType, type, env, resolvedTypes, result);
     }
 
     private void findTypeParamInUnion(Location loc, BType expType, BUnionType actualType,
                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         LinkedHashSet<BType> members = new LinkedHashSet<>();
         for (BType type : actualType.getMemberTypes()) {
+            type = Types.getReferredType(type);
             if (type.tag == TypeTags.ARRAY) {
                 members.add(((BArrayType) type).eType);
             }

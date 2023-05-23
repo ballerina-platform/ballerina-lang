@@ -215,7 +215,7 @@ public class ResolutionEngine {
     private Collection<PackageMetadataResponse> resolveDirectDependencies(Collection<DependencyNode> directDeps) {
         // Set the default locking mode based on the sticky build option.
         PackageLockingMode defaultLockingMode = resolutionOptions.sticky() ?
-                PackageLockingMode.HARD : PackageLockingMode.MEDIUM;
+                PackageLockingMode.HARD : resolutionOptions.packageLockingMode();
         List<ResolutionRequest> resolutionRequests = new ArrayList<>();
 
         for (DependencyNode directDependency : directDeps) {
@@ -223,13 +223,22 @@ public class ResolutionEngine {
             PackageDescriptor pkgDesc = directDependency.pkgDesc();
             Optional<BlendedManifest.Dependency> dependency = blendedManifest.lockedDependency(
                     pkgDesc.org(), pkgDesc.name());
-            if (dependency.isPresent() &&
-                    dependency.get().relation() == BlendedManifest.DependencyRelation.TRANSITIVE) {
-                // If the dependency is a direct dependency then use the version otherwise leave it.
-                // The situation is that an indirect dependency(previous compilation) has become a
-                // direct dependency (this compilation). Here we ignore the previous indirect dependency version and
-                // look up Ballerina central repository for the latest version which is in the same compatible range.
-                lockingMode = PackageLockingMode.SOFT;
+            if (dependency.isPresent()) {
+                if (dependency.get().relation() == BlendedManifest.DependencyRelation.TRANSITIVE) {
+                    // If the dependency is a direct dependency then use the version otherwise leave it.
+                    // The situation is that an indirect dependency(previous compilation) has become a
+                    // direct dependency (this compilation). Here we ignore the previous indirect dependency version
+                    // and look up Ballerina central repository for the latest version which is in the same
+                    // compatible range.
+                    lockingMode = PackageLockingMode.SOFT;
+                }
+            } else {
+                // If the user has specified the dependency from the local repo,
+                // we must resolve the exact version provided for the dependency
+                dependency = blendedManifest.userSpecifiedDependency(pkgDesc.org(), pkgDesc.name());
+                if (dependency.isPresent() && dependency.get().isFromLocalRepository()) {
+                    lockingMode = PackageLockingMode.HARD;
+                }
             }
             resolutionRequests.add(ResolutionRequest.from(pkgDesc, directDependency.scope(),
                     directDependency.resolutionType(), lockingMode));
@@ -340,13 +349,13 @@ public class ResolutionEngine {
      *
      * @param unresolvedNode the unresolved node
      * @param blendedDep     the dependency recorded in either Dependencies.toml or Ballerina.toml
-     * @return ResolutionRequest
+     * @return ResolutionRequest resolution request for the unresolved node
      */
     private ResolutionRequest getRequestForUnresolvedNode(DependencyNode unresolvedNode,
                                                           BlendedManifest.Dependency blendedDep) {
         if (blendedDep == null) {
             return ResolutionRequest.from(unresolvedNode.pkgDesc(), unresolvedNode.scope(),
-                    unresolvedNode.resolutionType(), PackageLockingMode.MEDIUM);
+                    unresolvedNode.resolutionType(), resolutionOptions.packageLockingMode());
         }
 
         if (blendedDep.isError()) {
@@ -360,15 +369,15 @@ public class ResolutionEngine {
                 unresolvedNode.pkgDesc().version());
         if (versionCompResult == VersionCompatibilityResult.GREATER_THAN ||
                 versionCompResult == VersionCompatibilityResult.EQUAL) {
-            PackageLockingMode lockingMode = resolutionOptions.sticky() ?
-                    PackageLockingMode.HARD : PackageLockingMode.MEDIUM;
+            PackageLockingMode lockingMode = resolutionOptions.sticky() || blendedDep.isFromLocalRepository() ?
+                    PackageLockingMode.HARD : resolutionOptions.packageLockingMode();
             PackageDescriptor blendedDepPkgDesc = PackageDescriptor.from(blendedDep.org(), blendedDep.name(),
                     blendedDep.version(), blendedDep.repository());
             return ResolutionRequest.from(blendedDepPkgDesc, unresolvedNode.scope(),
                     unresolvedNode.resolutionType(), lockingMode);
         } else if (versionCompResult == VersionCompatibilityResult.LESS_THAN) {
             return ResolutionRequest.from(unresolvedNode.pkgDesc(), unresolvedNode.scope(),
-                    unresolvedNode.resolutionType(), PackageLockingMode.MEDIUM);
+                    unresolvedNode.resolutionType(), resolutionOptions.packageLockingMode());
         } else {
             // Blended Dep version is incompatible with the unresolved node.
             // We report a diagnostic and return null.

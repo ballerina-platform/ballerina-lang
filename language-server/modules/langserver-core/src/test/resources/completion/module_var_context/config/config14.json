@@ -4,12 +4,13 @@
     "character": 13
   },
   "source": "module_var_context/source/source14.bal",
+  "description": "Test completions between configurable keyword and variable name",
   "items": [
     {
       "label": "map",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "A",
+      "sortText": "C",
       "insertText": "map",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +18,7 @@
       "label": "table",
       "kind": "Unit",
       "detail": "type",
-      "sortText": "A",
+      "sortText": "C",
       "insertText": "table",
       "insertTextFormat": "Snippet"
     },
@@ -28,7 +29,7 @@
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
@@ -36,7 +37,7 @@
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
@@ -413,7 +414,7 @@
       "label": "readonly",
       "kind": "TypeParameter",
       "detail": "Readonly",
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "readonly",
       "insertTextFormat": "Snippet"
     },
@@ -421,7 +422,7 @@
       "label": "handle",
       "kind": "TypeParameter",
       "detail": "Handle",
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "handle",
       "insertTextFormat": "Snippet"
     },
@@ -429,7 +430,7 @@
       "label": "never",
       "kind": "TypeParameter",
       "detail": "Never",
-      "sortText": "B",
+      "sortText": "A",
       "insertText": "never",
       "insertTextFormat": "Snippet"
     },
@@ -437,7 +438,7 @@
       "label": "json",
       "kind": "TypeParameter",
       "detail": "Json",
-      "sortText": "B",
+      "sortText": "A",
       "insertText": "json",
       "insertTextFormat": "Snippet"
     },
@@ -445,7 +446,7 @@
       "label": "anydata",
       "kind": "TypeParameter",
       "detail": "Anydata",
-      "sortText": "B",
+      "sortText": "A",
       "insertText": "anydata",
       "insertTextFormat": "Snippet"
     },
@@ -453,7 +454,7 @@
       "label": "any",
       "kind": "TypeParameter",
       "detail": "Any",
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "any",
       "insertTextFormat": "Snippet"
     },
@@ -461,7 +462,7 @@
       "label": "byte",
       "kind": "TypeParameter",
       "detail": "Byte",
-      "sortText": "B",
+      "sortText": "A",
       "insertText": "byte",
       "insertTextFormat": "Snippet"
     },
@@ -478,7 +479,7 @@
       "label": "decimal",
       "kind": "TypeParameter",
       "detail": "Decimal",
-      "sortText": "B",
+      "sortText": "A",
       "insertText": "decimal",
       "insertTextFormat": "Snippet"
     },
@@ -486,7 +487,7 @@
       "label": "error",
       "kind": "Event",
       "detail": "Error",
-      "sortText": "D",
+      "sortText": "C",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -494,7 +495,7 @@
       "label": "xml",
       "kind": "TypeParameter",
       "detail": "Xml",
-      "sortText": "B",
+      "sortText": "A",
       "insertText": "xml",
       "insertTextFormat": "Snippet"
     },
@@ -502,7 +503,7 @@
       "label": "boolean",
       "kind": "TypeParameter",
       "detail": "Boolean",
-      "sortText": "B",
+      "sortText": "A",
       "insertText": "boolean",
       "insertTextFormat": "Snippet"
     },
@@ -510,7 +511,7 @@
       "label": "future",
       "kind": "TypeParameter",
       "detail": "Future",
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "future",
       "insertTextFormat": "Snippet"
     },
@@ -518,7 +519,7 @@
       "label": "int",
       "kind": "TypeParameter",
       "detail": "Int",
-      "sortText": "B",
+      "sortText": "A",
       "insertText": "int",
       "insertTextFormat": "Snippet"
     },
@@ -526,7 +527,7 @@
       "label": "float",
       "kind": "TypeParameter",
       "detail": "Float",
-      "sortText": "B",
+      "sortText": "A",
       "insertText": "float",
       "insertTextFormat": "Snippet"
     },
@@ -534,7 +535,7 @@
       "label": "function",
       "kind": "TypeParameter",
       "detail": "Function",
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "function",
       "insertTextFormat": "Snippet"
     },
@@ -542,7 +543,7 @@
       "label": "string",
       "kind": "TypeParameter",
       "detail": "String",
-      "sortText": "B",
+      "sortText": "A",
       "insertText": "string",
       "insertTextFormat": "Snippet"
     },
@@ -550,7 +551,7 @@
       "label": "typedesc",
       "kind": "TypeParameter",
       "detail": "Typedesc",
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
     }

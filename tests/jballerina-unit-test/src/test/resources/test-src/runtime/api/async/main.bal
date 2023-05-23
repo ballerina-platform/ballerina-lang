@@ -49,6 +49,15 @@ public class ObjectMethodsCallClass {
         return a + b + c;
     }
 
+    function getFieldValWithDefaultValSpecialChars(int param\.a = 3, int param\:b = param\.a, int param\;c = param\.a + param\:b) returns int {
+        return param\.a + param\:b + param\;c;
+    }
+
+    function getFieldValWithDefaultValSpecialCharsAsync(int param\.a = asyncFunction(3), int param\:b = asyncFunction(param\.a),
+                                                      int param\;c = asyncFunction(param\.a + param\:b)) returns int {
+        return param\.a + param\:b + param\;c;
+    }
+
     public function callGetFieldValWithNoArgs() returns int = @java:Method {
         name: "getFieldValWithNoArgs",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
@@ -76,6 +85,16 @@ public class ObjectMethodsCallClass {
 
     public function callGetFieldValWithProvidedOptionalArgVal(string fieldName) returns int = @java:Method {
         name: "getFieldValWithProvidedOptionalArgVal",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function callGetFieldValWithDefaultValSpecialChars() returns int = @java:Method {
+        name: "getFieldValWithDefaultValSpecialChars",
+        'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
+    } external;
+
+    public function callGetFieldValWithDefaultValSpecialCharsAsync() returns int = @java:Method {
+        name: "getFieldValWithDefaultValSpecialCharsAsync",
         'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Async"
     } external;
 }
@@ -296,6 +315,8 @@ public function main() {
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithMultipleOptionalArgsDefaultVal(), 12);
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithMultipleOptionalArgsDefaultValAsync(), 12);
     test:assertEquals(objectMethodsCallClass.callGetFieldValWithProvidedOptionalArgVal("not a field"), -1);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithDefaultValSpecialChars(), 12);
+    test:assertEquals(objectMethodsCallClass.callGetFieldValWithDefaultValSpecialCharsAsync(), 12);
 
     IsolatedClass isolatedClass = new ();
     test:assertEquals(isolatedClass.callGetA(), 1);

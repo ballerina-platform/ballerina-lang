@@ -54,7 +54,6 @@ import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.TypeCompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -685,17 +684,14 @@ public class SortingUtil {
             return;
         }
 
-        List<String> anyDataSubTypeLabels = Arrays.asList("boolean", "int", "float",
-                "decimal", "string", "xml", "map", "table");
+        TypeSymbol anydataType = context.currentSemanticModel().get().types().ANYDATA;
         completionItems.forEach(lsCompletionItem -> {
             String sortText;
-            if (lsCompletionItem.getCompletionItem().getKind() == CompletionItemKind.Unit &&
-                    lsCompletionItem.getType() == SYMBOL) {
+            if (lsCompletionItem.getType() == SYMBOL) {
                 Optional<Symbol> symbol = ((SymbolCompletionItem) lsCompletionItem).getSymbol();
-                if (symbol.isPresent() && symbol.get() instanceof ModuleSymbol &&
-                        CommonUtil.isLangLib(((ModuleSymbol) symbol.get()).id()) &&
-                        anyDataSubTypeLabels.contains(lsCompletionItem.getCompletionItem().getLabel())
-                ) {
+                if (symbol.isPresent() &&
+                        symbol.get() instanceof TypeSymbol &&
+                        ((TypeSymbol) symbol.get()).subtypeOf(anydataType)) {
                     sortText = SortingUtil.genSortText(1);
                 } else {
                     sortText = SortingUtil.genSortText(3);

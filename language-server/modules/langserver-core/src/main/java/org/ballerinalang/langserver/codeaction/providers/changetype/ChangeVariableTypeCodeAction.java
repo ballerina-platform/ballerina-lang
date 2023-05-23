@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
+import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -132,6 +133,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             } else {
                 commandTitle = String.format(CommandConstants.CHANGE_VAR_TYPE_TITLE, variableName.get(), typeName);
             }
+            edits.addAll(importEdits);
             actions.add(CodeActionUtil
                     .createCodeAction(commandTitle, edits, context.fileUri(), CodeActionKind.QuickFix));
         }
@@ -162,7 +164,8 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         return sNode.kind() == SyntaxKind.LOCAL_VAR_DECL
                 || sNode.kind() == SyntaxKind.MODULE_VAR_DECL
                 || sNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT
-                || sNode.kind() == SyntaxKind.CONST_DECLARATION;
+                || sNode.kind() == SyntaxKind.CONST_DECLARATION
+                || sNode.kind() == SyntaxKind.LET_VAR_DECL;
     }
 
     private Optional<String> getTypeNodeStr(Node node) {
@@ -205,6 +208,9 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                 return Optional.ofNullable(constDecl.typeDescriptor().orElse(null));
             case OBJECT_FIELD:
                 return Optional.of(((ObjectFieldNode) matchedNode).typeName());
+            case LET_VAR_DECL:
+                return Optional.ofNullable(((LetVariableDeclarationNode) matchedNode)
+                        .typedBindingPattern().typeDescriptor());
             default:
                 return Optional.empty();
         }
@@ -242,6 +248,10 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             case OBJECT_FIELD:
                 ObjectFieldNode objectFieldNode = (ObjectFieldNode) matchedNode;
                 return Optional.of(objectFieldNode.fieldName().text());
+            case LET_VAR_DECL:
+                LetVariableDeclarationNode variableDecl = (LetVariableDeclarationNode) matchedNode;
+                BindingPatternNode node = variableDecl.typedBindingPattern().bindingPattern();
+                return Optional.of(((CaptureBindingPatternNode) node).variableName().text());
             default:
                 return Optional.empty();
         }

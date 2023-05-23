@@ -123,6 +123,17 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorEx
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAssertion;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomCharOrEscape;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReAtomQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCapturingGroups;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSet;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharSetRange;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReCharacterClass;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReFlagExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReQuantifier;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReSequence;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangReTerm;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
@@ -251,8 +262,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private Map<BSymbol, Set<BSymbol>> functionToDependency;
     private boolean flowTerminated = false;
-    private boolean possibleFailureReached = false;
-    private boolean visitingOnFailStmt = false;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
     private Deque<BSymbol> currDependentSymbolDeque;
@@ -425,7 +434,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         // updated/marked as initialized.
         this.uninitializedVars = copyUninitializedVars();
         this.flowTerminated = false;
-        this.possibleFailureReached = false;
 
         analyzeNode(funcNode.body, funcEnv);
 
@@ -524,7 +532,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             this.unusedLocalVariables.putAll(prevUnusedLocalVariables);
             this.uninitializedVars = copyUninitializedVars();
             this.flowTerminated = false;
-            this.possibleFailureReached = false;
             visitedOCE = true;
         }
         SymbolEnv objectEnv = SymbolEnv.createClassEnv(classDef, classDef.symbol.scope, env);
@@ -830,7 +837,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         analyzeNode(collection, env);
-        analyzeErrorHandlingStatement(foreach.body, foreach.onFailClause);
+        analyzeNode(foreach.body, env);
+        if (foreach.onFailClause != null) {
+            analyzeNode(foreach.onFailClause, env);
+        }
     }
 
     @Override
@@ -843,13 +853,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangWhile whileNode) {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
-        boolean prevVisitingOnFailStmt = this.visitingOnFailStmt;
-        if (whileNode.onFailClause != null) {
-            this.visitingOnFailStmt = true;
-        }
+
         analyzeNode(whileNode.expr, env);
         BranchResult whileResult = analyzeBranch(whileNode.body, env);
-        analyzeOnFailBranch(whileNode.onFailClause, whileResult);
+
+        if (whileNode.onFailClause != null) {
+            analyzeNode(whileNode.onFailClause, env);
+        }
 
         BType constCondition = ConditionResolver.checkConstCondition(types, symTable, whileNode.expr);
 
@@ -864,60 +874,38 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         this.uninitializedVars = mergeUninitializedVars(this.uninitializedVars, whileResult.uninitializedVars);
-        this.visitingOnFailStmt = prevVisitingOnFailStmt;
     }
 
     @Override
     public void visit(BLangDo doNode) {
-        analyzeErrorHandlingStatement(doNode.body, doNode.onFailClause);
-    }
-
-    private void analyzeErrorHandlingStatement(BLangBlockStmt blockStmt, BLangOnFailClause onFailClause) {
-        boolean prevVisitingOnFailStmt = this.visitingOnFailStmt;
-        if (onFailClause != null) {
-            this.visitingOnFailStmt = true;
-        }
-        BranchResult doResult = analyzeBranch(blockStmt, env);
-        this.uninitializedVars = doResult.uninitializedVars;
-        analyzeOnFailBranch(onFailClause, doResult);
-        this.visitingOnFailStmt = prevVisitingOnFailStmt;
-    }
-
-    private void analyzeOnFailBranch(BLangOnFailClause onFailClause, BranchResult doResult) {
-        if (this.visitingOnFailStmt) {
-            // loop through the partial init variables from statement block
-            // and remove from `uninitializedVars` map if initialized in on-fail branch
-            BranchResult onFailResult = analyzeBranch(onFailClause, env);
-            Set<BSymbol> symbols = new HashSet<>();
-            for (BSymbol varRef: doResult.uninitializedVars.keySet()) {
-                InitStatus status = onFailResult.uninitializedVars.get(varRef);
-                if (status == null) {
-                    symbols.add(varRef);
-                }
-            }
-            for (BSymbol symbol: symbols) {
-                doResult.uninitializedVars.remove(symbol);
-            }
+        analyzeNode(doNode.body, env);
+        if (doNode.onFailClause != null) {
+            analyzeNode(doNode.onFailClause, env);
         }
     }
 
     public void visit(BLangFail failNode) {
-        this.possibleFailureReached = true;
         analyzeNode(failNode.expr, env);
     }
 
     @Override
     public void visit(BLangLock lockNode) {
-        analyzeErrorHandlingStatement(lockNode.body, lockNode.onFailClause);
+        analyzeNode(lockNode.body, this.env);
+        if (lockNode.onFailClause != null) {
+            analyzeNode(lockNode.onFailClause, env);
+        }
     }
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        analyzeErrorHandlingStatement(transactionNode.transactionBody, transactionNode.onFailClause);
+        analyzeNode(transactionNode.transactionBody, env);
+        if (transactionNode.onFailClause != null) {
+            analyzeNode(transactionNode.onFailClause, env);
+        }
 
         // marks the injected import as used
         Name transactionPkgName = names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
-        Name compUnitName = names.fromString(transactionNode.pos.lineRange().filePath());
+        Name compUnitName = names.fromString(transactionNode.pos.lineRange().fileName());
         this.symResolver.resolvePrefixSymbol(env, transactionPkgName, compUnitName);
     }
 
@@ -1313,10 +1301,84 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         } else if (node.getKind() == NodeKind.GROUP_EXPR) {
             BLangGroupExpr groupExpr = (BLangGroupExpr) node;
             result = 31 * result + hash(groupExpr.expression);
+        } else if (node.getKind() == NodeKind.REG_EXP_TEMPLATE_LITERAL) {
+            result = 31 * result +
+                    generateHashForRegExp(((BLangRegExpTemplateLiteral) node).reDisjunction.sequenceList);
         } else {
             dlog.error(((BLangExpression) node).pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
         }
         return result;
+    }
+
+    private Integer generateHashForRegExp(List<BLangExpression> exprs) {
+        int regexpHash = 0;
+        for (BLangExpression expr : exprs) {
+            if (expr.getKind() == NodeKind.REG_EXP_SEQUENCE) {
+                BLangReSequence reSequence = (BLangReSequence) expr;
+                for (BLangReTerm term : reSequence.termList) {
+                    if (term.getKind() == NodeKind.REG_EXP_ASSERTION) {
+                        regexpHash = regexpHash + hash(((BLangReAssertion) term).assertion);
+                    } else {
+                        regexpHash = regexpHash + generateHashForReAtomQuantifier((BLangReAtomQuantifier) term);
+                    }
+                }
+            } else {
+                regexpHash = regexpHash + hash(expr);
+            }
+        }
+        return regexpHash;
+    }
+
+    private Integer generateHashForReAtomQuantifier(BLangReAtomQuantifier reAtomQuantifier) {
+        int regexpHash = 0;
+        BLangExpression reAtom = reAtomQuantifier.atom;
+        if (reAtom.getKind() == NodeKind.REG_EXP_ATOM_CHAR_ESCAPE) {
+            regexpHash = regexpHash + hash(((BLangReAtomCharOrEscape) reAtom).charOrEscape);
+        } else if (reAtom.getKind() == NodeKind.REG_EXP_CHARACTER_CLASS) {
+            regexpHash = regexpHash + generateHashForReCharacterClass((BLangReCharacterClass) reAtom);
+        } else if (reAtom.getKind() == NodeKind.REG_EXP_CAPTURING_GROUP) {
+            regexpHash = regexpHash + generateHashForReCapturingGroup((BLangReCapturingGroups) reAtom);
+        }
+        if (reAtomQuantifier.quantifier != null) {
+            BLangReQuantifier reQuantifier = reAtomQuantifier.quantifier;
+            regexpHash = regexpHash + hash(reQuantifier.quantifier);
+            if (reQuantifier.nonGreedyChar != null) {
+                return regexpHash + hash(reQuantifier.nonGreedyChar);
+            }
+        }
+        return regexpHash;
+    }
+
+    private Integer generateHashForReCharacterClass(BLangReCharacterClass reCharacterClass) {
+        int regexpHash = hash(reCharacterClass.characterClassStart) + hash(reCharacterClass.characterClassEnd);
+        if (reCharacterClass.negation != null) {
+            regexpHash = regexpHash + hash(reCharacterClass.negation);
+        }
+        if (reCharacterClass.charSet == null) {
+            return regexpHash;
+        }
+        BLangReCharSet charSet = reCharacterClass.charSet;
+        for (BLangExpression charSetAtom : charSet.charSetAtoms) {
+            if (charSetAtom.getKind() == NodeKind.REG_EXP_CHAR_SET_RANGE) {
+                BLangReCharSetRange charSetRange = ((BLangReCharSetRange) charSetAtom);
+                regexpHash = regexpHash + hash(charSetRange.lhsCharSetAtom) +
+                        hash(charSetRange.dash) + hash(charSetRange.rhsCharSetAtom);
+            } else {
+                regexpHash = regexpHash + hash(charSetAtom);
+            }
+        }
+        return regexpHash;
+    }
+
+    private Integer generateHashForReCapturingGroup(BLangReCapturingGroups reCapturingGroup) {
+        int regexpHash = hash(reCapturingGroup.openParen) +
+                generateHashForRegExp(reCapturingGroup.disjunction.sequenceList) + hash(reCapturingGroup.closeParen);
+        if (reCapturingGroup.flagExpr == null) {
+            return regexpHash;
+        }
+        BLangReFlagExpression flagExpr = (BLangReFlagExpression) reCapturingGroup.flagExpr;
+        regexpHash = regexpHash + hash(flagExpr.questionMark) + hash(flagExpr.colon);
+        return regexpHash + hash(flagExpr.flagsOnOff.flags);
     }
 
     private Integer getTypeHash(BType type) {
@@ -1852,9 +1914,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
-        if (this.visitingOnFailStmt) {
-            this.possibleFailureReached = true;
-        }
         analyzeNode(checkedExpr.expr, env);
     }
 
@@ -1883,7 +1942,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        analyzeErrorHandlingStatement(retryNode.retryBody, retryNode.onFailClause);
+        analyzeNode(retryNode.retryBody, env);
+        if (retryNode.onFailClause != null) {
+            analyzeNode(retryNode.onFailClause, env);
+        }
     }
 
     @Override
@@ -2241,28 +2303,25 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private BranchResult analyzeBranch(BLangNode node, SymbolEnv env) {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
         boolean prevFlowTerminated = this.flowTerminated;
-        boolean prevFailureReached = this.possibleFailureReached;
 
         // Get a snapshot of the current uninitialized vars before visiting the node.
         // This is done so that the original set of uninitialized vars will not be
         // updated/marked as initialized.
         this.uninitializedVars = copyUninitializedVars();
         this.flowTerminated = false;
-        this.possibleFailureReached = false;
 
         analyzeNode(node, env);
-        BranchResult branchResult = new BranchResult(this.uninitializedVars, this.flowTerminated);
+        BranchResult brachResult = new BranchResult(this.uninitializedVars, this.flowTerminated);
 
         // Restore the original set of uninitialized vars
         this.uninitializedVars = prevUninitializedVars;
         this.flowTerminated = prevFlowTerminated;
-        this.possibleFailureReached = prevFailureReached;
 
-        return branchResult;
+        return brachResult;
     }
 
     private Map<BSymbol, InitStatus> copyUninitializedVars() {
-        return new LinkedHashMap<>(this.uninitializedVars);
+        return new HashMap<>(this.uninitializedVars);
     }
 
     private void analyzeNode(BLangNode node, SymbolEnv env) {
@@ -2425,12 +2484,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             addFunctionToGlobalVarDependency(owner, ((BLangSimpleVarRef) varRef).symbol);
         }
 
-        BSymbol symbol = ((BLangVariableReference) varRef).symbol;
-        if (this.possibleFailureReached && this.uninitializedVars.containsKey(symbol)) {
-            this.uninitializedVars.put(symbol, InitStatus.PARTIAL_INIT);
-        } else {
-            this.uninitializedVars.remove(symbol);
-        }
+        this.uninitializedVars.remove(((BLangVariableReference) varRef).symbol);
     }
 
     private void checkFinalObjectFieldUpdate(BLangFieldBasedAccess fieldAccess) {

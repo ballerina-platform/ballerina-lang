@@ -829,7 +829,7 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
                         "        degree: degreeName," +
                         "        expectedGradYear: expectedGradYear" +
                         "    };",
-                "map[2]", "array");
+                "record {| string name; string degree; int expectedGradYear; |}[2]", "array");
 
         // Query stream evaluation
         debugTestRunner.assertExpression(context, "stream from var student in studentList" +
@@ -843,7 +843,7 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
                         "                degree: degreeName," +
                         "                graduationYear: graduationYear" +
                         "    };",
-                "stream<map<(any|error)>>", "stream");
+                "stream<evaluation_executor:record {| string name; string degree; int graduationYear; |}>", "stream");
 
         // Query join expression evaluation
         debugTestRunner.assertExpression(context, "from var student in gradStudentList" +
@@ -856,7 +856,7 @@ public abstract class ExpressionEvaluationTest extends ExpressionEvaluationBaseT
                         "        degree: \"Bachelor of Science\", " +
                         "        intakeYear: student.intakeYear " +
                         "    }",
-                "map[3]", "array");
+                "record {| string name; string deptName; string degree; int intakeYear; |}[3]", "array");
 
         // Table query with contextually expected type (type cast).
         debugTestRunner.assertExpression(context,

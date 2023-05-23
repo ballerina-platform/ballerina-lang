@@ -194,6 +194,8 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
                         && ((ObjectConstructorExpressionNode) attachedNode).objectTypeQualifiers()
                         .stream()
                         .anyMatch(token -> token.kind() == SyntaxKind.SERVICE_KEYWORD);
+            case MEMBER_TYPE_DESC:
+                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.FIELD);
             default:
                 return false;
         }

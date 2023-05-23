@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.CycleUtils;
@@ -64,8 +65,9 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
+import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
@@ -118,7 +120,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         } else {
             this.valueHolder = new ValueHolder();
         }
-        this.typedesc = getTypedescValue(tableType, this);
     }
 
     public TableValueImpl(Type type, ArrayValue data, ArrayValue fieldNames) {
@@ -133,9 +134,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         addData(data);
-        if (tableType.isReadOnly()) {
-            this.typedesc = createSingletonTypedesc(this);
-        }
     }
 
     // TODO: Might be unnecessary after fixing issue lang/#36721
@@ -184,7 +182,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         while (itr.hasNext()) {
             TupleValueImpl tupleValue = (TupleValueImpl) itr.next();
             Object value = tupleValue.get(1);
-            value = value instanceof RefValue ? ((RefValue) value).copy(refs) : value;
+            value = value instanceof BRefValue ? ((BRefValue) value).copy(refs) : value;
             clone.add((V) value);
         }
 
@@ -215,6 +213,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = getTypedescValue(type, this);
+        }
         return typedesc;
     }
 
@@ -374,9 +375,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         this.tableType = (BTableType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.tableType);
         this.type = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
 
-        //we know that values are always RefValues
-        this.values().forEach(val -> ((RefValue) val).freezeDirect());
-        this.typedesc = createSingletonTypedesc(this);
+        //we know that values are always BRefValues
+        this.values().forEach(val -> ((BRefValue) val).freezeDirect());
+        this.typedesc = null;
     }
 
     public String stringValue(BLink parent) {
@@ -401,11 +402,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Map.Entry<Long, List<V>> struct = itr.next();
             if (struct.getValue().size() > 1) {
                 for (V data: struct.getValue()) {
-                    sj.add(StringUtils.getStringValue(data,
+                    sj.add(getStringVal(data,
                             new CycleUtils.Node(this, parent)));
                 }
             } else {
-                sj.add(StringUtils.getStringValue(struct.getValue().get(0),
+                sj.add(getStringVal(struct.getValue().get(0),
                         new CycleUtils.Node(this, parent)));
             }
         }
@@ -423,12 +424,10 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Map.Entry<Long, List<V>> struct = itr.next();
             if (struct.getValue().size() > 1) {
                 for (V data: struct.getValue()) {
-                    sj.add(StringUtils.getExpressionStringValue(data,
-                            new CycleUtils.Node(this, parent)));
+                    sj.add(getExpressionStringVal(data, new CycleUtils.Node(this, parent)));
                 }
             } else {
-                sj.add(StringUtils.getExpressionStringValue(struct.getValue().get(0),
-                        new CycleUtils.Node(this, parent)));
+                sj.add(getExpressionStringVal(struct.getValue().get(0), new CycleUtils.Node(this, parent)));
             }
         }
         return "table key(" + keyJoiner + ") [" + sj + "]";

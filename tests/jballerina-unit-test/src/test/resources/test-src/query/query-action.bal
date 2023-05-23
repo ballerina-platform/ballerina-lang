@@ -802,6 +802,66 @@ function testQueryStreamWithDiffTargetTypes() returns error? {
     assertEquality(4, count5);
 }
 
+function testQueryActionWithRegExp() {
+    string:RegExp[] arr1 = [re `A`, re `B`, re `C`];
+    error? res = from var reg in arr1
+        where reg != re `B`
+        do {
+            arr1.push(reg);
+        };
+    assertEquality(true, res is ());
+    assertEquality(true, [re `A`, re `B`, re `C`, re `A`, re `C`] == arr1);
+}
+
+function testQueryActionWithRegExpWithInterpolations() {
+    anydata[] arr1 = [re `A`, re `B2`, re `C`];
+    int v = 1;
+    error? res = from var reg in arr1
+        where reg != re `B${v + 1}`
+        do {
+            string:RegExp[] arr2 = from var re in [re `A`, re `B`]
+                         let string:RegExp a = re `A`
+                         where re != re `A`
+                         select re `${re.toString() + a.toString()}`;
+            arr1.push(arr2);
+        };
+    assertEquality(true, res is ());
+    assertEquality(true, [re `A`, re `B2`, re `C`, [re `BA`], [re `BA`]] == arr1);
+}
+
+function testNestedQueryActionWithRegExp() {
+    anydata[] arr1 = [re `A`, re `B2`, re `C2`, re `D`, re `D2`];
+    int v = 1;
+    error? res = from var s in (from var reg in arr1
+                                 where reg != re `B${v + 1}`
+                                 select reg)
+        where s != re `D${v + 1}`
+        do {
+            string:RegExp[] arr2 = from var re in [re `A`, re `B`]
+                         let string:RegExp a = re `A`
+                         where re != re `A`
+                         select re `${re.toString() + a.toString()}`;
+            arr1.push(arr2);
+        };
+    assertEquality(true, res is ());
+    assertEquality(true, [re `A`, re `B2`, re `C2`, re `D`, re `D2`, [re `BA`], [re `BA`], [re `BA`]] == arr1);
+}
+
+function testJoinedQueryActionWithRegExp() {
+    string:RegExp[] arr1 = [re `A`, re `B`, re `C`, re `D`];
+    string:RegExp[] arr2 = [re `A`, re `B`];
+    string v = "A";
+    error? res = from var re1 in arr1
+        join string:RegExp re2 in arr2
+        on re1 equals re2
+        let string:RegExp a = re `AB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??${v})|)|^|PQ?`
+        do {
+            v = v + re1.toString() + a.toString();
+        };
+    assertEquality(true, v == "AAAB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??A)|)|^|PQ?BAB*[^abc-efg]" +
+    "(?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??AAAB*[^abc-efg](?:A|B|[ab-fgh]+(?im-x:[cdeg-k]??A)|)|^|PQ?)|)|^|PQ?");
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

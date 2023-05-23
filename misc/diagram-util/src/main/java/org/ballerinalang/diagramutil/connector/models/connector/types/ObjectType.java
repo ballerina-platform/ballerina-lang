@@ -34,4 +34,9 @@ public class ObjectType extends Type {
         this.typeName = "object";
         this.fields = new ArrayList<>();
     }
+
+    public ObjectType(List<Type> fields) {
+        this.typeName = "object";
+        this.fields = fields;
+    }
 }

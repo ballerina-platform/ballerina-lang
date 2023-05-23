@@ -76,6 +76,7 @@ import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.Enum;
 import org.ballerinalang.docgen.generator.model.Error;
 import org.ballerinalang.docgen.generator.model.Function;
+import org.ballerinalang.docgen.generator.model.FunctionKind;
 import org.ballerinalang.docgen.generator.model.Listener;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.Record;
@@ -173,8 +174,15 @@ public class Generator {
             module.records.add(getRecordTypeModel((RecordTypeDescriptorNode) typeDefinition.typeDescriptor(),
                     typeName, metaDataNode, semanticModel));
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
-            module.objectTypes.add(getObjectTypeModel((ObjectTypeDescriptorNode) typeDefinition.typeDescriptor(),
-                    typeName, metaDataNode, semanticModel));
+            ObjectTypeDescriptorNode objectTypeDescriptorNode =
+                    (ObjectTypeDescriptorNode) typeDefinition.typeDescriptor();
+            BObjectType bObj = getObjectTypeModel(objectTypeDescriptorNode,
+                    typeName, metaDataNode, semanticModel);
+            if (containsToken(objectTypeDescriptorNode.objectTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD)) {
+                module.serviceTypes.add(bObj);
+            } else {
+                module.objectTypes.add(bObj);
+            }
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
             Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
             if (unionType.memberTypes.stream().allMatch(type ->
@@ -187,7 +195,8 @@ public class Generator {
                 module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(),
                         typeName, metaDataNode, semanticModel));
             }
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
             if (refType.category.equals("errors")) {
                 module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
@@ -211,11 +220,17 @@ public class Generator {
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                         == SyntaxKind.OBJECT_TYPE_DESC) {
+            ObjectTypeDescriptorNode objectTypeDescriptorNode = (ObjectTypeDescriptorNode)
+                    ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor();
             BObjectType bObj = getObjectTypeModel((ObjectTypeDescriptorNode)
                             ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor(), typeName,
                     metaDataNode, semanticModel);
             bObj.isDistinct = true;
-            module.objectTypes.add(bObj);
+            if (containsToken(objectTypeDescriptorNode.objectTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD)) {
+                module.serviceTypes.add(bObj);
+            } else {
+                module.objectTypes.add(bObj);
+            }
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                         == SyntaxKind.PARENTHESISED_TYPE_DESC) {
@@ -265,7 +280,8 @@ public class Generator {
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.XML_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.FUNCTION_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.ANYDATA_TYPE_DESC ||
-                typeDefinition.typeDescriptor().kind() == SyntaxKind.STRING_TYPE_DESC) {
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.STRING_TYPE_DESC ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.ANY_TYPE_DESC) {
             module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode, semanticModel));
         } else {
             return false;
@@ -430,6 +446,7 @@ public class Generator {
         boolean isDeprecated = isDeprecated(classDefinitionNode.metadata());
         boolean isReadOnly = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.READONLY_KEYWORD);
         boolean isIsolated = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.ISOLATED_KEYWORD);
+        boolean isService = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD);
 
         List<DefaultableVariable> fields = getDefaultableVariableList(classDefinitionNode.members(),
                 classDefinitionNode.metadata(), semanticModel);
@@ -437,7 +454,8 @@ public class Generator {
         for (Node member : classDefinitionNode.members()) {
             if (member instanceof FunctionDefinitionNode && (containsToken(((FunctionDefinitionNode) member)
                     .qualifierList(), SyntaxKind.PUBLIC_KEYWORD) || containsToken(((FunctionDefinitionNode) member)
-                    .qualifierList(), SyntaxKind.REMOTE_KEYWORD))) {
+                    .qualifierList(), SyntaxKind.REMOTE_KEYWORD) || containsToken(((FunctionDefinitionNode) member)
+                    .qualifierList(), SyntaxKind.RESOURCE_KEYWORD))) {
                 classFunctions.add(getFunctionModel((FunctionDefinitionNode) member, semanticModel));
             } else if (member instanceof TypeReferenceNode) {
                 Type originType = Type.fromNode(member, semanticModel);
@@ -458,12 +476,12 @@ public class Generator {
         functions.addAll(classFunctions);
 
         if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
-            return new Client(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
+            return new Client(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         } else if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.LISTENER_KEYWORD)
                 || name.equals("Listener")) {
-            return new Listener(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
+            return new Listener(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         } else {
-            return new BClass(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated);
+            return new BClass(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         }
     }
 
@@ -483,8 +501,20 @@ public class Generator {
             if (member instanceof MethodDeclarationNode) {
                 MethodDeclarationNode methodNode = (MethodDeclarationNode) member;
                 if (containsToken(methodNode.qualifierList(), SyntaxKind.PUBLIC_KEYWORD) ||
-                        containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD)) {
-                    String methodName = methodNode.methodName().text();
+                        containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD) ||
+                        containsToken(methodNode.qualifierList(), SyntaxKind.RESOURCE_KEYWORD)) {
+                    String methodName = "";
+                    String accessor = "";
+                    String resourcePath = "";
+                    if (methodNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+                        accessor = methodNode.methodName().text();
+                        resourcePath = methodNode.relativeResourcePath().stream().
+                                collect(StringBuilder::new, (firstString,
+                                                             secondString) -> firstString.append(secondString),
+                                        (nodeA, nodeB) -> nodeA.append(nodeB)).toString();
+                    } else {
+                        methodName = methodNode.methodName().text();
+                    }
 
                     List<Variable> returnParams = new ArrayList<>();
                     FunctionSignatureNode methodSignature = methodNode.methodSignature();
@@ -501,12 +531,19 @@ public class Generator {
                                 methodNode.metadata()), false, type));
                     }
 
-                    boolean isRemote = containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD);
+                    FunctionKind functionKind;
+                    if (containsToken(methodNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD)) {
+                        functionKind = FunctionKind.REMOTE;
+                    } else if (containsToken(methodNode.qualifierList(), SyntaxKind.RESOURCE_KEYWORD)) {
+                        functionKind = FunctionKind.RESOURCE;
+                    } else {
+                        functionKind = FunctionKind.OTHER;
+                    }
 
-                    objectFunctions.add(new Function(methodName, getDocFromMetadata(methodNode.metadata()),
-                            isRemote, false, isDeprecated(methodNode.metadata()),
-                            containsToken(methodNode.qualifierList(), SyntaxKind.ISOLATED_KEYWORD), parameters,
-                            returnParams));
+                    objectFunctions.add(new Function(methodName, accessor, resourcePath,
+                            getDocFromMetadata(methodNode.metadata()), functionKind, false,
+                            isDeprecated(methodNode.metadata()), containsToken(methodNode.qualifierList(),
+                            SyntaxKind.ISOLATED_KEYWORD), parameters, returnParams));
                 }
             } else if (member instanceof TypeReferenceNode) {
                 Type originType = Type.fromNode(member, semanticModel);
@@ -542,9 +579,9 @@ public class Generator {
                         functionType.returnType.isDeprecated, functionType.returnType));
             }
 
-            Function function = new Function(functionType.name, functionType.description, functionType.isRemote,
-                    functionType.isExtern, functionType.isDeprecated, functionType.isIsolated, parameters,
-                    returnParameters);
+            Function function = new Function(functionType.name, functionType.accessor, functionType.resourcePath,
+                    functionType.description, functionType.functionKind, functionType.isExtern,
+                    functionType.isDeprecated, functionType.isIsolated, parameters, returnParameters);
             function.inclusionType = originType.isPublic ? originType : null;
             functions.add(function);
         }
@@ -553,7 +590,17 @@ public class Generator {
 
     private static Function getFunctionModel(FunctionDefinitionNode functionDefinitionNode,
                                              SemanticModel semanticModel) {
-        String functionName = functionDefinitionNode.functionName().text();
+        String functionName = "";
+        String accessor = "";
+        String resourcePath = "";
+        if (functionDefinitionNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION) {
+            accessor = functionDefinitionNode.functionName().text();
+            resourcePath = functionDefinitionNode.relativeResourcePath().stream().
+                    collect(StringBuilder::new, (firstString, secondString) -> firstString.append(secondString),
+                            (nodeA, nodeB) -> nodeA.append(nodeB)).toString();
+        } else {
+            functionName = functionDefinitionNode.functionName().text();
+        }
 
         List<DefaultableVariable> parameters = new ArrayList<>();
         List<Variable> returnParams = new ArrayList<>();
@@ -574,10 +621,17 @@ public class Generator {
         }
 
         boolean isExtern = functionDefinitionNode.functionBody() instanceof ExternalFunctionBodyNode;
-        boolean isRemote = containsToken(functionDefinitionNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD);
+        FunctionKind functionKind;
+        if (containsToken(functionDefinitionNode.qualifierList(), SyntaxKind.REMOTE_KEYWORD)) {
+            functionKind = FunctionKind.REMOTE;
+        } else if (containsToken(functionDefinitionNode.qualifierList(), SyntaxKind.RESOURCE_KEYWORD)) {
+            functionKind = FunctionKind.RESOURCE;
+        } else {
+            functionKind = FunctionKind.OTHER;
+        }
 
-        return new Function(functionName, getDocFromMetadata(functionDefinitionNode.metadata()),
-                isRemote, isExtern, isDeprecated(functionDefinitionNode.metadata()),
+        return new Function(functionName, accessor, resourcePath, getDocFromMetadata(functionDefinitionNode.metadata()),
+                functionKind, isExtern, isDeprecated(functionDefinitionNode.metadata()),
                 containsToken(functionDefinitionNode.qualifierList(), SyntaxKind.ISOLATED_KEYWORD), parameters,
                 returnParams, annotationAttachments);
     }

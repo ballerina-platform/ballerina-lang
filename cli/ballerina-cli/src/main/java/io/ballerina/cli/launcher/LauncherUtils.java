@@ -93,4 +93,35 @@ public class LauncherUtils {
         c[0] = Character.toLowerCase(c[0]);
         return new String(c);
     }
+
+    static String wrapString(String str, int wrapLength, int indent) {
+        StringBuilder wrappedStr = new StringBuilder();
+        int i = 0;
+        while (i < str.length()) {
+            if (Character.isWhitespace(str.charAt(i))) {
+                i++;
+                continue;
+            }
+            if (i > 0) {
+                wrappedStr.append("\n");
+                wrappedStr.append(" ".repeat(indent));
+            }
+            int lineEnd = Math.min(i + wrapLength, str.length());
+            if (lineEnd < str.length() && !Character.isWhitespace(str.charAt(lineEnd))) {
+                // find the last whitespace character before the maximum line length
+                int lastWhitespace = str.lastIndexOf(' ', lineEnd);
+                if (lastWhitespace > i) {
+                    lineEnd = lastWhitespace;
+                }
+            }
+            wrappedStr.append(str, i, lineEnd);
+            i = lineEnd;
+            // skip any whitespace characters at the beginning of the next line
+            while (i < str.length() && Character.isWhitespace(str.charAt(i))) {
+                i++;
+            }
+        }
+        return wrappedStr.toString();
+    }
+
 }
