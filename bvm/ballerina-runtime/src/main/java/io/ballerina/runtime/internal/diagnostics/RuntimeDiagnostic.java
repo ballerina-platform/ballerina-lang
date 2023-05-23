@@ -57,7 +57,7 @@ public class RuntimeDiagnostic extends Diagnostic {
 
     @Override
     public String message() {
-        return BLangExceptionHelper.getErrorMessage(diagnosticInfo.messageFormat(), args);
+        return BLangExceptionHelper.getErrorMessage(diagnosticInfo.messageFormat(), args).getValue();
     }
 
     @Override

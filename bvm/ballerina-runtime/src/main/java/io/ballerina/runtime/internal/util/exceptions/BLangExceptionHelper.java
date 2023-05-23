@@ -65,8 +65,8 @@ public class BLangExceptionHelper {
         return new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
     }
 
-    public static String getErrorMessage(String messageFormat, Object... params) {
-        return MessageFormat.format(messageBundle.getString(messageFormat), params);
+    public static BString getErrorMessage(String messageFormat, Object... params) {
+        return StringUtils.fromString(MessageFormat.format(messageBundle.getString(messageFormat), params));
     }
 
     /**
