@@ -133,6 +133,7 @@ public enum SyntaxKind {
     RE_KEYWORD(400, "re"), // Any kind above this is considered as a keyword
     GROUP_KEYWORD(401, "group"),
     COLLECT_KEYWORD(402, "collect"),
+
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
     CLOSE_BRACE_TOKEN(501, "}"),
