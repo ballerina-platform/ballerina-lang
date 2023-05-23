@@ -45,7 +45,6 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BLangFreezeException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.AbstractMap;
@@ -200,13 +199,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
     protected void handleFrozenTableValue() {
         synchronized (this) {
-            try {
-                if (this.tableType.isReadOnly()) {
-                    ReadOnlyUtils.handleInvalidUpdate(TABLE_LANG_LIB);
-                }
-            } catch (BLangFreezeException e) {
-                throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()),
-                                               StringUtils.fromString(e.getDetail()));
+            if (this.tableType.isReadOnly()) {
+                ReadOnlyUtils.handleInvalidUpdate(TABLE_LANG_LIB);
             }
         }
     }
