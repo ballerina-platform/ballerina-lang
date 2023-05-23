@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
 /**
  * Constant expression without expected type test cases.
  *
- * @since 2201.6.0
+ * @since 2201.7.0
  */
 public class ConstantWithoutExpectedTypeTest {
     private CompileResult compileResult;

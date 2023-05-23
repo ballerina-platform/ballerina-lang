@@ -2338,8 +2338,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         // assign the type to var type node
         if (varNode.getBType() == null) {
             if (varNode.typeNode != null) {
-                if (varNode.typeNode.defn != null) {
-                    varNode.setBType(varNode.typeNode.defn.type);
+                if (varNode.typeNode.getBType() != null) {
+                    varNode.setBType(varNode.typeNode.getBType());
                 } else {
                     varNode.setBType(symResolver.resolveTypeNode(varNode.typeNode, env));
                 }

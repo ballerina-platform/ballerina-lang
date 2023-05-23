@@ -87,9 +87,7 @@ public class CyclicTypeDefinitionsTest {
                 {"testCyclicErrorTypeDefinition"},
                 {"testCyclicReadonlyErrorTypeDefinition"},
                 {"testComplexCyclicRecordTypeDefinition"},
-                {"testCyclicReadonlyArrayTypeDefinition"},
-                {"testCyclicXMLTypeDefinition"},
-                {"testCyclicReadonlyXMLTypeDefinition"}
+                {"testCyclicReadonlyArrayTypeDefinition"}
         };
     }
 

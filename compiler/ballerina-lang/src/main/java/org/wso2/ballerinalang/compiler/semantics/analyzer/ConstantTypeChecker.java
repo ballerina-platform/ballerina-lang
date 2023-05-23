@@ -125,7 +125,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 /**
  * Resolve the value and check the type of  constant expression.
  *
- * @since 2201.6.0
+ * @since 2201.7.0
  */
 public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChecker.AnalyzerData> {
     private static final CompilerContext.Key<ConstantTypeChecker> CONSTANT_TYPE_CHECKER_KEY =
@@ -143,7 +143,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     private final ConstantTypeChecker.FillMembers fillMembers;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private Location currentPos;
-    private int compoundExprCount = 0;
     public Stack<String> anonTypeNameSuffixes = new Stack<>();
 
     public ConstantTypeChecker(CompilerContext context) {
@@ -269,7 +268,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         BType finiteType = getFiniteType(literalExpr.value, data.constantSymbol, literalExpr.pos, literalType);
-        if (compoundExprCount == 0 &&
+        if (data.compoundExprCount == 0 &&
                 types.typeIncompatible(literalExpr.pos, finiteType, data.expType)) {
             data.resultType = symTable.semanticError;
             return;
@@ -326,7 +325,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             }
         }
 
-        if (compoundExprCount == 0 &&
+        if (data.compoundExprCount == 0 &&
                 types.typeIncompatible(varRefExpr.pos, actualType, data.expType)) {
             data.resultType = symTable.semanticError;
             return;
@@ -406,13 +405,13 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     public void visit(BLangBinaryExpr binaryExpr, AnalyzerData data) {
         BType expType = data.expType;
 
-        compoundExprCount++;
+        data.compoundExprCount++;
         BType lhsType = checkConstExpr(binaryExpr.lhsExpr, expType, data);
-        compoundExprCount--;
+        data.compoundExprCount--;
 
-        compoundExprCount++;
+        data.compoundExprCount++;
         BType rhsType = checkConstExpr(binaryExpr.rhsExpr, expType, data);
-        compoundExprCount--;
+        data.compoundExprCount--;
 
         Location pos = binaryExpr.pos;
 
@@ -458,7 +457,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             return;
         }
         BType finiteType = getFiniteType(resolvedValue, constantSymbol, pos, resultType);
-        if (compoundExprCount == 0 && types.typeIncompatible(pos, finiteType, expType)) {
+        if (data.compoundExprCount == 0 && types.typeIncompatible(pos, finiteType, expType)) {
             data.resultType = symTable.semanticError;
             return;
         }
@@ -472,9 +471,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     public void visit(BLangUnaryExpr unaryExpr, AnalyzerData data) {
         BType resultType;
 
-        compoundExprCount++;
+        data.compoundExprCount++;
         BType actualType = checkConstExpr(unaryExpr.expr, data.expType, data);
-        compoundExprCount--;
+        data.compoundExprCount--;
 
         if (actualType == symTable.semanticError) {
             data.resultType = symTable.semanticError;
@@ -500,7 +499,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         }
 
         BType finiteType = getFiniteType(resolvedValue, constantSymbol, unaryExpr.pos, resultType);
-        if (compoundExprCount == 0 && types.typeIncompatible(unaryExpr.pos, finiteType, data.expType)) {
+        if (data.compoundExprCount == 0 && types.typeIncompatible(unaryExpr.pos, finiteType, data.expType)) {
             data.resultType = symTable.semanticError;
             return;
         }
@@ -2201,7 +2200,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     /**
-     * @since 2201.6.0
+     * @since 2201.7.0
      */
     public static class FillMembers implements TypeVisitor {
 
@@ -2614,7 +2613,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     /**
-     * @since 2201.6.0
+     * @since 2201.7.0
      */
     public static class ResolveConstantExpressionType extends
             SimpleBLangNodeAnalyzer<ConstantTypeChecker.AnalyzerData> {
@@ -2839,12 +2838,11 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     /**
-     * @since 2201.6.0
+     * @since 2201.7.0
      */
     public static class AnalyzerData extends TypeChecker.AnalyzerData {
         public SymbolEnv env;
         boolean isTypeChecked;
-        Stack<SymbolEnv> prevEnvs;
         Types.CommonAnalyzerData commonAnalyzerData = new Types.CommonAnalyzerData();
         DiagnosticCode diagCode;
         BType expType;
@@ -2852,5 +2850,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         BType resultType;
         Map<String, BLangNode> modTable;
         BConstantSymbol constantSymbol;
+        int compoundExprCount = 0;
     }
 }

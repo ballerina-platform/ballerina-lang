@@ -158,22 +158,6 @@ function testCyclicReadonlyArrayTypeDefinition() {
     assertTrue(arr is readonly);
 }
 
-type A4 xml<A4|xml>;
-
-function testCyclicXMLTypeDefinition() {
-    A4 a1 = xml `ab`;
-    assertEquals(a1.toString(), "ab");
-}
-
-type A5 A6 & readonly;
-type A6 xml<A5>;
-
-function testCyclicReadonlyXMLTypeDefinition() {
-    A5 a1 = xml `ab`;
-    assertTrue(a1 is readonly);
-    assertEquals(a1.toString(), "ab");
-}
-
 function assertTrue(anydata actual) {
     assertEquals(true, actual);
 }
