@@ -456,7 +456,7 @@ public type RegExp regexp:RegExp;
 # + str - the string
 # + re - the regular expression
 # + return - true if there is full match of `re` with `str`, and false otherwise
-public function matches(string str, RegExp re) returns boolean {
+public isolated function matches(string str, RegExp re) returns boolean {
    return re.isFullMatch(str);
 }
 
@@ -476,6 +476,6 @@ public function matches(string str, RegExp re) returns boolean {
 # + str - the string to be matched
 # + re - the regular expression
 # + return - true if the is a match of `re` somewhere within `str`, otherwise false
-public function includesMatch(string str, RegExp re, int startIndex = 0) returns boolean {
+public isolated function includesMatch(string str, RegExp re, int startIndex = 0) returns boolean {
    return re.find(str, startIndex) != ();
 }

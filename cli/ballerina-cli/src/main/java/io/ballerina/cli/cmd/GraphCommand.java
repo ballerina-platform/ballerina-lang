@@ -46,7 +46,7 @@ import static io.ballerina.cli.cmd.Constants.GRAPH_COMMAND;
  *
  * @since 2201.2.0
  */
-@CommandLine.Command(name = GRAPH_COMMAND, description = "bal graph - Print the dependency graph")
+@CommandLine.Command(name = GRAPH_COMMAND, description = "Print the dependency graph in the console")
 public class GraphCommand implements BLauncherCmd {
     private Project project;
     private final PrintStream outStream;
@@ -178,10 +178,7 @@ public class GraphCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Resolve the dependencies of the current package and print the final \n");
-        out.append("dependency graph into the console. \n");
-        out.append("This produces the textual representation of the dependency graph \n");
-        out.append("using the DOT graph language. \n");
+        out.append(BLauncherCmd.getCommandUsageInfo(GRAPH_COMMAND));
     }
 
     @Override
