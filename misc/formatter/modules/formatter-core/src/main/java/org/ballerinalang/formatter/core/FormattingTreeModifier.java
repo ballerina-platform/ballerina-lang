@@ -39,6 +39,7 @@ import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ClauseNode;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
+import io.ballerina.compiler.syntax.tree.CollectClauseNode;
 import io.ballerina.compiler.syntax.tree.CommitActionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
@@ -2802,6 +2803,16 @@ public class FormattingTreeModifier extends TreeModifier {
         ExpressionNode expression = formatNode(selectClauseNode.expression(), env.trailingWS, env.trailingNL);
         return selectClauseNode.modify()
                 .withSelectKeyword(selectKeyword)
+                .withExpression(expression)
+                .apply();
+    }
+
+    @Override
+    public CollectClauseNode transform(CollectClauseNode collectClauseNode) {
+        Token selectKeyword = formatToken(collectClauseNode.collectKeyword(), 1, 0);
+        ExpressionNode expression = formatNode(collectClauseNode.expression(), env.trailingWS, env.trailingNL);
+        return collectClauseNode.modify()
+                .withCollectKeyword(selectKeyword)
                 .withExpression(expression)
                 .apply();
     }

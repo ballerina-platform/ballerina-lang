@@ -1,6 +1,6 @@
 function foo() {
     var a = from var a in []
-    select a(;
+        select a(;
     var a = from var a in []
-    select
+        select
 }
