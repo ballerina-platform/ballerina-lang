@@ -22,11 +22,14 @@ import org.ballerinalang.langserver.util.PerformanceTestUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.net.http.HttpClient;
 import java.nio.file.Path;
 
 
@@ -37,6 +40,8 @@ import java.nio.file.Path;
  */
 public class CompletionPerformanceTest extends CompletionTest {
 
+    private static final Logger log = LoggerFactory.getLogger(HttpClient.class);
+
     @Test(dataProvider = "completion-data-provider")
     @Override
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
@@ -46,6 +51,12 @@ public class CompletionPerformanceTest extends CompletionTest {
     @Override
     public String getResponse(Path sourcePath, Position position, String triggerChar) throws IOException {
         Endpoint endpoint = getServiceEndpoint();
+        // Waiting for the server to load the packages from the distribution and central
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            log.warn("Interrupted while waiting to load the packages from the distribution and central");
+        }
         TestUtil.openDocument(endpoint, sourcePath);
         long start = System.currentTimeMillis();
         String responseString = TestUtil.getCompletionResponse(sourcePath.toString(), position,

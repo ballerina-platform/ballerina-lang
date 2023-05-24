@@ -80,6 +80,9 @@ public class CentralPackageDescriptorHolder {
         return packageList;
     }
 
+    /**
+     * Central package descriptor.
+     */
     public static class CentralPackageDescriptor {
         private String organization;
         private int limit;

@@ -32,6 +32,12 @@ import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import org.ballerinalang.langserver.common.utils.ModuleUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
+import org.eclipse.lsp4j.ProgressParams;
+import org.eclipse.lsp4j.WorkDoneProgressBegin;
+import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
+import org.eclipse.lsp4j.WorkDoneProgressEnd;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.nio.file.Path;
@@ -43,6 +49,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -127,17 +135,49 @@ public class LSPackageLoader {
                 Collections.emptySet()));
     }
 
-    private void loadBallerinaxPackagesFromCentral(LanguageServerContext context) {
+    private void loadBallerinaxPackagesFromCentral(LanguageServerContext lsContext) {
         if (!this.centralPackages.isEmpty()) {
             return;
         }
 
-        CentralPackageDescriptorHolder.getInstance(context).getPackagesFromCentral().forEach(packageInfo -> {
-            PackageOrg packageOrg = PackageOrg.from(packageInfo.getOrganization());
-            PackageName packageName = PackageName.from(packageInfo.getName());
-            PackageVersion packageVersion = PackageVersion.from(packageInfo.getVersion());
-            ModuleInfo moduleInfo = new ModuleInfo(packageOrg, packageName, packageVersion, null);
-            centralPackages.add(moduleInfo);
+        String taskId = UUID.randomUUID().toString();
+        ExtendedLanguageClient languageClient = lsContext.get(ExtendedLanguageClient.class);
+        LSClientLogger clientLogger = LSClientLogger.getInstance(lsContext);
+        CompletableFuture.runAsync(() -> {
+            if (languageClient != null) {
+                // Initialize progress notification
+                WorkDoneProgressCreateParams workDoneProgressCreateParams = new WorkDoneProgressCreateParams();
+                workDoneProgressCreateParams.setToken(taskId);
+                languageClient.createProgress(workDoneProgressCreateParams);
+
+                // Start progress
+                WorkDoneProgressBegin beginNotification = new WorkDoneProgressBegin();
+                beginNotification.setTitle("Loading Ballerina Central Packages");
+                beginNotification.setCancellable(false);
+                beginNotification.setMessage("Loading...");
+                languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                        Either.forLeft(beginNotification)));
+            }
+        }).thenRunAsync(() -> {
+            CentralPackageDescriptorHolder.getInstance(lsContext).getPackagesFromCentral().forEach(packageInfo -> {
+                PackageOrg packageOrg = PackageOrg.from(packageInfo.getOrganization());
+                PackageName packageName = PackageName.from(packageInfo.getName());
+                PackageVersion packageVersion = PackageVersion.from(packageInfo.getVersion());
+                ModuleInfo moduleInfo = new ModuleInfo(packageOrg, packageName, packageVersion, null);
+                centralPackages.add(moduleInfo);
+            });
+        }).thenRunAsync(() -> {
+            WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
+            endNotification.setMessage("Loaded Successfully!");
+            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                    Either.forLeft(endNotification)));
+        }).exceptionally(e -> {
+            WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
+            endNotification.setMessage("Loading Failed!");
+            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                    Either.forLeft(endNotification)));
+            clientLogger.logTrace("Failed loading ballerina central packages due to " + e.getMessage());
+            return null;
         });
     }
 
