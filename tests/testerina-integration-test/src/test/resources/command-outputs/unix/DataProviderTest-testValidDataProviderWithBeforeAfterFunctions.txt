@@ -6,6 +6,9 @@ WARNING [tests/new-data-provider-tests.bal:(153:9,153:21)] unused variable 'a'
 Running Tests with Coverage
 
 	dataproviders
+
+		Test execution time :*****ms
+
 		[pass] testDividingValues#0
 		[pass] testDividingValues#1
 		[pass] testDividingValues#2
@@ -19,6 +22,9 @@ Running Tests with Coverage
 		0 skipped
 
 	dataproviders.module1
+
+		Test execution time :*****ms
+
 
 
 		No tests found

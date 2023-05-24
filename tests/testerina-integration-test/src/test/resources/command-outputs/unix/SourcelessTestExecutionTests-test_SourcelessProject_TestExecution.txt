@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	sourcelessProjectTest
+
+		Test execution time :*****ms
+
 		[pass] test7
 
 
@@ -12,6 +15,9 @@ Running Tests with Coverage
 		0 skipped
 
 	sourcelessProjectTest.module1
+
+		Test execution time :*****ms
+
 		[pass] test5
 
 
@@ -20,6 +26,9 @@ Running Tests with Coverage
 		0 skipped
 
 	sourcelessProjectTest.module2
+
+		Test execution time :*****ms
+
 		[pass] test6
 
 

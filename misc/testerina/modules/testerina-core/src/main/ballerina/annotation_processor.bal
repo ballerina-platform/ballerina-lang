@@ -79,7 +79,7 @@ function processConfigAnnotation(string name, function f) returns boolean {
         if !isTestFunctionParamSafe {
             reasonToSerialExecution.push("unsafe test parameters");
         }
-        if !isSatisfiedParallelizableConditions && !config.serialExecution {
+        if !isSatisfiedParallelizableConditions && !config.serialExecution && (testWorkers > 1) {
             println("WARNING : Test function '" + name + "' cannot be parallelized due to " + string:'join(",", ...reasonToSerialExecution));
         }
 

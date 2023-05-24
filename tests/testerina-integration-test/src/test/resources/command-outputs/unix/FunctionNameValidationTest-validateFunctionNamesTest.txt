@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	validate_function_names
+
+		Test execution time :*****ms
+
 		[pass] validateFunctionName
 
 

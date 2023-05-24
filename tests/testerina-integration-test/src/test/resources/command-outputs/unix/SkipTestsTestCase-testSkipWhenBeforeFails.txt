@@ -12,6 +12,9 @@ Running Tests
 			callableName: before  fileName: skip-when-before-fails.bal lineNumber: 28
 			callableName: before$lambda6$  fileName: skip-when-before-fails.bal lineNumber: 32
 		
+
+		Test execution time :*****ms
+
 	[fail] afterSuite[after test suite function]:
 	    error {ballerina/test:0}TestError ("Assertion Failed!
 		 

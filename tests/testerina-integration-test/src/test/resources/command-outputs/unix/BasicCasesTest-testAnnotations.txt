@@ -4,11 +4,10 @@ Compiling source
 Running Tests with Coverage
 
 	annotations
+
+		Test execution time :*****ms
+
 		[pass] jsonDataProviderTest#0
-		[pass] stringDataProviderTest#0
-		[pass] stringDataProviderTest#1
-		[pass] stringDataProviderTest#2
-		[pass] stringDataProviderTest2#0
 		[pass] test1
 		[pass] test2
 		[pass] test3
@@ -18,6 +17,10 @@ Running Tests with Coverage
 		[pass] testAfter
 		[pass] testAfterAlone
 		[pass] testDependsOn1
+		[pass] stringDataProviderTest#0
+		[pass] stringDataProviderTest#1
+		[pass] stringDataProviderTest#2
+		[pass] stringDataProviderTest2#0
 
 
 		14 passing

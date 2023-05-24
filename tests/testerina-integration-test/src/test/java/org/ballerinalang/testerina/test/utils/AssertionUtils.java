@@ -48,9 +48,11 @@ public class AssertionUtils {
 
     public static void assertOutput(String outputFileName, String output) throws IOException {
         if (isWindows) {
+            output = CommonUtils.replaceExecutionTime(output);
             String fileContent =  Files.readString(commandOutputsDir.resolve("windows").resolve(outputFileName));
             Assert.assertEquals(output.replaceAll("\r\n|\r", "\n"), fileContent.replaceAll("\r\n|\r", "\n"));
         } else {
+            output = CommonUtils.replaceExecutionTime(output);
             String fileContent = Files.readString(commandOutputsDir.resolve("unix").resolve(outputFileName));
             Assert.assertEquals(output.stripTrailing(), fileContent.stripTrailing());
         }

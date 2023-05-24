@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	defaultModuleSource.module1
+
+		Test execution time :*****ms
+
 		[pass] test3
 
 
@@ -12,6 +15,9 @@ Running Tests with Coverage
 		0 skipped
 
 	defaultModuleSource.module2
+
+		Test execution time :*****ms
+
 		[pass] test4
 
 

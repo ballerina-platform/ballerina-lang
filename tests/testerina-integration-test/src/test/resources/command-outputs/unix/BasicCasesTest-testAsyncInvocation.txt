@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	async
+
+		Test execution time :*****ms
+
 		[pass] testAsyncRemoteFunctionMain
 		[pass] testAsyncRemoteFunctionTest
 

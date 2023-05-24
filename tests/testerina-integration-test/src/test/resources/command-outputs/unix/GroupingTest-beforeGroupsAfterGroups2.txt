@@ -6,6 +6,9 @@ Compiling source
 Running Tests
 
 	before-groups-after-groups-test2.bal
+
+		Test execution time :*****ms
+
 	[fail] afterSuiteFunc[after test suite function]:
 	    error {ballerina/test:0}TestError ("Assertion Failed!
 		 

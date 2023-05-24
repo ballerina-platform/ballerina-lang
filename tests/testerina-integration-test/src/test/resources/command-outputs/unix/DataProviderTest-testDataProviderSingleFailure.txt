@@ -6,6 +6,14 @@ WARNING [tests/new-data-provider-tests.bal:(153:9,153:21)] unused variable 'a'
 Running Tests with Coverage
 
 	dataproviders
+
+****************************************************
+testDividingValuesNegative:2 has failed.
+****************************************************
+
+
+		Test execution time :*****ms
+
 		[pass] testDividingValuesNegative#0
 		[pass] testDividingValuesNegative#1
 		[pass] testDividingValuesNegative#3
@@ -19,9 +27,9 @@ Running Tests with Coverage
 				callableName: testDividingValuesNegative moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 191
 				callableName: testDividingValuesNegative$lambda14$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 17
 			",functionName="testDividingValuesNegative")
-				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 477
-				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 252
-				callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 241
+				callableName: executeTestFunction moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 507
+				callableName: executeDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 279
+				callableName: prepareDataDrivenTest moduleName: ballerina.test.0 fileName: execute.bal lineNumber: 268
 			
 
 
@@ -30,6 +38,9 @@ Running Tests with Coverage
 		0 skipped
 
 	dataproviders.module1
+
+		Test execution time :*****ms
+
 
 
 		No tests found

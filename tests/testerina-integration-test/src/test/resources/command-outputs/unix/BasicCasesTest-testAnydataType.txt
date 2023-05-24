@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	anydata_type
+
+		Test execution time :*****ms
+
 		[pass] testFn
 		[pass] testFoo
 

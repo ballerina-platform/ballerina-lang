@@ -6,6 +6,9 @@ Compiling source
 Running Tests
 
 	disable-test.bal
+
+		Test execution time :*****ms
+
 		[pass] testDisableFunc2
 		[pass] testDisableFunc3
 

@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	mocking_coverage.mod2
+
+		Test execution time :*****ms
+
 		[pass] testFloatAdd
 		[pass] testStringAdd
 
@@ -13,6 +16,9 @@ Running Tests with Coverage
 		0 skipped
 
 	mocking_coverage
+
+		Test execution time :*****ms
+
 		[pass] testFloatAdd
 		[pass] testStringAdd
 

@@ -115,7 +115,7 @@ public class TestparallelizationTest extends BaseTestCase {
         for (int testNo = 1; testNo < 61; testNo++) {
             Assert.assertTrue(output.contains(warningDiagnostics.replace("*", Integer.toString(testNo))));
         }
-        args = mergeCoverageArgs(new String[]{"--workers=1", "non-isolated-tests"});
+        args = mergeCoverageArgs(new String[]{"--workers=2", "non-isolated-tests"});
         output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         Float executionTimeW1 = getTimeForTestExecution(output);
@@ -137,7 +137,7 @@ public class TestparallelizationTest extends BaseTestCase {
         Assert.assertTrue(output.contains("12 passing") && output.contains("28 failing"));
         Assert.assertTrue(output.contains(warningDiagnostics));
 
-        args = mergeCoverageArgs(new String[]{"--workers=1", "non-isolated-test-params"});
+        args = mergeCoverageArgs(new String[]{"--workers=2", "non-isolated-test-params"});
         output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         Float executionTimeW1 = getTimeForTestExecution(output);
@@ -157,7 +157,7 @@ public class TestparallelizationTest extends BaseTestCase {
         Assert.assertTrue(output.contains("40 passing") && output.contains("0 failing"));
         Assert.assertTrue(output.contains(warningDiagnostics));
 
-        args = mergeCoverageArgs(new String[]{"--workers=1", "non-isolated-data-provider"});
+        args = mergeCoverageArgs(new String[]{"--workers=2", "non-isolated-data-provider"});
         output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         Float executionTimeW1 = getTimeForTestExecution(output);
