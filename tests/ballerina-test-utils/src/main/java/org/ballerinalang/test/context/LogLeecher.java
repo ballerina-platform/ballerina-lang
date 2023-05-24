@@ -74,12 +74,16 @@ public class LogLeecher {
      * @param logLine The log line which was read
      */
     void feedLine(String logLine) {
-        if ((isRegExp && logLine.matches(text)) || (!isRegExp && logLine.contains(text))) {
+        if (isTextFound(logLine)) {
             textFound = true;
             synchronized (this) {
                 this.notifyAll();
             }
         }
+    }
+
+    private boolean isTextFound(String logLine) {
+        return isRegExp ? logLine.matches(text) : logLine.contains(text);
     }
 
     /**

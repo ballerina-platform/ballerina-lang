@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -79,7 +78,7 @@ public class StrandDumpTest extends BaseTest {
 
     @Test
     public void testStrandDumpDuringBalTest() throws BallerinaTestException {
-        if (isWindowsOS()) {
+        if (Utils.isWindowsOS()) {
             return;
         }
 
@@ -116,7 +115,7 @@ public class StrandDumpTest extends BaseTest {
     private static void runJarAndVerifyStrandDump(Map<String, String> envProperties, String jarPath, String commandDir,
                                            Path expectedStrandDumpFilePath, Path steadyStateOutputFilePath)
             throws BallerinaTestException {
-        if (isWindowsOS()) {
+        if (Utils.isWindowsOS()) {
             return;
         }
 
@@ -190,9 +189,5 @@ public class StrandDumpTest extends BaseTest {
         } catch (IOException e) {
             throw new BallerinaTestException("Failure to read from the file: " + filePath);
         }
-    }
-
-    private static boolean isWindowsOS() {
-        return Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows");
     }
 }
