@@ -27,24 +27,14 @@ apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 dependencies {
     implementation 'org.slf4j:slf4j-api'
     implementation project(':ballerina-lang')
-    implementation project(':testerina:testerina-core')
-    implementation project(':ballerina-cli')
-//    implementation project(':ballerina-http')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(':ballerina-lang-test')
     implementation project(':ballerina-runtime')
-    implementation project(':docerina')
     implementation project(':ballerina-lang:value');
     implementation project(':ballerina-lang:regexp');
+    implementation project(':observability-symbol-collector');
 
-    implementation 'org.testng:testng'
-    testImplementation 'org.awaitility:awaitility'
-    testImplementation 'com.zaxxer:HikariCP'
-    testImplementation 'org.slf4j:slf4j-jdk14'
-    testImplementation 'org.hsqldb:hsqldb'
     testImplementation 'org.mockito:mockito-all'
-    testImplementation 'io.netty:netty-transport'
-    testImplementation 'io.netty:netty-codec'
     testImplementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
     testImplementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
     testImplementation 'org.testng:testng'
@@ -109,9 +99,6 @@ configurations {
     testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
-    testImplementation.exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
-    testImplementation.exclude group: 'org.codehaus.woodstox', module: 'stax2-api'
-    testImplementation.exclude(group: 'com.fasterxml.woodstox', module: 'woodstox-core')
 }
 
 configurations.all {
