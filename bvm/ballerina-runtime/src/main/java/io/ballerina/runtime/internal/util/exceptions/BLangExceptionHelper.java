@@ -35,8 +35,10 @@ import java.util.ResourceBundle;
  * Utility class for handler error messages.
  */
 public class BLangExceptionHelper {
-    private static ResourceBundle messageBundle = ResourceBundle.getBundle("MessagesBundle", Locale.getDefault());
+    private static final ResourceBundle messageBundle = ResourceBundle.getBundle("MessagesBundle", Locale.getDefault());
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
+
+    private BLangExceptionHelper() {}
 
     public static BError getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
         BString errorMsg = StringUtils
@@ -70,52 +72,7 @@ public class BLangExceptionHelper {
     }
 
     /**
-     * Handle any json related exception.
-     *
-     * @param reason The reason to set as error reason
-     * @param operation Operation that executed
-     * @param e Throwable to handle
-     * @return Error value
-     */
-    public static BError getJsonError(String reason, String operation, Throwable e) {
-        // here local message of the cause is logged whenever possible, to avoid java class being logged
-        // along with the error message.
-        if (e instanceof BallerinaException && ((BallerinaException) e).getDetail() != null) {
-            return ErrorCreator.createError(StringUtils.fromString(reason),
-                                            StringUtils.fromString("Failed to " + operation + ": " +
-                                                                            ((BallerinaException) e).getDetail()));
-        } else if (e instanceof BLangFreezeException) {
-            return ErrorCreator.createError(StringUtils.fromString(reason),
-                                            StringUtils.fromString("Failed to " + operation + ": " +
-                                                                            ((BLangFreezeException) e).getDetail()));
-        } else if (e.getCause() != null) {
-            return ErrorCreator.createError(StringUtils.fromString(reason),
-                                            StringUtils.fromString(
-                                                     "Failed to " + operation + ": " + e.getCause().getMessage()));
-        } else {
-            return ErrorCreator.createError(StringUtils.fromString(reason),
-                                            StringUtils
-                                                     .fromString("Failed to " + operation + ": " + e.getMessage()));
-        }
-    }
-
-    /*
-     * XML error handling methods.
-     */
-
-    /**
-     * Handle invalid/malformed xpath exceptions.
-     *
-     * @param operation Operation that executed
-     * @param e Exception to handle
-     */
-    public static void handleInvalidXPath(String operation, Exception e) {
-        throw ErrorCreator
-                .createError(StringUtils.fromString("Failed to " + operation + ". Invalid xpath: " + e.getMessage()));
-    }
-
-    /**
-     * Handle any xpath related exception.
+     * Handle any XML related exception.
      *
      * @param operation Operation that executed
      * @param e Throwable to handle
@@ -123,21 +80,27 @@ public class BLangExceptionHelper {
     public static void handleXMLException(String operation, Throwable e) {
         // here local message of the cause is logged whenever possible, to avoid java class being logged
         // along with the error message.
-        if (e instanceof BallerinaException && ((BallerinaException) e).getDetail() != null) {
-            throw ErrorCreator.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
-                                           StringUtils.fromString("Failed to " + operation + ": " +
-                                                                           ((BallerinaException) e).getDetail()));
-        } else if (e instanceof BLangFreezeException) {
-            throw ErrorCreator.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
-                                           StringUtils.fromString("Failed to " + operation + ": " +
-                                                                           ((BLangFreezeException) e).getDetail()));
+        String errorDetail;
+        if (isBErrorWithMessageDetail(e)) {
+            errorDetail = ((BMap<BString, Object>) ((BError) e).getDetails()).get(StringUtils.fromString("message"))
+                    .toString();
         } else if (e.getCause() != null) {
-            throw ErrorCreator.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
-                                           StringUtils.fromString(
-                                                    "Failed to " + operation + ": " + e.getCause().getMessage()));
+            errorDetail = e.getCause().getMessage();
         } else {
-            throw ErrorCreator.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
-                                           StringUtils.fromString("Failed to " + operation + ": " + e.getMessage()));
+            errorDetail = e.getMessage();
         }
+        throw ErrorCreator.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
+                StringUtils.fromString("Failed to " + operation + ": " + errorDetail));
+    }
+
+    private static boolean isBErrorWithMessageDetail(Throwable e) {
+        if (!(e instanceof BError)) {
+            return false;
+        }
+        Object bErrorDetails = ((BError) e).getDetails();
+        if (bErrorDetails == null) {
+            return false;
+        }
+        return ((BMap<BString, Object>) bErrorDetails).get(StringUtils.fromString("message")) != null;
     }
 }
