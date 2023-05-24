@@ -188,7 +188,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "query_expr_source_119.bal", "query_expr_source_120.bal", "query_expr_source_121.bal",
                 "query_expr_source_122.bal", "query_expr_source_123.bal", "query_expr_source_124.bal",
                 "query_expr_source_103.bal", "query_expr_source_115.bal",
-                "query_expr_source_126.bal" // TODO: Enable this after #40493
+                "query_expr_source_126.bal", "keyword_source_01.bal", "keyword_source_02.bal"
+                // TODO: Enable this after #40493
         );
     }
 

@@ -35,7 +35,6 @@ import io.ballerina.compiler.internal.parser.tree.STFunctionArgumentNode;
 import io.ballerina.compiler.internal.parser.tree.STFunctionCallExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STFunctionSignatureNode;
 import io.ballerina.compiler.internal.parser.tree.STFunctionTypeDescriptorNode;
-import io.ballerina.compiler.internal.parser.tree.STIdentifierToken;
 import io.ballerina.compiler.internal.parser.tree.STIndexedExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STIntersectionTypeDescriptorNode;
 import io.ballerina.compiler.internal.parser.tree.STListConstructorExpressionNode;
@@ -9154,6 +9153,7 @@ public class BallerinaParser extends AbstractParser {
                 if (isGroupOrCollectKeyword(nextToken)) {
                     return parseAsyncSendAction(expression, rightArrow, name);
                 }
+
                 recover(peek(), ParserRuleContext.REMOTE_CALL_OR_ASYNC_SEND_END);
                 return parseRemoteCallOrAsyncSendEnd(expression, rightArrow, name);
         }
@@ -12019,9 +12019,11 @@ public class BallerinaParser extends AbstractParser {
                 if (isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, nextToken)) {
                     return parseCollectClause(isRhsExpr);
                 }
+
                 if (isKeywordMatch(SyntaxKind.GROUP_KEYWORD, nextToken)) {
                     return parseGroupByClause(isRhsExpr);
                 }
+
                 recover(peek(), ParserRuleContext.QUERY_PIPELINE_RHS);
                 return parseIntermediateClause(isRhsExpr, allowActions);
         }
