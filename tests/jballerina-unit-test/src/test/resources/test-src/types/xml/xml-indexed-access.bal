@@ -68,7 +68,7 @@ function testXMLAccessWithIndex() {
 function testXMLSequenceAccessWithIndex() {
     string v1 = "interpolation1";
     xml seq = xml `<root>${v1} text1 text2<foo>123</foo><bar></bar></root>text2${v1}<!--comment${v1}-->text3<?foo?>`;
-    assert(seq[0].toString(), "<root>interpolation1 text1 text2<foo>123</foo><bar></bar></root>");
+    assert(seq[0].toString(), "<root>interpolation1 text1 text2<foo>123</foo><bar/></root>");
     assert(seq[1].toString(), "text2interpolation1");
     assert(seq[2].toString(), "<!--commentinterpolation1-->");
     assert(seq[3].toString(), "text3");
@@ -77,7 +77,7 @@ function testXMLSequenceAccessWithIndex() {
     xml elements = seq[0]/*;
     assert(elements[0].toString(), "interpolation1 text1 text2");
     assert(elements[1].toString(), "<foo>123</foo>");
-    assert(elements[2].toString(), "<bar></bar>");
+    assert(elements[2].toString(), "<bar/>");
 }
 
 function testLengthOfXMLSequence() returns [int, int, int, int] {
