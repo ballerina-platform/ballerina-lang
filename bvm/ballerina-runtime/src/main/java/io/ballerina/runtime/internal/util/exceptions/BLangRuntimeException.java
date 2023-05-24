@@ -22,14 +22,10 @@ package io.ballerina.runtime.internal.util.exceptions;
  *
  * @since 0.8.0
  */
-public class BLangRuntimeException extends BallerinaException {
+public class BLangRuntimeException extends RuntimeException {
 
     public BLangRuntimeException(String message) {
         super(message);
-    }
-
-    public BLangRuntimeException(String message, String detail) {
-        super(message, detail);
     }
 
     public BLangRuntimeException(String message, Throwable cause) {
