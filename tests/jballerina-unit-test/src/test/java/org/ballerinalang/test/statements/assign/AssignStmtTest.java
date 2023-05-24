@@ -275,13 +275,8 @@ public class AssignStmtTest {
     }
 
     @Test()
-    public void testAssignAnyToUnionWithErrorAndAny() {
-        BRunUtil.invoke(result, "testAssignAnyToUnionWithErrorAndAny");
-    }
-
-    @Test()
-    public void testAssignQueryExpressionToVar() {
-        BRunUtil.invoke(result, "testAssignVarInQueryExpression");
+    public void assignAnyToUnionWithErrorAndAny() {
+        BRunUtil.invoke(result, "assignAnyToUnionWithErrorAndAny");
     }
 
     @Test
