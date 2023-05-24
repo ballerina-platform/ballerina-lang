@@ -74,6 +74,7 @@ public class NativeUtils {
             "io.ballerina.runtime.api.values.BString",
             "io.ballerina.runtime.api.values.BString",
             "io.ballerina.runtime.api.values.BString",
+            "io.ballerina.runtime.api.values.BString",
             "io.ballerina.runtime.api.values.BString"
     });
 

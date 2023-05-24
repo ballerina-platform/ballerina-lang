@@ -66,22 +66,21 @@ function processConfigAnnotation(string name, function f) returns boolean {
             } else {
                 diagnostics = error("Failed to execute the data provider");
             }
+        }
 
-            if !isTestFunctionIsolated {
-                reasonToSerialExecution.push("non-isolated test function");
-            }
+        if !isTestFunctionIsolated {
+            reasonToSerialExecution.push("non-isolated test function");
+        }
 
-            if !isDataProviderIsolated {
-                reasonToSerialExecution.push("non-isolated data-provider function");
-            }
+        if !isDataProviderIsolated {
+            reasonToSerialExecution.push("non-isolated data-provider function");
+        }
 
-            if !isTestFunctionParamSafe {
-                reasonToSerialExecution.push("unsafe test parameters");
-            }
-            if !isSatisfiedParallelizableConditions && !config.serialExecution {
-                println("WARNING : Test function '" + name + "' cannot be parallelized due to " + string:'join(",", ...reasonToSerialExecution));
-            }
-
+        if !isTestFunctionParamSafe {
+            reasonToSerialExecution.push("unsafe test parameters");
+        }
+        if !isSatisfiedParallelizableConditions && !config.serialExecution {
+            println("WARNING : Test function '" + name + "' cannot be parallelized due to " + string:'join(",", ...reasonToSerialExecution));
         }
 
         boolean enabled = config.enable && (filterGroups.length() == 0 ? true : hasGroup(config.groups, filterGroups))

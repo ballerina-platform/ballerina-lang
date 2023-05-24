@@ -43,7 +43,7 @@ function testAssertEquals5() {
     test:assertEquals(100, 100);
 }
 
-@test:Config {dependsOn: [testAssertEquals4, testAssertEquals5], parallelizable: false}
+@test:Config {dependsOn: [testAssertEquals4, testAssertEquals5], serialExecution: true}
 function testAssertEquals6() {
     runtime:sleep(0.5);
     test:assertEquals(100, 100);
@@ -73,7 +73,7 @@ function testAssertEquals10() {
     test:assertEquals(100, 100);
 }
 
-@test:Config {parallelizable: false}
+@test:Config {serialExecution: true}
 function testAssertEquals11() {
     runtime:sleep(0.5);
     test:assertEquals(100, 100);
@@ -91,7 +91,7 @@ function testAssertEquals13() {
     test:assertEquals(100, 100);
 }
 
-@test:Config {parallelizable: false}
+@test:Config {serialExecution: true}
 function testAssertEquals14() {
     runtime:sleep(0.5);
     test:assertEquals(100, 100);
@@ -151,7 +151,7 @@ function testAssertEquals23() {
     test:assertEquals(100, 100);
 }
 
-@test:Config {dependsOn: [testAssertEquals19, testAssertEquals20], parallelizable: false}
+@test:Config {dependsOn: [testAssertEquals19, testAssertEquals20], serialExecution: true}
 function testAssertEquals24() {
     runtime:sleep(0.5);
     test:assertEquals(100, 100);
@@ -175,7 +175,7 @@ function testAssertEquals27() {
     test:assertEquals(100, 100);
 }
 
-@test:Config {parallelizable: false}
+@test:Config {serialExecution: true}
 function testAssertEquals28() {
     runtime:sleep(0.5);
     test:assertEquals(100, 100);

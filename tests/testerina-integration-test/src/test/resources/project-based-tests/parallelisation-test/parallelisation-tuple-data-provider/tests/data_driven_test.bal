@@ -2,8 +2,7 @@ import ballerina/lang.runtime;
 import ballerina/test;
 
 @test:Config {
-    dataProvider: stringDataProvider,
-    parallelizable: true
+    dataProvider: stringDataProvider
 }
 function testAddingValues0(string fValue, string sValue, string result) returns error? {
     int value1 = check 'int:fromString(fValue);

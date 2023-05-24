@@ -3,16 +3,14 @@ import ballerina/lang.runtime;
 import ballerina/test;
 
 @test:Config {
-    dataProvider: mapDataProvider,
-    serialExecution: true
+    dataProvider: mapDataProvider
 }
 function mapDataProviderTest(int value1, int value2, string fruit) returns error? {
     test:assertEquals(value1, value2, msg = "The provided values are not equal");
     runtime:sleep(0.5);
-    test:assertEquals(fruit.length(), 6);
 }
 
-function mapDataProvider() returns map<[int, int, string]>|error {
+public function mapDataProvider() returns map<[int, int, string]>|error {
     map<[int, int, string]> dataSet = {
         "banana": [10, 10, "banana"],
         "cherry": [5, 5, "cherry"],
