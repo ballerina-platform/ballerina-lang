@@ -376,17 +376,16 @@ public class QueryTypeChecker extends TypeChecker {
                 default:
                     // contextually expected type not given (i.e var).
                     BType inferredSelectType = symTable.semanticError;
-                    selectType = checkExprSilent(nodeCloner.cloneNode(selectExp), env, type, data);
+                    selectType = checkExprSilent(selectExp, env, type, data);
                     if (type != symTable.noType) {
-                        inferredSelectType = checkExprSilent(nodeCloner.cloneNode(selectExp), env, symTable.noType,
-                                data);
+                        inferredSelectType = checkExprSilent(selectExp, env, symTable.noType, data);
                     }
 
                     if (selectType != symTable.semanticError && inferredSelectType != symTable.semanticError
                             && inferredSelectType != symTable.noType) {
                         selectType = types.getTypeIntersection(
-                                        Types.IntersectionContext.compilerInternalIntersectionTestContext(),
-                                        selectType, inferredSelectType, env);
+                                Types.IntersectionContext.typeTestIntersectionCalculationContext(),
+                                selectType, inferredSelectType, env);
                     } else {
                         BType checkedType = symTable.semanticError;
                         if (selectType == symTable.semanticError) {
