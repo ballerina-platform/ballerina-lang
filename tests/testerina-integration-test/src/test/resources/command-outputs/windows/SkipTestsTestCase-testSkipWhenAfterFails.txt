@@ -12,11 +12,14 @@ Running Tests
 			callableName: afterFunc  fileName: skip-when-after-fails.bal lineNumber: 30
 			callableName: afterFunc$lambda6$  fileName: skip-when-after-fails.bal lineNumber: 35
 		
+
+		Test execution time :*****ms
+
 	[fail] afterSuite[after test suite function]:
 	    error {ballerina/test:0}TestError ("Assertion Failed!
 		 
 		expected: 'beforetestafterEachtestafterEach'
-		actual	: 'beforetestafterEachafterEachtestafterEach'
+		actual	: 'beforetestafterEachtestafterEachafterEach'
 		 
 		Diff	:
 		
@@ -25,7 +28,7 @@ Running Tests
 		 
 		 @@ -1,1 +1,1 @@ 
 		 
-		 -beforetestafterEachafterEachtestafterEach
+		 -beforetestafterEachtestafterEachafterEach
 		+beforetestafterEachtestafterEach
 		")
 			callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41

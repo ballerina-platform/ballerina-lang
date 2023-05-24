@@ -4,6 +4,9 @@ Compiling source
 Running Tests with Coverage
 
 	function_mocking_with_dependencies.a_dependency
+
+		Test execution time :*****ms
+
 		[pass] test1
 
 
@@ -12,6 +15,9 @@ Running Tests with Coverage
 		0 skipped
 
 	function_mocking_with_dependencies.b_dependent
+
+		Test execution time :*****ms
+
 		[pass] test1
 
 

@@ -8,6 +8,9 @@ Calling init for 'moduleA listener'
 Calling init for 'current module listener'
 Calling start for 'moduleA listener'
 Calling start for 'current module listener'
+
+		Test execution time :*****ms
+
 		[pass] main_test1
 
 
@@ -20,10 +23,13 @@ Calling stop for 'moduleA listener'
 	moduleExecutionFlow.moduleA
 Calling init for 'moduleA listener'
 Calling start for 'moduleA listener'
+
+		Test execution time :*****ms
+
 		[pass] test1
 
 
 		1 passing
 		0 failing
 		0 skipped
-Calling stop for 'moduleA listener'
+Calling stop for 'moduleA listener'

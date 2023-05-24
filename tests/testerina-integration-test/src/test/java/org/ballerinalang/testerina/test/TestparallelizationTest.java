@@ -2,7 +2,6 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -10,7 +9,9 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.util.HashMap;
 
-import static org.ballerinalang.testerina.test.utils.CommonUtils.replaceExecutionTime;
+/**
+ * Test class to test the parallel execution of Ballerina tests.
+ */
 
 public class TestparallelizationTest extends BaseTestCase {
 
@@ -184,7 +185,7 @@ public class TestparallelizationTest extends BaseTestCase {
 
     private float getTimeForTestExecution(String output) {
         int firstPos = output.indexOf("Test execution time :") + ("Test execution time :").length();
-        int lastPos = output.indexOf("ms");
+        int lastPos = output.indexOf("ms", firstPos);
         String executionTime = output.substring(firstPos, lastPos);
         return Float.parseFloat(executionTime);
     }

@@ -6,6 +6,9 @@ WARNING [tests\new-data-provider-tests.bal:(153:9,153:21)] unused variable 'a'
 Running Tests with Coverage
 
 	dataproviders
+
+		Test execution time :*****ms
+
 		[pass] testFunction3#map<any> v = { "x": 1 };
 
 
@@ -14,6 +17,9 @@ Running Tests with Coverage
 		0 skipped
 
 	dataproviders.module1
+
+		Test execution time :*****ms
+
 
 
 		No tests found
