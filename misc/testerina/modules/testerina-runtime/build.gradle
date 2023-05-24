@@ -36,12 +36,12 @@ dependencies {
     implementation "org.ow2.asm:asm-commons:${project.ow2AsmCommonsVersion}"
     implementation "org.ow2.asm:asm-tree:${project.ow2AsmTreeVersion}"
 
-    compile group: 'org.jacoco', name: 'org.jacoco.core', version: "${project.jacocoVersion}"
-    compile group: 'org.jacoco', name: 'org.jacoco.report', version: "${project.jacocoVersion}"
-    compile group: 'org.ow2.asm', name: 'asm', version: "${project.ow2AsmVersion}"
-    compile group: 'org.ow2.asm', name: 'asm-commons', version: "${project.ow2AsmCommonsVersion}"
-    compile group: 'org.ow2.asm', name: 'asm-tree', version: "${project.ow2AsmTreeVersion}"
-    compile group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: "${project.javaDiffUtilsVersion}"
+    implementation group: 'org.jacoco', name: 'org.jacoco.core', version: "${project.jacocoVersion}"
+    implementation group: 'org.jacoco', name: 'org.jacoco.report', version: "${project.jacocoVersion}"
+    implementation group: 'org.ow2.asm', name: 'asm', version: "${project.ow2AsmVersion}"
+    implementation group: 'org.ow2.asm', name: 'asm-commons', version: "${project.ow2AsmCommonsVersion}"
+    implementation group: 'org.ow2.asm', name: 'asm-tree', version: "${project.ow2AsmTreeVersion}"
+    implementation group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: "${project.javaDiffUtilsVersion}"
 
     jar {
         from {

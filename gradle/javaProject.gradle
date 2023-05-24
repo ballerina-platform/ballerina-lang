@@ -143,12 +143,12 @@ tasks.withType(Checkstyle) {
 }
 
 spotbugsMain {
-    jvmArgs '-Xmx2048m'
-    it.effort "max"
-    it.reportLevel "low"
+    jvmArgs = [ '-Xmx2048m' ]
+    it.effort = "max"
+    it.reportLevel = "low"
     it.reports {
-        xml.enabled false
-        html.enabled true
+        xml.required = false
+        html.required = true
     }
     def excludeFile = file('spotbugs-exclude.xml')
     if(excludeFile.exists()) {
@@ -175,11 +175,11 @@ test {
     }
 }
 
-jacocoTestReport {
-    reports {
-        xml.enabled true
-    }
-}
+//jacocoTestReport {
+//    reports {
+//        xml.required = true
+//    }
+//}
 
 task createJavadoc(type: Javadoc) {
     source = sourceSets.main.java
@@ -192,11 +192,22 @@ check {
     dependsOn createJavadoc
 }
 
-task jacocoMergeExec(type: JacocoMerge) {
-        destinationFile = file("$buildDir/jacoco/jacoco.exec")
-        executionData = fileTree("$buildDir/jacoco/").matching {
-            include "**.exec"
-        } as FileCollection
+//task jacocoTestReport(type: JacocoReport) {
+//        destinationFile = file("$buildDir/jacoco/jacoco.exec")
+//        executionData = fileTree("$buildDir/jacoco/").matching {
+//            include "**.exec"
+//        }
+//
+//    reports {
+//        xml.required = true
+//    }
+//}
+
+test {
+    finalizedBy jacocoTestReport // report is always generated after tests run
+}
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
 }
 
 publishing {
@@ -207,7 +218,7 @@ publishing {
     }
 }
 
-test.finalizedBy(jacocoMergeExec)
+test.finalizedBy(jacocoTestReport)
 //compileJava {
 //    doFirst {
 //        inputs.property("moduleName", moduleName)

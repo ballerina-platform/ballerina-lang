@@ -43,7 +43,7 @@ dependencies {
     implementation "org.apache.maven.resolver:maven-resolver-transport-file:${project.apacheMavenTransportFileVersion}"
     implementation "org.apache.maven.resolver:maven-resolver-transport-http:${project.apacheMavenTransportHttpVersion}"
     implementation 'me.tongfei:progressbar'
-    testCompile 'org.testng:testng'
+    testImplementation 'org.testng:testng'
 }
 
 description = 'Ballerina - Maven dependency resolver'

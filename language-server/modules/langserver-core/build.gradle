@@ -78,9 +78,9 @@ dependencies {
     dependency "commons-io:commons-io:${project.commonsIoVersion}"
     dependency "com.google.guava:guava:${project.guavaVersion}"
     
-    testCompile 'org.testng:testng'
-    testCompile 'org.mockito:mockito-all'
-    testCompile 'org.awaitility:awaitility'
+    testImplementation 'org.testng:testng'
+    testImplementation 'org.mockito:mockito-all'
+    testImplementation 'org.awaitility:awaitility'
     testImplementation 'org.powermock:powermock-mockito-release-full'
     testImplementation 'org.powermock:powermock-module-testng-common'
 }
@@ -89,7 +89,7 @@ description = 'Ballerina - Language server - Core'
 
 // Fix for windows class path too long issue
 task pathingJar(type: Jar) {
-    appendix = "pathing"
+    archiveAppendix = "pathing"
     doFirst {
         manifest {
             attributes "Class-Path": sourceSets.main.runtimeClasspath.files.collect {
@@ -108,7 +108,7 @@ task createZip(type: Zip) {
 }
 
 task testJar(type: Jar, dependsOn: testClasses) {
-    baseName = "test-${project.archivesBaseName}"
+    archiveBaseName = "test-${project.archivesBaseName}"
     from sourceSets.test.output
 }
 

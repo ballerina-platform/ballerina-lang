@@ -38,19 +38,19 @@ dependencies {
     implementation project(':ballerina-lang:regexp');
 
     implementation 'org.testng:testng'
-    testCompile 'org.awaitility:awaitility'
-    testCompile 'com.zaxxer:HikariCP'
-    testCompile 'org.slf4j:slf4j-jdk14'
-    testCompile 'org.hsqldb:hsqldb'
-    testCompile 'org.mockito:mockito-all'
-    testCompile 'io.netty:netty-transport'
-    testCompile 'io.netty:netty-codec'
-    testCompile 'org.wso2.transport.http:org.wso2.transport.http.netty'
-    testCompile 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
-    testCompile 'org.testng:testng'
-    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
-    testCompile project(':ballerina-runtime')
-    testRuntime project(':ballerina-runtime')
+    testImplementation 'org.awaitility:awaitility'
+    testImplementation 'com.zaxxer:HikariCP'
+    testImplementation 'org.slf4j:slf4j-jdk14'
+    testImplementation 'org.hsqldb:hsqldb'
+    testImplementation 'org.mockito:mockito-all'
+    testImplementation 'io.netty:netty-transport'
+    testImplementation 'io.netty:netty-codec'
+    testImplementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
+    testImplementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
+    testImplementation 'org.testng:testng'
+    testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testImplementation project(':ballerina-runtime')
+    testRuntimeOnly project(':ballerina-runtime')
 
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
 
@@ -106,12 +106,12 @@ test {
 }
 
 configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
-    testCompile.exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
-    testCompile.exclude group: 'org.codehaus.woodstox', module: 'stax2-api'
-    testCompile.exclude(group: 'com.fasterxml.woodstox', module: 'woodstox-core')
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    testImplementation.exclude group: 'org.codehaus.woodstox', module: 'woodstox-core-asl'
+    testImplementation.exclude group: 'org.codehaus.woodstox', module: 'stax2-api'
+    testImplementation.exclude(group: 'com.fasterxml.woodstox', module: 'woodstox-core')
 }
 
 configurations.all {

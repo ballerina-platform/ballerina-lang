@@ -57,7 +57,7 @@ dependencies {
     }
     implementation 'org.slf4j:slf4j-jdk14'
 
-    testCompile 'org.testng:testng'
+    testImplementation 'org.testng:testng'
 }
 
 description = 'Ballerina - Language Server Simulator'
@@ -65,8 +65,8 @@ description = 'Ballerina - Language Server Simulator'
 // Skip this module from coverage
 jacocoTestReport {
     reports {
-        xml.enabled true // coveralls plugin depends on xml format report
-        html.enabled true
+        xml.required = true // coveralls plugin depends on xml format report
+        html.required = true
     }
     afterEvaluate {
         classDirectories.setFrom(files(classDirectories.files.collect {

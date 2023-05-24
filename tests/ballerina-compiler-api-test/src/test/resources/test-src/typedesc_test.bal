@@ -178,7 +178,7 @@ public type DistinctPerson distinct object {
     function getName() returns string;
 };
 
-function testCompileError() {
+function testImplementationError() {
     int x = "foo";
     UndefinedType y;
 }

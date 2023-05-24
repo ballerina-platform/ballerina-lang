@@ -39,7 +39,7 @@ configurations {
 
 jar {
     enabled = false
-    dependsOn(shadowJar { classifier = null })
+    dependsOn(shadowJar { archiveClassifier = null })
     manifest {
         attributes(
                 'Implementation-Title': 'Ballerina - Test Utils',

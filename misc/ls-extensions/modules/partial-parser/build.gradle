@@ -32,10 +32,10 @@ dependencies {
     compileOnly project(':language-server:language-server-commons')
     compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
 
-    testCompile 'org.testng:testng'
-    testCompile project(':language-server:language-server-core')
-    testCompile 'com.google.code.gson:gson:2.8.8'
-    testCompile (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
+    testImplementation 'org.testng:testng'
+    testImplementation project(':language-server:language-server-core')
+    testImplementation 'com.google.code.gson:gson:2.8.8'
+    testImplementation (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
 }
 
 test {
