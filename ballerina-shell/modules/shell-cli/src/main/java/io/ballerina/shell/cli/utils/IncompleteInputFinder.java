@@ -227,7 +227,7 @@ public class IncompleteInputFinder extends NodeTransformer<Boolean> {
     @Override
     public Boolean transform(QueryExpressionNode node) {
         return node.queryPipeline().fromClause().fromKeyword().isMissing()
-                || node.kind() == SyntaxKind.SELECT_CLAUSE ?
+                || node.endClause().kind() == SyntaxKind.SELECT_CLAUSE ?
                 ((SelectClauseNode) node.endClause()).expression().apply(this) :
                 ((CollectClauseNode) node.endClause()).expression().apply(this);
     }
