@@ -139,6 +139,15 @@
       "filterText": "group by",
       "insertText": "group by ${1:var} ${2:item} = ${3}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "collect",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "collect",
+      "insertText": "collect ",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
