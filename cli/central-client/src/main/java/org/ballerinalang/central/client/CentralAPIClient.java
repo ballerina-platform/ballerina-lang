@@ -118,6 +118,7 @@ public class CentralAPIClient {
     private static final String ERR_CANNOT_PULL_PACKAGE = "error: failed to pull the package: ";
     private static final String ERR_CANNOT_SEARCH = "error: failed to search packages: ";
     private static final String ERR_CANNOT_GET_CONNECTOR = "error: failed to find connector: ";
+    private static final String ERR_CANNOT_GET_PACKAGE = "error: failed to find package: ";
     private static final String ERR_CANNOT_GET_TRIGGERS = "error: failed to find triggers: ";
     private static final String ERR_CANNOT_GET_TRIGGER = "error: failed to find the trigger: ";
     private static final String ERR_PACKAGE_DEPRECATE = "error: failed to deprecate the package: ";
@@ -1122,6 +1123,62 @@ public class CentralAPIClient {
             }
         }
     }
+
+    /**
+     * Get packages from central.
+     *
+     * @param params            Search query param map.
+     * @param supportedPlatform The supported platform.
+     * @param ballerinaVersion  The ballerina version.
+     * @return Package list
+     * @throws CentralClientException Central client exception.
+     */
+    public JsonElement getPackages(Map<String, String> params, String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = new OkHttpClient.Builder()
+                .followRedirects(false)
+                .connectTimeout(20, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .proxy(this.proxy)
+                .build();
+
+        try {
+            HttpUrl.Builder httpBuilder = HttpUrl.parse(this.baseUrl).newBuilder().addPathSegment(PACKAGES);
+            for (Map.Entry<String, String> param : params.entrySet()) {
+                httpBuilder.addQueryParameter(param.getKey(), param.getValue());
+            }
+
+            Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+                    .url(httpBuilder.build())
+                    .build();
+
+            Call httpRequestCall = client.newCall(searchReq);
+            Response searchResponse = httpRequestCall.execute();
+
+            body = Optional.ofNullable(searchResponse.body());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
+                        searchResponse.code() == HttpsURLConnection.HTTP_OK) {
+                    return new Gson().toJsonTree(body.get().string());
+                }
+            }
+            handleResponseErrors(searchResponse, ERR_CANNOT_GET_PACKAGE);
+            return new JsonArray();
+        } catch (IOException e) {
+            throw new CentralClientException(ERR_CANNOT_GET_PACKAGE + "'. Reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
 
     /**
      * Get connectors with search filters.

@@ -58,6 +58,13 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
         List<LSPackageLoader.ModuleInfo> moduleList =
                 new ArrayList<>(LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx));
         ArrayList<LSCompletionItem> completionItems = moduleNameContextCompletions(ctx, orgName, moduleList);
+
+        if (orgName.equals("ballerinax")) {
+            List<LSPackageLoader.ModuleInfo> packagesFromCentral = LSPackageLoader.getInstance(ctx.languageServercontext())
+                    .getCentralPackages();
+            completionItems.addAll(moduleNameContextCompletions(ctx, "ballerinax", packagesFromCentral));
+        }
+
         this.sort(ctx, node, completionItems);
 
         return completionItems;

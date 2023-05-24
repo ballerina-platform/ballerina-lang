@@ -56,6 +56,11 @@ public class LSPackageLoader {
     private final List<ModuleInfo> distRepoPackages;
     private final List<ModuleInfo> remoteRepoPackages = new ArrayList<>();
     private final List<ModuleInfo> localRepoPackages = new ArrayList<>();
+    private final List<ModuleInfo> centralPackages = new ArrayList<>();
+
+    public List<ModuleInfo> getCentralPackages() {
+        return centralPackages;
+    }
 
     private final LSClientLogger clientLogger;
 
@@ -71,6 +76,7 @@ public class LSPackageLoader {
     private LSPackageLoader(LanguageServerContext context) {
         this.clientLogger = LSClientLogger.getInstance(context);
         distRepoPackages = this.getDistributionRepoPackages();
+        loadBallerinaxPackagesFromCentral(context);
         context.put(LS_PACKAGE_LOADER_KEY, this);
     }
 
@@ -119,6 +125,20 @@ public class LSPackageLoader {
         List<String> skippedLangLibs = Arrays.asList("lang.annotations", "lang.__internal", "lang.query");
         return Collections.unmodifiableList(checkAndResolvePackagesFromRepository(packageRepository, skippedLangLibs,
                 Collections.emptySet()));
+    }
+
+    private void loadBallerinaxPackagesFromCentral(LanguageServerContext context) {
+        if (!this.centralPackages.isEmpty()) {
+            return;
+        }
+
+        CentralPackageDescriptorHolder.getInstance(context).getPackagesFromCentral().forEach(packageInfo -> {
+            PackageOrg packageOrg = PackageOrg.from(packageInfo.getOrganization());
+            PackageName packageName = PackageName.from(packageInfo.getName());
+            PackageVersion packageVersion = PackageVersion.from(packageInfo.getVersion());
+            ModuleInfo moduleInfo = new ModuleInfo(packageOrg, packageName, packageVersion, null);
+            centralPackages.add(moduleInfo);
+        });
     }
 
     /**
