@@ -135,9 +135,10 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
             completionItems = new ArrayList<>(completionItems);
             /*
              * It is mandatory to have at least one pipeline clause.
-             * Only if that is true we suggest the select clause
+             * Only if that is true we suggest the select and collect clauses
              */
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SELECT.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_COLLECT.get()));
             // Similarly do clause requires at least one query pipeline clause
             completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_DO.get()));
         }

@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.context.util.QueryExpressionUtil;
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
@@ -67,7 +68,7 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
             completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_ON_CONFLICT.get()));
             
             if (containsGroupByNode(node)) {
-                List<FunctionSymbol> functionSymbols = getLangLibMethods(context);
+                List<FunctionSymbol> functionSymbols = QueryExpressionUtil.getLangLibMethods(context);
                 functionSymbols.stream()
                         .filter(symbol -> symbol.typeDescriptor().restParam().isPresent())
                         .filter(symbol -> symbol.getName().isPresent() && !symbol.getName().get().contains("$"))
@@ -117,32 +118,5 @@ public class SelectClauseNodeContext extends AbstractCompletionProvider<SelectCl
     public boolean onPreValidation(BallerinaCompletionContext context, SelectClauseNode node) {
         return !node.selectKeyword().isMissing() && 
                 context.getCursorPositionInTree() >= node.selectKeyword().textRange().startOffset();
-    }
-    
-    private List<FunctionSymbol> getLangLibMethods(BallerinaCompletionContext context) {
-
-        Types types = context.currentSemanticModel().get().types();
-        List<FunctionSymbol> langLibMethods = types.INT.langLibMethods();
-        langLibMethods.addAll(types.DECIMAL.langLibMethods());
-        langLibMethods.addAll(types.FLOAT.langLibMethods());
-        langLibMethods.addAll(types.STRING.langLibMethods());
-        langLibMethods.addAll(types.BOOLEAN.langLibMethods());
-        langLibMethods.addAll(types.ANY.langLibMethods());
-        langLibMethods.addAll(types.ANYDATA.langLibMethods());
-        langLibMethods.addAll(types.BYTE.langLibMethods());
-        langLibMethods.addAll(types.ERROR.langLibMethods());
-        langLibMethods.addAll(types.FUNCTION.langLibMethods());
-        langLibMethods.addAll(types.FUTURE.langLibMethods());
-        langLibMethods.addAll(types.HANDLE.langLibMethods());
-        langLibMethods.addAll(types.JSON.langLibMethods());
-        langLibMethods.addAll(types.NEVER.langLibMethods());
-        langLibMethods.addAll(types.NIL.langLibMethods());
-        langLibMethods.addAll(types.READONLY.langLibMethods());
-        langLibMethods.addAll(types.REGEX.langLibMethods());
-        langLibMethods.addAll(types.STREAM.langLibMethods());
-        langLibMethods.addAll(types.TYPEDESC.langLibMethods());
-        langLibMethods.addAll(types.XML.langLibMethods());
-
-        return langLibMethods.stream().distinct().collect(Collectors.toList());
     }
 }
