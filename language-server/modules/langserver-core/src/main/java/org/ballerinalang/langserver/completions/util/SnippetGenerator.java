@@ -295,6 +295,16 @@ public class SnippetGenerator {
         return new SnippetBlock(ItemResolverConstants.GROUPBY_KEYWORD, ItemResolverConstants.GROUPBY_KEYWORD,
                 "group by ", ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
     }
+
+    /**
+     * Get Collect Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getCollectKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.COLLECT_KEYWORD, ItemResolverConstants.COLLECT_KEYWORD,
+                "collect ", ItemResolverConstants.KEYWORD_TYPE, Kind.KEYWORD);
+    }
     
     /**
      * Get Limit Keyword Snippet Block.

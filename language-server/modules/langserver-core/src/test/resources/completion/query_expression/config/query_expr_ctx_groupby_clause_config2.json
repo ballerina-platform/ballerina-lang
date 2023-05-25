@@ -131,6 +131,15 @@
       "filterText": "do",
       "insertText": "do {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "collect",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "filterText": "collect",
+      "insertText": "collect ",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
