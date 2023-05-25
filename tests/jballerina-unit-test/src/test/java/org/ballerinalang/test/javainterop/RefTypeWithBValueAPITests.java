@@ -171,14 +171,14 @@ public class RefTypeWithBValueAPITests {
     public void testGetXML() {
         Object returns = BRunUtil.invoke(result, "getXML");
         Assert.assertTrue(returns instanceof BXml);
-        Assert.assertEquals(returns.toString(), "<hello></hello>");
+        Assert.assertEquals(returns.toString(), "<hello/>");
     }
 
     @Test
     public void testPassXML() {
         Object returns = BRunUtil.invoke(result, "testPassingXML");
         Assert.assertTrue(returns instanceof BString);
-        Assert.assertEquals(returns.toString(), "<foo></foo>");
+        Assert.assertEquals(returns.toString(), "<foo/>");
     }
 
     @Test

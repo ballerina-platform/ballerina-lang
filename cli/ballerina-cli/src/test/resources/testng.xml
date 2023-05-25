@@ -43,6 +43,7 @@ under the License.
             <class name="io.ballerina.cli.cmd.TestNativeImageCommandTest"/>
             <class name="io.ballerina.cli.cmd.BuildNativeImageCommandTest"/>
             <class name="io.ballerina.cli.cmd.DeprecateCommandTest"/>
+            <class name="io.ballerina.cli.cmd.ToolCommandTest"/>
         </classes>
     </test>
 </suite>

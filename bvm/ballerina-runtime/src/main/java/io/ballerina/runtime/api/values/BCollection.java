@@ -19,7 +19,7 @@ package io.ballerina.runtime.api.values;
 
 /**
  * <p>
- * {@code {@link BCollection}} represents a collection in Ballerina.
+ * {@link BCollection} represents a collection in Ballerina.
  * </p>
  * 
  * @since 1.1.0
