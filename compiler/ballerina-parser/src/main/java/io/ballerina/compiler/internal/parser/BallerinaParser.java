@@ -11977,7 +11977,7 @@ public class BallerinaParser extends AbstractParser {
                 || isKeywordMatch(SyntaxKind.GROUP_KEYWORD, nextToken);
     }
 
-    private static boolean isKeywordMatch(SyntaxKind syntaxKind, STToken token) {
+    static boolean isKeywordMatch(SyntaxKind syntaxKind, STToken token) {
         return token.kind == SyntaxKind.IDENTIFIER_TOKEN && syntaxKind.stringValue().equals(token.text());
     }
 

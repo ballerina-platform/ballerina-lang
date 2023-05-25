@@ -44,7 +44,7 @@ public class QueryExpressionNode extends ExpressionNode {
     @Deprecated
     public SelectClauseNode selectClause() {
         ClauseNode endClause = endClause();
-        return endClause.kind() == SyntaxKind.SELECT_CLAUSE ? (SelectClauseNode) endClause: null;
+        return endClause.kind() == SyntaxKind.SELECT_CLAUSE ? (SelectClauseNode) endClause : null;
     }
     public ClauseNode endClause() {
         return childInBucket(2);

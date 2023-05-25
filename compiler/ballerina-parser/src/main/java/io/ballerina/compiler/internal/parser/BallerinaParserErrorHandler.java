@@ -1220,8 +1220,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case TYPE_DESC_BEFORE_IDENTIFIER_IN_GROUPING_KEY:
                 default:
                     if (isKeyword(currentCtx)) {
-                        SyntaxKind expectedToken = getExpectedKeywordKind(currentCtx);
-                        hasMatch = nextToken.kind == expectedToken;
+                        SyntaxKind expectedTokenKind = getExpectedKeywordKind(currentCtx);
+                        hasMatch = nextToken.kind == expectedTokenKind ||
+                                BallerinaParser.isKeywordMatch(expectedTokenKind, nextToken);
                         break;
                     }
 

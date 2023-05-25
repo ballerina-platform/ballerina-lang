@@ -1,6 +1,6 @@
-function foo() {
-    var a = from var a in []
-        select a(;
-    var a = from var a in []
-        select
-}
+public function main() {
+    var a = from var a []
+        collect a + 1;
+    var a = from var a in b
+        collect in
+             }
