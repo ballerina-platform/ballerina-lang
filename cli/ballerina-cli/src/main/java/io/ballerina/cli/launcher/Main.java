@@ -20,7 +20,6 @@ package io.ballerina.cli.launcher;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.compiler.BLangCompilerException;
 import picocli.CommandLine;
 
@@ -51,9 +50,6 @@ public class Main {
         try {
             Optional<BLauncherCmd> optionalInvokedCmd = getInvokedCmd(args);
             optionalInvokedCmd.ifPresent(BLauncherCmd::execute);
-        } catch (BLangRuntimeException e) {
-            errStream.println(e.getMessage());
-            Runtime.getRuntime().exit(1);
         } catch (BLangCompilerException e) {
             if (!(e.getMessage().contains(COMPILATION_ERROR_MESSAGE))) {
                 // print the error message only if the exception was not thrown due to compilation errors
