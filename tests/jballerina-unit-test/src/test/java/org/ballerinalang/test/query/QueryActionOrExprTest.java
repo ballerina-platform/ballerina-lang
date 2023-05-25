@@ -74,6 +74,7 @@ public class QueryActionOrExprTest {
                 "testQueryActionOrExprWithGroupedClientResourceAccessAction",
                 "testNestedQueryActionOrExprWithClientResourceAccessAction",
                 "testQueryActionOrExpressionWithUnionRecordResultType",
+                "testQueryActionOrExprWithAnyOrErrResultType",
         };
     }
 
