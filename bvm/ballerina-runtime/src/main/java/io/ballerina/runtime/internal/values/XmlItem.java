@@ -31,6 +31,7 @@ import io.ballerina.runtime.internal.BallerinaXmlSerializer;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.XmlValidator;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMException;
@@ -376,7 +377,8 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     }
 
     private BError createXMLCycleError() {
-        return ErrorCreator.createError(StringUtils.fromString("Cycle detected"));
+        return ErrorCreator.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
+                StringUtils.fromString("Cycle detected"));
     }
 
     private void mergeAdjoiningTextNodesIntoList(List leftList, List<BXml> appendingList) {

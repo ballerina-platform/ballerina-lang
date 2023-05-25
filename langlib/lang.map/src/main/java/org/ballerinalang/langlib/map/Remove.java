@@ -48,10 +48,12 @@ public class Remove {
             try {
                 return m.remove(k);
             } catch (BError e) {
-                String errorMsgDetail =
-                        ((BMap<BString, Object>) e.getDetails()).get(StringUtils.fromString("message")).toString();
-                throw ErrorCreator.createError(e.getErrorMessage(),
-                        StringUtils.fromString("failed to remove element from map: " + errorMsgDetail));
+                String errorMsgDetail = "failed to remove element from map";
+                if (BLangExceptionHelper.hasMessageDetail(e)) {
+                    errorMsgDetail += ": " +
+                            ((BMap<BString, Object>) e.getDetails()).get(StringUtils.fromString("message")).toString();
+                }
+                throw ErrorCreator.createError(e.getErrorMessage(), StringUtils.fromString(errorMsgDetail));
             }
         }
 

@@ -42,7 +42,7 @@ import static org.testng.Assert.assertTrue;
  */
 public class LangLibXMLTest {
 
-    private CompileResult compileResult, negativeResult, constrainedTest, constraintNegative;
+    private CompileResult compileResult, negativeResult, constrainedTest;
 
     @BeforeClass
     public void setup() {
@@ -419,7 +419,7 @@ public class LangLibXMLTest {
 
     @Test
     public void testNegativeConstraint() {
-        constraintNegative = BCompileUtil.compile("test-src/xmllib_constrained_negative_test.bal");
+        CompileResult constraintNegative = BCompileUtil.compile("test-src/xmllib_constrained_negative_test.bal");
         int i = 0;
         validateError(constraintNegative, i++, "incompatible types: expected 'xml:Comment', found 'xml:Element'",
                 20, 23);

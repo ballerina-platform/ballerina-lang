@@ -97,7 +97,11 @@ public class BLangExceptionHelper {
         if (!(e instanceof BError)) {
             return false;
         }
-        Object bErrorDetails = ((BError) e).getDetails();
+        return hasMessageDetail((BError) e);
+    }
+
+    public static boolean hasMessageDetail(BError bError) {
+        Object bErrorDetails = bError.getDetails();
         if (bErrorDetails == null) {
             return false;
         }
