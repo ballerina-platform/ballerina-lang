@@ -836,8 +836,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] TUPLE_MEMBER =
             { ParserRuleContext.ANNOTATIONS, ParserRuleContext.TYPE_DESC_IN_TUPLE };
-    private static final ParserRuleContext[] ON_FAIL_CHECK =
-            { ParserRuleContext.SEMICOLON };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -1592,7 +1590,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST:
             case OPTIONAL_TOP_LEVEL_SEMICOLON:
             case TUPLE_MEMBER:
-            case ON_FAIL_CHECK:
                 return true;
             default:
                 return false;
@@ -2055,8 +2052,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TOP_LEVEL_NODE;
             case TUPLE_MEMBER:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE;
-            case ON_FAIL_CHECK:
-                return ParserRuleContext.CHECKING_KEYWORD;
             default:
                 throw new IllegalStateException("Alternative path entry not found");
         }
@@ -2404,9 +2399,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case TUPLE_MEMBER:
                 alternativeRules = TUPLE_MEMBER;
-                break;
-            case ON_FAIL_CHECK:
-                alternativeRules = ON_FAIL_CHECK;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -3048,6 +3040,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             nextContext = ParserRuleContext.EQUALS_KEYWORD;
         } else if (parentCtx == ParserRuleContext.CLIENT_RESOURCE_ACCESS_ACTION) {
             nextContext = ParserRuleContext.CLOSE_BRACKET;
+        } else if (parentCtx == ParserRuleContext.CHECKING_EXPRESSION) {
+            nextContext = ParserRuleContext.ON_KEYWORD;
         } else {
             throw new IllegalStateException("seekMatchInExpressionRhs found: " + parentCtx);
         }
@@ -3449,8 +3443,17 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return getNextRuleForBindingPattern();
             case TUPLE_MEMBERS:
                 return ParserRuleContext.TUPLE_MEMBER;
-//            case ON_FAIL_CHECK:
-//                return ParserRuleContext.ON_FAIL_CHECK;
+            case ON_FAIL_CHECK:
+                return ParserRuleContext.ON_KEYWORD;
+            case ON_KEYWORD:
+                return ParserRuleContext.FAIL_KEYWORD;
+            case FAIL_KEYWORD:
+                return ParserRuleContext.VARIABLE_NAME;
+            case RIGHT_DOUBLE_ARROW:
+                return ParserRuleContext.ERROR_CONSTRUCTOR;
+            case CHECK_EXPRESSION_END:
+                endContext();
+                return ParserRuleContext.EXPRESSION_RHS;
             default:
                 return getNextRuleInternal(currentCtx, nextLookahead);
         }
@@ -4983,6 +4986,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ERROR_FIELD_MATCH_PATTERN_RHS;
             case RELATIVE_RESOURCE_PATH:
                 return ParserRuleContext.CLOSE_BRACKET;
+            case CHECKING_EXPRESSION:
+                parentCtx = getParentContext();
+                if (!(parentCtx == ParserRuleContext.QUERY_EXPRESSION)) {
+                    return ParserRuleContext.RIGHT_DOUBLE_ARROW;
+                }
             default:
                 if (isStatement(parentCtx)) {
                     return ParserRuleContext.VAR_DECL_STMT_RHS;

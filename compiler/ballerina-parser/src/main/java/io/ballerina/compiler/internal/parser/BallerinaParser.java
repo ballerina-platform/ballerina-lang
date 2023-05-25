@@ -7176,21 +7176,22 @@ public class BallerinaParser extends AbstractParser {
      * @return Check expression node
      */
     private STNode parseCheckExpression(boolean isRhsExpr, boolean allowActions, boolean isInConditionalExpr) {
+        startContext(ParserRuleContext.CHECKING_EXPRESSION);
         STNode checkingKeyword = parseCheckingKeyword();
         STNode expr =
                 parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions, isInConditionalExpr);
         STToken onKeyword = peek();
-        STNode onFailClause = STNodeFactory.createEmptyNode();
+        STNode onFailCheck = STNodeFactory.createEmptyNode();
         if (onKeyword.kind == SyntaxKind.ON_KEYWORD) {
-            onFailClause = parseOnFailCheck();
+            onFailCheck = parseOnFailCheck();
         }
-
+        endContext();
         if (isAction(expr)) {
             return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_ACTION, checkingKeyword, expr,
-                    onFailClause);
+                    onFailCheck);
         } else {
             return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, checkingKeyword, expr,
-                    onFailClause);
+                    onFailCheck);
         }
     }
 
@@ -9075,15 +9076,12 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseOnFailCheck() {
-        startContext(ParserRuleContext.ON_FAIL_CHECK);
         STNode onKeyword = parseOnKeyword();
         STNode failKeyword = parseFailKeyword();
         STNode varName = parseVariableName();
         STNode rightDoubleArrow = parseDoubleRightArrow();
         STNode errConstructor = parseErrorConstructorExpr(false);
-        endContext();
-        return STNodeFactory.createOnFailCheckNode(onKeyword,
-                failKeyword, varName, rightDoubleArrow,  errConstructor);
+        return STNodeFactory.createOnFailCheckNode(onKeyword, failKeyword, varName, rightDoubleArrow,  errConstructor);
     }
 
     private boolean isEndOfResourceAccessPathSegments(SyntaxKind nextTokenKind,
