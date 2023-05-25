@@ -19,6 +19,7 @@
 package org.ballerinalang.test.types.readonly;
 
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BLangTestException;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
@@ -36,7 +37,7 @@ public class ReadonlyArrayTest {
         result = BCompileUtil.compile("test-src/types/readonly/array_creation.bal");
     }
 
-    @Test(expectedExceptions = io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp = ".*modification not allowed on readonly " +
                   "value.*", dataProvider = "arrayTests")
     public void testCreateArray(String funcName) {

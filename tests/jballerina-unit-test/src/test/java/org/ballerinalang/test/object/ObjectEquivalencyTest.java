@@ -18,8 +18,8 @@
 package org.ballerinalang.test.object;
 
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BLangTestException;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -133,7 +133,7 @@ public class ObjectEquivalencyTest {
     }
 
     @Test(description = "Test inherent type violation with nil value.",
-            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptions = { BLangTestException.class },
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.object\\}InherentTypeViolation " +
                     "\\{\"message\":\"invalid value for object field 'x': expected value of type 'string', " +
                     "found '\\(\\)'.*")

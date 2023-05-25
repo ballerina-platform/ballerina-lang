@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.test.record;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BLangTestException;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.AfterClass;
@@ -63,28 +63,28 @@ public class MapToRecordAssignabilityTest {
         BRunUtil.invoke(compileResult, funcName);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: " +
                     "expected value of type 'decimal', found 'float'.*")
     public void testInherentTypeViolationInInclusiveRecords() {
         BRunUtil.invoke(compileResult, "testInherentTypeViolationInInclusiveRecords");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: " +
                     "expected value of type 'int', found 'string'.*")
     public void testInherentTypeViolationInExclusiveRecords() {
         BRunUtil.invoke(compileResult, "testInherentTypeViolationInExclusiveRecords");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"invalid field access: field 'cc' " +
                     "not found in record type 'Bar'.*")
     public void testSubtyping() {
         BRunUtil.invoke(compileResult, "testSubtyping");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp =
                     ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: expected" +
                             " value of type 'Bar', found 'record \\{\\| int c; \\|\\}'.*")

@@ -17,8 +17,8 @@
 
 package org.ballerinalang.test.types.table;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BLangTestException;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.AfterClass;
@@ -36,7 +36,7 @@ public class TableCyclicKeyTest {
         result = BCompileUtil.compile("test-src/types/table/tables-acyclic-key.bal");
     }
 
-    @Test(enabled = false, expectedExceptions = BLangRuntimeException.class,
+    @Test(enabled = false, expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}CyclicValueReferenceError " +
                     "\\{\"message\":\"'Address' value has cyclic reference.*")
     public void testCyclesInRecords() {

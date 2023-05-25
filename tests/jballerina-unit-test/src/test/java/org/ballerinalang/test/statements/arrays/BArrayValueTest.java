@@ -19,8 +19,8 @@ package org.ballerinalang.test.statements.arrays;
 
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BLangTestException;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -43,7 +43,7 @@ public class BArrayValueTest {
         compileResult = BCompileUtil.compile("test-src/statements/arrays/array-value.bal");
     }
 
-    @Test(description = "Test lazy arrays creation", expectedExceptions = {BLangRuntimeException.class},
+    @Test(description = "Test lazy arrays creation", expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = ".*array index out of range: index: 0, size: 0.*")
     public void testLazyArrayCreation() {
         BRunUtil.invoke(compileResult, "lazyInitThrowArrayIndexOutOfBound", new Object[0]);

@@ -22,8 +22,8 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BLangTestException;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -174,7 +174,7 @@ public class FunctionsWithDefaultableArguments {
     }
 
     @Test(description = "Test functions arguments default value panicing",
-            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: Panic!.*")
     public void testPanicWithinDefaultExpr() {
         Object returns = BRunUtil.invoke(result, "testPanicWithinDefaultExpr");

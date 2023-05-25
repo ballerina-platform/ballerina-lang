@@ -18,8 +18,8 @@
 package org.ballerinalang.test.types.string;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BLangTestException;
 import org.ballerinalang.test.BRunUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -69,7 +69,7 @@ public class StringValueBasicsTest extends BStringTestCommons {
         BRunUtil.invoke(result, "testStringIndexAccess");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*string index out of range: index: 6, size: 6.*")
     public void testStringIndexAccessException() {
         BRunUtil.invoke(result, "testStringIndexAccessException");

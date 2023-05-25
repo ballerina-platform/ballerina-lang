@@ -16,9 +16,9 @@
  */
 package org.ballerinalang.test.types.stream;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BLangTestException;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -271,7 +271,7 @@ public class BStreamValueTest {
     }
 
     @Test(description = "Check if completion type is checked at runtime",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types: 'stream<Foo>' cannot be "
                             + "cast to 'stream<Foo,error>'.*")
@@ -280,7 +280,7 @@ public class BStreamValueTest {
     }
 
     @Test(description = "Check if stream without params contextually expected type",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina}TypeCastError " +
                             "\\{\"message\":\"incompatible types: 'stream<\\(any\\|error\\),error\\?>' cannot be cast" +

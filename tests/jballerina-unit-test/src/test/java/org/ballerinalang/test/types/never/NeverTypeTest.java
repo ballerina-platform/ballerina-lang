@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.test.types.never;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BLangTestException;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -44,7 +44,7 @@ public class NeverTypeTest {
         runtimeResult = BCompileUtil.compile("test-src/types/never/never_type_runtime.bal");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: Panic occured in function with never return.*")
     public void testNeverReturnTypedFunctionCall() {
         BRunUtil.invoke(neverTypeTestResult, "testNeverReturnTypedFunctionCall");
@@ -220,7 +220,7 @@ public class NeverTypeTest {
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: Bad Sad!!.*")
     public void testNeverWithCallStmt() {
         BRunUtil.invoke(neverTypeTestResult, "testNeverWithCallStmt");
@@ -246,7 +246,7 @@ public class NeverTypeTest {
         };
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: Bad Sad!!.*")
     public void testNeverWithMethodCallExpr() {
         BRunUtil.invoke(neverTypeTestResult, "testNeverWithMethodCallExpr");

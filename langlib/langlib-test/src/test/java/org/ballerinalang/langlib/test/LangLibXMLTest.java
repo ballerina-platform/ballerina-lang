@@ -21,8 +21,8 @@ package org.ballerinalang.langlib.test;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BLangTestException;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.AfterClass;
@@ -393,7 +393,7 @@ public class LangLibXMLTest {
         };
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: " +
                     "'xml\\<\\(lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction" +
                     "\\|lang\\.xml:Text\\)\\>' cannot be cast to 'xml\\<lang\\.xml:Comment\\>.*")
@@ -401,7 +401,7 @@ public class LangLibXMLTest {
         BRunUtil.invoke(constrainedTest, "xmlConstraintRuntimeCastInvalid");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: " +
                     "'xml\\<\\(lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction" +
                     "\\|lang\\.xml:Text\\)\\>' cannot be cast to 'xml\\<\\(lang\\.xml:Element\\|lang\\.xml:Text\\)" +
@@ -410,7 +410,7 @@ public class LangLibXMLTest {
         BRunUtil.invoke(constrainedTest, "xmlConstraintRuntimeCastUnionInvalid");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: " +
                     "'lang\\.xml:Comment' cannot be cast to 'xml\\<lang\\.xml:Element\\>'.*")
     public void xmlElementToConstraintClassInvalid() {

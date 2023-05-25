@@ -16,9 +16,9 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BLangTestException;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -76,7 +76,7 @@ public class ModOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}DivisionByZero \\{\"message\":\" / " +
                     "by zero\"\\}.*")
     public void testIntModZero() {

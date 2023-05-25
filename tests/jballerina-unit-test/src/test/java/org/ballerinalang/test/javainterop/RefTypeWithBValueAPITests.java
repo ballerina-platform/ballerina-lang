@@ -29,7 +29,6 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BArrayType;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.FPValue;
 import io.ballerina.runtime.internal.values.FutureValue;
@@ -39,6 +38,7 @@ import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.XmlItem;
 import org.ballerinalang.nativeimpl.jvm.tests.JavaInteropTestCheckedException;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BLangTestException;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -214,7 +214,7 @@ public class RefTypeWithBValueAPITests {
         Assert.assertEquals(returns, 2L);
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
+    @Test(expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
                     "types: 'int' cannot be cast to 'MIX_TYPE'.*")
     public void testGetInvalidIntegerAsMixType() {

@@ -18,8 +18,8 @@
 
 package org.ballerinalang.test.jvm;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BLangTestException;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.AfterClass;
@@ -52,7 +52,7 @@ public class ObjectSubtypingTest {
         assertEquals(result.toString(), "{name:John Doe, age:25}");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'Person1' cannot be cast to 'Employee1'.*")
     public void testCastingRuntimeError() {
         BRunUtil.invoke(compileResult, "testCastingRuntimeError");

@@ -16,9 +16,9 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BLangTestException;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -51,7 +51,7 @@ public class SubtractOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test two int subtract overflow expression", expectedExceptions = BLangRuntimeException.class,
+    @Test(description = "Test two int subtract overflow expression", expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina}NumberOverflow \\{\"message\":\"int range " +
                     "overflow\"\\}.*")
     public void testIntOverflowBySubtraction() {
