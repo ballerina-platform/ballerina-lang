@@ -43,6 +43,7 @@ import java.util.Locale;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
 import static io.ballerina.cli.cmd.CommandOutputUtils.readFileAsString;
+import static io.ballerina.projects.util.ProjectConstants.TOOL_DIR;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
@@ -573,6 +574,45 @@ public class NewCommandTest extends BaseCommandTest {
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
         Assert.assertTrue(readOutput().contains("invalid package name provided"));
+    }
+
+    @Test(description = "Test new command by pulling a central tool template")
+    public void testNewCommandWithToolTemplateCentral() throws IOException {
+        String templateArg = "testorg/toolProject:1.0.0";
+        String packageName = "sample_tool_template";
+        Path packageDir = tmpDir.resolve(packageName);
+        String[] args = {packageDir.toString(), "-t", templateArg};
+        NewCommand newCommand = new NewCommand(printStream, false, homeCache);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        Assert.assertTrue(Files.exists(packageDir));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String expectedTomlContent = "[package]\n" +
+                "org = \"testorg\"\n" +
+                "name = \"" + packageName + "\"\n" +
+                "version = \"1.0.0\"\n" +
+                "export = [\"sample_tool_template\"]\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
+                "observabilityIncluded = true\n";
+        Assert.assertEquals(
+                readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
+
+        String toolTomlContent = Files.readString(
+                packageDir.resolve(ProjectConstants.BAL_TOOL_TOML), StandardCharsets.UTF_8);
+        String expectedToolTomlContent = "[tool]\n" +
+                "id = \"" + packageName + "\"\n\n" +
+                "[[dependency]]\n" +
+                "path = \"tool/libs/platform-io-1.3.0-java.txt\"\n";
+        Assert.assertTrue(toolTomlContent.contains(expectedToolTomlContent));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Path dependencyPath = packageDir.resolve(TOOL_DIR).resolve("libs")
+                .resolve("platform-io-1.3.0-java.txt");
+        Assert.assertTrue(Files.exists(dependencyPath));
+        Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
     @Test(description = "Test new command with central template in the local cache")

@@ -179,6 +179,22 @@ public class PackCommandTest extends BaseCommandTest {
                 getOutput("compile-empty-project-with-compiler-plugin.txt"));
     }
 
+    @Test(description = "Pack an empty package as a tool")
+    public void testPackEmptyProjectWithTool() throws IOException {
+        Path projectPath = this.testResources.resolve("emptyProjectWithTool");
+        System.setProperty("user.dir", projectPath.toString());
+
+        PackCommand packCommand = new PackCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(packCommand).parseArgs();
+        packCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala")
+                .resolve("wso2-emptyProjWithTool-any-0.1.0.bala").toFile().exists());
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("compile-empty-project-with-tool.txt"));
+    }
+
     @Test(description = "Pack an empty package with tests only")
     public void testPackEmptyProjectWithTestsOnly() {
         Path projectPath = this.testResources.resolve("emptyProjectWithTestsOnly");
