@@ -176,12 +176,12 @@ public class Generator {
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
             ObjectTypeDescriptorNode objectTypeDescriptorNode =
                     (ObjectTypeDescriptorNode) typeDefinition.typeDescriptor();
+            BObjectType bObj = getObjectTypeModel(objectTypeDescriptorNode,
+                    typeName, metaDataNode, semanticModel);
             if (containsToken(objectTypeDescriptorNode.objectTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD)) {
-                module.serviceTypes.add(getObjectTypeModel((ObjectTypeDescriptorNode) typeDefinition.typeDescriptor(),
-                        typeName, metaDataNode, semanticModel));
+                module.serviceTypes.add(bObj);
             } else {
-                module.objectTypes.add(getObjectTypeModel((ObjectTypeDescriptorNode) typeDefinition.typeDescriptor(),
-                        typeName, metaDataNode, semanticModel));
+                module.objectTypes.add(bObj);
             }
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
             Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
@@ -220,11 +220,17 @@ public class Generator {
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                         == SyntaxKind.OBJECT_TYPE_DESC) {
+            ObjectTypeDescriptorNode objectTypeDescriptorNode = (ObjectTypeDescriptorNode)
+                    ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor();
             BObjectType bObj = getObjectTypeModel((ObjectTypeDescriptorNode)
                             ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor(), typeName,
                     metaDataNode, semanticModel);
             bObj.isDistinct = true;
-            module.objectTypes.add(bObj);
+            if (containsToken(objectTypeDescriptorNode.objectTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD)) {
+                module.serviceTypes.add(bObj);
+            } else {
+                module.objectTypes.add(bObj);
+            }
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                         == SyntaxKind.PARENTHESISED_TYPE_DESC) {
