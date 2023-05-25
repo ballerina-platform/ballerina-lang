@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -98,7 +98,7 @@ public class StringUtils {
         if (index < 0 || index >= s.length()) {
             throw ErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
                     INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.STRING_INDEX_OUT_OF_RANGE, index, s.length()));
+                    ErrorHelper.getErrorDetails(RuntimeErrors.STRING_INDEX_OUT_OF_RANGE, index, s.length()));
         }
 
         return StringUtils.fromString(String.valueOf(Character.toChars(s.getCodePoint((int) index))));

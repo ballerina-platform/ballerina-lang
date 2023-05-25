@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 
 /**
  * Native implementation of lang.table:removeAll(table&lt;Type&gt;).
@@ -38,7 +38,7 @@ public class RemoveAll {
             tbl.clear();
         } catch (BError e) {
             String errorMsgDetail = "Failed to remove all from table";
-            if (BLangExceptionHelper.hasMessageDetail(e)) {
+            if (ErrorHelper.hasMessageDetail(e)) {
                 errorMsgDetail += ": " +
                         ((BMap<BString, Object>) e.getDetails()).get(StringUtils.fromString("message")).toString();
             }

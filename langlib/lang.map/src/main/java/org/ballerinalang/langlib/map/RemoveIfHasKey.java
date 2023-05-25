@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 
 import static io.ballerina.runtime.internal.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFieldForRecord;
@@ -46,7 +46,7 @@ public class RemoveIfHasKey {
             return m.remove(k);
         } catch (BError e) {
             String errorMsgDetail = "Failed to remove element";
-            if (BLangExceptionHelper.hasMessageDetail(e)) {
+            if (ErrorHelper.hasMessageDetail(e)) {
                 errorMsgDetail += ": " +
                         ((BMap<BString, Object>) e.getDetails()).get(StringUtils.fromString("message")).toString();
             }

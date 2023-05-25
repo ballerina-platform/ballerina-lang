@@ -42,8 +42,8 @@ import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BStructureType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -183,13 +183,13 @@ public class JsonInternalUtils {
             }
 
             return ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_IN_JSON_MAPPING, elementName));
+                    ErrorHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_IN_JSON_MAPPING, elementName));
         }
 
         try {
             return jsonObject.get(elementName);
         } catch (Throwable t) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
+            throw ErrorHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
         }
     }
 
@@ -213,7 +213,7 @@ public class JsonInternalUtils {
         } catch (ErrorValue e) {
             throw e;
         } catch (Throwable t) {
-            throw BLangExceptionHelper.getRuntimeException(
+            throw ErrorHelper.getRuntimeException(
                     getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
@@ -258,7 +258,7 @@ public class JsonInternalUtils {
      */
     public static MapValueImpl<BString, ?> jsonToMap(Object json, MapType mapType) {
         if (!isJSONObject(json)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
+            throw ErrorHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                                                            getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
@@ -287,7 +287,7 @@ public class JsonInternalUtils {
      */
     public static MapValueImpl<BString, Object> convertJSONToRecord(Object json, StructureType structType) {
         if (!isJSONObject(json)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
+            throw ErrorHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                                                            getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
@@ -331,7 +331,7 @@ public class JsonInternalUtils {
                 return jsonNodeToBoolean(jsonValue);
             case TypeTags.JSON_TAG:
                 if (jsonValue != null && !TypeChecker.checkIsType(jsonValue, targetType)) {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
+                    throw ErrorHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                                                                    getTypeName(jsonValue));
                 }
                 // fall through
@@ -341,7 +341,7 @@ public class JsonInternalUtils {
                 matchingType = TypeConverter.getConvertibleTypeInTargetUnionType(jsonValue,
                         (BUnionType) targetType, null, new ArrayList<>(), new HashSet<>(), true);
                 if (matchingType == null) {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
+                    throw ErrorHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                             getTypeName(jsonValue));
                 }
                 return convertJSON(jsonValue, matchingType);
@@ -349,7 +349,7 @@ public class JsonInternalUtils {
                 matchingType = TypeConverter.getConvertibleFiniteType(jsonValue, (BFiniteType) targetType,
                         null, new ArrayList<>(), new HashSet<>(), true);
                 if (matchingType == null) {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
+                    throw ErrorHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                             getTypeName(jsonValue));
                 }
                 return convertJSON(jsonValue, matchingType);
@@ -368,7 +368,7 @@ public class JsonInternalUtils {
                 }
                 // fall through
             default:
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
+                throw ErrorHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                         getTypeName(jsonValue));
         }
     }
@@ -409,7 +409,7 @@ public class JsonInternalUtils {
             case TypeTags.RECORD_TYPE_TAG:
                 return convertMapToJSON((MapValueImpl<BString, Object>) source, targetType);
             default:
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
+                throw ErrorHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                                                                PredefinedTypes.TYPE_JSON, type);
         }
     }
@@ -438,7 +438,7 @@ public class JsonInternalUtils {
 
         if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
             return ErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.MERGE_JSON_ERROR, j1Type, j2Type));
+                    ErrorHelper.getErrorDetails(RuntimeErrors.MERGE_JSON_ERROR, j1Type, j2Type));
         }
 
         ObjectPair currentPair = new ObjectPair(j1, j2);
@@ -491,7 +491,7 @@ public class JsonInternalUtils {
 
             if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
                 return ErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
-                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.MERGE_JSON_ERROR, j1Type, j2Type));
+                        ErrorHelper.getErrorDetails(RuntimeErrors.MERGE_JSON_ERROR, j1Type, j2Type));
             }
         }
 
@@ -510,7 +510,7 @@ public class JsonInternalUtils {
      */
     public static ArrayValue convertJSONToBArray(Object json, BArrayType targetArrayType) {
         if (!(json instanceof ArrayValue)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
+            throw ErrorHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                     getComplexObjectTypeName(ARRAY), getTypeName(json));
         }
 
@@ -570,7 +570,7 @@ public class JsonInternalUtils {
      */
     private static long jsonNodeToInt(Object json) {
         if (!(json instanceof Long)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+            throw ErrorHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                                                            PredefinedTypes.TYPE_INT, getTypeName(json));
         }
 
@@ -591,7 +591,7 @@ public class JsonInternalUtils {
         } else if (json instanceof DecimalValue) {
             return ((DecimalValue) json).floatValue();
         } else {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+            throw ErrorHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                                                            PredefinedTypes.TYPE_FLOAT, getTypeName(json));
         }
     }
@@ -613,7 +613,7 @@ public class JsonInternalUtils {
         } else if (json instanceof DecimalValue) {
             return (DecimalValue) json;
         } else {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+            throw ErrorHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                                                            PredefinedTypes.TYPE_DECIMAL, getTypeName(json));
         }
 
@@ -628,7 +628,7 @@ public class JsonInternalUtils {
      */
     private static boolean jsonNodeToBoolean(Object json) {
         if (!(json instanceof Boolean)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+            throw ErrorHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                                                            PredefinedTypes.TYPE_BOOLEAN, getTypeName(json));
         }
         return (Boolean) json;
@@ -706,7 +706,7 @@ public class JsonInternalUtils {
                     json.append(convertArrayToJSON((ArrayValue) value));
                     break;
                 default:
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
+                    throw ErrorHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                                                                    PredefinedTypes.TYPE_JSON, type);
             }
         }
@@ -798,7 +798,7 @@ public class JsonInternalUtils {
                     json.put(key, convertMapToJSON((MapValueImpl<BString, ?>) value, (BJsonType) exptType));
                     break;
                 default:
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
+                    throw ErrorHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
                                                                    PredefinedTypes.TYPE_JSON, type);
             }
         } catch (Exception e) {

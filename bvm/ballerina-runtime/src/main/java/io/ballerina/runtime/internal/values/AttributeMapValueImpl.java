@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.XmlValidator;
 import io.ballerina.runtime.internal.types.BMapType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 
 import javax.xml.XMLConstants;
 
@@ -57,7 +57,7 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
     public BString put(BString keyBStr, BString value) {
         if (isFrozen()) {
             throw ErrorCreator.createError(getModulePrefixedReason(XML_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                           BLangExceptionHelper.getErrorDetails(INVALID_READONLY_VALUE_UPDATE));
+                                           ErrorHelper.getErrorDetails(INVALID_READONLY_VALUE_UPDATE));
         }
 
         return insertValue(keyBStr, value, false);

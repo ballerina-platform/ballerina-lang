@@ -20,7 +20,7 @@ package io.ballerina.runtime.internal.regexp;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.RegExpAssertion;
 import io.ballerina.runtime.internal.values.RegExpAtom;
@@ -138,7 +138,7 @@ public class TreeBuilder {
             default:
                 // Here the token is a syntax char, which is invalid. Syntax char tokens should be 
                 // proceeded by backslashes.
-                throw ErrorCreator.createError(BLangExceptionHelper.getErrorMessage(
+                throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
                         RuntimeErrors.REGEXP_MISSING_BACKSLASH.messageKey(), nextToken.value));
         }
 
@@ -186,7 +186,7 @@ public class TreeBuilder {
                 if (isReSimpleCharClassCode(nextToken)) {
                     return readRegSimpleCharClassEscape(backSlash.value);
                 }
-                throw ErrorCreator.createError(BLangExceptionHelper.getErrorMessage(
+                throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
                         RuntimeErrors.REGEXP_INVALID_CHAR_AFTER_BACKSLASH.messageKey(), nextToken.value));
         }
     }
@@ -218,7 +218,7 @@ public class TreeBuilder {
             }
         } catch (BError ignored) {
         }
-        throw ErrorCreator.createError(BLangExceptionHelper.getErrorMessage(
+        throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
                 RuntimeErrors.REGEXP_MISSING_OPEN_BRACE.messageKey()));
     }
 
@@ -283,7 +283,7 @@ public class TreeBuilder {
             }
         } catch (BError ignored) {
         }
-        throw ErrorCreator.createError(BLangExceptionHelper.getErrorMessage(
+        throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
                 RuntimeErrors.REGEXP_MISSING_CLOSE_BRACE.messageKey()));
     }
 
@@ -309,7 +309,7 @@ public class TreeBuilder {
         RegExpCharSet characterSet = readRegCharSet();
         String characterClassEnd = readCharacterClassEnd();
         if (negation.isEmpty() && characterSet.getCharSetAtoms().length == 0) {
-            throw ErrorCreator.createError(BLangExceptionHelper.getErrorMessage(
+            throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
                     RuntimeErrors.REGEXP_EMPTY_CHARACTER_CLASS_DISALLOWED.messageKey()));
         }
         return new RegExpCharacterClass(characterClassStart, negation, characterSet, characterClassEnd);
@@ -343,7 +343,7 @@ public class TreeBuilder {
             }
             String rhsReCharSetAtom = readCharSetAtom(nextToken);
             if (isIncorrectCharRange(startReCharSetAtom, rhsReCharSetAtom)) {
-                throw ErrorCreator.createError(BLangExceptionHelper.getErrorMessage(
+                throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
                         RuntimeErrors.REGEXP_INVALID_CHAR_CLASS_RANGE.messageKey(),
                         startReCharSetAtom, rhsReCharSetAtom));
             }
@@ -380,7 +380,7 @@ public class TreeBuilder {
             }
             String rhsReCharSetAtom = readCharSetAtom(nextToken);
             if (isIncorrectCharRange(startReCharSetAtomNoDash, rhsReCharSetAtom)) {
-                throw ErrorCreator.createError(BLangExceptionHelper.getErrorMessage(
+                throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
                         RuntimeErrors.REGEXP_INVALID_CHAR_CLASS_RANGE.messageKey(),
                         startReCharSetAtomNoDash, rhsReCharSetAtom));
             }
@@ -428,7 +428,7 @@ public class TreeBuilder {
             Token consumedToken = consume();
             return consumedToken.value;
         }
-        throw ErrorCreator.createError(BLangExceptionHelper.getErrorMessage(
+        throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
                 RuntimeErrors.REGEXP_MISSING_CLOSE_BRACKET.messageKey()));
     }
 
@@ -541,7 +541,7 @@ public class TreeBuilder {
         Token nextToken = peek();
         while (!isEndOfReFlags(nextToken.kind)) {
             if (!isReFlag(nextToken)) {
-                throw ErrorCreator.createError(BLangExceptionHelper.getErrorMessage(
+                throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
                         RuntimeErrors.REGEXP_INVALID_FLAG.messageKey(), nextToken.value));
             }
             Token reFlag = consume();
@@ -557,7 +557,7 @@ public class TreeBuilder {
             Token consumedToken = consume();
             return consumedToken.value;
         }
-        throw ErrorCreator.createError(BLangExceptionHelper.getErrorMessage(
+        throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
                 RuntimeErrors.REGEXP_MISSING_CLOSE_PAREN.messageKey()));
     }
 
@@ -664,9 +664,9 @@ public class TreeBuilder {
 
     private BString getErrorMsg(Token nextToken) {
         if (nextToken.kind == TokenKind.EOF_TOKEN) {
-            return BLangExceptionHelper.getErrorMessage(RuntimeErrors.REGEXP_INVALID_END_CHARACTER.messageKey());
+            return ErrorHelper.getErrorMessage(RuntimeErrors.REGEXP_INVALID_END_CHARACTER.messageKey());
         }
-        return BLangExceptionHelper.getErrorMessage(RuntimeErrors.REGEXP_INVALID_CHARACTER.messageKey(),
+        return ErrorHelper.getErrorMessage(RuntimeErrors.REGEXP_INVALID_CHARACTER.messageKey(),
                 nextToken.value);
     }
 
@@ -687,7 +687,7 @@ public class TreeBuilder {
         for (int i = 0; i < flags.length(); i++) {
             char flag = flags.charAt(i);
             if (charList.contains(flag)) {
-                throw ErrorCreator.createError(BLangExceptionHelper.getErrorMessage(
+                throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
                         RuntimeErrors.REGEXP_DUPLICATE_FLAG.messageKey(), flag));
             }
             charList.add(flag);

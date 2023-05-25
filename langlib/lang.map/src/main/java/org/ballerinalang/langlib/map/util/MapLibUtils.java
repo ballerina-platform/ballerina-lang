@@ -30,7 +30,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
@@ -100,7 +100,7 @@ public class MapLibUtils {
 
     private static BError createOpNotSupportedErrorForRecord(Type type, String field) {
         return ErrorCreator.createError(getModulePrefixedReason(
-                MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), BLangExceptionHelper.getErrorDetails(
+                MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), ErrorHelper.getErrorDetails(
                         RuntimeErrors.FIELD_REMOVAL_NOT_ALLOWED, field, type.getQualifiedName()));
     }
 

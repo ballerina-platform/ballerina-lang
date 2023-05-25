@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import org.ballerinalang.langlib.string.utils.StringUtils;
 
@@ -44,7 +44,7 @@ public class LastIndexOf {
     public static Object lastIndexOf(BString value, BString subString, long startIndex) {
         StringUtils.checkForNull(value, subString);
         if (startIndex > Integer.MAX_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(STRING_LANG_LIB,
+            throw ErrorHelper.getRuntimeException(getModulePrefixedReason(STRING_LANG_LIB,
                     INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                     RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
         }

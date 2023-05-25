@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 
 /**
  * Append children to an XML if its an element type XML. Error otherwise.
@@ -43,7 +43,7 @@ public class AppendChildren {
         try {
             xml.addChildren(children);
         } catch (Throwable e) {
-            BLangExceptionHelper.handleXMLException(OPERATION, e);
+            ErrorHelper.handleXMLException(OPERATION, e);
         }
     }
 }

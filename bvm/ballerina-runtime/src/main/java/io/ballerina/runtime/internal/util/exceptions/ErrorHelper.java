@@ -32,13 +32,14 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
- * Utility class for handler error messages.
+ * Utility class for handling error messages.
  */
-public class BLangExceptionHelper {
+public class ErrorHelper {
+
     private static final ResourceBundle messageBundle = ResourceBundle.getBundle("MessagesBundle", Locale.getDefault());
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
 
-    private BLangExceptionHelper() {}
+    private ErrorHelper() {}
 
     public static BError getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
         BString errorMsg = StringUtils
@@ -82,7 +83,7 @@ public class BLangExceptionHelper {
         // along with the error message.
         String errorDetail;
         if (isBErrorWithMessageDetail(e)) {
-            errorDetail = ((BMap<BString, Object>) ((BError) e).getDetails()).get(StringUtils.fromString("message"))
+            errorDetail = ((BMap<BString, Object>) ((BError) e).getDetails()).get(ERROR_MESSAGE_FIELD)
                     .toString();
         } else if (e.getCause() != null) {
             errorDetail = e.getCause().getMessage();
@@ -105,6 +106,6 @@ public class BLangExceptionHelper {
         if (bErrorDetails == null) {
             return false;
         }
-        return ((BMap<BString, Object>) bErrorDetails).get(StringUtils.fromString("message")) != null;
+        return ((BMap<BString, Object>) bErrorDetails).get(ERROR_MESSAGE_FIELD) != null;
     }
 }

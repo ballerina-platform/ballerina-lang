@@ -17,8 +17,8 @@
 package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import static org.ballerinalang.langlib.string.utils.StringUtils.createNullReferenceError;
@@ -42,20 +42,20 @@ public class Substring {
             throw createNullReferenceError();
         }
         if (startIndex != (int) startIndex) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+            throw ErrorHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
                     RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
         }
         if (endIndex != (int) endIndex) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+            throw ErrorHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
                     RuntimeErrors.INDEX_NUMBER_TOO_LARGE, endIndex);
         }
 
         if (startIndex < 0 || endIndex > value.length()) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+            throw ErrorHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
                     RuntimeErrors.SUBSTRING_INDEX_OUT_OF_RANGE, value.length(), startIndex, endIndex);
         }
         if (endIndex < startIndex) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+            throw ErrorHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
                     RuntimeErrors.INVALID_SUBSTRING_RANGE, value.length(), startIndex, endIndex);
         }
         return value.substring((int) startIndex, (int) endIndex);

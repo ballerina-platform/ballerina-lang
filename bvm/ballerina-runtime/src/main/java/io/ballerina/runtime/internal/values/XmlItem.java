@@ -30,8 +30,8 @@ import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.XmlValidator;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMException;
@@ -531,7 +531,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         if (index > 0) {
             return new XmlSequence();
         }
-        throw BLangExceptionHelper.getRuntimeException(
+        throw ErrorHelper.getRuntimeException(
                 RuntimeErrors.XML_SEQUENCE_INDEX_OUT_OF_RANGE, 1, index);
     }
 

@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeConverter;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
@@ -49,7 +49,7 @@ public class FromString {
             return TypeConverter.stringToInt(s.getValue());
         } catch (NumberFormatException e) {
             return ErrorCreator.createError(ERROR_REASON,
-                                            BLangExceptionHelper.getErrorDetails(
+                                            ErrorHelper.getErrorDetails(
                                                     RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                     PredefinedTypes.TYPE_STRING, s, PredefinedTypes.TYPE_INT));
         }

@@ -33,7 +33,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BObjectType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.HashMap;
@@ -207,7 +207,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
         if (objectType.isReadOnly()) {
             throw ErrorCreator.createError(
                     getModulePrefixedReason(OBJECT_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_READONLY_VALUE_UPDATE));
+                    ErrorHelper.getErrorDetails(RuntimeErrors.INVALID_READONLY_VALUE_UPDATE));
         }
 
         Field field = objectType.getFields().get(fieldName);
@@ -215,7 +215,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
         if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.FINAL)) {
             throw ErrorCreator.createError(
                     getModulePrefixedReason(OBJECT_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.OBJECT_INVALID_FINAL_FIELD_UPDATE,
+                    ErrorHelper.getErrorDetails(RuntimeErrors.OBJECT_INVALID_FINAL_FIELD_UPDATE,
                                                          fieldName, objectType));
         }
         checkFieldUpdateType(fieldName, value);
@@ -229,7 +229,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
         throw ErrorCreator.createError(getModulePrefixedReason(OBJECT_LANG_LIB,
                         INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_OBJECT_FIELD_VALUE_ERROR,
+                ErrorHelper.getErrorDetails(RuntimeErrors.INVALID_OBJECT_FIELD_VALUE_ERROR,
                         fieldName, fieldType, TypeChecker.getType(value)));
     }
 }

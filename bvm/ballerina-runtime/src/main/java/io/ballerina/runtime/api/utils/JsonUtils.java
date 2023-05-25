@@ -40,7 +40,7 @@ import io.ballerina.runtime.internal.JsonInternalUtils;
 import io.ballerina.runtime.internal.JsonParser;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
@@ -398,18 +398,18 @@ public class JsonUtils {
 
     private static BError createConversionError(Object inputValue, Type targetType) {
         return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                BLangExceptionHelper.getErrorDetails(INCOMPATIBLE_CONVERT_OPERATION,
+                ErrorHelper.getErrorDetails(INCOMPATIBLE_CONVERT_OPERATION,
                         TypeChecker.getType(inputValue), targetType));
     }
 
     private static BError createConversionError(Object inputValue, Type targetType, String detailMessage) {
-        return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
+        return createError(VALUE_LANG_LIB_CONVERSION_ERROR, ErrorHelper.getErrorMessage(
                         INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
                 .concat(StringUtils.fromString(": ".concat(detailMessage))));
     }
 
     private static BError createCyclicValueReferenceError(Object value) {
-        return createError(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR, BLangExceptionHelper.getErrorDetails(
+        return createError(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR, ErrorHelper.getErrorDetails(
                 RuntimeErrors.CYCLIC_VALUE_REFERENCE, ((BRefValue) value).getType()));
     }
 

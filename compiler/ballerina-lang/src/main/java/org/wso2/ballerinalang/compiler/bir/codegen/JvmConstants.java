@@ -221,7 +221,7 @@ public class JvmConstants {
             "io/ballerina/runtime/internal/util/exceptions/BallerinaErrorReasons";
     public static final String RUNTIME_ERRORS = "io/ballerina/runtime/internal/util/exceptions/RuntimeErrors";
     public static final String BLANG_EXCEPTION_HELPER =
-            "io/ballerina/runtime/internal/util/exceptions/BLangExceptionHelper";
+            "io/ballerina/runtime/internal/util/exceptions/ErrorHelper";
     public static final String COMPATIBILITY_CHECKER = "io/ballerina/runtime/internal/util/CompatibilityChecker";
     public static final String RUNTIME_REGISTRY_CLASS =
             "io/ballerina/runtime/internal/scheduling/RuntimeRegistry";

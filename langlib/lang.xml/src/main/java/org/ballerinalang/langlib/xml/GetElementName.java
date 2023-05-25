@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 
 /**
  * Get the fully qualified name of the element as a string.
@@ -41,7 +41,7 @@ public class GetElementName {
         try {
             return xml.getElementName();
         } catch (Throwable e) {
-            BLangExceptionHelper.handleXMLException(OPERATION, e);
+            ErrorHelper.handleXMLException(OPERATION, e);
         }
 
         return null;

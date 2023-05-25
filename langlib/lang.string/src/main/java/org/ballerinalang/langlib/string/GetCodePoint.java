@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
@@ -40,7 +40,7 @@ public class GetCodePoint {
         } catch (IndexOutOfBoundsException e) {
             throw ErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
                                                                    INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.CODEPOINT_INDEX_OUT_OF_RANGE, i));
+                    ErrorHelper.getErrorDetails(RuntimeErrors.CODEPOINT_INDEX_OUT_OF_RANGE, i));
         }
     }
 }

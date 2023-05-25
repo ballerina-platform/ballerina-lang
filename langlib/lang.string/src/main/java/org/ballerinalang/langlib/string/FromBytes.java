@@ -21,7 +21,7 @@ package org.ballerinalang.langlib.string;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.nio.ByteBuffer;
@@ -55,7 +55,7 @@ public class FromBytes {
             return StringUtils.fromString(str);
         } catch (CharacterCodingException e) {
             return ErrorCreator.createError(FAILED_TO_DECODE_BYTES,
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.INVALID_UTF_8_BYTE_ARRAY_VALUE));
+                    ErrorHelper.getErrorDetails(RuntimeErrors.INVALID_UTF_8_BYTE_ARRAY_VALUE));
         }
     }
 }

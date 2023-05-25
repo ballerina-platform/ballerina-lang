@@ -18,7 +18,7 @@ package org.ballerinalang.testerina.natives.io;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.io.File;
@@ -73,10 +73,10 @@ public class FileUtils {
                 String readString = Files.readString(Paths.get(targetPath.getValue()));
                 return StringUtils.fromString(readString);
             } catch (IOException e) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR);
+                throw ErrorHelper.getRuntimeException(RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR);
             }
         }
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR);
+        throw ErrorHelper.getRuntimeException(RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR);
     }
 
     public static boolean fileExists(BString filePath) {

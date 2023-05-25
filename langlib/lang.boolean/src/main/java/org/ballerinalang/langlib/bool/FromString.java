@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeConverter;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BOOLEAN_LANG_LIB;
@@ -50,7 +50,7 @@ public class FromString {
         try {
             return TypeConverter.stringToBoolean(s);
         } catch (NumberFormatException e) {
-            BString msg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+            BString msg = ErrorHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                                PredefinedTypes.TYPE_STRING, s,
                                                                PredefinedTypes.TYPE_BOOLEAN);
             return ErrorCreator.createError(ERROR_REASON, msg);

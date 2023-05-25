@@ -38,8 +38,8 @@ import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BArrayType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.io.IOException;
@@ -1083,7 +1083,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     protected void rangeCheckForGet(long index, int size) {
         rangeCheck(index, size);
         if (index >= size) {
-            throw BLangExceptionHelper.getRuntimeException(
+            throw ErrorHelper.getRuntimeException(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                     RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
@@ -1092,13 +1092,13 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Override
     protected void rangeCheck(long index, int size) {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(
+            throw ErrorHelper.getRuntimeException(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                     RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }
 
         if ((int) index < 0 || index >= maxSize) {
-            throw BLangExceptionHelper.getRuntimeException(
+            throw ErrorHelper.getRuntimeException(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                     RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
@@ -1112,7 +1112,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             return;
         }
         if (index > size) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
+            throw ErrorHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
                                                            RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
         }
     }
@@ -1141,7 +1141,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Override
     protected void checkFixedLength(long length) {
         if (this.arrayType.getState() == ArrayState.CLOSED) {
-            throw BLangExceptionHelper.getRuntimeException(
+            throw ErrorHelper.getRuntimeException(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                     RuntimeErrors.ILLEGAL_ARRAY_SIZE, size, length);
         }
@@ -1166,7 +1166,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         // check types
         if (!TypeChecker.checkIsType(null, value, sourceType, this.elementType)) {
             throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
-                    INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), BLangExceptionHelper.getErrorDetails(
+                    INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), ErrorHelper.getErrorDetails(
                             RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType, sourceType));
         }
 
@@ -1180,7 +1180,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     private void fillRead(long index, int currentArraySize) {
         if (!arrayType.hasFillerValue()) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
+            throw ErrorHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
                                                            RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
         }
 
@@ -1230,7 +1230,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         int lastIndex = size() + unshiftByN - 1;
         prepareForConsecutiveMultiAdd(lastIndex, arrLength);
         if (index > lastIndex) {
-            throw BLangExceptionHelper.getRuntimeException(
+            throw ErrorHelper.getRuntimeException(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                     RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
         }

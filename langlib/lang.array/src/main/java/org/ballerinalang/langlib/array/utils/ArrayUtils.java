@@ -29,7 +29,7 @@ import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
@@ -91,7 +91,7 @@ public class ArrayUtils {
     public static BError createOpNotSupportedError(Type type, String op) {
         return ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
                                                                 OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                BLangExceptionHelper.getErrorDetails(RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR, op, type));
+                ErrorHelper.getErrorDetails(RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR, op, type));
     }
 
     public static BArray createEmptyArrayFromTuple(BArray arr) {

@@ -44,7 +44,7 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,7 +74,7 @@ public class ReadOnlyUtils {
      */
     static void handleInvalidUpdate(String moduleName) {
         throw ErrorCreator.createError(getModulePrefixedReason(moduleName, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                       BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
+                                       ErrorHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
     }
 
     public static Type getReadOnlyType(Type type) {

@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
@@ -40,7 +40,7 @@ public class IndexOf {
             throw createNullReferenceError();
         }
         if (startIndx > Integer.MAX_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(STRING_LANG_LIB,
+            throw ErrorHelper.getRuntimeException(getModulePrefixedReason(STRING_LANG_LIB,
                     INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
                     RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndx);
         }

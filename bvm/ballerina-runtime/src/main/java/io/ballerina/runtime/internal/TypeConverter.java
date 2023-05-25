@@ -45,8 +45,8 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
 import io.ballerina.runtime.internal.types.BTypedescType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -129,7 +129,7 @@ public class TypeConverter {
                         ErrorUtils.createNumericConversionError(inputValue, PredefinedTypes.TYPE_BYTE));
             default:
                 throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                        BLangExceptionHelper.getErrorDetails(
+                        ErrorHelper.getErrorDetails(
                                                           RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                           inputType, inputValue, targetType));
         }

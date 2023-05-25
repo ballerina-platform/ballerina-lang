@@ -26,7 +26,7 @@ import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -212,7 +212,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
         }
 
         throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                       BLangExceptionHelper.getErrorDetails(INVALID_READONLY_VALUE_UPDATE));
+                                       ErrorHelper.getErrorDetails(INVALID_READONLY_VALUE_UPDATE));
     }
 
     /**

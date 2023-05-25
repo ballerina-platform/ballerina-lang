@@ -27,7 +27,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
@@ -46,18 +46,18 @@ public class Slice {
         int size = arr.size();
 
         if (startIndex < 0) {
-            throw BLangExceptionHelper
+            throw ErrorHelper
                     .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, startIndex, size);
         }
 
         if (endIndex > size) {
-            throw BLangExceptionHelper
+            throw ErrorHelper
                     .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, endIndex, size);
         }
 
         long sliceSize = endIndex - startIndex;
         if (sliceSize < 0) {
-            throw BLangExceptionHelper
+            throw ErrorHelper
                     .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, sliceSize, size);
         }
 

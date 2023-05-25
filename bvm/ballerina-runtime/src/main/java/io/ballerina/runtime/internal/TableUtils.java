@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BRefValue;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.IteratorValue;
@@ -61,7 +61,7 @@ public class TableUtils {
             Node node = new Node(obj, parent);
 
             if (node.hasCyclesSoFar()) {
-                throw ErrorCreator.createError(TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR, BLangExceptionHelper
+                throw ErrorCreator.createError(TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR, ErrorHelper
                         .getErrorDetails(RuntimeErrors.CYCLIC_VALUE_REFERENCE, TypeChecker.getType(obj)));
             }
 

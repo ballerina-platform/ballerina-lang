@@ -28,7 +28,7 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BTupleType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
@@ -63,7 +63,7 @@ public class Call {
                     functionType.restType != null ? ((BArrayType) functionType.restType).getElementType() : null;
             throw ErrorCreator.createError(
                         getModulePrefixedReason(FUNCTION_LANG_LIB, INCOMPATIBLE_ARGUMENTS),
-                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_ARGUMENTS,
+                        ErrorHelper.getErrorDetails(RuntimeErrors.INCOMPATIBLE_ARGUMENTS,
                         removeBracketsFromStringFormatOfTuple(new BTupleType(argTypes)),
                         removeBracketsFromStringFormatOfTuple(new BTupleType(paramTypes, restType, 0, false))));
         }
