@@ -120,6 +120,8 @@ public class TreeBuilder {
             case COMMA_TOKEN:
             case DOT_TOKEN:
             case DIGIT:
+            case MINUS_TOKEN:
+            case COLON_TOKEN:    
                 reAtom = readRegChars();
                 break;
             case BACK_SLASH_TOKEN:
