@@ -82,8 +82,6 @@ public class CyclicTypeDefinitionsTest {
                 {"testCyclicFunctionTypeDefinition"},
                 {"testCyclicReadonlyFunctionTypeDefinition"},
                 {"testCyclicStreamTypeDefinition"},
-                {"testCyclicMapTypeDefinition"},
-                {"testCyclicReadonlyMapTypeDefinition"},
                 {"testCyclicErrorTypeDefinition"},
                 {"testCyclicReadonlyErrorTypeDefinition"},
                 {"testComplexCyclicRecordTypeDefinition"},
@@ -119,6 +117,7 @@ public class CyclicTypeDefinitionsTest {
     public void testCyclicTypeDefNegative() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A'", 1, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'B'", 3, 8);
         BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'C'", 5, 1);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'E', found 'string'", 8, 25);
         BAssertUtil.validateError(negativeResult, i++, "operator '==' not defined for 'CyclicDecimal' and 'float'", 15
@@ -152,6 +151,12 @@ public class CyclicTypeDefinitionsTest {
                 79, 9);
         BAssertUtil.validateError(negativeResult, i++, "invalid constraint type. expected subtype of " +
                 "'map<any|error>' but found 'B2'", 82, 15);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A3'", 85, 9);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A4'", 89, 9);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A5'", 91, 9);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A6'", 94, 9);
+        BAssertUtil.validateError(negativeResult, i++, "invalid constraint type. expected subtype of " +
+                "'map<any|error>' but found 'table<A7>'", 97, 15);
         Assert.assertEquals(i, negativeResult.getErrorCount());
     }
 

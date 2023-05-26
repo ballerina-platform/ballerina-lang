@@ -103,24 +103,6 @@ function testCyclicStreamTypeDefinition() {
     }
 }
 
-type A2 map<A2?>;
-
-function testCyclicMapTypeDefinition() {
-    A2 a21 = {"a" : {"b" : ()}};
-    assertEquals(a21.toString(), "{\"a\":{\"b\":null}}");
-    A2 a22 = {"c": ()};
-    a22["c"] = a21;
-    assertEquals(a22.toString(), "{\"c\":{\"a\":{\"b\":null}}}");
-}
-
-type MyIntersection2 A3 & readonly;
-type A3 map<MyIntersection2?>;
-
-function testCyclicReadonlyMapTypeDefinition() {
-    MyIntersection2 a31 = {"a" : {"b" : ()}};
-    assertEquals(a31.toString(), "{\"a\":{\"b\":null}}");
-}
-
 type ErrA error<Details>;
 
 type Details record {|

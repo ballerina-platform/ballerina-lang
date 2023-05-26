@@ -517,7 +517,7 @@ public class TypeResolver {
                 BLangTypeDefinition resolvingTypeDefn = resolvingTypeDefinitions.get(i);
                 resolvingTypeDefn.hasCyclicReference = true;
                 // TODO: Remove this after runtime allows cyclic array type.
-                logErrorForCyclicArray(resolvingTypeDefn);
+                logErrorForRestrictedCyclicTypes(resolvingTypeDefn);
                 if (resolvingTypeDefn == defn) {
                     break;
                 }
@@ -549,9 +549,6 @@ public class TypeResolver {
     }
 
     private void updateIsCyclicFlag(BType type) {
-        if (type == null) {
-            return;
-        }
         switch (type.getKind()) {
             case TUPLE:
                 ((BTupleType) type).isCyclic = true;
@@ -565,13 +562,13 @@ public class TypeResolver {
         }
     }
 
-    private void logErrorForCyclicArray(BLangTypeDefinition typeDefinition) {
+    private void logErrorForRestrictedCyclicTypes(BLangTypeDefinition typeDefinition) {
         BLangType typeNode = typeDefinition.typeNode;
-        if (typeNode == null) {
-            return;
-        }
-        if (typeNode.getKind() == NodeKind.ARRAY_TYPE) {
-            dlog.error(typeNode.pos, DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, typeDefinition.name);
+
+        switch (typeNode.getKind()) {
+            case ARRAY_TYPE:
+            case CONSTRAINED_TYPE:
+                dlog.error(typeNode.pos, DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, typeDefinition.name);
         }
     }
 

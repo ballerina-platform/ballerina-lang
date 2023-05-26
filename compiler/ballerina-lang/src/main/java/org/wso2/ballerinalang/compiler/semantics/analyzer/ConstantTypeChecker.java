@@ -259,7 +259,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     public void visit(BLangLiteral literalExpr, AnalyzerData data) {
         BType literalType = setLiteralValueAndGetType(literalExpr, data.expType, data);
         if (literalType == symTable.semanticError) {
-            data.resultType = literalType;
+            data.resultType = symTable.semanticError;
             return;
         }
 
@@ -301,9 +301,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         if (varRefExpr.pkgSymbol == symTable.notFoundSymbol) {
             varRefExpr.symbol = symTable.notFoundSymbol;
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
-        }
-
-        if (varRefExpr.pkgSymbol != symTable.notFoundSymbol) {
+        } else {
             BSymbol symbol =
                     getSymbolOfVarRef(varRefExpr.pos, data.env, names.fromIdNode(varRefExpr.pkgAlias), varName, data);
 
@@ -316,8 +314,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
             if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 // Check whether the referenced expr is a constant.
-                BConstantSymbol constSymbol = (BConstantSymbol) symbol;
-                varRefExpr.symbol = constSymbol;
+                varRefExpr.symbol = symbol;
                 actualType = symbol.type;
             } else {
                 varRefExpr.symbol = symbol;
