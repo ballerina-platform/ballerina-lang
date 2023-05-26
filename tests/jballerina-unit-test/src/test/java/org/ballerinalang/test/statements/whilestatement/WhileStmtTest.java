@@ -246,16 +246,16 @@ public class WhileStmtTest {
     public void testNegative1() {
         int index = 0;
         BAssertUtil.validateError(onfailNegativeCompileResult, index++, "unreachable code", 17, 6);
-        BAssertUtil.validateWarning(onfailNegativeCompileResult, index++, "unused variable 'e'", 19, 4);
+        BAssertUtil.validateWarning(onfailNegativeCompileResult, index++, "unused variable 'e'", 19, 12);
         BAssertUtil.validateError(onfailNegativeCompileResult, index++, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 34, 4);
-        BAssertUtil.validateWarning(onfailNegativeCompileResult, index++, "unused variable 'e'", 34, 4);
-        BAssertUtil.validateWarning(onfailNegativeCompileResult, index++, "unused variable 'e'", 49, 4);
-        BAssertUtil.validateWarning(onfailNegativeCompileResult, index++, "unused variable 'e'", 65, 4);
+                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 34, 12);
+        BAssertUtil.validateWarning(onfailNegativeCompileResult, index++, "unused variable 'e'", 34, 12);
+        BAssertUtil.validateWarning(onfailNegativeCompileResult, index++, "unused variable 'e'", 49, 12);
+        BAssertUtil.validateWarning(onfailNegativeCompileResult, index++, "unused variable 'e'", 65, 12);
         BAssertUtil.validateError(onfailNegativeCompileResult, index++, "unreachable code", 68, 7);
         BAssertUtil.validateError(onfailNegativeCompileResult, index++, "this function must return a result", 83, 1);
         BAssertUtil.validateError(onfailNegativeCompileResult, index++, "incompatible error definition type: " +
-                "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 102, 4);
+                "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 102, 12);
         BAssertUtil.validateError(onfailNegativeCompileResult, index++, "unreachable code", 116, 9);
         BAssertUtil.validateError(onfailNegativeCompileResult, index++, "unreachable code", 118, 5);
         Assert.assertEquals(onfailNegativeCompileResult.getDiagnostics().length, index);

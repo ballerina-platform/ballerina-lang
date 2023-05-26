@@ -49,18 +49,18 @@ public class RetryStmtWithOnFailTest {
     public void testNegative1() {
         int index = 0;
         BAssertUtil.validateError(negativeFile, index++, "unreachable code", 20, 12);
-        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'e'", 21, 8);
+        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'e'", 21, 16);
         BAssertUtil.validateError(negativeFile, index++, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 32, 6);
-        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'e'", 32, 6);
-        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'e'", 45, 4);
-        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'e'", 59, 4);
+                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 32, 14);
+        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'e'", 32, 14);
+        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'e'", 45, 12);
+        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'e'", 59, 12);
         BAssertUtil.validateError(negativeFile, index++, "unreachable code", 62, 7);
-        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'e1'", 78, 4);
+        BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'e1'", 78, 12);
         BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'resA'", 97, 6);
         BAssertUtil.validateWarning(negativeFile, index++, "unused variable 'resB'", 98, 6);
         BAssertUtil.validateError(negativeFile, index++, "incompatible error definition type: " +
-                "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 100, 4);
+                "'ErrorTypeB' will not be matched to 'ErrorTypeA'", 100, 12);
         Assert.assertEquals(negativeFile.getDiagnostics().length, index);
     }
 

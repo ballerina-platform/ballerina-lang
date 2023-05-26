@@ -33,21 +33,18 @@ import java.util.Collections;
 public class STOnFailClauseNode extends STClauseNode {
     public final STNode onKeyword;
     public final STNode failKeyword;
-    public final STNode typeDescriptor;
-    public final STNode failErrorName;
+    public final STNode typedBindingPattern;
     public final STNode blockStatement;
 
     STOnFailClauseNode(
             STNode onKeyword,
             STNode failKeyword,
-            STNode typeDescriptor,
-            STNode failErrorName,
+            STNode typedBindingPattern,
             STNode blockStatement) {
         this(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement,
                 Collections.emptyList());
     }
@@ -55,22 +52,19 @@ public class STOnFailClauseNode extends STClauseNode {
     STOnFailClauseNode(
             STNode onKeyword,
             STNode failKeyword,
-            STNode typeDescriptor,
-            STNode failErrorName,
+            STNode typedBindingPattern,
             STNode blockStatement,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.ON_FAIL_CLAUSE, diagnostics);
         this.onKeyword = onKeyword;
         this.failKeyword = failKeyword;
-        this.typeDescriptor = typeDescriptor;
-        this.failErrorName = failErrorName;
+        this.typedBindingPattern = typedBindingPattern;
         this.blockStatement = blockStatement;
 
         addChildren(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement);
     }
 
@@ -78,8 +72,7 @@ public class STOnFailClauseNode extends STClauseNode {
         return new STOnFailClauseNode(
                 this.onKeyword,
                 this.failKeyword,
-                this.typeDescriptor,
-                this.failErrorName,
+                this.typedBindingPattern,
                 this.blockStatement,
                 diagnostics);
     }
@@ -87,14 +80,12 @@ public class STOnFailClauseNode extends STClauseNode {
     public STOnFailClauseNode modify(
             STNode onKeyword,
             STNode failKeyword,
-            STNode typeDescriptor,
-            STNode failErrorName,
+            STNode typedBindingPattern,
             STNode blockStatement) {
         if (checkForReferenceEquality(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement)) {
             return this;
         }
@@ -102,8 +93,7 @@ public class STOnFailClauseNode extends STClauseNode {
         return new STOnFailClauseNode(
                 onKeyword,
                 failKeyword,
-                typeDescriptor,
-                failErrorName,
+                typedBindingPattern,
                 blockStatement,
                 diagnostics);
     }

@@ -75,19 +75,19 @@ public class MatchStatementOnFailTest {
     public void testNegative1() {
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 29, 14);
-        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 31, 7);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 31, 15);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'err'", 56, 14);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 59, 7);
-        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 59, 7);
+                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 59, 15);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 59, 15);
         BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'err'", 85, 14);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 88, 7);
-        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 88, 7);
+                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 88, 15);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 88, 15);
         BAssertUtil.validateError(resultNegative, ++i, "unreachable code", 90, 9);
         BAssertUtil.validateError(resultNegative, ++i, "incompatible error definition type: " +
-                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 124, 7);
-        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 124, 7);
+                "'ErrorTypeA' will not be matched to 'ErrorTypeB'", 124, 15);
+        BAssertUtil.validateWarning(resultNegative, ++i, "unused variable 'e'", 124, 15);
         Assert.assertEquals(resultNegative.getDiagnostics().length, i + 1);
     }
 
