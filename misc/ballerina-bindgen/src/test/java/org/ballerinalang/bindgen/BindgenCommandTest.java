@@ -82,7 +82,7 @@ public class BindgenCommandTest extends BindgenCommandBaseTest {
         String output = readOutput(true);
         Assert.assertTrue(output.contains("Ballerina package detected at:"));
         Assert.assertTrue(output.contains("The following JARs were added to the classpath:"));
-        Assert.assertTrue(output.contains("snakeyaml-1.32.jar"));
+        Assert.assertTrue(output.contains("snakeyaml-2.0.jar"));
         Assert.assertTrue(output.contains("commons-logging-1.1.1.jar"));
         Assert.assertTrue(output.contains("log4j-1.2.17.jar"));
         Assert.assertFalse(output.contains("Failed to add the following to classpath:"));
@@ -111,7 +111,7 @@ public class BindgenCommandTest extends BindgenCommandBaseTest {
     @Test(description = "Test if the correct error is given for incorrect maven option value")
     public void testIncorrectMavenLibrary() throws IOException {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
-        String[] args = {"-mvn=org.yaml.snakeyaml.1.32", "-o=" + projectDir, "java.lang.Object"};
+        String[] args = {"-mvn=org.yaml.snakeyaml.2.0", "-o=" + projectDir, "java.lang.Object"};
 
         BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
