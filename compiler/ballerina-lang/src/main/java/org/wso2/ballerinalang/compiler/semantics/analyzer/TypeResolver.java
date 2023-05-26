@@ -1875,6 +1875,7 @@ public class TypeResolver {
             if (PackageID.isLangLibPackageID(env.enclPkg.packageID)) {
                 typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol);
                 typeDefSymbol.flags |= Flags.TYPE_PARAM;
+                typeDefinition.typeNode.setBType(typeDefSymbol.type);
                 resolvedType = typeDefSymbol.type;
             } else {
                 dlog.error(typeDefinition.pos, DiagnosticErrorCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
