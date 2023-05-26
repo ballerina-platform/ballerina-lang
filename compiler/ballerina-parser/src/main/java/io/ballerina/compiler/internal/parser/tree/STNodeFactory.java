@@ -1582,13 +1582,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createQueryExpressionNode(
             STNode queryConstructType,
             STNode queryPipeline,
-            STNode selectClause,
+            STNode endClause,
             STNode onConflictClause) {
 
         return new STQueryExpressionNode(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                endClause,
                 onConflictClause);
     }
 
@@ -2703,7 +2703,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 mostTimesMatchedDigit,
                 closeBraceToken);
     }
-  
+
     public static STNode createMemberTypeDescriptorNode(
             STNode annotations,
             STNode typeDescriptor) {

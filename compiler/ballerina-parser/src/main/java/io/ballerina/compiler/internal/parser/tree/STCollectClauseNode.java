@@ -64,16 +64,16 @@ public class STCollectClauseNode extends STClauseNode {
     }
 
     public STCollectClauseNode modify(
-            STNode selectKeyword,
+            STNode collectKeyword,
             STNode expression) {
         if (checkForReferenceEquality(
-                selectKeyword,
+                collectKeyword,
                 expression)) {
             return this;
         }
 
         return new STCollectClauseNode(
-                selectKeyword,
+                collectKeyword,
                 expression,
                 diagnostics);
     }

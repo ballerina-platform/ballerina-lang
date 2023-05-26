@@ -2883,6 +2883,21 @@
             ]
         },
         {
+            "name": "CollectClauseNode",
+            "base": "ClauseNode",
+            "kind": "COLLECT_CLAUSE",
+            "attributes": [
+                {
+                    "name": "collectKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
             "name": "QueryExpressionNode",
             "base": "ExpressionNode",
             "kind": "QUERY_EXPRESSION",
@@ -2897,8 +2912,8 @@
                     "type": "QueryPipelineNode"
                 },
                 {
-                    "name": "selectClause",
-                    "type": "SelectClauseNode"
+                    "name": "endClause",
+                    "type": "ClauseNode"
                 },
                 {
                     "name": "onConflictClause",

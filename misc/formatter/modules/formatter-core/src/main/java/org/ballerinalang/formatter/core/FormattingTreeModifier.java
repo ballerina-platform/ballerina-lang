@@ -37,7 +37,9 @@ import io.ballerina.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ClauseNode;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
+import io.ballerina.compiler.syntax.tree.CollectClauseNode;
 import io.ballerina.compiler.syntax.tree.CommitActionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
@@ -2806,6 +2808,16 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
+    public CollectClauseNode transform(CollectClauseNode collectClauseNode) {
+        Token collectKeyword = formatToken(collectClauseNode.collectKeyword(), 1, 0);
+        ExpressionNode expression = formatNode(collectClauseNode.expression(), env.trailingWS, env.trailingNL);
+        return collectClauseNode.modify()
+                .withCollectKeyword(collectKeyword)
+                .withExpression(expression)
+                .apply();
+    }
+
+    @Override
     public QueryExpressionNode transform(QueryExpressionNode queryExpressionNode) {
         int lineLength = env.lineLength;
         if (lineLength != 0) {
@@ -2816,11 +2828,11 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatNode(queryExpressionNode.queryConstructType().orElse(null), 1, 0);
         QueryPipelineNode queryPipeline = formatNode(queryExpressionNode.queryPipeline(), 0, 1);
 
-        SelectClauseNode selectClause;
+        ClauseNode endClause;
         if (queryExpressionNode.onConflictClause().isPresent()) {
-            selectClause = formatNode(queryExpressionNode.selectClause(), 0, 1);
+            endClause = formatNode(queryExpressionNode.endClause(), 0, 1);
         } else {
-            selectClause = formatNode(queryExpressionNode.selectClause(), env.trailingWS, env.trailingNL);
+            endClause = formatNode(queryExpressionNode.endClause(), env.trailingWS, env.trailingNL);
         }
 
         OnConflictClauseNode onConflictClause = formatNode(queryExpressionNode.onConflictClause().orElse(null),
@@ -2832,7 +2844,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return queryExpressionNode.modify()
                 .withQueryConstructType(queryConstructType)
                 .withQueryPipeline(queryPipeline)
-                .withSelectClause(selectClause)
+                .withEndClause(endClause)
                 .withOnConflictClause(onConflictClause)
                 .apply();
     }

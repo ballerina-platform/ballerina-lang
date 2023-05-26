@@ -208,7 +208,13 @@
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "COLON_TOKEN"
+                                                  "kind": "COLON_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "NUMERIC_LITERAL",
@@ -243,7 +249,13 @@
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "COLON_TOKEN"
+                                                  "kind": "COLON_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "NUMERIC_LITERAL",
@@ -294,7 +306,13 @@
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "COLON_TOKEN"
+                                                  "kind": "COLON_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "NUMERIC_LITERAL",
@@ -329,7 +347,13 @@
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "COLON_TOKEN"
+                                                  "kind": "COLON_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "NUMERIC_LITERAL",
@@ -379,7 +403,7 @@
                           "leadingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
-                              "value": "            "
+                              "value": "        "
                             }
                           ],
                           "trailingMinutiae": [
@@ -404,7 +428,7 @@
                                 },
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "            "
+                                  "value": "        "
                                 },
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
