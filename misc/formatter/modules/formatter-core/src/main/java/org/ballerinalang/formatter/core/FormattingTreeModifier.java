@@ -2809,10 +2809,10 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public CollectClauseNode transform(CollectClauseNode collectClauseNode) {
-        Token selectKeyword = formatToken(collectClauseNode.collectKeyword(), 1, 0);
+        Token collectKeyword = formatToken(collectClauseNode.collectKeyword(), 1, 0);
         ExpressionNode expression = formatNode(collectClauseNode.expression(), env.trailingWS, env.trailingNL);
         return collectClauseNode.modify()
-                .withCollectKeyword(selectKeyword)
+                .withCollectKeyword(collectKeyword)
                 .withExpression(expression)
                 .apply();
     }
@@ -2828,11 +2828,11 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatNode(queryExpressionNode.queryConstructType().orElse(null), 1, 0);
         QueryPipelineNode queryPipeline = formatNode(queryExpressionNode.queryPipeline(), 0, 1);
 
-        ClauseNode selectClause;
+        ClauseNode endClause;
         if (queryExpressionNode.onConflictClause().isPresent()) {
-            selectClause = formatNode(queryExpressionNode.endClause(), 0, 1);
+            endClause = formatNode(queryExpressionNode.endClause(), 0, 1);
         } else {
-            selectClause = formatNode(queryExpressionNode.endClause(), env.trailingWS, env.trailingNL);
+            endClause = formatNode(queryExpressionNode.endClause(), env.trailingWS, env.trailingNL);
         }
 
         OnConflictClauseNode onConflictClause = formatNode(queryExpressionNode.onConflictClause().orElse(null),
@@ -2844,7 +2844,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return queryExpressionNode.modify()
                 .withQueryConstructType(queryConstructType)
                 .withQueryPipeline(queryPipeline)
-                .withEndClause(selectClause)
+                .withEndClause(endClause)
                 .withOnConflictClause(onConflictClause)
                 .apply();
     }

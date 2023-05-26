@@ -45,6 +45,7 @@ public class DeprecatedSyntaxAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertNull(queryExpressionNode.selectClause());
     }
 
+    @Override
     protected SyntaxTree parseFile(String sourceFileName) {
         return super.parseFile(Paths.get("deprecated-syntax-api-test").resolve(sourceFileName));
     }
