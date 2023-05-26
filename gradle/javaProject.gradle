@@ -128,8 +128,8 @@ dependencies {
         implementation 'io.opentracing:opentracing-util:0.33.0'
         implementation 'io.opentracing:opentracing-mock:0.33.0'
         implementation 'io.swagger.core.v3:swagger-models:2.1.11'
-        implementation 'io.swagger.parser.v3:swagger-parser-v2-converter:2.1.14'
-        implementation 'io.swagger.parser.v3:swagger-parser:2.1.14'
+        implementation 'io.swagger.parser.v3:swagger-parser-v2-converter:2.1.12'
+        implementation 'io.swagger.parser.v3:swagger-parser:2.1.12'
         implementation 'me.tongfei:progressbar:0.7.4'
         implementation 'org.jline:jline:3.11.0'
 
