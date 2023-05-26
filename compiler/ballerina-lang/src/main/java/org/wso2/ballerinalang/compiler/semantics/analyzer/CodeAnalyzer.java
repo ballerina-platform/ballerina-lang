@@ -53,6 +53,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -1694,6 +1695,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                 ((BObjectType) symbolType).fields.values().forEach(f -> checkForExportableType(f.type.tsymbol, pos,
                         visitedSymbols));
                 break;
+            case TypeTags.INTERSECTION:
+                ((BIntersectionType) symbolType).getConstituentTypes().forEach(t -> checkForExportableType(t.tsymbol,
+                        pos, visitedSymbols));
+                return;
         }
         if (!Symbols.isPublic(symbol)) {
             dlog.warning(pos, DiagnosticWarningCode.ATTEMPT_EXPOSE_NON_PUBLIC_SYMBOL, symbol.name);

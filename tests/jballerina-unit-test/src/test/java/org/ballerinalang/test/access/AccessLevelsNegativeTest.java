@@ -89,6 +89,8 @@ public class AccessLevelsNegativeTest {
         validateWarning(compileResult, i++, expectedWarningMsg + "'Employee2'", 276, 1);
         validateWarning(compileResult, i++, expectedWarningMsg + "'Employee1'", 284, 34);
         validateWarning(compileResult, i++, expectedWarningMsg + "'Employee2'", 284, 34);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Employee1'", 291, 34);
+        validateWarning(compileResult, i++, expectedWarningMsg + "'Employee1'", 295, 1);
         Assert.assertEquals(compileResult.getWarnCount(), i);
     }
 

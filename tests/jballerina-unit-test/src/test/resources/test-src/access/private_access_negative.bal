@@ -287,3 +287,14 @@ public function test11() returns object {
 }? {
     return;
 }
+
+public function test12() returns Employee1 & readonly {
+    return {};
+}
+
+public function test13(record {
+            string s = "";
+            Employee1 & readonly x = {};
+        } anonRecord1) returns string {
+    return "K";
+}
