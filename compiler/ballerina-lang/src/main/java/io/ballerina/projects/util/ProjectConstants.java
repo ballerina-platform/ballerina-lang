@@ -64,7 +64,8 @@ public class ProjectConstants {
 
     public static final String USER_DIR = "user.dir";
     public static final String USER_NAME = "user.name";
-    public static final String IMPORT = "import ";
+    public static final String IMPORT_PREFIX = "import ";
+    public static final String EMPTY_STRING = "";
 
     // Bala specific constants
     public static final String MODULES_ROOT = "modules";

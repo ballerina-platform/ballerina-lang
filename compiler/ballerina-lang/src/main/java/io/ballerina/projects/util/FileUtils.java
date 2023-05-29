@@ -48,7 +48,8 @@ import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_SOURCE_EXT;
 import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
-import static io.ballerina.projects.util.ProjectConstants.IMPORT;
+import static io.ballerina.projects.util.ProjectConstants.EMPTY_STRING;
+import static io.ballerina.projects.util.ProjectConstants.IMPORT_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
@@ -298,8 +299,8 @@ public class FileUtils {
         if (fileName.isPresent() && fileName.get().toString().endsWith(BLANG_SOURCE_EXT)) {
             try {
                 String content = Files.readString(path);
-                String oldImportStatementStart = IMPORT + templateName + DOT;
-                String newImportStatementStart = IMPORT + packageName + DOT;
+                String oldImportStatementStart = IMPORT_PREFIX + templateName + DOT;
+                String newImportStatementStart = IMPORT_PREFIX + packageName + DOT;
                 if (content.contains(oldImportStatementStart)) {
                     content = content.replaceAll(oldImportStatementStart, newImportStatementStart);
                     Files.write(path, content.getBytes(StandardCharsets.UTF_8));
@@ -347,7 +348,7 @@ public class FileUtils {
         }
 
         public Copy(Path fromPath, Path toPath) {
-            this(fromPath, toPath, "", "", StandardCopyOption.REPLACE_EXISTING);
+            this(fromPath, toPath, EMPTY_STRING, EMPTY_STRING, StandardCopyOption.REPLACE_EXISTING);
         }
 
         public Copy(Path fromPath, Path toPath, String templateName, String packageName) {
@@ -370,7 +371,7 @@ public class FileUtils {
                 throws IOException {
 
             Files.copy(file, toPath.resolve(fromPath.relativize(file).toString()), copyOption);
-            if (!packageName.equals("") && !templateName.equals("") && !packageName.equals(templateName)) {
+            if (!packageName.equals(EMPTY_STRING) && !templateName.equals(EMPTY_STRING) && !packageName.equals(templateName)) {
                 replaceTemplateName(toPath.resolve(fromPath.relativize(file).toString()), templateName, packageName);
             }
             return FileVisitResult.CONTINUE;
