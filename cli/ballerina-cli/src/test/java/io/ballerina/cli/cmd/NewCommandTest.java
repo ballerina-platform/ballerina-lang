@@ -617,6 +617,36 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
+    @Test(description = "Test pulling a central template and replacing the template name in module imports")
+    public void testNewCommandCentralTemplateReplaceImports() throws IOException {
+        String templateArg = "testorg/centralSample:1.0.0";
+        String packageName = "central_sample";
+        Path packageDir = tmpDir.resolve(packageName);
+        String[] args = {packageDir.toString(), "-t", templateArg};
+        NewCommand newCommand = new NewCommand(printStream, false, homeCache);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        Assert.assertTrue(Files.exists(packageDir));
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String expectedTomlContent = "[package]\n" +
+                "org = \"testorg\"\n" +
+                "name = \"" + packageName + "\"\n" +
+                "version = \"1.0.0\"\n" +
+                "export = [\"central_sample\"]\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
+                "observabilityIncluded = true\n";
+        Assert.assertEquals(
+                readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);
+
+        String mainContent = readFileAsString(packageDir.resolve("main.bal"));
+        Assert.assertTrue(mainContent.contains("import central_sample.mod1;"));
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(readOutput().contains("Created new package"));
+    }
+
     @Test
     public void testMultiModuleTemplate() throws IOException {
         // Test if no arguments was passed in
