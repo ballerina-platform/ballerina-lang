@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.test;
+package org.ballerinalang.test.exceptions;
 
 /**
  * {@code BLangTestException} represents an error happened in ballerina-lang tests.
