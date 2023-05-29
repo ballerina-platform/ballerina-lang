@@ -39,7 +39,7 @@ import java.util.Optional;
 /**
  * Completion provider for {@link GroupByClauseNode} context.
  *
- * @since 2201.6.0
+ * @since 2201.7.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class GroupByClauseNodeContext extends IntermediateClauseNodeContext<GroupByClauseNode> {

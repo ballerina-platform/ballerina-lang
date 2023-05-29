@@ -5483,12 +5483,13 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseExpressionRhsInternal(OperatorPrecedence currentPrecedenceLevel, STNode lhsExpr,
                                               boolean isRhsExpr, boolean allowActions, boolean isInMatchGuard,
                                               boolean isInConditionalExpr) {
-        SyntaxKind nextTokenKind = peek().kind;
-        if (isAction(lhsExpr) || isEndOfActionOrExpression(nextTokenKind, isRhsExpr, isInMatchGuard)) {
+        STToken nextToken = peek();
+        if (isAction(lhsExpr) || isEndOfActionOrExpression(nextToken, isRhsExpr, isInMatchGuard)) {
             // Action has to be the left most action or expression
             return lhsExpr;
         }
 
+        SyntaxKind nextTokenKind = nextToken.kind;
         if (!isValidExprRhsStart(nextTokenKind, lhsExpr.kind)) {
             return recoverExpressionRhs(currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
                     isInConditionalExpr);
@@ -5977,11 +5978,12 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Check whether the given token is an end of a action or expression.
      *
-     * @param tokenKind Token to check
+     * @param nextToken Next token
      * @param isRhsExpr Flag indicating whether this is on a rhsExpr of a statement
      * @return <code>true</code> if the token represents an end of a block. <code>false</code> otherwise
      */
-    private boolean isEndOfActionOrExpression(SyntaxKind tokenKind, boolean isRhsExpr, boolean isInMatchGuard) {
+    private boolean isEndOfActionOrExpression(STToken nextToken, boolean isRhsExpr, boolean isInMatchGuard) {
+        SyntaxKind tokenKind = nextToken.kind;
         if (!isRhsExpr) {
             if (isCompoundAssignment(tokenKind)) {
                 return true;
@@ -6013,7 +6015,6 @@ public class BallerinaParser extends AbstractParser {
             case WHERE_KEYWORD:
             case LET_KEYWORD:
             case SELECT_KEYWORD:
-            case COLLECT_KEYWORD:
             case DO_KEYWORD:
             case COLON_TOKEN:
             case ON_KEYWORD:
@@ -6022,7 +6023,6 @@ public class BallerinaParser extends AbstractParser {
             case JOIN_KEYWORD:
             case OUTER_KEYWORD:
             case ORDER_KEYWORD:
-            case GROUP_KEYWORD:
             case BY_KEYWORD:
             case ASCENDING_KEYWORD:
             case DESCENDING_KEYWORD:
@@ -6031,6 +6031,8 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             case RIGHT_DOUBLE_ARROW_TOKEN:
                 return isInMatchGuard;
+            case IDENTIFIER_TOKEN:
+                return isGroupOrCollectKeyword(nextToken);
             default:
                 return isSimpleType(tokenKind);
         }
@@ -8908,7 +8910,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
                 break;
             default:
-                if (isEndOfActionOrExpression(nextToken.kind, isRhsExpr, isInMatchGuard)) {
+                if (isEndOfActionOrExpression(nextToken, isRhsExpr, isInMatchGuard)) {
                     break;
                 }
 
@@ -8928,7 +8930,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
                 break;
             default:
-                if (isEndOfActionOrExpression(nextToken.kind, isRhsExpr, isInMatchGuard)) {
+                if (isEndOfActionOrExpression(nextToken, isRhsExpr, isInMatchGuard)) {
                     break;
                 }
 
@@ -8947,7 +8949,7 @@ public class BallerinaParser extends AbstractParser {
                 argList = parseParenthesizedArgList();
                 break;
             default:
-                if (isEndOfActionOrExpression(nextToken.kind, isRhsExpr, isInMatchGuard)) {
+                if (isEndOfActionOrExpression(nextToken, isRhsExpr, isInMatchGuard)) {
                     break;
                 }
 
@@ -8982,7 +8984,7 @@ public class BallerinaParser extends AbstractParser {
 
         STNode leadingSlash;
         STNode previousPathSegmentNode = pathSegment;
-        while (!isEndOfResourceAccessPathSegments(peek().kind, isRhsExpr, isInMatchGuard)) {
+        while (!isEndOfResourceAccessPathSegments(peek(), isRhsExpr, isInMatchGuard)) {
             leadingSlash = parseResourceAccessSegmentRhs(isRhsExpr, isInMatchGuard);
             if (leadingSlash == null) {
                 break;
@@ -9061,7 +9063,7 @@ public class BallerinaParser extends AbstractParser {
             case SLASH_TOKEN:
                 return consume();
             default:
-                if (isEndOfResourceAccessPathSegments(nextToken.kind, isRhsExpr, isInMatchGuard)) {
+                if (isEndOfResourceAccessPathSegments(nextToken, isRhsExpr, isInMatchGuard)) {
                     return null;
                 }
                 
@@ -9070,14 +9072,13 @@ public class BallerinaParser extends AbstractParser {
         }
     }
     
-    private boolean isEndOfResourceAccessPathSegments(SyntaxKind nextTokenKind,
-                                                      boolean isRhsExpr, boolean isInMatchGuard) {
-        switch (nextTokenKind) {
+    private boolean isEndOfResourceAccessPathSegments(STToken nextToken, boolean isRhsExpr, boolean isInMatchGuard) {
+        switch (nextToken.kind) {
             case DOT_TOKEN:
             case OPEN_PAREN_TOKEN:
                 return true;
             default:
-                return isEndOfActionOrExpression(nextTokenKind, isRhsExpr, isInMatchGuard);
+                return isEndOfActionOrExpression(nextToken, isRhsExpr, isInMatchGuard);
         }
     }
     
@@ -9108,9 +9109,9 @@ public class BallerinaParser extends AbstractParser {
                     // This can be `expr->identifier` or `expr->identifier()` or `expr->[MISSING /]identifier`
                     // This logic is added to improve recovery for resource method call action slash token
                     // Next token is a Missing token means, it is a correct token recovered previously
-                    SyntaxKind nextNextNextTokenKind = getNextNextToken().kind;
-                    if (nextNextNextTokenKind == SyntaxKind.OPEN_PAREN_TOKEN || 
-                            isEndOfActionOrExpression(nextNextNextTokenKind, isRhsExpr, isInMatchGuard) || 
+                    STToken nextNextToken = getNextNextToken();
+                    if (nextNextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN ||
+                            isEndOfActionOrExpression(nextNextToken, isRhsExpr, isInMatchGuard) ||
                             nextToken.isMissing()) {
                         name = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
                         break;
@@ -9145,11 +9146,14 @@ public class BallerinaParser extends AbstractParser {
             case LET_KEYWORD:
             case WHERE_KEYWORD:
             case ORDER_KEYWORD:
-            case GROUP_KEYWORD:
             case LIMIT_KEYWORD:
             case SELECT_KEYWORD:
                 return parseAsyncSendAction(expression, rightArrow, name);
             default:
+                if (isGroupOrCollectKeyword(nextToken)) {
+                    return parseAsyncSendAction(expression, rightArrow, name);
+                }
+
                 recover(peek(), ParserRuleContext.REMOTE_CALL_OR_ASYNC_SEND_END);
                 return parseRemoteCallOrAsyncSendEnd(expression, rightArrow, name);
         }
@@ -10885,7 +10889,7 @@ public class BallerinaParser extends AbstractParser {
         List<STNode> varDecls = new ArrayList<>();
         STToken nextToken = peek();
 
-        if (isEndOfLetVarDeclarations(nextToken.kind, getNextNextToken())) {
+        if (isEndOfLetVarDeclarations(nextToken, getNextNextToken())) {
             endContext();
             return STNodeFactory.createEmptyNodeList();
         }
@@ -10897,7 +10901,7 @@ public class BallerinaParser extends AbstractParser {
         // Parse the remaining variable declarations
         nextToken = peek();
         STNode leadingComma;
-        while (!isEndOfLetVarDeclarations(nextToken.kind, getNextNextToken())) {
+        while (!isEndOfLetVarDeclarations(nextToken, getNextNextToken())) {
             leadingComma = parseComma();
             varDecls.add(leadingComma);
             varDec = parseLetVarDecl(context, isRhsExpr, allowActions);
@@ -10909,7 +10913,8 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createNodeList(varDecls);
     }
 
-    static boolean isEndOfLetVarDeclarations(SyntaxKind tokenKind, STToken nextNextToken) {
+    static boolean isEndOfLetVarDeclarations(STToken nextToken, STToken nextNextToken) {
+        SyntaxKind tokenKind = nextToken.kind;
         switch (tokenKind) {
             case COMMA_TOKEN:
             case AT_TOKEN:
@@ -10917,7 +10922,7 @@ public class BallerinaParser extends AbstractParser {
             case IN_KEYWORD:
                 return true;
             default:
-                return !isTypeStartingToken(tokenKind, nextNextToken);
+                return isGroupOrCollectKeyword(nextToken) || !isTypeStartingToken(tokenKind, nextNextToken);
         }
     }
 
@@ -11896,7 +11901,7 @@ public class BallerinaParser extends AbstractParser {
                 continue;
             }
 
-            if (isNestedQueryExpr() || !isValidIntermediateQueryStart(peek().kind)) {
+            if (isNestedQueryExpr() || !isValidIntermediateQueryStart(peek())) {
                 // Break the loop for,
                 // 1. nested query expressions as remaining clauses belong to the parent.
                 // 2. next token not being an intermediate-clause start as that token could belong to the parent node.
@@ -11946,25 +11951,34 @@ public class BallerinaParser extends AbstractParser {
         return Collections.frequency(this.errorHandler.getContextStack(), ParserRuleContext.QUERY_EXPRESSION) > 1;
     }
 
-    private boolean isValidIntermediateQueryStart(SyntaxKind syntaxKind) {
-        switch (syntaxKind) {
+    private boolean isValidIntermediateQueryStart(STToken token) {
+        switch (token.kind) {
             case FROM_KEYWORD:
             case WHERE_KEYWORD:
             case LET_KEYWORD:
             case SELECT_KEYWORD:
-            case COLLECT_KEYWORD:
             case JOIN_KEYWORD:
             case OUTER_KEYWORD:
             case ORDER_KEYWORD:
-            case GROUP_KEYWORD:
             case BY_KEYWORD:
             case ASCENDING_KEYWORD:
             case DESCENDING_KEYWORD:
             case LIMIT_KEYWORD:
                 return true;
+            case IDENTIFIER_TOKEN:
+                return isGroupOrCollectKeyword(token);
             default:
                 return false;
         }
+    }
+
+    private static boolean isGroupOrCollectKeyword(STToken nextToken) {
+        return isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.GROUP_KEYWORD, nextToken);
+    }
+
+    static boolean isKeywordMatch(SyntaxKind syntaxKind, STToken token) {
+        return token.kind == SyntaxKind.IDENTIFIER_TOKEN && syntaxKind.stringValue().equals(token.text());
     }
 
     /**
@@ -11977,7 +11991,8 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseIntermediateClause(boolean isRhsExpr, boolean allowActions) {
-        switch (peek().kind) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
             case FROM_KEYWORD:
                 return parseFromClause(isRhsExpr, allowActions);
             case WHERE_KEYWORD:
@@ -11986,8 +12001,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseLetClause(isRhsExpr, allowActions);
             case SELECT_KEYWORD:
                 return parseSelectClause(isRhsExpr, allowActions);
-            case COLLECT_KEYWORD:
-                return parseCollectClause(isRhsExpr);
             case JOIN_KEYWORD:
             case OUTER_KEYWORD:
                 return parseJoinClause(isRhsExpr);
@@ -11995,8 +12008,6 @@ public class BallerinaParser extends AbstractParser {
             case ASCENDING_KEYWORD:
             case DESCENDING_KEYWORD:
                 return parseOrderByClause(isRhsExpr);
-            case GROUP_KEYWORD:
-                return parseGroupByClause(isRhsExpr);
             case LIMIT_KEYWORD:
                 return parseLimitClause(isRhsExpr);
             case DO_KEYWORD:
@@ -12005,6 +12016,14 @@ public class BallerinaParser extends AbstractParser {
             case CONFLICT_KEYWORD:
                 return null;
             default:
+                if (isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, nextToken)) {
+                    return parseCollectClause(isRhsExpr);
+                }
+
+                if (isKeywordMatch(SyntaxKind.GROUP_KEYWORD, nextToken)) {
+                    return parseGroupByClause(isRhsExpr);
+                }
+
                 recover(peek(), ParserRuleContext.QUERY_PIPELINE_RHS);
                 return parseIntermediateClause(isRhsExpr, allowActions);
         }
@@ -12018,14 +12037,29 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createCollectClauseNode(collectKeyword, expression);
     }
 
+    /**
+     * Parse collect-keyword.
+     *
+     * @return collect-keyword node
+     */
     private STNode parseCollectKeyword() {
         STToken token = peek();
         if (token.kind == SyntaxKind.COLLECT_KEYWORD) {
             return consume();
-        } else {
-            recover(token, ParserRuleContext.COLLECT_KEYWORD);
-            return parseSelectKeyword();
         }
+
+        if (isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, token)) {
+            // this is to treat "collect" as a keyword, even if its parsed as an identifier from lexer.
+            return getCollectKeyword(consume());
+        }
+
+        recover(token, ParserRuleContext.COLLECT_KEYWORD);
+        return parseCollectKeyword();
+    }
+
+    private STNode getCollectKeyword(STToken token) {
+        return STNodeFactory.createToken(SyntaxKind.COLLECT_KEYWORD, token.leadingMinutiae(), token.trailingMinutiae(),
+                token.diagnostics());
     }
 
     /**
@@ -12201,16 +12235,26 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse group-keyword.
      *
-     * @return Group-keyword node
+     * @return group-keyword node
      */
     private STNode parseGroupKeyword() {
         STToken token = peek();
         if (token.kind == SyntaxKind.GROUP_KEYWORD) {
             return consume();
-        } else {
-            recover(token, ParserRuleContext.GROUP_KEYWORD);
-            return parseGroupKeyword();
         }
+
+        if (isKeywordMatch(SyntaxKind.GROUP_KEYWORD, token)) {
+            // this is to treat "group" as a keyword, even if its parsed as an identifier from lexer.
+            return getGroupKeyword(consume());
+        }
+
+        recover(token, ParserRuleContext.GROUP_KEYWORD);
+        return parseGroupKeyword();
+    }
+
+    private STNode getGroupKeyword(STToken token) {
+        return STNodeFactory.createToken(SyntaxKind.GROUP_KEYWORD, token.leadingMinutiae(), token.trailingMinutiae(),
+                token.diagnostics());
     }
 
     /**
@@ -12269,7 +12313,7 @@ public class BallerinaParser extends AbstractParser {
         List<STNode> groupingKeys = new ArrayList<>();
         STToken nextToken = peek();
 
-        if (isEndOfGroupByKeyListElement(nextToken.kind)) {
+        if (isEndOfGroupByKeyListElement(nextToken)) {
             return STNodeFactory.createEmptyNodeList();
         }
 
@@ -12280,7 +12324,7 @@ public class BallerinaParser extends AbstractParser {
         // Parse the remaining grouping keys
         nextToken = peek();
         STNode groupingKeyListMemberEnd;
-        while (!isEndOfGroupByKeyListElement(nextToken.kind)) {
+        while (!isEndOfGroupByKeyListElement(nextToken)) {
             groupingKeyListMemberEnd = parseGroupingKeyListMemberEnd();
             if (groupingKeyListMemberEnd == null) {
                 break;
@@ -12307,7 +12351,7 @@ public class BallerinaParser extends AbstractParser {
         List<STNode> orderKeys = new ArrayList<>();
         STToken nextToken = peek();
 
-        if (isEndOfOrderKeys(nextToken.kind)) {
+        if (isEndOfOrderKeys(nextToken)) {
             endContext();
             return STNodeFactory.createEmptyNodeList();
         }
@@ -12319,7 +12363,7 @@ public class BallerinaParser extends AbstractParser {
         // Parse the remaining order keys
         nextToken = peek();
         STNode orderKeyListMemberEnd;
-        while (!isEndOfOrderKeys(nextToken.kind)) {
+        while (!isEndOfOrderKeys(nextToken)) {
             orderKeyListMemberEnd = parseOrderKeyListMemberEnd();
             if (orderKeyListMemberEnd == null) {
                 break;
@@ -12334,19 +12378,19 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createNodeList(orderKeys);
     }
 
-    private boolean isEndOfGroupByKeyListElement(SyntaxKind tokenKind) {
-        switch (tokenKind) {
+    private boolean isEndOfGroupByKeyListElement(STToken nextToken) {
+        switch (nextToken.kind) {
             case COMMA_TOKEN:
                 return false;
             case EOF_TOKEN:
                 return true;
             default:
-                return isQueryClauseStartToken(tokenKind);
+                return isQueryClauseStartToken(nextToken);
         }
     }
 
-    private boolean isEndOfOrderKeys(SyntaxKind tokenKind) {
-        switch (tokenKind) {
+    private boolean isEndOfOrderKeys(STToken nextToken) {
+        switch (nextToken.kind) {
             case COMMA_TOKEN:
             case ASCENDING_KEYWORD:
             case DESCENDING_KEYWORD:
@@ -12355,24 +12399,24 @@ public class BallerinaParser extends AbstractParser {
             case EOF_TOKEN:
                 return true;
             default:
-                return isQueryClauseStartToken(tokenKind);
+                return isQueryClauseStartToken(nextToken);
         }
     }
 
-    private boolean isQueryClauseStartToken(SyntaxKind tokenKind) {
-        switch (tokenKind) {
+    private boolean isQueryClauseStartToken(STToken nextToken) {
+        switch (nextToken.kind) {
             case SELECT_KEYWORD:
-            case COLLECT_KEYWORD:
             case LET_KEYWORD:
             case WHERE_KEYWORD:
             case OUTER_KEYWORD:
             case JOIN_KEYWORD:
             case ORDER_KEYWORD:
-            case GROUP_KEYWORD:
             case DO_KEYWORD:
             case FROM_KEYWORD:
             case LIMIT_KEYWORD:
                 return true;
+            case IDENTIFIER_TOKEN:
+                return isGroupOrCollectKeyword(nextToken);
             default:
                 return false;
         }
@@ -12386,7 +12430,7 @@ public class BallerinaParser extends AbstractParser {
             case EOF_TOKEN:
                 return null;
             default:
-                if (isQueryClauseStartToken(nextToken.kind)) {
+                if (isQueryClauseStartToken(nextToken)) {
                     // null marks the end of grouping keys
                     return null;
                 }
@@ -12403,7 +12447,7 @@ public class BallerinaParser extends AbstractParser {
             case EOF_TOKEN:
                 return null;
             default:
-                if (isQueryClauseStartToken(nextToken.kind)) {
+                if (isQueryClauseStartToken(nextToken)) {
                     // null marks the end of order keys
                     return null;
                 }
@@ -12601,7 +12645,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseOnClause(boolean isRhsExpr) {
         STToken nextToken = peek();
-        if (isQueryClauseStartToken(nextToken.kind)) {
+        if (isQueryClauseStartToken(nextToken)) {
             return createMissingOnClauseNode();
         }
 

@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * This is a generated syntax tree node.
  *
- * @since 2201.6.0
+ * @since 2201.7.0
  */
 public class CollectClauseNode extends ClauseNode {
 
@@ -32,7 +32,7 @@ public class CollectClauseNode extends ClauseNode {
         super(internalNode, position, parent);
     }
 
-    public Token selectKeyword() {
+    public Token collectKeyword() {
         return childInBucket(0);
     }
 
@@ -53,7 +53,7 @@ public class CollectClauseNode extends ClauseNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "selectKeyword",
+                "collectKeyword",
                 "expression"};
     }
 
@@ -71,34 +71,34 @@ public class CollectClauseNode extends ClauseNode {
                 expression);
     }
 
-    public CollectClauseNode.CollectClauseNodeModifier modify() {
-        return new CollectClauseNode.CollectClauseNodeModifier(this);
+    public CollectClauseNodeModifier modify() {
+        return new CollectClauseNodeModifier(this);
     }
 
     /**
      * This is a generated tree node modifier utility.
      *
-     * @since 2201.6.0
+     * @since 2201.7.0
      */
     public static class CollectClauseNodeModifier {
         private final CollectClauseNode oldNode;
-        private Token selectKeyword;
+        private Token collectKeyword;
         private ExpressionNode expression;
 
         public CollectClauseNodeModifier(CollectClauseNode oldNode) {
             this.oldNode = oldNode;
-            this.selectKeyword = oldNode.selectKeyword();
+            this.collectKeyword = oldNode.collectKeyword();
             this.expression = oldNode.expression();
         }
 
-        public CollectClauseNode.CollectClauseNodeModifier withSelectKeyword(
-                Token selectKeyword) {
-            Objects.requireNonNull(selectKeyword, "selectKeyword must not be null");
-            this.selectKeyword = selectKeyword;
+        public CollectClauseNodeModifier withCollectKeyword(
+                Token collectKeyword) {
+            Objects.requireNonNull(collectKeyword, "collectKeyword must not be null");
+            this.collectKeyword = collectKeyword;
             return this;
         }
 
-        public CollectClauseNode.CollectClauseNodeModifier withExpression(
+        public CollectClauseNodeModifier withExpression(
                 ExpressionNode expression) {
             Objects.requireNonNull(expression, "expression must not be null");
             this.expression = expression;
@@ -107,7 +107,7 @@ public class CollectClauseNode extends ClauseNode {
 
         public CollectClauseNode apply() {
             return oldNode.modify(
-                    selectKeyword,
+                    collectKeyword,
                     expression);
         }
     }

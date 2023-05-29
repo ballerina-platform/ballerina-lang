@@ -105,8 +105,6 @@ public enum SyntaxKind {
     DESCENDING_KEYWORD(251, "descending"),
     UNDERSCORE_KEYWORD(252, "_"),
     NOT_IS_KEYWORD(253, "!is"),
-    GROUP_KEYWORD(254, "group"),
-    COLLECT_KEYWORD(255, "collect"),
 
     // Type keywords
     INT_KEYWORD(300, "int"),
@@ -133,6 +131,8 @@ public enum SyntaxKind {
 
     // Contextual keywords
     RE_KEYWORD(400, "re"), // Any kind above this is considered as a keyword
+    GROUP_KEYWORD(401, "group"),
+    COLLECT_KEYWORD(402, "collect"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),

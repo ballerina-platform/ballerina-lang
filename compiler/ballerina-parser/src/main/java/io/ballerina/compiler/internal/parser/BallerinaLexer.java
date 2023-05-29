@@ -1042,10 +1042,6 @@ public class BallerinaLexer extends AbstractLexer {
                     return getSyntaxToken(SyntaxKind.RE_KEYWORD);
                 }
                 return getIdentifierToken();
-            case LexerTerminals.GROUP:
-                return getSyntaxToken(SyntaxKind.GROUP_KEYWORD);
-            case LexerTerminals.COLLECT:
-                return getSyntaxToken(SyntaxKind.COLLECT_KEYWORD);
             default:
 //                if (this.keywordModes.contains(KeywordMode.QUERY)) {
 //                    return getQueryCtxKeywordOrIdentifier(tokenText);

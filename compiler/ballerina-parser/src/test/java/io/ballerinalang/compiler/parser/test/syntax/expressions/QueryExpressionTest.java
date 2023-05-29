@@ -157,6 +157,12 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
         testFile("query-expr/query_expr_source_114.bal", "query-expr/query_expr_assert_114.json");
     }
 
+    @Test
+    public void testQueryWithCollectClause() {
+        testFile("query-expr/query_expr_source_119.bal", "query-expr/query_expr_assert_119.json");
+        testFile("query-expr/query_expr_source_122.bal", "query-expr/query_expr_assert_122.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -356,15 +362,15 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
     }
 
     @Test
-    public void testQueryWithCollectKeyword() {
+    public void testQueryWithCollectClauseRecovery() {
         testFile("query-expr/query_expr_source_116.bal", "query-expr/query_expr_assert_116.json");
         testFile("query-expr/query_expr_source_117.bal", "query-expr/query_expr_assert_117.json");
         testFile("query-expr/query_expr_source_118.bal", "query-expr/query_expr_assert_118.json");
-        testFile("query-expr/query_expr_source_119.bal", "query-expr/query_expr_assert_119.json");
         testFile("query-expr/query_expr_source_120.bal", "query-expr/query_expr_assert_120.json");
         testFile("query-expr/query_expr_source_121.bal", "query-expr/query_expr_assert_121.json");
-        testFile("query-expr/query_expr_source_122.bal", "query-expr/query_expr_assert_122.json");
         testFile("query-expr/query_expr_source_123.bal", "query-expr/query_expr_assert_123.json");
         testFile("query-expr/query_expr_source_124.bal", "query-expr/query_expr_assert_124.json");
+        testFile("query-expr/query_expr_source_126.bal", "query-expr/query_expr_assert_126.json");
+        testFile("query-expr/query_expr_source_127.bal", "query-expr/query_expr_assert_127.json");
     }
 }

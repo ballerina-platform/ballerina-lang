@@ -187,6 +187,8 @@ public enum Snippet {
 
     KW_GROUPBY(SnippetGenerator.getGroupByKeywordSnippet()),
 
+    KW_COLLECT(SnippetGenerator.getCollectKeywordSnippet()),
+
     KW_ORDERBY(SnippetGenerator.getOrderByKeywordSnippet()),
 
     KW_LIMIT(SnippetGenerator.getLimitKeywordSnippet()),

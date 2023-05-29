@@ -2073,24 +2073,24 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(collectKeyword, "collectKeyword must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
-        STNode stSelectClauseNode = STNodeFactory.createCollectClauseNode(
+        STNode stCollectClauseNode = STNodeFactory.createCollectClauseNode(
                 collectKeyword.internalNode(),
                 expression.internalNode());
-        return stSelectClauseNode.createUnlinkedFacade();
+        return stCollectClauseNode.createUnlinkedFacade();
     }
 
     public static QueryExpressionNode createQueryExpressionNode(
             QueryConstructTypeNode queryConstructType,
             QueryPipelineNode queryPipeline,
-            SelectClauseNode selectClause,
+            ClauseNode endClause,
             OnConflictClauseNode onConflictClause) {
         Objects.requireNonNull(queryPipeline, "queryPipeline must not be null");
-        Objects.requireNonNull(selectClause, "selectClause must not be null");
+        Objects.requireNonNull(endClause, "endClause must not be null");
 
         STNode stQueryExpressionNode = STNodeFactory.createQueryExpressionNode(
                 getOptionalSTNode(queryConstructType),
                 queryPipeline.internalNode(),
-                selectClause.internalNode(),
+                endClause.internalNode(),
                 getOptionalSTNode(onConflictClause));
         return stQueryExpressionNode.createUnlinkedFacade();
     }
@@ -3562,7 +3562,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeBraceToken.internalNode());
         return stReBracedQuantifierNode.createUnlinkedFacade();
     }
-  
+
     public static MemberTypeDescriptorNode createMemberTypeDescriptorNode(
             NodeList<AnnotationNode> annotations,
             TypeDescriptorNode typeDescriptor) {
