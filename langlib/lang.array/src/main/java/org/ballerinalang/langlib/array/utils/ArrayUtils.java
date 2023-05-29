@@ -29,15 +29,15 @@ import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
-import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.RuntimeErrors;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Utility functions for dealing with ArrayValue.

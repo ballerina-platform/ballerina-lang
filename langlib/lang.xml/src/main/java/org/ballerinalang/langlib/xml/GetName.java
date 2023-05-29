@@ -20,8 +20,8 @@ package org.ballerinalang.langlib.xml;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
-import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.RuntimeErrors;
 
 /**
  * Returns the string giving the expanded name of provided xml element.

@@ -17,9 +17,9 @@
 package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
-import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.RuntimeErrors;
 
 import static org.ballerinalang.langlib.string.utils.StringUtils.createNullReferenceError;
 

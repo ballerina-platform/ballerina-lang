@@ -18,8 +18,8 @@
 package io.ballerina.runtime.internal.regexp;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
-import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.RuntimeErrors;
 
 import java.util.ArrayDeque;
 

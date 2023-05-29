@@ -22,12 +22,12 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeConverter;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
-import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.RuntimeErrors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BOOLEAN_LANG_LIB;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.BOOLEAN_PARSING_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.BOOLEAN_PARSING_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.boolean:fromString(string).

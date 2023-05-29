@@ -24,8 +24,8 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
-import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.RuntimeErrors;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTypeReferenceType;
@@ -35,10 +35,10 @@ import io.ballerina.runtime.internal.values.MapValue;
 import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for MapValue insertion/manipulation.

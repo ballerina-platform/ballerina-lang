@@ -23,8 +23,8 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.LENGTH_GREATER_THAT_2147483647_NOT_YET_SUPPORTED;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.LENGTH_GREATER_THAT_2147483647_NOT_YET_SUPPORTED;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Extern function ballerina.model.strings:padStart.

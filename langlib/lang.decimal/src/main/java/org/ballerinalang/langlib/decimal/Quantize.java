@@ -21,7 +21,7 @@ package org.ballerinalang.langlib.decimal;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BDecimal;
-import io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.errors.BallerinaErrorReasons;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

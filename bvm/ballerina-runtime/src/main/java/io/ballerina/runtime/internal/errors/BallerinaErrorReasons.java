@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.runtime.internal.exceptions;
+package io.ballerina.runtime.internal.errors;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;

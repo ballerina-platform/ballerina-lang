@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 /**
  * Native implementation of lang.table:removeAll(table&lt;Type&gt;).

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.exceptions;
+package io.ballerina.runtime.internal.errors;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;

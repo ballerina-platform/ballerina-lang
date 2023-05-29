@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.JsonGenerator;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 
@@ -35,9 +35,9 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static io.ballerina.runtime.internal.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
 
 /**
  * <p>

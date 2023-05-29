@@ -25,11 +25,11 @@ import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
-import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.RuntimeErrors;
 
 import static io.ballerina.runtime.internal.MapUtils.checkIsMapOnlyOperation;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFieldForRecord;
 import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
 

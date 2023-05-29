@@ -25,8 +25,8 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
-import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.RuntimeErrors;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BTupleType;
@@ -38,8 +38,8 @@ import java.util.List;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FUNCTION_LANG_LIB;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.INCOMPATIBLE_ARGUMENTS;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.INCOMPATIBLE_ARGUMENTS;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.function:call(function func, any|error... args).

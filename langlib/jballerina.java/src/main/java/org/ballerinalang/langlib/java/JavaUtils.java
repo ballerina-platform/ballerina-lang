@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.errors.BallerinaErrorReasons;
 
 /**
  * This class contains various utility functions required to provide the 'ballerina/jballerina.java' module API.

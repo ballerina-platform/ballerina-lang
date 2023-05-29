@@ -40,8 +40,8 @@ import io.ballerina.runtime.internal.JsonInternalUtils;
 import io.ballerina.runtime.internal.JsonParser;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
-import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.io.IOException;
@@ -55,9 +55,9 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
-import static io.ballerina.runtime.internal.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
+import static io.ballerina.runtime.internal.errors.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
  * Class {@link JsonParser} provides APIs to handle json values.

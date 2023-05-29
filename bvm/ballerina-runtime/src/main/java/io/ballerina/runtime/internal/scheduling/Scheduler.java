@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.errors.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.FutureValue;

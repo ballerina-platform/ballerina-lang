@@ -26,8 +26,8 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
-import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.RuntimeErrors;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 
 import java.io.UnsupportedEncodingException;

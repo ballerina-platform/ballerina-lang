@@ -19,7 +19,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.errors.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.Map;

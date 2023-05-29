@@ -20,7 +20,7 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.errors.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.RegExpAssertion;
 import io.ballerina.runtime.internal.values.RegExpAtom;

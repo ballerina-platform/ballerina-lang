@@ -35,9 +35,9 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
-import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.RuntimeErrors;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BJsonType;
@@ -61,10 +61,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.JSON_OPERATION_ERROR;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.JSON_OPERATION_ERROR;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for JSON manipulation.

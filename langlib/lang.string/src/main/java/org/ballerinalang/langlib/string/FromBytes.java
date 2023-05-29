@@ -21,15 +21,15 @@ package org.ballerinalang.langlib.string;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
-import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.RuntimeErrors;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
 
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.FAILED_TO_DECODE_BYTES;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.FAILED_TO_DECODE_BYTES;
 
 /**
  * Extern function lang.string:fromBytes(byte[]).

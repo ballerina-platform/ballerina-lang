@@ -37,8 +37,8 @@ import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.TableUtils;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
-import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.RuntimeErrors;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
@@ -65,11 +65,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
-import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 

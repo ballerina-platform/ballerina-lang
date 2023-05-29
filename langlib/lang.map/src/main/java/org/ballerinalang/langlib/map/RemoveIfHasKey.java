@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 
 import static io.ballerina.runtime.internal.MapUtils.checkIsMapOnlyOperation;
 import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFieldForRecord;

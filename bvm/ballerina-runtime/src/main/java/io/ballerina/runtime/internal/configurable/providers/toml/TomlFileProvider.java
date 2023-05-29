@@ -21,7 +21,7 @@ package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
-import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.RuntimeErrors;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 
 import java.nio.file.Files;

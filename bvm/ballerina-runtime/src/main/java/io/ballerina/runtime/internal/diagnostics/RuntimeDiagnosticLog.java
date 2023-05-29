@@ -17,7 +17,7 @@
  */
 package io.ballerina.runtime.internal.diagnostics;
 
-import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.RuntimeErrors;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 

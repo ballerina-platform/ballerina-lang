@@ -218,10 +218,10 @@ public class JvmConstants {
     public static final String LAUNCH_UTILS = "io/ballerina/runtime/internal/launch/LaunchUtils";
     public static final String MATH_UTILS = "io/ballerina/runtime/internal/MathUtils";
     public static final String BAL_ERROR_REASONS =
-            "io/ballerina/runtime/internal/exceptions/BallerinaErrorReasons";
-    public static final String RUNTIME_ERRORS = "io/ballerina/runtime/internal/exceptions/RuntimeErrors";
+            "io/ballerina/runtime/internal/errors/BallerinaErrorReasons";
+    public static final String RUNTIME_ERRORS = "io/ballerina/runtime/internal/errors/RuntimeErrors";
     public static final String BLANG_EXCEPTION_HELPER =
-            "io/ballerina/runtime/internal/exceptions/ErrorHelper";
+            "io/ballerina/runtime/internal/errors/ErrorHelper";
     public static final String COMPATIBILITY_CHECKER = "io/ballerina/runtime/internal/util/CompatibilityChecker";
     public static final String RUNTIME_REGISTRY_CLASS =
             "io/ballerina/runtime/internal/scheduling/RuntimeRegistry";

@@ -19,7 +19,7 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.exceptions.ErrorHelper;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
 import io.ballerina.runtime.internal.values.XmlComment;
 import io.ballerina.runtime.internal.values.XmlItem;
 import io.ballerina.runtime.internal.values.XmlPi;
