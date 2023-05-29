@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
@@ -1492,6 +1493,11 @@ class NodeFinder extends BaseVisitor {
     @Override
     public void visit(BLangCollectClause collectClause) {
         lookupNode(collectClause.expression);
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation invocation) {
+        lookupNode(invocation.invocation);
     }
 
     private boolean setEnclosingNode(BLangNode node, Location pos) {

@@ -82,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -663,6 +664,11 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangCollectClause collectClause) {
         find(collectClause.expression);
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation invocation) {
+        find(invocation.invocation);
     }
 
     @Override

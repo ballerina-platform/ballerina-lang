@@ -596,6 +596,7 @@ public class TreeBuilder {
     public static InvocationNode createInvocationNode() {
         return new BLangInvocation();
     }
+    
     public static CollectContextInvocationNode createCollectContextInvocationNode() {
         return new BLangCollectContextInvocation();
     }
