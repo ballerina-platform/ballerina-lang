@@ -19,9 +19,9 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
     distributionBala
     distributionBirJar
     balRt
@@ -45,10 +45,10 @@ dependencies {
     implementation project(':ballerina-shell:shell-cli')
     implementation project(':toml-parser')
     implementation project(':identifier-util')
-    testCompile project(':ballerina-test-utils')
+    testImplementation project(':ballerina-test-utils')
 
-    testCompile 'org.testng:testng'
-    testCompile 'org.mockito:mockito-all'
+    testImplementation 'org.testng:testng'
+    testImplementation 'org.mockito:mockito-all'
     testImplementation 'org.powermock:powermock-mockito-release-full'
     testImplementation 'org.powermock:powermock-module-testng-common'
     testImplementation 'commons-io:commons-io'
@@ -57,11 +57,11 @@ dependencies {
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
     distributionBirJar project(path: ':testerina:testerina-core', configuration: 'distributionBirJar')
 
-    testRuntime project(":ballerina-lang-test")
+    testRuntimeOnly project(":ballerina-lang-test")
     balRt project(':ballerina-rt')
     testRt project(':testerina:testerina-runtime')
     testCore project(':testerina:testerina-core')
-    testRuntime project(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
+    testRuntimeOnly project(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
 }
 
 task createTestDistributionCache(type: Copy) {

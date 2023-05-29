@@ -31,11 +31,11 @@ dependencies {
     compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
     implementation 'com.google.code.gson:gson:2.8.8'
 
-    testCompile 'org.testng:testng'
-    testCompile project(':language-server:language-server-commons')
-    testCompile project(':language-server:language-server-core')
-    testCompile 'com.google.code.gson:gson:2.8.8'
-    testCompile (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
+    testImplementation 'org.testng:testng'
+    testImplementation project(':language-server:language-server-commons')
+    testImplementation project(':language-server:language-server-core')
+    testImplementation 'com.google.code.gson:gson:2.8.8'
+    testImplementation (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
 }
 
 test {

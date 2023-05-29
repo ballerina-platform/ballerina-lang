@@ -33,10 +33,10 @@ dependencies {
     compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: "${project.eclipseLsp4jVersion}")
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.9'
 
-    testCompile 'org.testng:testng'
-    testCompile 'com.google.code.gson:gson:2.8.8'
-    testCompile project(':language-server:language-server-core')
-    testCompile (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
+    testImplementation 'org.testng:testng'
+    testImplementation 'com.google.code.gson:gson:2.8.8'
+    testImplementation project(':language-server:language-server-core')
+    testImplementation (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
 }
 
 test {

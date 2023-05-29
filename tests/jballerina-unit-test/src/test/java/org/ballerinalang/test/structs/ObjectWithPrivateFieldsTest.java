@@ -58,8 +58,8 @@ public class ObjectWithPrivateFieldsTest {
     }
 
     @Test(description = "Test compile time struct equivalence with private fields")
-    public void testCompileTimeStructEqWithPrivateFields() {
-        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testCompileTimeStructEqWithPrivateFields");
+    public void testImplementationTimeStructEqWithPrivateFields() {
+        BArray returns = (BArray) BRunUtil.invoke(compileResult, "testImplementationTimeStructEqWithPrivateFields");
 
         Assert.assertEquals(returns.get(0).toString(), "jay");
         Assert.assertEquals(returns.get(1).toString(), "95134");
@@ -69,9 +69,9 @@ public class ObjectWithPrivateFieldsTest {
 
     @Test(description = "Test compile time struct equivalence with private fields. " +
             "Structs are in different packages")
-    public void testCompileTimeStructEqWithPrivateFieldsTwoPackages() {
+    public void testImplementationTimeStructEqWithPrivateFieldsTwoPackages() {
         BArray returns =
-                (BArray) BRunUtil.invoke(compileResult, "testCompileTimeStructEqWithPrivateFieldsTwoPackages");
+                (BArray) BRunUtil.invoke(compileResult, "testImplementationTimeStructEqWithPrivateFieldsTwoPackages");
 
         Assert.assertEquals(returns.get(0), 28L);
         Assert.assertEquals(returns.get(1).toString(), "mal");

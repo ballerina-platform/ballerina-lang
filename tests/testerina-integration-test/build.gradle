@@ -27,8 +27,8 @@ configurations {
 
 dependencies {
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
-    testCompile 'org.testng:testng'
-    testCompile 'org.slf4j:slf4j-jdk14'
+    testImplementation 'org.testng:testng'
+    testImplementation 'org.slf4j:slf4j-jdk14'
     implementation 'info.picocli:picocli'
 
     implementation project(path: ':ballerina-test-utils')
@@ -45,7 +45,7 @@ task extractDistribution(type: Copy) {
 task testUtilsJar(type: Jar) {
     from sourceSets.test.runtimeClasspath
     include "org/ballerinalang/testerina/utils/**"
-    archiveName "interops.jar"
+    archiveFileName = "interops.jar"
 }
 
 // Integration tests for testerina

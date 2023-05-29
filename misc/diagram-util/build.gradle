@@ -38,7 +38,7 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'com.google.code.gson:gson'
 
-    testCompile 'org.testng:testng'
+    testImplementation 'org.testng:testng'
 }
 
 description = 'Diagram utils for Syntax tree JSON generation'

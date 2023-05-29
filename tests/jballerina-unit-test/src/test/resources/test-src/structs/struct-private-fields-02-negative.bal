@@ -17,7 +17,7 @@ public type personFoo record {
     int id = 0;
 };
 
-public function testCompileTimeStructEq() {
+public function testImplementationTimeStructEq() {
     personFoo pf = {age:10, name:"dd", ssn:"123-44-3333", id:123};
     foo:person p = check <foo:person>pf;
 

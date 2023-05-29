@@ -92,7 +92,7 @@ artifacts {
 
 jar {
     enabled = false
-    dependsOn(shadowJar { classifier = null })
+    dependsOn(shadowJar { archiveClassifier = null })
     manifest {
         attributes(
             'Main-Class': 'org.ballerinalang.docgen.docs.BallerinaDocGeneratorMain',

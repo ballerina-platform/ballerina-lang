@@ -26,7 +26,7 @@ dependencies {
     implementation project(':ballerina-tools-api')
     implementation project(':toml-parser')
     implementation 'com.google.code.gson:gson:2.8.7'
-    testCompile 'org.testng:testng'
+    testImplementation 'org.testng:testng'
 }
 
 ext.moduleName = 'org.ballerinalang.config.schema.generator'
