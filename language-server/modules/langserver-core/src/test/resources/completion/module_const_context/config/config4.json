@@ -18,14 +18,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "varName",
-      "kind": "TypeParameter",
-      "detail": "Compilationerror",
-      "sortText": "D",
-      "insertText": "varName",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -555,6 +547,14 @@
       "detail": "Typedesc",
       "sortText": "BN",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "varName",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "D",
+      "insertText": "varName",
       "insertTextFormat": "Snippet"
     }
   ]

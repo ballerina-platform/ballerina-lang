@@ -196,7 +196,7 @@
     {
       "label": "varName",
       "kind": "Variable",
-      "detail": "$CompilationError$",
+      "detail": "",
       "documentation": {
         "right": {
           "kind": "markdown",
