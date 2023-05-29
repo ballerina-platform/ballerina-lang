@@ -300,7 +300,8 @@ public class NeverTypeTest {
                 "testNeverWithFromClauseInQueryExpr1",
                 "testNeverWithFromClauseInQueryExpr2",
                 "testNeverWithFromClauseInQueryExpr3",
-                "testNeverWithFromClauseInQueryExpr4"
+                "testNeverWithFromClauseInQueryExpr4",
+                "testNeverWithFromClauseInQueryExpr5"
         };
     }
 
