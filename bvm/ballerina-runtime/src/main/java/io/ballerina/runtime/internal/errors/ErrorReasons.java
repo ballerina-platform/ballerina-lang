@@ -35,9 +35,9 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
  *
  * @since 0.990.0
  */
-public class BallerinaErrorReasons {
+public class ErrorReasons {
 
-    private BallerinaErrorReasons() {}
+    private ErrorReasons() {}
 
     private static final String BALLERINA_PREFIX = "{ballerina}";
     private static final String BALLERINA_ORG_PREFIX = "{ballerina/";

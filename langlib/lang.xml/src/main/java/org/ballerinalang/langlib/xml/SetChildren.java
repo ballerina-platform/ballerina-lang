@@ -28,8 +28,8 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.errors.RuntimeErrors;
 
 import java.util.Arrays;
 
@@ -51,7 +51,7 @@ public class SetChildren {
 
     public static void setChildren(BXml xml, Object children) {
         if (!IsElement.isElement(xml)) {
-            throw ErrorHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "setChildren", "element");
+            throw ErrorHelper.getRuntimeException(ErrorCodes.XML_FUNC_TYPE_ERROR, "setChildren", "element");
         }
 
         Type childrenType = TypeUtils.getReferredType(TypeChecker.getType(children));
@@ -59,7 +59,7 @@ public class SetChildren {
             BXml xmlText = XmlFactory.createXMLText((BString) children);
             children = xmlText;
         } else if (TypeTags.isXMLTypeTag(childrenType.getTag())) {
-            ErrorHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
+            ErrorHelper.getRuntimeException(ErrorCodes.INCOMPATIBLE_TYPE,
                                                      TypeCreator.createUnionType(
                                                              Arrays.asList(PredefinedTypes.TYPE_XML,
                                                                            PredefinedTypes.TYPE_STRING),

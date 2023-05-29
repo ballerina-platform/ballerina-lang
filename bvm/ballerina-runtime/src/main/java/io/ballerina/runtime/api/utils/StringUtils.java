@@ -25,8 +25,8 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.errors.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.BmpStringValue;
@@ -45,9 +45,9 @@ import java.util.List;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.STRING_OPERATION_ERROR;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.STRING_OPERATION_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.parseExpressionStringVal;
@@ -98,7 +98,7 @@ public class StringUtils {
         if (index < 0 || index >= s.length()) {
             throw ErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
                     INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    ErrorHelper.getErrorDetails(RuntimeErrors.STRING_INDEX_OUT_OF_RANGE, index, s.length()));
+                    ErrorHelper.getErrorDetails(ErrorCodes.STRING_INDEX_OUT_OF_RANGE, index, s.length()));
         }
 
         return StringUtils.fromString(String.valueOf(Character.toChars(s.getCodePoint((int) index))));

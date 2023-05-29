@@ -39,8 +39,8 @@ import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.JsonInternalUtils;
 import io.ballerina.runtime.internal.MapUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.errors.RuntimeErrors;
 import io.ballerina.runtime.internal.types.BField;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
@@ -66,10 +66,10 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.JsonInternalUtils.mergeJson;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.getModulePrefixedReason;
-import static io.ballerina.runtime.internal.errors.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.INVALID_READONLY_VALUE_UPDATE;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 import static io.ballerina.runtime.internal.values.ReadOnlyUtils.handleInvalidUpdate;
@@ -170,7 +170,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public V getOrThrow(Object key) {
         if (!containsKey(key)) {
             throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
-                    ErrorHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
+                    ErrorHelper.getErrorDetails(ErrorCodes.KEY_NOT_FOUND_ERROR, key));
         }
         return this.get(key);
     }
@@ -200,7 +200,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                 if (recordType.sealed) {
                     // Panic if this record type does not contain a key by the specified name.
                     throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
-                            ErrorHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
+                            ErrorHelper.getErrorDetails(ErrorCodes.KEY_NOT_FOUND_ERROR, key));
                 }
                 expectedType = recordType.restFieldType;
             }
@@ -211,7 +211,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
             throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
-                    ErrorHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
+                    ErrorHelper.getErrorDetails(ErrorCodes.KEY_NOT_FOUND_ERROR, key));
         }
 
         Object value = expectedType.getZeroValue();

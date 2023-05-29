@@ -41,9 +41,9 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
-import io.ballerina.runtime.internal.errors.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.errors.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.regexp.RegExpFactory;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -84,16 +84,16 @@ public class ValueConverter {
             if (getTargetFromTypeDesc(targetType).isNilable()) {
                 return null;
             }
-            throw createError(BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
-                    ErrorHelper.getErrorDetails(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
+            throw createError(ErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR,
+                    ErrorHelper.getErrorDetails(ErrorCodes.CANNOT_CONVERT_NIL, targetType));
         }
 
         Type sourceType = TypeUtils.getReferredType(TypeChecker.getType(value));
 
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
         if (unresolvedValues.contains(typeValuePair)) {
-            throw createError(BallerinaErrorReasons.BALLERINA_PREFIXED_CYCLIC_VALUE_REFERENCE_ERROR,
-                    ErrorHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, sourceType));
+            throw createError(ErrorReasons.BALLERINA_PREFIXED_CYCLIC_VALUE_REFERENCE_ERROR,
+                    ErrorHelper.getErrorMessage(ErrorCodes.CYCLIC_VALUE_REFERENCE, sourceType));
         }
         unresolvedValues.add(typeValuePair);
 

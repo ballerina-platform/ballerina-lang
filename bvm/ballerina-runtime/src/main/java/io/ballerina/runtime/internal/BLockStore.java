@@ -19,7 +19,7 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.internal.errors.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
 import java.util.Map;
@@ -52,7 +52,7 @@ public class BLockStore {
 
     public void panicIfInLock(Strand strand) {
         if (strand.acquiredLockCount > 0) {
-            throw ErrorCreator.createError(BallerinaErrorReasons.ASYNC_CALL_INSIDE_LOCK);
+            throw ErrorCreator.createError(ErrorReasons.ASYNC_CALL_INSIDE_LOCK);
         }
     }
 }

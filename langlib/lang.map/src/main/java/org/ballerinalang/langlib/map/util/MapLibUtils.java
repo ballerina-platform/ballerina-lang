@@ -30,8 +30,8 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.errors.RuntimeErrors;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,8 +40,8 @@ import java.util.Map;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.MapUtils.createOpNotSupportedError;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Utility methods for map lib functions.
@@ -101,7 +101,7 @@ public class MapLibUtils {
     private static BError createOpNotSupportedErrorForRecord(Type type, String field) {
         return ErrorCreator.createError(getModulePrefixedReason(
                 MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), ErrorHelper.getErrorDetails(
-                        RuntimeErrors.FIELD_REMOVAL_NOT_ALLOWED, field, type.getQualifiedName()));
+                        ErrorCodes.FIELD_REMOVAL_NOT_ALLOWED, field, type.getQualifiedName()));
     }
 
     public static void validateRequiredFieldForRecord(BMap m, String k) {

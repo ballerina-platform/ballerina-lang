@@ -36,9 +36,9 @@ import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.errors.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.errors.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.types.BArrayType;
 
@@ -53,9 +53,9 @@ import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 
@@ -1085,7 +1085,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (index >= size) {
             throw ErrorHelper.getRuntimeException(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
+                    ErrorCodes.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
     }
 
@@ -1094,13 +1094,13 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
             throw ErrorHelper.getRuntimeException(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+                    ErrorCodes.INDEX_NUMBER_TOO_LARGE, index);
         }
 
         if ((int) index < 0 || index >= maxSize) {
             throw ErrorHelper.getRuntimeException(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
+                    ErrorCodes.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
     }
 
@@ -1112,8 +1112,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
             return;
         }
         if (index > size) {
-            throw ErrorHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
-                                                           RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
+            throw ErrorHelper.getRuntimeException(ErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
+                                                           ErrorCodes.ILLEGAL_ARRAY_INSERTION, size, index + 1);
         }
     }
 
@@ -1143,7 +1143,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (this.arrayType.getState() == ArrayState.CLOSED) {
             throw ErrorHelper.getRuntimeException(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    RuntimeErrors.ILLEGAL_ARRAY_SIZE, size, length);
+                    ErrorCodes.ILLEGAL_ARRAY_SIZE, size, length);
         }
     }
 
@@ -1167,7 +1167,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (!TypeChecker.checkIsType(null, value, sourceType, this.elementType)) {
             throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
                     INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER), ErrorHelper.getErrorDetails(
-                            RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType, sourceType));
+                            ErrorCodes.INCOMPATIBLE_TYPE, this.elementType, sourceType));
         }
 
         int intIndex = (int) index;
@@ -1180,8 +1180,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     private void fillRead(long index, int currentArraySize) {
         if (!arrayType.hasFillerValue()) {
-            throw ErrorHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
-                                                           RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
+            throw ErrorHelper.getRuntimeException(ErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
+                                                           ErrorCodes.ILLEGAL_ARRAY_INSERTION, size, index + 1);
         }
 
         int intIndex = (int) index;
@@ -1232,7 +1232,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (index > lastIndex) {
             throw ErrorHelper.getRuntimeException(
                     getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+                    ErrorCodes.INDEX_NUMBER_TOO_LARGE, index);
         }
         int i = (int) index;
         ensureCapacity(this.size + unshiftByN, this.size);

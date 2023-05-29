@@ -22,11 +22,11 @@ import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlQName;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.errors.RuntimeErrors;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.XML_OPERATION_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.XML_OPERATION_ERROR;
 
 /**
  * Return attribute value matching attribute name `attrName`.
@@ -41,13 +41,13 @@ public class GetAttribute {
         }
         if (!IsElement.isElement(xmlVal)) {
             return createError(XML_OPERATION_ERROR, ErrorHelper.getErrorDetails(
-                    RuntimeErrors.INVALID_XML_ATTRIBUTE_ERROR, xmlVal.getNodeType().value()));
+                    ErrorCodes.INVALID_XML_ATTRIBUTE_ERROR, xmlVal.getNodeType().value()));
         }
         BXmlQName qname = ValueCreator.createXmlQName(attrName);
         BString attrVal = xmlVal.getAttribute(qname.getLocalName(), qname.getUri());
         if (attrVal == null && !optionalFiledAccess) {
             return createError(XML_OPERATION_ERROR,
-                    ErrorHelper.getErrorDetails(RuntimeErrors.ATTRIBUTE_NOT_FOUND_ERROR, attrName));
+                    ErrorHelper.getErrorDetails(ErrorCodes.ATTRIBUTE_NOT_FOUND_ERROR, attrName));
         }
         return attrVal;
     }

@@ -23,12 +23,12 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeConverter;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.errors.RuntimeErrors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DECIMAL_LANG_LIB;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.decimal:fromString(string).
@@ -57,7 +57,7 @@ public class FromString {
 
     private static BError getTypeConversionError(String value) {
         return ErrorCreator.createError(ERROR_REASON, ErrorHelper.getErrorDetails(
-                        RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+                        ErrorCodes.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                         PredefinedTypes.TYPE_STRING, value, PredefinedTypes.TYPE_DECIMAL));
     }
 }

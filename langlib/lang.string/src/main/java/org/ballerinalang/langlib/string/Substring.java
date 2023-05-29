@@ -17,9 +17,9 @@
 package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.errors.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.errors.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 
 import static org.ballerinalang.langlib.string.utils.StringUtils.createNullReferenceError;
 
@@ -42,21 +42,21 @@ public class Substring {
             throw createNullReferenceError();
         }
         if (startIndex != (int) startIndex) {
-            throw ErrorHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
+            throw ErrorHelper.getRuntimeException(ErrorReasons.STRING_OPERATION_ERROR,
+                    ErrorCodes.INDEX_NUMBER_TOO_LARGE, startIndex);
         }
         if (endIndex != (int) endIndex) {
-            throw ErrorHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, endIndex);
+            throw ErrorHelper.getRuntimeException(ErrorReasons.STRING_OPERATION_ERROR,
+                    ErrorCodes.INDEX_NUMBER_TOO_LARGE, endIndex);
         }
 
         if (startIndex < 0 || endIndex > value.length()) {
-            throw ErrorHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                    RuntimeErrors.SUBSTRING_INDEX_OUT_OF_RANGE, value.length(), startIndex, endIndex);
+            throw ErrorHelper.getRuntimeException(ErrorReasons.STRING_OPERATION_ERROR,
+                    ErrorCodes.SUBSTRING_INDEX_OUT_OF_RANGE, value.length(), startIndex, endIndex);
         }
         if (endIndex < startIndex) {
-            throw ErrorHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                    RuntimeErrors.INVALID_SUBSTRING_RANGE, value.length(), startIndex, endIndex);
+            throw ErrorHelper.getRuntimeException(ErrorReasons.STRING_OPERATION_ERROR,
+                    ErrorCodes.INVALID_SUBSTRING_RANGE, value.length(), startIndex, endIndex);
         }
         return value.substring((int) startIndex, (int) endIndex);
     }

@@ -27,8 +27,8 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.errors.RuntimeErrors;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,18 +47,18 @@ public class Slice {
 
         if (startIndex < 0) {
             throw ErrorHelper
-                    .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, startIndex, size);
+                    .getRuntimeException(ErrorCodes.ARRAY_INDEX_OUT_OF_RANGE, startIndex, size);
         }
 
         if (endIndex > size) {
             throw ErrorHelper
-                    .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, endIndex, size);
+                    .getRuntimeException(ErrorCodes.ARRAY_INDEX_OUT_OF_RANGE, endIndex, size);
         }
 
         long sliceSize = endIndex - startIndex;
         if (sliceSize < 0) {
             throw ErrorHelper
-                    .getRuntimeException(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, sliceSize, size);
+                    .getRuntimeException(ErrorCodes.ARRAY_INDEX_OUT_OF_RANGE, sliceSize, size);
         }
 
         Type arrType = TypeUtils.getReferredType(arr.getType());

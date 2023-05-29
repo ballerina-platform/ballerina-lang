@@ -37,8 +37,8 @@ import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.TableUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.errors.RuntimeErrors;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
@@ -65,11 +65,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
-import static io.ballerina.runtime.internal.errors.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
 import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 
@@ -281,7 +281,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     public V getOrThrow(Object key) {
         if (!containsKey(key)) {
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                    ErrorHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
+                    ErrorHelper.getErrorDetails(ErrorCodes.KEY_NOT_FOUND_ERROR, key));
         }
         return this.get(key);
     }
@@ -290,7 +290,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         handleFrozenTableValue();
         if (!containsKey(key)) {
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                    ErrorHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
+                    ErrorHelper.getErrorDetails(ErrorCodes.KEY_NOT_FOUND_ERROR, key));
         }
         return this.remove(key);
     }
@@ -321,7 +321,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                    ErrorHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
+                    ErrorHelper.getErrorDetails(ErrorCodes.KEY_NOT_FOUND_ERROR, key));
         }
 
         Object value = expectedType.getZeroValue();
@@ -512,12 +512,12 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public V getData(K key) {
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                    ErrorHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
+                    ErrorHelper.getErrorDetails(ErrorCodes.KEY_NOT_FOUND_ERROR, key));
         }
 
         public V putData(K key, V data) {
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                    ErrorHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
+                    ErrorHelper.getErrorDetails(ErrorCodes.KEY_NOT_FOUND_ERROR, key));
         }
 
         public V putData(V data) {
@@ -540,7 +540,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public V remove(K key) {
             throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                    ErrorHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_ERROR, key));
+                    ErrorHelper.getErrorDetails(ErrorCodes.KEY_NOT_FOUND_ERROR, key));
         }
 
         public boolean containsKey(K key) {
@@ -573,7 +573,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
             if (containsKey((K) key)) {
                 throw ErrorCreator.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR,
-                        ErrorHelper.getErrorDetails(RuntimeErrors.TABLE_HAS_A_VALUE_FOR_KEY, key));
+                        ErrorHelper.getErrorDetails(ErrorCodes.TABLE_HAS_A_VALUE_FOR_KEY, key));
             }
 
             if (nextKeySupported && (keys.size() == 0 || maxIntKey < TypeChecker.anyToInt(key))) {
@@ -623,7 +623,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
             if (!hash.equals(actualHash)) {
                 throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                        ErrorHelper.getErrorDetails(RuntimeErrors.KEY_NOT_FOUND_IN_VALUE, key, data));
+                        ErrorHelper.getErrorDetails(ErrorCodes.KEY_NOT_FOUND_IN_VALUE, key, data));
             }
 
             return putData(key, data, newData, entry, hash);

@@ -18,8 +18,8 @@
 package io.ballerina.runtime.internal.regexp;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.errors.RuntimeErrors;
 
 import java.util.ArrayDeque;
 
@@ -210,7 +210,7 @@ public class TreeTraverser {
                     this.reader.advance();
                 }
                 throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
-                        RuntimeErrors.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
+                        ErrorCodes.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
         }
 
         return getRegExpText(TokenKind.RE_UNICODE_GENERAL_CATEGORY_NAME);
@@ -227,7 +227,7 @@ public class TreeTraverser {
                 break;
             default:
                 throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
-                        RuntimeErrors.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
+                        ErrorCodes.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
         }
     }
 
@@ -240,7 +240,7 @@ public class TreeTraverser {
                 break;
             default:
                 throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
-                        RuntimeErrors.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
+                        ErrorCodes.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
         }
     }
 
@@ -253,7 +253,7 @@ public class TreeTraverser {
                 break;
             default:
                 throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
-                        RuntimeErrors.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
+                        ErrorCodes.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
         }
     }
 
@@ -267,7 +267,7 @@ public class TreeTraverser {
                 break;
             default:
                 throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
-                        RuntimeErrors.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
+                        ErrorCodes.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
         }
     }
 
@@ -284,7 +284,7 @@ public class TreeTraverser {
                 break;
             default:
                 throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
-                        RuntimeErrors.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
+                        ErrorCodes.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
         }
     }
 
@@ -297,7 +297,7 @@ public class TreeTraverser {
                 break;
             default:
                 throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
-                        RuntimeErrors.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
+                        ErrorCodes.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
         }
     }
 
@@ -311,7 +311,7 @@ public class TreeTraverser {
                 break;
             default:
                 throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
-                        RuntimeErrors.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
+                        ErrorCodes.REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE.messageKey(), getMarkedChars()));
         }
     }
 
@@ -343,14 +343,14 @@ public class TreeTraverser {
         if (!isReUnicodePropertyValueChar(peek())) {
             this.reader.advance();
             throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
-                    RuntimeErrors.REGEXP_INVALID_UNICODE_PROPERTY_VALUE.messageKey(), getMarkedChars()));
+                    ErrorCodes.REGEXP_INVALID_UNICODE_PROPERTY_VALUE.messageKey(), getMarkedChars()));
         }
 
         while (!isEndOfUnicodePropertyEscape()) {
             if (!isReUnicodePropertyValueChar(peek())) {
                 this.reader.advance();
                 throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
-                        RuntimeErrors.REGEXP_INVALID_UNICODE_PROPERTY_VALUE.messageKey(), getMarkedChars()));
+                        ErrorCodes.REGEXP_INVALID_UNICODE_PROPERTY_VALUE.messageKey(), getMarkedChars()));
             }
             this.reader.advance();
         }
@@ -417,7 +417,7 @@ public class TreeTraverser {
         // Process code-point.
         if (!isHexDigit(this.reader.peek())) {
             throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
-                    RuntimeErrors.REGEXP_INVALID_HEX_DIGIT.messageKey()));
+                    ErrorCodes.REGEXP_INVALID_HEX_DIGIT.messageKey()));
         }
 
         reader.advance();
@@ -427,7 +427,7 @@ public class TreeTraverser {
 
         if (this.reader.peek() != Terminals.CLOSE_BRACE) {
             throw ErrorCreator.createError(ErrorHelper.getErrorMessage(
-                    RuntimeErrors.REGEXP_MISSING_CLOSE_BRACE.messageKey()));
+                    ErrorCodes.REGEXP_MISSING_CLOSE_BRACE.messageKey()));
         }
 
         this.reader.advance();

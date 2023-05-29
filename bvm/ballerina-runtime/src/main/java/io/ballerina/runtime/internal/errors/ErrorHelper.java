@@ -41,30 +41,30 @@ public class ErrorHelper {
 
     private ErrorHelper() {}
 
-    public static BError getRuntimeException(RuntimeErrors runtimeErrors, Object... params) {
+    public static BError getRuntimeException(ErrorCodes errorCodes, Object... params) {
         BString errorMsg = StringUtils
-                .fromString(MessageFormat.format(messageBundle.getString(runtimeErrors.messageKey()), params));
+                .fromString(MessageFormat.format(messageBundle.getString(errorCodes.messageKey()), params));
         return ErrorCreator.createError(errorMsg);
     }
 
-    public static BError getRuntimeException(BString reason, RuntimeErrors runtimeErrors, Object... params) {
+    public static BError getRuntimeException(BString reason, ErrorCodes errorCodes, Object... params) {
         MappingInitialValueEntry[] initialValues = new MappingInitialValueEntry[1];
         initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD, StringUtils
-                .fromString(MessageFormat.format(messageBundle.getString(runtimeErrors.messageKey()), params)));
+                .fromString(MessageFormat.format(messageBundle.getString(errorCodes.messageKey()), params)));
         MapValueImpl<BString, Object> errorDetail = new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
         return ErrorCreator.createError(reason, errorDetail);
     }
 
-    public static BString getErrorMessage(RuntimeErrors runtimeErrors, Object... params) {
+    public static BString getErrorMessage(ErrorCodes errorCodes, Object... params) {
         return StringUtils.fromString(MessageFormat
-                                              .format(messageBundle.getString(runtimeErrors.messageKey()), params));
+                                              .format(messageBundle.getString(errorCodes.messageKey()), params));
     }
 
-    public static BMap<BString, Object> getErrorDetails(RuntimeErrors runtimeErrors, Object... params) {
+    public static BMap<BString, Object> getErrorDetails(ErrorCodes errorCodes, Object... params) {
         MappingInitialValueEntry[] initialValues = new MappingInitialValueEntry[1];
         initialValues[0] = new MappingInitialValueEntry.KeyValueEntry(ERROR_MESSAGE_FIELD,
                 StringUtils.fromString(MessageFormat.format(messageBundle.getString(
-                        runtimeErrors.messageKey()), params)));
+                        errorCodes.messageKey()), params)));
         return new MapValueImpl(PredefinedTypes.TYPE_ERROR_DETAIL, initialValues);
     }
 
@@ -90,7 +90,7 @@ public class ErrorHelper {
         } else {
             errorDetail = e.getMessage();
         }
-        throw ErrorCreator.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
+        throw ErrorCreator.createError(ErrorReasons.XML_OPERATION_ERROR,
                 StringUtils.fromString("Failed to " + operation + ": " + errorDetail));
     }
 

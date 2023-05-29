@@ -30,9 +30,9 @@ import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.XmlValidator;
-import io.ballerina.runtime.internal.errors.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.errors.ErrorHelper;
-import io.ballerina.runtime.internal.errors.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMException;
 import org.apache.axiom.om.OMNode;
@@ -376,7 +376,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
     }
 
     private BError createXMLCycleError() {
-        return ErrorCreator.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
+        return ErrorCreator.createError(ErrorReasons.XML_OPERATION_ERROR,
                 StringUtils.fromString("Cycle detected"));
     }
 
@@ -531,7 +531,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
             return new XmlSequence();
         }
         throw ErrorHelper.getRuntimeException(
-                RuntimeErrors.XML_SEQUENCE_INDEX_OUT_OF_RANGE, 1, index);
+                ErrorCodes.XML_SEQUENCE_INDEX_OUT_OF_RANGE, 1, index);
     }
 
     public int size() {

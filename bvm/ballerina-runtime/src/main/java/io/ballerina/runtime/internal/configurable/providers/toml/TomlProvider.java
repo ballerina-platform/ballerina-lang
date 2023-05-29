@@ -39,7 +39,7 @@ import io.ballerina.runtime.internal.configurable.ConfigValue;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
-import io.ballerina.runtime.internal.errors.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BTableType;
@@ -77,15 +77,15 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.ge
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getValueFromKeyValueNode;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isSimpleType;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.isXMLType;
-import static io.ballerina.runtime.internal.errors.RuntimeErrors.CONFIG_INCOMPATIBLE_TYPE;
-import static io.ballerina.runtime.internal.errors.RuntimeErrors.CONFIG_INVALID_BYTE_RANGE;
-import static io.ballerina.runtime.internal.errors.RuntimeErrors.CONFIG_SIZE_MISMATCH;
-import static io.ballerina.runtime.internal.errors.RuntimeErrors.CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD;
-import static io.ballerina.runtime.internal.errors.RuntimeErrors.CONFIG_TOML_INVALID_MODULE_STRUCTURE;
-import static io.ballerina.runtime.internal.errors.RuntimeErrors.CONFIG_TOML_REQUIRED_FILED_NOT_PROVIDED;
-import static io.ballerina.runtime.internal.errors.RuntimeErrors.CONFIG_TOML_TABLE_KEY_NOT_PROVIDED;
-import static io.ballerina.runtime.internal.errors.RuntimeErrors.CONFIG_TOML_UNUSED_VALUE;
-import static io.ballerina.runtime.internal.errors.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_INCOMPATIBLE_TYPE;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_INVALID_BYTE_RANGE;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_SIZE_MISMATCH;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_TOML_INVALID_MODULE_STRUCTURE;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_TOML_REQUIRED_FILED_NOT_PROVIDED;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_TOML_TABLE_KEY_NOT_PROVIDED;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_TOML_UNUSED_VALUE;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
 
 /**
@@ -551,7 +551,7 @@ public class TomlProvider implements ConfigProvider {
                 addToModuleNodeMap(table.get(), moduleNodes);
             } else if (!invalidRequiredModuleSet.contains(module.toString()) && hasRequired) {
                 invalidRequiredModuleSet.add(module.toString());
-                throw new ConfigException(RuntimeErrors.CONFIG_TOML_MODULE_AMBIGUITY, getLineRange(baseToml.rootNode()),
+                throw new ConfigException(ErrorCodes.CONFIG_TOML_MODULE_AMBIGUITY, getLineRange(baseToml.rootNode()),
                         moduleName, moduleKey);
             }
         }
@@ -602,7 +602,7 @@ public class TomlProvider implements ConfigProvider {
         if (table.isPresent()) {
             moduleNodes.add(table.get().rootNode());
         } else if (moduleInfo.hasModuleAmbiguity()) {
-            throw new ConfigException(RuntimeErrors.CONFIG_TOML_MODULE_AMBIGUITY, getLineRange(baseToml.rootNode()),
+            throw new ConfigException(ErrorCodes.CONFIG_TOML_MODULE_AMBIGUITY, getLineRange(baseToml.rootNode()),
                     moduleName, moduleKey);
         }
         table = baseToml.getTable(moduleName);
