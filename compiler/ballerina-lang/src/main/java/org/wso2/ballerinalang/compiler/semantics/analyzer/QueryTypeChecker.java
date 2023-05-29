@@ -83,9 +83,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INCOMPATIBLE_QUERY_CONSTRUCT_MAP_TYPE;
-import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.INCOMPATIBLE_QUERY_CONSTRUCT_TYPE;
-
 /**
  * @since 2201.5.0
  */
@@ -400,7 +397,7 @@ public class QueryTypeChecker extends TypeChecker {
                     if (queryExpr.isMap) { // A query-expr that constructs a mapping must start with the map keyword.
                         resolvedType = symTable.mapType;
                     } else {
-                        resolvedType = getNonContextualQueryType(selectType, collectionType, selectExp.pos);
+                        resolvedType = getNonContextualQueryType(selectType, collectionType);
                     }
                     break;
             }
@@ -593,37 +590,26 @@ public class QueryTypeChecker extends TypeChecker {
         return initType;
     }
 
-    private BType getNonContextualQueryType(BType staticType, BType basicType, Location pos) {
+    private BType getNonContextualQueryType(BType staticType, BType basicType) {
+        BType resultType;
         switch (Types.getReferredType(basicType).tag) {
             case TypeTags.TABLE:
-                if (types.isAssignable(staticType, symTable.mapAllType)) {
-                    return symTable.tableType;
-                }
+                resultType = symTable.tableType;
                 break;
             case TypeTags.STREAM:
-                return symTable.streamType;
-            case TypeTags.MAP:
-                dlog.error(pos, INCOMPATIBLE_QUERY_CONSTRUCT_MAP_TYPE);
-                return symTable.semanticError;
+                resultType = symTable.streamType;
+                break;
             case TypeTags.XML:
-                if (types.isSubTypeOfBaseType(staticType, symTable.xmlType.tag)) {
-                    return new BXMLType(staticType, null);
-                }
+                resultType = new BXMLType(staticType, null);
                 break;
             case TypeTags.STRING:
-                if (types.isSubTypeOfBaseType(staticType, TypeTags.STRING)) {
-                    return symTable.stringType;
-                }
+                resultType = symTable.stringType;
                 break;
-            case TypeTags.ARRAY:
-            case TypeTags.TUPLE:
-            case TypeTags.OBJECT:
-                return new BArrayType(staticType);
             default:
-                return symTable.semanticError;
+                resultType = new BArrayType(staticType);
+                break;
         }
-        dlog.error(pos, INCOMPATIBLE_QUERY_CONSTRUCT_TYPE, basicType, staticType);
-        return symTable.semanticError;
+        return resultType;
     }
 
     private boolean validateTableType(BTableType tableType, TypeChecker.AnalyzerData data) {
