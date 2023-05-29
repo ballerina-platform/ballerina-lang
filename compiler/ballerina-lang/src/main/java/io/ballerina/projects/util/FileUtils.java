@@ -371,7 +371,8 @@ public class FileUtils {
                 throws IOException {
 
             Files.copy(file, toPath.resolve(fromPath.relativize(file).toString()), copyOption);
-            if (!packageName.equals(EMPTY_STRING) && !templateName.equals(EMPTY_STRING) && !packageName.equals(templateName)) {
+            if (!packageName.equals(EMPTY_STRING) && !templateName.equals(EMPTY_STRING) &&
+                    !packageName.equals(templateName)) {
                 replaceTemplateName(toPath.resolve(fromPath.relativize(file).toString()), templateName, packageName);
             }
             return FileVisitResult.CONTINUE;
