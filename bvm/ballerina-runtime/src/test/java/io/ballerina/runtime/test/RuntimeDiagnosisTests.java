@@ -20,7 +20,7 @@ package io.ballerina.runtime.test;
 
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnostic;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

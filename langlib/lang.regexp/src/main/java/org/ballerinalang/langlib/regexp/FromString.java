@@ -22,8 +22,8 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeConverter;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.REGEXP_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.REG_EXP_PARSING_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.REG_EXP_PARSING_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Converts a string to the corresponding regular expression representation.

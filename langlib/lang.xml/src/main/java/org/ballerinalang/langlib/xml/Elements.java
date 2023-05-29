@@ -22,7 +22,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
+import io.ballerina.runtime.internal.exceptions.ErrorHelper;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -20,10 +20,10 @@ package org.ballerinalang.langlib.integer;
 
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.MathUtils;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.INT_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.int:sum(int...).

@@ -19,8 +19,8 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.internal.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

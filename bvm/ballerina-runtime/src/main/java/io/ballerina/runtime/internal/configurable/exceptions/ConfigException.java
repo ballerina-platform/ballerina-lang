@@ -18,7 +18,7 @@
 
 package io.ballerina.runtime.internal.configurable.exceptions;
 
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.exceptions.RuntimeErrors;
 
 /**
  * Exception class used for configuration specific errors.

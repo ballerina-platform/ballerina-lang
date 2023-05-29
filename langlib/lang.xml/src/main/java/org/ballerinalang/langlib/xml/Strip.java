@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.util.exceptions.ErrorHelper;
+import io.ballerina.runtime.internal.exceptions.ErrorHelper;
 
 /**
  * Strips the insignificant parts of the an xml value.
