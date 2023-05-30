@@ -3894,7 +3894,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
             queryExpr.queryClauseList.add(clauseNode.apply(this));
         }
 
-        queryExpr.queryClauseList.add(queryExprNode.endClause().apply(this));
+        queryExpr.queryClauseList.add(queryExprNode.resultClause().apply(this));
 
         Optional<OnConflictClauseNode> onConflict = queryExprNode.onConflictClause();
         onConflict.ifPresent(onConflictClauseNode -> queryExpr.queryClauseList.add(onConflictClauseNode.apply(this)));

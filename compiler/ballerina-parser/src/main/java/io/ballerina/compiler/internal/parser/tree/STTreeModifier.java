@@ -1691,12 +1691,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STQueryExpressionNode queryExpressionNode) {
         STNode queryConstructType = modifyNode(queryExpressionNode.queryConstructType);
         STNode queryPipeline = modifyNode(queryExpressionNode.queryPipeline);
-        STNode endClause = modifyNode(queryExpressionNode.endClause);
+        STNode resultClause = modifyNode(queryExpressionNode.resultClause);
         STNode onConflictClause = modifyNode(queryExpressionNode.onConflictClause);
         return queryExpressionNode.modify(
                 queryConstructType,
                 queryPipeline,
-                endClause,
+                resultClause,
                 onConflictClause);
     }
 

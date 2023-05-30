@@ -223,8 +223,8 @@ public class CompleteExpressionValidator extends NodeTransformer<Boolean> {
         return (node.onConflictClause().isEmpty()
                 && node.onConflictClause().get().expression().apply(this))
                 || node.kind() == SyntaxKind.SELECT_CLAUSE ?
-                ((SelectClauseNode) node.endClause()).expression().apply(this) :
-                ((CollectClauseNode) node.endClause()).expression().apply(this);
+                ((SelectClauseNode) node.resultClause()).expression().apply(this) :
+                ((CollectClauseNode) node.resultClause()).expression().apply(this);
     }
 
     @Override

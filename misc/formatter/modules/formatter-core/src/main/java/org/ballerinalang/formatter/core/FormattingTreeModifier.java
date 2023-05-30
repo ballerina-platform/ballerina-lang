@@ -2830,9 +2830,9 @@ public class FormattingTreeModifier extends TreeModifier {
 
         ClauseNode endClause;
         if (queryExpressionNode.onConflictClause().isPresent()) {
-            endClause = formatNode(queryExpressionNode.endClause(), 0, 1);
+            endClause = formatNode(queryExpressionNode.resultClause(), 0, 1);
         } else {
-            endClause = formatNode(queryExpressionNode.endClause(), env.trailingWS, env.trailingNL);
+            endClause = formatNode(queryExpressionNode.resultClause(), env.trailingWS, env.trailingNL);
         }
 
         OnConflictClauseNode onConflictClause = formatNode(queryExpressionNode.onConflictClause().orElse(null),
@@ -2844,7 +2844,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return queryExpressionNode.modify()
                 .withQueryConstructType(queryConstructType)
                 .withQueryPipeline(queryPipeline)
-                .withEndClause(endClause)
+                .withResultClause(endClause)
                 .withOnConflictClause(onConflictClause)
                 .apply();
     }

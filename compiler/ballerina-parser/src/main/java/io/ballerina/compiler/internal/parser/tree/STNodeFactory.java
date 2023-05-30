@@ -1582,13 +1582,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createQueryExpressionNode(
             STNode queryConstructType,
             STNode queryPipeline,
-            STNode endClause,
+            STNode resultClause,
             STNode onConflictClause) {
 
         return new STQueryExpressionNode(
                 queryConstructType,
                 queryPipeline,
-                endClause,
+                resultClause,
                 onConflictClause);
     }
 

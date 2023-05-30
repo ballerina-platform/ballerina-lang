@@ -2147,14 +2147,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(queryExpressionNode.queryConstructType().orElse(null));
         QueryPipelineNode queryPipeline =
                 modifyNode(queryExpressionNode.queryPipeline());
-        ClauseNode endClause =
-                modifyNode(queryExpressionNode.endClause());
+        ClauseNode resultClause =
+                modifyNode(queryExpressionNode.resultClause());
         OnConflictClauseNode onConflictClause =
                 modifyNode(queryExpressionNode.onConflictClause().orElse(null));
         return queryExpressionNode.modify(
                 queryConstructType,
                 queryPipeline,
-                endClause,
+                resultClause,
                 onConflictClause);
     }
 

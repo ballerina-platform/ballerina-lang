@@ -2082,15 +2082,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static QueryExpressionNode createQueryExpressionNode(
             QueryConstructTypeNode queryConstructType,
             QueryPipelineNode queryPipeline,
-            ClauseNode endClause,
+            ClauseNode resultClause,
             OnConflictClauseNode onConflictClause) {
         Objects.requireNonNull(queryPipeline, "queryPipeline must not be null");
-        Objects.requireNonNull(endClause, "endClause must not be null");
+        Objects.requireNonNull(resultClause, "resultClause must not be null");
 
         STNode stQueryExpressionNode = STNodeFactory.createQueryExpressionNode(
                 getOptionalSTNode(queryConstructType),
                 queryPipeline.internalNode(),
-                endClause.internalNode(),
+                resultClause.internalNode(),
                 getOptionalSTNode(onConflictClause));
         return stQueryExpressionNode.createUnlinkedFacade();
     }
