@@ -370,8 +370,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
             if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 // Check whether the referenced expr is a constant.
-                BConstantSymbol constSymbol = (BConstantSymbol) symbol;
-                varRefExpr.symbol = constSymbol;
+                varRefExpr.symbol = symbol;
                 actualType = symbol.type;
             } else {
                 varRefExpr.symbol = symbol;
@@ -399,9 +398,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         data.compoundExprCount++;
         BType lhsType = checkConstExpr(binaryExpr.lhsExpr, expType, data);
-        data.compoundExprCount--;
-
-        data.compoundExprCount++;
         BType rhsType = checkConstExpr(binaryExpr.rhsExpr, expType, data);
         data.compoundExprCount--;
 
@@ -410,35 +406,32 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         if (lhsType == symTable.semanticError || rhsType == symTable.semanticError) {
             data.resultType = symTable.semanticError;
             return;
-        } else {
-            // Resolve the operator symbol and corresponding result type according to different operand types.
-            BSymbol opSymbol = symTable.notFoundSymbol;
-
-            if (lhsType.tag == TypeTags.UNION && rhsType.tag == TypeTags.UNION) {
-                // Both the operands are unions.
-                opSymbol = getOpSymbolBothUnion((BUnionType) lhsType, (BUnionType) rhsType, binaryExpr, data);
-            }
-            if (lhsType.tag == TypeTags.UNION && rhsType.tag != TypeTags.UNION) {
-                // LHS is a union type.
-                opSymbol = getOpSymbolLhsUnion((BUnionType) lhsType, rhsType, binaryExpr,
-                        data, false);
-            }
-            if (lhsType.tag != TypeTags.UNION && rhsType.tag == TypeTags.UNION) {
-                // RHS is a union type.
-                opSymbol = getOpSymbolLhsUnion((BUnionType) rhsType, lhsType, binaryExpr,
-                        data, true);
-            }
-            if (lhsType.tag != TypeTags.UNION && rhsType.tag != TypeTags.UNION) {
-                // Both the operands are not unions.
-                opSymbol = getOpSymbolBothNonUnion(lhsType, rhsType, binaryExpr, data);
-            }
-
-            if (opSymbol == symTable.notFoundSymbol) {
-                data.resultType = symTable.semanticError;
-                return;
-            }
-            binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
         }
+
+        // Resolve the operator symbol and corresponding result type according to different operand types.
+        BSymbol opSymbol;
+        if (lhsType.tag == TypeTags.UNION && rhsType.tag == TypeTags.UNION) {
+            // Both the operands are unions.
+            opSymbol = getOpSymbolBothUnion((BUnionType) lhsType, (BUnionType) rhsType, binaryExpr, data);
+        } else if (lhsType.tag == TypeTags.UNION) {
+            // LHS is a union type.
+            opSymbol = getOpSymbolLhsUnion((BUnionType) lhsType, rhsType, binaryExpr,
+                    data, false);
+        } else if (rhsType.tag == TypeTags.UNION) {
+            // RHS is a union type.
+            opSymbol = getOpSymbolLhsUnion((BUnionType) rhsType, lhsType, binaryExpr,
+                    data, true);
+        } else {
+            // Both the operands are not unions.
+            opSymbol = getOpSymbolBothNonUnion(lhsType, rhsType, binaryExpr, data);
+        }
+
+        if (opSymbol == symTable.notFoundSymbol) {
+            data.resultType = symTable.semanticError;
+            return;
+        }
+
+        binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
         BType resultType = data.resultType;
         BConstantSymbol constantSymbol = data.constantSymbol;
 
@@ -584,12 +577,11 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             case TypeTags.READONLY:
                 return checkConstExpr(mappingConstructor, possibleType, data);
         }
-        reportIncompatibleMappingConstructorError(mappingConstructor, expType, data);
+        reportIncompatibleMappingConstructorError(mappingConstructor, expType);
         return symTable.semanticError;
     }
 
-    private void reportIncompatibleMappingConstructorError(BLangRecordLiteral mappingConstructorExpr, BType expType,
-                                                           TypeChecker.AnalyzerData data) {
+    private void reportIncompatibleMappingConstructorError(BLangRecordLiteral mappingConstructorExpr, BType expType) {
         if (expType == symTable.semanticError) {
             return;
         }

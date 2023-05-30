@@ -241,6 +241,7 @@ public class TypeResolver {
                 handleDistinctDefinitionOfErrorIntersection(typeDefinition, type);
             }
             resolvingTypes.clear();
+            resolvingModuleDefs.clear();
         }
         clear();
     }
@@ -537,7 +538,9 @@ public class TypeResolver {
         }
 
         // Resolve the type
-        BType type = resolveTypeDesc(symEnv, mod, defn, depth, defn.typeNode);
+        AnalyzerData data = new AnalyzerData();
+        data.modTable = mod;
+        BType type = resolveTypeDesc(symEnv, defn, depth, defn.typeNode, data);
 
         // Define the typeDefinition. Add symbol, flags etc.
         type = defineTypeDefinition(defn, type, symEnv);
@@ -663,45 +666,53 @@ public class TypeResolver {
         return null;
     }
 
-    private BType resolveTypeDesc(SymbolEnv symEnv, Map<String, BLangNode> mod, BLangTypeDefinition defn, int depth,
-                                    BLangType td) {
+    private BType resolveTypeDesc(SymbolEnv symEnv, BLangTypeDefinition defn, int depth,
+                                  BLangType td, AnalyzerData data) {
         if (td == null) {
             return symTable.semanticError;
         }
+
+        SymbolEnv prevEnv = data.env;
+        BLangTypeDefinition prevDefn = data.typeDefinition;
+        int prevDepth = data.depth;
+        data.env = symEnv;
+        data.typeDefinition = defn;
+        data.depth = depth;
+
         BType resultType;
         switch (td.getKind()) {
             case VALUE_TYPE:
                 resultType = resolveTypeDesc((BLangValueType) td, symEnv);
                 break;
             case CONSTRAINED_TYPE: // map<?> and typedesc<?>
-                resultType = resolveTypeDesc((BLangConstrainedType) td, symEnv, mod, depth, defn);
+                resultType = resolveTypeDesc((BLangConstrainedType) td, data);
                 break;
             case ARRAY_TYPE:
-                resultType = resolveTypeDesc(((BLangArrayType) td), symEnv, mod, depth, defn);
+                resultType = resolveTypeDesc(((BLangArrayType) td), data);
                 break;
             case TUPLE_TYPE_NODE:
-                resultType = resolveTypeDesc((BLangTupleTypeNode) td, symEnv, mod, depth, defn);
+                resultType = resolveTypeDesc((BLangTupleTypeNode) td, data);
                 break;
             case RECORD_TYPE:
-                resultType = resolveTypeDesc((BLangRecordTypeNode) td, symEnv, mod, depth, defn);
+                resultType = resolveTypeDesc((BLangRecordTypeNode) td, data);
                 break;
             case OBJECT_TYPE:
-                resultType = resolveTypeDesc((BLangObjectTypeNode) td, symEnv, mod, depth, defn);
+                resultType = resolveTypeDesc((BLangObjectTypeNode) td, data);
                 break;
             case FUNCTION_TYPE:
-                resultType = resolveTypeDesc((BLangFunctionTypeNode) td, symEnv, mod, depth, defn);
+                resultType = resolveTypeDesc((BLangFunctionTypeNode) td, data);
                 break;
             case ERROR_TYPE:
-                resultType = resolveTypeDesc((BLangErrorType) td, symEnv, mod, depth, defn);
+                resultType = resolveTypeDesc((BLangErrorType) td, data);
                 break;
             case UNION_TYPE_NODE:
-                resultType = resolveTypeDesc((BLangUnionTypeNode) td, symEnv, mod, depth, defn);
+                resultType = resolveTypeDesc((BLangUnionTypeNode) td, data);
                 break;
             case INTERSECTION_TYPE_NODE:
-                resultType = resolveTypeDesc((BLangIntersectionTypeNode) td, symEnv, mod, depth, defn);
+                resultType = resolveTypeDesc((BLangIntersectionTypeNode) td, data);
                 break;
             case USER_DEFINED_TYPE:
-                resultType = resolveTypeDesc((BLangUserDefinedType) td, symEnv, mod, depth);
+                resultType = resolveTypeDesc((BLangUserDefinedType) td, data);
                 break;
             case BUILT_IN_REF_TYPE:
                 resultType = resolveTypeDesc((BLangBuiltInRefTypeNode) td, symEnv);
@@ -710,10 +721,10 @@ public class TypeResolver {
                 resultType = resolveSingletonType((BLangFiniteTypeNode) td, symEnv);
                 break;
             case TABLE_TYPE:
-                resultType = resolveTypeDesc((BLangTableTypeNode) td, symEnv, mod, depth, defn);
+                resultType = resolveTypeDesc((BLangTableTypeNode) td, data);
                 break;
             case STREAM_TYPE:
-                resultType = resolveTypeDesc((BLangStreamType) td, symEnv, mod, depth, defn);
+                resultType = resolveTypeDesc((BLangStreamType) td, data);
                 break;
             default:
                 throw new AssertionError("Invalid type");
@@ -733,6 +744,9 @@ public class TypeResolver {
         if (td.getBType() == null) {
             td.setBType(resultType);
         }
+        data.env = prevEnv;
+        data.typeDefinition = prevDefn;
+        data.depth = prevDepth;
         return resultType;
     }
 
@@ -741,19 +755,18 @@ public class TypeResolver {
         return visitBuiltInTypeNode(td, data, td.typeKind);
     }
 
-    private BType resolveTypeDesc(BLangConstrainedType td, SymbolEnv symEnv, Map<String, BLangNode> mod,
-                                  int depth, BLangTypeDefinition defn) {
-        currentDepth = depth;
+    private BType resolveTypeDesc(BLangConstrainedType td, AnalyzerData data) {
+        currentDepth = data.depth;
         TypeKind typeKind = ((BLangBuiltInRefTypeNode) td.getType()).getTypeKind();
 
         if (typeKind == TypeKind.MAP) {
-            return resolveMapTypeDesc(td, symEnv, mod, depth, defn);
+            return resolveMapTypeDesc(td, data);
         } else if (typeKind == TypeKind.XML) {
-            return resolveXmlTypeDesc(td, symEnv, mod, depth, defn);
+            return resolveXmlTypeDesc(td, data);
         }
 
-        BType type = resolveTypeDesc(symEnv, mod, defn, depth + 1, td.type);
-        BType constraintType = resolveTypeDesc(symEnv, mod, defn, depth + 1, td.constraint);
+        BType type = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.type, data);
+        BType constraintType = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.constraint, data);
 
         BType constrainedType;
         switch (typeKind) {
@@ -776,14 +789,13 @@ public class TypeResolver {
         return constrainedType;
     }
 
-    private BType resolveXmlTypeDesc(BLangConstrainedType td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth,
-                                       BLangTypeDefinition typeDefinition) {
+    private BType resolveXmlTypeDesc(BLangConstrainedType td, AnalyzerData data) {
         if (td.getBType() != null) {
             return td.getBType();
         }
 
-        BType type = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.type);
-        BType constrainedType = new BXMLType(null, null);
+        BType type = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.type, data);
+        BXMLType constrainedType = new BXMLType(null, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                 typeSymbol.originalName, typeSymbol.pkgID, constrainedType, typeSymbol.owner,
@@ -792,7 +804,7 @@ public class TypeResolver {
         td.setBType(constrainedType);
         resolvingTypes.push(constrainedType);
 
-        BType constraintType = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.constraint);
+        BType constraintType = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.constraint, data);
 
         if (constraintType.tag == TypeTags.PARAMETERIZED_TYPE) {
             BType typedescType = ((BParameterizedType) constraintType).paramSymbol.type;
@@ -802,40 +814,36 @@ public class TypeResolver {
             symResolver.validateXMLConstraintType(constraintType, td.pos);
         }
 
-        ((BXMLType) constrainedType).constraint = constraintType;
+        constrainedType.constraint = constraintType;
         symResolver.markParameterizedType(constrainedType, constraintType);
         resolvingTypes.pop();
         return constrainedType;
     }
 
-    private BType resolveMapTypeDesc(BLangConstrainedType td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth,
-                                     BLangTypeDefinition typeDefinition) {
+    private BType resolveMapTypeDesc(BLangConstrainedType td, AnalyzerData data) {
         if (td.getBType() != null) {
             return td.getBType();
         }
 
-        BType type = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.type);
+        BType type = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.type, data);
         BTypeSymbol typeSymbol = type.tsymbol;
         BTypeSymbol tSymbol = Symbols.createTypeSymbol(SymTag.TYPE, typeSymbol.flags, Names.EMPTY,
-                typeSymbol.originalName, symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner,
+                typeSymbol.originalName, data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner,
                 td.pos, BUILTIN);
-        BType constrainedType = new BMapType(TypeTags.MAP, null, tSymbol);
+        BMapType constrainedType = new BMapType(TypeTags.MAP, null, tSymbol);
         td.setBType(constrainedType);
         tSymbol.type = type;
         resolvingTypes.push(constrainedType);
 
-        resolvingTypes.push(constrainedType);
-        BType constraintType = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.constraint);
-        resolvingTypes.remove(constrainedType);
-        ((BMapType) constrainedType).constraint = constraintType;
+        BType constraintType = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.constraint, data);
+        constrainedType.constraint = constraintType;
         symResolver.markParameterizedType(constrainedType, constraintType);
         resolvingTypes.pop();
         return constrainedType;
     }
 
-    private BType resolveTypeDesc(BLangArrayType td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth,
-                                  BLangTypeDefinition typeDefinition) {
-        currentDepth = depth;
+    private BType resolveTypeDesc(BLangArrayType td, AnalyzerData data) {
+        currentDepth = data.depth;
         if (td.getBType() != null) {
             return td.getBType();
         }
@@ -847,7 +855,7 @@ public class TypeResolver {
 
         for (int i = 0; i < td.dimensions; i++) {
             BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
-                    symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner, td.pos, BUILTIN);
+                    data.env.enclPkg.symbol.pkgID, null, data.env.scope.owner, td.pos, BUILTIN);
             BArrayType arrType;
             if (td.sizes.size() == 0) {
                 arrType = new BArrayType(resultType, arrayTypeSymbol);
@@ -877,7 +885,7 @@ public class TypeResolver {
                     Name typeName = names.fromIdNode(sizeReference.variableName);
 
                     BSymbol sizeSymbol =
-                            symResolver.lookupMainSpaceSymbolInPackage(size.pos, symEnv, pkgAlias, typeName);
+                            symResolver.lookupMainSpaceSymbolInPackage(size.pos, data.env, pkgAlias, typeName);
                     sizeReference.symbol = sizeSymbol;
 
                     if (symTable.notFoundSymbol == sizeSymbol) {
@@ -934,19 +942,19 @@ public class TypeResolver {
             return symTable.semanticError;
         }
 
-        firstDimArrType.eType = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.elemtype);
+        firstDimArrType.eType = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.elemtype, data);
         symResolver.markParameterizedType(firstDimArrType, firstDimArrType.eType);
         resolvingTypes.pop();
         return resultType;
     }
 
-    private BType resolveTypeDesc(BLangTupleTypeNode td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth,
-                                  BLangTypeDefinition typeDefinition) {
-        currentDepth = depth;
+    private BType resolveTypeDesc(BLangTupleTypeNode td, AnalyzerData data) {
+        currentDepth = data.depth;
         if (td.getBType() != null) {
             return td.getBType();
         }
 
+        SymbolEnv symEnv = data.env;
         BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                 Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
                 symEnv.scope.owner, td.pos, BUILTIN);
@@ -957,7 +965,7 @@ public class TypeResolver {
         resolvingTypes.push(tupleType);
 
         for (BLangSimpleVariable memberNode: td.getMemberNodes()) {
-            BType type = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, memberNode.typeNode);
+            BType type = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, memberNode.typeNode, data);
             SymbolEnv tupleEnv = SymbolEnv.createTypeEnv(td, new Scope(tupleTypeSymbol), symEnv);
             symEnter.defineNode(memberNode, tupleEnv);
             BVarSymbol varSymbol = new BVarSymbol(memberNode.getBType().flags, memberNode.symbol.name,
@@ -966,7 +974,7 @@ public class TypeResolver {
         }
 
         if (td.restParamType != null) {
-            BType tupleRestType = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.restParamType);
+            BType tupleRestType = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.restParamType, data);
             if (tupleRestType.tag == TypeTags.SEMANTIC_ERROR) {
                 return symTable.semanticError;
             }
@@ -979,14 +987,16 @@ public class TypeResolver {
         return tupleType;
     }
 
-    private BType resolveTypeDesc(BLangRecordTypeNode td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth,
-                                  BLangTypeDefinition typeDefinition) {
+    private BType resolveTypeDesc(BLangRecordTypeNode td, AnalyzerData data) {
+        int depth = data.depth;
         currentDepth = depth;
 
         if (td.getBType() != null) {
             return td.getBType();
         }
 
+        SymbolEnv symEnv = data.env;
+        BLangTypeDefinition typeDefinition = data.typeDefinition;
         EnumSet<Flag> flags = td.isAnonymous ? EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS)
                 : EnumSet.noneOf(Flag.class);
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
@@ -1008,13 +1018,13 @@ public class TypeResolver {
         }
 
         if (td.getRestFieldType() != null) {
-            resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.restFieldType);
+            resolveTypeDesc(symEnv, typeDefinition, depth + 1, td.restFieldType, data);
             currentDepth = depth;
         }
 
         boolean errored = false;
         for (BLangType bLangRefType : td.typeRefs) {
-            BType refType = resolveTypeDesc(symEnv, mod, typeDefinition, depth, bLangRefType);
+            BType refType = resolveTypeDesc(symEnv, typeDefinition, depth, bLangRefType, data);
             currentDepth = depth;
             if (refType == symTable.semanticError) {
                 errored = true;
@@ -1034,9 +1044,8 @@ public class TypeResolver {
         return recordType;
     }
 
-    private BType resolveTypeDesc(BLangObjectTypeNode td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth,
-                                  BLangTypeDefinition typeDefinition) {
-        currentDepth = depth;
+    private BType resolveTypeDesc(BLangObjectTypeNode td, AnalyzerData data) {
+        currentDepth = data.depth;
         if (td.getBType() != null) {
             return td.getBType();
         }
@@ -1059,6 +1068,8 @@ public class TypeResolver {
             typeFlags |= Flags.SERVICE;
         }
 
+        SymbolEnv symEnv = data.env;
+        BLangTypeDefinition typeDefinition = data.typeDefinition;
         BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
                 symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner, td.pos, BUILTIN);
 
@@ -1071,7 +1082,7 @@ public class TypeResolver {
 
         boolean errored = false;
         for (BLangType bLangRefType : td.typeRefs) {
-            BType refType = resolveTypeDesc(symEnv, mod, typeDefinition, depth, bLangRefType);
+            BType refType = resolveTypeDesc(symEnv, typeDefinition, data.depth, bLangRefType, data);
             if (refType == symTable.semanticError) {
                 errored = true;
             }
@@ -1091,13 +1102,13 @@ public class TypeResolver {
         return objectType;
     }
 
-    private BType resolveTypeDesc(BLangFunctionTypeNode td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth,
-                                  BLangTypeDefinition typeDefinition) {
-        currentDepth = depth;
+    private BType resolveTypeDesc(BLangFunctionTypeNode td, AnalyzerData data) {
+        currentDepth = data.depth;
         if (td.getBType() != null) {
             return td.getBType();
         }
 
+        SymbolEnv symEnv = data.env;
         Location pos = td.pos;
         BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
         BInvokableTypeSymbol tsymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
@@ -1112,7 +1123,8 @@ public class TypeResolver {
         List<BLangSimpleVariable> params = td.getParams();
         BLangType returnTypeNode = td.returnTypeNode;
         BType invokableType = createInvokableType(params, td.restParam, returnTypeNode,
-                Flags.asMask(td.flagSet), symEnv, mod, depth, typeDefinition, bInvokableType);
+                Flags.asMask(td.flagSet), symEnv, data.modTable, data.depth, data.typeDefinition,
+                bInvokableType, data);
         resolvingTypes.pop();
         return symResolver.validateInferTypedescParams(pos, params, returnTypeNode == null ?
                 null : returnTypeNode.getBType()) ? invokableType : symTable.semanticError;
@@ -1122,7 +1134,8 @@ public class TypeResolver {
                                      BLangVariable restVariable,
                                      BLangType retTypeVar,
                                      long flags, SymbolEnv env, Map<String, BLangNode> mod, int depth,
-                                     BLangTypeDefinition typeDefinition, BInvokableType bInvokableType) {
+                                     BLangTypeDefinition typeDefinition, BInvokableType bInvokableType,
+                                     AnalyzerData data) {
         List<BType> paramTypes = new ArrayList<>();
         List<BVarSymbol> params = new ArrayList<>();
 
@@ -1148,7 +1161,7 @@ public class TypeResolver {
                     paramNames.add(paramName.value);
                 }
             }
-            BType type = resolveTypeDesc(env, mod, typeDefinition, depth + 1, param.getTypeNode());
+            BType type = resolveTypeDesc(env, typeDefinition, depth + 1, param.getTypeNode(), data);
             paramNode.setBType(type);
             paramTypes.add(type);
 
@@ -1168,13 +1181,13 @@ public class TypeResolver {
             params.add(symbol);
         }
 
-        BType retType = resolveTypeDesc(env, mod, typeDefinition, depth + 1, retTypeVar);
+        BType retType = resolveTypeDesc(env, typeDefinition, depth + 1, retTypeVar, data);
 
         BVarSymbol restParam = null;
         BType restType = null;
 
         if (restVariable != null) {
-            restType = resolveTypeDesc(env, mod, typeDefinition, depth + 1, restVariable.typeNode);
+            restType = resolveTypeDesc(env, typeDefinition, depth + 1, restVariable.typeNode, data);
             BLangIdentifier id = ((BLangSimpleVariable) restVariable).name;
             restVariable.setBType(restType);
             restParam = new BVarSymbol(Flags.asMask(restVariable.flagSet),
@@ -1199,9 +1212,8 @@ public class TypeResolver {
         return bInvokableType;
     }
 
-    private BType resolveTypeDesc(BLangErrorType td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth,
-                                  BLangTypeDefinition defn) {
-        currentDepth = depth;
+    private BType resolveTypeDesc(BLangErrorType td, AnalyzerData data) {
+        currentDepth = data.depth;
         if (td.getBType() != null) {
             return td.getBType();
         }
@@ -1213,8 +1225,6 @@ public class TypeResolver {
             return errorType;
         }
 
-        SymbolResolver.AnalyzerData data = new SymbolResolver.AnalyzerData(symEnv);
-
         // Define user define error type.
         BErrorTypeSymbol errorTypeSymbol = Symbols.createErrorSymbol(Flags.asMask(td.flagSet),
                 Names.EMPTY, data.env.enclPkg.packageID, null, data.env.scope.owner, td.pos, BUILTIN);
@@ -1223,7 +1233,8 @@ public class TypeResolver {
         resolvingTypes.push(errorType);
 
         BType detailType = Optional.ofNullable(td.detailType)
-                .map(bLangType -> resolveTypeDesc(symEnv, mod, defn, depth, bLangType)).orElse(symTable.detailType);
+                .map(bLangType -> resolveTypeDesc(data.env, data.typeDefinition, data.depth,
+                        bLangType, data)).orElse(symTable.detailType);
 
         if (td.isAnonymous) {
             td.flagSet.add(Flag.PUBLIC);
@@ -1264,14 +1275,14 @@ public class TypeResolver {
         return errorType;
     }
 
-    private BType resolveTypeDesc(BLangUnionTypeNode td, SymbolEnv symEnv,
-                                  Map<String, BLangNode> mod, int depth, BLangTypeDefinition typeDefinition) {
-        currentDepth = depth;
+    private BType resolveTypeDesc(BLangUnionTypeNode td, AnalyzerData data) {
+        currentDepth = data.depth;
 
-        if (td.getBType() != null && !resolvingTypeDefinitions.contains(typeDefinition)) {
+        if (td.getBType() != null && !resolvingTypeDefinitions.contains(data.typeDefinition)) {
             return td.getBType();
         }
 
+        SymbolEnv symEnv = data.env;
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
         BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                 Names.EMPTY, symEnv.enclPkg.symbol.pkgID, null,
@@ -1282,7 +1293,7 @@ public class TypeResolver {
         resolvingTypes.push(unionType);
 
         for (BLangType langType : td.memberTypeNodes) {
-            BType resolvedType = resolveTypeDesc(symEnv, mod, typeDefinition, depth, langType);
+            BType resolvedType = resolveTypeDesc(symEnv, data.typeDefinition, data.depth, langType, data);
             if (resolvedType == symTable.semanticError) {
                 memberTypes.add(symTable.semanticError);
                 continue;
@@ -1350,11 +1361,11 @@ public class TypeResolver {
         memberTypes.addAll(flattenMemberTypes);
     }
 
-    private BType resolveTypeDesc(BLangIntersectionTypeNode td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth,
-                                  BLangTypeDefinition typeDefinition) {
-        currentDepth = depth;
+    private BType resolveTypeDesc(BLangIntersectionTypeNode td, AnalyzerData data) {
+        currentDepth = data.depth;
         List<BLangType> constituentTypeNodes = td.constituentTypeNodes;
 
+        SymbolEnv symEnv = data.env;
         BTypeSymbol intersectionSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
                 symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner, td.pos, BUILTIN);
         BIntersectionType intersectionType = new BIntersectionType(intersectionSymbol);
@@ -1365,8 +1376,9 @@ public class TypeResolver {
         boolean errored = false;
         int errorTypesCount = 0;
         int numOfNonReadOnlyConstituents = 0;
+        BLangTypeDefinition typeDefinition = data.typeDefinition;
         for (BLangType typeNode : constituentTypeNodes) {
-            BType constituentType = resolveTypeDesc(symEnv, mod, typeDefinition, depth, typeNode);
+            BType constituentType = resolveTypeDesc(symEnv, typeDefinition, data.depth, typeNode, data);
             if (constituentType == symTable.semanticError) {
                 errored = true;
                 continue;
@@ -1471,9 +1483,10 @@ public class TypeResolver {
         }
     }
 
-    private BType resolveTypeDesc(BLangUserDefinedType td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth) {
-        currentDepth = depth;
+    private BType resolveTypeDesc(BLangUserDefinedType td, AnalyzerData data) {
+        currentDepth = data.depth;
         String name = td.typeName.value;
+        SymbolEnv symEnv = data.env;
 
         BType type;
 
@@ -1482,7 +1495,7 @@ public class TypeResolver {
         //    if not use the current package scope.
         // 2) lookup the typename in the package scope returned from step 1.
         // 3) If the symbol is not found, then lookup in the root scope. e.g. for types such as 'error'
-        SymbolResolver.AnalyzerData data = new SymbolResolver.AnalyzerData(symEnv);
+        SymbolResolver.AnalyzerData analyzerData = new SymbolResolver.AnalyzerData(symEnv);
 
         Name pkgAlias = names.fromIdNode(td.pkgAlias);
         Name typeName = names.fromIdNode(td.typeName);
@@ -1525,7 +1538,7 @@ public class TypeResolver {
                 }
 
                 SymbolResolver.ParameterizedTypeInfo parameterizedTypeInfo =
-                        symResolver.getTypedescParamValueType(func.requiredParams, data, refSymbol);
+                        symResolver.getTypedescParamValueType(func.requiredParams, analyzerData, refSymbol);
                 BType paramValType = parameterizedTypeInfo == null ? null : parameterizedTypeInfo.paramValueType;
 
                 if (paramValType == symTable.semanticError) {
@@ -1555,7 +1568,7 @@ public class TypeResolver {
         if (symEnv.logErrors && symbol == symTable.notFoundSymbol) {
             if (!missingNodesHelper.isMissingNode(pkgAlias) && !missingNodesHelper.isMissingNode(typeName) &&
                     !symEnter.isUnknownTypeRef(td)) {
-                dlog.error(td.pos, data.diagCode, typeName);
+                dlog.error(td.pos, analyzerData.diagCode, typeName);
             }
             return symTable.semanticError;
         }
@@ -1575,7 +1588,7 @@ public class TypeResolver {
             return type;
         }
 
-        BLangNode moduleLevelDef = pkgAlias == Names.EMPTY ? mod.get(name) : null;
+        BLangNode moduleLevelDef = pkgAlias == Names.EMPTY ? data.modTable.get(name) : null;
         if (moduleLevelDef == null) {
             if (missingNodesHelper.isMissingNode(pkgAlias) || missingNodesHelper.isMissingNode(typeName)) {
                 return symTable.semanticError;
@@ -1591,7 +1604,7 @@ public class TypeResolver {
 
         if (moduleLevelDef.getKind() == NodeKind.TYPE_DEFINITION) {
             BLangTypeDefinition typeDefinition = (BLangTypeDefinition) moduleLevelDef;
-            BType resolvedType = resolveTypeDefinition(symEnv, mod, typeDefinition, depth);
+            BType resolvedType = resolveTypeDefinition(symEnv, data.modTable, typeDefinition, data.depth);
             if (resolvedType == symTable.semanticError || resolvedType == symTable.noType) {
                 return resolvedType;
             }
@@ -1606,10 +1619,10 @@ public class TypeResolver {
             return resolvedType;
         } else if (moduleLevelDef.getKind() == NodeKind.CONSTANT) {
             BLangConstant constant = (BLangConstant) moduleLevelDef;
-            resolveConstant(symEnv, mod, constant);
+            resolveConstant(symEnv, data.modTable, constant);
             return constant.getBType();
         } else {
-            return extracted(symEnv, (BLangClassDefinition) moduleLevelDef, depth);
+            return extracted(symEnv, (BLangClassDefinition) moduleLevelDef, data.depth);
         }
     }
 
@@ -1692,13 +1705,14 @@ public class TypeResolver {
         }
     }
 
-    private BType resolveTypeDesc(BLangTableTypeNode td, SymbolEnv symEnv, Map<String, BLangNode> mod,
-                                  int depth, BLangTypeDefinition typeDefinition) {
-        currentDepth = depth;
+    private BType resolveTypeDesc(BLangTableTypeNode td, AnalyzerData data) {
+        currentDepth = data.depth;
         if (td.getBType() != null) {
             return td.getBType();
         }
-        BType type = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.type);
+
+        SymbolEnv symEnv = data.env;
+        BType type = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.type, data);
 
         BTableType tableType = new BTableType(TypeTags.TABLE, null, null);
         BTypeSymbol typeSymbol = type.tsymbol;
@@ -1712,12 +1726,13 @@ public class TypeResolver {
         resolvingTypes.push(tableType);
 
         BType constraintType =
-                resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.constraint);
+                resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.constraint, data);
         tableType.constraint = constraintType;
 
         if (td.tableKeyTypeConstraint != null) {
             tableType.keyTypeConstraint =
-                    resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.tableKeyTypeConstraint.keyType);
+                    resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1,
+                            td.tableKeyTypeConstraint.keyType, data);
             tableType.keyPos = td.tableKeyTypeConstraint.pos;
         } else if (td.tableKeySpecifier != null) {
             BLangTableKeySpecifier tableKeySpecifier = td.tableKeySpecifier;
@@ -1744,16 +1759,16 @@ public class TypeResolver {
         return tableType;
     }
 
-    private BType resolveTypeDesc(BLangStreamType td, SymbolEnv symEnv, Map<String, BLangNode> mod, int depth,
-                                  BLangTypeDefinition typeDefinition) {
-        currentDepth = depth;
+    private BType resolveTypeDesc(BLangStreamType td, AnalyzerData data) {
+        currentDepth = data.depth;
         if (td.getBType() != null) {
             return td.getBType();
         }
 
-        BType type = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.type);
+        SymbolEnv symEnv = data.env;
+        BType type = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.type, data);
         BType error = td.error != null ?
-                resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.error) : symTable.nilType;
+                resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.error, data) : symTable.nilType;
 
         BStreamType streamType = new BStreamType(TypeTags.STREAM, null, error, null);
         BTypeSymbol typeSymbol = type.tsymbol;
@@ -1763,7 +1778,7 @@ public class TypeResolver {
         td.setBType(streamType);
         resolvingTypes.push(streamType);
 
-        BType constraintType = resolveTypeDesc(symEnv, mod, typeDefinition, depth + 1, td.constraint);
+        BType constraintType = resolveTypeDesc(symEnv, data.typeDefinition, data.depth + 1, td.constraint, data);
         streamType.constraint = constraintType;
 
         symResolver.markParameterizedType(streamType, constraintType);
@@ -2021,7 +2036,9 @@ public class TypeResolver {
         }
         if (constant.typeNode != null) {
             // Type node is available.
-            staticType = resolveTypeDesc(symEnv, modTable, typeDef, 0, constant.typeNode);
+            AnalyzerData data = new AnalyzerData();
+            data.modTable = modTable;
+            staticType = resolveTypeDesc(symEnv, typeDef, 0, constant.typeNode, data);
             if (staticType == symTable.noType) {
                 constant.setBType(symTable.semanticError);
                 return;
@@ -2126,6 +2143,19 @@ public class TypeResolver {
         if (symResolver.checkForUniqueSymbol(pos, pkgEnv, errorTSymbol)) {
             pkgEnv.scope.define(errorTSymbol.name, errorTSymbol);
         }
+    }
+
+    /**
+     * This class holds the data required for the module type resolving.
+     *
+     * @since 2201.7.0
+     */
+    class AnalyzerData {
+
+        SymbolEnv env;
+        Map<String, BLangNode> modTable;
+        int depth;
+        BLangTypeDefinition typeDefinition;
     }
 
     /**
