@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.optimizer;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -56,6 +57,7 @@ import java.util.Set;
  */
 public class LargeMethodOptimizer {
 
+    private static final Name DEFAULT_WORKER_NAME = new Name("function");
     private final SymbolTable symbolTable;
     // splits are done only if the original function has more instructions than the below number
     private static final int FUNCTION_INSTRUCTION_COUNT_THRESHOLD = 2;
@@ -593,8 +595,8 @@ public class LargeMethodOptimizer {
         }
         BInvokableType type = new BInvokableType(paramTypes, retType, null);
 
-        BIRFunction birFunc = new BIRFunction(parentFunc.pos, funcName, funcName, parentFunc.flags, type,
-                parentFunc.workerName, 0, parentFunc.origin);
+        BIRFunction birFunc = new BIRFunction(parentFunc.pos, funcName, funcName, 0, type,
+                DEFAULT_WORKER_NAME, 0, SymbolOrigin.VIRTUAL);
 
         List<BIRFunctionParameter> functionParams = new ArrayList<>();
         BIRVariableDcl selfVarDcl = null;
@@ -759,8 +761,8 @@ public class LargeMethodOptimizer {
         }
         BInvokableType type = new BInvokableType(paramTypes, retType, null);
 
-        BIRFunction birFunc = new BIRFunction(parentFunc.pos, funcName, funcName, parentFunc.flags, type,
-                parentFunc.workerName, 0, parentFunc.origin);
+        BIRFunction birFunc = new BIRFunction(parentFunc.pos, funcName, funcName, 0, type,
+                DEFAULT_WORKER_NAME, 0, SymbolOrigin.VIRTUAL);
 
         List<BIRFunctionParameter> functionParams = new ArrayList<>();
         BIRVariableDcl selfVarDcl = null;
