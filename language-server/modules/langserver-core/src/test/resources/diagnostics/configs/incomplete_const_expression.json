@@ -49,6 +49,23 @@
         },
         "severity": "Error",
         "code": {
+          "left": "BCE3504"
+        },
+        "message": "expression is not a constant expression"
+      },
+      {
+        "range": {
+          "start": {
+            "line": 4,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 1
+          }
+        },
+        "severity": "Error",
+        "code": {
           "left": "BCE0502"
         },
         "message": "missing expression"
