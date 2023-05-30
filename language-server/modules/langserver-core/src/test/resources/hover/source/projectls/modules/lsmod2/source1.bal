@@ -16,3 +16,10 @@ public class Person {
     # Name of the person
     public string name = "MyName";
 }
+
+# A function with a defaultable parameter
+#
+# + name - Defaultable param
+public function functionWithDefaultableParam(string name = "defaultName") {
+    
+}
