@@ -41,14 +41,16 @@ public class QueryExpressionNode extends ExpressionNode {
         return childInBucket(1);
     }
 
+    /**
+     * @deprecated Use {@link #resultClause()} instead.
+     */
     @Deprecated
     public SelectClauseNode selectClause() {
-        ClauseNode endClause = resultClause();
-        if (endClause.kind() == SyntaxKind.SELECT_CLAUSE) {
-            return (SelectClauseNode) endClause;
-        } else {
-            throw new IllegalStateException("select-clause is not found");
+        ClauseNode resultClause = resultClause();
+        if (resultClause.kind() != SyntaxKind.SELECT_CLAUSE) {
+            throw new IllegalStateException("select-clause not found");
         }
+        return (SelectClauseNode) resultClause;
     }
 
     public ClauseNode resultClause() {

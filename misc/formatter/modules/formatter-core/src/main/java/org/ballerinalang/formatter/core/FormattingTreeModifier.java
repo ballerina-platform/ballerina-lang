@@ -2828,11 +2828,11 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatNode(queryExpressionNode.queryConstructType().orElse(null), 1, 0);
         QueryPipelineNode queryPipeline = formatNode(queryExpressionNode.queryPipeline(), 0, 1);
 
-        ClauseNode endClause;
+        ClauseNode resultClause;
         if (queryExpressionNode.onConflictClause().isPresent()) {
-            endClause = formatNode(queryExpressionNode.resultClause(), 0, 1);
+            resultClause = formatNode(queryExpressionNode.resultClause(), 0, 1);
         } else {
-            endClause = formatNode(queryExpressionNode.resultClause(), env.trailingWS, env.trailingNL);
+            resultClause = formatNode(queryExpressionNode.resultClause(), env.trailingWS, env.trailingNL);
         }
 
         OnConflictClauseNode onConflictClause = formatNode(queryExpressionNode.onConflictClause().orElse(null),
@@ -2844,7 +2844,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return queryExpressionNode.modify()
                 .withQueryConstructType(queryConstructType)
                 .withQueryPipeline(queryPipeline)
-                .withResultClause(endClause)
+                .withResultClause(resultClause)
                 .withOnConflictClause(onConflictClause)
                 .apply();
     }
