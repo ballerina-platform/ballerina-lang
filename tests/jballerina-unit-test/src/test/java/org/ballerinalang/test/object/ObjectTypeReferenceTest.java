@@ -54,9 +54,9 @@ public class ObjectTypeReferenceTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Employee1' is not an object", 32,
                 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'salary'", 48, 6);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'Foo'", 52, 1);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A'", 57, 1);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'C'", 65, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[Foo, Foo]'", 52, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[A, B, C, D, A]'", 57, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, E, C]'", 65, 1);
         BAssertUtil.validateError(negativeResult, i++,
                 "no implementation found for the method 'getName' of class 'Manager2'", 95, 1);
         BAssertUtil.validateError(negativeResult, i++,
@@ -108,9 +108,9 @@ public class ObjectTypeReferenceTest {
         CompileResult negativeResult = BCompileUtil.compile("test-src/object/object-type-reference-cyclic-dependency" +
                 "-negative.bal");
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'Foo'", 18, 1);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A'", 23, 1);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'C'", 31, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[Foo, Foo]'", 18, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[A, B, C, D, A]'", 23, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, E, C]'", 31, 1);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

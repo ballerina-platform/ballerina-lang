@@ -57,10 +57,33 @@ type Car2 record {|
 function testComplexCyclicRecordTypeDefinition() {
     Foo2 f2 = { b: {z: 2, y: 3}, y: 1};
     assertEquals(f2.length(), 2);
-
-    assertEquals(f2.length(), 2);
     assertEquals(f2.b?.y, 3);
     assertTrue(f2.b is Bar2);
+}
+
+type Foo3 record {|
+    Bar3 b?;
+    int y;
+    *Far3;
+|};
+
+type Bar3 record {|
+    *Foo3;
+    int y;
+|};
+
+type Far3 record {|
+    int x;
+|};
+
+function testComplexCyclicRecordTypeDefinition2() {
+    Foo3 f3 = { b: {y: 3, x: 4}, y: 1, x: 2};
+    assertEquals(f3.length(), 3);
+    assertEquals(f3.b?.y, 3);
+    assertEquals(f3.b?.x, 4);
+    assertEquals(f3.y, 1);
+    assertEquals(f3.x, 2);
+    assertTrue(f3.b is Bar3);
 }
 
 type MyFunc1 function (MyFunc1? a) returns int;

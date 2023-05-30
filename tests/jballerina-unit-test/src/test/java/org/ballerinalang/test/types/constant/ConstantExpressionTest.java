@@ -49,6 +49,7 @@ public class ConstantExpressionTest {
         int i = 0;
         BAssertUtil.validateError(compileResult1, i++, "invalid constant expression, reason '/ by zero'", 23, 18);
         BAssertUtil.validateError(compileResult1, i++, "invalid constant expression, reason '/ by zero'", 25, 18);
+        BAssertUtil.validateError(compileResult1, i++, "expression is not a constant expression", 27, 18);
         BAssertUtil.validateError(compileResult1, i++, "missing identifier", 27, 18);
         BAssertUtil.validateError(compileResult1, i++, "operator '+' not defined for '\"helloworld\"'", 29, 20);
         BAssertUtil.validateError(compileResult1, i++, "operator '!' not defined for '10'", 31, 21);
@@ -56,9 +57,7 @@ public class ConstantExpressionTest {
         BAssertUtil.validateError(compileResult1, i++, "operator '-' not defined for 'true'", 35, 21);
         BAssertUtil.validateError(compileResult1, i++, "operator '~' not defined for 'false'", 37, 22);
         BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[A, B, C]'", 39, 1);
-        BAssertUtil.validateError(compileResult1, i++, "undefined symbol 'A'", 40, 15);
         BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[E, F]'", 44, 1);
-        BAssertUtil.validateError(compileResult1, i++, "undefined symbol 'E'", 45, 17);
         BAssertUtil.validateError(compileResult1, i++, "'-9.223372036854776E18' is out of range for 'int'", 47, 20);
         BAssertUtil.validateError(compileResult1, i++, "'9223372036854775808' is out of range for 'int'", 47, 21);
         BAssertUtil.validateError(compileResult1, i++, "illegal cyclic reference '[CONST5]'", 49, 1);

@@ -43,7 +43,8 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(resultNegative, i++, "missing identifier", 27, 46);
         BAssertUtil.validateError(resultNegative, i++, "missing equal token", 29, 59);
         BAssertUtil.validateError(resultNegative, i++, "missing identifier", 29, 59);
-        BAssertUtil.validateError(resultNegative, i++, "invalid cyclic type reference in 'Listener'", 31, 1);
+        BAssertUtil.validateError(resultNegative, i++, "invalid cyclic type reference in '[Listener, Listener]'",
+                31, 1);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

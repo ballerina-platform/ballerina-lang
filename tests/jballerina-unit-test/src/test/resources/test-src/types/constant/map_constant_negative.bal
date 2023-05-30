@@ -34,6 +34,13 @@ function testInvalidUpdate() {
     m["one"] += " world";
 }
 
-// Constant map with invalid field update via computed name field
+// Constant map with invalid field update via computed name field.
 const CONSTA = "a";
 const map<string> X = {a : "A", [CONSTA] : "B"};
+
+// Constant map with invalid cyclic reference.
+type A1 record {|
+    B1? b;
+|};
+
+const A1 B1 = {b : ()};

@@ -85,6 +85,7 @@ public class CyclicTypeDefinitionsTest {
                 {"testCyclicErrorTypeDefinition"},
                 {"testCyclicReadonlyErrorTypeDefinition"},
                 {"testComplexCyclicRecordTypeDefinition"},
+                {"testComplexCyclicRecordTypeDefinition2"},
                 {"testCyclicReadonlyArrayTypeDefinition"}
         };
     }
@@ -116,9 +117,9 @@ public class CyclicTypeDefinitionsTest {
     @Test(description = "Negative test cases for cyclic type definitions")
     public void testCyclicTypeDefNegative() {
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A'", 1, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[A, A]'", 1, 1);
         BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'B'", 3, 8);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'C'", 5, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, D, C]'", 5, 1);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'E', found 'string'", 8, 25);
         BAssertUtil.validateError(negativeResult, i++, "operator '==' not defined for 'CyclicDecimal' and 'float'", 15
                 , 20);
@@ -136,7 +137,7 @@ public class CyclicTypeDefinitionsTest {
                 "found '[int,string,[int,string]]'", 32, 20);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'I'", 34, 12);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'v'", 37, 19);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'P'", 39, 1);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[P, XUnion1, P]'", 39, 1);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'XListRef'", 39, 26);
         BAssertUtil.validateError(negativeResult, i++, "unknown type 'XListRef'", 44, 18);
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'J'", 47, 6);

@@ -123,7 +123,7 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
 /**
- * Resolve the value and check the type of  constant expression.
+ * Resolve the value and check the type of constant expression.
  *
  * @since 2201.7.0
  */
@@ -212,7 +212,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 this.currentPos = prevPos;
                 break;
             default:
-                dlog.error(expr.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
                 data.resultType = symTable.semanticError;
         }
 
@@ -308,17 +307,13 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             if (symbol == symTable.notFoundSymbol) {
                 data.resultType = symTable.semanticError;
                 varRefExpr.symbol = symbol; // Set notFoundSymbol
-                logUndefinedSymbolError(varRefExpr.pos, varName.value);
                 return;
             }
 
+            varRefExpr.symbol = symbol;
             if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 // Check whether the referenced expr is a constant.
-                varRefExpr.symbol = symbol;
                 actualType = symbol.type;
-            } else {
-                varRefExpr.symbol = symbol;
-                dlog.error(varRefExpr.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
             }
         }
 

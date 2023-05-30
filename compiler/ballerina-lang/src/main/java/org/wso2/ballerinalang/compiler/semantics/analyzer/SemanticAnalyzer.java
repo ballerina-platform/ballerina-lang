@@ -255,6 +255,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
     private static final String LISTENER_NAME = "listener";
 
     private final BLangAnonymousModelHelper anonModelHelper;
+    private final ConstantAnalyzer constantAnalyzer;
     private final ConstantValueResolver constantValueResolver;
     private final BLangDiagnosticLog dlog;
     private final Names names;
@@ -287,6 +288,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         this.types = Types.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
+        this.constantAnalyzer = ConstantAnalyzer.getInstance(context);
         this.constantValueResolver = ConstantValueResolver.getInstance(context);
         this.anonModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.unifier = new Unifier();
@@ -4316,6 +4318,9 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
         });
         this.anonTypeNameSuffixes.pop();
+
+        // Check nested expressions.
+        constantAnalyzer.visit(constant);
     }
 
     private boolean isLiteralInUnaryFromConstantNotAllowed(BLangUnaryExpr unaryExpr) {

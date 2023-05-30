@@ -88,15 +88,15 @@ public class EnumTest {
         validateError(negativeTest, i++, "incompatible types: expected 'Shape', found 'string'", 60, 15);
         validateError(negativeTest, i++, "incompatible types: expected 'Artist', found 'string'", 61, 16);
         validateError(negativeTest, i++, "incompatible types: expected '\"Ed Shereen\"', found 'string'", 62, 12);
+        validateError(negativeTest, i++, "expression is not a constant expression", 65, 18);
         validateError(negativeTest, i++, "undefined symbol 'x'", 65, 18);
         validateError(negativeTest, i++, "symbol 'A' is already initialized", 69, 5);
         validateError(negativeTest, i++, "symbol 'B' is already initialized with '1'", 70, 5);
         validateError(negativeTest, i++, "symbol 'A' is already initialized", 74, 5);
+        validateError(negativeTest, i++, "expression is not a constant expression", 75, 1);
         validateError(negativeTest, i++, "missing expression", 75, 1);
         validateError(negativeTest, i++, "illegal cyclic reference '[CYCLIC1, CYCLIC2]'", 78, 5);
-        validateError(negativeTest, i++, "undefined symbol 'CYCLIC1'", 79, 15);
         validateError(negativeTest, i++, "illegal cyclic reference '[D, E]'", 82, 1);
-        validateError(negativeTest, i++, "undefined symbol 'D'", 83, 18);
         validateError(negativeTest, i++, "symbol 'D' is already initialized", 86, 5);
         validateError(negativeTest, i++, "symbol 'E' is already initialized", 87, 5);
         assertEquals(negativeTest.getErrorCount(), i);

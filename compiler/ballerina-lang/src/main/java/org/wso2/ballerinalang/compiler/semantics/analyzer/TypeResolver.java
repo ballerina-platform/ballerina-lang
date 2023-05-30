@@ -159,6 +159,7 @@ public class TypeResolver {
     private HashMap<BIntersectionType, BLangIntersectionTypeNode> intersectionTypeList;
     public HashSet<BLangConstant> resolvedConstants = new HashSet<>();
     private ArrayList<BLangConstant> resolvingConstants = new ArrayList<>();
+    private Stack<String> resolvingModuleDefs;
     private HashSet<BLangClassDefinition> resolvedClassDef = new HashSet<>();
     private Map<String, BLangNode> modTable = new LinkedHashMap<>();
     private Map<String, BLangConstantValue> constantMap = new HashMap<>();
@@ -221,6 +222,7 @@ public class TypeResolver {
 
         for (BLangNode def : moduleDefs) {
             resolvingTypes = new Stack<>();
+            resolvingModuleDefs = new Stack<>();
             if (def.getKind() == NodeKind.CLASS_DEFN) {
                 intersectionTypeList = new HashMap<>();
                 extracted(pkgEnv, (BLangClassDefinition) def, 0);
@@ -248,14 +250,16 @@ public class TypeResolver {
             return classDefinition.getBType();
         }
 
+        String currentDefnName = classDefinition.name.value;
         if (depth == classDefinition.cycleDepth) {
             // We cannot define recursive classDefinitions with same depths.
-            dlog.error(classDefinition.pos, DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, classDefinition.name);
+            logInvalidCyclicReferenceError(currentDefnName, classDefinition.pos);
             return symTable.semanticError;
         }
 
         currentDepth = depth;
         classDefinition.cycleDepth = depth;
+        resolvingModuleDefs.push(currentDefnName);
 
         if (classDefinition.getBType() != null) {
             return classDefinition.getBType();
@@ -265,8 +269,9 @@ public class TypeResolver {
         symEnter.defineDistinctClassAndObjectDefinitionIndividual(classDefinition);
 
         // Define the class fields
-        defineField(classDefinition, pkgEnv);
+        defineFields(classDefinition, pkgEnv);
         resolvedClassDef.add(classDefinition);
+        resolvingModuleDefs.pop();
         BObjectType classDefType = (BObjectType) classDefinition.getBType();
         resolvingStructureTypes.remove(classDefType);
 
@@ -274,7 +279,7 @@ public class TypeResolver {
         return classDefType;
     }
 
-    public void defineField(BLangNode typeDefNode, SymbolEnv pkgEn) {
+    public void defineFields(BLangNode typeDefNode, SymbolEnv pkgEn) {
         currentDepth++;
         if (typeDefNode.getKind() == NodeKind.CLASS_DEFN) {
             BLangClassDefinition classDefinition = (BLangClassDefinition) typeDefNode;
@@ -501,9 +506,10 @@ public class TypeResolver {
             return defn.getBType();
         }
 
+        String currentDefnName = defn.name.value;
         if (depth == defn.cycleDepth) {
-            // We cannot define recursive typeDefinitions with same depths.
-            dlog.error(defn.pos, DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, defn.name);
+            // We cannot define recursive classDefinitions with same depths.
+            logInvalidCyclicReferenceError(currentDefnName, defn.pos);
             return symTable.semanticError;
         }
 
@@ -527,6 +533,7 @@ public class TypeResolver {
             // Add the type into resolvingtypeDefinitions list.
             // This is used to identify types which have cyclic references.
             resolvingTypeDefinitions.add(defn);
+            resolvingModuleDefs.push(currentDefnName);
         }
 
         // Resolve the type
@@ -539,6 +546,7 @@ public class TypeResolver {
         if (!hasAlreadyVisited) {
             // Remove the typeDefinition from currently resolving typeDefinition map.
             resolvingTypeDefinitions.remove(defn);
+            resolvingModuleDefs.pop();
         }
 
         if (defn.getBType() == null) {
@@ -570,6 +578,22 @@ public class TypeResolver {
             case CONSTRAINED_TYPE:
                 dlog.error(typeNode.pos, DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, typeDefinition.name);
         }
+    }
+
+    private void logInvalidCyclicReferenceError(String currentDefnName, Location pos) {
+        // Here, all the types in the list might not be necessary for the cyclic dependency error message.
+        //
+        // Eg - A -> B -> C -> B // Last B is what we are currently checking
+        //
+        // In such case, we create a new list with relevant type names.
+        int i = resolvingModuleDefs.indexOf(currentDefnName);
+        List<String> dependencyList = new ArrayList<>(resolvingModuleDefs.size() - i);
+        for (; i < resolvingModuleDefs.size(); i++) {
+            dependencyList.add(resolvingModuleDefs.get(i));
+        }
+        dependencyList.add(currentDefnName);
+
+        dlog.error(pos, DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, dependencyList);
     }
 
     public boolean isNotUnknownTypeRef(BLangUserDefinedType td) {
@@ -1004,7 +1028,7 @@ public class TypeResolver {
             typeDefinition.referencedFieldsDefined = true;
             defineRestFields(typeDefinition);
         }
-        defineField(typeDefinition, symEnv);
+        defineFields(typeDefinition, symEnv);
         resolvingStructureTypes.remove(recordType);
         resolvingTypes.pop();
         return recordType;
@@ -1061,7 +1085,7 @@ public class TypeResolver {
 
         defineTypeDefinition(typeDefinition, objectType, symEnv);
         symEnter.defineDistinctClassAndObjectDefinitionIndividual(typeDefinition);
-        defineField(typeDefinition, symEnv);
+        defineFields(typeDefinition, symEnv);
         resolvingStructureTypes.remove(objectType);
         resolvingTypes.pop();
         return objectType;
@@ -1257,11 +1281,10 @@ public class TypeResolver {
         td.setBType(unionType);
         resolvingTypes.push(unionType);
 
-        boolean errored = false;
         for (BLangType langType : td.memberTypeNodes) {
             BType resolvedType = resolveTypeDesc(symEnv, mod, typeDefinition, depth, langType);
             if (resolvedType == symTable.semanticError) {
-                errored = true;
+                memberTypes.add(symTable.semanticError);
                 continue;
             }
 
@@ -1269,10 +1292,6 @@ public class TypeResolver {
                 unionType.setNullable(true);
             }
             memberTypes.add(resolvedType);
-        }
-
-        if (errored) {
-            return symTable.semanticError;
         }
 
         updateReadOnlyAndNullableFlag(unionType);
