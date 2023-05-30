@@ -510,6 +510,11 @@ public class TestWorkspaceManager {
         Path target = RESOURCE_DIRECTORY.resolve("long_running").resolve("target");
         FileUtils.deleteDirectory(target.toFile());
     }
+    
+    @Test
+    public void testWorkspaceProjects() {
+        
+    }
 
     private static String guessJavaPath() {
         boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
