@@ -47,7 +47,7 @@ public class QueryExpressionNode extends ExpressionNode {
         if (endClause.kind() == SyntaxKind.SELECT_CLAUSE) {
             return (SelectClauseNode) endClause;
         } else {
-            throw new IllegalStateException("Select clause is not found");
+            throw new IllegalStateException("select-clause is not found");
         }
     }
 
