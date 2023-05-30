@@ -108,15 +108,15 @@ public class PackageConfigCreator {
                                                     PackageManifest packageManifest,
                                                     DependencyManifest dependencyManifest) {
         return createPackageConfig(packageData, packageManifest, dependencyManifest, DependencyGraph.emptyGraph(),
-                Collections.emptyMap());
+                Collections.emptyMap(), true);
     }
 
-    public static PackageConfig createPackageConfig(PackageData packageData,
+    private static PackageConfig createPackageConfig(PackageData packageData,
                                                     PackageManifest packageManifest,
                                                     DependencyManifest dependencyManifest,
                                                     DependencyGraph<PackageDescriptor> packageDependencyGraph,
                                                     Map<ModuleDescriptor, List<ModuleDescriptor>>
-                                                            moduleDependencyGraph) {
+                                                            moduleDependencyGraph, boolean enableSyntaxTree) {
         // TODO PackageData should contain the packageName. This should come from the Ballerina.toml file.
         // TODO For now, I take the directory name as the project name. I am not handling the case where the
         //  directory name is not a valid Ballerina identifier.
@@ -150,9 +150,19 @@ public class PackageConfigCreator {
 
         return PackageConfig
                 .from(packageId, packageData.packagePath(), packageManifest, dependencyManifest, ballerinaToml,
-                      dependenciesToml, cloudToml, compilerPluginToml, balToolToml, packageMd, moduleConfigs,
-                      packageDependencyGraph);
+                        dependenciesToml, cloudToml, compilerPluginToml, balToolToml, packageMd, moduleConfigs,
+                        packageDependencyGraph, enableSyntaxTree);
     }
+    public static PackageConfig createPackageConfig(PackageData packageData,
+                                                    PackageManifest packageManifest,
+                                                    DependencyManifest dependencyManifest,
+                                                    DependencyGraph<PackageDescriptor> packageDependencyGraph,
+                                                    Map<ModuleDescriptor, List<ModuleDescriptor>>
+                                                            moduleDependencyGraph) {
+        return createPackageConfig(packageData, packageManifest, dependencyManifest, packageDependencyGraph,
+                moduleDependencyGraph, false);
+    }
+
 
     private static ModuleConfig createDefaultModuleConfig(PackageDescriptor pkgDesc,
                                                           ModuleData moduleData,

@@ -59,6 +59,7 @@ class DocumentContext {
     private final DocumentId documentId;
     private final String name;
     private final String content;
+    private boolean enableSyntaxTree = true;
 
     private DocumentContext(DocumentId documentId, String name, String content) {
         this.documentId = documentId;
@@ -66,8 +67,21 @@ class DocumentContext {
         this.content = content;
     }
 
+    private DocumentContext(DocumentId documentId, String name, String content, boolean enableSyntaxTree) {
+        this.documentId = documentId;
+        this.name = name;
+        this.content = content;
+        this.enableSyntaxTree = enableSyntaxTree;
+    }
+
     static DocumentContext from(DocumentConfig documentConfig) {
-        return new DocumentContext(documentConfig.documentId(), documentConfig.name(), documentConfig.content());
+        return new DocumentContext(documentConfig.documentId(), documentConfig.name(), documentConfig.content(),
+                true);
+    }
+
+    static DocumentContext from(DocumentConfig documentConfig, boolean enableSyntaxTree) {
+        return new DocumentContext(documentConfig.documentId(), documentConfig.name(), documentConfig.content(),
+                enableSyntaxTree);
     }
 
     DocumentId documentId() {
@@ -78,17 +92,19 @@ class DocumentContext {
         return this.name;
     }
 
-    void parse() {
+    SyntaxTree parse() {
         if (syntaxTree != null) {
-            return;
+            return syntaxTree;
         }
-
-        syntaxTree = SyntaxTree.from(this.textDocument(), name);
+        if (enableSyntaxTree) {
+            syntaxTree = SyntaxTree.from(this.textDocument(), name);
+            return syntaxTree;
+        }
+        return SyntaxTree.from(this.textDocument(), name);
     }
 
     SyntaxTree syntaxTree() {
-        parse();
-        return syntaxTree;
+        return parse();
     }
 
     TextDocument textDocument() {

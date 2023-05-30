@@ -122,14 +122,20 @@ class ModuleContext {
     }
 
     static ModuleContext from(Project project, ModuleConfig moduleConfig) {
+        return from(project, moduleConfig, true);
+    }
+
+    static ModuleContext from(Project project, ModuleConfig moduleConfig, boolean enableSyntaxTree) {
         Map<DocumentId, DocumentContext> srcDocContextMap = new LinkedHashMap<>();
         for (DocumentConfig sourceDocConfig : moduleConfig.sourceDocs()) {
-            srcDocContextMap.put(sourceDocConfig.documentId(), DocumentContext.from(sourceDocConfig));
+            srcDocContextMap.put(sourceDocConfig.documentId(), DocumentContext.from(sourceDocConfig,
+                    enableSyntaxTree));
         }
 
         Map<DocumentId, DocumentContext> testDocContextMap = new LinkedHashMap<>();
         for (DocumentConfig testSrcDocConfig : moduleConfig.testSourceDocs()) {
-            testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig));
+            testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig,
+                    enableSyntaxTree));
         }
 
         Map<DocumentId, ResourceContext> resourceContextMap = new HashMap<>();
