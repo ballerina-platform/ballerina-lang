@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -45,7 +44,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -76,8 +74,8 @@ public class TypeNarrower extends BLangNodeVisitor {
     private Types types;
     private SymbolEnter symbolEnter;
     private TypeChecker typeChecker;
-    private boolean semtypeEnabled;
     private static final CompilerContext.Key<TypeNarrower> TYPE_NARROWER_KEY = new CompilerContext.Key<>();
+    private static final boolean semtypeActive = Boolean.parseBoolean(System.getenv("BALLERINA_EXPERIMENTAL_SEMTYPE"));
 
     private TypeNarrower(CompilerContext context) {
         context.put(TYPE_NARROWER_KEY, this);
@@ -93,8 +91,6 @@ public class TypeNarrower extends BLangNodeVisitor {
             typeNarrower = new TypeNarrower(context);
         }
 
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        typeNarrower.semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
         return typeNarrower;
     }
 
@@ -435,7 +431,7 @@ public class TypeNarrower extends BLangNodeVisitor {
     }
 
     private void setSemType(BFiniteType finiteType) {
-        if (!this.semtypeEnabled) {
+        if (!this.semtypeActive) {
             return;
         }
 

@@ -19,7 +19,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
@@ -67,7 +66,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -117,8 +115,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private HashSet<BConstantSymbol> unresolvableConstants = new HashSet<>();
     private HashMap<BSymbol, BLangTypeDefinition> createdTypeDefinitions = new HashMap<>();
     private Stack<String> anonTypeNameSuffixes = new Stack<>();
-    private boolean semtypeEnabled;
-    private boolean semtypeTest;
+    private static final boolean semtypeActive = Boolean.parseBoolean(System.getenv("BALLERINA_EXPERIMENTAL_SEMTYPE"));
+    private static final boolean semtypeTest = Boolean.parseBoolean(System.getProperty("BALLERINA_SEMTYPE_TEST"));
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -135,9 +133,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             constantValueResolver = new ConstantValueResolver(context);
         }
 
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        constantValueResolver.semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
-        constantValueResolver.semtypeTest = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE_TEST));
         return constantValueResolver;
     }
 
@@ -597,7 +592,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue constructBLangConstantValue(BLangExpression node) {
 
-        if (!node.typeChecked && !this.semtypeEnabled && !this.semtypeTest) {
+        if (!node.typeChecked && !this.semtypeActive && !this.semtypeTest) {
             return null;
         }
         switch (node.getKind()) {

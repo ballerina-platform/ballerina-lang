@@ -120,12 +120,12 @@ public class BCompileUtil {
     }
 
     public static PackageSyntaxTreePair compileSemType(String sourceFilePath) {
-        Project project = loadProject(sourceFilePath, BuildOptions.builder().setSemTypeTest(true).build());
+        Project project = loadProject(sourceFilePath);
         Package currentPackage = project.currentPackage();
         Module module = currentPackage.getDefaultModule();
         DocumentId docId = module.documentIds().iterator().next();
         return new PackageSyntaxTreePair(currentPackage.getCompilation().defaultModuleBLangPackage(),
-                                         module.document(docId).syntaxTree());
+                module.document(docId).syntaxTree());
     }
 
     public static BIRCompileResult generateBIR(String sourceFilePath) {

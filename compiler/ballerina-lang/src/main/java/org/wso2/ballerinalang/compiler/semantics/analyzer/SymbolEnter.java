@@ -255,11 +255,12 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private SymbolEnv env;
     private final boolean projectAPIInitiatedCompilation;
-    private boolean semtypeEnabled;
-    private boolean semtypeTest;
 
     private static final String DEPRECATION_ANNOTATION = "deprecated";
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
+
+    private static final boolean semtypeActive = Boolean.parseBoolean(System.getenv("BALLERINA_EXPERIMENTAL_SEMTYPE"));
+    private static final boolean semtypeTest = Boolean.parseBoolean(System.getProperty("BALLERINA_SEMTYPE_TEST"));
 
     public static SymbolEnter getInstance(CompilerContext context) {
         SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);
@@ -267,9 +268,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             symbolEnter = new SymbolEnter(context);
         }
 
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        symbolEnter.semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
-        symbolEnter.semtypeTest = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE_TEST));
         return symbolEnter;
     }
 
@@ -442,7 +440,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.typeDefinitions.forEach(typDef -> typeAndClassDefs.add(typDef));
         List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
         classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
-        if (this.semtypeEnabled) {
+        if (this.semtypeActive) {
             // We may need to move this next to defineTypeNodes() to support constants
             defineSemTypesSubset(typeAndClassDefs, pkgEnv);
         }

@@ -42,8 +42,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
 import static org.ballerinalang.compiler.CompilerOptionName.OBSERVABILITY_INCLUDED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.SEMTYPE;
-import static org.ballerinalang.compiler.CompilerOptionName.SEMTYPE_TEST;
 
 /**
  * Compilation at package level by resolving all the dependencies.
@@ -89,8 +87,6 @@ public class PackageCompilation {
         options.put(DUMP_BIR, Boolean.toString(compilationOptions.dumpBir()));
         options.put(DUMP_BIR_FILE, Boolean.toString(compilationOptions.dumpBirFile()));
         options.put(CLOUD, compilationOptions.getCloud());
-        options.put(SEMTYPE, Boolean.toString(compilationOptions.semtype()));
-        options.put(SEMTYPE_TEST, Boolean.toString(compilationOptions.semtypeTest()));
     }
 
     static PackageCompilation from(PackageContext rootPackageContext, CompilationOptions compilationOptions) {

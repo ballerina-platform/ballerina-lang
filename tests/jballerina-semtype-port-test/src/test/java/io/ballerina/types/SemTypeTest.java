@@ -24,6 +24,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.test.BCompileUtil;
 import org.jetbrains.annotations.NotNull;
 import org.testng.Assert;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -50,6 +51,11 @@ import java.util.stream.Stream;
  * @since 3.0.0
  */
 public class SemTypeTest {
+
+    @BeforeSuite
+    public void setupSuite() {
+        System.setProperty("BALLERINA_SEMTYPE_TEST", "true");
+    }
 
     @DataProvider(name = "fileNameProvider")
     public Object[] fileNameProvider() {
@@ -104,9 +110,8 @@ public class SemTypeTest {
         for (File file : balFiles) {
             String fileName = file.getAbsolutePath();
             BCompileUtil.PackageSyntaxTreePair pair = BCompileUtil.compileSemType(fileName);
-            List<SemTypeAssertionTransformer.TypeAssertion> assertions =
-                    SemTypeAssertionTransformer.getTypeAssertionsFrom(fileName,
-                                                                      pair.syntaxTree, pair.bLangPackage.semtypeEnv);
+            List<SemTypeAssertionTransformer.TypeAssertion> assertions = SemTypeAssertionTransformer
+                    .getTypeAssertionsFrom(fileName, pair.syntaxTree,pair.bLangPackage.semtypeEnv);
             tests.addAll(assertions);
         }
         return tests.toArray();
