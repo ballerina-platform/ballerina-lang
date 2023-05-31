@@ -83,6 +83,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
@@ -569,7 +570,7 @@ public class BallerinaSemanticModel implements SemanticModel {
                 compiledSymbol = symbolFactory.getBCompiledSymbol(symbol, symbol.getOriginalName().getValue());
             }
 
-            if (compiledSymbol == null || compiledSymbols.contains(compiledSymbol)) {
+            if (compiledSymbol == null || checkAndUpdateModuleSymbols(compiledSymbols, compiledSymbol, symbol)) {
                 return;
             }
 
@@ -587,6 +588,27 @@ public class BallerinaSemanticModel implements SemanticModel {
             compiledSymbols.add(compiledSymbol);
         }
         addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name, symbolEnv, states, compUnitName);
+    }
+
+    private boolean checkAndUpdateModuleSymbols(Set<Symbol> compiledSymbols, Symbol evaluatingSymbol, BSymbol symbol) {
+        boolean symbolExists = compiledSymbols.contains(evaluatingSymbol);
+
+        if (!symbolExists) {
+            return false;
+        }
+
+        if (evaluatingSymbol.kind() != MODULE) {
+            return true;
+        }
+
+        // If the same module symbol, but without a module alias is already added, then it shall be removed to add
+        // the new symbol with the import alias.
+        if (((BPackageSymbol) symbol).importPrefix != null) {
+            compiledSymbols.remove(evaluatingSymbol);
+            return false;
+        }
+
+        return true;
     }
 
     private boolean isWithinCurrentWorker(long symbolEnvScopeOwnerFlags, SymbolEnv enclEnv, BSymbol symbol) {

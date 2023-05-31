@@ -36,6 +36,7 @@ under the License.
         </packages>
         <classes>
             <class name="org.ballerinalang.formatter.core.ParserTestFormatter" />
+            <class name="org.ballerinalang.formatter.core.NodeFormatterTest" />
         </classes>
     </test>
 </suite>
