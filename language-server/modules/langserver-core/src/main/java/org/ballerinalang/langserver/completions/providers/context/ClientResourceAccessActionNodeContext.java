@@ -44,6 +44,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -112,7 +113,7 @@ public class ClientResourceAccessActionNodeContext
                 completionItems.addAll(items);
             } else {
                 List<Node> arguments = new ArrayList<>();
-                node.arguments().ifPresent(argList -> 
+                node.arguments().ifPresent(argList ->
                         arguments.addAll(argList.arguments().stream().collect(Collectors.toList())));
                 if (isNotInNamedArgOnlyContext(context, arguments)) {
                     completionItems.addAll(this.actionKWCompletions(context));
@@ -181,14 +182,14 @@ public class ClientResourceAccessActionNodeContext
                     break;
                 }
             }
-            
+
             separatorIndex += 1;
         }
         return resourcePathSegments;
     }
 
     private static boolean hasTrailingNewLineMinutiae(Node segment) {
-        return !segment.trailingMinutiae().isEmpty() 
+        return !segment.trailingMinutiae().isEmpty()
                 && StreamSupport.stream(segment.trailingMinutiae().spliterator(), false)
                 .anyMatch(minutiae -> minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE);
     }
@@ -323,23 +324,25 @@ public class ClientResourceAccessActionNodeContext
                 TypeSymbol typeSymbol = segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER ?
                         ((ArrayTypeSymbol) (((PathParameterSymbol) segment).typeDescriptor()))
                                 .memberTypeDescriptor() : ((PathParameterSymbol) segment).typeDescriptor();
+                Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+                if (semanticModel.isEmpty()) {
+                    return Pair.of(Collections.emptyList(), false);
+                }
                 if (node.kind() == SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT) {
-                    Optional<SemanticModel> semanticModel = context.currentSemanticModel();
-                    if (semanticModel.isEmpty()) {
-                        return Pair.of(Collections.emptyList(), false);
-                    }
                     Optional<TypeSymbol> exprType =
                             semanticModel.get().typeOf(((ComputedResourceAccessSegmentNode) node).expression());
                     if (exprType.isEmpty() || !exprType.get().subtypeOf(typeSymbol)) {
                         return Pair.of(Collections.emptyList(), false);
                     }
-                    if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
+                    if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER
+                            && !ResourcePathCompletionUtil.isInMethodCallContext(accNode, context)) {
                         completableSegmentStartIndex -= 1;
                     }
                     continue;
                 } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN
-                        && typeSymbol.typeKind() == TypeDescKind.STRING) {
-                    if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
+                        && semanticModel.get().types().STRING.subtypeOf(typeSymbol)) {
+                    if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER
+                            && !ResourcePathCompletionUtil.isInMethodCallContext(accNode, context)) {
                         completableSegmentStartIndex -= 1;
                     }
                     continue;
