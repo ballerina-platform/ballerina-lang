@@ -495,7 +495,8 @@ public class TomlProvider implements ConfigProvider {
         return getImportedModuleNode(baseToml, module, hasRequired, variableName);
     }
 
-    private List<TomlTableNode> getImportedModuleNode(Toml baseToml, Module module, boolean hasRequired, String variableName) {
+    private List<TomlTableNode> getImportedModuleNode(Toml baseToml, Module module, boolean hasRequired,
+                                                      String variableName) {
         String moduleKey = getModuleKey(module);
         Optional<Toml> table = baseToml.getTable(moduleKey);
         List<TomlTableNode> moduleNodes = new ArrayList<>();
@@ -515,7 +516,7 @@ public class TomlProvider implements ConfigProvider {
     private void throwInvalidImportedModuleError(Toml toml, Module module, String variableName) {
         TomlNode errorNode = null;
         String orgModuleKey = getModuleKey(module);
-        Optional<TomlNode> optionalErrorNode = getErrorNode(toml, module.getName(), orgModuleKey,variableName);
+        Optional<TomlNode> optionalErrorNode = getErrorNode(toml, module.getName(), orgModuleKey, variableName);
         if (optionalErrorNode.isPresent()) {
             errorNode = optionalErrorNode.get();
         }
@@ -527,7 +528,8 @@ public class TomlProvider implements ConfigProvider {
         }
     }
 
-    private List<TomlTableNode> getNonDefaultModuleNode(Toml baseToml, Module module, boolean hasRequired, String variableName) {
+    private List<TomlTableNode> getNonDefaultModuleNode(Toml baseToml, Module module, boolean hasRequired,
+                                                        String variableName) {
         String moduleName = module.getName();
         Optional<Toml> table;
         List<TomlTableNode> moduleNodes = new ArrayList<>();
