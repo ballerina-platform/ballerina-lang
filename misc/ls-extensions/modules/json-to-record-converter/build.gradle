@@ -70,6 +70,7 @@ compileJava {
 }
 
 jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes "Main-Class": "io.ballerina.converters.JsonToRecordConverterService"
     }

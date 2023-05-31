@@ -148,3 +148,4 @@ task buildAndCopy(type: Copy) {
             '/bre/lib'
 }
 
+tasks.compileJava.dependsOn(':language-server:language-server-stdlib:copyInteropImports')

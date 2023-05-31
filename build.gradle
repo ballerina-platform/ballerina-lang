@@ -1,8 +1,5 @@
 plugins {
     id 'base'
-//    id 'com.gradle.build-scan' version '3.6.4'
-//    id "com.gradle.enterprise" version "3.13.2"
-//    id "com.github.spotbugs" version "4.7.3"
     id "com.github.spotbugs" version "4.7.3"
     id "com.dorongold.task-tree" version "1.3.1"
     id "com.github.johnrengelman.shadow" version "8.1.0"
@@ -22,10 +19,6 @@ allprojects {
         doLast{
             println projectDir
         }
-    }
-
-    tasks.withType(Jar){
-        duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 }
 

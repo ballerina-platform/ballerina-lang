@@ -74,7 +74,7 @@ test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "enableJBallerinaTests", "true"
 
-    jvmArgs = ['-Xms512m', '-Xmx3g']
+    jvmArgs = ['-Xms512m', '-Xmx3g', "--add-opens=java.base/java.util=ALL-UNNAMED"]
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'
@@ -104,3 +104,5 @@ configurations {
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
+
+tasks.compileTestJava.dependsOn(':ballerina-lang-test:copyInteropImports')

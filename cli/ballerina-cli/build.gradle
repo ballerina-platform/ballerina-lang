@@ -46,6 +46,11 @@ dependencies {
     implementation project(':toml-parser')
     implementation project(':identifier-util')
     testImplementation project(':ballerina-test-utils')
+    implementation 'org.ow2.asm:asm'
+    implementation "org.ow2.asm:asm-commons:${project.ow2AsmCommonsVersion}"
+    implementation "org.jacoco:org.jacoco.core:${project.jacocoVersion}"
+    implementation "org.jacoco:org.jacoco.report:${project.jacocoVersion}"
+//    implementation group: 'org.jacoco', name: 'org.jacoco.core', version: "${project.jacocoVersion}"
 
     testImplementation 'org.testng:testng'
     testImplementation 'org.mockito:mockito-all'
@@ -105,3 +110,5 @@ compileJava {
         classpath = files()
     }
 }
+
+tasks.compileJava.dependsOn(':testerina:testerina-core:copyInteropImports')
