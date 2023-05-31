@@ -2912,7 +2912,7 @@
           "type": "QueryPipelineNode"
         },
         {
-          "name": "endClause",
+          "name": "resultClause",
           "type": "ClauseNode"
         },
         {

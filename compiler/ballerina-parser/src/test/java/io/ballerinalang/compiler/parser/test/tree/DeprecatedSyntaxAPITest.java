@@ -42,7 +42,12 @@ public class DeprecatedSyntaxAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertNotNull(queryExpressionNode.selectClause());
 
         queryExpressionNode = (QueryExpressionNode) modulePart.findToken(113).parent().parent();
-        Assert.assertNull(queryExpressionNode.selectClause());
+        try {
+            queryExpressionNode.selectClause();
+            Assert.fail("exception not thrown");
+        } catch (IllegalStateException e) {
+            Assert.assertEquals(e.getMessage(), "select-clause not found");
+        }
     }
 
     @Override

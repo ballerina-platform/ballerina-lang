@@ -444,7 +444,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.JOIN_CLAUSE, ParserRuleContext.ORDER_BY_CLAUSE, ParserRuleContext.LIMIT_CLAUSE,
             ParserRuleContext.GROUP_BY_CLAUSE };
 
-    private static final ParserRuleContext[] END_CLAUSE =
+    private static final ParserRuleContext[] RESULT_CLAUSE =
             { ParserRuleContext.SELECT_CLAUSE, ParserRuleContext.COLLECT_CLAUSE };
 
     private static final ParserRuleContext[] BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS =
@@ -1606,7 +1606,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TUPLE_MEMBER:
             case GROUPING_KEY_LIST_ELEMENT:
             case GROUPING_KEY_LIST_ELEMENT_END:
-            case END_CLAUSE:
+            case RESULT_CLAUSE:
                 return true;
             default:
                 return false;
@@ -2073,7 +2073,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TOP_LEVEL_NODE;
             case TUPLE_MEMBER:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE;
-            case END_CLAUSE:
+            case RESULT_CLAUSE:
                 return ParserRuleContext.SELECT_CLAUSE;
             default:
                 throw new IllegalStateException("Alternative path entry not found");
@@ -2835,8 +2835,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_CONS_WITHOUT_FIRST_QUALIFIER:
                 alternativeRules = OBJECT_CONS_WITHOUT_FIRST_QUALIFIER;
                 break;
-            case END_CLAUSE:
-                alternativeRules = END_CLAUSE;
+            case RESULT_CLAUSE:
+                alternativeRules = RESULT_CLAUSE;
                 break;
             case EXPRESSION_RHS:
                 return seekMatchInExpressionRhs(lookahead, currentDepth, matchingRulesCount, isEntryPoint, false);
@@ -3642,7 +3642,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 if (parentCtx == ParserRuleContext.LET_CLAUSE_LET_VAR_DECL) {
                     endContext();
                 }
-                return ParserRuleContext.END_CLAUSE;
+                return ParserRuleContext.RESULT_CLAUSE;
             case INTERMEDIATE_CLAUSE:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.LET_CLAUSE_LET_VAR_DECL) {

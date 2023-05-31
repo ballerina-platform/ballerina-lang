@@ -204,7 +204,7 @@ public enum ParserRuleContext {
     END_OF_TYPE_DESC("end-of-type-desc"),
     SELECT_CLAUSE("select-clause"),
     COLLECT_CLAUSE("collect-clause"),
-    END_CLAUSE("end-clause"),
+    RESULT_CLAUSE("result-clause"),
     WHERE_CLAUSE("where-clause"),
     FROM_CLAUSE("from-clause"),
     LET_CLAUSE("let-clause"),

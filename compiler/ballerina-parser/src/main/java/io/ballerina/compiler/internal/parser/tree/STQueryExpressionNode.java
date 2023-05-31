@@ -33,18 +33,18 @@ import java.util.Collections;
 public class STQueryExpressionNode extends STExpressionNode {
     public final STNode queryConstructType;
     public final STNode queryPipeline;
-    public final STNode endClause;
+    public final STNode resultClause;
     public final STNode onConflictClause;
 
     STQueryExpressionNode(
             STNode queryConstructType,
             STNode queryPipeline,
-            STNode endClause,
+            STNode resultClause,
             STNode onConflictClause) {
         this(
                 queryConstructType,
                 queryPipeline,
-                endClause,
+                resultClause,
                 onConflictClause,
                 Collections.emptyList());
     }
@@ -52,19 +52,19 @@ public class STQueryExpressionNode extends STExpressionNode {
     STQueryExpressionNode(
             STNode queryConstructType,
             STNode queryPipeline,
-            STNode endClause,
+            STNode resultClause,
             STNode onConflictClause,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.QUERY_EXPRESSION, diagnostics);
         this.queryConstructType = queryConstructType;
         this.queryPipeline = queryPipeline;
-        this.endClause = endClause;
+        this.resultClause = resultClause;
         this.onConflictClause = onConflictClause;
 
         addChildren(
                 queryConstructType,
                 queryPipeline,
-                endClause,
+                resultClause,
                 onConflictClause);
     }
 
@@ -72,7 +72,7 @@ public class STQueryExpressionNode extends STExpressionNode {
         return new STQueryExpressionNode(
                 this.queryConstructType,
                 this.queryPipeline,
-                this.endClause,
+                this.resultClause,
                 this.onConflictClause,
                 diagnostics);
     }
@@ -80,12 +80,12 @@ public class STQueryExpressionNode extends STExpressionNode {
     public STQueryExpressionNode modify(
             STNode queryConstructType,
             STNode queryPipeline,
-            STNode endClause,
+            STNode resultClause,
             STNode onConflictClause) {
         if (checkForReferenceEquality(
                 queryConstructType,
                 queryPipeline,
-                endClause,
+                resultClause,
                 onConflictClause)) {
             return this;
         }
@@ -93,7 +93,7 @@ public class STQueryExpressionNode extends STExpressionNode {
         return new STQueryExpressionNode(
                 queryConstructType,
                 queryPipeline,
-                endClause,
+                resultClause,
                 onConflictClause,
                 diagnostics);
     }
