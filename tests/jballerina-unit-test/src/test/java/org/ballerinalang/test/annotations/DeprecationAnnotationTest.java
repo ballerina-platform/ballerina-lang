@@ -86,15 +86,25 @@ public class DeprecationAnnotationTest {
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Person.name' is deprecated", 287, 16);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Person.getName' is deprecated", 288, 16);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'myFunction' is deprecated", 298, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee.name' is deprecated", 316, 26);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee.job' is deprecated", 316, 49);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Job.experiance' is deprecated", 316, 68);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee.name' is deprecated", 317, 9);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee.job' is deprecated", 319, 9);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee.job' is deprecated", 320, 9);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee.job' is deprecated", 321, 9);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Job.experiance' is deprecated", 321, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee2.name' is deprecated", 343, 28);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee2.job' is deprecated", 343, 51);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Job.experiance' is deprecated", 343, 70);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee2.name' is deprecated", 344, 9);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee2.job' is deprecated", 346, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'name' is deprecated", 354, 17);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'name' is deprecated", 357, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'name' is deprecated", 370, 17);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'name' is deprecated", 373, 9);
+        BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee5.address' is deprecated",
+                393, 28);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee5.address' is deprecated",
                 394, 9);
         BAssertUtil.validateWarning(compileResult, i++, "usage of construct 'Employee5.address' is deprecated",
