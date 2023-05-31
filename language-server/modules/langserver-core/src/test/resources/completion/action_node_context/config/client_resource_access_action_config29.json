@@ -1,10 +1,10 @@
 {
   "position": {
-    "line": 38,
-    "character": 40
+    "line": 14,
+    "character": 22
   },
-  "source": "action_node_context/source/client_resource_access_action_source19.bal",
-  "description": "",
+  "source": "action_node_context/source/client_resource_access_action_source29.bal",
+  "description": "Tests union typed path params",
   "items": [
     {
       "label": ".post",
@@ -13,7 +13,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` id  \n- `string[]` params"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `PathParamType[]` path"
         }
       },
       "sortText": "G",
@@ -24,12 +24,12 @@
         {
           "range": {
             "start": {
-              "line": 38,
-              "character": 39
+              "line": 14,
+              "character": 21
             },
             "end": {
-              "line": 38,
-              "character": 40
+              "line": 14,
+              "character": 22
             }
           },
           "newText": ""
