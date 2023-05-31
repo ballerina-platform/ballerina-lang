@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  */
 public class PackageConfigCreator {
 
-    public static PackageConfig createBuildProjectConfig(Path projectDirPath) {
+    public static PackageConfig createBuildProjectConfig(Path projectDirPath, Boolean disableSyntaxTree) {
         ProjectFiles.validateBuildProjectDirPath(projectDirPath);
 
         // TODO Create the PackageManifest from the BallerinaToml file
@@ -76,10 +76,16 @@ public class PackageConfigCreator {
                 DependencyManifestBuilder.from(dependenciesToml, packageManifest.descriptor());
         DependencyManifest dependencyManifest = dependencyManifestBuilder.dependencyManifest();
 
-        return createPackageConfig(packageData, packageManifest, dependencyManifest);
+        return createPackageConfig(packageData, packageManifest, dependencyManifest, DependencyGraph.emptyGraph(),
+                Collections.emptyMap(), !disableSyntaxTree);
     }
 
-    public static PackageConfig createSingleFileProjectConfig(Path filePath) {
+
+    public static PackageConfig createBuildProjectConfig(Path projectDirPath) {
+       return createBuildProjectConfig(projectDirPath, false);
+    }
+
+    public static PackageConfig createSingleFileProjectConfig(Path filePath, Boolean disableSyntaxTree) {
         ProjectFiles.validateSingleFileProjectFilePath(filePath);
 
         // Create a PackageManifest instance
@@ -89,8 +95,14 @@ public class PackageConfigCreator {
         DependencyManifest dependencyManifest = DependencyManifest.from(null, null, Collections.emptyList());
 
         PackageData packageData = ProjectFiles.loadSingleFileProjectPackageData(filePath);
-        return createPackageConfig(packageData, packageManifest, dependencyManifest);
+        return createPackageConfig(packageData, packageManifest, dependencyManifest, DependencyGraph.emptyGraph(),
+                Collections.emptyMap(), !disableSyntaxTree);
     }
+
+    public static PackageConfig createSingleFileProjectConfig(Path filePath) {
+        return createSingleFileProjectConfig(filePath, false);
+    }
+
 
     public static PackageConfig createBalaProjectConfig(Path balaPath) {
         ProjectFiles.validateBalaProjectPath(balaPath);

@@ -17,7 +17,7 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
+
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -196,5 +196,7 @@ public class PackageConfig {
         return Optional.ofNullable(this.dependenciesToml);
     }
 
-    boolean isSyntaxTreeEnabled() { return enableSyntaxTree; }
+    boolean isSyntaxTreeEnabled() {
+        return enableSyntaxTree;
+    }
 }
