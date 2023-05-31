@@ -61,6 +61,7 @@ import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.eventsync.EventKind;
 import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
@@ -78,11 +79,10 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -100,6 +100,10 @@ import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.USER_DIR;
@@ -657,10 +661,13 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         return future.thenApply(workspaceFolders -> {
             Map<Path, Project> filteredProjects = new HashMap<>();
             workspaceFolders.forEach(workspaceFolder -> {
-                Path workspaceFolderPath = Path.of(workspaceFolder.getUri());
-                if (sourceRootToProject.containsKey(workspaceFolderPath)) {
-                    filteredProjects.put(workspaceFolderPath, sourceRootToProject.get(workspaceFolderPath).project());
-                }
+                Path workspaceFolderPath = Path.of(URI.create(workspaceFolder.getUri()));
+                sourceRootToProject.entrySet().stream()
+                        .filter(pathProjectContextEntry -> pathProjectContextEntry.getKey().toAbsolutePath()
+                                .startsWith(workspaceFolderPath))
+                        .forEach(pathProjectContextEntry -> 
+                                filteredProjects.put(pathProjectContextEntry.getKey(), 
+                                        pathProjectContextEntry.getValue().project()));
             });
             return filteredProjects;
         });
@@ -962,7 +969,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
-    private void handleWatchedCompilerPluginTomlChange(Path filePath, FileEvent fileEvent, ProjectContext projectContext)
+    private void handleWatchedCompilerPluginTomlChange(Path filePath, FileEvent fileEvent, 
+                                                       ProjectContext projectContext)
             throws WorkspaceDocumentException {
         switch (fileEvent.getType()) {
             case Created:
@@ -1084,7 +1092,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
                         // Then, add the project as a build-project
                         Path ballerinaTomlFilePath = projectContext.project().sourceRoot().getParent()
                                 .resolve(ProjectConstants.BALLERINA_TOML);
-                        projectContext = createProject(ballerinaTomlFilePath, LSContextOperation.WS_WF_CHANGED.getName());
+                        projectContext = createProject(ballerinaTomlFilePath, 
+                                LSContextOperation.WS_WF_CHANGED.getName());
                         sourceRootToProject.put(projectContext.project().sourceRoot(), projectContext);
                         return;
                     } else {
@@ -1233,7 +1242,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
-    private void updateBalDocument(Path filePath, String content, ProjectContext projectContext, boolean createIfNotExists)
+    private void updateBalDocument(Path filePath, String content, ProjectContext projectContext,
+                                   boolean createIfNotExists)
             throws WorkspaceDocumentException {
         // Lock Project Instance
         Lock lock = projectContext.lockAndGet();
@@ -1388,7 +1398,8 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         }
     }
 
-    private ProjectContext createOrGetProjectPair(Path filePath, String operationName) throws WorkspaceDocumentException {
+    private ProjectContext createOrGetProjectPair(Path filePath, String operationName)
+            throws WorkspaceDocumentException {
         Path projectRoot = projectRoot(filePath);
         sourceRootToProject.computeIfAbsent(projectRoot, path -> createProject(filePath, operationName));
 
@@ -1399,6 +1410,110 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             throw new WorkspaceDocumentException("Cannot find the project of uri: " + filePath.toString());
         }
         return projectContext;
+    }
+
+    /**
+     * This class holds project and its lock.
+     */
+    public static class ProjectContext {
+
+        private final Lock lock;
+        private Project project;
+
+        private boolean crashed;
+
+        private Process process;
+
+        private ProjectContext(Project project, Lock lock) {
+            this.project = project;
+            this.lock = lock;
+        }
+
+        public static ProjectContext from(Project project) {
+            return new ProjectContext(project, new ReentrantLock(true));
+        }
+
+        public static ProjectContext from(Project project, Lock lock) {
+            return new ProjectContext(project, lock);
+        }
+
+        /**
+         * Returns the associated lock for the file.
+         *
+         * @return {@link Lock}
+         */
+        public Lock locker() {
+            return this.lock;
+        }
+
+        /**
+         * Returns the associated lock for the file.
+         *
+         * @return {@link Lock}
+         */
+        public Lock lockAndGet() {
+            this.lock.lock();
+            return this.lock;
+        }
+
+        /**
+         * Returns the workspace document.
+         *
+         * @return {@link WorkspaceDocumentManager}
+         */
+        public Project project() {
+            return this.project;
+        }
+
+        /**
+         * Set workspace document.
+         *
+         * @param project {@link Project}
+         */
+        public void setProject(Project project) {
+            this.project = project;
+        }
+
+        /**
+         * Check if the project is in a crashed state.
+         *
+         * @return whether the project is in a crashed state
+         */
+        public boolean crashed() {
+            return Boolean.TRUE.equals(this.crashed);
+        }
+
+        /**
+         * Set the crashed state.
+         *
+         * @param crashed crashed state
+         */
+        public void setCrashed(boolean crashed) {
+            this.crashed = crashed;
+        }
+
+        /**
+         * Project lock should be acquired before modifying (such as destroying) the process.
+         * @return Process associated with the project.
+         */
+        public Optional<Process> process() {
+            return Optional.ofNullable(this.process);
+        }
+
+        /**
+         * Set the process associated with the project. Project lock should be acquired before calling.
+         * @param process Process to be associated with the project.
+         */
+        public void setProcess(Process process) {
+            this.process = process;
+        }
+
+        /**
+         * Remove the process associated with the project. Project lock should be acquired before calling.
+         */
+        public void removeProcess() {
+            this.process = null;
+        }
     }
 
     /**

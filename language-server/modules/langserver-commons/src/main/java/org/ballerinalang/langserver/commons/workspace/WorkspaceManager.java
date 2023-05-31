@@ -256,9 +256,9 @@ public interface WorkspaceManager {
     boolean stop(Path filePath);
 
     /**
-     * Returns the list of projects opened in the workspace.
+     * Returns the map of projects loaded in the workspace manager.
      *
-     * @return list of projects
+     * @return map of project's source root to project 
      */
     CompletableFuture<Map<Path, Project>> workspaceProjects();
 }
