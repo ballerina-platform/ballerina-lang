@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testConstMatchPattern() {
+function testConstMatchPattern1() {
     string[][] data = [
         [ "abc", "def", "ghi"],
         [ "jkl", "mno"],
@@ -92,6 +92,30 @@ function testConstMatchPattern() {
             }
         };
     assertEquality(["2", "Doe", 3, "Emma"], result);
+}
+
+function testConstMatchPattern2() {
+    (string|int)[] data = [1, 2, "a", "b", "c"];
+
+    (string|int)[] result = [];
+    from string|int x in data
+        do {
+            match x {
+                1 => {
+                    result.push(1);
+                }
+                2 => {
+                    result.push(2);
+                }
+                "a" => {
+                    result.push("a");
+                }
+                _ => {
+                    result.push("x");
+                }
+            }
+        };
+    assertEquality([1, 2, "a", "x", "x"], result);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -193,7 +193,8 @@ public class QueryActionOrExprTest {
         CompileResult result = BCompileUtil.compile("test-src/query/match-stmt-in-do-clause.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
 
-        BRunUtil.invoke(result, "testConstMatchPattern");
+        BRunUtil.invoke(result, "testConstMatchPattern1");
+        BRunUtil.invoke(result, "testConstMatchPattern2");
     }
 
     @AfterClass
