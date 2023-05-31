@@ -31,6 +31,7 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticHintCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
@@ -2228,11 +2229,57 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
 
         for (RecordLiteralNode.RecordField field : fields) {
             if (field.isKeyValueField()) {
+                BVarSymbol fieldSymbol = ((BLangRecordKeyValueField) field).key.fieldSymbol;
+
                 analyzeExpr(((BLangRecordKeyValueField) field).valueExpr, data);
+
+                if (fieldSymbol != null && Symbols.isFlagOn(fieldSymbol.flags, Flags.DEPRECATED)) {
+                    String deprecatedConstruct = generateDeprecatedConstructString(recordLiteral,
+                            fieldSymbol.toString(), fieldSymbol);
+                    dlog.warning(((BLangRecordKeyValueField) field).pos,
+                            DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
+                }
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                analyzeExpr((BLangRecordLiteral.BLangRecordVarNameField) field, data);
+                BLangRecordLiteral.BLangRecordVarNameField recField
+                        = (BLangRecordLiteral.BLangRecordVarNameField) field;
+                analyzeExpr(recField, data);
+
+                if (recordLiteral.getBType().tsymbol != null
+                        && recordLiteral.getBType().tsymbol.type.getKind() == TypeKind.RECORD) {
+
+                    BRecordType recordType = (BRecordType) recordLiteral.getBType().tsymbol.type;
+                    BField matchingField = recordType.getFields().get(recField.symbol.getName().getValue());
+
+                    if (matchingField != null && Symbols.isFlagOn(matchingField.symbol.flags, Flags.DEPRECATED)) {
+                        String deprecatedConstruct = generateDeprecatedConstructString(recordLiteral,
+                                matchingField.name.getValue(), matchingField.symbol);
+                        dlog.warning(((BLangRecordLiteral.BLangRecordVarNameField) field).pos,
+                                DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
+                    }
+                }
             } else {
-                analyzeExpr(((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr, data);
+                BLangRecordLiteral.BLangRecordSpreadOperatorField spreadField
+                        = (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
+                analyzeExpr(spreadField.expr, data);
+
+                BType spreadFieldType = Types.getReferredType(spreadField.expr.getBType());
+                BType contextType = Types.getReferredType(recordLiteral.getBType());
+
+                if (spreadFieldType != null && spreadFieldType.getKind() == TypeKind.RECORD
+                        && contextType.getKind() == TypeKind.RECORD) {
+                    for (BField fieldEntry: ((BRecordType) spreadFieldType).getFields().values()) {
+                        BRecordType recordType = (BRecordType) contextType;
+                        BField matchingField = recordType.getFields().get(fieldEntry.getName().getValue());
+
+                        if (matchingField != null && Symbols.isFlagOn(matchingField.symbol.flags, Flags.DEPRECATED)) {
+                            String deprecatedConstruct = generateDeprecatedConstructString(recordLiteral,
+                                    matchingField.name.getValue(), matchingField.symbol);
+                            dlog.warning(spreadField.expr.pos,
+                                    DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, deprecatedConstruct);
+                        }
+                    }
+                }
+
             }
         }
 
