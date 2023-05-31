@@ -379,7 +379,7 @@ public class LargeMethodOptimizer {
                         possibleSplits.get(splitNum).firstIns));
             }
             splitFuncNum += 1;
-            String newFunctionName = "$split$method$" + splitFuncNum;
+            String newFunctionName = "$split$method$_" + splitFuncNum;
             Name newFuncName = new Name(newFunctionName);
             Split currSplit = possibleSplits.get(splitNum);
             splitNum += 1;
@@ -692,7 +692,7 @@ public class LargeMethodOptimizer {
 
         for (int splitNum = 0; splitNum < possibleSplits.size(); splitNum++) {
             splitFuncNum += 1;
-            String newFunctionName = "$split$method$" + splitFuncNum;
+            String newFunctionName = "$split$method$_" + splitFuncNum;
             Name newFuncName = new Name(newFunctionName);
             BIROperand currentBBTerminatorLhsOp =
                     new BIROperand(instructionList.get(possibleSplits.get(splitNum).lastIns).lhsOp.variableDcl);
