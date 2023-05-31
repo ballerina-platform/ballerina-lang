@@ -106,9 +106,11 @@ public class TomlProviderNegativeTest {
     public Object[][] getSimpleNegativeTests() {
         return new Object[][]{
                 {"InvalidModuleStructure1", "[InvalidModuleStructure1.toml:(1:13,1:22)] invalid toml structure " +
-                        "found for module 'myOrg.mod'. Please provide the module name as '[myOrg.mod]'", 3},
+                        "found for module 'myOrg.mod' for variable 'intVar'. " +
+                        "Please provide the module name as '[myOrg.mod]'", 3},
                 {"InvalidModuleStructure2", "[InvalidModuleStructure2.toml:(1:1,2:7)] invalid toml structure found " +
-                        "for module 'myOrg.mod'. Please provide the module name as '[myOrg.mod]'", 3},
+                        "for module 'myOrg.mod' for variable 'intVar'. " +
+                        "Please provide the module name as '[myOrg.mod]'", 3},
                 {"PrimitiveTypeError", "[PrimitiveTypeError.toml:(2:10,2:14)] configurable variable 'intVar' is " +
                         "expected to be of type 'int', but found 'float'", 2},
                 {"PrimitiveStructureError", "[PrimitiveStructureError.toml:(2:1,2:24)] configurable variable " +
@@ -128,8 +130,8 @@ public class TomlProviderNegativeTest {
         Assert.assertEquals(diagnosticLog.getErrorCount(), 4);
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(),
-                "error: [NoModuleConfig.toml:(2:10,2:12)] invalid toml structure found for module 'myOrg.mod'." +
-                        " Please provide the module name as '[myOrg.mod]'");
+                "error: [NoModuleConfig.toml:(2:10,2:12)] invalid toml structure found for module 'myOrg.mod'" +
+                        " for variable 'intVar'. Please provide the module name as '[myOrg.mod]'");
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(),
                 "error: value not provided for required configurable variable 'stringVar'");
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(2).toString(), "error: [NoModuleConfig.toml:(1:1," +
@@ -145,11 +147,13 @@ public class TomlProviderNegativeTest {
         Map<Module, VariableKey[]> configVarMap =
                 Map.ofEntries(Map.entry(subModule, new VariableKey[]{intVar, stringVar}));
         String errorMsg = "[InvalidSubModuleStructure1.toml:(2:12,2:14)] invalid toml structure found for module " +
-                "'test_module.util.foo'. Please provide the module name as '[test_module.util.foo]'";
+                "'test_module.util.foo' for variable 'intVar'. Please provide the module name as " +
+                "'[test_module.util.foo]'";
         validateTomlProviderErrors("InvalidSubModuleStructure1", errorMsg, configVarMap, 3, 0);
 
         errorMsg = "[InvalidSubModuleStructure2.toml:(1:1,2:23)] invalid toml structure found for module " +
-                "'test_module.util.foo'. Please provide the module name as '[test_module.util.foo]'";
+                "'test_module.util.foo' for variable 'intVar'. Please provide the module name as " +
+                "'[test_module.util.foo]'";
         validateTomlProviderErrors("InvalidSubModuleStructure2", errorMsg, configVarMap, 3, 0);
     }
 
@@ -303,21 +307,22 @@ public class TomlProviderNegativeTest {
 
         return new Object[][]{
                 {Map.ofEntries(Map.entry(subModule, subVariableKeys)), "[SubModuleError.toml:(1:1,3:21)] invalid " +
-                        "toml structure found for module 'test_module.util.foo'. Please provide the module name as " +
-                        "'[test_module.util.foo]'", "SubModuleError"},
+                        "toml structure found for module 'test_module.util.foo' for variable 'intVar'" +
+                        ". Please provide the module name as '[test_module.util.foo]'", "SubModuleError"},
                 {Map.ofEntries(Map.entry(importedModule, importedVariableKeys)),
                         "[ImportedModuleError.toml:(1:1,3:21)] invalid toml structure found for module 'myOrg.mod'" +
-                                ". Please provide the module name as '[myOrg.mod]'",
+                                " for variable 'intVar'. Please provide the module name as '[myOrg.mod]'",
                         "ImportedModuleError"},
                 {Map.ofEntries(Map.entry(ROOT_MODULE, variableKeys), Map.entry(clashingModule1, clashingVariableKeys1)),
                         "[ClashingModuleError1.toml:(5:1,7:21)] invalid toml structure found for module 'myOrg" +
-                                ".test_module'. Please provide the module name as '[myOrg.test_module]'",
-                        "ClashingModuleError1"},
+                                ".test_module' for variable 'intVar'." +
+                                " Please provide the module name as '[myOrg.test_module]'", "ClashingModuleError1"},
                 {Map.ofEntries(Map.entry(subModule, subVariableKeys), Map.entry(clashingModule2,
                         clashingVariableKeys2)),
                         "[ClashingModuleError2.toml:(5:1,7:21)] invalid toml structure found for module 'myOrg" +
-                                ".test_module.util.foo'. Please provide the module name as '[myOrg.test_module.util" +
-                                ".foo]'", "ClashingModuleError2"},
+                                ".test_module.util.foo' for variable 'intVar'. " +
+                                "Please provide the module name as '[myOrg.test_module.util.foo]'",
+                        "ClashingModuleError2"},
                 //TODO: Should be removed after fixing #29989
                 {Map.ofEntries(Map.entry(ROOT_MODULE, variableKeys), Map.entry(clashingModule3,
                         clashingVariableKeys3)),
@@ -471,8 +476,8 @@ public class TomlProviderNegativeTest {
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 3);
         String[] errors = new String[]{
-                "error: [OptionalImportedModule.toml:(1:1,3:18)] invalid toml structure found for module 'mod'. " +
-                        "Please provide the module name as '[myOrg.mod]'",
+                "error: [OptionalImportedModule.toml:(1:1,3:18)] invalid toml structure found for module 'mod' for " +
+                        "variable 'mod'. Please provide the module name as '[myOrg.mod]'",
                 "error: [OptionalImportedModule.toml:(2:1,2:13)] unused configuration value 'mod.intVar'",
                 "error: [OptionalImportedModule.toml:(3:1,3:18)] unused configuration value 'mod.stringVar'"
         };

@@ -165,7 +165,7 @@ public class TomlProvider implements ConfigProvider {
                 if (module != null && !invalidRequiredModuleSet.contains(module.toString()) &&
                         !rootModule.getOrg().equals(module.getOrg())) {
                     diagnosticLog.error(CONFIG_TOML_INVALID_MODULE_STRUCTURE, null, lineRange, nodeName,
-                            getModuleKey(module));
+                            nodeName, getModuleKey(module));
                 }
             }
             if (!(containsOrg || containsModule) && !invalidTomlLines.contains(node.location().lineRange())) {
@@ -523,7 +523,7 @@ public class TomlProvider implements ConfigProvider {
             invalidRequiredModuleSet.add(module.toString());
             invalidTomlLines.add(errorNode.location().lineRange());
             throw new ConfigException(CONFIG_TOML_INVALID_MODULE_STRUCTURE, getLineRange(errorNode), orgModuleKey,
-                    orgModuleKey);
+                    variableName, orgModuleKey);
         }
     }
 
@@ -574,7 +574,7 @@ public class TomlProvider implements ConfigProvider {
             invalidRequiredModuleSet.add(module.toString());
             invalidTomlLines.add(errorNode.location().lineRange());
             throw new ConfigException(CONFIG_TOML_INVALID_MODULE_STRUCTURE, getLineRange(errorNode), moduleName,
-                    moduleName);
+                    variableName, moduleName);
         }
     }
 
