@@ -99,6 +99,18 @@ function testFunctionPointerInvocation4() {
     assertEquals([[97], [98]], clz.foo(["a", "b"]));
 }
 
+function testFunctionPointerInvocation5() {
+    error? res1 = from var _ in [1, 2, 3, 4]
+                            do {
+                                function () returns int[] func = function() returns int[] {
+                                    return from var i in [2] select i;
+                                };
+                                var a = from var x in func() select x;
+                                assertEquals([2], a);
+                            };
+    assertEquals(true, res1 is ());
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

@@ -49,6 +49,7 @@ public class FunctionPointerInvocationTest {
                 "testFunctionPointerInvocation2",
                 "testFunctionPointerInvocation3",
                 "testFunctionPointerInvocation4",
+                "testFunctionPointerInvocation5",
         };
     }
 }

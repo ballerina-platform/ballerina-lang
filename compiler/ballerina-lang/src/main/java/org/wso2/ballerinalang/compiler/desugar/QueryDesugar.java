@@ -1506,7 +1506,10 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction lambda) {
         lambda.function = rewrite(lambda.function);
+        SymbolEnv prevEnv = new SymbolEnv(this.env.node, this.env.scope);
+        this.env.copyTo(prevEnv, this.env.enclEnv);
         lambda.function = desugar.rewrite(lambda.function, lambda.capturedClosureEnv);
+        this.env = prevEnv;
         result = lambda;
     }
 
@@ -1614,42 +1617,10 @@ public class QueryDesugar extends BLangNodeVisitor {
         invocationExpr.restArgs.forEach(this::acceptNode);
         BLangExpression expr = rewrite(getInvocationExpr(invocationExpr));
         if (invocationExpr.functionPointerInvocation) {
-            if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF && ((BLangSimpleVarRef) expr).symbol.closure
-                    && isInvocationInDoClause(invocationExpr)) {
-                ((BLangSimpleVarRef) expr).symbol.closure = false;
-            }
             result = new BLangInvocation.BFunctionPointerInvocation(invocationExpr, expr);
         } else {
             result = invocationExpr;
         }
-    }
-
-    // do {
-    //     function () returns int func = function() returns int {
-    //         return 2;
-    //     };
-    //     func();
-    // };
-    // Due to SimpleVarRef logic, func is marked as a closure variable. But it is not a closure variable.
-    // This method identifies above pattern and reset the closure property.
-    private boolean isInvocationInDoClause(BLangInvocation invocation) {
-        BLangNode node = invocation.parent;
-        while (node.getKind() != NodeKind.DO) {
-            node = node.parent;
-            if (node == null) {
-                return false;
-            }
-        }
-        BLangBlockStmt blockStmt = ((BLangDoClause) node).body;
-        for (BLangStatement stmt : blockStmt.stmts) {
-            if (stmt.getKind() == NodeKind.VARIABLE_DEF) {
-                BLangSimpleVariable varDef = ((BLangSimpleVariableDef) stmt).var;
-                if (varDef.name.value.equals(invocation.name.value)) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     private BLangExpression getInvocationExpr(BLangInvocation invocation) {
