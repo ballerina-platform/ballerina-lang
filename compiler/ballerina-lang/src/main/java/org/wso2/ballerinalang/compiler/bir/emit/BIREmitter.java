@@ -81,7 +81,7 @@ public class BIREmitter {
         }
     }
 
-    private static String emitModule(BIRNode.BIRPackage mod) {
+    public static String emitModule(BIRNode.BIRPackage mod) {
 
         String modStr = "================ Emitting Module ================";
         modStr += emitLBreaks(1);
