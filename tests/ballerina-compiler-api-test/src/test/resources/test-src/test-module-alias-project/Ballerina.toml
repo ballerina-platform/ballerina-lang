@@ -1,0 +1,4 @@
+[package]
+org="testorg"
+name="testalias"
+version="1.0.0"

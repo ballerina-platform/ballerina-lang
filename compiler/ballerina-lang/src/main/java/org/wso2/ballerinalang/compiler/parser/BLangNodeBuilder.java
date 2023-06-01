@@ -2144,7 +2144,8 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         bLBinaryExpr.pos = getPosition(binaryExprNode);
         bLBinaryExpr.lhsExpr = createExpression(binaryExprNode.lhsExpr());
         bLBinaryExpr.rhsExpr = createExpression(binaryExprNode.rhsExpr());
-        bLBinaryExpr.opKind = OperatorKind.valueFrom(binaryExprNode.operator().text());
+        bLBinaryExpr.opKind = binaryExprNode.operator().isMissing() ?
+                OperatorKind.UNDEFINED : OperatorKind.valueFrom(binaryExprNode.operator().text());
         return bLBinaryExpr;
     }
 
