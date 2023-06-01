@@ -7167,8 +7167,8 @@ public class BallerinaParser extends AbstractParser {
      *
      * <p>
      * <code>
-     * checking-expr := checking-keyword expression
-     * checking-action := checking-keyword action
+     * checking-expr := checking-keyword expression [on-fail-check]
+     * checking-action := checking-keyword action [on-fail-check]
      * </code>
      *
      * @param allowActions Allow actions
@@ -9076,6 +9076,16 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * This method is used to parse on-fail-check node.
+     *
+     * <p>
+     * <code>
+     * on-fail-check := on-keyword fail-keyword variable-name => error-constructor
+     * </code>
+     *
+     * @return on-fail-check node
+     */
     private STNode parseOnFailCheck() {
         STNode onKeyword = parseOnKeyword();
         STNode failKeyword = parseFailKeyword();
