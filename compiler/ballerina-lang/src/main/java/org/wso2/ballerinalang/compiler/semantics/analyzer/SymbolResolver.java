@@ -163,7 +163,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     private final Unifier unifier;
     private final SemanticAnalyzer semanticAnalyzer;
     private final Stack<String> anonTypeNameSuffixes;
-    private static final boolean semtypeActive = Boolean.parseBoolean(System.getenv("BALLERINA_EXPERIMENTAL_SEMTYPE"));
+    private static final boolean semtypeActive =
+            Boolean.parseBoolean(System.getProperty("ballerina.experimental.semtype"));
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);

@@ -259,8 +259,9 @@ public class SymbolEnter extends BLangNodeVisitor {
     private static final String DEPRECATION_ANNOTATION = "deprecated";
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
 
-    private static final boolean semtypeActive = Boolean.parseBoolean(System.getenv("BALLERINA_EXPERIMENTAL_SEMTYPE"));
     private static final boolean semtypeTest = Boolean.parseBoolean(System.getProperty("ballerina.semtype.test.suite"));
+    private static final boolean semtypeActive =
+            Boolean.parseBoolean(System.getProperty("ballerina.experimental.semtype"));
 
     public static SymbolEnter getInstance(CompilerContext context) {
         SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);

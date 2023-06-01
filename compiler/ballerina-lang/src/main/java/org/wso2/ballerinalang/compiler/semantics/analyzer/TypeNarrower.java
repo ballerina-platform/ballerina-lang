@@ -75,7 +75,8 @@ public class TypeNarrower extends BLangNodeVisitor {
     private SymbolEnter symbolEnter;
     private TypeChecker typeChecker;
     private static final CompilerContext.Key<TypeNarrower> TYPE_NARROWER_KEY = new CompilerContext.Key<>();
-    private static final boolean semtypeActive = Boolean.parseBoolean(System.getenv("BALLERINA_EXPERIMENTAL_SEMTYPE"));
+    private static final boolean semtypeActive =
+            Boolean.parseBoolean(System.getProperty("ballerina.experimental.semtype"));
 
     private TypeNarrower(CompilerContext context) {
         context.put(TYPE_NARROWER_KEY, this);

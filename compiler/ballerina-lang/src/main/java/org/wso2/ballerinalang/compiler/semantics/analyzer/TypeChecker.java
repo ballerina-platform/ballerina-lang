@@ -243,7 +243,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private final Types types;
     private final Unifier unifier;
     protected final QueryTypeChecker queryTypeChecker;
-    private static final boolean semtypeActive = Boolean.parseBoolean(System.getenv("BALLERINA_EXPERIMENTAL_SEMTYPE"));
+    private static final boolean semtypeActive =
+            Boolean.parseBoolean(System.getProperty("ballerina.experimental.semtype"));
 
     static {
         listLengthModifierFunctions.add(FUNCTION_NAME_PUSH);

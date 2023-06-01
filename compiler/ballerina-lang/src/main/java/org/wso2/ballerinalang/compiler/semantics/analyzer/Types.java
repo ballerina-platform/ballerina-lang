@@ -190,7 +190,8 @@ public class Types {
             new BigDecimal("1.000000000000000000000000000000000e-6143", MathContext.DECIMAL128);
 
     private Context cx;
-    private static final boolean semtypeActive = Boolean.parseBoolean(System.getenv("BALLERINA_EXPERIMENTAL_SEMTYPE"));
+    private static final boolean semtypeActive =
+            Boolean.parseBoolean(System.getProperty("ballerina.experimental.semtype"));
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
