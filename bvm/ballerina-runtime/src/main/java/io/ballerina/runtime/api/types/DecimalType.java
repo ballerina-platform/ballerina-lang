@@ -19,7 +19,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BDecimalType} represents decimal type in Ballerina.
+ * {@code DecimalType} represents decimal type in Ballerina.
  * This is a 128-bit decimal floating-point number according to the standard IEEE 754-2008 specifications.
  *
  * @since 2.0.0

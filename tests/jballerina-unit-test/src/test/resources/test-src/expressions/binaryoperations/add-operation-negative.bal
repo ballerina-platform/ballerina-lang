@@ -151,3 +151,23 @@ function testAdditiveExprWithUnionOperandBelongingToSingleBasicTypeNegative() {
     _ = f + a; // OK
     _ = f + e;
 }
+
+function testMissingBinaryOp() {
+    _ = "a""b";
+    _ = bar()();
+    _ = foo(("a""b") + 1);
+    _ = foo(("a""b") + "c");
+
+    int x = 2;
+    int y = 3;
+    _ = x y;
+    _ = 1.5"b";
+    _ = true y;
+    _ = "a"x;
+}
+
+function foo(string s) returns string {
+    return s;
+}
+
+function bar() {}

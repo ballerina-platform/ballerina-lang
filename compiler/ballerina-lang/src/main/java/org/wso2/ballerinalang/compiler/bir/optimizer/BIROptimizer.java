@@ -57,7 +57,6 @@ public class BIROptimizer {
     private final RHSTempVarOptimizer rhsTempVarOptimizer;
     private final LHSTempVarOptimizer lhsTempVarOptimizer;
     private final BIRLockOptimizer lockOptimizer;
-//    private final BirVariableOptimizer variableOptimizer;
     private final BIRBasicBlockOptimizer bbOptimizer;
 
     public static BIROptimizer getInstance(CompilerContext context) {
@@ -74,7 +73,6 @@ public class BIROptimizer {
         this.rhsTempVarOptimizer = new RHSTempVarOptimizer();
         this.lhsTempVarOptimizer = new LHSTempVarOptimizer();
         this.lockOptimizer = new BIRLockOptimizer();
-//        this.variableOptimizer = new BirVariableOptimizer();
         this.bbOptimizer = new BIRBasicBlockOptimizer();
     }
 
@@ -87,7 +85,6 @@ public class BIROptimizer {
 
         // Optimize lock statements
         this.lockOptimizer.optimizeNode(pkg);
-//        variableOptimizer.optimizeNode(pkg);
 
         // Optimize BB - unnecessary goto removal
         bbOptimizer.optimizeNode(pkg, null);

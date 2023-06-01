@@ -171,7 +171,7 @@ public class InitCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Initialize a Ballerina project in current directory");
+        out.append(BLauncherCmd.getCommandUsageInfo(INIT_COMMAND));
     }
 
     @Override

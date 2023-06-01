@@ -110,7 +110,7 @@ function testAssignIntOrStringArrayIntOrFloatOrStringUnionArray() {
     assertEquality(2, arr2[1]);
 }
 
-function testAssignAnyToUnionWithErrorAndAny() {
+function assignAnyToUnionWithErrorAndAny() {
     any x = 4;
     any|error y = x;
     assertEquality(4, y);
@@ -173,94 +173,6 @@ function testOptionalFieldAssignment4() {
     Topt1 t1 = {x: 21, y: 41};
     t1.y = ();
     assertEquality(t1.toString(), "{\"x\":21}");
-}
-
-type ValueRecord record {|
-    string value;
-|};
-
-type TestStream stream<string, error?>;
-
-class TestGenerator {
-    public isolated function next() returns ValueRecord|error? {
-        return {value: "Ballerina"};
-    }
-}
-
-function testAssignVarInQueryExpression() {
-    xml x1 = xml `<book><a>The Lost World</a><b>Clean Code</b></book>`;
-
-    var x2 = from xml element in x1 select element;
-    assertTrue(x2 is xml);
-    xml x3 = x2;
-    assertEquality(x3, xml `<book><a>The Lost World</a><b>Clean Code</b></book>`);
-
-    var x4 = from xml element in x1/<a> select element;
-    assertTrue(x4 is xml<xml:Element>);
-    xml x5 = x4;
-    assertEquality(x5, xml `<a>The Lost World</a>`);
-
-    var x6 = "string";
-
-    var x7 = from string element in x6 select element;
-    assertTrue(x7 is string);
-    string x8 = x7;
-    assertEquality(x8, "string");
-
-    var x9 = from string element in x6 select "a";
-    assertTrue(x9 is string);
-    string x10 = x9;
-    assertEquality(x10, "aaaaaa");
-
-    var x11 = [1, 2];
-    var x12 = [x1, x1];
-
-    var x13 = from int element in x11 select element;
-    assertTrue(x13 is int[]);
-    int[] x14 = x13;
-    assertEquality(x14, <int[]>[1, 2]);
-
-    var x15 = from int element in x11 select 1;
-    assertTrue(x15 is int[]);
-    int[] x16 = x15;
-    assertEquality(x16, <int[]>[1, 1]);
-
-    var x17 = from int element in x11 select string `string ${element}`;
-    assertTrue(x17 is string[]);
-    string[] x18 = x17;
-    assertEquality(x18, <string[]>["string 1", "string 2"]);
-
-    var x19 = from xml element in x12 select element;
-    assertTrue(x19 is xml[]);
-    xml[] x20 = x19;
-    assertEquality(x20, <xml[]>[x1, x1]);
-
-    var x21 = [1, "string 1", true, x1];
-
-    var x22 = from var element in x21 select element;
-    assertTrue(x22 is (int|string|boolean|xml)[]);
-    (int|string|boolean|xml)[] x23 = x22;
-    assertEquality(x23, x21);
-
-    var x24 = from int element in 1...4 select element;
-    assertTrue(x24 is int[]);
-    int[] x25 = x24;
-    assertEquality(x25, <int[]>[1, 2, 3, 4]);
-
-    TestGenerator generator = new ();
-    TestStream testStream = new (generator);
-
-    var x26 = from var _ in testStream select "A";
-    assertTrue(x26 is stream<string, error?>);
-
-    var x27 = from var _ in testStream select 1;
-    assertTrue(x27 is stream<int, error?>);
-
-    var x28 = stream from var _ in testStream select "A";
-    assertTrue(x28 is stream<string, error?>);
-
-    var x29 = stream from var _ in testStream select 1;
-    assertTrue(x29 is stream<int, error?>);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

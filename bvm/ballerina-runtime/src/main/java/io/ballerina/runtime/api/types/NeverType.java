@@ -18,7 +18,8 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BNeverType} represents the type of a {@code Never}.
+ * {@code NeverType} describes the a type that does not contain any shapes.
+ * No value ever belongs to a {@code NeverType}.
  *
  * @since 2.0.0-preview1
  */
