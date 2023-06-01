@@ -107,6 +107,7 @@ test {
 
 // Define a new task for executing semtype_testng.xml separately
 task semtypesUnitTest(type: Test) {
+    dependsOn loadDistributionCache
 
     // Copy system properties from the test task
     systemProperties = tasks.test.systemProperties
