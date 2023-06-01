@@ -1615,10 +1615,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         }
         requiredArgs.forEach(this::acceptNode);
         invocationExpr.restArgs.forEach(this::acceptNode);
-        BLangExpression expr = rewrite(getInvocationExpr(invocationExpr));
         if (invocationExpr.functionPointerInvocation) {
+            BLangExpression expr = rewrite(desugar.getFunctionPointerExpr(invocationExpr));
             result = new BLangInvocation.BFunctionPointerInvocation(invocationExpr, expr);
         } else {
+            invocationExpr.expr = rewrite(invocationExpr.expr);
             result = invocationExpr;
         }
     }
