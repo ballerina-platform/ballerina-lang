@@ -85,8 +85,7 @@ public class CyclicTypeDefinitionsTest {
                 {"testCyclicErrorTypeDefinition"},
                 {"testCyclicReadonlyErrorTypeDefinition"},
                 {"testComplexCyclicRecordTypeDefinition"},
-                {"testComplexCyclicRecordTypeDefinition2"},
-                {"testCyclicReadonlyArrayTypeDefinition"}
+                {"testComplexCyclicRecordTypeDefinition2"}
         };
     }
 
@@ -158,6 +157,8 @@ public class CyclicTypeDefinitionsTest {
         BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A6'", 94, 9);
         BAssertUtil.validateError(negativeResult, i++, "invalid constraint type. expected subtype of " +
                 "'map<any|error>' but found 'table<A7>'", 97, 15);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A8'", 100, 9);
+        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A9'", 102, 9);
         Assert.assertEquals(i, negativeResult.getErrorCount());
     }
 

@@ -96,3 +96,7 @@ type MyIntersection5 A6 & readonly;
 
 type A7 table<A7>;
 type MyIntersection6 A7 & readonly;
+
+type A8 A8[] & readonly;
+
+type A9 map<A9> & readonly;

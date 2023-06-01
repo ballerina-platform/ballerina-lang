@@ -156,13 +156,6 @@ function testCyclicReadonlyErrorTypeDefinition() {
     assertEquals(error2.detail().toString(), "{\"errB\":error ErrB (\"Whoops\",errB=null)}");
 }
 
-type Arr Arr[] & readonly;
-
-function testCyclicReadonlyArrayTypeDefinition() {
-    Arr arr = [];
-    assertTrue(arr is readonly);
-}
-
 function assertTrue(anydata actual) {
     assertEquals(true, actual);
 }

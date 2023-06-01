@@ -151,7 +151,7 @@ public class TypeResolver {
     private final TypeParamAnalyzer typeParamAnalyzer;
     private final ConstantTypeChecker constantTypeChecker;
     private final ConstantTypeChecker.ResolveConstantExpressionType resolveConstantExpressionType;
-    private final UpdateCyclicIntersection updateCyclicIntersection;
+    private final EffectiveTypePopulator effectiveTypePopulator;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
 
@@ -183,7 +183,7 @@ public class TypeResolver {
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.constantTypeChecker = ConstantTypeChecker.getInstance(context);
         this.resolveConstantExpressionType = ConstantTypeChecker.ResolveConstantExpressionType.getInstance(context);
-        this.updateCyclicIntersection = UpdateCyclicIntersection.getInstance(context);
+        this.effectiveTypePopulator = EffectiveTypePopulator.getInstance(context);
         this.unknownTypeRefs = new HashSet<>();
     }
 
@@ -416,8 +416,9 @@ public class TypeResolver {
     private void updateEffectiveTypeOfCyclicIntersectionTypes(SymbolEnv symEnv) {
         for (BIntersectionType intersectionType: intersectionTypeList.keySet()) {
                 BLangIntersectionTypeNode intersectionTypeNode = intersectionTypeList.get(intersectionType);
-                updateCyclicIntersection.updateType(intersectionType, symTable.builtinPos,
+                effectiveTypePopulator.updateType(intersectionType, symTable.builtinPos,
                         symTable.rootPkgSymbol.pkgID, intersectionTypeNode, symEnv);
+                effectiveTypePopulator.visitedImmutableTypes.clear();
         }
     }
 
@@ -520,11 +521,20 @@ public class TypeResolver {
 
         if (resolvingTypeDefinitions.contains(defn)) {
             // Type definition has a cyclic reference.
+            boolean logError = true;
             for (int i = resolvingTypeDefinitions.size() - 1; i >= 0; i--) {
                 BLangTypeDefinition resolvingTypeDefn = resolvingTypeDefinitions.get(i);
                 resolvingTypeDefn.hasCyclicReference = true;
-                // TODO: Remove this after runtime allows cyclic array type.
-                logErrorForRestrictedCyclicTypes(resolvingTypeDefn);
+
+                // TODO: Remove this after runtime allows cyclic array & constraint type.
+                BLangType resolvingTypeNode = resolvingTypeDefn.typeNode;
+                if (isNotRestrictedCyclicTypeNode(resolvingTypeNode)) {
+                    logError = false;
+                }
+                if (logError) {
+                    logErrorForRestrictedCyclicTypes(resolvingTypeNode, resolvingTypeDefn.name.value);
+                }
+
                 if (resolvingTypeDefn == defn) {
                     break;
                 }
@@ -538,7 +548,7 @@ public class TypeResolver {
         }
 
         // Resolve the type
-        AnalyzerData data = new AnalyzerData();
+        ResolverData data = new ResolverData();
         data.modTable = mod;
         BType type = resolveTypeDesc(symEnv, defn, depth, defn.typeNode, data);
 
@@ -573,13 +583,28 @@ public class TypeResolver {
         }
     }
 
-    private void logErrorForRestrictedCyclicTypes(BLangTypeDefinition typeDefinition) {
-        BLangType typeNode = typeDefinition.typeNode;
-
+    private void logErrorForRestrictedCyclicTypes(BLangType typeNode, String name) {
         switch (typeNode.getKind()) {
             case ARRAY_TYPE:
             case CONSTRAINED_TYPE:
-                dlog.error(typeNode.pos, DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, typeDefinition.name);
+                dlog.error(typeNode.pos, DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, name);
+                break;
+            case INTERSECTION_TYPE_NODE:
+                ((BLangIntersectionTypeNode) typeNode).constituentTypeNodes.forEach(
+                        t -> logErrorForRestrictedCyclicTypes(t, name));
+                break;
+        }
+    }
+
+    private boolean isNotRestrictedCyclicTypeNode(BLangType typeNode) {
+        switch (typeNode.getKind()) {
+            case USER_DEFINED_TYPE:
+            case ARRAY_TYPE:
+            case CONSTRAINED_TYPE:
+            case INTERSECTION_TYPE_NODE:
+                return false;
+            default:
+                return true;
         }
     }
 
@@ -667,7 +692,7 @@ public class TypeResolver {
     }
 
     private BType resolveTypeDesc(SymbolEnv symEnv, BLangTypeDefinition defn, int depth,
-                                  BLangType td, AnalyzerData data) {
+                                  BLangType td, ResolverData data) {
         if (td == null) {
             return symTable.semanticError;
         }
@@ -755,7 +780,7 @@ public class TypeResolver {
         return visitBuiltInTypeNode(td, data, td.typeKind);
     }
 
-    private BType resolveTypeDesc(BLangConstrainedType td, AnalyzerData data) {
+    private BType resolveTypeDesc(BLangConstrainedType td, ResolverData data) {
         currentDepth = data.depth;
         TypeKind typeKind = ((BLangBuiltInRefTypeNode) td.getType()).getTypeKind();
 
@@ -789,7 +814,7 @@ public class TypeResolver {
         return constrainedType;
     }
 
-    private BType resolveXmlTypeDesc(BLangConstrainedType td, AnalyzerData data) {
+    private BType resolveXmlTypeDesc(BLangConstrainedType td, ResolverData data) {
         if (td.getBType() != null) {
             return td.getBType();
         }
@@ -820,7 +845,7 @@ public class TypeResolver {
         return constrainedType;
     }
 
-    private BType resolveMapTypeDesc(BLangConstrainedType td, AnalyzerData data) {
+    private BType resolveMapTypeDesc(BLangConstrainedType td, ResolverData data) {
         if (td.getBType() != null) {
             return td.getBType();
         }
@@ -842,7 +867,7 @@ public class TypeResolver {
         return constrainedType;
     }
 
-    private BType resolveTypeDesc(BLangArrayType td, AnalyzerData data) {
+    private BType resolveTypeDesc(BLangArrayType td, ResolverData data) {
         currentDepth = data.depth;
         if (td.getBType() != null) {
             return td.getBType();
@@ -948,7 +973,7 @@ public class TypeResolver {
         return resultType;
     }
 
-    private BType resolveTypeDesc(BLangTupleTypeNode td, AnalyzerData data) {
+    private BType resolveTypeDesc(BLangTupleTypeNode td, ResolverData data) {
         currentDepth = data.depth;
         if (td.getBType() != null) {
             return td.getBType();
@@ -987,7 +1012,7 @@ public class TypeResolver {
         return tupleType;
     }
 
-    private BType resolveTypeDesc(BLangRecordTypeNode td, AnalyzerData data) {
+    private BType resolveTypeDesc(BLangRecordTypeNode td, ResolverData data) {
         int depth = data.depth;
         currentDepth = depth;
 
@@ -1044,7 +1069,7 @@ public class TypeResolver {
         return recordType;
     }
 
-    private BType resolveTypeDesc(BLangObjectTypeNode td, AnalyzerData data) {
+    private BType resolveTypeDesc(BLangObjectTypeNode td, ResolverData data) {
         currentDepth = data.depth;
         if (td.getBType() != null) {
             return td.getBType();
@@ -1102,7 +1127,7 @@ public class TypeResolver {
         return objectType;
     }
 
-    private BType resolveTypeDesc(BLangFunctionTypeNode td, AnalyzerData data) {
+    private BType resolveTypeDesc(BLangFunctionTypeNode td, ResolverData data) {
         currentDepth = data.depth;
         if (td.getBType() != null) {
             return td.getBType();
@@ -1135,7 +1160,7 @@ public class TypeResolver {
                                      BLangType retTypeVar,
                                      long flags, SymbolEnv env, Map<String, BLangNode> mod, int depth,
                                      BLangTypeDefinition typeDefinition, BInvokableType bInvokableType,
-                                     AnalyzerData data) {
+                                     ResolverData data) {
         List<BType> paramTypes = new ArrayList<>();
         List<BVarSymbol> params = new ArrayList<>();
 
@@ -1212,7 +1237,7 @@ public class TypeResolver {
         return bInvokableType;
     }
 
-    private BType resolveTypeDesc(BLangErrorType td, AnalyzerData data) {
+    private BType resolveTypeDesc(BLangErrorType td, ResolverData data) {
         currentDepth = data.depth;
         if (td.getBType() != null) {
             return td.getBType();
@@ -1275,7 +1300,7 @@ public class TypeResolver {
         return errorType;
     }
 
-    private BType resolveTypeDesc(BLangUnionTypeNode td, AnalyzerData data) {
+    private BType resolveTypeDesc(BLangUnionTypeNode td, ResolverData data) {
         currentDepth = data.depth;
 
         if (td.getBType() != null && !resolvingTypeDefinitions.contains(data.typeDefinition)) {
@@ -1361,22 +1386,17 @@ public class TypeResolver {
         memberTypes.addAll(flattenMemberTypes);
     }
 
-    private BType resolveTypeDesc(BLangIntersectionTypeNode td, AnalyzerData data) {
+    private BType resolveTypeDesc(BLangIntersectionTypeNode td, ResolverData data) {
         currentDepth = data.depth;
         List<BLangType> constituentTypeNodes = td.constituentTypeNodes;
-
-        SymbolEnv symEnv = data.env;
-        BTypeSymbol intersectionSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
-                symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner, td.pos, BUILTIN);
-        BIntersectionType intersectionType = new BIntersectionType(intersectionSymbol);
-        intersectionSymbol.type = intersectionType;
         LinkedHashSet<BType> constituentTypes = new LinkedHashSet<>();
-        resolvingTypes.push(intersectionType);
-
+        SymbolEnv symEnv = data.env;
         boolean errored = false;
+        boolean hasReadonly = false;
         int errorTypesCount = 0;
         int numOfNonReadOnlyConstituents = 0;
         BLangTypeDefinition typeDefinition = data.typeDefinition;
+
         for (BLangType typeNode : constituentTypeNodes) {
             BType constituentType = resolveTypeDesc(symEnv, typeDefinition, data.depth, typeNode, data);
             if (constituentType == symTable.semanticError) {
@@ -1384,7 +1404,7 @@ public class TypeResolver {
                 continue;
             }
             if (constituentType.tag == TypeTags.READONLY) {
-                intersectionType.flags |= Flags.READONLY;
+                hasReadonly = true;
             } else {
                 numOfNonReadOnlyConstituents++;
             }
@@ -1396,7 +1416,16 @@ public class TypeResolver {
         if (errored) {
             return symTable.semanticError;
         }
+
+        BTypeSymbol intersectionSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
+                symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner, td.pos, BUILTIN);
+        BIntersectionType intersectionType = new BIntersectionType(intersectionSymbol);
+        intersectionSymbol.type = intersectionType;
         intersectionType.setConstituentTypes(constituentTypes);
+
+        if (hasReadonly) {
+            intersectionType.flags |= Flags.READONLY;
+        }
 
         boolean isErrorIntersection = errorTypesCount > 1;
         if (isErrorIntersection) {
@@ -1409,7 +1438,6 @@ public class TypeResolver {
             intersectionErrorType.tsymbol.name = Names.fromString(typeDefinition.name.value);
             defineErrorType(typeDefinition.pos, intersectionErrorType, symEnv);
         }
-        resolvingTypes.pop();
 
         // Differ cyclic intersection between more than 2 non-readonly types.
         if (numOfNonReadOnlyConstituents > 1) {
@@ -1483,7 +1511,7 @@ public class TypeResolver {
         }
     }
 
-    private BType resolveTypeDesc(BLangUserDefinedType td, AnalyzerData data) {
+    private BType resolveTypeDesc(BLangUserDefinedType td, ResolverData data) {
         currentDepth = data.depth;
         String name = td.typeName.value;
         SymbolEnv symEnv = data.env;
@@ -1705,7 +1733,7 @@ public class TypeResolver {
         }
     }
 
-    private BType resolveTypeDesc(BLangTableTypeNode td, AnalyzerData data) {
+    private BType resolveTypeDesc(BLangTableTypeNode td, ResolverData data) {
         currentDepth = data.depth;
         if (td.getBType() != null) {
             return td.getBType();
@@ -1759,7 +1787,7 @@ public class TypeResolver {
         return tableType;
     }
 
-    private BType resolveTypeDesc(BLangStreamType td, AnalyzerData data) {
+    private BType resolveTypeDesc(BLangStreamType td, ResolverData data) {
         currentDepth = data.depth;
         if (td.getBType() != null) {
             return td.getBType();
@@ -2036,7 +2064,7 @@ public class TypeResolver {
         }
         if (constant.typeNode != null) {
             // Type node is available.
-            AnalyzerData data = new AnalyzerData();
+            ResolverData data = new ResolverData();
             data.modTable = modTable;
             staticType = resolveTypeDesc(symEnv, typeDef, 0, constant.typeNode, data);
             if (staticType == symTable.noType) {
@@ -2150,8 +2178,7 @@ public class TypeResolver {
      *
      * @since 2201.7.0
      */
-    class AnalyzerData {
-
+    class ResolverData {
         SymbolEnv env;
         Map<String, BLangNode> modTable;
         int depth;
@@ -2159,12 +2186,11 @@ public class TypeResolver {
     }
 
     /**
-     * Used to store location data for encountered unknown types in `checkErrors` method.
+     * Used to store location data for encountered unknown types.
      *
-     * @since 0.985.0
+     * @since 2201.7.0
      */
     class LocationData {
-
         private String name;
         private int row;
         private int column;

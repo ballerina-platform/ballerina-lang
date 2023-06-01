@@ -76,11 +76,13 @@ import java.util.List;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 
 /**
+ * Update the effective type of cyclic intersections.
+ *
  * @since 2201.7.0
  */
-public class UpdateCyclicIntersection implements TypeVisitor {
+public class EffectiveTypePopulator implements TypeVisitor {
 
-    private static final CompilerContext.Key<UpdateCyclicIntersection> UPDATE_IMMUTABLE_TYPE_KEY =
+    private static final CompilerContext.Key<EffectiveTypePopulator> UPDATE_IMMUTABLE_TYPE_KEY =
                 new CompilerContext.Key<>();
     private final SymbolTable symTable;
     private final Names names;
@@ -90,9 +92,9 @@ public class UpdateCyclicIntersection implements TypeVisitor {
     private PackageID pkgID;
     private BLangNode typeNode;
     private SymbolEnv env;
-    private HashSet<BType> visitedImmutableTypes = new HashSet<>();
+    public HashSet<BType> visitedImmutableTypes = new HashSet<>();
 
-    public UpdateCyclicIntersection(CompilerContext context) {
+    public EffectiveTypePopulator(CompilerContext context) {
         context.put(UPDATE_IMMUTABLE_TYPE_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
@@ -100,12 +102,12 @@ public class UpdateCyclicIntersection implements TypeVisitor {
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
-    public static UpdateCyclicIntersection getInstance(CompilerContext context) {
-        UpdateCyclicIntersection updateImmutableType = context.get(UPDATE_IMMUTABLE_TYPE_KEY);
-        if (updateImmutableType == null) {
-            updateImmutableType = new UpdateCyclicIntersection(context);
+    public static EffectiveTypePopulator getInstance(CompilerContext context) {
+        EffectiveTypePopulator effectiveTypePopulator = context.get(UPDATE_IMMUTABLE_TYPE_KEY);
+        if (effectiveTypePopulator == null) {
+            effectiveTypePopulator = new EffectiveTypePopulator(context);
         }
-        return updateImmutableType;
+        return effectiveTypePopulator;
     }
 
     public void updateType(BType immutableType, Location loc, PackageID pkgID, BLangNode typeNode,
