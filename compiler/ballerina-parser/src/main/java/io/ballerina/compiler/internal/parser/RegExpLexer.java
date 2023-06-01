@@ -268,6 +268,8 @@ public class RegExpLexer extends AbstractLexer {
                 this.reader.advance();
                 processAbbrWithOther();
                 break;
+            default:
+                break;
         }
 
         if (!isEndOfUnicodePropertyEscape()) {
