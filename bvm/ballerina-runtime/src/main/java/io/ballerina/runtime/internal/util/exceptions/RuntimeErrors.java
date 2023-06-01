@@ -144,10 +144,12 @@ public enum RuntimeErrors implements DiagnosticCode {
     REGEXP_INVALID_CHARACTER("regexp.invalid.character", "RUNTIME_0116"),
     REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE("regexp.invalid.unicode.general.category.value", "RUNTIME_0117"),
     REGEXP_INVALID_UNICODE_PROPERTY_VALUE("regexp.invalid.unicode.property.value", "RUNTIME_0118"),
-    REGEXP_EMPTY_CHARACTER_CLASS_DISALLOWED("regexp.empty.character.class.disallowed", "RUNTIME_0119");
+    REGEXP_EMPTY_CHARACTER_CLASS_DISALLOWED("regexp.empty.character.class.disallowed", "RUNTIME_0119"),
+    CONFIG_TOML_INVALID_MODULE_STRUCTURE_WITH_VARIABLE("config.toml.invalid.module.structure.with.variable",
+            "RUNTIME_0120");
 
-    private String errorMsgKey;
-    private String errorCode;
+    private final String errorMsgKey;
+    private final String errorCode;
 
     RuntimeErrors(String errorMessageKey, String errorCode) {
         this.errorMsgKey = errorMessageKey;

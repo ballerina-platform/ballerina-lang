@@ -83,6 +83,7 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_SIZE_MISMATCH;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_INVALID_MODULE_STRUCTURE;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_INVALID_MODULE_STRUCTURE_WITH_VARIABLE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_REQUIRED_FILED_NOT_PROVIDED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_TABLE_KEY_NOT_PROVIDED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_UNUSED_VALUE;
@@ -165,7 +166,7 @@ public class TomlProvider implements ConfigProvider {
                 if (module != null && !invalidRequiredModuleSet.contains(module.toString()) &&
                         !rootModule.getOrg().equals(module.getOrg())) {
                     diagnosticLog.error(CONFIG_TOML_INVALID_MODULE_STRUCTURE, null, lineRange, nodeName,
-                            nodeName, getModuleKey(module));
+                            getModuleKey(module));
                 }
             }
             if (!(containsOrg || containsModule) && !invalidTomlLines.contains(node.location().lineRange())) {
@@ -500,7 +501,7 @@ public class TomlProvider implements ConfigProvider {
         String moduleKey = getModuleKey(module);
         Optional<Toml> table = baseToml.getTable(moduleKey);
         List<TomlTableNode> moduleNodes = new ArrayList<>();
-        if (table.isEmpty() && hasRequired && !invalidRequiredModuleSet.contains(module.toString())) {
+        if (table.isEmpty() && hasRequired) {
             throwInvalidImportedModuleError(baseToml, module, variableName);
         }
         table.ifPresent(toml -> addToModuleNodeMap(toml, moduleNodes));
@@ -523,8 +524,8 @@ public class TomlProvider implements ConfigProvider {
         if (errorNode != null) {
             invalidRequiredModuleSet.add(module.toString());
             invalidTomlLines.add(errorNode.location().lineRange());
-            throw new ConfigException(CONFIG_TOML_INVALID_MODULE_STRUCTURE, getLineRange(errorNode), orgModuleKey,
-                    variableName, orgModuleKey);
+            throw new ConfigException(CONFIG_TOML_INVALID_MODULE_STRUCTURE_WITH_VARIABLE, getLineRange(errorNode),
+                    orgModuleKey, variableName, orgModuleKey);
         }
     }
 
@@ -538,7 +539,7 @@ public class TomlProvider implements ConfigProvider {
             table = baseToml.getTable(orgModuleKey);
             if (table.isPresent()) {
                 addToModuleNodeMap(table.get(), moduleNodes);
-            } else if (!invalidRequiredModuleSet.contains(module.toString()) && hasRequired) {
+            } else if (hasRequired) {
                 invalidRequiredModuleSet.add(module.toString());
                 throw new ConfigException(RuntimeErrors.CONFIG_TOML_MODULE_AMBIGUITY, getLineRange(baseToml.rootNode()),
                         moduleName, orgModuleKey);
@@ -554,7 +555,7 @@ public class TomlProvider implements ConfigProvider {
             addToModuleNodeMap(table.get(), moduleNodes);
             tableFound = true;
         }
-        if (!tableFound && hasRequired && !invalidRequiredModuleSet.contains(module.toString())) {
+        if (!tableFound && hasRequired) {
             throwInvalidSubModuleError(baseToml, module, variableName);
         }
         return moduleNodes;
@@ -575,8 +576,8 @@ public class TomlProvider implements ConfigProvider {
         if (errorNode != null) {
             invalidRequiredModuleSet.add(module.toString());
             invalidTomlLines.add(errorNode.location().lineRange());
-            throw new ConfigException(CONFIG_TOML_INVALID_MODULE_STRUCTURE, getLineRange(errorNode), moduleName,
-                    variableName, moduleName);
+            throw new ConfigException(CONFIG_TOML_INVALID_MODULE_STRUCTURE_WITH_VARIABLE, getLineRange(errorNode),
+                    moduleName, variableName, moduleName);
         }
     }
 
