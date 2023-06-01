@@ -202,8 +202,7 @@ public class LargeMethodOptimizer {
                         List<BIRErrorEntry> splitErrorTableEntries = new ArrayList<>();
                         int trapBBNum;
                         while (errTableEntryIndex >= 0) {
-                            trapBBNum = Integer.parseInt(
-                                    errorTableEntries.get(errTableEntryIndex).trapBB.toString().substring(2));
+                            trapBBNum = errorTableEntries.get(errTableEntryIndex).trapBB.number;
                             if (trapBBNum <= getBbIdNum(basicBlocks, bbNum)) {
                                 break;
                             } else if (trapBBNum < getBbIdNum(basicBlocks, splitEndBBIndex)) {
@@ -264,7 +263,7 @@ public class LargeMethodOptimizer {
     }
 
     private int getBbIdNum(List<BIRBasicBlock> bbList, int bbIndex) {
-        return Integer.parseInt(bbList.get(bbIndex).toString().substring(2));
+        return bbList.get(bbIndex).number;
     }
 
     private boolean needToPassRhsVarDclAsArg(BIROperand rhsOp) {
@@ -655,19 +654,53 @@ public class LargeMethodOptimizer {
         BIRBasicBlock exitBB = new BIRBasicBlock(newBBNum);
         exitBB.terminator = new BIRTerminator.Return(null);
         lastBB.terminator = new BIRTerminator.GOTO(null, exitBB, lastIns.scope);
-        for (int i = basicBlocks.size() - 1; i >= 0; i--) {
-            BIRTerminator terminator = basicBlocks.get(i).terminator;
-            if (terminator.kind == InstructionKind.GOTO &&
-                    ((BIRTerminator.GOTO) terminator).targetBB.number == lastBBIdNum) {
-                ((BIRTerminator.GOTO) terminator).targetBB = lastBB;
-            } else if (terminator.thenBB != null && terminator.thenBB.number == lastBBIdNum) {
-                terminator.thenBB = lastBB;
-            }
+        for (BIRBasicBlock basicBlock : basicBlocks) {
+            fixTerminatorBBs(lastBBIdNum, lastBB, basicBlock.terminator);
         }
         basicBlocks.add(lastBB);
         basicBlocks.add(exitBB);
         rectifyVarKindsAndTerminators(birFunc, selfVarDcl, exitBB);
         return birFunc;
+    }
+
+    private void fixTerminatorBBs(int lastBBIdNum, BIRBasicBlock lastBB, BIRTerminator terminator) {
+        if (terminator.thenBB != null && terminator.thenBB.number == lastBBIdNum) {
+            terminator.thenBB = lastBB;
+        }
+
+        switch (terminator.getKind()) {
+            case GOTO:
+                if (((BIRTerminator.GOTO) terminator).targetBB.number == lastBBIdNum) {
+                    ((BIRTerminator.GOTO) terminator).targetBB = lastBB;
+                }
+                break;
+            case BRANCH:
+                BIRTerminator.Branch branchTerminator = (BIRTerminator.Branch) terminator;
+                if (branchTerminator.trueBB.number == lastBBIdNum) {
+                    branchTerminator.trueBB = lastBB;
+                }
+                if (branchTerminator.falseBB.number == lastBBIdNum) {
+                    branchTerminator.falseBB = lastBB;
+                }
+                break;
+            case LOCK:
+                if (((BIRTerminator.Lock) terminator).lockedBB.number == lastBBIdNum) {
+                    ((BIRTerminator.Lock) terminator).lockedBB = lastBB;
+                }
+                break;
+            case FIELD_LOCK:
+                if (((BIRTerminator.FieldLock) terminator).lockedBB.number == lastBBIdNum) {
+                    ((BIRTerminator.FieldLock) terminator).lockedBB = lastBB;
+                }
+                break;
+            case UNLOCK:
+                if (((BIRTerminator.Unlock) terminator).unlockBB.number == lastBBIdNum) {
+                    ((BIRTerminator.Unlock) terminator).unlockBB = lastBB;
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     /**
