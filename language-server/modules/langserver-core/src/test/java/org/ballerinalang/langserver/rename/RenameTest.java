@@ -65,6 +65,7 @@ public class RenameTest extends AbstractRenameTest {
                 {"rename_in_mapping_binding_pattern1.json", "name2"},
                 {"rename_in_mapping_binding_pattern2.json", "pName"},
                 {"rename_in_mapping_binding_pattern3.json", "pName"},
+                {"rename_in_groupby_clause.json", "newPrice"},
 
                 // Invalid rename positions tests
                 {"rename_on_keyword1.json", "fn"},

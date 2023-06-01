@@ -654,7 +654,8 @@ public class ReferenceFinder extends BaseVisitor {
             Node groupingKey = keyNode.getGroupingKey();
             if (groupingKey.getKind() == NodeKind.VARIABLE_DEF) {
                 find((BLangSimpleVariableDef) keyNode.getGroupingKey());
-            } else if (groupingKey.getKind() == NodeKind.VARIABLE) {
+            } else if (groupingKey.getKind() == NodeKind.VARIABLE
+                    || groupingKey.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 find((BLangSimpleVarRef) keyNode.getGroupingKey());
             }
         }
