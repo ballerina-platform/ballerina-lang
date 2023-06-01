@@ -50,7 +50,7 @@ public class Utils {
         }
         for (Object value : values) {
             if (value != null) {
-                out.print(StringUtils.getStringValue(value, null));
+                out.print(StringUtils.getStringValue(value));
             }
         }
     }
@@ -64,7 +64,7 @@ public class Utils {
         StringBuilder content = new StringBuilder();
         for (Object value : values) {
             if (value != null) {
-                content.append(StringUtils.getStringValue(value, null));
+                content.append(StringUtils.getStringValue(value));
             }
         }
         out.println(content);

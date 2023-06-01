@@ -52,7 +52,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
-import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
+import org.wso2.ballerinalang.compiler.packaging.converters.RemoteAuthenticator;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -126,6 +126,7 @@ public class ProjectUtils {
     private static final Pattern onlyDotsPattern = Pattern.compile("^[.]+$");
     private static final Pattern onlyNonAlphanumericPattern = Pattern.compile("^[^a-zA-Z0-9]+$");
     private static final Pattern orgNamePattern = Pattern.compile("^[a-zA-Z0-9_]*$");
+    private static final Pattern separatedIdentifierWithHyphenPattern = Pattern.compile("^[a-zA-Z0-9_.-]*$");
 
     /**
      * Validates the org-name.
@@ -148,6 +149,18 @@ public class ProjectUtils {
         return validateDotSeparatedIdentifiers(packageName)
                 && validateUnderscoresOfName(packageName)
                 && validateInitialNumericsOfName(packageName);
+    }
+
+    /**
+     * Validates the package name.
+     *
+     * @param toolName The package name.
+     * @return True if valid package name, else false.
+     */
+    public static boolean validateToolName(String toolName) {
+        return validateDotSeparatedIdentifiersWithHyphen(toolName)
+                && validateUnderscoresOfName(toolName)
+                && validateInitialNumericsOfName(toolName);
     }
 
     /**
@@ -713,7 +726,7 @@ public class ProjectUtils {
         if (proxy != null && !"".equals(proxy.host()) && proxy.port() > 0) {
             InetSocketAddress proxyInet = new InetSocketAddress(proxy.host(), proxy.port());
             if (!"".equals(proxy.username()) && "".equals(proxy.password())) {
-                Authenticator authenticator = new URIDryConverter.RemoteAuthenticator();
+                Authenticator authenticator = new RemoteAuthenticator();
                 Authenticator.setDefault(authenticator);
             }
             return new Proxy(Proxy.Type.HTTP, proxyInet);
@@ -760,6 +773,13 @@ public class ProjectUtils {
 
     private static boolean validateDotSeparatedIdentifiers(String identifiers) {
         Matcher m = separatedIdentifierPattern.matcher(identifiers);
+        Matcher mm = onlyDotsPattern.matcher(identifiers);
+
+        return m.matches() && !mm.matches();
+    }
+
+    private static boolean validateDotSeparatedIdentifiersWithHyphen(String identifiers) {
+        Matcher m = separatedIdentifierWithHyphenPattern.matcher(identifiers);
         Matcher mm = onlyDotsPattern.matcher(identifiers);
 
         return m.matches() && !mm.matches();

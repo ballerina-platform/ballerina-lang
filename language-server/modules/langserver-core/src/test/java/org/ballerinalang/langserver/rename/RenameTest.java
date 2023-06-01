@@ -67,6 +67,10 @@ public class RenameTest extends AbstractRenameTest {
                 {"rename_in_mapping_binding_pattern3.json", "pName"},
                 {"rename_in_groupby_clause.json", "newPrice"},
 
+                // Rename parameter documentations
+                {"rename_fn_param1.json", "v1"},
+                {"rename_record_field1.json", "orgName"},
+                
                 // Invalid rename positions tests
                 {"rename_on_keyword1.json", "fn"},
                 {"rename_self.json", "this"},
