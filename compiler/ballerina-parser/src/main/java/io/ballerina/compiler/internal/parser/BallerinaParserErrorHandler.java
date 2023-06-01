@@ -3041,7 +3041,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.CLIENT_RESOURCE_ACCESS_ACTION) {
             nextContext = ParserRuleContext.CLOSE_BRACKET;
         } else if (parentCtx == ParserRuleContext.CHECKING_EXPRESSION) {
-            nextContext = ParserRuleContext.ON_KEYWORD;
+            nextContext = ParserRuleContext.ON_FAIL_CHECK;
         } else {
             throw new IllegalStateException("seekMatchInExpressionRhs found: " + parentCtx);
         }
@@ -3445,12 +3445,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TUPLE_MEMBER;
             case ON_FAIL_CHECK:
                 return ParserRuleContext.ON_KEYWORD;
-            case ON_KEYWORD:
-                return ParserRuleContext.FAIL_KEYWORD;
-            case FAIL_KEYWORD:
-                return ParserRuleContext.VARIABLE_NAME;
-            case RIGHT_DOUBLE_ARROW:
-                return ParserRuleContext.ERROR_CONSTRUCTOR;
             case CHECK_EXPRESSION_END:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
@@ -3746,6 +3740,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RIGHT_DOUBLE_ARROW:
                 // Assumption: RIGHT_DOUBLE_ARROW is only occurs in match clauses
                 // in expr-func-body, it is used by a different alias.
+                if (getParentContext() == ParserRuleContext.CHECKING_EXPRESSION) {
+                    return ParserRuleContext.ERROR_CONSTRUCTOR;
+                }
                 return ParserRuleContext.BLOCK_STMT;
             case LIST_MATCH_PATTERN:
                 return ParserRuleContext.OPEN_BRACKET;
@@ -3877,7 +3874,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.CONFLICT_KEYWORD;
                 } else if (parentCtx == ParserRuleContext.ON_CLAUSE) {
                     return ParserRuleContext.EXPRESSION;
-                } else if (parentCtx == ParserRuleContext.ON_FAIL_CLAUSE) {
+                } else if (parentCtx == ParserRuleContext.ON_FAIL_CLAUSE ||
+                            parentCtx == ParserRuleContext.ON_FAIL_CHECK) {
                     return ParserRuleContext.FAIL_KEYWORD;
                 }
                 return ParserRuleContext.LISTENERS_LIST;
@@ -3923,6 +3921,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FAIL_KEYWORD:
                 if (getParentContext() == ParserRuleContext.ON_FAIL_CLAUSE) {
                     return ParserRuleContext.ON_FAIL_OPTIONAL_BINDING_PATTERN;
+                }
+                if (getParentContext() == ParserRuleContext.CHECKING_KEYWORD) {
+                    return ParserRuleContext.VARIABLE_NAME;
                 }
                 return ParserRuleContext.EXPRESSION;
             case PANIC_KEYWORD:
@@ -4987,10 +4988,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RELATIVE_RESOURCE_PATH:
                 return ParserRuleContext.CLOSE_BRACKET;
             case CHECKING_EXPRESSION:
-                parentCtx = getParentContext();
-                if (!(parentCtx == ParserRuleContext.QUERY_EXPRESSION)) {
-                    return ParserRuleContext.RIGHT_DOUBLE_ARROW;
-                }
+                return ParserRuleContext.RIGHT_DOUBLE_ARROW;
             default:
                 if (isStatement(parentCtx)) {
                     return ParserRuleContext.VAR_DECL_STMT_RHS;

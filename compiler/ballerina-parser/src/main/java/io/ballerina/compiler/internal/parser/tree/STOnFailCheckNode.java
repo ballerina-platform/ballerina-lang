@@ -28,87 +28,81 @@ import java.util.Collections;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 2.0.0
+ * @since 2201.7.0
  */
 public class STOnFailCheckNode extends STNode {
     public final STNode onKeyword;
     public final STNode failKeyword;
-    public final STNode errorExpr;
+    public final STNode identifier;
     public final STNode rightArrowToken;
     public final STNode errorConstructor;
 
     STOnFailCheckNode(
-            SyntaxKind kind,
             STNode onKeyword,
             STNode failKeyword,
-            STNode errorExpr,
+            STNode identifier,
             STNode rightArrowToken,
             STNode errorConstructor) {
         this(
-                kind,
                 onKeyword,
                 failKeyword,
-                errorExpr,
+                identifier,
                 rightArrowToken,
                 errorConstructor,
                 Collections.emptyList());
     }
 
     STOnFailCheckNode(
-            SyntaxKind kind,
             STNode onKeyword,
             STNode failKeyword,
-            STNode errorExpr,
+            STNode identifier,
             STNode rightArrowToken,
             STNode errorConstructor,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(kind, diagnostics);
+        super(SyntaxKind.ON_FAIL_CHECK, diagnostics);
         this.onKeyword = onKeyword;
         this.failKeyword = failKeyword;
-        this.errorExpr = errorExpr;
+        this.identifier = identifier;
         this.rightArrowToken = rightArrowToken;
         this.errorConstructor = errorConstructor;
 
         addChildren(
                 onKeyword,
                 failKeyword,
-                errorExpr,
+                identifier,
                 rightArrowToken,
                 errorConstructor);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STOnFailCheckNode(
-                this.kind,
                 this.onKeyword,
                 this.failKeyword,
-                this.errorExpr,
+                this.identifier,
                 this.rightArrowToken,
                 this.errorConstructor,
                 diagnostics);
     }
 
     public STOnFailCheckNode modify(
-            SyntaxKind kind,
             STNode onKeyword,
             STNode failKeyword,
-            STNode errorExpr,
+            STNode identifier,
             STNode rightArrowToken,
             STNode errorConstructor) {
         if (checkForReferenceEquality(
                 onKeyword,
                 failKeyword,
-                errorExpr,
+                identifier,
                 rightArrowToken,
                 errorConstructor)) {
             return this;
         }
 
         return new STOnFailCheckNode(
-                kind,
                 onKeyword,
                 failKeyword,
-                errorExpr,
+                identifier,
                 rightArrowToken,
                 errorConstructor,
                 diagnostics);

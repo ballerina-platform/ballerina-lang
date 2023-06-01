@@ -7181,8 +7181,9 @@ public class BallerinaParser extends AbstractParser {
         STNode expr =
                 parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions, isInConditionalExpr);
         STToken onKeyword = peek();
+        STToken failKeyword = getNextNextToken();
         STNode onFailCheck = STNodeFactory.createEmptyNode();
-        if (onKeyword.kind == SyntaxKind.ON_KEYWORD) {
+        if (onKeyword.kind == SyntaxKind.ON_KEYWORD && failKeyword.kind == SyntaxKind.FAIL_KEYWORD) {
             onFailCheck = parseOnFailCheck();
         }
         endContext();

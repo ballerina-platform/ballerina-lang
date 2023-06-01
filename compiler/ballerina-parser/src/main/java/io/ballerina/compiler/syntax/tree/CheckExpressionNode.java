@@ -41,7 +41,7 @@ public class CheckExpressionNode extends ExpressionNode {
         return childInBucket(1);
     }
 
-    public Optional<OnFailCheckNode> onFailClause() {
+    public Optional<OnFailCheckNode> onFailCheck() {
         return optionalChildInBucket(2);
     }
 
@@ -60,18 +60,18 @@ public class CheckExpressionNode extends ExpressionNode {
         return new String[]{
                 "checkKeyword",
                 "expression",
-                "onFailClause"};
+                "onFailCheck"};
     }
 
     public CheckExpressionNode modify(
             SyntaxKind kind,
             Token checkKeyword,
             ExpressionNode expression,
-            OnFailCheckNode onFailClause) {
+            OnFailCheckNode onFailCheck) {
         if (checkForReferenceEquality(
                 checkKeyword,
                 expression,
-                onFailClause)) {
+                onFailCheck)) {
             return this;
         }
 
@@ -79,7 +79,7 @@ public class CheckExpressionNode extends ExpressionNode {
                 kind,
                 checkKeyword,
                 expression,
-                onFailClause);
+                onFailCheck);
     }
 
     public CheckExpressionNodeModifier modify() {
@@ -95,13 +95,13 @@ public class CheckExpressionNode extends ExpressionNode {
         private final CheckExpressionNode oldNode;
         private Token checkKeyword;
         private ExpressionNode expression;
-        private OnFailCheckNode onFailClause;
+        private OnFailCheckNode onFailCheck;
 
         public CheckExpressionNodeModifier(CheckExpressionNode oldNode) {
             this.oldNode = oldNode;
             this.checkKeyword = oldNode.checkKeyword();
             this.expression = oldNode.expression();
-            this.onFailClause = oldNode.onFailClause().orElse(null);
+            this.onFailCheck = oldNode.onFailCheck().orElse(null);
         }
 
         public CheckExpressionNodeModifier withCheckKeyword(
@@ -118,9 +118,9 @@ public class CheckExpressionNode extends ExpressionNode {
             return this;
         }
 
-        public CheckExpressionNodeModifier withOnFailClause(
-                OnFailCheckNode onFailClause) {
-            this.onFailClause = onFailClause;
+        public CheckExpressionNodeModifier withOnFailCheck(
+                OnFailCheckNode onFailCheck) {
+            this.onFailCheck = onFailCheck;
             return this;
         }
 
@@ -129,7 +129,7 @@ public class CheckExpressionNode extends ExpressionNode {
                     oldNode.kind(),
                     checkKeyword,
                     expression,
-                    onFailClause);
+                    onFailCheck);
         }
     }
 }

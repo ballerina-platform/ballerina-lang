@@ -331,6 +331,7 @@ public enum SyntaxKind {
     ASTERISK_LITERAL(1343),
     REQUIRED_EXPRESSION(1344),
     ERROR_CONSTRUCTOR(1345),
+    ON_FAIL_CHECK(4510),
 
     // Type descriptors
     TYPE_DESC(2000),
