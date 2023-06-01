@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -189,9 +190,7 @@ public class QueryTypeChecker extends TypeChecker {
                 dlog.error(queryExpr.pos, DiagnosticErrorCode.QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT);
             }
             BLangExpression finalClauseExpr = ((BLangCollectClause) finalClause).expression;
-            data.commonAnalyzerData.withinCollectClause = true;
             BType queryType = checkExpr(finalClauseExpr, commonAnalyzerData.queryEnvs.peek(), data);
-            data.commonAnalyzerData.withinCollectClause = false;
             actualType = types.checkType(finalClauseExpr.pos, queryType, data.expType,
                     DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
@@ -951,17 +950,14 @@ public class QueryTypeChecker extends TypeChecker {
         }
         BInvokableType bInvokableType = (BInvokableType) Types.getReferredType(functionSymbol.type);
         BType retType = typeParamAnalyzer.getReturnTypeParams(data.env, bInvokableType.getReturnType());
-        if (isNilReturnInvocationInCollectClause(iExpr, data)) {
-            retType = BUnionType.create(null, retType, symTable.nilType);
-        }
         data.resultType = types.checkType(iExpr, retType, data.expType);
     }
 
     // In the collect clause if there are invocations, those invocations should return `()` if the argument is empty.
     private boolean isNilReturnInvocationInCollectClause(BLangInvocation invocation, TypeChecker.AnalyzerData data) {
         BInvokableSymbol symbol = (BInvokableSymbol) invocation.symbol;
-        return data.commonAnalyzerData.withinCollectClause && symbol.restParam != null && symbol.params.size() > 0
-                && invocation.argExprs.size() == 1 && invocation.restArgs.size() == 1;
+        return symbol != null && symbol.restParam != null
+                && symbol.params.size() > 0 && invocation.argExprs.size() == 1 && invocation.restArgs.size() == 1;
     }
 
     // Check the argument within sequence context.
@@ -981,6 +977,15 @@ public class QueryTypeChecker extends TypeChecker {
         data.queryData.withinSequenceContext = arg.getKind() == NodeKind.SIMPLE_VARIABLE_REF;
         checkTypeParamExpr(arg, expectedType, data);
         data.queryData.withinSequenceContext = false;
+    }
+
+    public void visit(BLangCollectContextInvocation collectContextInvocation, TypeChecker.AnalyzerData data) {
+        BLangInvocation invocation = collectContextInvocation.invocation;
+        data.resultType = checkExpr(invocation, data.env, data);
+        if (isNilReturnInvocationInCollectClause(invocation, data)) {
+            data.resultType = BUnionType.create(null, data.resultType, symTable.nilType);
+        }
+        collectContextInvocation.setBType(data.resultType);
     }
 
     public void visit(BLangSimpleVarRef varRefExpr, TypeChecker.AnalyzerData data) {

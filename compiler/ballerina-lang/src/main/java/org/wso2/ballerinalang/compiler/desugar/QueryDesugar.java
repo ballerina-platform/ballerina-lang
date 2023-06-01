@@ -85,6 +85,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -243,7 +244,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     private boolean containsCheckExpr;
     private boolean withinQuery = false;
     private boolean withinLambdaOrArrowFunc = false;
-    private boolean withinCollectClause = false;
     private HashSet<BType> checkedErrorList;
     private BLangNode result;
 
@@ -872,9 +872,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangSimpleVarRef frame = ASTBuilderUtil.createVariableRef(pos, oldFrameSymbol);
         BLangStatement assignment = getAddToFrameStmt(pos, frame, "$value$", collectClause.expression);
         body.stmts.add(body.stmts.size() - 1, assignment);
-        withinCollectClause = true;
         lambda.accept(this);
-        withinCollectClause = false;
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_COLLECT_FUNCTION,
                 Lists.of(nonGroupingKeys, lambda), pos);
     }
@@ -1697,24 +1695,13 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangInvocation invocationExpr) {
-        if (invocationExpr.desugared) {
-            invocationExpr.desugared = false;
-            result = invocationExpr;
-            return;
-        }
-        List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
-        if (invocationExpr.langLibInvocation && !requiredArgs.isEmpty()) {
-            requiredArgs = requiredArgs.subList(1, requiredArgs.size());
-        }
-        requiredArgs.forEach(this::acceptNode);
-        visitRestArgs(invocationExpr);
-        this.acceptNode(invocationExpr.expr);
-
-        Location pos = invocationExpr.pos;
-        if (isNilReturnInvocationInCollectClause(invocationExpr)) {
-            BLangSimpleVarRef restArg = (BLangSimpleVarRef) invocationExpr.argExprs.get(0);
-            BType invocationType = BUnionType.create(null, invocationExpr.getBType(), symTable.nilType);
+    public void visit(BLangCollectContextInvocation collectContextInvocation) {
+        BLangInvocation invocation = collectContextInvocation.invocation;
+        result = invocation = rewrite(invocation);
+        if (isNilReturnInvocationInCollectClause(invocation)) {
+            Location pos = invocation.pos;
+            BLangSimpleVarRef restArg = (BLangSimpleVarRef) invocation.argExprs.get(0);
+            BType invocationType = BUnionType.create(null, invocation.getBType(), symTable.nilType);
             BLangSimpleVariable tempResultVar = ASTBuilderUtil.createVariable(pos, "$invocationResult$",
                     invocationType, null, new BVarSymbol(0, Names.fromString("$invocationResult$"),
                             this.env.scope.owner.pkgID, invocationType, this.env.scope.owner, pos, VIRTUAL));
@@ -1731,26 +1718,31 @@ public class QueryDesugar extends BLangNodeVisitor {
                     ASTBuilderUtil.createLiteral(pos, symTable.intType, (long) 0), symTable.booleanType,
                     OperatorKind.EQUAL, null);
             BLangIf ifElse = ASTBuilderUtil.createIfElseStmt(pos, binaryExpr, thenBody, elseBody);
-            invocationExpr.desugared = true;
             thenBody.addStatement(ASTBuilderUtil.createAssignmentStmt(pos, tempResultVarRef,
                     ASTBuilderUtil.createLiteral(pos, symTable.nilType, null)));
-            elseBody.addStatement(ASTBuilderUtil.createAssignmentStmt(pos, tempResultVarRef, invocationExpr));
+            elseBody.addStatement(ASTBuilderUtil.createAssignmentStmt(pos, tempResultVarRef, invocation));
             blockStmt.addStatement(ifElse);
             BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, tempResultVarRef);
             stmtExpr.setBType(invocationType);
-            result = rewrite(stmtExpr);
-            // In the TypeChecker, type of invocation is update to have nil type. It should be reset, otherwise
-            // runtime crashes.
-            // TODO: Need to check the reason for that
-            invocationExpr.setBType(((BInvokableSymbol) invocationExpr.symbol).retType);
-        } else {
-            result = invocationExpr;
+            result = stmtExpr;
         }
+    }
+
+    @Override
+    public void visit(BLangInvocation invocationExpr) {
+        List<BLangExpression> requiredArgs = invocationExpr.requiredArgs;
+        if (invocationExpr.langLibInvocation && !requiredArgs.isEmpty()) {
+            requiredArgs = requiredArgs.subList(1, requiredArgs.size());
+        }
+        requiredArgs.forEach(this::acceptNode);
+        visitRestArgs(invocationExpr);
+        this.acceptNode(invocationExpr.expr);
+        result = invocationExpr;
     }
 
     private boolean isNilReturnInvocationInCollectClause(BLangInvocation invocation) {
         BInvokableSymbol symbol = (BInvokableSymbol) invocation.symbol;
-        return this.withinCollectClause && symbol.restParam != null &&
+        return symbol.restParam != null &&
                 symbol.params.size() > 0 && invocation.argExprs.size() == 1 && invocation.restArgs.size() == 1;
     }
 

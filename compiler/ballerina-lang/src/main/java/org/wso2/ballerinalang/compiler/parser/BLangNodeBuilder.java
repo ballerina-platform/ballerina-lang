@@ -346,6 +346,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -541,6 +542,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     boolean isInFiniteContext = false;
     /* To keep track if we are inside a character class in a regular expresssion */
     boolean isInCharacterClass = false;
+    boolean inCollectContext = false;
 
     private  HashSet<String> constantSet = new HashSet<String>();
 
@@ -2220,8 +2222,17 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(FunctionCallExpressionNode functionCallNode) {
-        return createBLangInvocation(functionCallNode.functionName(), functionCallNode.arguments(),
-                                     getPosition(functionCallNode), isFunctionCallAsync(functionCallNode));
+        BLangInvocation invocation = createBLangInvocation(functionCallNode.functionName(),
+                functionCallNode.arguments(), getPosition(functionCallNode), isFunctionCallAsync(functionCallNode));
+        if (this.inCollectContext) {
+            BLangCollectContextInvocation collectContextInvocation =
+                    (BLangCollectContextInvocation) TreeBuilder.createCollectContextInvocationNode();
+            collectContextInvocation.invocation = invocation;
+            collectContextInvocation.pos = invocation.pos;
+            return collectContextInvocation;
+        } else {
+            return invocation;
+        }
     }
 
     @Override
@@ -3925,7 +3936,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
     public BLangNode transform(CollectClauseNode collectClauseNode) {
         BLangCollectClause collectClause = (BLangCollectClause) TreeBuilder.createCollectClauseNode();
         collectClause.pos = getPosition(collectClauseNode);
+        boolean prevInCollectContext = this.inCollectContext;
+        this.inCollectContext = true;
         collectClause.expression = createExpression(collectClauseNode.expression());
+        this.inCollectContext = prevInCollectContext;
         return collectClause;
     }
 

@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
@@ -758,6 +759,11 @@ public class EnvironmentResolver extends BaseVisitor {
         }
         this.scope = collectClause.env;
         this.acceptNode(collectClause.expression, collectClause.env);
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation invocation) {
+        this.acceptNode(invocation.invocation, this.symbolEnv);
     }
 
     @Override
