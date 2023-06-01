@@ -95,7 +95,7 @@ public class Main {
                             try {
                                 return file.toURI().toURL();
                             } catch (MalformedURLException e) {
-                                throw LauncherUtils.createUsageExceptionWithHelp("invalid tool jar : " + file
+                                throw LauncherUtils.createUsageExceptionWithHelp("invalid tool jar: " + file
                                         .getAbsolutePath());
                             }
                         })

@@ -27,9 +27,17 @@ import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * {@code BalToolDescriptor} Model for `BalTool.toml` file.
@@ -50,13 +58,13 @@ public class BalToolDescriptor {
         this.dependencies = dependencies;
     }
 
-    public static BalToolDescriptor from(TomlDocument tomlDocument) {
+    public static BalToolDescriptor from(TomlDocument tomlDocument, Path sourceRoot) {
         TomlTableNode tomlTableNode = tomlDocument.toml().rootNode();
         if (tomlTableNode.entries().isEmpty()) {
             return new BalToolDescriptor(null, Collections.emptyList());
         }
         return new BalToolDescriptor(
-                new BalToolDescriptor.Tool(getToolID(tomlTableNode)), getDependencies(tomlTableNode));
+                new BalToolDescriptor.Tool(getToolID(tomlTableNode)), getDependencies(tomlTableNode, sourceRoot));
     }
 
     public static BalToolDescriptor from(BalToolJson balToolJson) {
@@ -121,7 +129,7 @@ public class BalToolDescriptor {
         }
     }
 
-    private static List<BalToolDescriptor.Dependency> getDependencies(TomlTableNode tomlTableNode) {
+    private static List<BalToolDescriptor.Dependency> getDependencies(TomlTableNode tomlTableNode, Path sourceRoot) {
         List<BalToolDescriptor.Dependency> dependencies = new ArrayList<>();
         TopLevelNode dependenciesNode = tomlTableNode.entries().get(DEPENDENCY);
 
@@ -130,7 +138,16 @@ public class BalToolDescriptor {
 
             for (TomlTableNode dependencyNode : dependencyTableArray.children()) {
                 TopLevelNode pathNode = dependencyNode.entries().get(PATH);
-                dependencies.add(new BalToolDescriptor.Dependency(getStringFromTomlTableNode(pathNode)));
+                String path = getStringFromTomlTableNode(pathNode);
+                if (path == null) {
+                    continue;
+                }
+                Path absoluteJarPath = getAbsoluteJarPath(sourceRoot, path);
+                if (absoluteJarPath.toFile().exists()) {
+                    dependencies.add(new BalToolDescriptor.Dependency(absoluteJarPath.toString()));
+                } else {
+                    dependencies.addAll(getDependenciesInDir(absoluteJarPath.toString()));
+                }
             }
         }
         return dependencies;
@@ -157,5 +174,50 @@ public class BalToolDescriptor {
             }
         }
         return null;
+    }
+
+    private static Path getAbsoluteJarPath(Path sourceRoot, String path) {
+        Path relativePath = Path.of(path);
+        if (relativePath.isAbsolute()) {
+            return relativePath;
+        }
+        return sourceRoot.toAbsolutePath().resolve(relativePath);
+    }
+
+    private static List<BalToolDescriptor.Dependency> getDependenciesInDir(String path) {
+        // in the path provided, only the last part can be a pattern. the rest should be an existing directory path
+
+        List<BalToolDescriptor.Dependency> dependencies = new ArrayList<>();
+        Path dependencyPath = Path.of(path);
+        Optional<Path> patternPath = Optional.ofNullable(dependencyPath.getFileName());
+        if (patternPath.isEmpty()) {
+            return dependencies;
+        }
+        String pattern = patternPath.get().toString();
+        Optional<Path> parentPath = Optional.ofNullable(dependencyPath.getParent());
+        if (parentPath.isEmpty() || !parentPath.get().toFile().exists()) {
+            return dependencies;
+        }
+
+        return getToolJarsMatchingPattern(pattern, parentPath.get()).stream()
+                .map(path1 -> new BalToolDescriptor.Dependency(path1.toString()))
+                .collect(Collectors.toList());
+    }
+
+    private static List<Path> getToolJarsMatchingPattern(String pattern, Path parentPath) {
+        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
+        List<Path> matchingPaths = new ArrayList<>();
+        try (Stream<Path> paths = Files.list(parentPath)) {
+            paths.filter(Files::isRegularFile)
+                    .filter(path -> {
+                        Path fileName = path.getFileName();
+                        return fileName != null && fileName.toString().endsWith(".jar");
+                    })
+                    .filter(path -> pathMatcher.matches(path.getFileName()))
+                    .forEach(matchingPaths::add);
+        } catch (IOException e) {
+            // ignore
+        }
+        return matchingPaths;
     }
 }
