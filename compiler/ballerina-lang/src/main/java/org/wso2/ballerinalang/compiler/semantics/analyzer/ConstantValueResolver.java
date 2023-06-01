@@ -116,7 +116,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private HashMap<BSymbol, BLangTypeDefinition> createdTypeDefinitions = new HashMap<>();
     private Stack<String> anonTypeNameSuffixes = new Stack<>();
     private static final boolean semtypeActive = Boolean.parseBoolean(System.getenv("BALLERINA_EXPERIMENTAL_SEMTYPE"));
-    private static final boolean semtypeTest = Boolean.parseBoolean(System.getProperty("BALLERINA_SEMTYPE_TEST"));
+    private static final boolean semtypeTest = Boolean.parseBoolean(System.getProperty("ballerina.semtype.test.suite"));
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);

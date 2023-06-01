@@ -52,11 +52,6 @@ import java.util.stream.Stream;
  */
 public class SemTypeTest {
 
-    @BeforeSuite
-    public void setupSuite() {
-        System.setProperty("BALLERINA_SEMTYPE_TEST", "true");
-    }
-
     @DataProvider(name = "fileNameProvider")
     public Object[] fileNameProvider() {
         File dataDir = resolvePath("test-src/data").toFile();
