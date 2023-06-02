@@ -1518,16 +1518,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         BSymbol owner = this.env.scope.owner;
         if (owner.kind == SymbolKind.FUNCTION) {
             BInvokableSymbol invokableOwnerSymbol = (BInvokableSymbol) owner;
-            Name name = names.fromIdNode(invocationExpr.name);
             // Todo: we need to handle function pointer referring global variable, passed into a function.
             // i.e 'foo' is a function pointer pointing to a function referring a global variable G1, then we pass
             // that pointer into 'bar', now 'bar' may have a dependency on G1.
 
             // Todo: test lambdas and function arguments
 
-            BSymbol dependsOnFunctionSym = symResolver.lookupSymbolInMainSpace(this.env, name);
-            if (symTable.notFoundSymbol != dependsOnFunctionSym) {
-                addDependency(invokableOwnerSymbol, dependsOnFunctionSym);
+            if (symbol != symTable.notFoundSymbol) {
+                addDependency(invokableOwnerSymbol, symbol);
             }
         } else if (symbol != null && symbol.kind == SymbolKind.FUNCTION) {
             BInvokableSymbol invokableProviderSymbol = (BInvokableSymbol) symbol;

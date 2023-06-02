@@ -326,6 +326,24 @@ function testMethodVarargEvaluationCount() {
     assertValueEquality(1, counter);
 }
 
+type Func function ();
+
+public function f1() {
+    json|error res = foo:testFunc("f1");
+}
+
+final readonly & map<Func> func = {
+    "f1": f1
+};
+
+public isolated function testFunc() {
+    Func? f = func["f1"];
+    if f is () {
+        return ();
+    }
+    _ = f();
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
