@@ -1250,7 +1250,7 @@ public class ProjectUtils {
     }
 
     /**
-     * Return the path of a bala with the available platform directory (java11 or any).
+     * Return the path of a bala with the available platform directory (java17 or any).
      *
      * @param balaDirPath path to the bala directory
      * @param org org name of the bala
@@ -1265,7 +1265,7 @@ public class ProjectUtils {
         if (!Files.exists(balaPath)) {
             // If bala for any platform not exist check for specific platform
             balaPath = balaDirPath.resolve(
-                    ProjectUtils.getRelativeBalaPath(org, name, version, JvmTarget.JAVA_11.code()));
+                    ProjectUtils.getRelativeBalaPath(org, name, version, JvmTarget.JAVA_17.code()));
         }
         return balaPath;
     }

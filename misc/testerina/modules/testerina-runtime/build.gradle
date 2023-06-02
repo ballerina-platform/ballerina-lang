@@ -28,6 +28,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-tools-api')
     implementation project(':identifier-util')
+    implementation project(':docerina')
     implementation 'com.google.code.gson:gson'
     implementation "com.google.code.gson:gson:${project.gsonVersion}"
     implementation "org.jacoco:org.jacoco.core:${project.jacocoVersion}"
@@ -53,13 +54,3 @@ dependencies {
 description = 'Ballerina - Test Executer'
 
 ext.moduleName = 'io.ballerina.testerina.runtime'
-
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}

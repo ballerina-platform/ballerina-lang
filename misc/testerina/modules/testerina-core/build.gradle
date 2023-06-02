@@ -45,7 +45,9 @@ dependencies {
     implementation group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: "${project.javaDiffUtilsVersion}"
 }
 
-jar.archiveFileName = "${project.name}-${project.version}.jar"
+jar {
+    archiveFileName.set("${project.name}-${project.version}.jar")
+}
 
 task updateVersion {
     doLast {

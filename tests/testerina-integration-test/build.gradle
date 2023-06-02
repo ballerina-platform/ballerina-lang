@@ -33,6 +33,23 @@ dependencies {
 
     implementation project(path: ':ballerina-test-utils')
     implementation project(':ballerina-runtime')
+
+    implementation "org.jacoco:org.jacoco.core:${project.jacocoVersion}"
+    implementation "org.jacoco:org.jacoco.report:${project.jacocoVersion}"
+    implementation "org.ow2.asm:asm:${project.ow2AsmVersion}"
+    implementation "org.ow2.asm:asm-commons:${project.ow2AsmCommonsVersion}"
+    implementation "org.ow2.asm:asm-tree:${project.ow2AsmTreeVersion}"
+
+    implementation group: 'org.jacoco', name: 'org.jacoco.core', version: "${project.jacocoVersion}"
+    implementation group: 'org.jacoco', name: 'org.jacoco.report', version: "${project.jacocoVersion}"
+    implementation group: 'org.ow2.asm', name: 'asm', version: "${project.ow2AsmVersion}"
+    implementation group: 'org.ow2.asm', name: 'asm-commons', version: "${project.ow2AsmCommonsVersion}"
+    implementation group: 'org.ow2.asm', name: 'asm-tree', version: "${project.ow2AsmTreeVersion}"
+    implementation group: 'io.github.java-diff-utils', name: 'java-diff-utils', version: "${project.javaDiffUtilsVersion}"
+}
+
+jacoco {
+    toolVersion = "${project.jacocoVersion}"
 }
 
 task extractDistribution(type: Copy) {
@@ -65,4 +82,6 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
+
+    jacoco.excludes = ["org.terasology.protobuf.*", "*MethodAccess", "*FieldAccess"]
 }

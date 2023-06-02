@@ -1,5 +1,5 @@
 plugins {
-    id "de.undercouch.download" version "3.4.3"
+    id "de.undercouch.download" version "5.4.0"
     id 'base'
 }
 

@@ -25,7 +25,7 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
     implementation project(':toml-parser')
-    implementation 'com.google.code.gson:gson:2.8.7'
+    implementation 'com.google.code.gson:gson:2.10.1'
     testImplementation 'org.testng:testng'
 }
 

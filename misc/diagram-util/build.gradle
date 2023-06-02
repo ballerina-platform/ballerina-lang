@@ -21,9 +21,9 @@ configurations {
     dist {
         transitive false
     }
-    dependency {
-        transitive false
-    }
+//    dependency {
+//        transitive false
+//    }
     libs
     distributionBala
 }
@@ -32,7 +32,7 @@ dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
-    implementation project(':docerina')
+    implementation(project(':docerina'))
     implementation project(':central-client')
 
     implementation 'org.apache.commons:commons-lang3'
@@ -45,16 +45,6 @@ description = 'Diagram utils for Syntax tree JSON generation'
 
 ext.moduleName = 'diagram-util'
 
-compileJava {
-    inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
-
 test {
     dependsOn loadDistributionCache
     systemProperty "ballerina.home", "$buildDir/"
@@ -64,3 +54,8 @@ test {
         suites 'src/test/resources/testng.xml'
     }
 }
+
+///*this is to let gradle infer the locations of the modules*/
+//java {
+//    modularity.inferModulePath.set(true)
+//}
