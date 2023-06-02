@@ -35,6 +35,7 @@ include(':json-mapper')
 include(':lib-creator')
 include(':ballerina-runtime')
 include(':ballerina-rt')
+include('ballerina-profiler')
 include(':ballerina-test-utils')
 include(':ballerina-treegen')
 include(':ballerina-bindgen')
@@ -180,6 +181,7 @@ project(':ballerina-lang-test').projectDir = file('langlib/lang.test')
 project(':ballerina-langlib:test').projectDir = file('langlib/langlib-test')
 project(':ballerina-runtime').projectDir = file('bvm/ballerina-runtime')
 project(':ballerina-rt').projectDir = file('bvm/ballerina-rt')
+project(':ballerina-profiler').projectDir = file('bvm/ballerina-profiler')
 project(':ballerina-treegen').projectDir = file('compiler/ballerina-treegen')
 project(':ballerina-test-utils').projectDir = file('tests/ballerina-test-utils')
 project(':ballerina-io-internal').projectDir = file('misc/io-internal')
@@ -261,3 +263,6 @@ buildCache {
         push = true
     }
 }
+
+
+

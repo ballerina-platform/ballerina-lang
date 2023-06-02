@@ -20,10 +20,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
-import io.ballerina.cli.task.CleanTargetDirTask;
-import io.ballerina.cli.task.CompileTask;
-import io.ballerina.cli.task.ResolveMavenDependenciesTask;
-import io.ballerina.cli.task.RunExecutableTask;
+import io.ballerina.cli.task.*;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
@@ -34,18 +31,15 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
-import java.io.PrintStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
+import java.io.*;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
+import static io.ballerina.projects.util.ProjectUtils.defaultVersion;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
-
 /**
  * This class represents the "run" command and it holds arguments and flags specified by the user.
  *
@@ -101,6 +95,11 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
+
+    @CommandLine.Option(names = "--profile", description = "profiles the jar", hidden = true)
+    private Boolean enableProfiler = false;
+
+    private String output;
 
     private static final String runCmd =
             "bal run [--debug <port>] <executable-jar> \n" +
@@ -206,19 +205,48 @@ public class RunCommand implements BLauncherCmd {
 
         // Check package files are modified after last build
         boolean isPackageModified = isProjectUpdated(project);
-
-        TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                // clean target dir for projects
+        TaskExecutor.TaskBuilder taskBuilder = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(isPackageModified, buildOptions.enableCache()), isSingleFileBuild)
-                // resolve maven dependencies in Ballerina.toml
                 .addTask(new ResolveMavenDependenciesTask(outStream))
-                // compile the modules
-                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
-//                .addTask(new CopyResourcesTask(), isSingleFileBuild)
-                .addTask(new RunExecutableTask(args, outStream, errStream))
-                .build();
+                .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()));
 
-        taskExecutor.executeTasks(project);
+        if (this.enableProfiler) {
+            taskBuilder
+                    .addTask(new CreateExecutableTask(outStream, this.output))
+                    .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
+                    .build()
+                    .executeTasks(project);
+            initiateProfiler(project, args);
+        } else {
+            taskBuilder
+                    .addTask(new RunExecutableTask(args, outStream, errStream))
+                    .build()
+                    .executeTasks(project);
+        }
+    }
+
+    private void initiateProfiler(Project project, String[] args) {
+        String[] profilerCommand;
+        String profilerArguments = String.join(" ", args);
+
+        String profilerSource = System.getenv("BALLERINA_HOME") + "/bre/lib/ballerina-profiler-1.0.jar";
+        try {
+            Files.copy(Path.of(profilerSource), Path.of(project.targetDir() + "/bin/Profiler.jar"), StandardCopyOption.REPLACE_EXISTING);
+            if (args.length == 0){
+                profilerCommand = new String[]{"java", "-jar", "Profiler.jar", "--file", "[" + project.currentPackage().packageName() + ".jar" + "]"};
+            }else {
+                profilerCommand = new String[]{"java", "-jar", "Profiler.jar", "--file", "[" + project.currentPackage().packageName() + ".jar" + "]", "--args", "[" + profilerArguments + "]"};
+            }
+            ProcessBuilder profilerProcessBuilder = new ProcessBuilder(profilerCommand);
+            profilerProcessBuilder.directory(new File(project.targetDir() + "/bin"));
+            profilerProcessBuilder.redirectErrorStream(true);
+            Process profilerProcess = profilerProcessBuilder.start();
+            BufferedReader profilerReader = new BufferedReader(new InputStreamReader(profilerProcess.getInputStream()));
+            profilerReader.lines().forEach(System.out::println);
+            profilerProcess.waitFor();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     @Override

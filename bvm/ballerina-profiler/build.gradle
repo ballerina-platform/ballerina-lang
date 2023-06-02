@@ -1,0 +1,57 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:deprecation"
+    }
+}
+
+
+dependencies {
+    implementation 'junit:junit:4.13.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    implementation group: 'org.ow2.asm', name: 'asm', version: '9.2'
+    implementation group: 'org.ow2.asm', name: 'asm-commons', version: '8.0'
+    implementation 'com.google.code.gson:gson:2.10'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.0.1'
+    implementation 'org.json:json:20171018'
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
+    implementation 'commons-io:commons-io:2.11.0'
+}
+
+version=1.0
+
+test {
+    useJUnitPlatform()
+}
+
+jar {
+
+    from(sourceSets.main.output)
+    from(sourceSets.main.java) {
+        include "**/*.java"
+    }
+
+    from(configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }) {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    manifest {
+        attributes 'Implementation-Title': 'Foobar',
+                'Implementation-Version': '',
+                'Built-By': System.getProperty('user.name'),
+                'Built-Date': new Date(),
+                'Built-JDK': System.getProperty('java.version'),
+                'Main-Class': 'io.ballerina.runtime.profiler.Main'
+    }
+}
