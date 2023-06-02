@@ -836,10 +836,11 @@ public class BIRGen extends BLangNodeVisitor {
                                             funcName, lhsOp, params, closureMapOperands,
                                             lambdaExpr.getBType(), lambdaExpr.function.symbol.strandName,
                                             lambdaExpr.function.symbol.schedulerPolicy, isWorker));
-        if (lambdaExpr.function.flagSet.contains(Flag.RECORD)) {
-            // If the function is for anonymous type and has captured variables, then we need to create a
+        BType targetType = getTargetType(funcName.value);
+        if (lambdaExpr.function.flagSet.contains(Flag.RECORD) && targetType.tag == TypeTags.RECORD) {
+            // If the function is for record type and has captured variables, then we need to create a
             // temp value in the type and keep it
-            BType targetType = getTargetType(funcName.value);
+
             setScopeAndEmit(
                     new BIRNonTerminator.RecordDefaultFPLoad(lhsOp.pos, lhsOp, targetType,
                             getFieldName(funcName.value, targetType.tsymbol.name.value)));

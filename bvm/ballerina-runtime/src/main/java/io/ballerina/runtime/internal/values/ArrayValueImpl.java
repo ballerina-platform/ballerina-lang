@@ -1060,11 +1060,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 return;
             default:
                 if (arrayType.hasFillerValue()) {
-                    if (elementTypedescValue != null) {
-                        extractRecordFillerValues(index);
-                    } else {
-                        extractComplexFillerValues(index);
-                    }
+                    extractComplexFillerValues(index);
+                    System.out.println("Called fill values - " + this);
                 }
         }
     }
@@ -1072,6 +1069,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private void extractComplexFillerValues(int index) {
         for (int i = size; i < index; i++) {
             this.refValues[i] = this.elementType.getZeroValue();
+            System.out.println("filled value - " + this.refValues[i]);
         }
     }
 
