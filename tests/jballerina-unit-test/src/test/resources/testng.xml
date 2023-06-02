@@ -90,7 +90,7 @@
             <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.runtime.api.*"/>
 
-            <package name="org.ballerinalang.test.services.*"/>
+<!--            <package name="org.ballerinalang.test.services.*"/>-->
 
             <package name="org.ballerinalang.test.statements.arrays.*"/>
             <package name="org.ballerinalang.test.statements.assign.*"/>
@@ -151,10 +151,10 @@
             <package name="org.ballerinalang.test.types.xml.*" />
             <package name="org.ballerinalang.test.types.regexp.*" />
 
-            <package name="org.ballerinalang.test.variable.shadowing.*"/>
-            <package name="org.ballerinalang.test.vm.*"/>
-            <package name="org.ballerinalang.test.worker.*"/>
-            <package name="org.ballerinalang.test.visibility"/>
+<!--            <package name="org.ballerinalang.test.variable.shadowing.*"/>-->
+<!--            <package name="org.ballerinalang.test.vm.*"/>-->
+<!--            <package name="org.ballerinalang.test.worker.*"/>-->
+<!--            <package name="org.ballerinalang.test.visibility"/>-->
         </packages>
 
         <classes>

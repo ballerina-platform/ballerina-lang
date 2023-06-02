@@ -157,5 +157,6 @@ public class ClassTest {
     public void tearDown() {
         compileResult = null;
         distinctCompUnit = null;
+        classDefCompileResult = null;
     }
 }

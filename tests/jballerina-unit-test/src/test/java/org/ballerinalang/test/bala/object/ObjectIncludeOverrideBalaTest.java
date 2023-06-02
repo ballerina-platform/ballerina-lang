@@ -20,6 +20,7 @@ package org.ballerinalang.test.bala.object;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -75,5 +76,10 @@ public class ObjectIncludeOverrideBalaTest {
         validateError(negativeRes, index++, "incompatible type reference 'foo:Employee5': " +
                 "a referenced type across modules cannot have non-public fields or methods", 48, 6);
         assertEquals(negativeRes.getErrorCount(), index);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }
