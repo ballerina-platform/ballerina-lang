@@ -117,8 +117,8 @@ task createCodeCoverageReport(type: JacocoReport) {
     reports {
         xml.required = true
         html.required = true
-        xml.destination = new File("${rootDir}/.jacoco/reports/jacoco/report.xml")
-        html.destination = new File("${rootDir}/.jacoco/reports/jacoco/report.html")
+        xml.destination new File("${rootDir}/.jacoco/reports/jacoco/report.xml")
+        html.destination new File("${rootDir}/.jacoco/reports/jacoco/report.html")
     }
     onlyIf = {
         true

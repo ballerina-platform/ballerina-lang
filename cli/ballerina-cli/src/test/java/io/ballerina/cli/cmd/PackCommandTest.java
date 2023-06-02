@@ -76,7 +76,7 @@ public class PackCommandTest extends BaseCommandTest {
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
-                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery").resolve("0.1.0").resolve("java17")
                 .resolve("foo-winery-0.1.0.jar").toFile().exists());
     }
 
@@ -119,7 +119,7 @@ public class PackCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 getOutput("build-project-with-platform-libs.txt"));
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-java11-0.1.0.bala")
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-java17-0.1.0.bala")
                 .toFile().exists());
     }
 
@@ -156,7 +156,7 @@ public class PackCommandTest extends BaseCommandTest {
 
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                 getOutput("build-project-wo-root-pkg-in-deps-toml.txt"));
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-java11-0.1.0.bala")
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-java17-0.1.0.bala")
                 .toFile().exists());
 
         Assert.assertEquals(readFileAsString(projectPath.resolve(DEPENDENCIES_TOML)).trim(), readFileAsString(

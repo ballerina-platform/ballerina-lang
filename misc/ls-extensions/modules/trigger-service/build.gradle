@@ -29,12 +29,12 @@ dependencies {
     compileOnly project(':central-client')
     compileOnly project(':ballerina-lang')
     compileOnly (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
-    implementation 'com.google.code.gson:gson:2.8.8'
+    implementation 'com.google.code.gson:gson:2.10.1'
 
     testImplementation 'org.testng:testng'
     testImplementation project(':language-server:language-server-commons')
     testImplementation project(':language-server:language-server-core')
-    testImplementation 'com.google.code.gson:gson:2.8.8'
+    testImplementation 'com.google.code.gson:gson:2.10.1'
     testImplementation (group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
 }
 

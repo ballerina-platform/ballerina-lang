@@ -306,7 +306,7 @@ public class FileSystemRepository extends AbstractPackageRepository {
         if (!Files.exists(balaPath)) {
             // If bala for any platform not exist check for specific platform
             balaPath = this.bala.resolve(
-                    ProjectUtils.getRelativeBalaPath(org, name, version, JvmTarget.JAVA_11.code()));
+                    ProjectUtils.getRelativeBalaPath(org, name, version, JvmTarget.JAVA_17.code()));
         }
         return balaPath;
     }

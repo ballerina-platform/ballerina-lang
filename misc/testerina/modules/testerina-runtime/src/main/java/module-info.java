@@ -4,12 +4,11 @@ module io.ballerina.testerina.runtime {
     exports org.ballerinalang.test.runtime;
     requires io.ballerina.runtime;
     requires com.google.gson;
-//    requires org.jacoco.core;
+    requires org.jacoco.core;
     requires io.ballerina.lang;
     requires io.ballerina.tools.api;
     requires org.jacoco.report;
     requires io.ballerina.identifier;
-//    requires org.objectweb.asm;
-    requires io.github.javadiffutils;
     requires org.objectweb.asm;
+    requires io.github.javadiffutils;
 }

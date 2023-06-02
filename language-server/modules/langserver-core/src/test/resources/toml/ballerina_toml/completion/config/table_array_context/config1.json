@@ -13,18 +13,18 @@
       "insertText": "[package]"
     },
     {
-      "label": "platform.java11.dependency",
+      "label": "platform.java17.dependency",
       "kind": "Snippet",
       "detail": "Table Array",
       "sortText": "C",
-      "insertText": "[[platform.java11.dependency]]"
+      "insertText": "[[platform.java17.dependency]]"
     },
     {
-      "label": "platform.java11.repository",
+      "label": "platform.java17.repository",
       "kind": "Snippet",
       "detail": "Table Array",
       "sortText": "C",
-      "insertText": "[[platform.java11.repository]]"
+      "insertText": "[[platform.java17.repository]]"
     },
     {
       "label": "groupId",

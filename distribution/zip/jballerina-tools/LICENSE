@@ -60,7 +60,7 @@ ballerina-runtime-0.5.0-java.jar                                                
 ballerina-xmlutils-0.5.0.jar                                                                        jar            apache2
 ballerina-client-generator-2.0.0-Preview1.jar                                                       jar            apache2
 ballerina-lang-2.0.0-Preview1.jar                                                                   jar            apache2
-gson-2.7.jar                                                                                        bundle         apache2
+gson-2.10.1.jar                                                                                        bundle         apache2
 netty-buffer-4.1.39.Final.jar                                                                       bundle         apache2
 docker-extension-2.0.0-Preview1.jar                                                                 jar            apache2
 ballerina-time-1.0.0.jar                                                                            jar            apache2

@@ -99,14 +99,17 @@ test {
         suites 'src/test/resources/testng.xml'
         systemProperty("project.version", project.version)
     }
+
+    jacoco {
+        destinationFile = file("$buildDir/jacoco/all-test.exec")
+    }
 }
 
-//task jacocoMergeTest(type: JacocoTestReport) {
-//    dependsOn ':ballerina-lang:build'
-//    String langProjectBuildDir = project(":ballerina-lang").buildDir
-//    destinationFile = file("$buildDir/jacoco/all-test.exec")
-//    executionData = files("$buildDir/jacoco/test.exec", "$langProjectBuildDir/jacoco/test.exec")
-//}
+task jacocoMergeTest(type: JacocoReport) {
+    dependsOn ':ballerina-lang:build'
+    String langProjectBuildDir = project(":ballerina-lang").buildDir
+    executionData = files("$buildDir/jacoco/test.exec", "$langProjectBuildDir/jacoco/test.exec")
+}
 
 jacocoTestReport.doFirst{
         String langProjectDir = project(":ballerina-lang").projectDir
@@ -116,7 +119,7 @@ jacocoTestReport.doFirst{
         executionData = files("$buildDir/jacoco/all-test.exec")
 }
 
-jacocoTestReport.dependsOn(test)
+jacocoTestReport.dependsOn(jacocoMergeTest)
 
 ext.moduleName = 'io.ballerina.projects.test'
 

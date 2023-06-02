@@ -604,7 +604,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "repository = \"https://github.com/ballerina-platform/module-ballerina-protobuf\"\n" +
                 "\n[build-options]\n" +
                 "observabilityIncluded = true\n" +
-                "\n[[platform.java11.dependency]]\n" +
+                "\n[[platform.java17.dependency]]\n" +
                 "path = \"libs" + File.separator + "protobuf-native-1.0.1.jar\"";
         Assert.assertEquals(
                 readFileAsString(packageDir.resolve(ProjectConstants.BALLERINA_TOML)), expectedTomlContent);

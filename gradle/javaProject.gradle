@@ -173,13 +173,17 @@ test {
         events "failed"
         exceptionFormat "full"
     }
+
+    jacoco {
+        destinationFile = file("$buildDir/jacoco/jacoco.exec")
+    }
 }
 
-//jacocoTestReport {
-//    reports {
-//        xml.required = true
-//    }
-//}
+jacocoTestReport {
+    reports {
+        xml.required = true
+    }
+}
 
 task createJavadoc(type: Javadoc) {
     source = sourceSets.main.java
@@ -192,22 +196,10 @@ check {
     dependsOn createJavadoc
 }
 
-//task jacocoTestReport(type: JacocoReport) {
-//        destinationFile = file("$buildDir/jacoco/jacoco.exec")
-//        executionData = fileTree("$buildDir/jacoco/").matching {
-//            include "**.exec"
-//        }
-//
-//    reports {
-//        xml.required = true
-//    }
-//}
-
-test {
-    finalizedBy jacocoTestReport // report is always generated after tests run
-}
-jacocoTestReport {
-    dependsOn test // tests are required to run before generating the report
+task jacocoMergeExec(type: JacocoReport) {
+    executionData = fileTree("$buildDir/jacoco/").matching {
+        include "**.exec"
+    } as FileCollection
 }
 
 publishing {
@@ -218,7 +210,7 @@ publishing {
     }
 }
 
-test.finalizedBy(jacocoTestReport)
+test.finalizedBy(jacocoMergeExec)
 //compileJava {
 //    doFirst {
 //        inputs.property("moduleName", moduleName)
