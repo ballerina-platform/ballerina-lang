@@ -24,14 +24,12 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
-import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.FiniteType;
 import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.ReferenceType;
-import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -43,11 +41,9 @@ import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BFiniteType;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
-import io.ballerina.runtime.internal.values.TableValueImpl;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBooleanValueNode;
@@ -137,8 +133,7 @@ public class Utils {
             case TABLE:
                 return getAnydataMap((TomlTableNode) tomlNode, visitedNodes, invalidTomlLines, variableName);
             case TABLE_ARRAY:
-                return validateAndGetTableArrayValue((TomlTableArrayNode) tomlNode, visitedNodes, unionType,
-                        invalidTomlLines, variableName);
+                return getMapAnydataArray((TomlTableArrayNode) tomlNode, visitedNodes, invalidTomlLines, variableName);
             case INLINE_TABLE:
                 return getAnydataMap(((TomlInlineTableValueNode) tomlNode).toTable(), visitedNodes, invalidTomlLines,
                         variableName);
@@ -146,26 +141,6 @@ public class Utils {
                 // should not come here
                 return null;
         }
-    }
-
-    private static Object getAnydataTable(TomlTableArrayNode tomlNode, Set<TomlNode> visitedNodes,
-                                          Set<LineRange> invalidTomlLines, String variableName) {
-        List<TomlTableNode> tableNodeList = tomlNode.children();
-        int tableSize = tableNodeList.size();
-        ListInitialValueEntry.ExpressionEntry[] tableEntries =
-                new ListInitialValueEntry.ExpressionEntry[tableSize];
-        int count = 0;
-        for (TomlTableNode tomlTableNode : tableNodeList) {
-            Object value = getBalValueFromToml(tomlTableNode, visitedNodes, (BAnydataType) TYPE_READONLY_ANYDATA,
-                    invalidTomlLines, variableName);
-            tableEntries[count++] = new ListInitialValueEntry.ExpressionEntry(value);
-        }
-        ArrayValue tableData = new ArrayValueImpl(TypeCreator.createArrayType(TYPE_READONLY_ANYDATA_INTERSECTION,
-                true), tableEntries);
-        ArrayValue keyNames = (ArrayValue) StringUtils.fromStringArray(new String[0]);
-        TableType tableType = TypeCreator.createTableType(TypeCreator.createMapType(TYPE_READONLY_ANYDATA_INTERSECTION,
-                true), true);
-        return new TableValueImpl<>(tableType, tableData, keyNames);
     }
 
     private static Object getAnydataMap(TomlTableNode tomlNode, Set<TomlNode> visitedNodes,
@@ -255,12 +230,12 @@ public class Utils {
             return CONFIG_FILE_NAME;
         }
         LineRange oneBasedLineRange = getOneBasedLineRange(node.location().lineRange());
-        return oneBasedLineRange.filePath() + ":" + oneBasedLineRange;
+        return oneBasedLineRange.fileName() + ":" + oneBasedLineRange;
     }
 
     static LineRange getOneBasedLineRange(LineRange lineRange) {
         return LineRange.from(
-                lineRange.filePath(),
+                lineRange.fileName(),
                 LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
                 LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
     }
@@ -309,20 +284,6 @@ public class Utils {
         } else {
             return TypeCreator.createField(getTypeFromTomlValue(value), fieldName, SymbolFlags.READONLY);
         }
-    }
-
-    private static Object validateAndGetTableArrayValue(TomlTableArrayNode tomlNode, Set<TomlNode> visitedNodes,
-                                                        BUnionType unionType, Set<LineRange> invalidTomlLines,
-                                                        String variableName) {
-        boolean hasTable = containsType(unionType, TypeTags.TABLE_TAG);
-        boolean hasMapArray = containsMapArray(unionType);
-        if (hasTable && hasMapArray && unionType.getTag() != TypeTags.ANYDATA_TAG) {
-            throwMemberAmbiguityError(unionType, invalidTomlLines, variableName, tomlNode);
-        }
-        if (hasMapArray) {
-            return getMapAnydataArray(tomlNode, visitedNodes, invalidTomlLines, variableName);
-        }
-        return getAnydataTable(tomlNode, visitedNodes, invalidTomlLines, variableName);
     }
 
     private static Object validateAndGetDoubleValue(TomlDoubleValueNodeNode tomlNode, BUnionType unionType,
@@ -400,17 +361,6 @@ public class Utils {
                 }
             }
             if (typeTag == tag) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean containsMapArray(BUnionType unionType) {
-        for (Type type : unionType.getMemberTypes()) {
-            Type effectiveType = getEffectiveType(type);
-            if (effectiveType.getTag() == TypeTags.ARRAY_TAG &&
-                    isMappingType(getEffectiveType(((ArrayType) effectiveType).getElementType()).getTag())) {
                 return true;
             }
         }

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.util;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -426,7 +427,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             if (this.visitedTypes.contains(member)) {
                 continue;
             }
-            
+
             BType referredMember = Types.getReferredType(member);
             if (this.function != null && referredMember.tag == TypeTags.PARAMETERIZED_TYPE) {
                 BParameterizedType parameterizedType = (BParameterizedType) referredMember;
@@ -556,7 +557,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                     }
 
                     BType type = paramValueTypes.get(paramVarName);
-                    return type == symbolTable.semanticError ? expType : ((BTypedescType) type).constraint;
+                    return type.tag == TypeTags.SEMANTIC_ERROR ? expType :
+                            ((BTypedescType) Types.getReferredType(type)).constraint;
                 }
 
                 if (!types.isAssignable(expType, paramSymbolType)) {
@@ -680,6 +682,10 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private BType getConstraintTypeIfNotError(BType type) {
         if (type == symbolTable.semanticError) {
             return type;
+        }
+
+        if (type.getKind() == TypeKind.TYPEREFDESC) {
+            return ((BTypedescType) (Types.getReferredType(type))).constraint;
         }
 
         return ((BTypedescType) type).constraint;
@@ -850,7 +856,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 return symbolTable.noType;
             }
 
-            BType paramType = requiredParam.getBType();
+            BType paramType = Types.getReferredType(requiredParam.getBType());
             if (paramType.tag != TypeTags.TYPEDESC) {
                 return symbolTable.noType;
             }
@@ -947,7 +953,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         }
 
         List<BType> inferableTypes = new ArrayList<>();
-        
+
         BType referredOriginalType = Types.getReferredType(originalType);
         if (referredOriginalType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) referredOriginalType).getMemberTypes()) {
@@ -968,7 +974,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         if (inferableTypes.isEmpty()) {
             return null;
         }
-        
+
         expType = Types.getReferredType(expType);
         Set<BType> expectedTypes = expType.tag == TypeTags.UNION ? ((BUnionType) expType).getMemberTypes() :
                 Set.of(expType);
@@ -1003,7 +1009,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         if (!unresolvedTypes.add(type)) {
             return false;
         }
-        
+
         type = Types.getReferredType(type, false);
         switch (type.tag) {
             case TypeTags.PARAMETERIZED_TYPE:

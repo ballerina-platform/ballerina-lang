@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
@@ -95,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
@@ -104,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRegExpTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -135,6 +138,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -149,6 +154,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -228,7 +234,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     private SymbolEnv env;
     private SymbolEnv queryEnv;
     private boolean containsCheckExpr;
-    private boolean withinLambdaFunc = false;
+    private boolean withinQuery = false;
+    private boolean withinLambdaOrArrowFunc = false;
     private HashSet<BType> checkedErrorList;
 
     private QueryDesugar(CompilerContext context) {
@@ -545,7 +552,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     BLangVariableReference addPipeline(BLangBlockStmt blockStmt, Location pos,
                                        BLangExpression collection, BType resultType) {
         String name = getNewVarName();
-        BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString(name), env.scope.owner.pkgID,
+        BVarSymbol dataSymbol = new BVarSymbol(0, Names.fromString(name), env.scope.owner.pkgID,
                 collection.getBType(), this.env.scope.owner, pos, VIRTUAL);
         BLangSimpleVariable dataVariable =
                 ASTBuilderUtil.createVariable(pos, name, collection.getBType(),
@@ -933,7 +940,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             }
             tableConstructorExpr.tableKeySpecifier = keySpecifier;
         }
-        BVarSymbol tableSymbol = new BVarSymbol(0, names.fromString(name),
+        BVarSymbol tableSymbol = new BVarSymbol(0, Names.fromString(name),
                                                 env.scope.owner.pkgID, tableType, this.env.scope.owner, pos, VIRTUAL);
         BLangSimpleVariable tableVariable = ASTBuilderUtil.createVariable(pos,
                 name, tableType, tableConstructorExpr, tableSymbol);
@@ -1009,7 +1016,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                                                      boolean isPassthrough) {
         // function(_Frame frame) ... and ref to frame
         BType frameType = getFrameTypeSymbol().type;
-        BVarSymbol frameSymbol = new BVarSymbol(0, names.fromString(FRAME_PARAMETER_NAME),
+        BVarSymbol frameSymbol = new BVarSymbol(0, Names.fromString(FRAME_PARAMETER_NAME),
                                                 this.env.scope.owner.pkgID, frameType, this.env.scope.owner, pos,
                                                 VIRTUAL);
         BLangSimpleVariable frameVariable = ASTBuilderUtil.createVariable(pos, FRAME_PARAMETER_NAME,
@@ -1336,7 +1343,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BSymbol frameTypeSymbol = getFrameTypeSymbol();
         BRecordType frameType = (BRecordType) frameTypeSymbol.type;
         String frameName = getNewVarName();
-        BVarSymbol frameSymbol = new BVarSymbol(0, names.fromString(frameName),
+        BVarSymbol frameSymbol = new BVarSymbol(0, Names.fromString(frameName),
                 env.scope.owner.pkgID, frameType, this.env.scope.owner, pos, VIRTUAL);
         BLangRecordLiteral frameInit = ASTBuilderUtil.createEmptyRecordLiteral(pos, frameType);
         BLangSimpleVariable frameVariable = ASTBuilderUtil.createVariable(
@@ -1485,7 +1492,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      */
     private BSymbol getFrameTypeSymbol() {
         return symTable.langQueryModuleSymbol
-                .scope.lookup(names.fromString("_Frame")).symbol;
+                .scope.lookup(Names.fromString("_Frame")).symbol;
     }
 
     // ---- Visitor methods to replace frame access and mark closure variables ---- //
@@ -1509,10 +1516,10 @@ public class QueryDesugar extends BLangNodeVisitor {
             identifiers = prevIdentifiers;
             currentQueryLambdaBody = prevQueryLambdaBody;
         } else {
-            boolean prevWithinLambdaFunc = withinLambdaFunc;
-            withinLambdaFunc = true;
+            boolean prevWithinLambdaFunc = withinLambdaOrArrowFunc;
+            withinLambdaOrArrowFunc = true;
             function.getBody().accept(this);
-            withinLambdaFunc = prevWithinLambdaFunc;
+            withinLambdaOrArrowFunc = prevWithinLambdaFunc;
         }
     }
 
@@ -1686,7 +1693,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         String identifier = bLangSimpleVarRef.variableName == null ? String.valueOf(bLangSimpleVarRef.varSymbol.name) :
                 String.valueOf(bLangSimpleVarRef.variableName);
         BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env,
-                names.fromString(identifier), SymTag.VARIABLE);
+                Names.fromString(identifier), SymTag.VARIABLE);
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
         if (symbol != null && symbol != resolvedSymbol && !FRAME_PARAMETER_NAME.equals(identifier)) {
@@ -1696,7 +1703,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     symbol = originalSymbol;
                 }
             }
-            if ((withinLambdaFunc || queryEnv == null || !queryEnv.scope.entries.containsKey(symbol.name))
+            if ((withinLambdaOrArrowFunc || queryEnv == null || !queryEnv.scope.entries.containsKey(symbol.name))
                     && !identifiers.containsKey(identifier)) {
                 Location pos = currentQueryLambdaBody.pos;
                 BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
@@ -1706,8 +1713,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
                 if (symbol instanceof BVarSymbol) {
                     ((BVarSymbol) symbol).originalSymbol = null;
-                    if (withinLambdaFunc) {
-                        if (symbol.closure) {
+                    if (withinLambdaOrArrowFunc || withinQuery) {
+                        if (!withinLambdaOrArrowFunc || symbol.closure) {
                             // When there's a closure in a lambda inside a query lambda the symbol.closure is
                             // true for all its usages. Therefore mark symbol.closure = false for the existing
                             // symbol and create a new symbol with the same properties.
@@ -1735,17 +1742,17 @@ public class QueryDesugar extends BLangNodeVisitor {
                     }
                 }
                 identifiers.put(identifier, symbol);
-            } else if (identifiers.containsKey(identifier) && withinLambdaFunc) {
+            } else if (identifiers.containsKey(identifier) && (withinLambdaOrArrowFunc || withinQuery)) {
                 symbol = identifiers.get(identifier);
                 bLangSimpleVarRef.symbol = symbol;
                 bLangSimpleVarRef.varSymbol = symbol;
             }
-        } else if (resolvedSymbol != symTable.notFoundSymbol) {
+        } else if (resolvedSymbol != symTable.notFoundSymbol && symbol != null) {
             resolvedSymbol.closure = true;
             // When there's a type guard, there can be a enclSymbol before type narrowing.
             // So, we have to mark that as a closure as well.
             BSymbol enclSymbol = symResolver.lookupClosureVarSymbol(env.enclEnv,
-                    names.fromString(identifier), SymTag.VARIABLE);
+                    Names.fromString(identifier), SymTag.VARIABLE);
             if (enclSymbol != null && enclSymbol != symTable.notFoundSymbol) {
                 enclSymbol.closure = true;
             }
@@ -1962,7 +1969,10 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
         bLangArrowFunction.params.forEach(this::acceptNode);
+        boolean prevWithinLambdaFunc = this.withinLambdaOrArrowFunc;
+        this.withinLambdaOrArrowFunc = true;
         this.acceptNode(bLangArrowFunction.body);
+        this.withinLambdaOrArrowFunc = prevWithinLambdaFunc;
     }
 
     @Override
@@ -2074,7 +2084,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
-        waitForAllExpr.keyValuePairs.forEach(pair -> this.acceptNode(pair));
+        waitForAllExpr.keyValuePairs.forEach(this::acceptNode);
     }
 
     @Override
@@ -2110,7 +2120,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     //statements
     @Override
     public void visit(BLangBlockStmt blockNode) {
-        blockNode.stmts.forEach(statement -> this.acceptNode(statement));
+        blockNode.stmts.forEach(this::acceptNode);
     }
 
     @Override
@@ -2158,19 +2168,53 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangMatchStatement matchStmt) {
+        this.acceptNode(matchStmt.expr);
+        matchStmt.matchClauses.forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangMatchClause matchClause) {
+        matchClause.matchPatterns.forEach(this::acceptNode);
+        this.acceptNode(matchClause.matchGuard);
+        this.acceptNode(matchClause.blockStmt);
+    }
+
+    @Override
+    public void visit(BLangConstPattern constPattern) {
+    }
+
+    @Override
+    public void visit(BLangWildCardMatchPattern constPattern) {
+    }
+
+    @Override
+    public void visit(BLangMatchGuard matchGuard) {
+        this.acceptNode(matchGuard.expr);
+    }
+
+    @Override
     public void visit(BLangQueryAction queryAction) {
         SymbolEnv prevQueryEnv = this.queryEnv;
-        queryAction.getQueryClauses().forEach(clause -> this.acceptNode(clause));
+        boolean prevWithinQuery = withinQuery;
+        // This can be set to true directly since it's invoked only for nested queries.
+        this.withinQuery = true;
+        queryAction.getQueryClauses().forEach(this::acceptNode);
+        this.withinQuery = prevWithinQuery;
         this.queryEnv = prevQueryEnv;
     }
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
         SymbolEnv prevQueryEnv = this.queryEnv;
-        queryExpr.getQueryClauses().forEach(clause -> this.acceptNode(clause));
+        boolean prevWithinQuery = withinQuery;
+        // This can be set to true directly since it's invoked only for nested queries.
+        this.withinQuery = true;
+        queryExpr.getQueryClauses().forEach(this::acceptNode);
+        this.withinQuery = prevWithinQuery;
         this.queryEnv = prevQueryEnv;
     }
-
+    
     @Override
     public void visit(BLangForeach foreach) {
         this.acceptNode(foreach.collection);
@@ -2188,6 +2232,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     public void visit(BLangJoinClause joinClause) {
         this.acceptNode(joinClause.collection);
         joinClause.collection.accept(this);
+        this.acceptNode(((BLangVariable) joinClause.variableDefinitionNode.getVariable()));
         this.acceptNode((BLangNode) joinClause.onClause.getLeftExpression());
         this.acceptNode((BLangNode) joinClause.onClause.getRightExpression());
     }
@@ -2208,7 +2253,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangDoClause doClause) {
-        doClause.body.getStatements().forEach(statement -> this.acceptNode(statement));
+        doClause.body.getStatements().forEach(this::acceptNode);
     }
 
     @Override
@@ -2278,7 +2323,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
-        forkJoin.workers.forEach(worker -> this.acceptNode(worker));
+        forkJoin.workers.forEach(this::acceptNode);
     }
 
     @Override
@@ -2294,7 +2339,16 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangInvocation.BLangResourceAccessInvocation resourceAccessInvocation) {
         resourceAccessInvocation.argExprs.forEach(this::acceptNode);
+        resourceAccessInvocation.restArgs.forEach(this::acceptNode);
+        resourceAccessInvocation.resourceAccessPathSegments.exprs.forEach(this::acceptNode);
         this.acceptNode(resourceAccessInvocation.expr);
+    }
+
+    @Override
+    public void visit(BLangRegExpTemplateLiteral regExpTemplateLiteral) {
+        List<BLangExpression> interpolationsList =
+                symResolver.getListOfInterpolations(regExpTemplateLiteral.reDisjunction.sequenceList);
+        interpolationsList.forEach(this::acceptNode);
     }
 
     private void acceptNode(BLangNode node) {

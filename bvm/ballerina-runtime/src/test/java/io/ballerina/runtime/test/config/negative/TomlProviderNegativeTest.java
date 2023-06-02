@@ -383,16 +383,16 @@ public class TomlProviderNegativeTest {
     public void testTomlProviderWithStringNegative() {
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = getSimpleVariableKeys(ROOT_MODULE);
-        String tomlContent = "[rootOrg.test_module] intVar = 42.22 floatVar = 3 stringVar = 11";
+        String tomlContent = "[rootOrg.test_module]\nintVar = 42.22\nfloatVar = 3\nstringVar = 11";
         configVarMap.put(ROOT_MODULE, keys);
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                 List.of(new TomlContentProvider(ROOT_MODULE, tomlContent, configVarMap.keySet())));
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 3);
-        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: [BAL_CONFIG_DATA:(1:32,1:37)" +
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: [BAL_CONFIG_DATA:(2:10,2:15)" +
                 "] configurable variable 'intVar' is expected to be of type 'int', but found 'float'");
-        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(), "error: [BAL_CONFIG_DATA:(1:63,1:65)" +
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(), "error: [BAL_CONFIG_DATA:(4:13,4:15)" +
                 "] configurable variable 'stringVar' is expected to be of type 'string', but found 'int'");
     }
 
@@ -550,7 +550,7 @@ public class TomlProviderNegativeTest {
     @Test(dataProvider = "union-ambiguity-provider")
     public void testTomlValueAmbiguityForUnionType(String errorMsg, VariableKey variableKey) {
         validateTomlProviderErrors("UnionAmbiguousType", errorMsg, Map.ofEntries(Map.entry(ROOT_MODULE,
-                new VariableKey[]{variableKey})), 6, 0);
+                new VariableKey[]{variableKey})), 3, 0);
     }
 
     @DataProvider(name = "union-ambiguity-provider")
@@ -571,12 +571,6 @@ public class TomlProviderNegativeTest {
         VariableKey finiteUnion = new VariableKey(ROOT_MODULE, "var3", new BIntersectionType(ROOT_MODULE,
                 new Type[]{unionType4, PredefinedTypes.TYPE_READONLY}, unionType4, 1, true), true);
 
-        MapType mapType = TypeCreator.createMapType(TYPE_ANYDATA);
-        UnionType unionType3 = TypeCreator.createUnionType(List.of(TypeCreator.createArrayType(mapType),
-                TypeCreator.createTableType(mapType, true)), true);
-        VariableKey tableUnion = new VariableKey(ROOT_MODULE, "var4", new BIntersectionType(ROOT_MODULE,
-                new Type[]{unionType3, PredefinedTypes.TYPE_READONLY}, unionType3, 1, true), true);
-
         return new Object[][]{
                 {"[UnionAmbiguousType.toml:(1:8,1:41)] ambiguous target types found for configurable variable 'var1' " +
                         "with type '(string|xml<(lang.xml:Element|lang.xml:Comment|lang" +
@@ -585,9 +579,6 @@ public class TomlProviderNegativeTest {
                         "with type '(float|decimal)'", floatUnion},
                 {"[UnionAmbiguousType.toml:(3:8,3:11)] ambiguous target types found for configurable variable 'var3' " +
                         "with type '(float|Decimals)'", finiteUnion},
-                {"[UnionAmbiguousType.toml:(4:1,6:7)] ambiguous target types found for configurable variable 'var4' " +
-                        "with type '(map<anydata>[]|table<map<(anydata & readonly)> & readonly> & readonly)'",
-                        tableUnion},
         };
     }
 

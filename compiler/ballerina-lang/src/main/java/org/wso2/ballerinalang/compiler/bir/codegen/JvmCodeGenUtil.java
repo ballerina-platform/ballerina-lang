@@ -93,6 +93,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAKE_CONCAT_WITH_CONSTANTS;
@@ -119,6 +120,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_JSTR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_REGEXP;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TABLE_VALUE_IMPL;
@@ -147,6 +149,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_T
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.RETURN_XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.STRING_BUILDER_APPEND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.VOID_METHOD_DESC;
 import static org.wso2.ballerinalang.compiler.util.CompilerUtils.getMajorVersion;
 
 /**
@@ -268,10 +271,10 @@ public class JvmCodeGenUtil {
     }
 
     public static void generateDefaultConstructor(ClassWriter cw, String ownerClass) {
-        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JVM_INIT_METHOD, "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, JVM_INIT_METHOD, VOID_METHOD_DESC, null, null);
         mv.visitCode();
         mv.visitVarInsn(Opcodes.ALOAD, 0);
-        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, ownerClass, JVM_INIT_METHOD, "()V", false);
+        mv.visitMethodInsn(Opcodes.INVOKESPECIAL, ownerClass, JVM_INIT_METHOD, VOID_METHOD_DESC, false);
         mv.visitInsn(Opcodes.RETURN);
         mv.visitMaxs(1, 1);
         mv.visitEnd();
@@ -323,10 +326,6 @@ public class JvmCodeGenUtil {
         return getPackageNameWithSeparator(packageID, "/");
     }
 
-    public static String getSourcePackageName(PackageID packageID) {
-        return getPackageNameWithSeparator(packageID, "/", true);
-    }
-
     private static String getPackageNameWithSeparator(PackageID packageID, String separator) {
         return getPackageNameWithSeparator(packageID, separator, false);
     }
@@ -355,6 +354,12 @@ public class JvmCodeGenUtil {
 
     public static String getModuleLevelClassName(PackageID packageID, String sourceFileName) {
         return getModuleLevelClassName(packageID, sourceFileName, "/");
+    }
+
+    public static void generateExitRuntime(MethodVisitor mv) {
+        mv.visitMethodInsn(INVOKESTATIC , JAVA_RUNTIME, "getRuntime", GET_RUNTIME, false);
+        mv.visitInsn(ICONST_0);
+        mv.visitMethodInsn(INVOKEVIRTUAL , JAVA_RUNTIME, "exit", "(I)V", false);
     }
 
     static String getModuleLevelClassName(PackageID packageID, String sourceFileName, String separator) {
@@ -641,14 +646,12 @@ public class JvmCodeGenUtil {
 
     public static void genYieldCheck(MethodVisitor mv, LabelGenerator labelGen, BIRNode.BIRBasicBlock thenBB,
                                      String funcName, int localVarOffset, int yieldLocationVarIndex,
-                                     Location terminatorPos, String fullyQualifiedFuncName,
-                                     String yieldStatus, int yieldStatusVarIndex) {
+                                     Location terminatorPos, String fullyQualifiedFuncName, String yieldStatus,
+                                     int yieldStatusVarIndex) {
         mv.visitVarInsn(ALOAD, localVarOffset);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRAND_CLASS, "isYielded", "()Z", false);
         generateSetYieldedStatus(mv, labelGen, funcName, yieldLocationVarIndex, terminatorPos,
                 fullyQualifiedFuncName, yieldStatus, yieldStatusVarIndex);
-
-        // goto thenBB
         Label gotoLabel = labelGen.getLabel(funcName + thenBB.id.value);
         mv.visitJumpInsn(GOTO, gotoLabel);
     }
@@ -662,7 +665,7 @@ public class JvmCodeGenUtil {
 
         StringBuilder yieldLocationData = new StringBuilder(fullyQualifiedFuncName);
         if (terminatorPos != null) {
-            yieldLocationData.append("(").append(terminatorPos.lineRange().filePath()).append(":")
+            yieldLocationData.append("(").append(terminatorPos.lineRange().fileName()).append(":")
                     .append(terminatorPos.lineRange().startLine().line() + 1).append(")");
         }
         mv.visitLdcInsn(yieldLocationData.toString());
@@ -714,6 +717,19 @@ public class JvmCodeGenUtil {
                 return true;
             default:
                 return (TypeTags.isIntegerTypeTag(bType.tag)) || (TypeTags.isStringTypeTag(bType.tag));
+        }
+    }
+
+    public static boolean needNoTypeGeneration(int bTypeTag) {
+        switch (bTypeTag) {
+            case TypeTags.RECORD:
+            case TypeTags.ERROR:
+            case TypeTags.OBJECT:
+            case TypeTags.UNION:
+            case TypeTags.TUPLE:
+                return false;
+            default:
+                return true;
         }
     }
 
@@ -839,5 +855,15 @@ public class JvmCodeGenUtil {
 
     public static String getRefTypeConstantName(BTypeReferenceType type) {
         return JvmConstants.TYPEREF_TYPE_VAR_PREFIX + Utils.encodeNonFunctionIdentifier(type.tsymbol.name.value);
+    }
+
+    public static void visitMaxStackForMethod(MethodVisitor mv, String funcName, String className) {
+        try {
+            mv.visitMaxs(0, 0);
+        } catch (Throwable e) {
+            throw new BLangCompilerException(
+                    "error while generating method '" + Utils.decodeIdentifier(funcName) + "' in class '" +
+                            Utils.decodeIdentifier(className) + "'", e);
+        }
     }
 }

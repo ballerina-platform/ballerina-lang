@@ -795,6 +795,7 @@ public class ASTBuilderUtil {
         IdentifierNode identifier = createIdentifier(pos, Names.SELF.getValue());
         receiver.setName(identifier);
         receiver.setBType(type);
+        receiver.flagSet.add(Flag.FINAL);
         return receiver;
     }
 

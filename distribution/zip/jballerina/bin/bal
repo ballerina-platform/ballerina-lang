@@ -32,7 +32,7 @@
 # OS specific support.  $var _must_ be set to either true or false.
 
 # Set JAVA_HOME for installers
-JAVA_PATH=$BALLERINA_HOME/../../dependencies/jdk-11.0.15+10-jre
+JAVA_PATH=$BALLERINA_HOME/../../dependencies/jdk-11.0.18+10-jre
 if test -d "$JAVA_PATH"; then
   JAVA_HOME=$JAVA_PATH
 fi
@@ -194,6 +194,39 @@ for j in "$BALLERINA_HOME"/lib/tools/debug-adapter/lib/*.jar
 do
     BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":$j
 done
+
+# Add bal tool jar files to the class path
+bal_version_file="$HOME/.ballerina/ballerina-version"
+if [ -e "$bal_version_file" ]; then
+bal_version=$(sed -n '1s/[^-]*-\(.*\)/\1/p' $bal_version_file)
+    BAL_TOOLS_FILE="$HOME/.ballerina/.config/dist-$bal_version.toml"
+    if [ -e "$BAL_TOOLS_FILE" ]; then
+        while IFS='=' read -r line; do
+            if echo "$line" | grep -q '\[.*tool.*\]'; then
+                read -r line
+                while [ ! -z "$line" ] && ! echo "$line" | grep -q '\[.*tool.*\]'; do
+                    if echo "$line" | grep -q "org ="; then
+                        org=$(echo "$line" | cut -d '"' -f 2)
+                    fi
+                    if echo "$line" | grep -q "name ="; then
+                        name=$(echo "$line" | cut -d '"' -f 2)
+                    fi
+                    if echo "$line" | grep -q "version ="; then
+                        version=$(echo "$line" | cut -d '"' -f 2)
+                    fi
+                    read -r line
+                done
+                if [ ! -z "$org" ] && [ ! -z "$name" ] && [ ! -z "$version" ]; then
+                    for jar_file in "$HOME/.ballerina/repositories/central.ballerina.io/bala/$org/$name/$version/any/tool/libs"/*.jar; do
+                        BALLERINA_CLASSPATH="$BALLERINA_CLASSPATH":"$jar_file"
+                        done
+                fi
+                org=""
+                name=""
+            fi
+        done < "$BAL_TOOLS_FILE"
+    fi
+fi
 
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then

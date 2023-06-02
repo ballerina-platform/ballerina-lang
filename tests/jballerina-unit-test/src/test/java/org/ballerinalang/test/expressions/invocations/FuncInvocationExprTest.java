@@ -147,6 +147,16 @@ public class FuncInvocationExprTest {
     }
 
     @Test
+    public void testFuncWithNeverReturnTypeWithoutVariableAssignment() {
+        BRunUtil.invoke(funcInvocationExpResult, "testFuncWithNeverReturnTypeWithoutVariableAssignment");
+    }
+
+    @Test
+    public void testFuncWithNilReturnTypeWithoutVariableAssignment() {
+        BRunUtil.invoke(funcInvocationExpResult, "testFuncWithNilReturnTypeWithoutVariableAssignment");
+    }
+
+    @Test
     public void testFunctionCallNegativeCases() {
         int i = 0;
         validateError(funcInvocationNegative, i++, "incompatible types: expected 'int', found 'string'", 3, 16);
@@ -195,6 +205,19 @@ public class FuncInvocationExprTest {
                 "incompatible types: expected 'int[]', found '(int|string)[3]'", 73, 29);
         validateError(funcInvocationNegative, i++,
                 "incompatible types: expected 'int[]', found 'anydata[]'", 74, 29);
+        validateError(funcInvocationNegative, i++,
+                "too many arguments in call to 'sum()'", 102, 18);
+        validateError(funcInvocationNegative, i++,
+                "too many arguments in call to 'sum()'", 103, 18);
+        validateError(funcInvocationNegative, i++,
+                "incompatible types: expected 'string', found 'int[]'", 105, 33);
+        validateError(funcInvocationNegative, i++,
+                "missing required parameter 's' in call to 'fromString()'", 106, 16);
+        validateError(funcInvocationNegative, i++,
+                "undefined defaultable parameter 'ss'", 106, 31);
+        validateError(funcInvocationNegative, i++, "variable assignment is required", 110, 5);
+        validateError(funcInvocationNegative, i++, "variable assignment is required", 111, 5);
+        validateError(funcInvocationNegative, i++, "variable assignment is required", 112, 5);
         Assert.assertEquals(i, funcInvocationNegative.getErrorCount());
     }
 

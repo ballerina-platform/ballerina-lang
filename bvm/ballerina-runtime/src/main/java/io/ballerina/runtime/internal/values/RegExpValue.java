@@ -38,12 +38,11 @@ import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
  */
 public class RegExpValue implements BRegexpValue, RefValue {
     private final RegExpDisjunction regExpDisjunction;
-    private final BTypedesc typedesc;
+    private BTypedesc typedesc;
     private static final Type type = PredefinedTypes.TYPE_READONLY_ANYDATA;
 
     public RegExpValue(RegExpDisjunction regExpDisjunction) {
         this.regExpDisjunction = regExpDisjunction;
-        this.typedesc = getTypedescValue(type, this);
     }
 
     public RegExpDisjunction getRegExpDisjunction() {
@@ -82,6 +81,9 @@ public class RegExpValue implements BRegexpValue, RefValue {
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = getTypedescValue(type, this);
+        }
         return this.typedesc;
     }
 
@@ -98,5 +100,10 @@ public class RegExpValue implements BRegexpValue, RefValue {
     @Override
     public void freezeDirect() {
         // RegExpValue is always readonly
+    }
+
+    @Override
+    public String toString() {
+        return this.stringValue(null);
     }
 }

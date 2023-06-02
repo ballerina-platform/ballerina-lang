@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
@@ -65,8 +66,9 @@ import java.util.stream.Collectors;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
 import static io.ballerina.runtime.internal.JsonInternalUtils.mergeJson;
-import static io.ballerina.runtime.internal.ValueUtils.createSingletonTypedesc;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
+import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -109,7 +111,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         super();
         this.type = type;
         this.referredType = getReferredType(type);
-        this.typedesc = getTypedescValue(type, this);
     }
 
     public MapValueImpl(Type type, BMapInitialValueEntry[] initialValues) {
@@ -117,16 +118,12 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         this.type = type;
         this.referredType = getReferredType(type);
         populateInitialValues(initialValues);
-        if (!type.isReadOnly()) {
-            this.typedesc = new TypedescValueImpl(type);
-        }
     }
 
     public MapValueImpl() {
         super();
         type = PredefinedTypes.TYPE_MAP;
         this.referredType = this.type;
-        this.typedesc = getTypedescValue(type, this);
     }
 
     public Long getIntValue(BString key) {
@@ -166,7 +163,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     /**
      * Retrieve the value for the given key from map.
-     * A {@link BallerinaException} will be thrown if the key does not exists.
+     * A {@link BError} will be thrown if the key does not exists.
      *
      * @param key key used to get the value
      * @return value associated with the key
@@ -182,7 +179,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     /**
      * Retrieve the value for the given key from map. If the key does not exist, but there exists a filler value for
      * the expected type, a new value will be created and added and then returned.
-     * A {@link BallerinaException} will be thrown if the key does not exists and a filler value does not exist.
+     * A {@link BError} will be thrown if the key does not exists and a filler value does not exist.
      *
      * @param key key used to get the value
      * @return value associated with the key
@@ -311,10 +308,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                     true)) {
                 putValue(key, value);
             }
-        }
-
-        if (this.type.isReadOnly()) {
-            this.typedesc = createSingletonTypedesc(this);
         }
     }
 
@@ -458,7 +451,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         refs.put(this, newMap);
         for (Map.Entry<K, V> entry : this.entrySet()) {
             V value = entry.getValue();
-            value = value instanceof RefValue ? (V) ((RefValue) value).copy(refs) : value;
+            value = value instanceof BRefValue ? (V) ((BRefValue) value).copy(refs) : value;
             newMap.put(entry.getKey(), value);
         }
         return newMap;
@@ -497,7 +490,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
                         sj.add("\"" + key + "\":" + ((BValue) value).informalStringValue(mapParent));
                         break;
                     default:
-                        sj.add("\"" + key + "\":" + StringUtils.getStringValue(value, mapParent));
+                        sj.add("\"" + key + "\":" + getStringVal(value, mapParent));
                         break;
                 }
             }
@@ -513,7 +506,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             K key = kvEntry.getKey();
             V value = kvEntry.getValue();
             CycleUtils.Node mapParent = new CycleUtils.Node(this, node);
-            sj.add("\"" + key + "\":" + StringUtils.getExpressionStringValue(value, mapParent));
+            sj.add("\"" + key + "\":" + getExpressionStringVal(value, mapParent));
         }
         return "{" + sj.toString() + "}";
     }
@@ -536,23 +529,22 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         this.referredType = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.referredType);
 
         this.values().forEach(val -> {
-            if (val instanceof RefValue) {
-                ((RefValue) val).freezeDirect();
+            if (val instanceof BRefValue) {
+                ((BRefValue) val).freezeDirect();
             }
         });
-        this.typedesc = createSingletonTypedesc(this);
+        this.typedesc = null;
     }
 
     public String getJSONString() {
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        JsonGenerator gen = new JsonGenerator(byteOut);
-        try {
+        try (ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+             JsonGenerator gen = new JsonGenerator(byteOut)) {
             gen.serialize(this);
             gen.flush();
+            return byteOut.toString();
         } catch (IOException e) {
             throw new BallerinaException("Error in converting JSON to a string: " + e.getMessage(), e);
         }
-        return new String(byteOut.toByteArray());
     }
 
     @Override
@@ -616,6 +608,9 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
     @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = getTypedescValue(type, this);
+        }
         return typedesc;
     }
 

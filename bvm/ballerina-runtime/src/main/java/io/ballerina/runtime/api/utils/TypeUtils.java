@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFiniteType;
-import io.ballerina.runtime.internal.types.BType;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANY;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
@@ -47,7 +46,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_XML;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_XML_ATTRIBUTES;
 
 /**
- * This class contains various methods manipulate {@link BType}s in Ballerina.
+ * This class contains various methods to manipulate {@link Type}s in Ballerina.
  *
  * @since 2.0.0
  */

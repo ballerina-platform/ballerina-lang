@@ -848,7 +848,7 @@ public class AnnotationDesugar {
         return lambdaFunction;
     }
 
-    public void addAnnotsToLiteral(List<BLangAnnotationAttachment> nodeAttachments, BLangRecordLiteral mapLiteral,
+    private void addAnnotsToLiteral(List<BLangAnnotationAttachment> nodeAttachments, BLangRecordLiteral mapLiteral,
                                     Location pos, SymbolEnv env, boolean isLocalObjectCtor) {
         Map<BAnnotationSymbol, List<BLangAnnotationAttachment>> attachments =
                 collectAnnotationAttachments(nodeAttachments, env);

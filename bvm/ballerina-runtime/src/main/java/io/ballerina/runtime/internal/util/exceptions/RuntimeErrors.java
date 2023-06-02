@@ -127,7 +127,24 @@ public enum RuntimeErrors implements DiagnosticCode {
     INVALID_FRACTION_DIGITS("invalid.fraction.digits", "RUNTIME_0099"),
     INVALID_UTF_8_BYTE_ARRAY_VALUE("invalid.utf8.byte.array.value", "RUNTIME_0100"),
     INCOMPATIBLE_ARGUMENTS("incompatible.arguments", "RUNTIME_0101"),
-    DECIMAL_VALUE_OUT_OF_RANGE("decimal.value.out.of.range", "RUNTIME_0102");
+    DECIMAL_VALUE_OUT_OF_RANGE("decimal.value.out.of.range", "RUNTIME_0102"),
+    NEGATIVE_REGEXP_FIND_INDEX("regexp.match.string.negative.index", "RUNTIME_0103"),
+    INVALID_REGEXP_FIND_INDEX("regexp.match.string.index.out.of.range", "RUNTIME_0104"),
+    REGEXP_INVALID_PATTERN("regexp.invalid.pattern", "RUNTIME_0105"),
+    REGEXP_MISSING_BACKSLASH("regexp.missing.backslash", "RUNTIME_0106"),
+    REGEXP_INVALID_CHAR_AFTER_BACKSLASH("regexp.invalid.char.after.backslash", "RUNTIME_0107"),
+    REGEXP_MISSING_OPEN_BRACE("regexp.missing.open.brace", "RUNTIME_0108"),
+    REGEXP_MISSING_CLOSE_BRACE("regexp.missing.close.brace", "RUNTIME_0109"),
+    REGEXP_MISSING_CLOSE_PAREN("regexp.missing.close.paren", "RUNTIME_0110"),
+    REGEXP_MISSING_CLOSE_BRACKET("regexp.missing.close.bracket", "RUNTIME_0111"),
+    REGEXP_INVALID_CHAR_CLASS_RANGE("regexp.invalid.char.class.range", "RUNTIME_0112"),
+    REGEXP_INVALID_FLAG("regexp.invalid.flag", "RUNTIME_0113"),
+    REGEXP_DUPLICATE_FLAG("regexp.duplicate.flag", "RUNTIME_0114"),
+    REGEXP_INVALID_END_CHARACTER("regexp.invalid.end.character", "RUNTIME_0115"),
+    REGEXP_INVALID_CHARACTER("regexp.invalid.character", "RUNTIME_0116"),
+    REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE("regexp.invalid.unicode.general.category.value", "RUNTIME_0117"),
+    REGEXP_INVALID_UNICODE_PROPERTY_VALUE("regexp.invalid.unicode.property.value", "RUNTIME_0118"),
+    REGEXP_EMPTY_CHARACTER_CLASS_DISALLOWED("regexp.empty.character.class.disallowed", "RUNTIME_0119");
 
     private String errorMsgKey;
     private String errorCode;

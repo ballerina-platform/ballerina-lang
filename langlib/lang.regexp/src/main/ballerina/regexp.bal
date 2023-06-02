@@ -60,7 +60,7 @@ type GroupsArrayType GroupsAsSpanArrayType[];
 #
 # r.find("Hello World") is regexp:Span ⇒ true
 #
-# r.find("Hello World", 7) is regexp:Span ⇒ true
+# r.find("Hello World", 6) is regexp:Span ⇒ true
 # ```
 #
 # + re - the regular expression
@@ -153,7 +153,7 @@ public isolated function findAll(RegExp re, string str, int startIndex = 0) retu
 #
 # r.findAllGroups("rubble, trouble, bubble, hubble").length() ⇒ 3
 #
-# r.findAllGroups("rubble, trouble, bubble, hubble", 7) ⇒ 2
+# r.findAllGroups("rubble, trouble, bubble, hubble", 7).length() ⇒ 2
 # ```
 #
 # + re - the regular expression
@@ -378,10 +378,6 @@ public isolated function replaceAll(RegExp re, string str, Replacement replaceme
     if findResult.length() == 0 {
         return str;
     }
-    string prefixStr = "";
-    if (startIndex != 0) {
-        prefixStr = substring(str, 0, startIndex);
-    }
     string updatedString = "";
     int index = 0;
     foreach Groups groups in findResult {
@@ -393,7 +389,7 @@ public isolated function replaceAll(RegExp re, string str, Replacement replaceme
     if index < length(str) {
         updatedString += substring(str, index, length(str));
     }
-    return prefixStr + updatedString;
+    return updatedString;
 }
 
 isolated function substring(string str, int startIndex, int endIndex = length(str)) returns string =

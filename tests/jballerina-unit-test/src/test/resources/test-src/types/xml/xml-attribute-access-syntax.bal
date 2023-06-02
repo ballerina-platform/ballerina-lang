@@ -78,10 +78,10 @@ function usePredefinedXMLNamespace() returns string|error? {
 function testXMLAfterRemoveAttribute() {
     map<string> attributes = {"{http://www.w3.org/2000/xmlns/}ns0":"http://sample.com/test","status":"online"};
     xml:Element element = xml:createElement("{http://sample.com/test}bookStore", attributes, xml ``);
-    assert(element.toString(), "<ns0:bookStore xmlns:ns0=\"http://sample.com/test\" status=\"online\"></ns0:bookStore>");
+    assert(element.toString(), "<ns0:bookStore xmlns:ns0=\"http://sample.com/test\" status=\"online\"/>");
 
     _ = element.getAttributes().remove("{http://www.w3.org/2000/xmlns/}ns0");
-    assert(element.toString(), "<bookStore xmlns=\"http://sample.com/test\" status=\"online\"></bookStore>");
+    assert(element.toString(), "<bookStore xmlns=\"http://sample.com/test\" status=\"online\"/>");
 }
 
 function assert(anydata actual, anydata expected) {

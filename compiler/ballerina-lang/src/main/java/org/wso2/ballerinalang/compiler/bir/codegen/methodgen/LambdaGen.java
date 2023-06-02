@@ -98,7 +98,7 @@ public class LambdaGen {
         this.jvmCastGen = jvmCastGen;
     }
 
-    public void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName) {
+    public void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName, String className) {
         LambdaDetails lambdaDetails = getLambdaDetails(ins);
         MethodVisitor mv = getMethodVisitorAndLoadFirst(cw, lambdaName, lambdaDetails, ins);
 
@@ -108,7 +108,7 @@ public class LambdaGen {
         } else {
             handleFpLambda((BIRNonTerminator.FPLoad) ins, lambdaDetails, mv, paramBTypes);
         }
-        MethodGenUtils.visitReturn(mv);
+        MethodGenUtils.visitReturn(mv, lambdaName, className);
     }
 
     private void genNonVirtual(LambdaDetails lambdaDetails, MethodVisitor mv, List<BType> paramBTypes,

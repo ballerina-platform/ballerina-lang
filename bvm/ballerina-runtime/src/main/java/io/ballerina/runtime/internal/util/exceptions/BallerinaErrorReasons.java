@@ -24,6 +24,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DECIMAL_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FUTURE_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.REGEXP_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.VALUE_LANG_LIB;
@@ -49,6 +50,7 @@ public class BallerinaErrorReasons {
     public static final BString DIVISION_BY_ZERO_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("DivisionByZero"));
     public static final String NUMBER_OVERFLOW_ERROR_IDENTIFIER = "NumberOverflow";
+    public static final String CYCLIC_VALUE_REFERENCE_ERROR = "CyclicValueReferenceError";
     public static final BString NUMBER_OVERFLOW =
             StringUtils.fromString(BALLERINA_PREFIX.concat(NUMBER_OVERFLOW_ERROR_IDENTIFIER));
     public static final BString LARGE_EXPONENT_ERROR = StringUtils.fromString(BALLERINA_PREFIX.concat(
@@ -64,6 +66,8 @@ public class BallerinaErrorReasons {
 
     public static final BString BALLERINA_PREFIXED_CONVERSION_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("ConversionError"));
+    public static final BString BALLERINA_PREFIXED_CYCLIC_VALUE_REFERENCE_ERROR =
+            StringUtils.fromString(BALLERINA_PREFIX.concat(CYCLIC_VALUE_REFERENCE_ERROR));
     public static final BString ITERATOR_MUTABILITY_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat("IteratorMutabilityError"));
 
@@ -93,7 +97,7 @@ public class BallerinaErrorReasons {
     public static final BString VALUE_LANG_LIB_CONVERSION_ERROR = getModulePrefixedReason(VALUE_LANG_LIB,
                                                                                           "ConversionError");
     public static final BString VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR =
-            getModulePrefixedReason(VALUE_LANG_LIB, "CyclicValueReferenceError");
+            getModulePrefixedReason(VALUE_LANG_LIB, CYCLIC_VALUE_REFERENCE_ERROR);
     public static final BString MERGE_JSON_ERROR = getModulePrefixedReason(VALUE_LANG_LIB, "MergeJsonError");
     public static final BString FROM_BAL_STRING_ERROR = getModulePrefixedReason(VALUE_LANG_LIB, "FromBalStringError");
     public static final BString STRING_OPERATION_ERROR = getModulePrefixedReason(STRING_LANG_LIB,
@@ -104,7 +108,7 @@ public class BallerinaErrorReasons {
     public static final BString TABLE_KEY_NOT_FOUND_ERROR = getModulePrefixedReason(TABLE_LANG_LIB,
                                                                                     KEY_NOT_FOUND_ERROR_IDENTIFIER);
     public static final BString TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR =
-            getModulePrefixedReason(TABLE_LANG_LIB, "CyclicValueReferenceError");
+            getModulePrefixedReason(TABLE_LANG_LIB, CYCLIC_VALUE_REFERENCE_ERROR);
     public static final BString TABLE_HAS_A_VALUE_FOR_KEY_ERROR = getModulePrefixedReason(TABLE_LANG_LIB,
                                                                                           "KeyConstraintViolation");
     public static final BString ILLEGAL_LIST_INSERTION_ERROR = getModulePrefixedReason(ARRAY_LANG_LIB,
@@ -123,6 +127,9 @@ public class BallerinaErrorReasons {
     public static final String REG_EXP_PARSING_ERROR_IDENTIFIER = "RegularExpressionParsingError";
     public static final BString REG_EXP_PARSING_ERROR =
             StringUtils.fromString(BALLERINA_PREFIX.concat(REG_EXP_PARSING_ERROR_IDENTIFIER));
+
+    public static final BString REGEXP_OPERATION_ERROR = getModulePrefixedReason(REGEXP_LANG_LIB,
+            "RegularExpressionOperationError");
 
     public static BString getModulePrefixedReason(String moduleName, String identifier) {
         return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)

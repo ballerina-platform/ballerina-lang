@@ -25,10 +25,12 @@ import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
@@ -38,6 +40,7 @@ import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.ballerinalang.langserver.codeaction.CodeActionNodeValidator;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.codeaction.ExpressionNodeValidator;
 import org.ballerinalang.langserver.codeaction.ExtractToFunctionStatementAnalyzer;
 import org.ballerinalang.langserver.command.visitors.IsolatedBlockResolver;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -48,10 +51,12 @@ import org.ballerinalang.langserver.common.utils.NameUtil;
 import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedCodeActionProvider;
 import org.ballerinalang.langserver.commons.codeaction.spi.RangeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
+import org.eclipse.lsp4j.Command;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -85,6 +90,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
     @Override
     public boolean validate(CodeActionContext context, RangeBasedPositionDetails positionDetails) {
         return context.currentSemanticModel().isPresent() && context.currentDocument().isPresent()
+                && positionDetails.matchedCodeActionNode().parent().kind() != SyntaxKind.MATCH_CLAUSE
                 && (!isExpressionNode(positionDetails.matchedCodeActionNode())
                 || isExpressionExtractable(positionDetails))
                 && CodeActionNodeValidator.validate(positionDetails.matchedCodeActionNode());
@@ -353,46 +359,97 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         boolean newLineAtEnd = addNewLineAtEnd(enclosingNode);
         functionInsertRange = PositionUtil.toRange(enclosingNode.lineRange().endLine());
 
-        Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(matchedCodeActionNode);
+        // Check if the selection is a range or a position, and whether quick picks are supported by the client
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (CodeActionUtil.isRangeSelection(context.range())
+                || !lsClientCapabilities.getInitializationOptions().isQuickPickSupported()) {
 
-        if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+            Optional<TypeSymbol> typeSymbol = context.currentSemanticModel().get().typeOf(matchedCodeActionNode);
+
+            if (typeSymbol.isEmpty() || typeSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+                return Collections.emptyList();
+            }
+
+            Optional<List<Symbol>> varAndParamSymbolsWithinRange =
+                    getVarAndParamSymbolsWithinRangeForExprs(matchedCodeActionNode.lineRange(), context);
+
+            if (varAndParamSymbolsWithinRange.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            Optional<ArgListsHolder> argLists = getArgLists(context, varAndParamSymbolsWithinRange.get(),
+                    matchedCodeActionNode);
+
+            if (argLists.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            List<String> argsForExtractFunction = argLists.get().extractFunctionArgs;
+            List<String> argsForReplaceFunctionCall = argLists.get().replaceFunctionCallArgs;
+
+            List<TextEdit> textEdits = getTextEdits(context, matchedCodeActionNode, newLineAtEnd, typeSymbol.get(),
+                    argsForExtractFunction, argsForReplaceFunctionCall, functionInsertRange);
+
+            // Selection is a range
+            CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_FUNCTION,
+                    textEdits, context.fileUri(), CodeActionKind.RefactorExtract);
+            CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_FUNCTION,
+                    textEdits.get(1).getRange().getStart());
+            return Collections.singletonList(codeAction);
+        }
+
+        ExpressionNodeValidator nodeValidator = new ExpressionNodeValidator();
+        matchedCodeActionNode.accept(nodeValidator);
+        if (nodeValidator.isInvalidNode()) {
             return Collections.emptyList();
         }
 
-        Optional<List<Symbol>> varAndParamSymbolsWithinRange =
-                getVarAndParamSymbolsWithinRangeForExprs(matchedCodeActionNode.lineRange(), context);
+        // Selection is a position
+        LinkedHashMap<String, List<TextEdit>> textEditMap = new LinkedHashMap<>();
+        LinkedHashMap<String, Position> renamePositionMap = new LinkedHashMap<>();
 
-        if (varAndParamSymbolsWithinRange.isEmpty()) {
-            return Collections.emptyList();
+        // List out the expression node list that we are going to provide quick pick support
+        // Find the arg list for each of the expression nodes
+
+        List<NonTerminalNode> nodeList = getPossibleExpressionNodes(matchedCodeActionNode);
+        nodeList.forEach(extractableNode -> {
+            Optional<TypeSymbol> tSymbol = context.currentSemanticModel()
+                    .flatMap(semanticModel -> semanticModel.typeOf(extractableNode));
+            if (tSymbol.isEmpty() || tSymbol.get().typeKind() == TypeDescKind.COMPILATION_ERROR) {
+                return;
+            }
+            String key = extractableNode.toSourceCode().strip();
+            Optional<List<Symbol>> varAndParamSymbolsWithinRange =
+                    getVarAndParamSymbolsWithinRangeForExprs(extractableNode.lineRange(), context);
+            if (varAndParamSymbolsWithinRange.isEmpty()) {
+                return;
+            }
+            Optional<ArgListsHolder> argListsHolder = getArgLists(context,
+                    varAndParamSymbolsWithinRange.get(), extractableNode);
+            if (argListsHolder.isEmpty()) {
+                return;
+            }
+            textEditMap.put(key,
+                    getTextEdits(context, extractableNode, newLineAtEnd,
+                            tSymbol.get(),
+                            argListsHolder.get().extractFunctionArgs,
+                            argListsHolder.get().replaceFunctionCallArgs, functionInsertRange));
+            renamePositionMap.put(key, PositionUtil.toRange(extractableNode.lineRange()).getStart());
+        });
+
+        if (lsClientCapabilities.getInitializationOptions().isPositionalRefactorRenameSupported()) {
+            return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_FUNCTION,
+                    new Command(NAME, CommandConstants.EXTRACT_COMMAND,
+                            List.of(NAME, context.filePath().toString(), textEditMap, renamePositionMap)),
+                    CodeActionKind.RefactorExtract));
         }
 
-        Optional<ArgListsHolder> argLists = getArgLists(context, varAndParamSymbolsWithinRange.get(),
-                matchedCodeActionNode);
-
-        if (argLists.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<String> argsForExtractFunction = argLists.get().extractFunctionArgs;
-        List<String> argsForReplaceFunctionCall = argLists.get().replaceFunctionCallArgs;
-
-        String functionName = getFunctionName(context, matchedCodeActionNode);
-        String function = getFunction(context, matchedCodeActionNode, newLineAtEnd, typeSymbol.get(), functionName,
-                argsForExtractFunction);
-
-        String replaceFunctionCall = getReplaceFunctionCall(argsForReplaceFunctionCall, functionName, true);
-
-        TextEdit extractFunctionEdit = new TextEdit(functionInsertRange, function);
-        TextEdit replaceEdit = new TextEdit(PositionUtil.toRange(matchedCodeActionNode.lineRange()),
-                replaceFunctionCall);
-        CodeAction codeAction = CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_FUNCTION,
-                List.of(extractFunctionEdit, replaceEdit), context.fileUri(), CodeActionKind.RefactorExtract);
-        CodeActionUtil.addRenamePopup(context, codeAction, CommandConstants.RENAME_COMMAND_TITLE_FOR_FUNCTION,
-                replaceEdit.getRange().getStart());
-        return List.of(codeAction);
+        return Collections.singletonList(CodeActionUtil.createCodeAction(CommandConstants.EXTRACT_TO_FUNCTION,
+                new Command(NAME, CommandConstants.EXTRACT_COMMAND,
+                        List.of(NAME, context.filePath().toString(), textEditMap)), CodeActionKind.RefactorExtract));
     }
 
-    private String getFunctionName(CodeActionContext context, NonTerminalNode matchedNode) {
+    private String getFunctionName(CodeActionContext context, Node matchedNode) {
         Set<String> visibleSymbolNames = getVisibleSymbols(context,
                 PositionUtil.toPosition(matchedNode.lineRange().endLine())).stream()
                 .map(Symbol::getName)
@@ -401,6 +458,45 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
                 .collect(Collectors.toSet());
 
         return NameUtil.generateTypeName(EXTRACTED_PREFIX, visibleSymbolNames);
+    }
+
+    private List<NonTerminalNode> getPossibleExpressionNodes(NonTerminalNode node) {
+        ExpressionNodeValidator nodeValidator = new ExpressionNodeValidator();
+        // Identify the sub-expressions to be extracted
+        List<NonTerminalNode> nodeList = new ArrayList<>();
+        while (node != null && !isStatementOrModuleMemberDeclarationNode(node) && node.kind() != SyntaxKind.OBJECT_FIELD
+                && !nodeValidator.isInvalidNode()) {
+            nodeList.add(node);
+            node = node.parent();
+            node.accept(nodeValidator);
+        }
+        return nodeList;
+    }
+
+    private static boolean isStatementOrModuleMemberDeclarationNode(NonTerminalNode node) {
+        return node instanceof StatementNode || node instanceof ModuleMemberDeclarationNode;
+    }
+
+    /**
+     * The method is used to get the text edits which includes function call edit and the function definition edit.
+     */
+    private List<TextEdit> getTextEdits(CodeActionContext context,
+                                        Node matchedCodeActionNode,
+                                        boolean newLineAtEnd,
+                                        TypeSymbol typeSymbol,
+                                        List<String> argsForExtractFunction,
+                                        List<String> argsForReplaceFunctionCall,
+                                        Range functionInsertRange) {
+        String functionName = getFunctionName(context, matchedCodeActionNode);
+        String function = getFunction(context, matchedCodeActionNode, newLineAtEnd, typeSymbol, functionName,
+                argsForExtractFunction);
+
+        String replaceFunctionCall = getReplaceFunctionCall(argsForReplaceFunctionCall, functionName, true);
+
+        TextEdit extractFunctionEdit = new TextEdit(functionInsertRange, function);
+        TextEdit replaceEdit = new TextEdit(PositionUtil.toRange(matchedCodeActionNode.lineRange()),
+                replaceFunctionCall);
+        return List.of(extractFunctionEdit, replaceEdit);
     }
 
     /**
@@ -420,7 +516,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
         return isExpr ? funcCall : funcCall + CommonKeys.SEMI_COLON_SYMBOL_KEY;
     }
 
-    private String getFunction(CodeActionContext context, NonTerminalNode matchedNode, boolean newLineEnd,
+    private String getFunction(CodeActionContext context, Node matchedNode, boolean newLineEnd,
                                TypeSymbol typeSymbol, String functionName, List<String> args) {
         String returnsClause =
                 String.format("returns %s", FunctionGenerator.getReturnTypeAsString(context, typeSymbol.signature()));
@@ -565,6 +661,7 @@ public class ExtractToFunctionCodeAction implements RangeBasedCodeActionProvider
          *   5.1. with self keyword inside its expression
          *   5.2. as varRef() in assignment statement
          *   5.3. as lhsExpression() in compound assignment statement
+         * 6. a client declaration (module client declaration is covered inside unSupportedModuleLevelSyntaxKinds)
          **/
         return !unSupportedModuleLevelSyntaxKinds.contains(enclosingModulePartNode.kind())
                 && (nodeKind != SyntaxKind.MAPPING_CONSTRUCTOR || parentKind != SyntaxKind.TABLE_CONSTRUCTOR)

@@ -82,6 +82,8 @@ public class CommandConstants {
 
     public static final String CHANGE_MODULE_PREFIX_TITLE = "Change module prefix to '%s'";
 
+    public static final String REMOVE_MODULE_ALIAS = "Remove module alias";
+
     public static final String CREATE_VARIABLE_TITLE = "Create variable";
 
     public static final String IGNORE_RETURN_TITLE = "Ignore return value";
@@ -188,6 +190,8 @@ public class CommandConstants {
     public static final String RENAME_COMMAND = "ballerina.action.rename";
 
     public static final String POSITIONAL_RENAME_COMMAND = "ballerina.action.positional.rename";
+
+    public static final String EXTRACT_COMMAND = "ballerina.action.extract";
 
     public static final String RENAME_COMMAND_TITLE_FOR_VARIABLE = "Rename variable";
 

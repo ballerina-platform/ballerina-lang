@@ -1,0 +1,6 @@
+Code coverage is not yet supported with single bal files. Ignoring the flag and continuing the test run...
+warning: ignoring --includes flag since code coverage is not enabled
+Compiling source
+	after-func-negative.bal
+ERROR [after-func-negative.bal:(22:12,22:29)] undefined symbol 'afterFuncNonExist'
+error: compilation contains errors

@@ -39,19 +39,16 @@ import static io.ballerina.runtime.api.utils.TypeUtils.getType;
 public class NativeConversionTest {
 
     private CompileResult compileResult;
-
     private CompileResult packageResult;
 
     @BeforeClass
     public void setup() {
-
         compileResult = BCompileUtil.compile("test-src/expressions/conversion/native-conversion.bal");
         packageResult = BCompileUtil.compile("test-src/expressions/conversion/test_project");
     }
 
     @Test
     public void testStructToMap() {
-
         Object returns = BRunUtil.invoke(compileResult, "testStructToMap");
         Assert.assertTrue(returns instanceof BMap<?, ?>);
         BMap<String, ?> map = (BMap<String, ?>) returns;
@@ -90,18 +87,15 @@ public class NativeConversionTest {
 
     @Test
     public void testMapToStruct() {
-
         testMapToStruct(compileResult, "testMapToStruct");
     }
 
     @Test
     public void testNestedMapToNestedStruct() {
-
         testMapToStruct(compileResult, "testNestedMapToNestedStruct");
     }
 
     private void testMapToStruct(CompileResult compileResult, String functionName) {
-
         Object returns = BRunUtil.invoke(compileResult, functionName);
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> struct = (BMap<String, Object>) returns;
@@ -142,7 +136,6 @@ public class NativeConversionTest {
 
     @Test
     public void testJsonToStruct() {
-
         Object returns = BRunUtil.invoke(compileResult, "testJsonToStruct");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> struct = (BMap<String, Object>) returns;
@@ -183,7 +176,6 @@ public class NativeConversionTest {
 
     @Test
     public void testStructToJson() {
-
         Object returns = BRunUtil.invoke(compileResult, "testStructToJson");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> child = ((BMap<String, Object>) returns);
@@ -218,7 +210,6 @@ public class NativeConversionTest {
 
     @Test(description = "Test any type to anydata type at runtime")
     public void testAnyRecordToAnydataMap() {
-
         Object returns = BRunUtil.invoke(compileResult, "testAnyRecordToAnydataMap");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(((BMap) returns).get(StringUtils.fromString("name")).toString(), "Waruna");
@@ -226,7 +217,6 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a map to json")
     public void testMapToJsonConversion() {
-
         Object result = BRunUtil.invoke(compileResult, "testComplexMapToJson");
         Assert.assertTrue(result instanceof BMap);
         Assert.assertEquals(result.toString(), "{\"name\":\"Supun\",\"age\":25,\"gpa\":2.81,\"status\":true}");
@@ -236,13 +226,11 @@ public class NativeConversionTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*'Info2' value cannot be converted to 'json'.*")
     public void testStructWithIncompatibleTypeToJson() {
-
         BRunUtil.invoke(compileResult, "testStructWithIncompatibleTypeToJson");
     }
 
     @Test(description = "Test converting a map to a record, with a map value for a JSON field")
     public void testMapToStructWithMapValueForJsonField() {
-
         Object returns = BRunUtil.invoke(compileResult, "testMapToStructWithMapValueForJsonField");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> personStruct = (BMap<String, Object>) returns;
@@ -254,7 +242,6 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a map with missing field to a struct")
     public void testMapWithMissingOptionalFieldsToStruct() {
-
         Object returns = BRunUtil.invoke(compileResult, "testMapWithMissingOptionalFieldsToStruct");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> personStruct = (BMap<String, Object>) returns;
@@ -269,7 +256,6 @@ public class NativeConversionTest {
             expectedExceptionsMessageRegExp =
                     ".*'map<anydata>' value cannot be converted to 'Person'.*")
     public void testMapWithIncompatibleArrayToStruct() {
-
         BRunUtil.invoke(compileResult, "testMapWithIncompatibleArrayToStruct");
     }
 
@@ -278,7 +264,6 @@ public class NativeConversionTest {
             expectedExceptionsMessageRegExp = ".*'map<anydata>' " +
                     "value cannot be converted to 'Employee'.*")
     public void testMapWithIncompatibleStructToStruct() {
-
         BRunUtil.invoke(compileResult, "testMapWithIncompatibleStructToStruct");
     }
 
@@ -286,13 +271,11 @@ public class NativeConversionTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*'map<json>' value cannot be converted to 'Person'.*")
     public void testIncompatibleJsonToStruct() {
-
         BRunUtil.invoke(compileResult, "testIncompatibleJsonToStruct");
     }
 
     @Test(description = "Test converting a JSON with missing optional fields to a struct")
     public void testJsonToStructWithMissingOptionalFields() {
-
         Object returns = BRunUtil.invoke(compileResult, "testJsonToStructWithMissingOptionalFields");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"name\":\"Child\",\"age\":25,\"parent\":null," +
@@ -305,7 +288,6 @@ public class NativeConversionTest {
             expectedExceptionsMessageRegExp = ".*'map<json>'" +
                     " value cannot be converted to 'PersonWithChildren'.*")
     public void testJsonToStructWithMissingRequiredFields() {
-
         BRunUtil.invoke(compileResult, "testJsonToStructWithMissingRequiredFields");
     }
 
@@ -314,7 +296,6 @@ public class NativeConversionTest {
             expectedExceptionsMessageRegExp = ".*'map<json>'" +
                     " value cannot be converted to 'Person'.*")
     public void testJsonWithIncompatibleMapToStruct() {
-
         BRunUtil.invoke(compileResult, "testJsonWithIncompatibleMapToStruct");
     }
 
@@ -323,7 +304,6 @@ public class NativeConversionTest {
             expectedExceptionsMessageRegExp = ".*'map<json>' " +
                     "value cannot be converted to 'Person'.*")
     public void testJsonWithIncompatibleStructToStruct() {
-
         BRunUtil.invoke(compileResult, "testJsonWithIncompatibleStructToStruct");
     }
 
@@ -331,7 +311,6 @@ public class NativeConversionTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*'json\\[\\]' value cannot be converted to 'Person'.*")
     public void testJsonArrayToStruct() {
-
         BRunUtil.invoke(compileResult, "testJsonArrayToStruct");
     }
 
@@ -339,7 +318,6 @@ public class NativeConversionTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*'map<json>' value cannot be converted to 'Person'.*")
     public void testJsonWithIncompatibleTypeToStruct() {
-
         BRunUtil.invoke(compileResult, "testJsonWithIncompatibleTypeToStruct");
     }
 
@@ -347,13 +325,11 @@ public class NativeConversionTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*'Info' value cannot be converted to 'json'.*")
     public void testStructWithIncompatibleTypeMapToJson() {
-
         BRunUtil.invoke(compileResult, "testStructWithIncompatibleTypeMapToJson");
     }
 
     @Test(description = "Test converting a JSON array to any data array")
     public void testJsonToAnyArray() {
-
         Object returns = BRunUtil.invoke(compileResult, "testJsonToAnyArray");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> anyArrayStruct = (BMap<String, Object>) returns;
@@ -370,7 +346,6 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON array to int array")
     public void testJsonToIntArray() {
-
         Object returns = BRunUtil.invoke(compileResult, "testJsonToIntArray");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> anyArrayStruct = (BMap<String, Object>) returns;
@@ -384,7 +359,6 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON string array to string array")
     public void testJsonToStringArray() {
-
         Object returns = BRunUtil.invoke(compileResult, "testJsonToStringArray");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> anyArrayStruct = (BMap<String, Object>) returns;
@@ -398,17 +372,12 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON integer array to string array")
     public void testJsonIntArrayToStringArray() {
-
         Object returns = BRunUtil.invoke(compileResult, "testJsonIntArrayToStringArray");
         Assert.assertEquals(returns.toString(), "{\"a\":[\"4\",\"3\",\"9\"]}");
     }
 
-    @Test(description = "Test converting a JSON array to xml array",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*'map<json>' " +
-                    "value cannot be converted to 'XmlArray'.*")
+    @Test(description = "Test converting a JSON array to xml array")
     public void testJsonToXmlArray() {
-
         BRunUtil.invoke(compileResult, "testJsonToXmlArray");
     }
 
@@ -416,7 +385,6 @@ public class NativeConversionTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*cannot convert '\\(\\)' to type 'StringArray'.*")
     public void testNullJsonToArray() {
-
         Object returns = BRunUtil.invoke(compileResult, "testNullJsonToArray");
         Assert.assertNull(returns);
     }
@@ -426,7 +394,6 @@ public class NativeConversionTest {
             expectedExceptionsMessageRegExp = ".*'map<json>'" +
                     " value cannot be converted to 'StringArray'.*")
     public void testNullJsonArrayToArray() {
-
         BRunUtil.invoke(compileResult, "testNullJsonArrayToArray");
     }
 
@@ -434,7 +401,6 @@ public class NativeConversionTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*'map<json>' value cannot be converted to 'StringArray': \n\t\t.*")
     public void testNonArrayJsonToArray() {
-
         BRunUtil.invoke(compileResult, "testNonArrayJsonToArray");
     }
 
@@ -442,20 +408,17 @@ public class NativeConversionTest {
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*cannot convert '\\(\\)' to type 'Person'.*")
     public void testNullJsonToStruct() {
-
         BRunUtil.invoke(compileResult, "testNullJsonToStruct");
     }
 
     @Test(description = "Test converting a null Struct to json")
     public void testNullStructToJson() {
-
         Object returns = BRunUtil.invoke(compileResult, "testNullStructToJson");
         Assert.assertNull(returns);
     }
 
     @Test
     public void testStructToMapWithRefTypeArray() {
-
         Object arr = BRunUtil.invoke(compileResult, "testStructToMapWithRefTypeArray");
         BArray returns = (BArray) arr;
         Assert.assertTrue(returns.get(0) instanceof BMap<?, ?>);
@@ -486,7 +449,6 @@ public class NativeConversionTest {
 
     @Test
     public void testStructWithStringArrayToJSON() {
-
         Object returns = BRunUtil.invoke(compileResult, "testStructWithStringArrayToJSON");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"names\":[\"John\",\"Doe\"]}");
@@ -494,7 +456,6 @@ public class NativeConversionTest {
 
     @Test
     public void testEmptyJSONtoStructWithOptionals() {
-
         Object returns = BRunUtil.invoke(compileResult, "testEmptyJSONtoStructWithOptionals");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> bValue = (BMap<String, Object>) returns;
@@ -503,7 +464,6 @@ public class NativeConversionTest {
 
     @Test
     public void structWithComplexMapToJson() {
-
         Object returns = BRunUtil.invoke(compileResult, "structWithComplexMapToJson");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(), "{\"foo\":{\"a\":4,\"b\":2.5,\"c\":true,\"d\":\"apple\"," +
@@ -512,7 +472,6 @@ public class NativeConversionTest {
 
     @Test
     public void structWithComplexArraysToJson() {
-
         Object returns = BRunUtil.invoke(compileResult, "structWithComplexArraysToJson");
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.toString(),
@@ -522,7 +481,6 @@ public class NativeConversionTest {
 
     @Test
     public void testJsonToRecordInPackage() {
-
         Object returns = BRunUtil.invoke(packageResult, "testJsonToRecord");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> struct = (BMap<String, Object>) returns;
@@ -543,7 +501,6 @@ public class NativeConversionTest {
 
     @Test
     public void testMapToRecordInPackage() {
-
         Object returns = BRunUtil.invoke(packageResult, "testMapToRecord");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> struct = (BMap<String, Object>) returns;
@@ -565,7 +522,6 @@ public class NativeConversionTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testJsonToMapUnconstrained() {
-
         Object returns = BRunUtil.invoke(compileResult, "testJsonToMapUnconstrained");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, ?> map = (BMap<String, ?>) returns;
@@ -576,7 +532,6 @@ public class NativeConversionTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testJsonToMapConstrained1() {
-
         Object returns = BRunUtil.invoke(compileResult, "testJsonToMapConstrained1");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, ?> map = (BMap<String, ?>) returns;
@@ -586,7 +541,6 @@ public class NativeConversionTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testJsonToMapConstrained2() {
-
         Object returns = BRunUtil.invoke(compileResult, "testJsonToMapConstrained2");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, ?> map = (BMap<String, ?>) returns;
@@ -598,13 +552,11 @@ public class NativeConversionTest {
             expectedExceptionsMessageRegExp = ".*'map<json>' " +
                     "value cannot be converted to 'T1Map'.*")
     public void testJsonToMapConstrainedFail() {
-
         BRunUtil.invoke(compileResult, "testJsonToMapConstrainedFail");
     }
 
     @Test
     public void testStructArrayConversion1() {
-
         Object returns = BRunUtil.invoke(compileResult, "testStructArrayConversion1");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> struct = (BMap<String, Object>) returns;
@@ -613,7 +565,6 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting incompatible record types")
     public void testStructArrayConversion2() {
-
         Object returns = BRunUtil.invoke(compileResult, "testStructArrayConversion2");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, Object> struct = (BMap<String, Object>) returns;
@@ -622,13 +573,11 @@ public class NativeConversionTest {
 
     @Test
     public void testTupleConversion1() {
-
         BRunUtil.invoke(compileResult, "testTupleConversion1");
     }
 
     @Test
     public void testTupleConversion2() {
-
         Object arr = BRunUtil.invoke(compileResult, "testTupleConversion2");
         BArray returns = (BArray) arr;
         Assert.assertEquals(returns.size(), 2);
@@ -638,27 +587,23 @@ public class NativeConversionTest {
 
     @Test
     public void testArrayToJson1() {
-
         Object returns = BRunUtil.invoke(compileResult, "testArrayToJson1");
         Assert.assertEquals(returns.toString(), "[10,15]");
     }
 
     @Test
     public void testArrayToJson2() {
-
         Object returns = BRunUtil.invoke(compileResult, "testArrayToJson2");
         Assert.assertEquals(returns.toString(), "[{\"x\":10,\"y\":0},{\"x\":15,\"y\":0}]");
     }
 
     @Test
     public void testJsonToArray1() {
-
-        Object returns = BRunUtil.invoke(compileResult, "testJsonToArray1");
+        BRunUtil.invoke(compileResult, "testJsonToArray1");
     }
 
     @Test
     public void testJsonToArray2() {
-
         Object returns = BRunUtil.invoke(compileResult, "testJsonToArray2");
         Assert.assertEquals(returns.toString(), "[1,2,3]");
     }
@@ -668,13 +613,11 @@ public class NativeConversionTest {
             expectedExceptionsMessageRegExp = ".*'map<json>' value cannot" +
                     " be converted to 'IntArrayType'.*")
     public void testJsonToArrayFail() {
-
         BRunUtil.invoke(compileResult, "testJsonToArrayFail");
     }
 
     @Test
     public void testJsonFloatToRecordWithFloat() {
-
         Object returns = BRunUtil.invoke(compileResult, "testJsonFloatToRecordWithFloat");
         Assert.assertTrue(returns instanceof BMap);
         Assert.assertEquals(returns.toString(), "{\"f\":3.0}");
@@ -682,7 +625,6 @@ public class NativeConversionTest {
 
     @Test(description = "Test result is json after converting record to json")
     public void testRecordToJsonWithIsJson() {
-
         Object returns = BRunUtil.invoke(compileResult, "testRecordToJsonWithIsJson");
         Assert.assertTrue(returns instanceof Boolean);
         Assert.assertTrue((Boolean) returns);
@@ -690,7 +632,6 @@ public class NativeConversionTest {
 
     @Test(description = "Test convert any, anydata and json values to string")
     public void testImplicitConversionToString() {
-
         Object returns = BRunUtil.invoke(compileResult, "testImplicitConversionToString");
         Assert.assertTrue(returns instanceof BMap);
         BMap<String, ?> map = (BMap<String, ?>) returns;
@@ -704,7 +645,6 @@ public class NativeConversionTest {
 
     @Test
     public void testConvertWithFuncCall() {
-
         Object returns = BRunUtil.invoke(compileResult, "testConvertWithFuncCall");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 5L);
@@ -712,7 +652,6 @@ public class NativeConversionTest {
 
     @Test
     public void testConvertWithFuncReturnUnion() {
-
         Object returns = BRunUtil.invoke(compileResult, "testConvertWithFuncReturnUnion");
         Assert.assertTrue(returns instanceof Long);
         Assert.assertEquals(returns, 125L);

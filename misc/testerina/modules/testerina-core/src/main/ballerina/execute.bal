@@ -14,11 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.'error as langError;
+
 boolean shouldSkip = false;
 boolean shouldAfterSuiteSkip = false;
 int exitCode = 0;
 
 public function startSuite() {
+    // exit if setTestOptions has failed
+    exitOnError();
     if listGroups {
         string[] groupsList = groupStatusRegistry.getGroupsList();
         if groupsList.length() == 0 {
@@ -44,8 +48,12 @@ public function startSuite() {
             reportGenerators.forEach(reportGen => reportGen(reportData));
         }
     }
-    if (exitCode > 0) {
-        panic(error(""));
+    exitOnError();
+}
+
+function exitOnError() {
+    if exitCode > 0 {
+        panic (error(""));
     }
 }
 
@@ -131,7 +139,7 @@ function executeDataDrivenTest(TestFunction testFunction, string suffix, TestTyp
 
     ExecutionError|boolean err = executeTestFunction(testFunction, suffix, testType, params);
     if err is ExecutionError {
-        reportData.onFailed(name = testFunction.name, message = "[fail data provider for the function " + testFunction.name
+        reportData.onFailed(name = testFunction.name, suffix = suffix, message = "[fail data provider for the function " + testFunction.name
             + "]\n" + getErrorMessage(err), testType = testType);
         exitCode = 1;
     }
@@ -298,15 +306,15 @@ function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType t
                     continue;
                 }
             }
-            string|error decodedSubFilter = decode(updatedSubFilter, UTF8_ENC);
-            updatedSubFilter = decodedSubFilter is string? decodedSubFilter : updatedSubFilter;
-            string|error decodedSuffix = decode(suffix, UTF8_ENC);
-            string updatedSuffix = decodedSuffix is string? decodedSuffix : suffix;
-            
+            string|error decodedSubFilter = escapeSpecialCharacters(updatedSubFilter);
+            updatedSubFilter = decodedSubFilter is string ? decodedSubFilter : updatedSubFilter;
+            string|error decodedSuffix = escapeSpecialCharacters(suffix);
+            string updatedSuffix = decodedSuffix is string ? decodedSuffix : suffix;
+
             boolean wildCardMatchBoolean = false;
             if (updatedSubFilter.includes(WILDCARD)) {
-                    boolean|error wildCardMatch = matchWildcard(updatedSuffix, updatedSubFilter);
-                    wildCardMatchBoolean = wildCardMatch is boolean && wildCardMatch;
+                boolean|error wildCardMatch = matchWildcard(updatedSuffix, updatedSubFilter);
+                wildCardMatchBoolean = wildCardMatch is boolean && wildCardMatch;
             }
             if ((updatedSubFilter == updatedSuffix) || wildCardMatchBoolean) {
                 suffixMatch = true;
@@ -320,7 +328,7 @@ function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType t
 }
 
 function printExecutionError(ExecutionError err, string functionSuffix)
-    => println("\t[fail] " + err.detail().functionName + "[" + functionSuffix + "]" + ":\n\t    " + err.message());
+    => println("\t[fail] " + err.detail().functionName + "[" + functionSuffix + "]" + ":\n\t    " + formatFailedError(err.message(), 2));
 
 function executeFunctions(TestFunction[] testFunctions, boolean skip = false) returns ExecutionError? {
     foreach TestFunction testFunction in testFunctions {
@@ -355,8 +363,13 @@ function executeFunction(TestFunction|function testFunction) returns ExecutionEr
 }
 
 function getErrorMessage(error err) returns string {
-    string|error message = err.detail()["message"].ensureType();
-    return message is error ? err.message() : message;
+    string message = err.toBalString();
+
+    string accumulatedTrace = "";
+    foreach langError:StackFrame stackFrame in err.stackTrace() {
+        accumulatedTrace = accumulatedTrace + "\t" + stackFrame.toString() + "\n";
+    }
+    return message + "\n" + accumulatedTrace;
 }
 
 function orderTests() returns error? {
@@ -374,6 +387,17 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
 
     foreach function dependsOnFunction in testFunction.dependsOn {
         TestFunction dependsOnTestFunction = check testRegistry.getTestFunction(dependsOnFunction);
+
+        // if the dependsOnFunction is disabled by the user, throw an error
+        // dependsOnTestFunction.config?.enable is used instead of dependsOnTestFunction.enable to ensure that
+        // the user has deliberately passed enable=false
+        boolean? dependentEnabled = dependsOnTestFunction.config?.enable;
+        if dependentEnabled != () && !dependentEnabled {
+            string errMsg = string `error: Test [${testFunction.name}] depends on function [${dependsOnTestFunction.name}], `
+            + string `but it is either disabled or not included.`;
+            return error(errMsg);
+        }
+
         dependsOnTestFunction.dependents.push(testFunction);
 
         // Contains cyclic dependencies 
@@ -408,7 +432,7 @@ function nestedEnabledDependentsAvailable(TestFunction[] dependents) returns boo
     }
     TestFunction[] queue = [];
     foreach TestFunction dependent in dependents {
-        if(dependent.enabled) {
+        if (dependent.enabled) {
             return true;
         }
         dependent.dependents.forEach((superDependent) => queue.push(superDependent));

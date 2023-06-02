@@ -70,8 +70,6 @@ public class CreateExecutableTask implements Task {
 
         if (!project.buildOptions().nativeImage()) {
             this.out.println("Generating executable");
-        } else {
-            this.out.println("Generating executable with Native image");
         }
 
         this.currentDir = Paths.get(System.getProperty(USER_DIR));
