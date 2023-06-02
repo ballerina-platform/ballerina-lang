@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -114,6 +115,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ST
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_LOCATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.YIELD_STATUS;
@@ -905,6 +907,7 @@ public class MethodGen {
                 break;
             case TypeTags.TABLE:
                 mv.visitVarInsn(ALOAD, index);
+                mv.visitTypeInsn(CHECKCAST, TABLE_VALUE_IMPL);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                         GET_TABLE_VALUE_IMPL);
                 break;
@@ -945,13 +948,16 @@ public class MethodGen {
             case TypeTags.ANY:
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
-            case TypeTags.INTERSECTION:
             case TypeTags.JSON:
             case TypeTags.FINITE:
             case TypeTags.READONLY:
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
                         GET_OBJECT);
+                break;
+            case TypeTags.INTERSECTION:
+                generateFrameClassFieldUpdateByTypeTag(mv, frameName, localVar, index,
+                        ((BIntersectionType) bType).getEffectiveType());
                 break;
             case TypeTags.HANDLE:
                 mv.visitVarInsn(ALOAD, index);
