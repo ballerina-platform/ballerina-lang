@@ -46,6 +46,7 @@ public function registerTest(string name, function f) {
 function processConfigAnnotation(string name, function f) returns boolean {
     TestConfig? config = (typeof f).@Config;
     if config != () {
+        // Evaluate the test function to determine the parallelizability of the test function.
         boolean isTestFunctionIsolated = f is isolated function;
         boolean isDataProviderIsolated = true;
         boolean isTestFunctionParamSafe = true;
@@ -68,6 +69,7 @@ function processConfigAnnotation(string name, function f) returns boolean {
             }
         }
 
+        // Register the reason for serial execution.
         if !isTestFunctionIsolated {
             reasonToSerialExecution.push("non-isolated test function");
         }
@@ -79,6 +81,8 @@ function processConfigAnnotation(string name, function f) returns boolean {
         if !isTestFunctionParamSafe {
             reasonToSerialExecution.push("unsafe test parameters");
         }
+
+        // If the test function is not parallelizable, then print the reason for serial execution.
         if !isSatisfiedParallelizableConditions && !config.serialExecution && (testWorkers > 1) {
             println("WARNING : Test function '" + name + "' cannot be parallelized due to " + string:'join(",", ...reasonToSerialExecution));
         }

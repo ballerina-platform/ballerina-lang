@@ -69,6 +69,7 @@ function exitOnError() {
 
 function executeTests() returns error? {
     decimal startTime = currentTimeInMillis();
+    // Add intial independant tests to the execution queue based on parallelizable condition
     foreach TestFunction testFunction in testRegistry.getFunctions() {
         if testFunction.parallelizable {
             parallelTestExecutionList.push(testFunction);
@@ -94,29 +95,35 @@ function executeTests() returns error? {
             break;
         }
 
+        //Execute tests if there are available workers
         if (getAvailableWorkerCount() != 0) {
 
+            //If there are no tests to execute, wait for tests to be added to the execution queue
             if paralalTestExecutionListLength == 0 && serialTestExecutionListLength == 0 {
                 runtime:sleep(0.0001);
                 continue;
 
             }
 
+            //Execute serial tests if there are no test in execution process
             if (serialTestExecutionListLength != 0 && getAvailableWorkerCount() == testWorkers) {
                 lock {
                     testFunction = serialTestExecutionList.remove(0);
                 }
-
+                // wait until the test is complete execution
                 if testFunction is TestFunction {
                     allocateWorker();
                     future<error?> serialWaiter = start executeTest(testFunction);
                     any _ = check wait serialWaiter;
                 }
 
+                // Execute parallel tests if there are no serial tests in execution queue
             } else if paralalTestExecutionListLength != 0 && serialTestExecutionListLength == 0 {
                 lock {
                     testFunction = parallelTestExecutionList.remove(0);
                 }
+
+                // wait for the data driven tests to allocate workers
                 if testFunction is TestFunction {
                     allocateWorker();
                     future<(error?)> parallelWaiter = start executeTest(testFunction);
@@ -133,10 +140,13 @@ function executeTests() returns error? {
 }
 
 function executeTest(TestFunction testFunction) returns error? {
+    // release worker if test is not enabled
     if !testFunction.enabled {
         releaseWorker();
         return;
     }
+
+    // relese worker if test has diagnostic errors
     error? diagnoseError = testFunction.diagnostics;
     if diagnoseError is error {
         lock {
@@ -180,6 +190,7 @@ function executeTest(TestFunction testFunction) returns error? {
     releaseWorker();
 }
 
+//Reduce the dependents count and add to the execution queue if all the dependencies are executed
 function checkExecutionReadiness(TestFunction testFunction) {
     lock {
         testFunction.dependsOnCount -= 1;
@@ -217,20 +228,25 @@ function executeDataDrivenTestSet(TestFunction testFunction) returns error? {
     boolean isIntialJob = true;
 
     while true {
+        //Break if there is no keys to execute or all keys are executed
         if keys.length() == 0 {
             break;
         }
 
+        //Reuse the already assigned worker for 1st data driven test or 
+        // if there are available workers assign a worker for the next data driven test
         if isIntialJob || getAvailableWorkerCount() > 0 {
             string key = keys.remove(0);
             AnyOrError[] value = values.remove(0);
 
+            // Allocate worker from 2nd data driven test onwards
             if !isIntialJob {
                 allocateWorker();
             }
 
             future<()> serialWaiter = start prepareDataDrivenTest(testFunction, key, value, testType);
 
+            //Wait for the test to complete if the test is not parallelizable
             if !testFunction.parallelizable {
                 any _ = check wait serialWaiter;
             }
@@ -239,6 +255,7 @@ function executeDataDrivenTestSet(TestFunction testFunction) returns error? {
 
         isIntialJob = false;
 
+        //Wait until at least one worker is available
         if getAvailableWorkerCount() == 0 {
             runtime:sleep(0.0001);
             continue;
@@ -246,6 +263,7 @@ function executeDataDrivenTestSet(TestFunction testFunction) returns error? {
         runtime:sleep(0.0001);
     }
 
+    //Wait until at least one worker is available
     while true {
         if getAvailableWorkerCount() > 0 {
             break;
@@ -253,11 +271,13 @@ function executeDataDrivenTestSet(TestFunction testFunction) returns error? {
         runtime:sleep(0.0001);
     }
 
+    // Allocate the worker for the remaining processing of data driven test
     if !isIntialJob {
         allocateWorker();
     }
 }
 
+// Execute the data driven test and release the worker
 function prepareDataDrivenTest(TestFunction testFunction, string key, AnyOrError[] value, TestType testType) {
     boolean beforeFailed = executeBeforeFunction(testFunction);
     if (beforeFailed) {
