@@ -17,13 +17,21 @@
  */
 package org.ballerinalang.langserver.workspace;
 
+import com.google.gson.JsonPrimitive;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.util.ProjectConstants;
+import org.apache.commons.io.FileUtils;
+import org.ballerinalang.langserver.command.executors.RunExecutor;
+import org.ballerinalang.langserver.command.executors.StopExecutor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.ExecuteCommandContext;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.eventsync.exceptions.EventSyncException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
@@ -34,17 +42,21 @@ import org.eclipse.lsp4j.FileEvent;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.mockito.MockSettings;
+import org.mockito.Mockito;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Locale;
 import java.util.Optional;
-
 /**
  * Contains a set of utility methods to manage projects.
  *
@@ -300,6 +312,55 @@ public class TestWorkspaceManager {
     }
 
     @Test
+    public void testWSEventsCreateBalToolToml() throws WorkspaceDocumentException, IOException {
+        Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal").toAbsolutePath();
+
+        // Open project
+        openFile(filePath);
+
+        // Create a BalTool.toml and send CREATED event
+        Path balToolTomlFile = RESOURCE_DIRECTORY.resolve("myproject")
+                .resolve(ProjectConstants.BAL_TOOL_TOML).toAbsolutePath();
+        Files.write(balToolTomlFile, "".getBytes());
+        FileEvent fileEvent = new FileEvent(balToolTomlFile.toUri().toString(), FileChangeType.Created);
+        try {
+            workspaceManager.didChangeWatched(balToolTomlFile, fileEvent);
+
+            Optional<Project> project = workspaceManager.project(filePath);
+            // Project should not empty
+            Assert.assertTrue(project.isPresent());
+            // Project should contain BalTool.toml
+            Assert.assertTrue(project.get().currentPackage().balToolToml().isPresent());
+        } finally {
+            Files.deleteIfExists(balToolTomlFile);
+        }
+    }
+
+    @Test
+    public void testWSEventsDeleteBalToolToml() throws WorkspaceDocumentException, IOException {
+        Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal").toAbsolutePath();
+
+        // Create a Compiler-plugin.toml file
+        Path balToolToml = RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.BAL_TOOL_TOML)
+                .toAbsolutePath();
+        Files.write(balToolToml, "".getBytes());
+
+        // Open project
+        openFile(filePath);
+
+        // Delete a file and send DELETED event
+        Files.delete(balToolToml);
+        FileEvent fileEvent = new FileEvent(balToolToml.toUri().toString(), FileChangeType.Deleted);
+        workspaceManager.didChangeWatched(balToolToml, fileEvent);
+
+        Optional<Project> project = workspaceManager.project(filePath);
+        // Project should not empty
+        Assert.assertTrue(project.isPresent());
+        // Project should not contain Compiler-plugin.toml
+        Assert.assertTrue(project.get().currentPackage().balToolToml().isEmpty());
+    }
+
+    @Test
     public void testWSEventsCreateDependenciesToml() throws WorkspaceDocumentException, IOException {
         Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal").toAbsolutePath();
 
@@ -423,6 +484,37 @@ public class TestWorkspaceManager {
         // Loaded project should not be empty
         Optional<Project> project = workspaceManager.project(filePath1);
         Assert.assertTrue(project.isPresent());
+    }
+
+    @Test
+    public void testWSRunStopProject()
+            throws WorkspaceDocumentException, EventSyncException, IOException, LSCommandExecutorException {
+        Path filePath = RESOURCE_DIRECTORY.resolve("long_running").resolve("main.bal").toAbsolutePath();
+        System.setProperty("java.command", guessJavaPath());
+        workspaceManager.loadProject(filePath);
+        RunExecutor runExecutor = new RunExecutor();
+        MockSettings mockSettings = Mockito.withSettings().stubOnly();
+        ExecuteCommandContext execContext = Mockito.mock(ExecuteCommandContext.class, mockSettings);
+        CommandArgument arg = CommandArgument.from("path", new JsonPrimitive(filePath.toString()));
+        Mockito.when(execContext.getArguments()).thenReturn(Collections.singletonList(arg));
+        Mockito.when(execContext.workspace()).thenReturn(workspaceManager);
+        ExtendedLanguageClient languageClient = Mockito.mock(ExtendedLanguageClient.class, mockSettings);
+        Mockito.when(execContext.getLanguageClient()).thenReturn(languageClient);
+        Boolean didRan = runExecutor.execute(execContext);
+        Assert.assertTrue(didRan);
+
+        StopExecutor stopExecutor = new StopExecutor();
+        Boolean didStop = stopExecutor.execute(execContext);
+        Assert.assertTrue(didStop);
+
+        Path target = RESOURCE_DIRECTORY.resolve("long_running").resolve("target");
+        FileUtils.deleteDirectory(target.toFile());
+    }
+
+    private static String guessJavaPath() {
+        boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
+        String exe = isWindows ? "java.exe" : "java";
+        return System.getProperty("java.home") + File.separator + "bin" + File.separator + exe;
     }
 
     private void openFile(Path singleFile) throws WorkspaceDocumentException {

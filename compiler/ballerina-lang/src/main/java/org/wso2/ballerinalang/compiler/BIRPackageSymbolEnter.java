@@ -550,6 +550,7 @@ public class BIRPackageSymbolEnter {
             if (type.tag == TypeTags.TYPEREFDESC && Objects.equals(type.tsymbol.name.value, typeDefName)
                     && type.tsymbol.owner == this.env.pkgSymbol) {
                 referenceType = (BTypeReferenceType) type;
+                referenceType.tsymbol.pos = pos;
             } else {
                 BTypeSymbol typeSymbol = new BTypeSymbol(SymTag.TYPE_REF, flags, names.fromString(typeDefName),
                         this.env.pkgSymbol.pkgID, type, this.env.pkgSymbol, pos, COMPILED_SOURCE);

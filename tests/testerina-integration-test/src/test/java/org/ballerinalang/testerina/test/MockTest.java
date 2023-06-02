@@ -190,10 +190,10 @@ public class MockTest extends BaseTestCase {
         String output =
                 balClient.runMainAndReadStdOut("test", args, new HashMap<>(),
                         projectBasedTestsPath.resolve("non-public-field-mock").toString(), false);
-        String firstString = "Generating Test Report\n\t";
+        String firstString = "Generating Test Report";
         String endString = "project-based-tests";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
-        AssertionUtils.assertOutput("MockTest-testObjectMocking_NegativeCases8.txt", output);
+        AssertionUtils.assertOutput("MockTest-testObjectMocking_NonPublicField.txt", output);
     }
 
     @DataProvider(name = "testNegativeCases")

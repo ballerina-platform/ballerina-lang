@@ -24,10 +24,14 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmCreateTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.JvmValueCreatorGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +63,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_R
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.CREATE_RECORD_WITH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.TYPE_PARAMETER;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeFieldName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 
 /**
@@ -71,10 +74,12 @@ public class JvmRecordCreatorGen {
 
     private final String recordsClass;
     private final JvmValueCreatorGen jvmValueCreatorGen;
+    private final JvmTypeGen jvmTypeGen;
 
-    public JvmRecordCreatorGen(JvmValueCreatorGen jvmValueCreatorGen, PackageID packageID) {
+    public JvmRecordCreatorGen(JvmValueCreatorGen jvmValueCreatorGen, PackageID packageID, JvmTypeGen jvmTypeGen) {
         this.recordsClass = getModuleLevelClassName(packageID, MODULE_RECORDS_CREATOR_CLASS_NAME);
         this.jvmValueCreatorGen = jvmValueCreatorGen;
+        this.jvmTypeGen = jvmTypeGen;
     }
 
     public void generateRecordsClass(JvmPackageGen jvmPackageGen, BIRNode.BIRPackage module,
@@ -145,14 +150,20 @@ public class JvmRecordCreatorGen {
                         bTypesCount, remainingCases, labels, defaultCaseLabel);
                 i = 0;
             }
-            String fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
-            String className = getTypeValueClassName(moduleId, optionalTypeDef.internalName.value);
+
+            BTypeSymbol referredTypeSymbol = JvmCodeGenUtil.getReferredType(optionalTypeDef.type).tsymbol;
+            String className = getTypeValueClassName(referredTypeSymbol.pkgID, referredTypeSymbol.name.getValue());
             mv.visitTypeInsn(NEW, className);
             mv.visitInsn(DUP);
-            mv.visitFieldInsn(GETSTATIC, moduleInitClass, fieldName, GET_TYPE);
+            BType typeDefType = optionalTypeDef.type;
+            if (typeDefType.tag == TypeTags.TYPEREFDESC) {
+                this.jvmTypeGen.loadType(mv, optionalTypeDef.referenceType);
+            } else {
+                this.jvmTypeGen.loadType(mv, optionalTypeDef.type);
+            }
             mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, TYPE_PARAMETER, false);
 
             mv.visitInsn(ARETURN);
