@@ -17,7 +17,9 @@
  */
 package io.ballerina.runtime.internal.regexp;
 
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.RegExpAssertion;
 import io.ballerina.runtime.internal.values.RegExpAtom;
 import io.ballerina.runtime.internal.values.RegExpAtomQuantifier;
@@ -35,6 +37,7 @@ import io.ballerina.runtime.internal.values.RegExpTerm;
 import io.ballerina.runtime.internal.values.RegExpValue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +48,7 @@ import java.util.Set;
  * @since 2201.3.0
  */
 public class TreeBuilder {
+
     private final TokenReader tokenReader;
 
     public TreeBuilder(TokenReader tokenReader) {
@@ -60,6 +64,11 @@ public class TreeBuilder {
         readRegTerm();
     }
 
+    /**
+     * Read reDisjunction.
+     *
+     * @return RegExpDisjunction node
+     */
     private RegExpDisjunction readRegDisjunction() {
         List<Object> reSequenceList = new ArrayList<>();
         Token nextToken = peek();
@@ -76,6 +85,11 @@ public class TreeBuilder {
         return new RegExpDisjunction(reSequenceList.toArray());
     }
 
+    /**
+     * Read sequence of regular expression.
+     *
+     * @return RegExpSequence node
+     */
     private RegExpSequence readRegSequence() {
         List<RegExpTerm> termsList = new ArrayList<>();
         Token nextToken = peek();
@@ -87,15 +101,29 @@ public class TreeBuilder {
         return new RegExpSequence(termsList.toArray(new RegExpTerm[0]));
     }
 
+    /**
+     * Read term of regular expression.
+     *
+     * @return RegExpTerm node
+     */
     private RegExpTerm readRegTerm() {
         Token nextToken = peek();
-        TokenKind tokenKind = nextToken.kind;
-        if (tokenKind == TokenKind.RE_ASSERTION_VALUE) {
+        if (nextToken.kind == TokenKind.BITWISE_XOR_TOKEN || nextToken.kind == TokenKind.DOLLAR_TOKEN) {
             return readRegAssertion();
         }
 
         RegExpAtom reAtom;
         switch (nextToken.kind) {
+            case RE_LITERAL_CHAR:
+            case RE_NUMERIC_ESCAPE:
+            case RE_CONTROL_ESCAPE:
+            case COMMA_TOKEN:
+            case DOT_TOKEN:
+            case DIGIT:
+            case MINUS_TOKEN:
+            case COLON_TOKEN:    
+                reAtom = readRegChars();
+                break;
             case BACK_SLASH_TOKEN:
                 reAtom = readRegEscapeChar();
                 break;
@@ -106,22 +134,19 @@ public class TreeBuilder {
                 reAtom = readRegCapturingGroups();
                 break;
             default:
-                // Read chars in ReLiteralChar, . or ReEscape.
-                reAtom = readRegChars();
+                // Here the token is a syntax char, which is invalid. Syntax char tokens should be 
+                // proceeded by backslashes.
+                throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
+                        RuntimeErrors.REGEXP_MISSING_BACKSLASH.messageKey(), nextToken.value));
         }
 
-        nextToken = peek();
-        RegExpQuantifier quantifier;
-        if (nextToken.kind == TokenKind.RE_BASE_QUANTIFIER_VALUE ||
-                nextToken.kind == TokenKind.OPEN_BRACE_TOKEN) {
-            quantifier = readReQuantifier();
-        } else {
-            // If there isn't a quantifier, create an empty quantifier.
+        RegExpQuantifier quantifier = readOptionalQuantifier();
+        if (quantifier == null) {
             quantifier = new RegExpQuantifier("", "");
         }
         return new RegExpAtomQuantifier(reAtom, quantifier);
     }
-    
+
     private RegExpAssertion readRegAssertion() {
         return new RegExpAssertion(consume().value);
     }
@@ -131,39 +156,75 @@ public class TreeBuilder {
     }
 
     private RegExpLiteralCharOrEscape readRegEscapeChar() {
-        return new RegExpLiteralCharOrEscape(readRegEscape());
+        Token backSlash = consume();
+        return new RegExpLiteralCharOrEscape(readRegEscape(backSlash));
     }
 
-    private String readRegEscape() {
-        Token backSlash = consume();
+    private String readRegEscape(Token backSlash) {
         Token nextToken = peek();
         switch (nextToken.kind) {
             case RE_PROPERTY:
                 return readRegUnicodePropertyEscape(backSlash.value);
-            case RE_SYNTAX_CHAR:
+            case BITWISE_XOR_TOKEN:
+            case DOLLAR_TOKEN:
+            case BACK_SLASH_TOKEN:
+            case DOT_TOKEN:
+            case ASTERISK_TOKEN:
+            case PLUS_TOKEN:
+            case QUESTION_MARK_TOKEN:
+            case OPEN_PAREN_TOKEN:
+            case CLOSE_PAREN_TOKEN:
+            case OPEN_BRACKET_TOKEN:
+            case CLOSE_BRACKET_TOKEN:
+            case OPEN_BRACE_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+            case PIPE_TOKEN:
                 return readRegQuoteEscape(backSlash.value);
-            case RE_SIMPLE_CHAR_CLASS_CODE:
-                return readRegSimpleCharClassEscape(backSlash.value);
             default:
-                Token consumedToken = consume();
-                return consumedToken.value;
+                if (isReSimpleCharClassCode(nextToken)) {
+                    return readRegSimpleCharClassEscape(backSlash.value);
+                }
+                throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
+                        RuntimeErrors.REGEXP_INVALID_CHAR_AFTER_BACKSLASH.messageKey(), nextToken.value));
         }
     }
-    
+
+    /**
+     * Read unicode property escape.
+     *
+     * @param backSlash backSlash
+     * @return \p{sc=script} or \p{gc=category} etc.
+     */
     private String readRegUnicodePropertyEscape(String backSlash) {
-        Token consumedPropertyToken = consume();
-        String property = consumedPropertyToken.value;
+        String property = consume().value;
         String openBrace = readOpenBrace();
         String unicodeProperty = readUnicodeProperty();
         String closeBrace = readCloseBrace();
         return backSlash + property + openBrace + unicodeProperty + closeBrace;
     }
-    
+
+    /**
+     * Read open brace.
+     *
+     * @return '{' character
+     */
     private String readOpenBrace() {
-        Token consumedToken = consume();
-        return consumedToken.value;
+        try {
+            Token nextToken = peek();
+            if (nextToken.kind == TokenKind.OPEN_BRACE_TOKEN) {
+                return consume().value;
+            }
+        } catch (BallerinaException ignored) {
+        }
+        throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
+                RuntimeErrors.REGEXP_MISSING_OPEN_BRACE.messageKey()));
     }
 
+    /**
+     * Read unicode property.
+     *
+     * @return sc=script or gc=category etc.
+     */
     private String readUnicodeProperty() {
         Token nextToken = peek();
         if (nextToken.kind == TokenKind.RE_UNICODE_SCRIPT_START) {
@@ -172,6 +233,11 @@ public class TreeBuilder {
         return readRegUnicodeGeneralCategory();
     }
 
+    /**
+     * Read the unicode script.
+     *
+     * @return sc=script
+     */
     private String readRegUnicodeScript() {
         Token scriptStart = consume();
         Token nextToken = peek();
@@ -182,6 +248,11 @@ public class TreeBuilder {
         throw new BallerinaException(getErrorMsg(nextToken));
     }
 
+    /**
+     * Read the unicode general category.
+     *
+     * @return gc=category
+     */
     private String readRegUnicodeGeneralCategory() {
         Token nextToken = peek();
         Token scriptStart = null;
@@ -197,6 +268,28 @@ public class TreeBuilder {
         throw new BallerinaException(getErrorMsg(nextToken));
     }
 
+    /**
+     * Read close brace.
+     *
+     * @return '}' character
+     */
+    private String readCloseBrace() {
+        try {
+            Token nextToken = peek();
+            if (nextToken.kind == TokenKind.CLOSE_BRACE_TOKEN) {
+                return consume().value;
+            }
+        } catch (BallerinaException ignored) {
+        }
+        throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
+                RuntimeErrors.REGEXP_MISSING_CLOSE_BRACE.messageKey()));
+    }
+
+    /**
+     * Read quote escape.
+     *
+     * @return \ReSyntaxChar
+     */
     private String readRegQuoteEscape(String backSlash) {
         Token syntaxChar = consume();
         return backSlash + syntaxChar.value;
@@ -206,7 +299,7 @@ public class TreeBuilder {
         Token simpleCharClassCode = consume();
         return backSlash + simpleCharClassCode.value;
     }
-    
+
     private RegExpCharacterClass readRegCharacterClass() {
         String characterClassStart = consume().value;
         // Read ^ char.
@@ -214,7 +307,8 @@ public class TreeBuilder {
         RegExpCharSet characterSet = readRegCharSet();
         String characterClassEnd = readCharacterClassEnd();
         if (negation.isEmpty() && characterSet.getCharSetAtoms().length == 0) {
-            throw new BallerinaException("Empty character class disallowed");
+            throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
+                    RuntimeErrors.REGEXP_EMPTY_CHARACTER_CLASS_DISALLOWED.messageKey()));
         }
         return new RegExpCharacterClass(characterClassStart, negation, characterSet, characterClassEnd);
     }
@@ -222,8 +316,7 @@ public class TreeBuilder {
     private String readNegation() {
         Token nextToken = peek();
         if (nextToken.kind == TokenKind.BITWISE_XOR_TOKEN) {
-            Token consumedToken = consume();
-            return consumedToken.value;
+            return consume().value;
         }
         // Return empty string if negation token is not there.
         return "";
@@ -239,51 +332,92 @@ public class TreeBuilder {
         if (isCharacterClassEnd(nextToken.kind)) {
             return new RegExpCharSet(new Object[]{startReCharSetAtom});
         }
+        List<Object> charSetAtoms = new ArrayList<>();
         if (nextToken.kind == TokenKind.MINUS_TOKEN) {
             Token minus = consume();
             nextToken = peek();
+            if (isCharacterClassEnd(nextToken.kind)) {
+                return new RegExpCharSet(new Object[]{startReCharSetAtom, minus.value});
+            }
             String rhsReCharSetAtom = readCharSetAtom(nextToken);
+            if (isIncorrectCharRange(startReCharSetAtom, rhsReCharSetAtom)) {
+                throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
+                        RuntimeErrors.REGEXP_INVALID_CHAR_CLASS_RANGE.messageKey(),
+                        startReCharSetAtom, rhsReCharSetAtom));
+            }
             RegExpCharSetRange reCharSetRange = new RegExpCharSetRange(startReCharSetAtom, minus.value,
                     rhsReCharSetAtom);
             RegExpCharSet reCharSet = readRegCharSet();
-
-            List<Object> charSetAtoms = new ArrayList<>();
             charSetAtoms.add(reCharSetRange);
             if (reCharSet.getCharSetAtoms().length > 0) {
-                charSetAtoms.add(reCharSet);
+                charSetAtoms.addAll(Arrays.asList(reCharSet.getCharSetAtoms()));
             }
 
             return new RegExpCharSet(charSetAtoms.toArray());
         }
+        charSetAtoms.add(startReCharSetAtom);
         RegExpCharSet reCharSetNoDash = readCharSetNoDash(nextToken);
-        return new RegExpCharSet(new Object[]{startReCharSetAtom, reCharSetNoDash});
+        if (reCharSetNoDash.getCharSetAtoms().length > 0) {
+            charSetAtoms.addAll(Arrays.asList(reCharSetNoDash.getCharSetAtoms()));
+        }
+        return new RegExpCharSet(charSetAtoms.toArray());
     }
-    
+
     private RegExpCharSet readCharSetNoDash(Token nextToken) {
         String startReCharSetAtomNoDash = readCharSetAtom(nextToken);
         nextToken = peek();
         if (isCharacterClassEnd(nextToken.kind)) {
             return new RegExpCharSet(new Object[]{startReCharSetAtomNoDash});
         }
+        List<Object> charSetAtoms = new ArrayList<>();
         if (nextToken.kind == TokenKind.MINUS_TOKEN) {
             Token minus = consume();
             nextToken = peek();
+            if (isCharacterClassEnd(nextToken.kind)) {
+                return new RegExpCharSet(new Object[]{startReCharSetAtomNoDash, minus.value});
+            }
             String rhsReCharSetAtom = readCharSetAtom(nextToken);
+            if (isIncorrectCharRange(startReCharSetAtomNoDash, rhsReCharSetAtom)) {
+                throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
+                        RuntimeErrors.REGEXP_INVALID_CHAR_CLASS_RANGE.messageKey(),
+                        startReCharSetAtomNoDash, rhsReCharSetAtom));
+            }
             RegExpCharSetRange reCharSetRange = new RegExpCharSetRange(startReCharSetAtomNoDash, minus.value,
                     rhsReCharSetAtom);
             RegExpCharSet reCharSet = readRegCharSet();
-            return new RegExpCharSet(new Object[]{reCharSetRange, reCharSet});
+            charSetAtoms.add(reCharSetRange);
+            if (reCharSet.getCharSetAtoms().length > 0) {
+                charSetAtoms.addAll(Arrays.asList(reCharSet.getCharSetAtoms()));
+            }
+            return new RegExpCharSet(charSetAtoms.toArray());
         }
         RegExpCharSet reCharSetNoDash = readCharSetNoDash(nextToken);
-        return new RegExpCharSet(new Object[]{startReCharSetAtomNoDash, reCharSetNoDash});
+        charSetAtoms.add(startReCharSetAtomNoDash);
+        if (reCharSetNoDash.getCharSetAtoms().length > 0) {
+            charSetAtoms.addAll(Arrays.asList(reCharSetNoDash.getCharSetAtoms()));
+        }
+        return new RegExpCharSet(charSetAtoms.toArray());
     }
 
     private String readCharSetAtom(Token nextToken) {
-        if (nextToken.kind == TokenKind.BACK_SLASH_TOKEN) {
-            return readRegEscape();
+        switch (nextToken.kind) {
+            case MINUS_TOKEN:
+            case RE_NUMERIC_ESCAPE:
+            case RE_CONTROL_ESCAPE:
+                return consume().value;
+            case BACK_SLASH_TOKEN:
+                Token token = peek(2);
+                if (token.kind == TokenKind.MINUS_TOKEN) {
+                    return consume().value + consume().value;
+                }
+                return readRegEscape(consume());
+            default:
+                Token next = peek();
+                if (isReCharSetLiteralChar(next.value)) {
+                    return consume().value;
+                }
+                throw new BallerinaException(getErrorMsg(next));
         }
-        Token consumedToken = consume();
-        return consumedToken.value;
     }
 
     private String readCharacterClassEnd() {
@@ -292,7 +426,21 @@ public class TreeBuilder {
             Token consumedToken = consume();
             return consumedToken.value;
         }
-        throw new BallerinaException("Missing ']' character");
+        throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
+                RuntimeErrors.REGEXP_MISSING_CLOSE_BRACKET.messageKey()));
+    }
+
+    private RegExpQuantifier readOptionalQuantifier() {
+        Token nextToken = peek();
+        switch (nextToken.kind) {
+            case QUESTION_MARK_TOKEN:
+            case ASTERISK_TOKEN:
+            case PLUS_TOKEN:
+            case OPEN_BRACE_TOKEN:
+                return readReQuantifier();
+            default:
+                return null;
+        }
     }
 
     private RegExpQuantifier readReQuantifier() {
@@ -332,16 +480,7 @@ public class TreeBuilder {
         }
         return digits.toString();
     }
-    
-    private String readCloseBrace() {
-        Token nextToken = peek();
-        if (nextToken.kind == TokenKind.CLOSE_BRACE_TOKEN) {
-            Token consumedToken = consume();
-            return consumedToken.value;
-        }
-        throw new BallerinaException("Missing '}' character");
-    }
-    
+
     private String readNonGreedyChar() {
         Token nextToken = peek();
         if (nextToken.kind == TokenKind.QUESTION_MARK_TOKEN) {
@@ -351,7 +490,7 @@ public class TreeBuilder {
         // Return empty string if there is no non greedy char.
         return "";
     }
-    
+
     private RegExpCapturingGroup readRegCapturingGroups() {
         String openParenthesis = consume().value;
         Token nextToken = peek();
@@ -391,7 +530,7 @@ public class TreeBuilder {
             dash = minus.value;
             rhsFlags = readRegFlags();
         }
-        checkValidityOfFlags(lhsReFlags + rhsFlags);
+        validateDuplicateFlags(lhsReFlags + rhsFlags);
         return new RegExpFlagOnOff(lhsReFlags + dash + rhsFlags);
     }
 
@@ -399,6 +538,10 @@ public class TreeBuilder {
         StringBuilder flags = new StringBuilder();
         Token nextToken = peek();
         while (!isEndOfReFlags(nextToken.kind)) {
+            if (!isReFlag(nextToken)) {
+                throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
+                        RuntimeErrors.REGEXP_INVALID_FLAG.messageKey(), nextToken.value));
+            }
             Token reFlag = consume();
             flags.append(reFlag.value);
             nextToken = peek();
@@ -412,9 +555,10 @@ public class TreeBuilder {
             Token consumedToken = consume();
             return consumedToken.value;
         }
-        throw new BallerinaException("Missing ')' character");
+        throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
+                RuntimeErrors.REGEXP_MISSING_CLOSE_PAREN.messageKey()));
     }
-    
+
     private boolean isEndOfReDisjunction(TokenKind kind) {
         switch (kind) {
             case EOF_TOKEN:
@@ -446,6 +590,17 @@ public class TreeBuilder {
         }
     }
 
+    private boolean isReCharSetLiteralChar(String tokenText) {
+        switch (tokenText) {
+            case "\\":
+            case "-":
+            case "]":
+                return false;
+            default:
+                return true;
+        }
+    }
+
     private boolean isEndOfFlagExpression(TokenKind kind) {
         return kind == TokenKind.COLON_TOKEN || kind == TokenKind.EOF_TOKEN;
     }
@@ -466,27 +621,72 @@ public class TreeBuilder {
         }
     }
 
+    static boolean isIncorrectCharRange(String lhsValue, String rhsValue) {
+        if (lhsValue.charAt(0) != '\\' && rhsValue.charAt(0) != '\\') {
+            return lhsValue.compareTo(rhsValue) > 0;
+        }
+        return false;
+    }
+
+    static boolean isReSimpleCharClassCode(Token token) {
+        if (token.kind != TokenKind.RE_LITERAL_CHAR) {
+            return false;
+        }
+        switch (token.value) {
+            case "d":
+            case "D":
+            case "s":
+            case "S":
+            case "w":
+            case "W":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    static boolean isReFlag(Token nextToken) {
+        if (nextToken.kind != TokenKind.RE_LITERAL_CHAR) {
+            return false;
+        }
+        switch (nextToken.value) {
+            case "m":
+            case "s":
+            case "i":
+            case "x":
+                return true;
+            default:
+                return false;
+        }
+    }
+
     private String getErrorMsg(Token nextToken) {
         if (nextToken.kind == TokenKind.EOF_TOKEN) {
-            return "Invalid end of characters";
+            return BLangExceptionHelper.getErrorMessage(RuntimeErrors.REGEXP_INVALID_END_CHARACTER.messageKey());
         }
-        return "Invalid character '" + nextToken.value + "'";
+        return BLangExceptionHelper.getErrorMessage(RuntimeErrors.REGEXP_INVALID_CHARACTER.messageKey(),
+                nextToken.value);
     }
 
     private Token peek() {
         return this.tokenReader.peek();
     }
 
+    private Token peek(int n) {
+        return this.tokenReader.peek(n);
+    }
+
     private Token consume() {
         return this.tokenReader.read();
     }
 
-    private void checkValidityOfFlags(String flags) {
+    private void validateDuplicateFlags(String flags) {
         Set<Character> charList = new HashSet<>();
         for (int i = 0; i < flags.length(); i++) {
             char flag = flags.charAt(i);
             if (charList.contains(flag)) {
-                throw new BallerinaException("duplicate flag '" + flag + "'");
+                throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
+                        RuntimeErrors.REGEXP_DUPLICATE_FLAG.messageKey(), flag));
             }
             charList.add(flag);
         }

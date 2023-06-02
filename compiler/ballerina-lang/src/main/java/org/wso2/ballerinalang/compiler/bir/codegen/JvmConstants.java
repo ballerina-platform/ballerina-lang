@@ -46,6 +46,7 @@ public class JvmConstants {
     public static final String ARRAY_VALUE = "io/ballerina/runtime/internal/values/ArrayValue";
     public static final String OBJECT_VALUE = "io/ballerina/runtime/internal/values/ObjectValue";
     public static final String ABSTRACT_OBJECT_VALUE = "io/ballerina/runtime/internal/values/AbstractObjectValue";
+    public static final String BREF_VALUE = "io/ballerina/runtime/api/values/BRefValue";
     public static final String REF_VALUE = "io/ballerina/runtime/internal/values/RefValue";
     public static final String ERROR_VALUE = "io/ballerina/runtime/internal/values/ErrorValue";
     public static final String BERROR = "io/ballerina/runtime/api/values/BError";
@@ -193,6 +194,7 @@ public class JvmConstants {
     public static final String JSON_UTILS = "io/ballerina/runtime/internal/JsonInternalUtils";
     public static final String STRAND_CLASS = "io/ballerina/runtime/internal/scheduling/Strand";
     public static final String STRAND_METADATA = "io/ballerina/runtime/api/async/StrandMetadata";
+    public static final String BAL_ENV_CLASS = "io/ballerina/runtime/internal/BalEnvironment";
     public static final String BAL_ENV = "io/ballerina/runtime/api/Environment";
     public static final String BAL_FUTURE = "io/ballerina/runtime/api/Future";
     public static final String TYPE_CONVERTER = "io/ballerina/runtime/internal/TypeConverter";

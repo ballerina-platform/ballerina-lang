@@ -28,6 +28,8 @@ import io.ballerina.runtime.internal.values.RegExpDisjunction;
  */
 public interface BRegexpValue extends BValue {
 
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     public RegExpDisjunction getRegExpDisjunction();
 
     BTypedesc getTypedesc();

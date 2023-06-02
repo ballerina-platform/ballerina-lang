@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BXMLType} represents an XML Element.
+ * {@code XMLType} represents an XML Element.
  *
  * @since 2.0.0
  */

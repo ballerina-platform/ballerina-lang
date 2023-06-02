@@ -70,9 +70,10 @@ public class CompletionSearchProvider {
      * @param moduleName    module name.
      * @param stringList    list of words.
      */
-    public void indexModule(ModuleID moduleName, List<String> stringList) {
+    public void indexModule(ModuleID moduleName, List<String> stringList, List<String> namesWithModulePrefix) {
         indexedModules.add(moduleName);
         stringList.forEach(s -> trie.root.insert(s.toLowerCase(Locale.ENGLISH)));
+        namesWithModulePrefix.forEach((s -> trie.root.insert(s.toLowerCase(Locale.ENGLISH))));
     }
 
     /**
