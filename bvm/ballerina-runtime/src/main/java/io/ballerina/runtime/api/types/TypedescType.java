@@ -19,7 +19,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BTypeType} represents type of type in Ballerina type system.
+ * {@code TypedescType} represents a type of a type in the Ballerina type system.
  *
  * @since 2.0.0
  */

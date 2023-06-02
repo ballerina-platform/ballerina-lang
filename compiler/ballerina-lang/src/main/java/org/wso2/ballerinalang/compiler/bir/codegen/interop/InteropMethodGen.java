@@ -107,7 +107,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_GEN_BB_ID_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.getNextDesugarBBId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.GET_BSTRING_FOR_ARRAY_INDEX;
@@ -257,14 +256,11 @@ public class InteropMethodGen {
         JType jMethodRetType = JInterop.getJType(jMethod.getReturnType());
 
         if (jMethodRetType == JType.jVoid && jMethod.isBalEnvAcceptingMethod()) {
-            jMethodRetType = JType.getPrimitiveJTypeForBType(birFunc.returnVariable.type);
+            jMethodRetType = JType.getJTypeForBType(birFunc.returnVariable.type);
         }
 
         initMethodGen.resetIds();
-        String bbPrefix = WRAPPER_GEN_BB_ID_NAME;
-
-        BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, bbPrefix, initMethodGen);
-        BIRBasicBlock retBB = new BIRBasicBlock(getNextDesugarBBId(bbPrefix, initMethodGen));
+        BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, initMethodGen);
         BIROperand receiverOp = null;
         List<BIROperand> args = new ArrayList<>();
         List<BIROperand> resourcePathArgs = new ArrayList<>();
@@ -345,7 +341,8 @@ public class InteropMethodGen {
 
         BIROperand jRetVarRef = null;
 
-        BIRBasicBlock thenBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, bbPrefix, initMethodGen);
+        BIRBasicBlock thenBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, initMethodGen);
+        BIRBasicBlock retBB = new BIRBasicBlock(getNextDesugarBBId(initMethodGen));
         thenBB.terminator = new BIRTerminator.GOTO(birFunc.pos, retBB);
 
         if (retType.tag != TypeTags.NIL) {
@@ -363,7 +360,7 @@ public class InteropMethodGen {
                 thenBB.instructions.add(jToBCast);
             }
 
-            BIRBasicBlock catchBB = new BIRBasicBlock(getNextDesugarBBId(bbPrefix, initMethodGen));
+            BIRBasicBlock catchBB = new BIRBasicBlock(getNextDesugarBBId(initMethodGen));
             JErrorEntry ee = new JErrorEntry(beginBB, thenBB, retRef, catchBB);
             for (Class exception : birFunc.jMethod.getExceptionTypes()) {
                 BIRTerminator.Return exceptionRet = new BIRTerminator.Return(birFunc.pos);
