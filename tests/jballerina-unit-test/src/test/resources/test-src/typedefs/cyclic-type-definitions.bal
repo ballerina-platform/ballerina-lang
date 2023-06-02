@@ -156,11 +156,30 @@ function testCyclicReadonlyErrorTypeDefinition() {
     assertEquals(error2.detail().toString(), "{\"errB\":error ErrB (\"Whoops\",errB=null)}");
 }
 
+type T1 [T1?] & readonly;
+
+type T2 T3 & readonly;
+type T3 [T2?] & readonly;
+
+public function testCyclicReadonlyTupleTypeDefinition() {
+    T1 t1 = [];
+    assertTrue(t1 is readonly);
+    assertEquals(t1.toString(), "[null]");
+
+    T2 t2 = [];
+    assertTrue(t2 is readonly);
+    assertEquals(t2.toString(), "[null]");
+
+    T3 t3 = [];
+    assertTrue(t3 is readonly);
+    assertEquals(t3.toString(), "[null]");
+}
+
 function assertTrue(anydata actual) {
     assertEquals(true, actual);
 }
 
-function assertEquals(anydata expected, anydata actual) {
+function assertEquals(anydata actual, anydata expected) {
     if expected == actual {
         return;
     }
