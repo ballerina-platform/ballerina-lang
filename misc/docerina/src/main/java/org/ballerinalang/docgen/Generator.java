@@ -485,11 +485,42 @@ public class Generator {
         if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
             return new Client(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         } else if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.LISTENER_KEYWORD)
-                || name.equals("Listener")) {
+                || checkListenerModel(functions)) {
             return new Listener(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         } else {
             return new BClass(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         }
+    }
+
+    private static boolean checkListenerModel(List<Function> classFunctions) {
+        boolean isStartIncluded = false;
+        boolean isAttachIncluded = false;
+        boolean isDetachIncluded = false;
+        boolean isGracefulStopIncluded = false;
+        boolean isImmediateStopIncluded = false;
+
+        for (Function function : classFunctions) {
+            switch (function.name) {
+                case "'start":
+                    isStartIncluded = true;
+                    break;
+                case "attach":
+                    isAttachIncluded = true;
+                    break;
+                case "detach":
+                    isDetachIncluded = true;
+                    break;
+                case "gracefulStop":
+                    isGracefulStopIncluded = true;
+                    break;
+                case "immediateStop":
+                    isImmediateStopIncluded = true;
+                    break;
+            }
+        }
+
+        return isStartIncluded && isAttachIncluded && isDetachIncluded && isGracefulStopIncluded &&
+                isImmediateStopIncluded;
     }
 
     private static BObjectType getObjectTypeModel(ObjectTypeDescriptorNode typeDescriptorNode, String objectName,
