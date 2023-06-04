@@ -79,15 +79,6 @@ public class TreeTraverser {
         }
 
         int nextChar = peek();
-        if (nextChar == Terminals.PIPE) {
-            this.reader.advance();
-            // Pipe cannot be the end of the regular expression.
-            if (this.reader.isEOF()) {
-                throw new BallerinaException(BLangExceptionHelper.getErrorMessage(
-                        RuntimeErrors.REGEXP_INVALID_CHARACTER.messageKey(), getMarkedChars()));
-            }
-            return getRegExpToken(TokenKind.PIPE_TOKEN);
-        }
 
         this.reader.advance();
         switch (nextChar) {
@@ -123,6 +114,8 @@ public class TreeTraverser {
                 return getRegExpToken(TokenKind.MINUS_TOKEN);
             case Terminals.COLON:
                 return getRegExpToken(TokenKind.COLON_TOKEN);
+            case Terminals.PIPE:
+                return getRegExpToken(TokenKind.PIPE_TOKEN);
             default:
                 if (isDigit(nextChar)) {
                     return getRegExpText(TokenKind.DIGIT);
