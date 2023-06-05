@@ -131,6 +131,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
@@ -1601,7 +1602,10 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction lambda) {
         lambda.function = rewrite(lambda.function);
+        SymbolEnv prevEnv = new SymbolEnv(this.env.node, this.env.scope);
+        this.env.copyTo(prevEnv, this.env.enclEnv);
         lambda.function = desugar.rewrite(lambda.function, lambda.capturedClosureEnv);
+        this.env = prevEnv;
         result = lambda;
     }
 
@@ -1741,8 +1745,33 @@ public class QueryDesugar extends BLangNodeVisitor {
         }
         requiredArgs.forEach(this::acceptNode);
         visitRestArgs(invocationExpr);
-        this.acceptNode(invocationExpr.expr);
-        result = invocationExpr;
+        if (invocationExpr.functionPointerInvocation) {
+            BLangExpression expr = rewrite(desugar.getFunctionPointerExpr(invocationExpr));
+            result = new BLangInvocation.BFunctionPointerInvocation(invocationExpr, expr);
+        } else {
+            invocationExpr.expr = rewrite(invocationExpr.expr);
+            result = invocationExpr;
+        }
+    }
+
+    private BLangExpression getInvocationExpr(BLangInvocation invocation) {
+        if (invocation.functionPointerInvocation) {
+            BLangValueExpression expr;
+            if (invocation.expr == null) {
+                BLangSimpleVarRef varRef = new BLangSimpleVarRef();
+                varRef.variableName = invocation.name;
+                expr = varRef;
+            } else {
+                BLangFieldBasedAccess fieldBasedAccess = new BLangFieldBasedAccess();
+                fieldBasedAccess.expr = invocation.expr;
+                fieldBasedAccess.field = invocation.name;
+                expr = fieldBasedAccess;
+            }
+            expr.symbol = invocation.symbol;
+            expr.setBType(invocation.symbol.type);
+            return expr;
+        }
+        return invocation.expr;
     }
 
     private boolean isNilReturnInvocationInCollectClause(BLangInvocation invocation) {
@@ -1769,7 +1798,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         }
         restArgs.forEach(this::acceptNode);
     }
-    
+
     private BType changeSeqSymbolType(BSymbol symbol) {
         if (symbol.type.tag == TypeTags.SEQUENCE) {
             BType elementType = ((BSequenceType) symbol.type).elementType;
@@ -2529,7 +2558,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         this.queryEnv = prevQueryEnv;
         result = queryExpr;
     }
-    
+
     @Override
     public void visit(BLangForeach foreach) {
         foreach.collection = rewrite(foreach.collection);
