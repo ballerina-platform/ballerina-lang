@@ -28,4 +28,5 @@ public function main() {
     largeObject.validate();
     f:testFunctionWithWorkers();
     r:testQueryExpressionsWithLargeArraysAndRecords();
+    r:testAnnotationsOnLocalRecordFields();
 }
