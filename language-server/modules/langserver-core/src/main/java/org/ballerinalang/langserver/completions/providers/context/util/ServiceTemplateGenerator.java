@@ -54,6 +54,7 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.SnippetContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
@@ -77,6 +78,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -117,6 +119,12 @@ public class ServiceTemplateGenerator {
         return serviceTemplateGenerator;
     }
 
+
+    /**
+     * Loads listeners from distribution concurrently at the initialization of te LS.
+     *
+     * @param lsContext Language Server Context.
+     */
     private void loadListeners(LanguageServerContext lsContext) {
         String taskId = UUID.randomUUID().toString();
         ExtendedLanguageClient languageClient = lsContext.get(ExtendedLanguageClient.class);
@@ -138,7 +146,7 @@ public class ServiceTemplateGenerator {
             }
         }).thenRunAsync(() -> {
             this.loadListenersFromDistribution(lsContext);
-        }).thenRunAsync(() -> {
+        }).completeOnTimeout(null, 60, TimeUnit.SECONDS).thenRunAsync(() -> {
             WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
             endNotification.setMessage("Initialized Successfully!");
             languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
@@ -154,6 +162,12 @@ public class ServiceTemplateGenerator {
         });
     }
 
+    /**
+     * Loads listeners from the Ballerina user home.
+     *
+     * @param lsContext LanguageServer context
+     * @param context   DocumentService context
+     */
     private void loadListeners(LanguageServerContext lsContext, DocumentServiceContext context) {
         LSClientLogger clientLogger = LSClientLogger.getInstance(lsContext);
         CompletableFuture.runAsync(() -> {
@@ -468,8 +482,8 @@ public class ServiceTemplateGenerator {
 
         //Listener initialization snippet
         //Snippet index 1 is provided for attachment point in service definition.
+        SnippetContext snippetContext = new SnippetContext(2);
         Optional<MethodSymbol> initMethod = classSymbol.initMethod();
-        int snippetIndex = 2;
         String listenerInitArgs = "";
         if (initMethod.isPresent() && initMethod.get().typeDescriptor().params().isPresent()) {
             List<String> args = new ArrayList<>();
@@ -477,10 +491,9 @@ public class ServiceTemplateGenerator {
                     .filter(parameterSymbol ->
                             parameterSymbol.paramKind() == ParameterKind.REQUIRED).collect(Collectors.toList());
             for (ParameterSymbol parameterSymbol : requiredParams) {
-                args.add("${" + snippetIndex + ":" +
+                args.add("${" + snippetContext.incrementAndGetPlaceholderCount() + ":" +
                         DefaultValueGenerationUtil.getDefaultPlaceholderForType(parameterSymbol.typeDescriptor())
                                 .orElse("") + "}");
-                snippetIndex += 1;
             }
             listenerInitArgs = String.join(",", args);
         }
@@ -488,7 +501,7 @@ public class ServiceTemplateGenerator {
         String symbolName = classSymbol.getName().get();
         return Optional.of(new ListenerMetaData(listenerInitArgs,
                 new ArrayList<>(serviceTypeSymbol.methods().values()),
-                symbolName, snippetIndex, moduleID));
+                symbolName, snippetContext, moduleID));
     }
 
     private LSCompletionItem generateServiceSnippet(ListenerMetaData serviceSnippet, Boolean shouldImport,
@@ -509,22 +522,22 @@ public class ServiceTemplateGenerator {
         }
 
         String listenerInitialization = "new " + symbolReference + "(" + serviceSnippet.listenerInitArgs + ")";
-        int snippetIndex = serviceSnippet.currentSnippetIndex;
+        SnippetContext snippetContext = serviceSnippet.snippetContext;
         List<String> methodSnippets = new ArrayList<>();
 
         if (!serviceSnippet.unimplementedMethods.isEmpty()) {
             for (MethodSymbol methodSymbol : serviceSnippet.unimplementedMethods) {
                 String functionSnippet =
-                        generateMethodSnippet(importsAcceptor, methodSymbol, snippetIndex, context);
+                        generateMethodSnippet(importsAcceptor, methodSymbol, snippetContext, context);
                 methodSnippets.add(functionSnippet);
-                snippetIndex += 1;
             }
         }
 
         String snippet = SyntaxKind.SERVICE_KEYWORD.stringValue() + " ${1} " +
                 SyntaxKind.ON_KEYWORD.stringValue() + " " + listenerInitialization +
                 " {" + CommonUtil.LINE_SEPARATOR + (serviceSnippet.unimplementedMethods.isEmpty() ?
-                "    ${" + snippetIndex + "}" : String.join("", methodSnippets)) + CommonUtil.LINE_SEPARATOR + "}" +
+                "    ${" + snippetContext.incrementAndGetPlaceholderCount()
+                        + "}" : String.join("", methodSnippets)) + CommonUtil.LINE_SEPARATOR + "}" +
                 CommonUtil.LINE_SEPARATOR;
 
         String label;
@@ -545,7 +558,7 @@ public class ServiceTemplateGenerator {
 
     }
 
-    private String generateMethodSnippet(ImportsAcceptor importsAcceptor, MethodSymbol methodSymbol, int snippetIndex,
+    private String generateMethodSnippet(ImportsAcceptor importsAcceptor, MethodSymbol methodSymbol, SnippetContext snippetContext,
                                          BallerinaCompletionContext context) {
         String functionTypeDesc =
                 FunctionGenerator.processModuleIDsInText(importsAcceptor, methodSymbol.signature(), context);
@@ -560,7 +573,7 @@ public class ServiceTemplateGenerator {
                     if (CommonKeys.PARANTHESES_KEY.equals(defaultReturnValue)) {
                         returnStmt = "return;";
                     } else {
-                        returnStmt = "return ${" + snippetIndex + ":" +
+                        returnStmt = "return ${" + snippetContext.incrementAndGetPlaceholderCount() + ":" +
                                 defaultReturnValue + "}" + CommonKeys.SEMI_COLON_SYMBOL_KEY;
                     }
                 }
@@ -577,7 +590,8 @@ public class ServiceTemplateGenerator {
                 .append(CommonKeys.OPEN_BRACE_KEY)
                 .append(CommonUtil.LINE_SEPARATOR)
                 .append(StringUtils.repeat(paddingStr, 2))
-                .append((returnStmt.isEmpty() ? "${" + snippetIndex + "}" : returnStmt))
+                .append((returnStmt.isEmpty() ? "${" +
+                        snippetContext.incrementAndGetPlaceholderCount() + "}" : returnStmt))
                 .append(CommonUtil.LINE_SEPARATOR)
                 .append(paddingStr)
                 .append(CommonKeys.CLOSE_BRACE_KEY)
@@ -593,18 +607,18 @@ public class ServiceTemplateGenerator {
         private final String listenerInitArgs;
         private final List<MethodSymbol> unimplementedMethods;
         private final String symbolName;
-        private final int currentSnippetIndex;
+        private SnippetContext snippetContext;
         private final ModuleID moduleID;
 
         ListenerMetaData(String listenerInitialization,
                          List<MethodSymbol> unimplementedMethods,
                          String symbolReference,
-                         int currentSnippetIndex,
+                         SnippetContext snippetContext,
                          ModuleID moduleID) {
             this.listenerInitArgs = listenerInitialization;
             this.unimplementedMethods = unimplementedMethods;
             this.symbolName = symbolReference;
-            this.currentSnippetIndex = currentSnippetIndex;
+            this.snippetContext = snippetContext;
             this.moduleID = moduleID;
         }
     }
