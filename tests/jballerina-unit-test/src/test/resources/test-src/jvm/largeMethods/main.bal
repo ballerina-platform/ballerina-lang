@@ -26,4 +26,6 @@ public function main() {
     r:testLargeRecord();
     o:largeClass largeObject = new();
     largeObject.validate();
+    f:testFunctionWithWorkers();
+    r:testQueryExpressionsWithLargeArraysAndRecords();
 }
