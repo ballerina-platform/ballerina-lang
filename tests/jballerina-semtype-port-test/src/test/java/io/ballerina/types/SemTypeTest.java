@@ -104,9 +104,8 @@ public class SemTypeTest {
         for (File file : balFiles) {
             String fileName = file.getAbsolutePath();
             BCompileUtil.PackageSyntaxTreePair pair = BCompileUtil.compileSemType(fileName);
-            List<SemTypeAssertionTransformer.TypeAssertion> assertions =
-                    SemTypeAssertionTransformer.getTypeAssertionsFrom(fileName,
-                                                                      pair.syntaxTree, pair.bLangPackage.semtypeEnv);
+            List<SemTypeAssertionTransformer.TypeAssertion> assertions = SemTypeAssertionTransformer
+                    .getTypeAssertionsFrom(fileName, pair.syntaxTree, pair.bLangPackage.semtypeEnv);
             tests.addAll(assertions);
         }
         return tests.toArray();

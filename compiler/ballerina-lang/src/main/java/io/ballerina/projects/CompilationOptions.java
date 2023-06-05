@@ -38,14 +38,12 @@ public class CompilationOptions {
     Boolean exportOpenAPI;
     Boolean exportComponentModel;
     Boolean enableCache;
-    private Boolean semtype;
-    private Boolean semtypeTest;
 
     CompilationOptions(Boolean offlineBuild, Boolean observabilityIncluded, Boolean dumpBir,
                        Boolean dumpBirFile, String cloud, Boolean listConflictedClasses, Boolean sticky,
                        Boolean dumpGraph, Boolean dumpRawGraphs, Boolean withCodeGenerators,
                        Boolean withCodeModifiers, Boolean configSchemaGen, Boolean exportOpenAPI,
-                       Boolean exportComponentModel, Boolean enableCache, Boolean semtype, Boolean semtypeTest) {
+                       Boolean exportComponentModel, Boolean enableCache) {
         this.offlineBuild = offlineBuild;
         this.observabilityIncluded = observabilityIncluded;
         this.dumpBir = dumpBir;
@@ -61,8 +59,6 @@ public class CompilationOptions {
         this.exportOpenAPI = exportOpenAPI;
         this.exportComponentModel = exportComponentModel;
         this.enableCache = enableCache;
-        this.semtype = semtype;
-        this.semtypeTest = semtypeTest;
     }
 
     public boolean offlineBuild() {
@@ -208,16 +204,6 @@ public class CompilationOptions {
         } else {
             compilationOptionsBuilder.setEnableCache(this.enableCache);
         }
-        if (theirOptions.semtype != null) {
-            compilationOptionsBuilder.setSemtype(theirOptions.semtype);
-        } else {
-            compilationOptionsBuilder.setSemtype(this.semtype);
-        }
-        if (theirOptions.semtypeTest != null) {
-            compilationOptionsBuilder.setSemtypeTest(theirOptions.semtypeTest);
-        } else {
-            compilationOptionsBuilder.setSemtypeTest(this.semtypeTest);
-        }
         return compilationOptionsBuilder.build();
     }
 
@@ -246,14 +232,6 @@ public class CompilationOptions {
         return value;
     }
 
-    public boolean semtype() {
-        return toBooleanDefaultIfNull(this.semtype);
-    }
-
-    public boolean semtypeTest() {
-        return toBooleanDefaultIfNull(this.semtypeTest);
-    }
-
     /**
      * A builder for the {@code CompilationOptions}.
      *
@@ -275,8 +253,6 @@ public class CompilationOptions {
         private Boolean exportOpenAPI;
         private Boolean exportComponentModel;
         private Boolean enableCache;
-        private Boolean semtype;
-        private Boolean semtypeTest;
 
         public CompilationOptionsBuilder setOffline(Boolean value) {
             offline = value;
@@ -353,21 +329,11 @@ public class CompilationOptions {
             return this;
         }
 
-        public CompilationOptionsBuilder setSemtype(Boolean value) {
-            semtype = value;
-            return this;
-        }
-
-        public CompilationOptionsBuilder setSemtypeTest(Boolean value) {
-            semtypeTest = value;
-            return this;
-        }
-
         public CompilationOptions build() {
             return new CompilationOptions(offline, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
-                    withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
-                    exportComponentModel, enableCache, semtype, semtypeTest);
+                    withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI, exportComponentModel,
+                    enableCache);
         }
     }
 }

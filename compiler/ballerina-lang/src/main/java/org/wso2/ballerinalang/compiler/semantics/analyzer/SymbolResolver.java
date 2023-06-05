@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.types.SemType;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -114,7 +113,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -165,7 +163,8 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     private final Unifier unifier;
     private final SemanticAnalyzer semanticAnalyzer;
     private final Stack<String> anonTypeNameSuffixes;
-    private boolean semtypeEnabled;
+    private static final boolean semtypeActive =
+            Boolean.parseBoolean(System.getProperty("ballerina.experimental.semtype"));
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -173,8 +172,6 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
             symbolResolver = new SymbolResolver(context);
         }
 
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        symbolResolver.semtypeEnabled = Boolean.parseBoolean(options.get(CompilerOptionName.SEMTYPE));
         return symbolResolver;
     }
 
@@ -568,7 +565,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     }
 
     private void resolveSemType(BLangType typeNode, SymbolEnv env, BType resultType) {
-        if (!this.semtypeEnabled) {
+        if (!semtypeActive) {
             return;
         }
 
@@ -1458,7 +1455,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     }
 
     private void setSemType(BFiniteType finiteType) {
-        if (!this.semtypeEnabled) {
+        if (!semtypeActive) {
             return;
         }
 

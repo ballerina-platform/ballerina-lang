@@ -105,6 +105,34 @@ test {
 //    dependsOn createBre
 }
 
+// Define a new task for executing semtype_testng.xml separately
+task semtypesUnitTest(type: Test) {
+    dependsOn loadDistributionCache
+
+    // Copy system properties from the test task
+    systemProperties = tasks.test.systemProperties
+
+    // Add additional system property to activate semtypes
+    systemProperty "ballerina.experimental.semtype", "true"
+
+    jvmArgs = ['-Xms512m', '-Xmx3g']
+
+    useTestNG() {
+        suites("src/test/resources/semtype_testng.xml")
+    }
+
+    afterSuite { suite, result ->
+        result.exception?.printStackTrace()
+    }
+
+    testLogging {
+        warn {
+            events = ["failed", "skipped"]
+            exceptionFormat "full"
+        }
+    }
+}
+
 configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
