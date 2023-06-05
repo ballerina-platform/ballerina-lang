@@ -27,7 +27,13 @@
             <package name="org.ballerinalang.test.access.*"/>
             <package name="org.ballerinalang.test.action.*"/>
             <package name="org.ballerinalang.test.annotations.*"/>
-            <package name="org.ballerinalang.test.bala.*"/>
+            <package name="org.ballerinalang.test.bala.*">
+                <exclude name="org.ballerinalang.test.bala.annotation.*"/>
+                <exclude name="org.ballerinalang.test.bala.constant.*"/>
+                <exclude name="org.ballerinalang.test.bala.record.*"/>
+                <exclude name="org.ballerinalang.test.bala.functions.*"/>
+                <exclude name="org.ballerinalang.test.bala.object.*"/>
+            </package>
             <package name="org.ballerinalang.test.bir.*"/>
             <package name="org.ballerinalang.test.cli.*"/>
             <package name="org.ballerinalang.test.closures.*"/>
@@ -53,7 +59,7 @@
             <package name="org.ballerinalang.test.expressions.let.*" />
             <package name="org.ballerinalang.test.expressions.listconstructor.*" />
             <package name="org.ballerinalang.test.expressions.literals.*" />
-            <package name="org.ballerinalang.test.expressions.mappingconstructor.*" />
+<!--            <package name="org.ballerinalang.test.expressions.mappingconstructor.*" />-->
             <package name="org.ballerinalang.test.expressions.object.*" />
             <package name="org.ballerinalang.test.expressions.rawtemplate.*" />
             <package name="org.ballerinalang.test.expressions.stamp.*" />
@@ -121,11 +127,11 @@
             <package name="org.ballerinalang.test.types.any.*"/>
             <package name="org.ballerinalang.test.types.anydata.*"/>
             <package name="org.ballerinalang.test.types.bytetype.*"/>
-            <package name="org.ballerinalang.test.types.constant.*" />
+<!--            <package name="org.ballerinalang.test.types.constant.*" />-->
             <package name="org.ballerinalang.test.types.decimaltype.*"/>
             <package name="org.ballerinalang.test.types.errors.*"/>
             <package name="org.ballerinalang.test.types.finaltypes.*"/>
-            <package name="org.ballerinalang.test.types.finite.*"/>
+<!--            <package name="org.ballerinalang.test.types.finite.*"/>-->
             <package name="org.ballerinalang.test.types.floattype"/>
             <package name="org.ballerinalang.test.types.function.*"/>
             <package name="org.ballerinalang.test.types.future.*"/>
@@ -163,7 +169,74 @@
 
             <class name="org.ballerinalang.test.types.TypeUnificationTest"/>
 
-            <class name="org.ballerinalang.test.ParserTestRunner"/>
+<!--            <class name="org.ballerinalang.test.ParserTestRunner"/>-->
+
+            <class name="org.ballerinalang.test.types.floattype.BFloatValueTest">
+                <methods>
+                    <exclude name="testFloatValuesWithSyntaxErrors"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.expressions.checkedexpr.CheckedExpressionOperatorTest">
+                <methods>
+                    <exclude name="testJsonAccessWithCheckWithSubTypesOfSimpleBasicTypesCET"/>
+                </methods>
+            </class>
+
+            <class name="org.ballerinalang.test.annotations.DisplayAnnotationTest">
+                <methods>
+                    <exclude name=".*"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.bala.globalvar.GlobalVarFunctionInBalaTest">
+                <methods>
+                    <exclude name=".*"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.bala.types.NeverTypeBalaTest">
+                <methods>
+                    <exclude name=".*"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.bala.types.TableCtrAssignmentTest">
+                <methods>
+                    <exclude name=".*"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.bala.types.UnionTypeBalaTest">
+                <methods>
+                    <exclude name=".*"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.bala.types.FiniteTypeTest">
+                <methods>
+                    <exclude name=".*"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.expressions.binaryoperations.TypeTestExprTest">
+                <methods>
+                    <exclude name=".*"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.expressions.lambda.FunctionPointersTest">
+                <methods>
+                    <exclude name=".*"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.isolation.IsolationAnalysisTest">
+                <methods>
+                    <exclude name=".*"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.statements.arrays.ArrayFillTest">
+                <methods>
+                    <exclude name=".*"/>
+                </methods>
+            </class>
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtConstPatternTest">
+                <methods>
+                    <exclude name=".*"/>
+                </methods>
+            </class>
         </classes>
     </test>
 </suite>

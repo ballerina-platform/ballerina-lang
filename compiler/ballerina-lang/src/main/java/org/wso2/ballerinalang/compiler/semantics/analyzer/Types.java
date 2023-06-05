@@ -879,6 +879,7 @@ public class Types {
             SemType targetSemType = target.getSemtype();
 
             if (isSemTypeEnabled(source, target)) {
+                assert sourceSemType != null && targetSemType != null : "SemTypes cannot be null";
                 return SemTypes.isSubtype(cx, sourceSemType, targetSemType);
             }
         }
