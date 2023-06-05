@@ -485,11 +485,36 @@ public class Generator {
         if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
             return new Client(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         } else if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.LISTENER_KEYWORD)
-                || name.equals("Listener")) {
+                || checkListenerModel(functions)) {
             return new Listener(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         } else {
             return new BClass(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         }
+    }
+
+    private static boolean checkListenerModel(List<Function> classFunctions) {
+        boolean isStartIncluded = false;
+        boolean isAttachIncluded = false;
+        boolean isDetachIncluded = false;
+        boolean isGracefulStopIncluded = false;
+        boolean isImmediateStopIncluded = false;
+
+        for (Function function : classFunctions) {
+            if (function.name.equals("'start")) {
+                isStartIncluded = true;
+            } else if (function.name.equals("attach")) {
+                isAttachIncluded = true;
+            } else if (function.name.equals("detach")) {
+                isDetachIncluded = true;
+            } else if (function.name.equals("gracefulStop")) {
+                isGracefulStopIncluded = true;
+            } else if (function.name.equals("immediateStop")) {
+                isImmediateStopIncluded = true;
+            }
+        }
+
+        return isStartIncluded && isAttachIncluded && isDetachIncluded && isGracefulStopIncluded &&
+                isImmediateStopIncluded;
     }
 
     private static BObjectType getObjectTypeModel(ObjectTypeDescriptorNode typeDescriptorNode, String objectName,
