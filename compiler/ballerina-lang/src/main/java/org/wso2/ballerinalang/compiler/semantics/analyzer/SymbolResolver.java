@@ -565,7 +565,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     }
 
     private void resolveSemType(BLangType typeNode, SymbolEnv env, BType resultType) {
-        if (!this.semtypeActive) {
+        if (!semtypeActive) {
             return;
         }
 
@@ -1455,7 +1455,7 @@ public class SymbolResolver extends BLangNodeTransformer<SymbolResolver.Analyzer
     }
 
     private void setSemType(BFiniteType finiteType) {
-        if (!this.semtypeActive) {
+        if (!semtypeActive) {
             return;
         }
 

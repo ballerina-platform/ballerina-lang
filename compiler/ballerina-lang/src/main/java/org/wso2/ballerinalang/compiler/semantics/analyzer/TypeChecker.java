@@ -991,7 +991,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     }
 
     private void setSemType(BFiniteType finiteType) {
-        if (!this.semtypeActive) {
+        if (!semtypeActive) {
             return;
         }
 

@@ -441,12 +441,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.typeDefinitions.forEach(typDef -> typeAndClassDefs.add(typDef));
         List<BLangClassDefinition> classDefinitions = getClassDefinitions(pkgNode.topLevelNodes);
         classDefinitions.forEach(classDefn -> typeAndClassDefs.add(classDefn));
-        if (this.semtypeActive) {
+        if (semtypeActive) {
             // We may need to move this next to defineTypeNodes() to support constants
             defineSemTypesSubset(typeAndClassDefs, pkgEnv);
         }
         defineTypeNodes(typeAndClassDefs, pkgEnv);
-        if (this.semtypeTest) {
+        if (semtypeTest) {
             defineSemTypes(typeAndClassDefs, pkgEnv);
         }
 

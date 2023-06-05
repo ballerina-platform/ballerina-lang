@@ -874,11 +874,11 @@ public class Types {
     }
 
     private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        if (this.semtypeActive) {
+        if (semtypeActive) {
             SemType sourceSemType = source.getSemtype();
             SemType targetSemType = target.getSemtype();
 
-            if (sourceSemType != null && targetSemType != null && isSemTypeEnabled(source, target)) {
+            if (isSemTypeEnabled(source, target)) {
                 return SemTypes.isSubtype(cx, sourceSemType, targetSemType);
             }
         }
@@ -4243,7 +4243,7 @@ public class Types {
     }
 
     private void setSemType(BFiniteType finiteType) {
-        if (!this.semtypeActive) {
+        if (!semtypeActive) {
             return;
         }
 

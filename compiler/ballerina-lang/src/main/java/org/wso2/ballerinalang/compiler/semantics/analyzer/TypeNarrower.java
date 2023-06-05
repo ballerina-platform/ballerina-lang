@@ -432,7 +432,7 @@ public class TypeNarrower extends BLangNodeVisitor {
     }
 
     private void setSemType(BFiniteType finiteType) {
-        if (!this.semtypeActive) {
+        if (!semtypeActive) {
             return;
         }
 
