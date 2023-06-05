@@ -111,15 +111,17 @@ task jacocoMergeTest(type: JacocoReport) {
     executionData = files("$buildDir/jacoco/test.exec", "$langProjectBuildDir/jacoco/test.exec")
 }
 
-jacocoTestReport.doFirst{
+jacocoTestReport {
+    afterEvaluate {
         String langProjectDir = project(":ballerina-lang").projectDir
         String langProjectBuildDir = project(":ballerina-lang").buildDir
-        classDirectories = files("$langProjectBuildDir/classes/java/main/io/ballerina/projects")
-        sourceDirectories = files("$langProjectDir/src/main/java")
-        executionData = files("$buildDir/jacoco/all-test.exec")
-}
+        classDirectories = files("$langProjectBuildDir/classes/java/main/io/ballerina/projects") as FileCollection
+        sourceDirectories = files("$langProjectDir/src/main/java") as FileCollection
+        executionData = files("$buildDir/jacoco/all-test.exec") as FileCollection
+    }
 
-jacocoTestReport.dependsOn(jacocoMergeTest)
+    dependsOn(jacocoMergeTest)
+}
 
 ext.moduleName = 'io.ballerina.projects.test'
 
