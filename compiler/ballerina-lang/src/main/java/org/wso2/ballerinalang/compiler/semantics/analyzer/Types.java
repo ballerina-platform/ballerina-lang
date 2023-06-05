@@ -1010,7 +1010,7 @@ public class Types {
             return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new HashSet<>());
         }
 
-        return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&
+        return (sourceTag == TypeTags.ARRAY || sourceTag == TypeTags.BYTE_ARRAY) && targetTag == TypeTags.ARRAY &&
                 isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
     }
 
@@ -1535,6 +1535,7 @@ public class Types {
             case TypeTags.XML_COMMENT:
             case TypeTags.XML_ELEMENT:
             case TypeTags.XML_PI:
+            case TypeTags.BYTE_ARRAY:
                 return true;
             case TypeTags.ARRAY:
                 BArrayType arrayType = (BArrayType) type;
@@ -6018,6 +6019,11 @@ public class Types {
 //                return isAllowedConstantType(((BIntersectionType) type).effectiveType);
             case TypeTags.TYPEREFDESC:
                 return isAllowedConstantType(((BTypeReferenceType) type).referredType);
+            case TypeTags.ARRAY:
+                if (((BArrayType) type).eType.tag == TypeTags.BYTE) {
+                    return true;
+                }
+                return false;
             default:
                 return false;
         }

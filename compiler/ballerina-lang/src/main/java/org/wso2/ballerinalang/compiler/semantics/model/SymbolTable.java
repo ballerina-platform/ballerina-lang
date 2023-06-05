@@ -158,6 +158,7 @@ public class SymbolTable {
     public BObjectType intRangeType;
     public BMapType mapAllType;
     public BArrayType arrayAllType;
+    public BArrayType byteArrayType;
     public BObjectType rawTemplateType;
     public BObjectType iterableType;
 
@@ -384,6 +385,8 @@ public class SymbolTable {
                 return charStringType;
             case TypeTags.REGEXP:
                 return regExpType;
+            case TypeTags.BYTE_ARRAY:
+                return byteArrayType;
             default:
                 return semanticError;
         }
@@ -1177,6 +1180,8 @@ public class SymbolTable {
 
         mapAllType = new BMapType(TypeTags.MAP, anyOrErrorType, null);
         arrayAllType = new BArrayType(anyOrErrorType);
+        byteArrayType = new BArrayType(byteType);
+        byteArrayType.tag = TypeTags.BYTE_ARRAY;
         typeDesc.constraint = anyOrErrorType;
         futureType.constraint = anyOrErrorType;
 

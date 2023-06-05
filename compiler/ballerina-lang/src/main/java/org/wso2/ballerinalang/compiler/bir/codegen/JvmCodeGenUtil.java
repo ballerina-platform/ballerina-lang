@@ -245,6 +245,7 @@ public class JvmCodeGenUtil {
                 case TypeTags.TABLE:
                     return GET_TABLE_VALUE_IMPL;
                 case TypeTags.ARRAY:
+                case TypeTags.BYTE_ARRAY:
                 case TypeTags.TUPLE:
                     return GET_ARRAY_VALUE;
                 case TypeTags.ERROR:

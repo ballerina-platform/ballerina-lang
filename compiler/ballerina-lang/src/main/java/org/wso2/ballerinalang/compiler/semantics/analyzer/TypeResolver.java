@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -81,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -2068,7 +2070,11 @@ public class TypeResolver {
         constant.setBType(intersectionType);
 
         // Get the constant value from the final type.
-        constantSymbol.value = constantTypeChecker.getConstantValue(intersectionType);
+        if (resolvedType.tag == TypeTags.BYTE_ARRAY && constant.expr.getKind() == NodeKind.LITERAL) {
+            constantSymbol.value = rewriteByteArrayLiteral((BLangLiteral) constant.expr);
+        } else {
+            constantSymbol.value = constantTypeChecker.getConstantValue(intersectionType);
+        }
 
         if (isLiteral && constantSymbol.type.tag != TypeTags.TYPEREFDESC && typeDef != null) {
             // Update flags.
@@ -2094,6 +2100,18 @@ public class TypeResolver {
         addAssociatedTypeDefinition(constant, intersectionType, symEnv);
         constant.setDeterminedType(null);
         symEnv.scope.define(constantSymbol.name, constantSymbol);
+    }
+
+    private BLangConstantValue rewriteByteArrayLiteral(BLangLiteral literalExpr) {
+        byte[] values = types.convertToByteArray((String) literalExpr.value);
+        List<BLangConstantValue> members = new ArrayList<>();
+        BType type = literalExpr.getBType();
+        for (byte b : values) {
+            BLangConstantValue constantValue = new BLangConstantValue(Byte.toUnsignedInt(b),
+                    symTable.byteType);
+            members.add(constantValue);
+        }
+        return new BLangConstantValue(members, type);
     }
 
     public BLangTypeDefinition findTypeDefinition(List<BLangTypeDefinition> typeDefinitionArrayList, String name) {

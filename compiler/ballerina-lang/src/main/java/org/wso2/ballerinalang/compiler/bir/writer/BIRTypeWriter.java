@@ -613,6 +613,7 @@ public class BIRTypeWriter implements TypeVisitor {
             case TypeTags.STRING:
             case TypeTags.CHAR_STRING:
             case TypeTags.DECIMAL:
+            case TypeTags.BYTE_ARRAY:
                 byteBuf.writeInt(addStringCPEntry(String.valueOf(value)));
                 break;
             case TypeTags.BOOLEAN:

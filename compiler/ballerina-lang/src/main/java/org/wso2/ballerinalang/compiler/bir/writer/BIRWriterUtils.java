@@ -126,6 +126,7 @@ public class BIRWriterUtils {
                 });
                 break;
             case TypeTags.TUPLE:
+            case TypeTags.BYTE_ARRAY:
                 BIRNode.ConstValue[] tupleConstVal = (BIRNode.ConstValue[]) value;
                 buf.writeInt(tupleConstVal.length);
                 for (BIRNode.ConstValue memValue : tupleConstVal) {
@@ -240,6 +241,15 @@ public class BIRWriterUtils {
                 tupleConstVal[exprIndex] = getBIRConstantVal(constantValueList.get(exprIndex));
             }
             return new BIRNode.ConstValue(tupleConstVal, ((BTupleType) constValue.type).getIntersectionType().get());
+        }
+
+        if (tag == TypeTags.BYTE_ARRAY) {
+            List<BLangConstantValue> constantValueList = (List<BLangConstantValue>) constValue.value;
+            BIRNode.ConstValue[] byteArrConstVal = new BIRNode.ConstValue[constantValueList.size()];
+            for (int exprIndex = 0; exprIndex < constantValueList.size(); exprIndex++) {
+                byteArrConstVal[exprIndex] = getBIRConstantVal(constantValueList.get(exprIndex));
+            }
+            return new BIRNode.ConstValue(byteArrConstVal, constValue.type);
         }
 
         return new BIRNode.ConstValue(constValue.value, constValue.type);

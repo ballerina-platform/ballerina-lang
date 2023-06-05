@@ -1710,13 +1710,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 return literalType;
             }
         }
-
-        // Byte arrays are not yet supported in constants.
-        if (literalExpr.getBType().tag == TypeTags.BYTE_ARRAY) {
-            dlog.error(literalExpr.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
-            return symTable.semanticError;
-        }
-
         return literalType;
     }
 
