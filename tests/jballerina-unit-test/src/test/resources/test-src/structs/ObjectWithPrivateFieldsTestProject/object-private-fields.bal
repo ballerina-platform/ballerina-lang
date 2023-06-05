@@ -55,7 +55,7 @@ public function textPrivateFieldAccess2 () returns [int, string] {
     return [p.age, p.name];
 }
 
-public function testImplementationTimeStructEqWithPrivateFields () returns [string, string, string, int] {
+public function testCompileTimeStructEqWithPrivateFields () returns [string, string, string, int] {
     employeeObj e = new;
     e.age = 24;
     e.name = "jay";
@@ -67,7 +67,7 @@ public function testImplementationTimeStructEqWithPrivateFields () returns [stri
     return [p.name, p.zipcode, p.ssn, p.id];
 }
 
-public function testImplementationTimeStructEqWithPrivateFieldsTwoPackages () returns [int, string, string] {
+public function testCompileTimeStructEqWithPrivateFieldsTwoPackages () returns [int, string, string] {
     employeeObj e = new;
     e.age = 28;
     e.name = "mal";

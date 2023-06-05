@@ -100,7 +100,7 @@ public class CompilerPluginTests {
     }
 
     @Test
-    public void testImplementationrPluginBasic() {
+    public void testCompilerPluginBasic() {
         Package currentPackage = loadPackage("package_plugin_user_1");
         PackageCompilation compilation = currentPackage.getCompilation();
 
@@ -117,12 +117,12 @@ public class CompilerPluginTests {
     }
 
     @Test
-    public void testImplementationrPluginWithOneJavaLibDependency() {
+    public void testCompilerPluginWithOneJavaLibDependency() {
         assertDiagnostics(loadPackage("package_plugin_user_2"));
     }
 
     @Test
-    public void testImplementationrPluginWithTwoJavaLibDependencies() {
+    public void testCompilerPluginWithTwoJavaLibDependencies() {
         Package currentPackage = loadPackage("package_plugin_user_3");
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
@@ -224,7 +224,7 @@ public class CompilerPluginTests {
     }
 
     @Test
-    public void testImplementationrPluginWithNoCodeGenerators() {
+    public void testCompilerPluginWithNoCodeGenerators() {
         Package currentPackage = loadPackage("package_plugin_user_1");
 
         // Check the document count in the current package
@@ -242,7 +242,7 @@ public class CompilerPluginTests {
     }
 
     @Test
-    public void testImplementationrPluginCodegenBasic() {
+    public void testCompilerPluginCodegenBasic() {
         Package currentPackage = loadPackage("package_plugin_codegen_user_1");
         // Check the document count in the current package
         Assert.assertEquals(1, currentPackage.getDefaultModule().documentIds().size());
@@ -313,7 +313,7 @@ public class CompilerPluginTests {
     }
 
     @Test(description = "Test basic package code modify using code modifier plugin")
-    public void testImplementationrPluginCodeModifyBasic() {
+    public void testCompilerPluginCodeModifyBasic() {
         Package currentPackage = loadPackage("package_plugin_code_modify_user_1");
         // Check the document count in the current package
         Assert.assertEquals(currentPackage.getDefaultModule().documentIds().size(), 2);
@@ -369,7 +369,7 @@ public class CompilerPluginTests {
     }
 
     @Test(description = "Test basic single bal file code modify using code modifier plugin")
-    public void testImplementationrPluginSingleBalFileCodeModifyBasic() {
+    public void testCompilerPluginSingleBalFileCodeModifyBasic() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("single_bal_plugin_code_modify_user_1").resolve("main.bal");
         SingleFileProject singleFileProject = TestUtils.loadSingleFileProject(projectDirPath);
         Package currentPackage = singleFileProject.currentPackage();

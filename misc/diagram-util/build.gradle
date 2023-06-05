@@ -21,9 +21,9 @@ configurations {
     dist {
         transitive false
     }
-//    dependency {
-//        transitive false
-//    }
+    dependency {
+        transitive false
+    }
     libs
     distributionBala
 }
@@ -54,8 +54,3 @@ test {
         suites 'src/test/resources/testng.xml'
     }
 }
-
-///*this is to let gradle infer the locations of the modules*/
-//java {
-//    modularity.inferModulePath.set(true)
-//}

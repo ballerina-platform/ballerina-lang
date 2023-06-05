@@ -22,7 +22,7 @@ public class personFoo {
     }
 }
 
-public function testImplementationTimeStructEq() {
+public function testCompileTimeStructEq() {
     personFoo pf = new (10, "dd", "123-44-3333", 12);
     foo:person p = check <foo:person>pf;
 }

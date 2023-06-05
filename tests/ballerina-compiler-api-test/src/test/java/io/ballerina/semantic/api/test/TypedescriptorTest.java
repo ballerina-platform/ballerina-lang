@@ -812,14 +812,14 @@ public class TypedescriptorTest {
     }
 
     @Test
-    public void testImplementationErrorType1() {
+    public void testCompileErrorType1() {
         LineRange range = LineRange.from("typedesc_test.bal", from(181, 12), from(181, 17));
         Optional<TypeSymbol> type = model.type(range);
         assertEquals(type.get().typeKind(), COMPILATION_ERROR);
     }
 
     @Test
-    public void testImplementationErrorType2() {
+    public void testCompileErrorType2() {
         Symbol symbol = getSymbol(182, 18);
         assertEquals(((VariableSymbol) symbol).typeDescriptor().typeKind(), COMPILATION_ERROR);
     }
