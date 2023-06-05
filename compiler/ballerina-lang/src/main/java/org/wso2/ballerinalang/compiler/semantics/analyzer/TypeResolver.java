@@ -587,7 +587,7 @@ public class TypeResolver {
         switch (typeNode.getKind()) {
             case ARRAY_TYPE:
             case CONSTRAINED_TYPE:
-                dlog.error(typeNode.pos, DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE, name);
+                dlog.error(typeNode.pos, DiagnosticErrorCode.CYCLIC_TYPE_REFERENCE_NOT_YET_SUPPORTED, name);
                 break;
             case INTERSECTION_TYPE_NODE:
                 ((BLangIntersectionTypeNode) typeNode).constituentTypeNodes.forEach(
