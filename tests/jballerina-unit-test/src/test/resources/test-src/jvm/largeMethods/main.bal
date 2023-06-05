@@ -27,6 +27,7 @@ public function main() {
     o:largeClass largeObject = new();
     largeObject.validate();
     f:testFunctionWithWorkers();
+    f:testInvalidRegExp();
     r:testQueryExpressionsWithLargeArraysAndRecords();
     r:testAnnotationsOnLocalRecordFields();
 }
