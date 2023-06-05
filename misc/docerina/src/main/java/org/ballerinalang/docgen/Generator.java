@@ -485,14 +485,14 @@ public class Generator {
         if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
             return new Client(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         } else if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.LISTENER_KEYWORD)
-                || checkListenerModel(functions)) {
+                || isListenerModel(functions)) {
             return new Listener(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         } else {
             return new BClass(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         }
     }
 
-    private static boolean checkListenerModel(List<Function> classFunctions) {
+    private static boolean isListenerModel(List<Function> classFunctions) {
         boolean isStartIncluded = false;
         boolean isAttachIncluded = false;
         boolean isDetachIncluded = false;
