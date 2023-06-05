@@ -23,6 +23,7 @@ isolated int exitCode = 0;
 TestFunction[] parallelTestExecutionList = [];
 TestFunction[] serialTestExecutionList = [];
 isolated int unAllocatedTestWorkers = 1;
+ConcurrentExecutionManager concurrentMgmr = new (1);
 
 public function startSuite() {
     // exit if setTestOptions has failed
@@ -68,74 +69,72 @@ function exitOnError() {
 }
 
 function executeTests() returns error? {
+    TestFunction[] testsInExecution = [];
     decimal startTime = currentTimeInMillis();
     // Add intial independant tests to the execution queue based on parallelizable condition
     foreach TestFunction testFunction in testRegistry.getFunctions() {
-        if testFunction.parallelizable {
-            parallelTestExecutionList.push(testFunction);
-        } else {
-            serialTestExecutionList.push(testFunction);
-        }
-
+        _ = testFunction.parallelizable ? parallelTestExecutionList.push(testFunction) : serialTestExecutionList.push(testFunction);
     }
-
-    int paralalTestExecutionListLength = parallelTestExecutionList.length();
-    int serialTestExecutionListLength = serialTestExecutionList.length();
 
     while true {
 
-        TestFunction? testFunction = ();
-        lock {
-            paralalTestExecutionListLength = parallelTestExecutionList.length();
-            serialTestExecutionListLength = serialTestExecutionList.length();
-        }
         //Exit from the loop if there are no tests to execute and all jobs are released  
-        if (paralalTestExecutionListLength == 0 && getAvailableWorkerCount() == testWorkers
-            && serialTestExecutionListLength == 0) {
+        if parallelTestExecutionList.length() == 0 && getAvailableWorkerCount() == testWorkers
+            && serialTestExecutionList.length() == 0 && testsInExecution.length() == 0 {
             break;
+        }
+
+        int i = 0;
+
+        while i < testsInExecution.length() {
+            TestFunction testInProgress = testsInExecution[i];
+            if testInProgress.isExecutionDone {
+                testInProgress.dependents.forEach(dependent => checkExecutionReadiness(dependent));
+                _ = testsInExecution.remove(i);
+            } else {
+                i = i + 1;
+            }
         }
 
         //Execute tests if there are available workers
         if (getAvailableWorkerCount() != 0) {
 
             //If there are no tests to execute, wait for tests to be added to the execution queue
-            if paralalTestExecutionListLength == 0 && serialTestExecutionListLength == 0 {
-                runtime:sleep(0.0001);
+            if parallelTestExecutionList.length() == 0 && serialTestExecutionList.length() == 0 {
+                runtime:sleep(0.0001); // Check async waits
                 continue;
 
             }
 
             //Execute serial tests if there are no test in execution process
-            if (serialTestExecutionListLength != 0 && getAvailableWorkerCount() == testWorkers) {
-                lock {
-                    testFunction = serialTestExecutionList.remove(0);
-                }
+            if (serialTestExecutionList.length() != 0 && getAvailableWorkerCount() == testWorkers) {
+                TestFunction testFunction = serialTestExecutionList.remove(0);
                 // wait until the test is complete execution
-                if testFunction is TestFunction {
-                    allocateWorker();
-                    future<error?> serialWaiter = start executeTest(testFunction);
-                    any _ = check wait serialWaiter;
-                }
+                testsInExecution.push(testFunction);
+                allocateWorker();
+                future<error?> serialWaiter = start executeTest(testFunction);
+                any _ = check wait serialWaiter;
 
                 // Execute parallel tests if there are no serial tests in execution queue
-            } else if paralalTestExecutionListLength != 0 && serialTestExecutionListLength == 0 {
-                lock {
-                    testFunction = parallelTestExecutionList.remove(0);
-                }
+            }
 
+            else if parallelTestExecutionList.length() != 0 && serialTestExecutionList.length() == 0 {
+                TestFunction testFunction = parallelTestExecutionList.remove(0);
                 // wait for the data driven tests to allocate workers
-                if testFunction is TestFunction {
-                    allocateWorker();
-                    future<(error?)> parallelWaiter = start executeTest(testFunction);
-                    if isDataDrivenTest(testFunction) {
-                        any _ = check wait parallelWaiter;
-                    }
+
+                testsInExecution.push(testFunction);
+                allocateWorker();
+                future<(error?)> parallelWaiter = start executeTest(testFunction);
+                if isDataDrivenTest(testFunction) {
+                    any _ = check wait parallelWaiter;
                 }
 
             }
+
         }
         runtime:sleep(0.0001);
     }
+
     println("\n\t\tTest execution time :" + (currentTimeInMillis() - startTime).toString() + "ms\n");
 }
 
@@ -186,22 +185,16 @@ function executeTest(TestFunction testFunction) returns error? {
             }
         });
     }
-    testFunction.dependents.forEach(dependent => checkExecutionReadiness(dependent));
+    testFunction.isExecutionDone = true;
     releaseWorker();
 }
 
 //Reduce the dependents count and add to the execution queue if all the dependencies are executed
 function checkExecutionReadiness(TestFunction testFunction) {
-    lock {
-        testFunction.dependsOnCount -= 1;
-        if testFunction.dependsOnCount == 0 && testFunction.isInExecutionQueue != true {
-            testFunction.isInExecutionQueue = true;
-            if testFunction.parallelizable {
-                parallelTestExecutionList.push(testFunction);
-            } else {
-                serialTestExecutionList.push(testFunction);
-            }
-        }
+    testFunction.dependsOnCount -= 1;
+    if testFunction.dependsOnCount == 0 && testFunction.isInExecutionQueue != true {
+        testFunction.isInExecutionQueue = true;
+        _ = testFunction.parallelizable ? parallelTestExecutionList.push(testFunction) : serialTestExecutionList.push(testFunction);
     }
 }
 
@@ -301,6 +294,7 @@ function executeDataDrivenTest(TestFunction testFunction, string suffix, TestTyp
         lock {
             reportData.onFailed(name = testFunction.name, suffix = suffix, message = "[fail data provider for the function " + testFunction.name
                 + "]\n" + getErrorMessage(err), testType = testType);
+            //Remove *** && new line from the below line to print the error stack trace
             println("\n****************************************************\n" + testFunction.name + ":" + suffix + " has failed.\n****************************************************\n");
             enableExit();
         }

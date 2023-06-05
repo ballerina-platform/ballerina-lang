@@ -84,7 +84,7 @@ function processConfigAnnotation(string name, function f) returns boolean {
 
         // If the test function is not parallelizable, then print the reason for serial execution.
         if !isSatisfiedParallelizableConditions && !config.serialExecution && (testWorkers > 1) {
-            println("WARNING : Test function '" + name + "' cannot be parallelized due to " + string:'join(",", ...reasonToSerialExecution));
+            println("WARNING: Test function '" + name + "' cannot be parallelized due to " + string:'join(",", ...reasonToSerialExecution));
         }
 
         boolean enabled = config.enable && (filterGroups.length() == 0 ? true : hasGroup(config.groups, filterGroups))

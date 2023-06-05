@@ -42,7 +42,116 @@ type TestFunction record {|
     boolean isInExecutionQueue = false;
     boolean parallelizable = true;
     TestConfig? config = ();
+    boolean isExecutionDone = false;
 |};
+
+class ConcurrentExecutionManager {
+    private TestFunction[] parallelTestExecutionList = [];
+    private TestFunction[] serialTestExecutionList = [];
+    private TestFunction[] testsInExecution = [];
+    private int unAllocatedTestWorkers = 1;
+    private final int intialWorkers;
+
+    function init(int workers) {
+        self.intialWorkers = workers;
+        self.unAllocatedTestWorkers = workers;
+    }
+
+    function addParallelTest(TestFunction testFunction) {
+        self.parallelTestExecutionList.push(testFunction);
+    }
+
+    function addSerialTest(TestFunction testFunction) {
+        self.serialTestExecutionList.push(testFunction);
+    }
+
+    function addTestInExecution(TestFunction testFunction) {
+        self.testsInExecution.push(testFunction);
+    }
+
+    function getConfiguredWorkers() returns int {
+        return self.intialWorkers;
+    }
+
+    function getSerialQueueLength() returns int {
+        return self.serialTestExecutionList.length();
+    }
+
+    function getParallelQueueLength() returns int {
+        return self.parallelTestExecutionList.length();
+    }
+
+    function isExecutionDone() returns boolean {
+        return self.parallelTestExecutionList.length() == 0 &&
+                self.getAvailableWorkers() == testWorkers &&
+                self.serialTestExecutionList.length() == 0 &&
+                self.testsInExecution.length() == 0;
+
+    }
+
+    isolated function allocateWorker() {
+        lock {
+            self.unAllocatedTestWorkers -= 1;
+        }
+    }
+
+    isolated function releaseWorker() {
+        lock {
+            self.unAllocatedTestWorkers += 1;
+        }
+    }
+
+    isolated function getAvailableWorkers() returns int {
+        lock {
+            return self.unAllocatedTestWorkers;
+        }
+    }
+
+    function getParallelTest() returns TestFunction? {
+        if self.parallelTestExecutionList.length() > 0 {
+            return self.parallelTestExecutionList.remove(0);
+        }
+        return;
+    }
+
+    function getSerialTest() returns TestFunction? {
+        if self.serialTestExecutionList.length() > 0 {
+            return self.serialTestExecutionList.remove(0);
+        }
+        return;
+    }
+
+    function waitUntilEmptyQueueFilled() {
+        while parallelTestExecutionList.length() == 0 && serialTestExecutionList.length() == 0 {
+            self.populateExecutionQueues();
+            if self.isExecutionDone() {
+                break;
+            }
+        }
+    }
+
+    function populateExecutionQueues() {
+        int i = 0;
+        while i < self.testsInExecution.length() {
+            TestFunction testInProgress = self.testsInExecution[i];
+            if testInProgress.isExecutionDone {
+                testInProgress.dependents.forEach(dependent => checkExecutionReadiness(dependent));
+                _ = self.testsInExecution.remove(i);
+            } else {
+                i = i + 1;
+            }
+        }
+    }
+
+    private function checkExecutionReadiness(TestFunction testFunction) {
+        testFunction.dependsOnCount -= 1;
+        if testFunction.dependsOnCount == 0 && testFunction.isInExecutionQueue != true {
+            testFunction.isInExecutionQueue = true;
+            _ = testFunction.parallelizable ? self.addParallelTest(testFunction) : self.addSerialTest(testFunction);
+        }
+    }
+
+}
 
 class TestRegistry {
     private final TestFunction[] rootRegistry = [];
