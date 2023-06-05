@@ -1601,7 +1601,10 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangLambdaFunction lambda) {
         lambda.function = rewrite(lambda.function);
+        SymbolEnv prevEnv = new SymbolEnv(this.env.node, this.env.scope);
+        this.env.copyTo(prevEnv, this.env.enclEnv);
         lambda.function = desugar.rewrite(lambda.function, lambda.capturedClosureEnv);
+        this.env = prevEnv;
         result = lambda;
     }
 
@@ -1741,8 +1744,13 @@ public class QueryDesugar extends BLangNodeVisitor {
         }
         requiredArgs.forEach(this::acceptNode);
         visitRestArgs(invocationExpr);
-        this.acceptNode(invocationExpr.expr);
-        result = invocationExpr;
+        if (invocationExpr.functionPointerInvocation) {
+            BLangExpression expr = rewrite(desugar.getFunctionPointerExpr(invocationExpr));
+            result = new BLangInvocation.BFunctionPointerInvocation(invocationExpr, expr);
+        } else {
+            invocationExpr.expr = rewrite(invocationExpr.expr);
+            result = invocationExpr;
+        }
     }
 
     private boolean isNilReturnInvocationInCollectClause(BLangInvocation invocation) {
@@ -1769,7 +1777,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         }
         restArgs.forEach(this::acceptNode);
     }
-    
+
     private BType changeSeqSymbolType(BSymbol symbol) {
         if (symbol.type.tag == TypeTags.SEQUENCE) {
             BType elementType = ((BSequenceType) symbol.type).elementType;
@@ -2529,7 +2537,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         this.queryEnv = prevQueryEnv;
         result = queryExpr;
     }
-    
+
     @Override
     public void visit(BLangForeach foreach) {
         foreach.collection = rewrite(foreach.collection);
