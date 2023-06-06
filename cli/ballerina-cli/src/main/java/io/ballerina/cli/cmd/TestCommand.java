@@ -181,7 +181,7 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
-    @CommandLine.Option(names = "--native", description = "enable running test suite against native image")
+    @CommandLine.Option(names = "--graalvm", description = "enable running test suite against native image")
     private Boolean nativeImage;
 
     @CommandLine.Option(names = "--excludes", description = "option to exclude source files/folders from code coverage")
