@@ -816,6 +816,7 @@ public class BIRPackageSymbolEnter {
                 }
                 return new BLangConstantValue(keyValuePairs, valueType);
             case TypeTags.TUPLE:
+            case TypeTags.BYTE_ARRAY:
                 int tupleSize = dataInStream.readInt();
                 List<BLangConstantValue> members = new ArrayList<>(tupleSize);
                 for (int i = 0; i < tupleSize; i++) {

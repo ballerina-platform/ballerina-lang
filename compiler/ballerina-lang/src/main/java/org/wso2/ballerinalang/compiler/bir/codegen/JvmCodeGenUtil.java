@@ -780,6 +780,10 @@ public class JvmCodeGenUtil {
                 mv.visitLdcInsn(removeDecimalDiscriminator(String.valueOf(constVal)));
                 mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, JVM_INIT_METHOD, INIT_WITH_STRING, false);
                 break;
+            case TypeTags.BYTE_ARRAY:
+                String byteArrayLiteral = String.valueOf(constVal);
+                mv.visitLdcInsn(byteArrayLiteral);
+                break;
             case TypeTags.NIL:
             case TypeTags.NEVER:
                 mv.visitInsn(ACONST_NULL);

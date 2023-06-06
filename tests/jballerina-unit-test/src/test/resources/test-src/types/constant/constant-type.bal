@@ -318,6 +318,17 @@ function testResolvingConstValForConstantsOfUserDefinedTypes() {
     assertEqual(q, -60);
 }
 
+const byte[] data = base16 `55 EE 66 FF 77 AB`;
+
+function testConstByteArrLiteral() {
+    assertEquals(data[0], 0x55);
+    assertEquals(data[1], 0xEE);
+    assertEquals(data[2], 0x66);
+    assertEquals(data[3], 0xFF);
+    assertEquals(data[4], 0x77);
+    assertEquals(data[5], 0xAB);
+}
+
 function assertInvalidUpdateError(error? res, string expectedDetailMessage) {
     assertTrue(res is error);
     error err = <error> res;

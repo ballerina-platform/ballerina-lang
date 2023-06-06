@@ -613,13 +613,13 @@ public class BIRTypeWriter implements TypeVisitor {
             case TypeTags.STRING:
             case TypeTags.CHAR_STRING:
             case TypeTags.DECIMAL:
-            case TypeTags.BYTE_ARRAY:
                 byteBuf.writeInt(addStringCPEntry(String.valueOf(value)));
                 break;
             case TypeTags.BOOLEAN:
                 byteBuf.writeBoolean((Boolean) value);
                 break;
             case TypeTags.NIL:
+            case TypeTags.BYTE_ARRAY:
                 break;
             default:
                 throw new UnsupportedOperationException("finite type value is not supported for type: " + typeOfValue);

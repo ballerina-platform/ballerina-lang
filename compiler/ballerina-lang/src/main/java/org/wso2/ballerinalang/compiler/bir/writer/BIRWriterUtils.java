@@ -32,6 +32,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -244,10 +247,13 @@ public class BIRWriterUtils {
         }
 
         if (tag == TypeTags.BYTE_ARRAY) {
-            List<BLangConstantValue> constantValueList = (List<BLangConstantValue>) constValue.value;
-            BIRNode.ConstValue[] byteArrConstVal = new BIRNode.ConstValue[constantValueList.size()];
-            for (int exprIndex = 0; exprIndex < constantValueList.size(); exprIndex++) {
-                byteArrConstVal[exprIndex] = getBIRConstantVal(constantValueList.get(exprIndex));
+            BLangListConstructorExpr.BLangArrayLiteral arrayLiteral =
+                    (BLangListConstructorExpr.BLangArrayLiteral) constValue.value;
+            List<BLangExpression> exprList = arrayLiteral.exprs;
+            BIRNode.ConstValue[] byteArrConstVal = new BIRNode.ConstValue[exprList.size()];
+            for (int exprIndex = 0; exprIndex < exprList.size(); exprIndex++) {
+                BLangLiteral expr = (BLangLiteral) exprList.get(exprIndex);
+                byteArrConstVal[exprIndex] = new BIRNode.ConstValue(expr.value, expr.getBType());
             }
             return new BIRNode.ConstValue(byteArrConstVal, constValue.type);
         }

@@ -1710,7 +1710,29 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 return literalType;
             }
         }
+        if (literalType.tag == TypeTags.BYTE_ARRAY) {
+            return rewriteByteArrayLiteral(literalExpr).getBType();
+        }
+        
         return literalType;
+    }
+
+    private BLangListConstructorExpr.BLangArrayLiteral rewriteByteArrayLiteral(BLangLiteral literalExpr) {
+        byte[] values = types.convertToByteArray((String) literalExpr.value);
+        BLangListConstructorExpr.BLangArrayLiteral arrayLiteralNode = (BLangListConstructorExpr.BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+        arrayLiteralNode.setBType(literalExpr.getBType());
+        arrayLiteralNode.pos = literalExpr.pos;
+        arrayLiteralNode.exprs = new ArrayList<>();
+        for (byte b : values) {
+            arrayLiteralNode.exprs.add(createByteLiteral(literalExpr.pos, b));
+        }
+        return arrayLiteralNode;
+    }
+
+    private BLangLiteral createByteLiteral(Location pos, Byte value) {
+        BLangLiteral byteLiteral = new BLangLiteral(Byte.toUnsignedInt(value), symTable.byteType);
+        byteLiteral.pos = pos;
+        return byteLiteral;
     }
 
     private BType getTypeOfLiteralWithFloatDiscriminator(BLangLiteral literalExpr, Object literalValue) {

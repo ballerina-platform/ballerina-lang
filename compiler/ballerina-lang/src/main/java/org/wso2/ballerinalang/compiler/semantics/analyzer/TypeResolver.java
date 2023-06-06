@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -81,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -2102,14 +2104,20 @@ public class TypeResolver {
 
     private BLangConstantValue rewriteByteArrayLiteral(BLangLiteral literalExpr) {
         byte[] values = types.convertToByteArray((String) literalExpr.value);
-        List<BLangConstantValue> members = new ArrayList<>();
-        BType type = literalExpr.getBType();
+        BLangListConstructorExpr.BLangArrayLiteral arrayLiteralNode = (BLangListConstructorExpr.BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+        arrayLiteralNode.setBType(literalExpr.getBType());
+        arrayLiteralNode.pos = literalExpr.pos;
+        arrayLiteralNode.exprs = new ArrayList<>();
         for (byte b : values) {
-            BLangConstantValue constantValue = new BLangConstantValue(Byte.toUnsignedInt(b),
-                    symTable.byteType);
-            members.add(constantValue);
+            arrayLiteralNode.exprs.add(createByteLiteral(literalExpr.pos, b));
         }
-        return new BLangConstantValue(members, type);
+        return new BLangConstantValue(arrayLiteralNode, literalExpr.getBType());
+    }
+
+    private BLangLiteral createByteLiteral(Location pos, Byte value) {
+        BLangLiteral byteLiteral = new BLangLiteral(Byte.toUnsignedInt(value), symTable.byteType);
+        byteLiteral.pos = pos;
+        return byteLiteral;
     }
 
     public BLangTypeDefinition findTypeDefinition(List<BLangTypeDefinition> typeDefinitionArrayList, String name) {
