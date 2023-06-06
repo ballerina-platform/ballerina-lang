@@ -394,3 +394,11 @@ public function testDeprecatedAnonStructAsStructField() {
     _ = employee5.address;  // warning
     _ = employee5.address.line02;   // warning
 }
+
+public function testDeprecatedAnonRecordFieldWithVarRef() {
+    int experience = 2;
+    Job job1 = {title: "SE", experience};  // warning
+
+    var details = {experience: 1};
+    Job job2 = {title: "SE", ...details};  // warning
+}
