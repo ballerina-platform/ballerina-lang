@@ -51,27 +51,26 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
                 .resolve("test_results.json");
     }
 
-    @Test(description = "Exclude coverage with relative source paths and wildcards", enabled = false)
+    @Test(description = "Exclude coverage with relative source paths and wildcards")
     public void testExcludingBalFileCoverage() throws BallerinaTestException, IOException {
         String [][] exclusionListOfList = {{"./main.bal", "./modules/util/util.bal", "./generated/util/util_gen.bal",
                 "./generated/util2/util2_gen.bal", "./generated/main_gen.bal"},
-//                {"./*", "./modules/util/ut*.bal", "./generated**"},
-//                {"./*", "modules/util/ut*.bal", "generated"},
-//                {"./*", "modules/util/ut*.bal", "generated/"},
-//                {"./*.bal", "modules/util/ut*.bal", "/generated"},
-//                {"./*.bal", "modules/util/ut*.bal", "/generated/"},
-//                {"./*.bal", "modules/util/uti?.bal", "/generated/"},
-//                {"./*.bal", "modules/util/uti[k-m].bal", "/generated/"},
-//                {"./*.bal", "**util/util.bal", "/generated/"},
-//                {"./"},
-//                {"./**"},
-//                {"/**"},
-//                {"*.bal"}
+                {"./*", "./modules/util/ut*.bal", "./generated**"},
+                {"./*", "modules/util/ut*.bal", "generated"},
+                {"./*", "modules/util/ut*.bal", "generated/"},
+                {"./*.bal", "modules/util/ut*.bal", "/generated"},
+                {"./*.bal", "modules/util/ut*.bal", "/generated/"},
+                {"./*.bal", "modules/util/uti?.bal", "/generated/"},
+                {"./*.bal", "modules/util/uti[k-m].bal", "/generated/"},
+                {"./*.bal", "**util/util.bal", "/generated/"},
+                {"./"},
+                {"./**"},
+                {"/**"},
+                {"*.bal"}
         };
-//        for (String [] exclusionList : exclusionListOfList) {
-            String[] args = mergeCoverageArgs(new String[]{"--test-report"
-//                    "--excludes=" + String.join(",", exclusionList)
-            });
+        for (String [] exclusionList : exclusionListOfList) {
+            String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",
+                    "--excludes=" + String.join(",", exclusionList)});
             String output = balClient.runMainAndReadStdOut("test", args,
                     new HashMap<>(), projectPath.toString(), false);
             Gson gson = new Gson();
@@ -79,10 +78,10 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
             try (BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8)) {
                 resultObj = gson.fromJson(bufferedReader, JsonObject.class);
             } catch (IOException e) {
-                throw e;
+                throw new BallerinaTestException("Failed to read test_results.json");
             }
             validateModuleWiseCoverage();
-//        }
+        }
     }
 
     @Test(description = "Exclude a source file from coverage exclusion list")
