@@ -193,7 +193,7 @@ public class Generator {
                         Type.fromNode(typeDefinition.typeDescriptor(), semanticModel, module)));
             } else {
                 module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(),
-                        typeName, metaDataNode, semanticModel));
+                        typeName, metaDataNode, semanticModel, module));
             }
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
@@ -203,7 +203,7 @@ public class Generator {
                         refType));
             } else {
                 module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
-                        semanticModel));
+                        semanticModel, module));
             }
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
@@ -283,7 +283,8 @@ public class Generator {
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.ANYDATA_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.STRING_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.ANY_TYPE_DESC) {
-            module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode, semanticModel));
+            module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode, semanticModel,
+                    module));
         } else {
             return false;
         }
@@ -432,9 +433,10 @@ public class Generator {
     }
 
     private static BType getUnionTypeModel(Node unionTypeDescriptor, String unionName,
-                                           Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel) {
+                                           Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel,
+                                           Module module) {
         List<Type> memberTypes = new ArrayList<>();
-        Type.addUnionMemberTypes(unionTypeDescriptor, semanticModel, memberTypes);
+        Type.addUnionMemberTypes(unionTypeDescriptor, semanticModel, memberTypes, module);
         BType bType = new BType(unionName, getDocFromMetadata(optionalMetadataNode),
                                 isDeprecated(optionalMetadataNode), memberTypes);
         bType.isAnonymousUnionType = true;
