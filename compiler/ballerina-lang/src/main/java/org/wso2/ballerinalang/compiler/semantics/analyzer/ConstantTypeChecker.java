@@ -1719,7 +1719,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     private BLangListConstructorExpr.BLangArrayLiteral rewriteByteArrayLiteral(BLangLiteral literalExpr) {
         byte[] values = types.convertToByteArray((String) literalExpr.value);
-        BLangListConstructorExpr.BLangArrayLiteral arrayLiteralNode = (BLangListConstructorExpr.BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+        BLangListConstructorExpr.BLangArrayLiteral arrayLiteralNode
+                = (BLangListConstructorExpr.BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         arrayLiteralNode.setBType(literalExpr.getBType());
         arrayLiteralNode.pos = literalExpr.pos;
         arrayLiteralNode.exprs = new ArrayList<>();
