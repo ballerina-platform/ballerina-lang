@@ -150,6 +150,8 @@ public class BTestMain {
         try {
             return TesterinaUtils.executeTests(sourceRootPath, testSuite, classLoader, args, out);
         } catch (RuntimeException e) {
+            e.printStackTrace();
+            System.out.println("\t" + e.getMessage());
             return 1;
         }
     }

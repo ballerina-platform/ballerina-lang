@@ -29,6 +29,8 @@ boolean listGroups = false;
 public function setTestOptions(string inTargetPath, string inPackageName, string inModuleName, string inReport,
         string inCoverage, string inGroups, string inDisableGroups, string inTests, string inRerunFailed,
         string inListGroups) {
+
+    println("From set options")
     targetPath = inTargetPath;
     packageName = inPackageName;
     moduleName = inModuleName;

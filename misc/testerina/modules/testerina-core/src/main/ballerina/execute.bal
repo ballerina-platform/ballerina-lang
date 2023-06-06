@@ -22,6 +22,7 @@ int exitCode = 0;
 
 public function startSuite() {
     // exit if setTestOptions has failed
+    println("Hi... How are you? " + exitCode.toBalString());
     exitOnError();
     if listGroups {
         string[] groupsList = groupStatusRegistry.getGroupsList();

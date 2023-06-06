@@ -404,6 +404,7 @@ public class RunNativeImageTestTask implements Task {
                 try {
                     testResult = runTestSuiteWithNativeImage(project.currentPackage(), target, testSuiteMap);
                     if (testResult != 0) {
+                        System.out.println("Exit status " + testResult);
                         accumulatedTestResult = testResult;
                     }
                     if (report) {

@@ -122,7 +122,10 @@ public class TesterinaUtils {
 
         // This will run the main method of the test module.
         startSuite(initClazz, args);
-        return getTestExecutionState(initClazz);
+        System.out.println("Before getTestExecutionState");
+        int x= getTestExecutionState(initClazz);
+        System.out.println("After getTestExecutionState" + x);
+        return x;
     }
 
     private static void startSuite(Class<?> initClazz, String[] args) {
