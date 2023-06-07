@@ -2113,11 +2113,7 @@ public class TypeResolver {
         constant.setBType(intersectionType);
 
         // Get the constant value from the final type.
-        if (resolvedType.tag == TypeTags.BYTE_ARRAY && constant.expr.getKind() == NodeKind.LITERAL) {
-            constantSymbol.value = rewriteByteArrayLiteral((BLangLiteral) constant.expr);
-        } else {
-            constantSymbol.value = constantTypeChecker.getConstantValue(intersectionType);
-        }
+        constantSymbol.value = constantTypeChecker.getConstantValue(intersectionType);
 
         if (isLiteral && constantSymbol.type.tag != TypeTags.TYPEREFDESC && typeDef != null) {
             // Update flags.
@@ -2153,18 +2149,6 @@ public class TypeResolver {
             }
         }
         return null;
-    }
-
-    private BLangConstantValue rewriteByteArrayLiteral(BLangLiteral literalExpr) {
-        byte[] values = types.convertToByteArray((String) literalExpr.value);
-        List<BLangConstantValue> members = new ArrayList<>();
-        BType type = literalExpr.getBType();
-        for (byte b : values) {
-            BLangConstantValue constantValue = new BLangConstantValue(Byte.toUnsignedInt(b),
-                    symTable.byteType);
-            members.add(constantValue);
-        }
-        return new BLangConstantValue(members, type);
     }
 
     private void addAssociatedTypeDefinition(BLangConstant constant, BType type,

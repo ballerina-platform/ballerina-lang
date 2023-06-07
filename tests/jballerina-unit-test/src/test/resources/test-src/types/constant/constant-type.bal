@@ -318,28 +318,37 @@ function testResolvingConstValForConstantsOfUserDefinedTypes() {
     assertEqual(q, -60);
 }
 
-const byte[] data = base16 `55 EE 66 FF 77 AB`;
-const byte[] data2 = base64 `ABCD pqrs 5678 +/12`;
+const byte[] data1 = base16 `55 EE 66`;
+const byte[] data2 = base64 `ABCD pqrs`;
+
+const byte[3] data3 = base16 `55 EE 66`;
+const byte[6] data4 = base64 `ABCD pqrs`;
+
+const data5 = base16 `55 EE 66`;
+const data6 = base64 `ABCD pqrs`;
 
 function testConstByteArrLiteral() {
-    assertEqual(data[0], 0x55);
-    assertEqual(data[1], 0xEE);
-    assertEqual(data[2], 0x66);
-    assertEqual(data[3], 0xFF);
-    assertEqual(data[4], 0x77);
-    assertEqual(data[5], 0xAB);
+    assertEqual(data1.length(), 3);
+    assertEqual(data2.length(), 6);
+    assertEqual(data1[0], 0x55);
+    assertEqual(data1[1], 0xEE);
+    assertEqual(data1[2], 0x66);
     assertEqual(data2[0], 0);
     assertEqual(data2[1], 16);
     assertEqual(data2[2], 131);
     assertEqual(data2[3], 166);
     assertEqual(data2[4], 170);
     assertEqual(data2[5], 236);
-    assertEqual(data2[6], 231);
-    assertEqual(data2[7], 174);
-    assertEqual(data2[8], 252);
-    assertEqual(data2[9], 251);
-    assertEqual(data2[10], 253);
-    assertEqual(data2[11], 118);
+
+    assertEqual(data3.length(), 3);
+    assertEqual(data4.length(), 6);
+    assertEqual(data3[1], 0xEE);
+    assertEqual(data4[2], 131);
+
+    assertEqual(data5.length(), 3);
+    assertEqual(data6.length(), 6);
+    assertEqual(data5[1], 0xEE);
+    assertEqual(data6[2], 131);
 }
 
 function assertInvalidUpdateError(error? res, string expectedDetailMessage) {
