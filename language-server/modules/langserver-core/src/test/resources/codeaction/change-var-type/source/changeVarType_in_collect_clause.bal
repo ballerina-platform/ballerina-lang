@@ -3,4 +3,6 @@ public function main() {
 
     int buyers = from var {price, buyer} in orders 
     collect [price];
+    
+    int letters = from var s in  ["a", "b", "c"] collect ", ".join(s);
 }
