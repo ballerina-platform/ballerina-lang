@@ -278,6 +278,7 @@ public class RegExpLexer extends AbstractLexer {
             }
             reportLexerError(DiagnosticErrorCode.ERROR_INVALID_TOKEN_IN_REG_EXP);
         }
+
         return getRegExpText(SyntaxKind.RE_UNICODE_GENERAL_CATEGORY_NAME);
     }
 
