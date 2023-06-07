@@ -482,7 +482,7 @@ public class CentralAPIClient {
                 boolean isDeprecated = deprecationFlag.isPresent() && Boolean.parseBoolean(deprecationFlag.get());
                 String deprecationMessage = deprecationMsg.isPresent() ? deprecationMsg.get() : "";
                 if (!isBuild && isDeprecated) {
-                    outStream.println("WARNING [" + name + "] " + packageSignature + " is deprecated due to : "
+                    outStream.println("WARNING [" + name + "] " + packageSignature + " is deprecated: "
                             + deprecationMessage);
                 }
 
