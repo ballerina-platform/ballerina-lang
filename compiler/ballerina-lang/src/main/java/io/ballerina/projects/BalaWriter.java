@@ -173,6 +173,9 @@ public abstract class BalaWriter {
             Path iconPath = getIconPath(packageManifest.icon());
             packageJson.setIcon(String.valueOf(Paths.get(BALA_DOCS_DIR).resolve(iconPath.getFileName())));
         }
+        if (packageManifest.platform(target) != null && packageManifest.platform(target).graalvmCompatible() != null) {
+            packageJson.setGraalvmCompatible(packageManifest.platform(target).graalvmCompatible());
+        }
 
         // Remove fields with empty values from `package.json`
         Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new JsonCollectionsAdaptor())
