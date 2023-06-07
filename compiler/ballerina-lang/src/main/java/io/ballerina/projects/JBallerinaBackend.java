@@ -50,12 +50,15 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -572,14 +575,30 @@ public class JBallerinaBackend extends CompilerBackend {
                     "--no-fallback"
             };
         } else {
+            String additionalNativeArgs = "";
+            Path nativeConfigPath = packageContext.project().targetDir().resolve("cache");
             nativeImageName = project.currentPackage().packageName().toString();
-            command = new String[]{
-                    nativeImageCommand,
-                    "-jar",
+            Object graalvm = this.packageContext.packageManifest().getValue("graalvm");
+            if (graalvm != null) {
+                additionalNativeArgs = (String) ((Map) graalvm).get("additionalOptions");
+            }
+            List<String> nativeArgs = new ArrayList<>(Arrays.asList("-jar",
                     executableFilePath.toString(),
                     "-H:Name=" + nativeImageName,
                     "-H:Path=" + executableFilePath.getParent(),
-                    "--no-fallback"
+                    "--no-fallback", additionalNativeArgs));
+
+            try (FileWriter nativeArgumentWriter = new FileWriter(nativeConfigPath.resolve("native-image-args.txt")
+                    .toString(), Charset.defaultCharset())) {
+                nativeArgumentWriter.write(String.join(" ", nativeArgs));
+                nativeArgumentWriter.flush();
+            } catch (IOException e) {
+                throw new ProjectException("error while generating the necessary graalvm argument file", e);
+            }
+
+            command = new String[]{
+                    nativeImageCommand,
+                    "@" + (nativeConfigPath.resolve("native-image-args.txt"))
             };
         }
 

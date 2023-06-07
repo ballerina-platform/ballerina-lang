@@ -510,6 +510,13 @@ public class RunNativeImageTestTask implements Task {
                 nativeConfigPath.resolve("reflect-config.json").toString())));
         nativeArgs.add("--no-fallback");
 
+        String additionalNativeArgs = "";
+        Object graalvm = currentPackage.manifest().getValue("graalvm");
+        if (graalvm != null) {
+            additionalNativeArgs = (String) ((Map) graalvm).get("additionalOptions");
+        }
+        nativeArgs.add(additionalNativeArgs);
+
         try (FileWriter nativeArgumentWriter = new FileWriter(nativeConfigPath.resolve("native-image-args.txt")
                 .toString(), Charset.defaultCharset())) {
             nativeArgumentWriter.write(String.join(" ", nativeArgs));
