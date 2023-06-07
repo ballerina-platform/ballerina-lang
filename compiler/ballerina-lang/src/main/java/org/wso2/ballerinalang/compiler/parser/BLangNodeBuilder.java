@@ -936,8 +936,10 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
 
         // Check whether the value is a literal or a unary expression and if it is not any one of the before mentioned
         // kinds it is an invalid case, so we don't need to consider it.
-        if (nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL ||
-                nodeKind == NodeKind.UNARY_EXPR) {
+        if ((nodeKind == NodeKind.LITERAL || nodeKind == NodeKind.NUMERIC_LITERAL ||
+                nodeKind == NodeKind.UNARY_EXPR)
+                && (constantNode.typeNode == null
+                || constantNode.typeNode.getKind() != NodeKind.ARRAY_TYPE)) {
             // Note - If the RHS is a literal, we need to create an anonymous type definition which can later be used
             // in type definitions.h
             createAnonymousTypeDefForConstantDeclaration(constantNode, pos, identifierPos);

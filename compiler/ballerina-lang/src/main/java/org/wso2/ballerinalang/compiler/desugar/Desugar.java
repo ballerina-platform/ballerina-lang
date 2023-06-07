@@ -781,8 +781,9 @@ public class Desugar extends BLangNodeVisitor {
         annotationDesugar.initializeAnnotationMap(pkgNode);
 
         pkgNode.constants.stream()
-                .filter(constant -> constant.expr.getKind() == NodeKind.LITERAL ||
+                .filter(constant -> (constant.expr.getKind() == NodeKind.LITERAL ||
                         constant.expr.getKind() == NodeKind.NUMERIC_LITERAL)
+                        && constant.expr.getBType().tag != TypeTags.TUPLE)
                 .forEach(constant -> pkgNode.typeDefinitions.add(constant.associatedTypeDefinition));
 
         BLangBlockStmt serviceAttachments = serviceDesugar.rewriteServiceVariables(pkgNode.services, env);
