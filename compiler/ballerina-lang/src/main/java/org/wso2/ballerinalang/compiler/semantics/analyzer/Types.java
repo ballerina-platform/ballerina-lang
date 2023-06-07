@@ -1010,8 +1010,9 @@ public class Types {
             return isFunctionTypeAssignable((BInvokableType) source, (BInvokableType) target, new HashSet<>());
         }
 
-        return sourceTag == TypeTags.ARRAY && targetTag == TypeTags.ARRAY &&
-                isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
+        return (sourceTag == TypeTags.ARRAY || sourceTag == TypeTags.BYTE_ARRAY)
+                && targetTag == TypeTags.ARRAY
+                && isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
     }
 
     private boolean isMutable(BType type) {
@@ -1535,6 +1536,7 @@ public class Types {
             case TypeTags.XML_COMMENT:
             case TypeTags.XML_ELEMENT:
             case TypeTags.XML_PI:
+            case TypeTags.BYTE_ARRAY:
                 return true;
             case TypeTags.ARRAY:
                 BArrayType arrayType = (BArrayType) type;
@@ -6004,7 +6006,9 @@ public class Types {
                 return true;
             case TypeTags.MAP:
                 return isAllowedConstantType(((BMapType) type).constraint);
-//            case TypeTags.RECORD:
+            case TypeTags.ARRAY:
+                return isAllowedConstantType(((BArrayType) type).eType);
+////            case TypeTags.RECORD:
 //                for (BField field : ((BRecordType) type).fields.values()) {
 //                    if (!isAllowedConstantType(field.type)) {
 //                        return false;

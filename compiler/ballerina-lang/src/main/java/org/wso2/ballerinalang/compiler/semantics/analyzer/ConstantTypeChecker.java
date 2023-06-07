@@ -568,7 +568,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         switch (possibleType.tag) {
             case TypeTags.MAP:
                 return validateSpecifiedFieldsAndGetType(mappingConstructor, possibleType, data);
-            case TypeTags.RECORD:
+            case TypeTags.RECORD :
                 boolean hasAllRequiredFields = validateRequiredFields((BRecordType) possibleType,
                         mappingConstructor.fields,
                         mappingConstructor.pos, data);
@@ -1701,12 +1701,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 setLiteralValueForFiniteType(literalExpr, literalType, data);
                 return literalType;
             }
-        }
-
-        // Byte arrays are not yet supported in constants.
-        if (literalExpr.getBType().tag == TypeTags.BYTE_ARRAY) {
-            dlog.error(literalExpr.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
-            return symTable.semanticError;
         }
 
         return literalType;
