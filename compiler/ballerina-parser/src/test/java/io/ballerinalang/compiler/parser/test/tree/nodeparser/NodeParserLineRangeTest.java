@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.parser.test.tree.nodeparser;
 
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
@@ -24,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeParser;
@@ -231,5 +233,23 @@ public class NodeParserLineRangeTest {
         letVarDeclTxt = "@a {m: 5} @b var b = c->getValue()";
         letVarDecl = NodeParser.parseLetVarDeclaration(letVarDeclTxt, true);
         assertLineRange(letVarDecl, SyntaxKind.LET_VAR_DECL, 0, 0, 0, 34);
+    }
+
+    @Test
+    public void testParseAnnotation() {
+        String annotationText = "\n    @foo:bar {qux: 5}";
+        AnnotationNode annotation = NodeParser.parseAnnotation(annotationText);
+        assertLineRange(annotation, SyntaxKind.ANNOTATION, 1, 4, 1, 21);
+    }
+
+    @Test
+    public void testParseMarkdownAnnotation() {
+        String markdownDocText = "\n\n# This is the description\n" +
+                "#\n" +
+                "# + value - value input parameter\n" +
+                "# + return - return a integer value\n\n\n";
+
+        MarkdownDocumentationNode markdownDoc = NodeParser.parseMarkdownDocumentation(markdownDocText);
+        assertLineRange(markdownDoc, SyntaxKind.MARKDOWN_DOCUMENTATION, 2, 0, 5, 35);
     }
 }
