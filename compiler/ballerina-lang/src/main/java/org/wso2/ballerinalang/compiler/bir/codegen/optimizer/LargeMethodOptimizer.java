@@ -404,6 +404,7 @@ public class LargeMethodOptimizer {
             }
             function.errorTable.removeAll(currSplit.errorTableEntries);
             startInsNum = currSplit.lastIns + 1;
+
             List<BIROperand> args = new ArrayList<>();
             for (BIRVariableDcl funcArg : currSplit.funcArgs) {
                 args.add(new BIROperand(funcArg));
@@ -594,8 +595,8 @@ public class LargeMethodOptimizer {
      * @param currSplit ongoing split details
      * @param newBBNum last BB id num of the parent function
      * @param fromAttachedFunction flag which indicates an original attached function is being split
-     * @param changedErrorTableEndBB error tables end BBs which needs to be changed
-     * @param parentFuncNewBB new BIRBasicBlock being added to the parent function
+     * @param changedErrorTableEndBB
+     * @param parentFuncNewBB
      * @return newly created BIR function
      */
     private BIRFunction createNewBIRFunctionAcrossBB(BIRFunction parentFunc, Name funcName, BType retType,
