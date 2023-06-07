@@ -99,6 +99,11 @@ public class Generator {
     private static final String EMPTY_STRING = "";
     private static final String RETURN_PARAM_NAME = "return";
     public static final String REST_FIELD_DESCRIPTION = "Rest field";
+    public static final String LISTENER_START_METHOD_NAME = "'start";
+    public static final String LISTENER_ATTACH_METHOD_NAME = "attach";
+    public static final String LISTENER_DETACH_METHOD_NAME = "detach";
+    public static final String LISTENER_IMMEDIATE_STOP_METHOD_NAME = "immediateStop";
+    public static final String LISTENER_GRACEFUL_STOP_METHOD_NAME = "gracefulStop";
 
     /**
      * Generate/Set the module constructs model(docerina model) when the syntax tree for the module is given.
@@ -500,15 +505,15 @@ public class Generator {
         boolean isImmediateStopIncluded = false;
 
         for (Function function : classFunctions) {
-            if (function.name.equals("'start")) {
+            if (function.name.equals(LISTENER_START_METHOD_NAME)) {
                 isStartIncluded = true;
-            } else if (function.name.equals("attach")) {
+            } else if (function.name.equals(LISTENER_ATTACH_METHOD_NAME)) {
                 isAttachIncluded = true;
-            } else if (function.name.equals("detach")) {
+            } else if (function.name.equals(LISTENER_DETACH_METHOD_NAME)) {
                 isDetachIncluded = true;
-            } else if (function.name.equals("gracefulStop")) {
+            } else if (function.name.equals(LISTENER_GRACEFUL_STOP_METHOD_NAME)) {
                 isGracefulStopIncluded = true;
-            } else if (function.name.equals("immediateStop")) {
+            } else if (function.name.equals(LISTENER_IMMEDIATE_STOP_METHOD_NAME)) {
                 isImmediateStopIncluded = true;
             }
         }
