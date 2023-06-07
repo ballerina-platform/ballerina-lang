@@ -37,7 +37,7 @@ import static org.testng.Assert.assertEquals;
 /**
  * Test cases to find the expected types in client resource access action node.
  *
- * @since 2201.4.0
+ * @since 2201.7.0
  */
 public class ClientResourceAccessActionNodeTest {
     private SemanticModel model;
