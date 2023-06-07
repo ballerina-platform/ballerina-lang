@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.resourcepath.PathRestParam;
 import io.ballerina.compiler.api.symbols.resourcepath.PathSegmentList;
@@ -37,7 +38,9 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LinePosition;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -54,9 +57,11 @@ import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * Completion provider for {@link ClientResourceAccessActionNode} context.
@@ -129,8 +134,7 @@ public class ClientResourceAccessActionNodeContext
             and remote methods.
              a -> /path/p<cursor>
              */
-            List<Node> resourcePathSegments = node.resourceAccessPath().stream()
-                    .filter(segmentNode -> !segmentNode.isMissing()).collect(Collectors.toList());
+            List<Node> resourcePathSegments = getResourcePathSegments(node, context);
 
             if (!resourcePathSegments.isEmpty()
                     || ResourcePathCompletionUtil.isInMethodCallContext(node, context)) {
@@ -144,6 +148,44 @@ public class ClientResourceAccessActionNodeContext
         }
         this.sort(context, node, completionItems);
         return completionItems;
+    }
+
+    private static List<Node> getResourcePathSegments(ClientResourceAccessActionNode node,
+                                                      BallerinaCompletionContext context) {
+        List<Node> resourcePathSegments = new ArrayList<>();
+        SeparatedNodeList<Node> resourcePath = node.resourceAccessPath();
+        Iterator<Node> iterator = resourcePath.iterator();
+        int separatorIndex = 0;
+        while (iterator.hasNext()) {
+            Node segment = iterator.next();
+            if (segment.isMissing()) {
+                continue;
+            }
+
+            if (segment.lineRange().startLine().line() > context.getCursorPositionInTree()) {
+                break;
+            }
+            resourcePathSegments.add(segment);
+            if (hasTrailingNewLineMinutiae(segment)) {
+                break;
+            }
+            if (resourcePath.separatorSize() > separatorIndex) {
+                Token separator = resourcePath.getSeparator(separatorIndex);
+                if (separator.lineRange().startLine().line() <= context.getCursorPositionInTree()
+                        && hasTrailingNewLineMinutiae(separator)) {
+                    break;
+                }
+            }
+            
+            separatorIndex += 1;
+        }
+        return resourcePathSegments;
+    }
+
+    private static boolean hasTrailingNewLineMinutiae(Node segment) {
+        return !segment.trailingMinutiae().isEmpty() 
+                && StreamSupport.stream(segment.trailingMinutiae().spliterator(), false)
+                .anyMatch(minutiae -> minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE);
     }
 
     @Override
@@ -191,9 +233,10 @@ public class ClientResourceAccessActionNodeContext
                     completableSegmentList(resourceMethod, segments,
                             resourcePathSegments, context, node);
             if (completablePathSegments.getRight() && !completablePathSegments.getLeft().isEmpty()) {
-                CompletionItem completionItem = ResourcePathCompletionItemBuilder.build(resourceMethod,
+                List<CompletionItem> items = ResourcePathCompletionItemBuilder.build(resourceMethod,
                         completablePathSegments.getLeft(), context);
-                completionItems.add(new SymbolCompletionItem(context, resourceMethod, completionItem));
+                items.stream().map(completionItem -> new SymbolCompletionItem(context, resourceMethod, completionItem))
+                        .forEach(completionItems::add);
             } else if (completablePathSegments.getRight() && ResourcePathCompletionUtil
                     .isInMethodCallContext(node, context)) {
                 //suggest method call expressions
@@ -270,24 +313,30 @@ public class ClientResourceAccessActionNodeContext
                 }
                 //Covers named segments that are not matching
                 return Pair.of(Collections.emptyList(), false);
-            } else if (segment.pathSegmentKind() == PathSegment.Kind.PATH_PARAMETER ||
-                    segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
+            } else if (segment.pathSegmentKind() == PathSegment.Kind.PATH_PARAMETER
+                    || segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
+                TypeSymbol typeSymbol = segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER ?
+                        ((ArrayTypeSymbol) (((PathParameterSymbol) segment).typeDescriptor()))
+                                .memberTypeDescriptor() : ((PathParameterSymbol) segment).typeDescriptor();
                 if (node.kind() == SyntaxKind.COMPUTED_RESOURCE_ACCESS_SEGMENT) {
-                    TypeSymbol typeSymbol = segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER ?
-                            ((ArrayTypeSymbol) (((PathParameterSymbol) segment).typeDescriptor()))
-                                    .memberTypeDescriptor() : ((PathParameterSymbol) segment).typeDescriptor();
                     Optional<SemanticModel> semanticModel = context.currentSemanticModel();
                     if (semanticModel.isEmpty()) {
                         return Pair.of(Collections.emptyList(), false);
                     }
                     Optional<TypeSymbol> exprType =
                             semanticModel.get().typeOf(((ComputedResourceAccessSegmentNode) node).expression());
-
                     if (exprType.isEmpty() || !exprType.get().subtypeOf(typeSymbol)) {
                         return Pair.of(Collections.emptyList(), false);
                     }
+                    if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
+                        completableSegmentStartIndex -= 1;
+                    }
                     continue;
-                } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
+                } else if (node.kind() == SyntaxKind.IDENTIFIER_TOKEN
+                        && typeSymbol.typeKind() == TypeDescKind.STRING) {
+                    if (segment.pathSegmentKind() == PathSegment.Kind.PATH_REST_PARAMETER) {
+                        completableSegmentStartIndex -= 1;
+                    }
                     continue;
                 }
             }
