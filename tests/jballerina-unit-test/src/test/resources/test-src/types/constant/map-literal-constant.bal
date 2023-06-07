@@ -255,3 +255,43 @@ const map<map<string>> complexData = { "data": data, "moreData": { "user": "WSO2
 function testNestedConstMapAccess() returns boolean {
     return complexData["data"]["user"] == "Ballerina" && complexData["data"]["ID"] == "1234";
 }
+
+// -----------------------------------------------------------
+
+// const map<string> X = {a: "a"};
+
+// type Foo record {
+//    X x;
+//    int i;
+// };
+
+// const Foo F1 = {x: {a : "a"}, i: 1};
+// const record{|X x; int i;|} F2 = {x: {a : "a"}, i: 1};
+
+// Foo f1 = {x: {a : "a"}, i: 1};
+// Foo f2 = {x: X, i: 1};
+
+// function testRecordAsExpectedType() {
+//     assertEqual(F1.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
+//     assertEqual(F2.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
+
+//     assertEqual(f1.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
+//     assertEqual(f2.toString(), "{\"x\":{\"a\":\"a\"},\"i\":1}");
+// }
+
+// -----------------------------------------------------------
+
+const CONSTA = "b";
+const map<string> X = {a : "A", [CONSTA] : "B"};
+
+function testConstMapWithComputedField() {
+    assertEqual(X["a"], "A");
+    assertEqual(X["b"], "B");
+    assertEqual(X.toString(), "{\"a\":\"A\",\"b\":\"B\"}");
+}
+
+function assertEqual(int|float|decimal|boolean|string actual, int|float|decimal|boolean|string expected) {
+    if (actual != expected) {
+        panic error(string `Assertion error: expected ${expected} found ${actual}`);
+    }
+}

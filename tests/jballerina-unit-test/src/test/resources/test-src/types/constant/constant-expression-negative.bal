@@ -16,9 +16,9 @@
 
 const CI1 = 1;
 
-const CI2 = 1 + 2;      // type is required for constants with expressions
+const CI2 = 1 + 2;
 
-const map<int> CIMap1 = { v1 : 1 + 2, v2 : 2 * 5}; // const expressions are not yet supported here
+const map<int> CIMap1 = { v1 : 1 + 2, v2 : 2 * 5};
 
 const int CI3  = 1/0; // invalid constant expression, reason '/ by zero'
 
@@ -45,3 +45,6 @@ const float E = F;
 const float F = E;
 
 const int CONST4 = -9223372036854775808; // -9223372036854775808 is out of range
+
+const T CONST5 = 3 + 5;
+type T CONST5;

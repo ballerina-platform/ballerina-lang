@@ -266,6 +266,16 @@ public class MapConstantTest {
         Assert.assertTrue((Boolean) returns);
     }
 
+//    @Test
+//    public void testRecordAsExpectedType() {
+//        BRunUtil.invoke(compileResult, "testRecordAsExpectedType");
+//    }
+
+    @Test
+    public void testConstMapWithComputedField() {
+        BRunUtil.invoke(compileResult, "testConstMapWithComputedField");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

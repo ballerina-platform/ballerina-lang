@@ -4,6 +4,7 @@
     "character": 16
   },
   "source": "module_const_context/source/source4.bal",
+  "description": "",
   "items": [
     {
       "label": "StrandData",
@@ -19,7 +20,7 @@
     {
       "label": "varName",
       "kind": "TypeParameter",
-      "detail": "Int",
+      "detail": "Compilationerror",
       "sortText": "D",
       "insertText": "varName",
       "insertTextFormat": "Snippet"

@@ -65,6 +65,8 @@ public class BUnionType extends BType implements UnionType {
     private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE);
     private static final Pattern pCloneableType = Pattern.compile(CLONEABLE_TYPE);
 
+    public BUnionType mutableType;
+
     public BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
         this(tsymbol, memberTypes, memberTypes, nullable, readonly);
     }
@@ -360,7 +362,7 @@ public class BUnionType extends BType implements UnionType {
         for (BType member : unionType.getMemberTypes()) {
             if (member instanceof BArrayType) {
                 BArrayType arrayType = (BArrayType) member;
-                if (arrayType.eType == unionType) {
+                if (getReferredType(arrayType.eType) == unionType) {
                     BArrayType newArrayType = new BArrayType(this, arrayType.tsymbol, arrayType.size,
                             arrayType.state, arrayType.flags);
                     this.add(newArrayType);
@@ -368,21 +370,21 @@ public class BUnionType extends BType implements UnionType {
                 }
             } else if (member instanceof BMapType) {
                 BMapType mapType = (BMapType) member;
-                if (mapType.constraint == unionType) {
+                if (getReferredType(mapType.constraint) == unionType) {
                     BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
                     this.add(newMapType);
                     continue;
                 }
             } else if (member instanceof BTableType) {
                 BTableType tableType = (BTableType) member;
-                if (tableType.constraint == unionType) {
+                if (getReferredType(tableType.constraint) == unionType) {
                     BTableType newTableType = new BTableType(tableType.tag, this, tableType.tsymbol,
                             tableType.flags);
                     this.add(newTableType);
                     continue;
                 } else if (tableType.constraint instanceof BMapType) {
                     BMapType mapType = (BMapType) tableType.constraint;
-                    if (mapType.constraint == unionType) {
+                    if (getReferredType(mapType.constraint) == unionType) {
                         BMapType newMapType = new BMapType(mapType.tag, this, mapType.tsymbol, mapType.flags);
                         BTableType newTableType = new BTableType(tableType.tag, newMapType, tableType.tsymbol,
                                 tableType.flags);
@@ -404,7 +406,7 @@ public class BUnionType extends BType implements UnionType {
         return this.memberTypes.iterator();
     }
 
-    private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
+    public static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {
         return types.stream()
                 .flatMap(type -> {
                     BType refType = getReferredType(type);
