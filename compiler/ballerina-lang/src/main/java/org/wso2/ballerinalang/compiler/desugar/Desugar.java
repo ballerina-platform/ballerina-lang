@@ -884,13 +884,20 @@ public class Desugar extends BLangNodeVisitor {
                 continue;
             }
             for (BType memberType : ((BIntersectionType) constType).getConstituentTypes()) {
-                if (memberType.tag != TypeTags.RECORD) {
-                    continue;
+                BLangType typeNode;
+                switch (memberType.tag) {
+                    case TypeTags.RECORD:
+                         typeNode = constant.associatedTypeDefinition.typeNode;
+                        break;
+                    case TypeTags.TUPLE:
+                        typeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
+                        break;
+                    default:
+                        continue;
                 }
                 BLangSimpleVarRef constVarRef = ASTBuilderUtil.createVariableRef(constant.pos, constant.symbol);
                 constant.expr = rewrite(constant.expr,
-                        SymbolEnv.createTypeEnv(constant.associatedTypeDefinition.typeNode,
-                                pkgNode.initFunction.symbol.scope, env));
+                        SymbolEnv.createTypeEnv(typeNode, pkgNode.initFunction.symbol.scope, env));
                 BLangAssignment constInit = ASTBuilderUtil.createAssignmentStmt(constant.pos, constVarRef,
                         constant.expr);
                 initFnBody.stmts.add(constInit);
@@ -5886,7 +5893,8 @@ public class Desugar extends BLangNodeVisitor {
                         continue;
                     }
                 } else {
-                    BTupleType spreadOpTuple = (BTupleType) spreadOpType;
+                    BTupleType spreadOpTuple = spreadOpType.tag == TypeTags.INTERSECTION ?
+                            (BTupleType) ((BIntersectionType) spreadOpType).effectiveType : (BTupleType) spreadOpType;
                     if (types.isFixedLengthTuple(spreadOpTuple)) {
                         i += spreadOpTuple.getMembers().size();
                         continue;
