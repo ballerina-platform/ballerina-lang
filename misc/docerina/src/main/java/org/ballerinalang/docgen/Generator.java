@@ -158,7 +158,8 @@ public class Generator {
                         ((ModuleVariableDeclarationNode) node).visibilityQualifier().isPresent() &&
                         ((ModuleVariableDeclarationNode) node).visibilityQualifier().get().kind()
                                 .equals(SyntaxKind.PUBLIC_KEYWORD)) {
-                    module.variables.add(getModuleVariable((ModuleVariableDeclarationNode) node, semanticModel, module));
+                    module.variables.add(getModuleVariable((ModuleVariableDeclarationNode) node, semanticModel,
+                            module));
                 }
             }
         }
