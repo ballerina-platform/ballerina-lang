@@ -260,6 +260,15 @@ public class AddOperationTest {
                 "'(1|2|int)' and '(xml:Element|xml:Text)'", 150, 9);
         BAssertUtil.validateError(resultNegative, i++, "operator '+' not defined for " +
                 "'(xml:Element|xml:Text)' and '(1|2|int)'", 152, 9);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 156, 12);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 157, 14);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 158, 17);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 159, 17);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 163, 11);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 164, 12);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 165, 14);
+        BAssertUtil.validateError(resultNegative, i++, "missing binary operator", 166, 12);
+
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 }
