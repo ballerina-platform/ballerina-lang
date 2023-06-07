@@ -983,7 +983,7 @@ public class BuildCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(
                 buildLog.replaceAll("\r", ""),
-                getOutput("build-old-dist-precomp-proj-with-dep.txt")
+                getOutput("build-old-dist-precomp-proj-without-sticky.txt")
                         .replaceAll("INSERT_NEW_DIST_VERSION_HERE", getNewVersionForOldDistWarning())
                         .replaceAll("INSERT_OLD_DIST_VERSION_HERE", getOldVersionForOldDistWarning("2201.5.0")));
 
@@ -1016,9 +1016,76 @@ public class BuildCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(
                 buildLog.replaceAll("\r", ""),
-                getOutput("build-old-dist-precomp-proj-with-dep.txt")
+                getOutput("build-old-dist-precomp-proj-with-sticky.txt")
                         .replaceAll("INSERT_NEW_DIST_VERSION_HERE", getNewVersionForOldDistWarning())
                         .replaceAll("INSERT_OLD_DIST_VERSION_HERE", getOldVersionForOldDistWarning("2201.5.0")));
+
+        // Dependencies should stick to the ones already in Dependencies.toml.
+        // depA:1.0.0 -> depA:1.0.0
+        // depB:1.0.0 -> depB:1.0.0
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("precomp-pkg-with-sticky.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Revert the distribution version and dependency versions to the placeholder values
+        replaceDependenciesTomlContent(projectPath, RepoUtils.getBallerinaShortVersion(),
+                "**INSERT_DISTRIBUTION_VERSION_HERE**");
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a project already built with an U4 or older distribution without sticky flag",
+            groups = {"proj-with-deps-update-policy"})
+    public void testBuildProjectPrecompiledWithNoDistWithoutStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
+        replaceDependenciesTomlContent(
+                projectPath, "distribution-version = \"**INSERT_DISTRIBUTION_VERSION_HERE**\"", "");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(
+                buildLog.replaceAll("\r", ""),
+                getOutput("build-old-dist-precomp-proj-without-sticky.txt")
+                        .replaceAll("INSERT_NEW_DIST_VERSION_HERE", getNewVersionForOldDistWarning())
+                        .replaceAll("INSERT_OLD_DIST_VERSION_HERE", "4 or an older Update"));
+
+        // Dependencies.toml should be updated to the latest minor versions.
+        // depA:1.0.0 -> depA:1.1.0
+        // depB:1.0.0 -> depB:1.1.0
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("old-dist-precomp-pkg-with-no-sticky.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Revert the distribution version and dependency versions to the placeholder values
+        replaceDependenciesTomlContent(projectPath, RepoUtils.getBallerinaShortVersion(),
+                "**INSERT_DISTRIBUTION_VERSION_HERE**");
+        replaceDependenciesTomlContent(projectPath, "1.1.0", "1.0.0");
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a project already built with U4 or older distribution with sticky flag",
+            groups = {"proj-with-deps-update-policy"})
+    public void testBuildProjectPrecompiledWithNoDistWithStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
+        replaceDependenciesTomlContent(
+                projectPath, "distribution-version = \"**INSERT_DISTRIBUTION_VERSION_HERE**\"", "");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs("--sticky");
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(
+                buildLog.replaceAll("\r", ""),
+                getOutput("build-old-dist-precomp-proj-with-sticky.txt")
+                        .replaceAll("INSERT_NEW_DIST_VERSION_HERE", getNewVersionForOldDistWarning())
+                        .replaceAll("INSERT_OLD_DIST_VERSION_HERE", "4 or an older Update"));
 
         // Dependencies should stick to the ones already in Dependencies.toml.
         // depA:1.0.0 -> depA:1.0.0
