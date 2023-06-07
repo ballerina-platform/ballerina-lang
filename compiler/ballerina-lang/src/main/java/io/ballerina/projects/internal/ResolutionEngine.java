@@ -268,7 +268,7 @@ public class ResolutionEngine {
             }
 
             // Merge the dependency graph only if the node is accepted by the graphBuilder
-            if (nodeStatus == NodeStatus.ACCEPTED) {
+            if (nodeStatus != NodeStatus.ERROR) {
                 mergeGraph(directDep, dependencyGraphFinal, scope, resolutionType);
             }
         }

@@ -277,7 +277,7 @@ public class PackageDependencyGraphBuilder {
 
         // If the existing dependency is an error node, we continue with the error node.
         if (existingPkgDep.errorNode()) {
-            return NodeStatus.REJECTED;
+            return NodeStatus.ERROR;
         }
 
         DependencyNode resolvedPkgDep;
@@ -469,6 +469,7 @@ public class PackageDependencyGraphBuilder {
          * 2) Both versions are the same and the existing version is coming from the local repo
          * whereas the new version is not
          */
-        REJECTED
+        REJECTED,
+        ERROR
     }
 }
