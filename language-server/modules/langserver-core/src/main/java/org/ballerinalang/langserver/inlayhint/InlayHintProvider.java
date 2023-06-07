@@ -75,7 +75,7 @@ public class InlayHintProvider {
             // Get the argument list
             List<NonTerminalNode> argList = argumentTypeFinder.getArgumentList();
             if (argList.isEmpty()) {
-                return Collections.emptyList();
+                continue;
             }
             Map<NonTerminalNode, LineRange> inlayHintLocations = argumentTypeFinder.getInlayHintLocations();
             Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> parameterSymbols =
