@@ -66,8 +66,8 @@ public class MethodGenUtils {
         return func.name.value.equals(encodeModuleSpecialFuncName(INIT_FUNCTION_SUFFIX));
     }
 
-    static void submitToScheduler(MethodVisitor mv, String moduleClassName,
-                                   String workerName, AsyncDataCollector asyncDataCollector) {
+    static void submitToScheduler(MethodVisitor mv, String moduleClassName, String workerName,
+                                  AsyncDataCollector asyncDataCollector) {
         String metaDataVarName = JvmCodeGenUtil.getStrandMetadataVarName(MAIN_METHOD);
         asyncDataCollector.getStrandMetadata().putIfAbsent(metaDataVarName, new ScheduleFunctionInfo(MAIN_METHOD));
         mv.visitLdcInsn(workerName);

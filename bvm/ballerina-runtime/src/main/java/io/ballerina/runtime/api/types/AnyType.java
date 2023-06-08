@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BAnyType} represents any type in Ballerina. It is the root of the Ballerina type system.
+ * {@code AnyType} represents any type in Ballerina. It is the root of the Ballerina type system.
  *
  * @since 2.0.0
  */

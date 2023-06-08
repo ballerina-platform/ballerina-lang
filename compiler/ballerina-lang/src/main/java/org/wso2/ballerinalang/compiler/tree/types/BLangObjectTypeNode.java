@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code BLangObjectTypeNode} represents a object type node in Ballerina.
+ * {@code BLangObjectTypeNode} represents an object type node in Ballerina.
  * <p>
  * e.g. object { public { int a; } private { string name; }};
  *

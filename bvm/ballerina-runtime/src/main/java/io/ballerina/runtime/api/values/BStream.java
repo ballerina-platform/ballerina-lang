@@ -29,14 +29,14 @@ import io.ballerina.runtime.api.types.Type;
  */
 public interface BStream extends BValue {
     /**
-     * Returns the constrained {@code BType} of the stream.
+     * Returns the constrained {@code Type} of the stream.
      *
      * @return constrained type
      */
     Type getConstraintType();
 
     /**
-     * Returns the completion {@code BType} of the stream.
+     * Returns the completion {@code Type} of the stream.
      *
      * @return completion type
      */

@@ -207,3 +207,17 @@ public isolated function fromString(string s) returns decimal|error = @java:Meth
     'class: "org.ballerinalang.langlib.decimal.FromString",
     name: "fromString"
 } external;
+
+# Returns the average of its arguments.
+#
+# ```ballerina
+# decimal:avg(10, 20, 30, 40) ⇒ 25.0
+# ```
+#
+# + x - first decimal value
+# + xs - other decimal values
+# + return - average of parameter `x` and all of parameter `xs`
+public isolated function avg(decimal x, decimal... xs) returns decimal = @java:Method {
+    'class: "org.ballerinalang.langlib.decimal.Avg",
+    name: "avg"
+} external;

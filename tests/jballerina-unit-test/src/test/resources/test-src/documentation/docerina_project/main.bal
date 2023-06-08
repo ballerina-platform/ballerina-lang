@@ -170,6 +170,16 @@ public type PersonA object {
     public function getFullName(string middleName) returns string;
 };
 
+# The type representing services that can be declared to receive details of people on request.
+public type DetailsRequestService service object {
+    # The remote method that will be called when a request is opened.
+    # + name - the name of person
+    remote function onRequestOpened(string name);
+    # The remote method that will be called when a request is commented.
+    # + name - the name of person
+    remote function onRequestCommented(string name);
+};
+
 # Represents server listener where one or more services can be registered. so that ballerina program can offer
 # service through this listener.
 public class Listener {

@@ -19,7 +19,7 @@ package io.ballerina.runtime.api.types;
 import java.util.List;
 
 /**
- * {@code {@link TupleType }} represents a tuple type in Ballerina.
+ * {@code TupleType} represents a tuple type in Ballerina.
  *
  * @since 2.0.0
  */

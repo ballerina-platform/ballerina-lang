@@ -34,9 +34,12 @@ import org.eclipse.lsp4j.FileEvent;
 import org.eclipse.lsp4j.jsonrpc.CancelChecker;
 import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Contains a set of utility methods to manage projects.
@@ -235,4 +238,27 @@ public interface WorkspaceManager {
      */
     String uriScheme();
 
+    /**
+     * Compiles and runs the project of the given file path. Run happens in a separate process.
+     * @param filePath Path that belongs to the project to be run.
+     * @return Process created by running the project. Empty if failed due to non process related issues.
+     * @throws IOException If failed to start the process.
+     * @since 2201.6.0
+     */
+    Optional<Process> run(Path filePath) throws IOException;
+
+    /**
+     * Stop a running process started with {@link #run(Path)}.
+     * @param filePath Path that belongs to the project to be stopped.
+     * @return {@code true} if the process was stopped successfully (or already dead), {@code false} otherwise.
+     * @since 2201.6.0
+     */
+    boolean stop(Path filePath);
+
+    /**
+     * Returns the map of projects loaded in the workspace manager.
+     *
+     * @return map of project's source root to project 
+     */
+    CompletableFuture<Map<Path, Project>> workspaceProjects();
 }

@@ -20,7 +20,7 @@ package io.ballerina.runtime.api.types;
 import io.ballerina.runtime.api.Module;
 
 /**
- * {@code BType} represents a type in Ballerina.
+ * {@code Type} represents a type in Ballerina.
  * <p>
  * Ballerina has variables of various types. The type system includes built-in primitive or value types,
  * a collection of built-in structured types, and arrays, record and iterator type constructors.
@@ -31,7 +31,6 @@ import io.ballerina.runtime.api.Module;
  */
 public interface Type {
 
-    
     /**
      * Get the default value of the type. This is the value of an uninitialized variable of this type.
      * For value types, this is same as the value get from {@code BType#getInitValue()}.

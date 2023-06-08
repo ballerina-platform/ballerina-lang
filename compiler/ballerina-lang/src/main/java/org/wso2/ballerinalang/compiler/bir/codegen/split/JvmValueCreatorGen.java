@@ -25,6 +25,7 @@ import org.objectweb.asm.Opcodes;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCastGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmErrorCreatorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.creators.JvmFunctionCallsCreatorsGen;
@@ -63,8 +64,8 @@ public class JvmValueCreatorGen {
     private final JvmErrorCreatorGen jvmErrorCreatorGen;
     private final JvmFunctionCallsCreatorsGen jvmFunctionCallsCreatorsGen;
 
-    public JvmValueCreatorGen(PackageID packageID) {
-        this.jvmRecordCreatorGen = new JvmRecordCreatorGen(this, packageID);
+    public JvmValueCreatorGen(PackageID packageID, JvmTypeGen jvmTypeGen) {
+        this.jvmRecordCreatorGen = new JvmRecordCreatorGen(this, packageID, jvmTypeGen);
         this.jvmObjectCreatorGen = new JvmObjectCreatorGen(this, packageID);
         this.jvmErrorCreatorGen = new JvmErrorCreatorGen(packageID);
         this.jvmFunctionCallsCreatorsGen = new JvmFunctionCallsCreatorsGen(packageID);

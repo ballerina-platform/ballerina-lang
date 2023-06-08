@@ -41,11 +41,12 @@ public class AddCommandTest extends BaseCommandTest {
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
-        String[] args = {"project_name"};
-        NewCommand newCommand = new NewCommand(tmpDir, printStream, false);
+        projectPath = tmpDir.resolve("project_name");
+        String[] args = {projectPath.toString()};
+        NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parse(args);
         newCommand.execute();
-        projectPath = tmpDir.resolve("project_name");
+
         modulesPath = projectPath.resolve(ProjectConstants.MODULES_ROOT);
     }
 

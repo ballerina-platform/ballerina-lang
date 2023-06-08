@@ -86,9 +86,13 @@ public class StampInbuiltFunctionNegativeTest {
                 "incompatible types: expected 'typedesc<anydata>', found 'typedesc<EmployeeObject>'",
                 87, 63);
         BAssertUtil.validateError(compileResult, index++,
-                "incompatible types: expected 'typedesc<anydata>', found 'typedesc<map>'", 95, 54);
+                "incompatible types: expected 'typedesc<anydata>', found 'typedesc<AnyMap>'", 95, 54);
         BAssertUtil.validateError(compileResult, index++,
                 "incompatible types: expected 'anydata', found 'ExtendedEmployee'", 103, 34);
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected 'typedesc<anydata>', found 'typedesc<MapAny>'", 114, 51);
+        BAssertUtil.validateError(compileResult, index++,
+                "incompatible types: expected 'typedesc<anydata>', found 'typedesc<AnyMap>'", 115, 51);
         Assert.assertEquals(index, compileResult.getErrorCount());
     }
 
@@ -109,11 +113,11 @@ public class StampInbuiltFunctionNegativeTest {
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                 "incompatible types: expected 'anydata', found 'PersonObj'", 106, 51);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected 'typedesc<anydata>', found 'typedesc<map>'", 106, 54);
+                "incompatible types: expected 'typedesc<anydata>', found 'typedesc<AnyMap>'", 106, 54);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                 "incompatible types: expected 'anydata', found 'PersonObj'", 113, 48);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-                "incompatible types: expected 'typedesc<anydata>', found 'typedesc<any[]>'", 113, 51);
+                "incompatible types: expected 'typedesc<anydata>', found 'typedesc<AnyArray>'", 113, 51);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                 "incompatible types: expected 'anydata', found 'PersonObj'", 120, 58);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,

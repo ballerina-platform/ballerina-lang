@@ -451,7 +451,11 @@ public class SymbolFactory {
         if (symbol == null) {
             return null;
         }
-        return new BallerinaPathParameterSymbol(kind, symbol, this.context);
+        return new BallerinaPathParameterSymbol(kind, symbol, this.context, false);
+    }
+
+    public PathParameterSymbol createPathParamSymbol(BTypeSymbol tsymbol, PathSegment.Kind kind) {
+        return new BallerinaPathParameterSymbol(kind, tsymbol, this.context, true);
     }
 
     /**

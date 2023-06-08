@@ -17,15 +17,24 @@ package org.ballerinalang.langserver.references;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.Range;
 
+import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,14 +47,25 @@ public class ReferencesUtil {
     }
     
     public static Map<Module, List<Location>> getReferences(PositionedOperationContext context) {
-        Map<Module, List<Location>> moduleLocationMap = new HashMap<>();
+        Map<Module, List<Location>> references = new HashMap<>();
         Optional<Project> project = context.workspace().project(context.filePath());
         Optional<Symbol> symbol = getSymbolAtCursor(context);
         if (project.isEmpty() || symbol.isEmpty()) {
-            return moduleLocationMap;
+            return references;
         }
-        moduleLocationMap.putAll(getReferences(project.get(), symbol.get()));
-        return moduleLocationMap;
+        references.putAll(getReferences(project.get(), symbol.get()));
+        references.forEach((module, locations) -> {
+            List<Location> docReferences = new LinkedList<>();
+            // Find references in documentation
+            locations.forEach(location -> {
+                List<Location> refs = findReferencesInDocumentation(location, module, context, symbol.get());
+                if (refs != null && !refs.isEmpty()) {
+                    docReferences.addAll(refs);
+                }
+            });
+            locations.addAll(docReferences);
+        });
+        return references;
     }
 
     /**
@@ -66,7 +86,24 @@ public class ReferencesUtil {
             Module module = project.currentPackage().module(moduleId);
             moduleLocationMap.put(module, references);
         });
+        
         return moduleLocationMap;
+    }
+    
+    private static List<Location> findReferencesInDocumentation(Location location, 
+                                                                Module module, 
+                                                                PositionedOperationContext context,
+                                                                Symbol symbol) {
+        Path filePath = PathUtil.getPathFromLocation(module, location);
+        Range range = PositionUtil.getRangeFromLineRange(location.lineRange());
+        Optional<NonTerminalNode> node = context.workspace().syntaxTree(filePath)
+                .map(syntaxTree -> CommonUtil.findNode(range, syntaxTree));
+        if (node.isEmpty() || node.get().kind() == SyntaxKind.LIST) {
+            return Collections.emptyList();
+        }
+
+        DocumentationReferenceFinder finder = new DocumentationReferenceFinder(symbol);
+        return node.get().apply(finder);
     }
     
     /**

@@ -639,7 +639,7 @@ public class TomlProvider implements ConfigProvider {
         if (convertibleType == null) {
             throwTypeIncompatibleError(tomlValue, variableName, unionType);
         }
-        Type type = getEffectiveType(convertibleType);
+        Type type = getEffectiveType(TypeUtils.getReferredType(convertibleType));
 
         if (isSimpleType(type.getTag()) || isXMLType(type)) {
             return;

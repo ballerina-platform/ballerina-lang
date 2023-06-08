@@ -28,8 +28,11 @@ public interface ResourceMethodType extends MethodType {
      */
     @Deprecated
     String[] getParamNames();
+
     String getAccessor();
+
     String[] getResourcePath();
+
     /*
      * @deprecated use {@link #getParameters()} instead.
      */

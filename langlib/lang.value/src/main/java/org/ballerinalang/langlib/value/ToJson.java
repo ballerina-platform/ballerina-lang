@@ -19,8 +19,6 @@ package org.ballerinalang.langlib.value;
 
 import io.ballerina.runtime.api.utils.JsonUtils;
 
-import java.util.ArrayList;
-
 /**
  * Extern function lang.values:toJson.
  * Converts a value of type `anydata` to `json`.
@@ -33,7 +31,7 @@ public class ToJson {
     }
 
     public static Object toJson(Object value) {
-        return JsonUtils.convertToJson(value, new ArrayList<>());
+        return JsonUtils.convertToJson(value);
     }
 
 }

@@ -17,9 +17,9 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import io.ballerina.runtime.api.TypeTags;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JARRAY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JBOOLEAN;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JBYTE;
@@ -31,6 +31,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JLON
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JREF;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JSHORT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JVOID;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.BYTE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.FLOAT;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.INT;
 
 /**
  * Interop representation of Java types.
@@ -156,18 +160,18 @@ public class JType extends BType {
         return arrayType;
     }
 
-    static JType getPrimitiveJTypeForBType(BType type) {
+    static JType getJTypeForBType(BType type) {
         switch (type.tag) {
-            case TypeTags.INT_TAG:
+            case INT:
                 return jLong;
-            case TypeTags.BYTE_TAG:
+            case BYTE:
                 return jInt;
-            case TypeTags.BOOLEAN_TAG:
+            case BOOLEAN:
                 return jBoolean;
-            case TypeTags.FLOAT_TAG:
+            case FLOAT:
                 return jFloat;
             default:
-                return new JType(JREF);
+                return new JRefType(OBJECT);
         }
     }
 

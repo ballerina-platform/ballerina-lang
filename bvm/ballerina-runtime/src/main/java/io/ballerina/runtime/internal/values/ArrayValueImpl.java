@@ -30,6 +30,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BListInitialValueEntry;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
@@ -53,6 +54,8 @@ import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
 import static io.ballerina.runtime.internal.ValueUtils.getTypedescValue;
+import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
+import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
@@ -699,7 +702,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
                                 .Node(this, parent)));
                         break;
                     default:
-                        sj.add(StringUtils.getStringValue(refValues[i], new CycleUtils.Node(this, parent)));
+                        sj.add(getStringVal(refValues[i], new CycleUtils.Node(this, parent)));
                         break;
                 }
             }
@@ -718,14 +721,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(StringUtils.getExpressionStringValue(intValues[i],
-                                                                new CycleUtils.Node(this, parent)));
+                    sj.add(getExpressionStringVal(intValues[i], new CycleUtils.Node(this, parent)));
                 }
                 break;
             case TypeTags.BOOLEAN_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(StringUtils.getExpressionStringValue(booleanValues[i],
-                                                                new CycleUtils.Node(this, parent)));
+                    sj.add(getExpressionStringVal(booleanValues[i], new CycleUtils.Node(this, parent)));
                 }
                 break;
             case TypeTags.BYTE_TAG:
@@ -735,21 +736,18 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             case TypeTags.FLOAT_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(StringUtils.getExpressionStringValue(floatValues[i],
-                                                                new CycleUtils.Node(this, parent)));
+                    sj.add(getExpressionStringVal(floatValues[i], new CycleUtils.Node(this, parent)));
                 }
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
                 for (int i = 0; i < size; i++) {
-                    sj.add(StringUtils.getExpressionStringValue(bStringValues[i],
-                                                                new CycleUtils.Node(this, parent)));
+                    sj.add(getExpressionStringVal(bStringValues[i], new CycleUtils.Node(this, parent)));
                 }
                 break;
             default:
                 for (int i = 0; i < size; i++) {
-                    sj.add(StringUtils.getExpressionStringValue(refValues[i],
-                                                                new CycleUtils.Node(this, parent)));
+                    sj.add(getExpressionStringVal(refValues[i], new CycleUtils.Node(this, parent)));
                 }
                 break;
         }
@@ -810,8 +808,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 valueArray = new ArrayValueImpl(values, arrayType);
                 IntStream.range(0, this.size).forEach(i -> {
                     Object value = this.refValues[i];
-                    if (value instanceof RefValue) {
-                        values[i] = ((RefValue) value).copy(refs);
+                    if (value instanceof BRefValue) {
+                        values[i] = ((BRefValue) value).copy(refs);
                     } else {
                         values[i] = value;
                     }
@@ -978,8 +976,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (this.elementType == null || this.elementReferredType.getTag() > TypeTags.BOOLEAN_TAG) {
             for (int i = 0; i < this.size; i++) {
                 Object value = this.getRefValue(i);
-                if (value instanceof RefValue) {
-                    ((RefValue) value).freezeDirect();
+                if (value instanceof BRefValue) {
+                    ((BRefValue) value).freezeDirect();
                 }
             }
         }

@@ -4,6 +4,7 @@
     "character": 24
   },
   "source": "listener_decl/source/source8.bal",
+  "description": "",
   "items": [
     {
       "label": "test",
@@ -148,14 +149,6 @@
       "detail": "type",
       "sortText": "R",
       "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "R",
-      "insertText": "object",
       "insertTextFormat": "Snippet"
     },
     {
@@ -416,6 +409,14 @@
       "detail": "Typedesc",
       "sortText": "S",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "R",
+      "insertText": "lang",
       "insertTextFormat": "Snippet"
     }
   ]

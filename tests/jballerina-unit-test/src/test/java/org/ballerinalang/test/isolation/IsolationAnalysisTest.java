@@ -92,7 +92,8 @@ public class IsolationAnalysisTest {
                 "testAccessingFinalIsolatedObjectInIsolatedFunction",
                 "testIsolationOfBoundMethods",
                 "testFinalReadOnlyServiceAccessInIsolatedFunction",
-                "testFinalReadOnlyRawTemplateAccessInIsolatedFunction"
+                "testFinalReadOnlyRawTemplateAccessInIsolatedFunction",
+                "testIsolatedFunctionWithSelfAsCapturedVariable"
         };
     }
 
@@ -243,6 +244,8 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 311, 70);
         validateWarning(result, i++, "unused variable 'fn9'", 313, 4);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 313, 76);
+        validateError(result, i++, "invalid access of mutable storage in an 'isolated' function", 322, 81);
+        validateError(result, i++, "invalid access of mutable storage in an 'isolated' function", 331, 64);
         Assert.assertEquals(result.getErrorCount(), i - 23);
         Assert.assertEquals(result.getWarnCount(), 23);
     }

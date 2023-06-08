@@ -19,7 +19,7 @@ package io.ballerina.runtime.api.values;
 
 /**
  * <p>
- * Represents an iterator of a Ballerina {@code {@link BCollection}}.
+ * Represents an iterator of a Ballerina {@link BCollection}.
  * </p>
  * 
  * @param <T> The type of elements returned by this iterator

@@ -163,7 +163,7 @@ public class TableJsonDataSource implements JsonDataSource {
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TEXT_TAG:
-                BString strVal = StringUtils.fromString(StringUtils.getStringValue(record.get(key), null));
+                BString strVal = StringUtils.fromString(StringUtils.getStringValue(record.get(key)));
                 jsonObject.put(key, strVal);
                 break;
             default:

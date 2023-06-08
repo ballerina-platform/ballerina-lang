@@ -29,6 +29,6 @@ import io.ballerina.runtime.api.values.BString;
  */
 public class ToBalString {
     public static BString toBalString(BError value) {
-        return StringUtils.fromString(StringUtils.getExpressionStringValue(value, null));
+        return StringUtils.fromString(StringUtils.getExpressionStringValue(value));
     }
 }

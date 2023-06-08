@@ -39,6 +39,7 @@ import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
@@ -214,7 +215,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
 
         if (bLangNode instanceof BLangRecordLiteral.BLangRecordVarNameField) {
             BLangRecordLiteral.BLangRecordVarNameField bLangNodeRecLiteral =
-                                                        (BLangRecordLiteral.BLangRecordVarNameField) bLangNode;
+                    (BLangRecordLiteral.BLangRecordVarNameField) bLangNode;
             if (bLangNodeRecLiteral.symbol != null && node.parent().kind() == SyntaxKind.MAPPING_CONSTRUCTOR) {
                 BLangExpression bLangExpression = bLangNodeRecLiteral.impConversionExpr;
                 if (bLangExpression != null && bLangExpression.getBType().getKind() == TypeKind.ANY) {
@@ -453,9 +454,10 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         Token openParen = parenthesizedArgList.openParenToken();
         Token closeParen = parenthesizedArgList.closeParenToken();
         if (isWithinParenthesis(openParen, closeParen)
-            && bLangNode instanceof BLangTypeInit
-            && ((BLangTypeInit) bLangNode).initInvocation instanceof BLangInvocation
-            && (((BLangInvocation) ((BLangTypeInit) bLangNode).initInvocation).symbol instanceof BInvokableSymbol)) {
+                && bLangNode instanceof BLangTypeInit
+                && ((BLangTypeInit) bLangNode).initInvocation instanceof BLangInvocation
+                && (((BLangInvocation) ((BLangTypeInit) bLangNode).initInvocation).symbol
+                instanceof BInvokableSymbol)) {
             List<BVarSymbol> params = ((BInvokableSymbol) (((BLangInvocation) ((BLangTypeInit) bLangNode).
                     initInvocation).symbol)).params;
             if (params.size() == 0) {
@@ -501,7 +503,7 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 return getExpectedType(bLangNode);
             }
 
-            BLangTypeInit  bLangTypeInit = (BLangTypeInit) bLangNode;
+            BLangTypeInit bLangTypeInit = (BLangTypeInit) bLangNode;
             if (!(bLangTypeInit.initInvocation instanceof BLangInvocation)) {
                 return getExpectedType(bLangNode);
             }
@@ -516,9 +518,9 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
                 throw new IllegalStateException();
             }
 
-                if (initInvocation.argExprs.isEmpty()) {
-                    return getParamType(initInvocation, 0, Collections.emptyList());
-                }
+            if (initInvocation.argExprs.isEmpty()) {
+                return getParamType(initInvocation, 0, Collections.emptyList());
+            }
 
             int argIndex = 0;
             for (BLangExpression bLangExpression : ((BLangTypeInit) bLangNode).argsExpr) {
@@ -843,6 +845,64 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
         return Optional.of(buildUnionOfIterables(typeSymbol.get(), semanticModel));
     }
 
+    @Override
+    public Optional<TypeSymbol> transform(ClientResourceAccessActionNode clientResourceAccessActionNode) {
+        BLangNode bLangNode = nodeFinder.lookup(bLangCompilationUnit, clientResourceAccessActionNode.lineRange());
+        Optional<ParenthesizedArgList> arguments = clientResourceAccessActionNode.arguments();
+        if (arguments.isPresent() && isWithinParenthesis(arguments.get().openParenToken(),
+                arguments.get().closeParenToken())) {
+            if (!(bLangNode instanceof BLangInvocation)) {
+                return getExpectedType(bLangNode);
+            }
+            BLangInvocation bLangInvocation = (BLangInvocation) bLangNode;
+            if (bLangInvocation.symbol == null) {
+                return Optional.empty();
+            }
+            BInvokableSymbol symbol = ((BInvokableSymbol) bLangInvocation.symbol);
+            //`params` contains path params and path rest params as well. We need to skip those
+            List<BVarSymbol> params = symbol.params.stream().filter(param ->
+                    param.getKind() != SymbolKind.PATH_PARAMETER
+                            && param.getKind() != SymbolKind.PATH_REST_PARAMETER).collect(Collectors.toList());
+            BVarSymbol restPram = ((BInvokableSymbol) bLangInvocation.symbol).restParam;
+            TypeSymbol restParamMemberType = null;
+
+
+            if (restPram != null) {
+                Optional<TypeSymbol> restParamType = getTypeFromBType(restPram.type);
+                if (restParamType.isPresent() && restParamType.get().typeKind() == TypeDescKind.ARRAY) {
+                    restParamMemberType = ((ArrayTypeSymbol) restParamType.get()).memberTypeDescriptor();
+                }
+            }
+            if (params.isEmpty()) {
+                if (restParamMemberType == null) {
+                    throw new IllegalStateException();
+                }
+                return Optional.of(restParamMemberType);
+            }
+
+            if (bLangInvocation.argExprs.isEmpty()) {
+                return getParamType(bLangInvocation, 0, Collections.emptyList());
+            }
+
+            int argIndex = 0;
+            for (BLangExpression bLangExpression : bLangInvocation.argExprs) {
+                if (isPosWithinRange(linePosition, bLangExpression.getPosition().lineRange())
+                        && argIndex < params.size()) {
+                    return getTypeFromBType(params.get(argIndex).getType());
+                }
+
+                argIndex += 1;
+                if (params.size() < argIndex) {
+                    if (restParamMemberType != null) {
+                        return Optional.of(restParamMemberType);
+                    }
+                    throw new IllegalStateException();
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
     // Following method return expectedType extracted from BLangNode.
     private Optional<TypeSymbol> getExpectedType(BLangNode node) {
         if (node == null) {
@@ -1001,9 +1061,9 @@ public class ExpectedTypeFinder extends NodeTransformer<Optional<TypeSymbol>> {
     /**
      * Get the TypeSymbol related to the parameter at the given index.
      *
-     * @param bLangNode bLangInvocationNode related to the function/method
+     * @param bLangNode     bLangInvocationNode related to the function/method
      * @param argumentIndex index of the argument
-     * @param namedArgs list of named arguments
+     * @param namedArgs     list of named arguments
      * @return the type symbol if available, if not, returns empty
      */
     private Optional<TypeSymbol> getParamType(BLangInvocation bLangNode, int argumentIndex, List<String> namedArgs) {

@@ -143,3 +143,9 @@ function testQueryInXMLTemplateExprNegative() {
     var _ = xml `<doc>${from int i in 0..<2 select `<foo></foo>`}</doc>`;
     var _ = xml `<doc>${<string>from int i in 0..<2 select `<foo></foo>`}</doc>`;
 }
+
+function textInvalidXmlSequence() {
+    xml<'xml:Text>|xml<'xml:Comment> x38 = xml `<!--comment-->text1`;
+    xml<'xml:Element>|'xml:Text x39 = xml `<root><foo><foo></foo>3</foo></root>3`;
+    xml<xml<'xml:Text>>|xml<xml<'xml:Comment>> x40 = xml `<!--comment-->text1`;
+}

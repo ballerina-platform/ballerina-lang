@@ -53,7 +53,6 @@ public class BByteArrayValueNegativeTest {
         BAssertUtil.validateError(result, index++, "invalid base16 content in byte array literal", 7, 24);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 8, 16);
         BAssertUtil.validateError(result, index++, "missing byte array content", 8, 16);
-        BAssertUtil.validateError(result, index++, "operator '+' not defined for 'byte[0]' and 'string'", 8, 16);
         BAssertUtil.validateError(result, index++, "missing binary operator", 8, 23);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 12, 16);
         BAssertUtil.validateError(result, index++, "undefined symbol 'base6'", 12, 16);
@@ -73,7 +72,6 @@ public class BByteArrayValueNegativeTest {
         BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 15, 24);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'byte[]', found 'other'", 16, 16);
         BAssertUtil.validateError(result, index++, "missing byte array content", 16, 16);
-        BAssertUtil.validateError(result, index++, "operator '+' not defined for 'byte[0]' and 'string'", 16, 16);
         BAssertUtil.validateError(result, index++, "missing binary operator", 16, 23);
         BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 17, 24);
         BAssertUtil.validateError(result, index++, "invalid base64 content in byte array literal", 18, 24);

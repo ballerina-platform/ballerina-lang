@@ -48,7 +48,7 @@ import static io.ballerina.runtime.api.utils.TypeUtils.getReferredType;
  *  
  * @since 0.995.0
  */
-public class TypedescValueImpl implements  TypedescValue {
+public class TypedescValueImpl implements TypedescValue {
 
     final Type type;
     final Type describingType; // Type of the value describe by this typedesc.

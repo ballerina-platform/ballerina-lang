@@ -106,7 +106,7 @@ public class BallerinaWorkspaceManagerProxyImpl implements BallerinaWorkspaceMan
         }
 
         public void open(Project project) {
-            this.sourceRootToProject.put(project.sourceRoot(), ProjectPair.from(project.duplicate()));
+            this.sourceRootToProject.put(project.sourceRoot(), ProjectContext.from(project.duplicate()));
         }
 
         @Override

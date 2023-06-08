@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
+import io.ballerina.runtime.api.types.IntersectableReferenceType;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
@@ -62,6 +63,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static io.ballerina.runtime.internal.ValueUtils.createReadOnlyXmlValue;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getEffectiveType;
@@ -254,29 +256,33 @@ public class ConfigValueCreator {
     }
 
     private BMap<BString, Object> createRecordValue(TomlNode tomlNode, Type type) {
-        RecordType recordType;
-        String recordName;
-        if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            recordName = type.getName();
-            recordType = (RecordType) type;
+        RecordType mutableType;
+        Optional<IntersectionType> intersectionType = ((IntersectableReferenceType) type).getIntersectionType();
+        // Creating a record value with mutable type and freezing it.
+        if (intersectionType.isPresent()) {
+            mutableType = (RecordType) ReadOnlyUtils.getMutableType((BIntersectionType) intersectionType.get());
         } else {
-            recordType = (RecordType) ReadOnlyUtils.getMutableType((BIntersectionType) type);
-            recordName = recordType.getName();
+            if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                mutableType = (RecordType) type;
+            } else {
+                mutableType = (RecordType) ReadOnlyUtils.getMutableType((BIntersectionType) type);
+            }
         }
         TomlTableNode tomlValue = (TomlTableNode) tomlNode;
         Map<String, Object> initialValueEntries = new HashMap<>();
         for (Map.Entry<String, TopLevelNode> tomlField : tomlValue.entries().entrySet()) {
             String fieldName = tomlField.getKey();
-            Field field = recordType.getFields().get(fieldName);
+            Field field = mutableType.getFields().get(fieldName);
             TomlNode value = tomlField.getValue();
             if (field == null) {
-                field = Utils.createAdditionalField(recordType, fieldName, value);
+                field = Utils.createAdditionalField(mutableType, fieldName, value);
             }
             Type fieldType = TypeUtils.getReferredType(field.getFieldType());
             Object objectValue = createValue(value, fieldType);
             initialValueEntries.put(fieldName, objectValue);
         }
-        return ValueCreator.createReadonlyRecordValue(recordType.getPackage(), recordName, initialValueEntries);
+        return ValueCreator.createReadonlyRecordValue(mutableType.getPackage(), mutableType.getName(),
+                initialValueEntries);
     }
 
     private BTable<BString, Object> createTableValue(TomlNode tomlValue, Type type) {
@@ -374,7 +380,7 @@ public class ConfigValueCreator {
         Object balValue = Utils.getBalValueFromToml(tomlValue, new HashSet<>(), unionType, new HashSet<>(), "");
         Type convertibleType = TypeConverter.getConvertibleType(balValue, unionType, null, new HashSet<>(),
                 new ArrayList<>(), false);
-        Type type = getEffectiveType(convertibleType);
+        Type type = getEffectiveType(TypeUtils.getReferredType(convertibleType));
         if (isSimpleType(type.getTag()) || type.getTag() == TypeTags.FINITE_TYPE_TAG || isXMLType(type)) {
             return balValue;
         }

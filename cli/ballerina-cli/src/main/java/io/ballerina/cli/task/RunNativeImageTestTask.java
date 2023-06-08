@@ -283,9 +283,6 @@ public class RunNativeImageTestTask implements Task {
         report = project.buildOptions().testReport();
         coverage = project.buildOptions().codeCoverage();
 
-        if (coverage) {
-            this.out.println("WARNING: Code coverage generation is not supported with Ballerina native test");
-        }
 
         if (report) {
             testReport = new TestReport();
@@ -355,6 +352,10 @@ public class RunNativeImageTestTask implements Task {
             testSuiteMapEntries.add(testSuiteMap);
         }
 
+        if (!hasTests) {
+            out.println("\tNo tests found");
+        }
+
         // If the function mocking does not exist, combine all test suite map entries
         if (!isMockFunctionExist && testSuiteMapEntries.size() != 0) {
             HashMap<String, TestSuite> testSuiteMap = testSuiteMapEntries.remove(0);
@@ -410,6 +411,9 @@ public class RunNativeImageTestTask implements Task {
                             String moduleName = testSuiteEntry.getKey();
                             ModuleStatus moduleStatus = TestUtils.loadModuleStatusFromFile(
                                     testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
+                            if (moduleStatus == null) {
+                                continue;
+                            }
 
                             if (!moduleName.equals(project.currentPackage().packageName().toString())) {
                                 moduleName = ModuleName.from(project.currentPackage().packageName(),
@@ -503,7 +507,7 @@ public class RunNativeImageTestTask implements Task {
 
         // native-image configs
         nativeArgs.add("-H:ReflectionConfigurationFiles=" + convertWinPathToUnixFormat(addQuotationMarkToString(
-                    nativeConfigPath.resolve("reflect-config.json").toString())));
+                nativeConfigPath.resolve("reflect-config.json").toString())));
         nativeArgs.add("--no-fallback");
 
         try (FileWriter nativeArgumentWriter = new FileWriter(nativeConfigPath.resolve("native-image-args.txt")
@@ -601,7 +605,7 @@ public class RunNativeImageTestTask implements Task {
         }
         dependencies = dependencies.stream().distinct().collect(Collectors.toList());
         dependencies = dependencies.stream().map((x) -> convertWinPathToUnixFormat(addQuotationMarkToString(x)))
-                        .collect(Collectors.toList());
+                .collect(Collectors.toList());
 
         StringJoiner classPath = new StringJoiner(File.pathSeparator);
         dependencies.stream().forEach(classPath::add);

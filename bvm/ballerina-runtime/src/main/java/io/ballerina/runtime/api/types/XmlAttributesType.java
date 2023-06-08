@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BXMLAttributesType} represents the type of an xml-attribute-map in ballerina.
+ * {@code XMLAttributesType} represents the type of an xml-attribute-map in ballerina.
  *
  * @since 2.0.0
  */

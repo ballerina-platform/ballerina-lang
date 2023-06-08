@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code {@link RemoteMethodType }} represents remote function type in ballerina.
+ * {@code RemoteMethodType} represents remote function type in ballerina.
  *
  * @since 2.0.0
  */

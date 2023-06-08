@@ -266,12 +266,11 @@ public class JvmCreateTypeGen {
         // Create the type
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             String name = optionalTypeDef.internalName.value;
-            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
-            if (bType.tag != TypeTags.RECORD && bType.tag != TypeTags.OBJECT && bType.tag != TypeTags.ERROR &&
-                    bType.tag != TypeTags.UNION && bType.tag != TypeTags.TUPLE) {
-                        // do not generate anything for other types (e.g.: finite type, etc.)
-                        continue;
-                    } else {
+            BType bType = optionalTypeDef.type;
+            int bTypeTag = bType.tag;
+            if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
+                continue;
+            } else {
                 if (bTypesCount % MAX_TYPES_PER_METHOD == 0) {
                     mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPE_INSTANCES_METHOD + methodCount++,
                             VOID_METHOD_DESC,
@@ -279,7 +278,7 @@ public class JvmCreateTypeGen {
                     mv.visitCode();
                 }
             }
-            switch (bType.tag) {
+            switch (bTypeTag) {
                 case TypeTags.RECORD:
                     jvmRecordTypeGen.createRecordType(mv, (BRecordType) bType, typeOwnerClass, name);
                     break;
@@ -320,10 +319,9 @@ public class JvmCreateTypeGen {
         Map<String, String> funcTypeClassMap = new HashMap<>();
         String fieldName;
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = JvmCodeGenUtil.getReferredType(optionalTypeDef.type);
+            BType bType = optionalTypeDef.type;
             int bTypeTag = bType.tag;
-            if (!(bTypeTag == TypeTags.RECORD || bTypeTag == TypeTags.ERROR || bTypeTag == TypeTags.OBJECT
-                    || bTypeTag == TypeTags.UNION || bTypeTag == TypeTags.TUPLE)) {
+            if (JvmCodeGenUtil.needNoTypeGeneration(bTypeTag)) {
                 continue;
             }
 

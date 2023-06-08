@@ -79,6 +79,7 @@
             <package name="org.ballerinalang.test.nativeimpl.functions.*"/>
             <package name="org.ballerinalang.test.natives.*"/>
             <package name="org.ballerinalang.test.object.*" />
+            <package name="org.ballerinalang.test.observe.syntaxtree.*"/>
             <package name="org.ballerinalang.test.packaging.*" />
             <package name="org.ballerinalang.test.query.*"/>
 

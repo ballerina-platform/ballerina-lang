@@ -1,5 +1,8 @@
 word2 = "word 2"
 
+[endpoint]
+basePath = "/api/v1"
+
 [words]
 word7 = "word 7"
 
@@ -13,6 +16,14 @@ symbol5 = "$"
 [container.words]
 word6 = "word 6"
 word7 = "word 7"
+
+[[endpointArr]]
+basePath = "/api/v2"
+
+[[endpointArr]]
+basePath = "/api/v3"
+url = ["http://localhost:8080"]
+port = 9080
 
 [[wordArr]]
 word6 = "word 6"
@@ -56,6 +67,14 @@ words.word3 = "word 30"
 words.word4 = "word 40"
 words.word5 = "word 50"
 words.word7 = "word 70"
+
+[[endpointTable]]
+basePath = "/api/v4"
+
+[[endpointTable]]
+basePath = "/api/v5"
+url = ["http://localhost:8080"]
+port = 9081
 
 [[wordTable]]
 word6 = "word 6"
@@ -102,6 +121,12 @@ words.word5 = "word 50"
 words.word6 = "word 60"
 words.word7 = "word 70"
 
+[endpointMap]
+entry1.basePath = "/api/v6"
+entry2.basePath = "/api/v7"
+entry2.url = ["http://localhost:8080"]
+entry2.port = 9082
+
 [wordMap]
 entry1.word7 = "word 7"
 entry2.word1 = "word 11"
@@ -136,6 +161,14 @@ entry2.words.word3 = "word 33"
 entry2.words.word4 = "word 44"
 entry2.words.word5 = "word 55"
 entry2.words.word7 = "word 77"
+
+[[endpointTableMap.map1]]
+basePath = "/api/v8"
+
+[[endpointTableMap.map2]]
+basePath = "/api/v9"
+url = ["http://localhost:8080"]
+port = 9083
 
 [[wordTableMap.map1]]
 word7 = "word 7"

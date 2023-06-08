@@ -40,6 +40,10 @@ public class CentralClientConstants {
     static final String CONTENT_DISPOSITION = "Content-Disposition";
     static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     static final String APPLICATION_JSON = "application/json";
+    static final String ORGANIZATION = "organization";
+    static final String VERSION = "version";
+    static final String BALA_URL = "balaURL";
+    static final String PKG_NAME = "name";
     static final String IS_DEPRECATED = "isdeprecated";
     static final String DEPRECATE_MESSAGE = "deprecatemessage";
     public static final String ENABLE_OUTPUT_STREAM = "enableOutputStream";

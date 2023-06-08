@@ -10,18 +10,26 @@ Running Tests with Coverage
 
 		[fail] intDataProviderTest#Case1:
 
-		    The sum is not correct
+		    error {ballerina/test:0}TestError ("The sum is not correct
 			 
 			expected: '4'
-			actual	: '3'
+			actual	: '3'")
+				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
+				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
+				callableName: intDataProviderTest moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 25
+				callableName: intDataProviderTest$lambda0$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 3
 			
 
 		[fail] intDataProviderTest#Case2:
 
-		    The sum is not correct
+		    error {ballerina/test:0}TestError ("The sum is not correct
 			 
 			expected: '31'
-			actual	: '30'
+			actual	: '30'")
+				callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
+				callableName: assertEquals moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 109
+				callableName: intDataProviderTest moduleName: intg_tests.dataproviders$test.0.tests.new-data-provider-tests fileName: tests/new-data-provider-tests.bal lineNumber: 25
+				callableName: intDataProviderTest$lambda0$ moduleName: intg_tests.dataproviders$test.0.tests.test_execute-generated_*****lineNumber: 3
 			
 
 

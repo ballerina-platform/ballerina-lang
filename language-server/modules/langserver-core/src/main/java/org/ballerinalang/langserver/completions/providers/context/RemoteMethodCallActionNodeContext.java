@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Handles the completions for the {@link RemoteMethodCallActionNode}.
@@ -90,8 +91,10 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
                 List<LSCompletionItem> items = this.getCompletionItemList(exprEntries, context);
                 completionItems.addAll(items);
             } else {
-                completionItems.addAll(this.actionKWCompletions(context));
-                completionItems.addAll(this.expressionCompletions(context));
+                if (isNotInNamedArgOnlyContext(context, node.arguments().stream().collect(Collectors.toList()))) {
+                    completionItems.addAll(this.actionKWCompletions(context));
+                    completionItems.addAll(this.expressionCompletions(context));
+                }
                 completionItems.addAll(this.getNamedArgExpressionCompletionItems(context, node));
             }
         }

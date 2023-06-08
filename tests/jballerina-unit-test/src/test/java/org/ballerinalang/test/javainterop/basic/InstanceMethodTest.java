@@ -262,6 +262,14 @@ public class InstanceMethodTest {
         BRunUtil.invoke(result, "testGetCurrentModule", args);
     }
 
+    @Test
+    public void testBalEnvAcceptingMethodRetType() {
+        InstanceMethods testIns = new InstanceMethods();
+        Object[] args = new Object[1];
+        args[0] = new HandleValue(testIns);
+        BRunUtil.invoke(result, "testBalEnvAcceptingMethodRetType", args);
+    }
+
     @Test(dataProvider = "unionWithErrorTestFunctions")
     public void testUnionWithErrorReturnArrays(String function) {
         InstanceMethods testIns = new InstanceMethods();

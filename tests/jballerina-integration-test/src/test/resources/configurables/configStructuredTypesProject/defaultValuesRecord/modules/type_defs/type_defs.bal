@@ -45,3 +45,9 @@ type Staff record {|
 |};
 
 public type StaffTable table<Staff> key(id);
+
+public type Endpoint record {|
+    string basePath;
+    string[] url = [];
+    int port = 9090;
+|};

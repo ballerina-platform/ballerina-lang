@@ -328,7 +328,7 @@ class JvmObservabilityGen {
         Name org = new Name(Utils.decodeIdentifier(packageID.orgName.getValue()));
         Name module = new Name(Utils.decodeIdentifier(packageID.name.getValue()));
         PackageID currentPkgId = new PackageID(org, module, module, packageID.version, packageID.sourceFileName,
-                packageID.isTestPkg);
+                packageID.sourceRoot, packageID.isTestPkg, packageID.skipTests);
         BSymbol functionOwner;
         List<BIRFunction> scopeFunctionsList;
         if (attachedTypeDef == null) {
@@ -890,7 +890,7 @@ class JvmObservabilityGen {
      * @return The injected new BB
      */
     private BIRBasicBlock insertBasicBlock(BIRFunction func, int insertIndex) {
-        BIRBasicBlock newBB = new BIRBasicBlock(new Name(NEW_BB_PREFIX + desugaredBBIndex++));
+        BIRBasicBlock newBB = new BIRBasicBlock(NEW_BB_PREFIX, desugaredBBIndex++);
         func.basicBlocks.add(insertIndex, newBB);
         return newBB;
     }

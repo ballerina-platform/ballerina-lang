@@ -115,12 +115,20 @@ public class StreamingJsonValue extends ArrayValueImpl implements BStreamingJson
      * @param writer {@code Writer} to be used
      */
     public void serialize(Writer writer) {
-        serialize(new JsonGenerator(writer));
+        try (JsonGenerator gen = new JsonGenerator(writer)) {
+            serialize(gen);
+        } catch (IOException e) {
+            throw JsonInternalUtils.createJsonConversionError(e, "error occurred while serializing data");
+        }
     }
 
     @Override
     public void serialize(OutputStream outputStream) {
-        serialize(new JsonGenerator(outputStream));
+        try (JsonGenerator gen = new JsonGenerator(outputStream)) {
+            serialize(gen);
+        } catch (IOException e) {
+            throw JsonInternalUtils.createJsonConversionError(e, "error occurred while serializing data");
+        }
     }
 
     @Override

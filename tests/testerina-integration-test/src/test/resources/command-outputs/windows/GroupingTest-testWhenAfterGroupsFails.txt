@@ -8,7 +8,10 @@ Running Tests
 
 	failed-after-groups-test.bal
 	[fail] afterGroupsFunc1[after test group function for the test]:
-	     / by zero
+	    error("{ballerina}DivisionByZero",message=" / by zero")
+			callableName: afterGroupsFunc1  fileName: failed-after-groups-test.bal lineNumber: 37
+			callableName: afterGroupsFunc1$lambda3$  fileName: failed-after-groups-test.bal lineNumber: 79
+		
 		[pass] testFunction
 		[pass] testFunction2
 		[pass] testFunction3

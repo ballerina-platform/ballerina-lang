@@ -68,8 +68,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = PUSH_COMMAND, description = "push packages and binaries available locally to "
-        + "Ballerina Central")
+@CommandLine.Command(name = PUSH_COMMAND, description = "Publish a package to Ballerina Central")
 public class PushCommand implements BLauncherCmd {
 
     @CommandLine.Parameters (arity = "0..1")
@@ -209,7 +208,7 @@ public class PushCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Push packages to Ballerina Central");
+        out.append(BLauncherCmd.getCommandUsageInfo(PUSH_COMMAND));
     }
 
     @Override

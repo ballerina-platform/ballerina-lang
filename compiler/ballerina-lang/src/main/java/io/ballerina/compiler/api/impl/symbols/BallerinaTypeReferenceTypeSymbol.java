@@ -104,7 +104,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
             this.definition = symbolFactory.getBCompiledSymbol(((BParameterizedType) this.tSymbol.type).paramSymbol,
                                                                this.name());
         } else if (referredType.tag == TypeTags.INTERSECTION) {
-            this.definition = symbolFactory.getBCompiledSymbol(referredType.tsymbol,
+            this.definition = symbolFactory.getBCompiledSymbol(bType.tsymbol,
                     referredType.tsymbol.getName().getValue());
         } else {
             Name name = Names.fromString(this.name());

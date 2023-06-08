@@ -246,3 +246,16 @@ public isolated function range(int rangeStart, int rangeEnd, int step) returns o
     return intRange;
 }
 
+# Returns the average of its arguments.
+#
+# ```ballerina
+# int:avg(10, 20, 30, 40) ⇒ 25.0
+# ```
+#
+# + n - first int value
+# + ns - other int values
+# + return - average of parameter `n` and all of parameter `ns`
+public isolated function avg(int n, int... ns) returns decimal = @java:Method {
+    'class: "org.ballerinalang.langlib.integer.Avg",
+    name: "avg"
+} external;

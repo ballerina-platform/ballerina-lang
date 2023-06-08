@@ -383,16 +383,16 @@ public class TomlProviderNegativeTest {
     public void testTomlProviderWithStringNegative() {
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = getSimpleVariableKeys(ROOT_MODULE);
-        String tomlContent = "[rootOrg.test_module] intVar = 42.22 floatVar = 3 stringVar = 11";
+        String tomlContent = "[rootOrg.test_module]\nintVar = 42.22\nfloatVar = 3\nstringVar = 11";
         configVarMap.put(ROOT_MODULE, keys);
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                 List.of(new TomlContentProvider(ROOT_MODULE, tomlContent, configVarMap.keySet())));
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 3);
-        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: [BAL_CONFIG_DATA:(1:32,1:37)" +
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: [BAL_CONFIG_DATA:(2:10,2:15)" +
                 "] configurable variable 'intVar' is expected to be of type 'int', but found 'float'");
-        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(), "error: [BAL_CONFIG_DATA:(1:63,1:65)" +
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(), "error: [BAL_CONFIG_DATA:(4:13,4:15)" +
                 "] configurable variable 'stringVar' is expected to be of type 'string', but found 'int'");
     }
 

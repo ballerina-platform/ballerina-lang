@@ -318,8 +318,10 @@ public class TypeConverter {
                 return getConvertibleFiniteType(inputValue, (BFiniteType) targetType, varName,
                         errors, unresolvedValues, allowNumericConversion);
             case TypeTags.TYPE_REFERENCED_TYPE_TAG:
-                return getConvertibleType(inputValue, ((BTypeReferenceType) targetType).getReferredType(), varName,
-                        unresolvedValues, errors, allowNumericConversion);
+                Type referredType = ((BTypeReferenceType) targetType).getReferredType();
+                Type convertibleType = getConvertibleType(inputValue, referredType, varName, unresolvedValues, errors,
+                        allowNumericConversion);
+                return referredType == convertibleType ? targetType : convertibleType;
             case TypeTags.TYPEDESC_TAG:
                 return getConvertibleType(inputValue, ((BTypedescType) targetType).getConstraint(), varName,
                         unresolvedValues, errors, allowNumericConversion);

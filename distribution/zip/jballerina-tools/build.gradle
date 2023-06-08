@@ -73,7 +73,7 @@ dependencies {
     dist "com.fasterxml.jackson.core:jackson-annotations:${project.jacksonAnnotationsVersion}"
     dist "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${project.jacksonDataformatYamlVersion}"
     // dist 'org.ow2.asm:asm:6.2.1'
-    dist "org.codehaus.woodstox:woodstox-core-asl:${project.codehausWoodstoxCoreAslVersion}"
+    dist "com.fasterxml.woodstox:woodstox-core:${project.fasterxmlWoodstoxCoreVersion}"
     dist "org.codehaus.woodstox:stax2-api:${project.codehausWoodstoxStax2ApiVersion}"
     dist "org.apache.commons:commons-compress:${project.apacheCommonsCompressVersion}"
     dist "me.tongfei:progressbar:${project.tongfeiProgressbarVersion}"

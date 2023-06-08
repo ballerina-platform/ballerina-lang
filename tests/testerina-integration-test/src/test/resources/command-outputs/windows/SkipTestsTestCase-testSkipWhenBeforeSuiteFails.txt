@@ -8,7 +8,10 @@ Running Tests
 
 	skip-when-beforeSuite-fails.bal
 	[fail] beforeSuite[before test suite function]:
-	     / by zero
+	    error("{ballerina}DivisionByZero",message=" / by zero")
+			callableName: beforeSuite  fileName: skip-when-beforeSuite-fails.bal lineNumber: 24
+			callableName: beforeSuite$lambda1$  fileName: skip-when-beforeSuite-fails.bal lineNumber: 75
+		
 
 
 		0 passing

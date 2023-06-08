@@ -112,6 +112,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TOML_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TRANSACTION_CONTEXT_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
@@ -147,6 +148,7 @@ public class JvmSignatures {
             ";ZL" + VALUE_CREATOR + ";)V";
     public static final String ANNOTATION_GET_STRAND =
             "(L" + FUNCTION_POINTER + ";L" + STRING_VALUE + ";)L" + STRING_VALUE + ";";
+    public static final String MAIN_METHOD_SIGNATURE = "([L" + STRING_VALUE + ";)V";
     public static final String ANY_TO_BYTE = "(L" + OBJECT + ";)I";
     public static final String ANY_TO_DECIMAL = "(L" + OBJECT + ";)L" + DECIMAL_VALUE + ";";
     public static final String ANY_TO_JBOOLEAN = "(L" + OBJECT + ";)Z";
@@ -229,6 +231,7 @@ public class JvmSignatures {
     public static final String GET_FUTURE_VALUE = "L" + FUTURE_VALUE + ";";
     public static final String GET_HANDLE_VALUE = "L" + HANDLE_VALUE + ";";
     public static final String GET_JSTRING = "()L" + STRING_VALUE + ";";
+    public static final String GET_STRING_ARRAY = "()[L" + STRING_VALUE + ";";
     public static final String GET_RUNTIME_REGISTRY = "L" + RUNTIME_REGISTRY_CLASS + ";";
     public static final String GET_RUNTIME_REGISTRY_CLASS = "()L" + RUNTIME_REGISTRY_CLASS + ";";
     public static final String GET_LOCK_FROM_MAP = "(L" + STRING_VALUE + ";)L" + LOCK_VALUE + ";";
@@ -285,6 +288,7 @@ public class JvmSignatures {
     public static final String INIT_CONFIG = "([L" + STRING_VALUE + ";[L" + PATH + ";L" + STRING_VALUE + ";)V";
     public static final String INIT_CONFIGURABLES =
             "(L" + MODULE + ";L" + MAP + ";[L" + STRING_VALUE + ";[L" + PATH + ";L" + STRING_VALUE + ";)V";
+    public static final String INIT_TEST_ARGS = "([L" + STRING_VALUE + ";)V";
     public static final String INIT_DECIMAL = "(L" + BIG_DECIMAL + ";)V";
     public static final String INIT_ERROR = "(L" + B_STRING_VALUE + ";)V";
     public static final String INIT_ERROR_TYPE_IMPL = "(L" + STRING_VALUE + ";L" + MODULE + ";)V";
@@ -429,6 +433,7 @@ public class JvmSignatures {
     public static final String SET_LINKED_HASH_MAP = "(L" + LINKED_HASH_MAP + ";)V";
     public static final String SET_MAP = "(L" + MAP + ";)V";
     public static final String SET_METHODS = "([L" + METHOD_TYPE + ";)V";
+    public static final String SET_INIT_METHOD = "(L" + METHOD_TYPE + ";)V";
     public static final String SET_ON_INIT = "(L" + B_STRING_VALUE + ";L" + OBJECT + ";)V";
     public static final String SET_RESOURCE_METHOD_TYPE_ARRAY = "([L" + RESOURCE_METHOD_TYPE + ";)V";
     public static final String SET_STRAND = "(L" + STRAND_CLASS + ";)V";
@@ -490,6 +495,9 @@ public class JvmSignatures {
     public static final String CREATE_RE_QUANTIFIER = "(L" + B_STRING_VALUE + ";L" + B_STRING_VALUE + ";)L"
             + REG_EXP_QUANTIFIER + ";";
     public static final String GRACEFUL_EXIT_METHOD = "(L" + STRAND_CLASS + ";)V";
+    public static final String GET_TOML_DETAILS = "()L" + TOML_DETAILS + ";";
+    public static final String GET_TEST_CONFIG_PATH = "(L" + MODULE + ";L" + STRING_VALUE + ";L" + STRING_VALUE +
+            ";)L" + TOML_DETAILS + ";";
 
     private JvmSignatures() {
     }

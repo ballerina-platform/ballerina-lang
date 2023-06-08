@@ -67,8 +67,11 @@ public class TestReportTest extends BaseTestCase {
         String[] args = mergeCoverageArgs(new String[]{"--test-report"});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
-        String firstString = "Generating Test Report\n\t";
+        String firstString = "Generating Test Report";
         String endString = "project-based-tests";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
+        firstString = "tests.test_execute-generated_";
+        endString = "lineNumber";
         output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("TestReportTest-testWarningForReportTools.txt", output);
     }
@@ -79,6 +82,9 @@ public class TestReportTest extends BaseTestCase {
         String[] args = new String[]{"--coverage-format=xml"};
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
+        String firstString = "tests.test_execute-generated_";
+        String endString = "lineNumber";
+        output = CommonUtils.replaceVaryingString(firstString, endString, output);
         AssertionUtils.assertOutput("TestReportTest-testWarningForCoverageFormatFlag.txt", output);
     }
 

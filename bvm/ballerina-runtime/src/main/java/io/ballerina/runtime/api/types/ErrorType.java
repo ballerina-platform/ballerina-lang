@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BErrorType} represents error type in Ballerina.
+ * {@code ErrorType} represents error type in Ballerina.
  *
  * @since 2.0.0
  */

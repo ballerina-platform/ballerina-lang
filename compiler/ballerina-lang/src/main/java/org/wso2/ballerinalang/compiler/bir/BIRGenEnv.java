@@ -77,9 +77,8 @@ class BIRGenEnv {
         this.enclPkg = birPkg;
     }
 
-    Name nextBBId(Names names) {
-        currentBBId++;
-        return names.merge(Names.BIR_BASIC_BLOCK_PREFIX, names.fromString(Integer.toString(currentBBId)));
+    int nextBBId() {
+        return ++currentBBId;
     }
 
     Name nextLocalVarId(Names names) {

@@ -1,0 +1,57 @@
+{
+  "source": {
+    "file": "rename_record_field1.bal"
+  },
+  "position": {
+    "line": 14,
+    "character": 10
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "rename_record_field1.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 7,
+              "character": 11
+            },
+            "end": {
+              "line": 7,
+              "character": 15
+            }
+          },
+          "newText": "orgName"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 14,
+              "character": 8
+            },
+            "end": {
+              "line": 14,
+              "character": 12
+            }
+          },
+          "newText": "orgName"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 8
+            }
+          },
+          "newText": "orgName"
+        }
+      ]
+    }
+  }
+}

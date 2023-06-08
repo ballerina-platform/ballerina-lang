@@ -74,6 +74,52 @@ set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%BALLERINA_HOME%\bre\lib\*
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%BALLERINA_HOME%\lib\tools\lang-server\lib\*
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%BALLERINA_HOME%\lib\tools\debug-adapter\lib\*
 
+rem ----- load bal tool jars to classpath ---------------------------------------
+set "bal_version_file=%USERPROFILE%\.ballerina\ballerina-version"
+if exist "!bal_version_file!" (
+    for /F "usebackq delims=" %%A in ("%bal_version_file%") do (
+        for /F "tokens=2 delims=-" %%B in ("%%A") do (
+            set "bal_version=%%B"
+        )
+    )
+
+    set "BAL_TOOLS_FILE=%USERPROFILE%\.ballerina\.config\dist-!bal_version!.toml"
+    if exist "!BAL_TOOLS_FILE!" (
+        set "org="
+        set "name="
+        set "version="
+        for /F "usebackq tokens=*" %%B in ("!BAL_TOOLS_FILE!") do (
+            set "line=%%B"
+            echo !line! | findstr /C:"org =" > nul 2>&1
+            if not errorlevel 1 (
+                for /F "tokens=2 delims== " %%C in ("!line!") do set "org=%%C"
+                set "org=!org:"=!"
+            ) else (
+                echo !line! | findstr /C:"name =" > nul 2>&1
+                if not errorlevel 1 (
+                    for /F "tokens=2 delims== " %%C in ("!line!") do set "name=%%C"
+                    set "name=!name:"=!"
+                ) else (
+                    echo !line! | findstr /C:"version =" > nul 2>&1
+                    if not errorlevel 1 (
+                        for /F "tokens=2 delims== " %%C in ("!line!") do set "version=%%C"
+                        set "version=!version:"=!"
+                    )
+                )
+            )
+            if defined org if defined name if defined version (
+                set "libs=%USERPROFILE%\.ballerina\repositories\central.ballerina.io\bala\!org!\!name!\!version!\any\tool\libs\"
+                for /f "delims=" %%F in ('dir /b /s /a-d "!libs!\*.jar"') do (
+                    set "BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;%%F"
+                )
+                set "org="
+                set "name="
+                set "version="
+            )
+        )
+    )
+)
+
 set BALLERINA_CLI_HEIGHT=
 set BALLERINA_CLI_WIDTH=
 for /F "tokens=2 delims=:" %%a in ('mode con') do for %%b in (%%a) do (

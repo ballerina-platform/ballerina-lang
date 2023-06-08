@@ -77,7 +77,7 @@ function consoleReport(ReportData data) {
     }
     data.failedCases().forEach(function(Result entry) {
         println("\n\t\t[fail] " + entry.fullName() + ":");
-        println("\n\t\t    " + formatFailedError(entry.message()));
+        println("\n\t\t    " + formatFailedError(entry.message(), 3));
     });
 
     int totalTestCount = data.passedCount() + data.failedCount() + data.skippedCount();
@@ -91,10 +91,16 @@ function consoleReport(ReportData data) {
     }
 }
 
-function formatFailedError(string message) returns string {
+function formatFailedError(string message, int tabCount) returns string {
     string[] lines = split(message, "\n");
     lines.push("");
-    return string:'join("\n\t\t\t", ...lines);
+    string tabs = "";
+    int count = 0;
+    foreach int i in 1 ... tabCount {
+        count += 1;
+        tabs += "\t";
+    }
+    return string:'join("\n" + tabs, ...lines);
 }
 
 function failedTestsReport(ReportData data) {

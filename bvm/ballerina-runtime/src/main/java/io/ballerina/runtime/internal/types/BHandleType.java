@@ -23,7 +23,8 @@ import io.ballerina.runtime.api.types.HandleType;
 import io.ballerina.runtime.internal.values.RefValue;
 
 /**
- * {@code BAnyType} represents any type in Ballerina. It is the root of the Ballerina type system.
+ * {@code BHandleType} represents a handle type in Ballerina.
+ * A handle value is a reference to a storage managed externally by a Ballerina program.
  *
  * @since 1.0.0
  */

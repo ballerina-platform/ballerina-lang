@@ -19,18 +19,11 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
-import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
-import io.ballerina.projects.bala.BalaProject;
-import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -43,12 +36,10 @@ import picocli.CommandLine;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
-import static io.ballerina.projects.util.ProjectUtils.deleteDirectory;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.projects.util.ProjectUtils.validateOrgName;
@@ -62,8 +53,7 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = PULL_COMMAND,
-        description = "download the module source and binaries from a remote repository")
+@CommandLine.Command(name = PULL_COMMAND, description = "Pull a package from Ballerina Central")
 public class PullCommand implements BLauncherCmd {
 
     private static final String USAGE_TEXT =
@@ -186,6 +176,7 @@ public class PullCommand implements BLauncherCmd {
                     "unexpected error occurred while creating package repository in bala cache: " + e.getMessage());
         }
 
+        CommandUtil.setPrintStream(errStream);
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             try {
                 Settings settings;
@@ -204,9 +195,9 @@ public class PullCommand implements BLauncherCmd {
                 if (version.equals(Names.EMPTY.getValue())) {
                     List<String> versions = client.getPackageVersions(orgName, packageName, supportedPlatform,
                             RepoUtils.getBallerinaVersion());
-                    version = getLatestVersion(versions);
+                    version = CommandUtil.getLatestVersion(versions);
                 }
-                boolean hasCompilationErrors = pullDependencyPackages(orgName, packageName, version);
+                boolean hasCompilationErrors = CommandUtil.pullDependencyPackages(orgName, packageName, version);
                 if (hasCompilationErrors) {
                     CommandUtil.printError(this.errStream, "compilation contains errors", null, false);
                     CommandUtil.exitError(this.exitWhenFinish);
@@ -226,64 +217,6 @@ public class PullCommand implements BLauncherCmd {
         }
     }
 
-    private String getLatestVersion(List<String> versions) {
-        String latestVersion = versions.get(0);
-        for (String version : versions) {
-            if (SemanticVersion.from(version).greaterThan(SemanticVersion.from(latestVersion))) {
-                latestVersion = version;
-            }
-        }
-        return latestVersion;
-    }
-
-    private boolean pullDependencyPackages(String orgName, String packageName, String version) {
-        Path ballerinaUserHomeDirPath = ProjectUtils.createAndGetHomeReposPath();
-        Path centralRepositoryDirPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
-                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
-        Path balaDirPath = centralRepositoryDirPath.resolve(ProjectConstants.BALA_DIR_NAME);
-        Path balaPath = ProjectUtils.getPackagePath(balaDirPath, orgName, packageName, version);
-        String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
-        Path cacheDir = centralRepositoryDirPath.resolve(
-                ProjectConstants.CACHES_DIR_NAME + "-" + ballerinaShortVersion);
-
-        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
-        defaultBuilder.addCompilationCacheFactory(new FileSystemCache.FileSystemCacheFactory(cacheDir));
-        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
-
-        // Delete package cache if available
-        Path packageCacheDir = cacheDir.resolve(orgName).resolve(packageName).resolve(version);
-        if (packageCacheDir.toFile().exists()) {
-            deleteDirectory(packageCacheDir);
-        }
-
-        // getResolution pulls all dependencies of the pulled package
-        PackageCompilation packageCompilation = balaProject.currentPackage().getCompilation();
-        Collection<Diagnostic> resolutionDiagnostics = packageCompilation.getResolution()
-                .diagnosticResult().diagnostics();
-        if (!resolutionDiagnostics.isEmpty()) {
-            printDiagnostics(resolutionDiagnostics);
-        }
-        if (packageCompilation.getResolution().diagnosticResult().hasErrors()) {
-            return true;
-        }
-
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
-        Collection<Diagnostic> backendDiagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
-        if (!backendDiagnostics.isEmpty()) {
-            printDiagnostics(backendDiagnostics);
-        }
-        if (jBallerinaBackend.diagnosticResult().hasErrors()) {
-            return true;
-        }
-        return false;
-    }
-
-    private void printDiagnostics(Collection<Diagnostic> diagnostics) {
-        for (Diagnostic diagnostic: diagnostics) {
-            CommandUtil.printError(this.errStream, diagnostic.toString(), null, false);
-        }
-    }
-
     @Override
     public String getName() {
         return PULL_COMMAND;
@@ -291,7 +224,7 @@ public class PullCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Download modules to the user repository \n");
+        out.append(BLauncherCmd.getCommandUsageInfo(PULL_COMMAND));
     }
 
     @Override

@@ -67,17 +67,11 @@ public class BallerinaXmlSerializer extends OutputStream {
     private Deque<Set<String>> parentNSSet;
     private int nsNumber;
     private boolean withinElement;
-    private static boolean isDefaultFactory = false;
 
     static {
         xmlOutputFactory = XMLOutputFactory.newInstance();
-        if (xmlOutputFactory.getClass().getName().equals(OUTPUT_FACTORY)) {
-            xmlOutputFactory.setProperty(OUTPUT_VALIDATE_PROPERTY, false);
-            xmlOutputFactory.setProperty(AUTOMATIC_END_ELEMENTS, false);
-        } else {
-            xmlOutputFactory.setProperty("escapeCharacters", false);
-            isDefaultFactory = true;
-        }
+        xmlOutputFactory.setProperty(OUTPUT_VALIDATE_PROPERTY, false);
+        xmlOutputFactory.setProperty(AUTOMATIC_END_ELEMENTS, false);
     }
 
     public BallerinaXmlSerializer(OutputStream outputStream) {
@@ -152,7 +146,7 @@ public class BallerinaXmlSerializer extends OutputStream {
     private void writeXMLText(XmlText xmlValue) throws XMLStreamException {
         // No need to escape xml text when they are within xml element or if it is not from default stream writer.
         // It's handled by xml stream  writer.
-        if (this.withinElement && !isDefaultFactory) {
+        if (this.withinElement) {
             String textValue = xmlValue.getTextValue();
             if (!textValue.isEmpty()) {
                 xmlStreamWriter.writeCharacters(textValue);

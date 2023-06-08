@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.values.ObjectValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 
 import java.util.ArrayList;
@@ -42,14 +43,14 @@ import java.util.Map;
 /**
  * A generic mock object to create a mock of any given typedesc.
  */
-public class GenericMockObjectValue implements BObject {
+public class GenericMockObjectValue implements ObjectValue {
 
-    private BObject mockObj;
+    private ObjectValue mockObj;
 
     private ObjectType type;
     private BTypedesc typedesc;
 
-    public GenericMockObjectValue(ObjectType type, BObject mockObj) {
+    public GenericMockObjectValue(ObjectType type, ObjectValue mockObj) {
         this.type = type;
         this.mockObj = mockObj;
         this.typedesc = new TypedescValueImpl(type);

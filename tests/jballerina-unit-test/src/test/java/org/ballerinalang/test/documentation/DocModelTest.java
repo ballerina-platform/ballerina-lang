@@ -132,7 +132,7 @@ public class DocModelTest {
                 "Fifth membertype orgName should be ballerina");
         Assert.assertEquals(unionType.get().memberTypes.get(4).moduleName, "docerina_project.world",
                 "Fifth membertype moduleName should be test");
-        Assert.assertEquals(unionType.get().memberTypes.get(4).category, "classes",
+        Assert.assertEquals(unionType.get().memberTypes.get(4).category, "libs",
                 "Fifth membertype category should be classes");
 
         Assert.assertEquals(unionType.get().memberTypes.get(5).category, "builtin",
@@ -409,7 +409,7 @@ public class DocModelTest {
         Assert.assertEquals(uuidRec.get().fields.get(0).type.moduleName, "lang.int");
         Assert.assertEquals(uuidRec.get().fields.get(0).type.version, "0.0.0");
         Assert.assertEquals(uuidRec.get().fields.get(0).type.name, "Unsigned32");
-        Assert.assertEquals(uuidRec.get().fields.get(0).type.category, "types");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.category, "libs");
 
         Optional<BObjectType> controller = testModule.objectTypes.stream().filter(record -> record.name
                 .equals("Controller")).findAny();
@@ -538,6 +538,41 @@ public class DocModelTest {
                 System.lineSeparator());
         Assert.assertEquals(personA.get().fields.get(0).type.name, "string");
         Assert.assertEquals(personA.get().fields.get(0).type.category, "builtin");
+    }
+
+    @Test(description = "Test service type")
+    public void testServiceTypes() {
+        Optional<BObjectType> serviceType = testModule.serviceTypes.stream()
+                .filter(objectType -> objectType.name.equals("DetailsRequestService")).findAny();
+        Assert.assertTrue(serviceType.isPresent(), "DetailsRequestService service type not found");
+        Assert.assertEquals(serviceType.get().description, "The type representing services that can be declared " +
+                        "to receive details of people on request." + System.lineSeparator(),
+                "Expected description for DetailsRequestService service type: The type representing services " +
+                        "that can be declared to receive details of people on request." +
+                        System.lineSeparator() + "\n");
+        Assert.assertEquals(serviceType.get().methods.size(), 2, "Expected 2 methods in service type");
+
+        Assert.assertEquals(serviceType.get().methods.get(0).name, "onRequestOpened",
+                "First field in Human Record should be onRequestOpened");
+        Assert.assertEquals(serviceType.get().methods.get(0).description,
+                "The remote method that will be called when a request is opened." + System.lineSeparator(),
+                "The description of the first method should be " +
+                        "The remote method that will be called when a request is opened.");
+        Assert.assertEquals(serviceType.get().methods.get(0).parameters.size(), 1,
+                "Expected 1 parameter in the first method of the service type");
+        Assert.assertEquals(serviceType.get().methods.get(0).parameters.get(0).name, "name",
+                "First parameter in the first method of the service type should be name");
+
+        Assert.assertEquals(serviceType.get().methods.get(1).name, "onRequestCommented",
+                "First field in Human Record should be onRequestCommented");
+        Assert.assertEquals(serviceType.get().methods.get(1).description,
+                "The remote method that will be called when a request is commented." + System.lineSeparator(),
+                "The description of the first method should be " +
+                        "The remote method that will be called when a request is commented.");
+        Assert.assertEquals(serviceType.get().methods.get(1).parameters.size(), 1,
+                "Expected 1 parameter in the first method of the service type");
+        Assert.assertEquals(serviceType.get().methods.get(1).parameters.get(0).name, "name",
+                "First parameter in the first method of the service type should be name");
     }
 
     @Test(description = "Test object inclusion")

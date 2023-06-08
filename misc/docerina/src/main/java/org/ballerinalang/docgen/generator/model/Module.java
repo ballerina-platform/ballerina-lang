@@ -37,6 +37,8 @@ public class Module extends ModuleMetaData {
     @Expose
     public List<BObjectType> objectTypes = new ArrayList<>();
     @Expose
+    public List<BObjectType> serviceTypes = new ArrayList<>();
+    @Expose
     public List<Client> clients = new ArrayList<>();
     @Expose
     public List<Listener> listeners = new ArrayList<>();

@@ -64,7 +64,7 @@ dependencies {
         implementation "org.apache.ws.commons.axiom:axiom-dom:${project.apacheCommonsAxiomDomVersion}"
         implementation "org.apache.ws.commons.axiom:axiom-c14n:${project.apacheCommonsAxiomC14nVersion}"
         implementation "org.apache.zookeeper:zookeeper:${project.apacheZookeeperVersion}"
-        implementation "org.codehaus.woodstox:woodstox-core-asl:${project.codehausWoodstoxCoreAslVersion}"
+        implementation "com.fasterxml.woodstox:woodstox-core:${project.fasterxmlWoodstoxCoreVersion}"
         implementation "org.codehaus.woodstox:stax2-api:${project.codehausWoodstoxStax2ApiVersion}"
         implementation "org.awaitility:awaitility:${project.awaitilityVersion}"
 

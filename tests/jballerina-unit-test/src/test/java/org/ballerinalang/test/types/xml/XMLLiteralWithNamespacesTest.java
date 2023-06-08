@@ -59,7 +59,7 @@ public class XMLLiteralWithNamespacesTest {
                 "<root xmlns=\"http://ballerina.com/\" " +
                         "xmlns:ns0=\"http://ballerina.com/a\" " +
                         "ns0:id=\"456\"><foo>123</foo><bar " +
-                        "xmlns:ns1=\"http://ballerina.com/c\" ns1:status=\"complete\"></bar></root>");
+                        "xmlns:ns1=\"http://ballerina.com/c\" ns1:status=\"complete\"/></root>");
 
         Assert.assertTrue(returns.get(1) instanceof BXml);
         BXmlSequence seq = (BXmlSequence) returns.get(1);
@@ -67,7 +67,7 @@ public class XMLLiteralWithNamespacesTest {
                 "<foo xmlns=\"http://ballerina.com/\">123</foo><bar " +
                         "xmlns=\"http://ballerina.com/\" " +
                         "xmlns:ns1=\"http://ballerina.com/c\" " +
-                        "ns1:status=\"complete\"></bar>");
+                        "ns1:status=\"complete\"/>");
 
         BArray items = (BArray) seq.value();
         Assert.assertEquals(items.size(), 2);
@@ -179,7 +179,7 @@ public class XMLLiteralWithNamespacesTest {
         Assert.assertEquals(returns.toString(),
                 "<Order xmlns=\"http://acme.company\" xmlns:acme=\"http://acme.company\">\n" +
                         "        <OrderLines>\n" +
-                        "            <OrderLine acme:lineNo=\"334\" itemCode=\"334-2\"></OrderLine>\n" +
+                        "            <OrderLine acme:lineNo=\"334\" itemCode=\"334-2\"/>\n" +
                         "        </OrderLines>\n" +
                         "        <ShippingAddress>\n" +
                         "        </ShippingAddress>\n" +

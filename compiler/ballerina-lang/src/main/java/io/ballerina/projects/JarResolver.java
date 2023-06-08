@@ -109,8 +109,8 @@ public class JarResolver {
 
         // 3) Add the runtime library path
         jarFiles.add(new JarLibrary(jBalBackend.runtimeLibrary().path(),
-                                    PlatformLibraryScope.DEFAULT,
-                                    getPackageName(rootPackageContext)));
+                PlatformLibraryScope.DEFAULT,
+                getPackageName(rootPackageContext)));
 
         // TODO: Move to a compiler extension once Compiler revamp is complete
         // 4) Add the Observability Symbols Jar
@@ -153,7 +153,7 @@ public class JarResolver {
     }
 
     private void addCodeGeneratedLibraryPaths(PackageContext packageContext, PlatformLibraryScope scope,
-            Set<JarLibrary> libraryPaths) {
+                                              Set<JarLibrary> libraryPaths) {
         for (ModuleId moduleId : packageContext.moduleIds()) {
             ModuleContext moduleContext = packageContext.moduleContext(moduleId);
             PlatformLibrary generatedJarLibrary = jBalBackend.codeGeneratedLibrary(
@@ -187,16 +187,12 @@ public class JarResolver {
                 ComparableVersion newVersion = new ComparableVersion(newEntry.version().get());
 
                 if (existingVersion.compareTo(newVersion) >= 0) {
-                    if (!existingEntry.packageName().orElseThrow().startsWith(ProjectConstants.BALLERINA_ORG)
-                            || !newEntry.packageName().orElseThrow().startsWith(ProjectConstants.BALLERINA_ORG)) {
+                    if (existingVersion.compareTo(newVersion) != 0) {
                         reportDiagnostic(newEntry, existingEntry);
                     }
                     continue;
                 }
-                if (!newEntry.packageName().orElseThrow().startsWith(ProjectConstants.BALLERINA_ORG) ||
-                        !newEntry.packageName().orElseThrow().startsWith(ProjectConstants.BALLERINA_ORG)) {
-                    reportDiagnostic(existingEntry, newEntry);
-                }
+                reportDiagnostic(existingEntry, newEntry);
                 libraryPaths.remove(existingEntry);
             }
             libraryPaths.add(new JarLibrary(
@@ -210,15 +206,19 @@ public class JarResolver {
     }
 
     private void reportDiagnostic(JarLibrary existingEntry, JarLibrary newEntry) {
-        var diagnosticInfo = new DiagnosticInfo(
-                ProjectDiagnosticErrorCode.CONFLICTING_PLATFORM_JAR_FILES.diagnosticId(),
-                "detected conflicting jar files. '" + newEntry.path().getFileName() + "' dependency of '" +
-                        newEntry.packageName().get() + "' conflicts with '" + existingEntry.path().getFileName() +
-                        "' dependency of '" + existingEntry.packageName().get() + "'. Picking '" +
-                        newEntry.path().getFileName() + "' over '" + existingEntry.path().getFileName() + "'.",
-                DiagnosticSeverity.WARNING);
-        diagnosticList.add(new PackageDiagnostic(diagnosticInfo,
-                this.jBalBackend.packageContext().descriptor().name().toString()));
+        // Report diagnostic only for non ballerina dependencies
+        if (!existingEntry.packageName().orElseThrow().startsWith(ProjectConstants.BALLERINA_ORG)
+                || !newEntry.packageName().orElseThrow().startsWith(ProjectConstants.BALLERINA_ORG)) {
+            var diagnosticInfo = new DiagnosticInfo(
+                    ProjectDiagnosticErrorCode.CONFLICTING_PLATFORM_JAR_FILES.diagnosticId(),
+                    "detected conflicting jar files. '" + newEntry.path().getFileName() + "' dependency of '" +
+                            newEntry.packageName().get() + "' conflicts with '" + existingEntry.path().getFileName() +
+                            "' dependency of '" + existingEntry.packageName().get() + "'. Picking '" +
+                            newEntry.path().getFileName() + "' over '" + existingEntry.path().getFileName() + "'.",
+                    DiagnosticSeverity.WARNING);
+            diagnosticList.add(new PackageDiagnostic(diagnosticInfo,
+                    this.jBalBackend.packageContext().descriptor().name().toString()));
+        }
     }
 
     public Collection<JarLibrary> getJarFilePathsRequiredForTestExecution(ModuleName moduleName) {
@@ -232,8 +232,8 @@ public class JarResolver {
             // Add the test-thin jar of the specified module
             PlatformLibrary generatedTestJar = jBalBackend.codeGeneratedTestLibrary(rootPackageId, moduleName);
             allJarFileForTestExec.add(new JarLibrary(generatedTestJar.path(),
-                                                     PlatformLibraryScope.DEFAULT,
-                                                     getPackageName(rootPackageContext)));
+                    PlatformLibraryScope.DEFAULT,
+                    getPackageName(rootPackageContext)));
         }
 
         // 3) Add platform-specific libraries with test scope defined in the root package's Ballerina.toml

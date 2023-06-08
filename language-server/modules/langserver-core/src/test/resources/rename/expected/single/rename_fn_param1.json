@@ -1,0 +1,57 @@
+{
+  "source": {
+    "file": "rename_fn_param1.bal"
+  },
+  "position": {
+    "line": 6,
+    "character": 14
+  },
+  "prepareRename": {
+    "valid": true
+  },
+  "result": {
+    "changes": {
+      "rename_fn_param1.bal": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 35
+            },
+            "end": {
+              "line": 5,
+              "character": 42
+            }
+          },
+          "newText": "v1"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 11
+            },
+            "end": {
+              "line": 6,
+              "character": 18
+            }
+          },
+          "newText": "v1"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 11
+            }
+          },
+          "newText": "v1"
+        }
+      ]
+    }
+  }
+}

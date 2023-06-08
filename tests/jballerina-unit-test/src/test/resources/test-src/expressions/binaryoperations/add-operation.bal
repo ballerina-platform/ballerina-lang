@@ -428,14 +428,14 @@ type Foo3 Foo|Foo2;
 
 function testXmlSubtypesAddition() {
     xml a = xml `<foo>foo</foo><?foo?>text1<!--comment-->`;
-    xml<'xml:Element>|Foo b = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    xml<'xml:Element>|Foo b = xml `<foo></foo>`;
     Foo2 c = xml `<?foo?><?faa?>`;
     Foo3 d = xml `text1 text2`;
     xml<'xml:Comment> e = xml `<!--comment1--><!--comment2-->`;
     xml<'xml:Text|'xml:Comment> f = xml `<!--comment-->`;
     xml<'xml:Text>|xml<'xml:Comment> g = xml `<!--comment-->`;
     xml<'xml:Element|'xml:ProcessingInstruction> h = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
-    xml<'xml:Element>|'xml:Text i = xml `<root> text1<foo>100</foo><foo>200</foo></root> text1`;
+    xml<'xml:Element>|'xml:Text i = xml `text1 text2`;
     xml j = a + b;
     xml k = a + c;
     xml l = a + d;
@@ -444,7 +444,7 @@ function testXmlSubtypesAddition() {
     xml o = d + f;
     xml p = g + h;
     
-    xml result1 = xml `<foo>foo</foo><?foo ?>text1<!--comment--><foo>Anne</foo><fuu>Peter</fuu>`;
+    xml result1 = xml `<foo>foo</foo><?foo ?>text1<!--comment--><foo></foo>`;
     xml result2 = xml `<foo>foo</foo><?foo ?>text1<!--comment--><?foo ?><?faa ?>`;
     xml result3 = xml `<foo>foo</foo><?foo ?>text1<!--comment-->text1 text2`;
     xml result4 = xml `<?foo ?><?faa ?><!--comment-->`;

@@ -35,7 +35,7 @@ public class Split {
     public static BArray split(BRegexpValue regExp, BString str) {
         String originalString = str.getValue();
         RegExpValue translatedRegExpVal = RegExpFactory.translateRegExpConstructs((RegExpValue) regExp);
-        String regex = StringUtils.getStringValue(translatedRegExpVal, null);
+        String regex = StringUtils.getStringValue(translatedRegExpVal);
         String[] splitStrArr = originalString.split(regex, -1);
         return StringUtils.fromStringArray(splitStrArr);
     }

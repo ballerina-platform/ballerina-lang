@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BAnydataType;
-import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
@@ -136,81 +135,17 @@ public class RecordStampInbuiltFunctionTest {
 
     @Test
     public void testStampRecordToMap() {
-
-        Object results = BRunUtil.invoke(compileResult, "stampRecordToMap");
-        BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results;
-
-        Assert.assertEquals((mapValue0).size(), 4);
-
-        Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("name")).toString(), "John");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("name"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("status"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("school")).toString(), "Hindu College");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
+        BRunUtil.invoke(compileResult, "stampRecordToMap");
     }
 
     @Test
     public void testStampRecordToMapV2() {
-
-        Object results = BRunUtil.invoke(compileResult, "stampRecordToMapV2");
-        BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results;
-
-        Assert.assertEquals((mapValue0).size(), 4);
-
-        Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("name")).toString(), "John");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("name"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("status"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("school")).toString(), "Hindu College");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
-
+        BRunUtil.invoke(compileResult, "stampRecordToMapV2");
     }
 
     @Test
     public void testStampRecordToMapV3() {
-
-        Object results = BRunUtil.invoke(compileResult, "stampRecordToMapV3");
-        BMap<BString, Object> mapValue0 = (BMap<BString, Object>) results;
-
-        Assert.assertEquals((mapValue0).size(), 6);
-
-        Assert.assertEquals(mapValue0.getType().getClass(), BMapType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("name")).toString(), "Raja");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("name"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("age")).toString(), "25");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("age"))).getTag(), TypeTags.INT_TAG);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("status")).toString(), "single");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("status"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("batch")).toString(), "LK2014");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("batch"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(mapValue0.get(StringUtils.fromString("school")).toString(), "Hindu College");
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("school"))).getClass(), BStringType.class);
-
-        Assert.assertEquals(((BMap) mapValue0.get(StringUtils.fromString("emp"))).size(), 3);
-        Assert.assertEquals(getType(mapValue0.get(StringUtils.fromString("emp"))).getClass(), BMapType.class);
-        Assert.assertEquals(
-                ((BMapType) getType(mapValue0.get(StringUtils.fromString("emp")))).getConstrainedType().getClass(),
-                BAnydataType.class);
+        BRunUtil.invoke(compileResult, "stampRecordToMapV3");
     }
 
     @Test
@@ -510,23 +445,7 @@ public class RecordStampInbuiltFunctionTest {
 
     @Test
     public void testStampComplexRecordToJSON() {
-
-        Object results = BRunUtil.invoke(compileResult, "stampComplexRecordToJSON");
-        BMap<BString, Object> employee0 = (BMap<BString, Object>) results;
-
-
-        Assert.assertEquals(employee0.getType().getClass(), BMapType.class);
-        Assert.assertEquals(((BMapType) employee0.getType()).getConstrainedType().getClass(), BAnydataType.class);
-
-        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("marks"))).getClass(), BArrayType.class);
-        Assert.assertEquals(
-                ((BArrayType) getType(employee0.get(StringUtils.fromString("marks")))).getElementType().getTag(),
-                TypeTags.ANYDATA_TAG);
-
-        Assert.assertEquals(getType(employee0.get(StringUtils.fromString("info"))).getClass(), BMapType.class);
-        Assert.assertEquals(
-                ((BMapType) getType(employee0.get(StringUtils.fromString("info")))).getConstrainedType().getClass(),
-                BAnydataType.class);
+        BRunUtil.invoke(compileResult, "stampComplexRecordToJSON");
     }
 
     //---------------------------------- Negative Test cases ----------------------------------------------

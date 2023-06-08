@@ -32,6 +32,8 @@ public class TesterinaConstants {
     public static final String TESTERINA_LAUNCHER_CLASS_NAME = "org.ballerinalang.test.runtime.BTestMain";
     public static final String CODE_COV_GENERATOR_CLASS_NAME = "org.ballerinalang.test.runtime.CoverageMain";
     public static final String TEST_RUNTIME_JAR_PREFIX = "testerina-runtime-";
+    public static final String TESTERINA_MAIN_METHOD = "main";
+    public static final String GET_TEST_EXEC_STATE = "$getTestExecutionState";
 
     public static final String ORIGINAL_FUNC_NAME_PREFIX = "$ORIG_";
     public static final String MOCK_FUNC_NAME_PREFIX = "$MOCK_";

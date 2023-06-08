@@ -19,7 +19,7 @@ package io.ballerina.runtime.api.values;
 import java.util.List;
 
 /**
- * {@code BXMLItem} represents an XML Sequence in Ballerina.
+ * {@code BXmlSequence} represents an XML Sequence in Ballerina.
  *
  * @since 2.0.0
  */

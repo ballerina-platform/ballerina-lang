@@ -19,7 +19,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code {@link Parameter } represents the parameter of a function in ballerina.
+ * {@code Parameter} represents the parameter of a function in ballerina.
  *
  * @since 2.0
  */

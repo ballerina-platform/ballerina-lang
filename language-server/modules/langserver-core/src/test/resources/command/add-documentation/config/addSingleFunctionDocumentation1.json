@@ -29,7 +29,7 @@
                     "character": 0
                   }
                 },
-                "newText": "# Description\n#\n# + a - Parameter Description  \n# + b - Parameter Description  \n# + default1 - Parameter Description  \n# + bl - Parameter Description  \n# + rst - Parameter Description\n"
+                "newText": "# Description.\n#\n# + a - parameter description  \n# + b - parameter description  \n# + default1 - parameter description  \n# + bl - parameter description  \n# + rst - parameter description\n"
               }
             ]
           }

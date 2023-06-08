@@ -65,7 +65,8 @@ public class Trie {
         }
 
         for (TrieNode child : root.children.values()) {
-            suggestHelper(child, list, stringBuffer.append(child.character));
+            stringBuffer.append(child.character);
+            suggestHelper(child, list, stringBuffer);
             stringBuffer.setLength(stringBuffer.length() - 1);
         }
     }

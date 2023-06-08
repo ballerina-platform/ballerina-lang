@@ -38,8 +38,7 @@ import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = CLEAN_COMMAND, description = "Ballerina clean - Cleans out the target directory of a " +
-                                                         "project.")
+@CommandLine.Command(name = CLEAN_COMMAND, description = "Clean the artifacts generated during the build")
 public class CleanCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final Path projectPath;
@@ -115,7 +114,7 @@ public class CleanCommand implements BLauncherCmd {
     
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Cleans the \"target\" directory of a Ballerina project. \n");
+        out.append(BLauncherCmd.getCommandUsageInfo(CLEAN_COMMAND));
     }
     
     @Override

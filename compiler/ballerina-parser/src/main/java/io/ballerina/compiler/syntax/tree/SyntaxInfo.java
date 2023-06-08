@@ -31,16 +31,18 @@ import java.util.stream.Collectors;
  */
 public class SyntaxInfo {
 
+    private static final List<String> BALLERINA_KEYWORDS = Arrays.stream(SyntaxKind.values())
+            .filter(syntaxKind -> SyntaxKind.RE_KEYWORD.compareTo(syntaxKind) > 0)
+            .map(SyntaxKind::stringValue)
+            .collect(Collectors.toList());
+
     /**
      * Gives a list of all keywords in the ballerina.
      *
      * @return reserved keyword list
      */
     public static List<String> keywords() {
-        return Arrays.stream(SyntaxKind.values())
-                .filter(syntaxKind -> SyntaxKind.OPEN_BRACE_TOKEN.compareTo(syntaxKind) > 0)
-                .map(SyntaxKind::stringValue)
-                .collect(Collectors.toList());
+        return BALLERINA_KEYWORDS;
     }
 
     /**
@@ -50,7 +52,7 @@ public class SyntaxInfo {
      * @return {@code true}, if the input is a ballerina keyword. {@code false} otherwise
      */
     public static boolean isKeyword(String text) {
-        return keywords().contains(text);
+        return BALLERINA_KEYWORDS.contains(text);
     }
 
     /**

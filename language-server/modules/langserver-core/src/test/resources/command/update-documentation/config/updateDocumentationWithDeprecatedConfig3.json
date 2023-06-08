@@ -29,7 +29,7 @@
                     "character": 22
                   }
                 },
-                "newText": "# This is a test method within a class\n    #\n    # + b - Parameter Description\n    # # Deprecated\n    # This method is deprecated\n    # And another line"
+                "newText": "# This is a test method within a class\n    #\n    # + b - parameter description\n    # # Deprecated\n    # This method is deprecated\n    # And another line"
               }
             ]
           }

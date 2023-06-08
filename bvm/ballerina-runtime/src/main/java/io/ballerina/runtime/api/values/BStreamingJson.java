@@ -17,13 +17,11 @@
 */
 package io.ballerina.runtime.api.values;
 
-import io.ballerina.runtime.internal.JsonDataSource;
-
 import java.io.Writer;
 
 /**
  * <p>
- * {@link BStreamingJson} represent a JSON array generated from a {@link JsonDataSource}.
+ * {@link BStreamingJson} represent a JSON array generated from a JsonDataSource.
  * </p>
  *
  * @since 1.1.0

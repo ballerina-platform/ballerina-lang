@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BTableType} represents tabular data in Ballerina.
+ * {@code TableType} represents tabular data in Ballerina.
  *
  * @since 1.3.0
  */

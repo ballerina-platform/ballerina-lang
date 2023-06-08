@@ -43,6 +43,7 @@ import org.ballerinalang.central.client.model.PackageNameResolutionResponse;
 import org.ballerinalang.central.client.model.PackageResolutionRequest;
 import org.ballerinalang.central.client.model.PackageResolutionResponse;
 import org.ballerinalang.central.client.model.PackageSearchResult;
+import org.ballerinalang.central.client.model.ToolSearchResult;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -73,13 +74,18 @@ import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENC
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
 import static org.ballerinalang.central.client.CentralClientConstants.AUTHORIZATION;
+import static org.ballerinalang.central.client.CentralClientConstants.BALA_URL;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_PLATFORM;
 import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
+import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_TYPE;
 import static org.ballerinalang.central.client.CentralClientConstants.DEPRECATE_MESSAGE;
 import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.CentralClientConstants.IS_DEPRECATED;
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
+import static org.ballerinalang.central.client.CentralClientConstants.ORGANIZATION;
+import static org.ballerinalang.central.client.CentralClientConstants.PKG_NAME;
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
+import static org.ballerinalang.central.client.CentralClientConstants.VERSION;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
@@ -94,8 +100,10 @@ import static org.ballerinalang.central.client.Utils.isApplicationJsonContentTyp
 public class CentralAPIClient {
 
     private static final String PACKAGES = "packages";
+    private static final String TOOLS = "tools";
     private static final String CONNECTORS = "connectors";
     private static final String TRIGGERS = "triggers";
+    private static final String SEARCH = "search";
     private static final String RESOLVE_DEPENDENCIES = "resolve-dependencies";
     private static final String RESOLVE_MODULES = "resolve-modules";
     private static final String DEPRECATE = "deprecate";
@@ -567,6 +575,160 @@ public class CentralAPIClient {
     }
 
     /**
+     * Pull a tool from central.
+     *
+     * @param toolId                    The id of the tool.
+     * @param version                   The version of the package.
+     * @param balaCacheDirPath    The package path in Bala cache.
+     * @param supportedPlatform         The supported platform.
+     * @param ballerinaVersion          The ballerina version.
+     * @param isBuild                   If build option is enabled or not.
+     * @return An array containing the organization, package name and version.
+     * @throws CentralClientException   Central Client exception.
+     */
+    public String[] pullTool(String toolId, String version, Path balaCacheDirPath, String supportedPlatform,
+                         String ballerinaVersion, boolean isBuild) throws CentralClientException {
+        String resourceUrl = "/" + TOOLS + "/" + toolId;
+        boolean enableOutputStream =
+                Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
+        String toolSignature = toolId;
+
+        String url = this.baseUrl + resourceUrl;
+        // append version to url if available
+        if (null != version && !version.isEmpty()) {
+            url += "/" + version;
+            toolSignature += ":" + version;
+        }
+
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
+        try {
+            LogFormatter logFormatter = new LogFormatter();
+            if (isBuild) {
+                logFormatter = new BuildLogFormatter();
+            }
+
+            Request packagePullReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+                    .url(url)
+                    .addHeader(CONTENT_TYPE, APPLICATION_JSON)
+                    .build();
+            logRequestInitVerbose(packagePullReq);
+            Call toolPullReqCall = client.newCall(packagePullReq);
+            Response packagePullResponse = toolPullReqCall.execute();
+            logRequestConnectVerbose(packagePullReq, resourceUrl);
+
+            body = Optional.ofNullable(packagePullResponse.body());
+            String pkgPullResBodyContent = null;
+            if (body.isPresent()) {
+                pkgPullResBodyContent = body.get().string();
+            }
+            logResponseVerbose(packagePullResponse, pkgPullResBodyContent);
+
+            // 302   - Package is found
+            if (packagePullResponse.code() == HTTP_OK) {
+                Optional<String> org = Optional.empty();
+                Optional<String> pkgName = Optional.empty();
+                Optional<String> latestVersion = Optional.empty();
+                Optional<String> balaUrl = Optional.empty();
+                if (body.isPresent()) {
+                    Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                    if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
+                        JsonObject jsonContent = new Gson().fromJson(pkgPullResBodyContent, JsonObject.class);
+                        org = Optional.ofNullable(jsonContent.get(ORGANIZATION).getAsString());
+                        pkgName = Optional.ofNullable(jsonContent.get(PKG_NAME).getAsString());
+                        latestVersion = Optional.ofNullable(jsonContent.get(VERSION).getAsString());
+                        balaUrl = Optional.ofNullable(jsonContent.get(BALA_URL).getAsString());
+                    }
+                }
+
+                if (balaUrl.isPresent() && org.isPresent() && latestVersion.isPresent()
+                        && pkgName.isPresent()) {
+                    // gayaldassanayake-tool_openapi-any-0.1.1.bala
+                    String balaFileName = "attachment; filename=" + org.get() + "-" + pkgName.get() + "-any-"
+                            + latestVersion.get() + ".bala";
+                    Request downloadBalaRequest = getNewRequest(supportedPlatform, ballerinaVersion)
+                            .get()
+                            .url(balaUrl.get())
+                            .header(ACCEPT_ENCODING, IDENTITY)
+                            .addHeader(CONTENT_DISPOSITION, balaFileName)
+                            .build();
+                    logRequestInitVerbose(downloadBalaRequest);
+                    Call downloadBalaRequestCall = client.newCall(downloadBalaRequest);
+                    Response balaDownloadResponse = downloadBalaRequestCall.execute();
+                    logRequestConnectVerbose(downloadBalaRequest, balaUrl.get());
+                    logResponseVerbose(balaDownloadResponse, null);
+
+                    Path packagePathInBalaCache = balaCacheDirPath.resolve(org.get()).resolve(pkgName.get());
+
+                    if (balaDownloadResponse.code() == HTTP_OK) {
+                        boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
+                        createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org.get(), pkgName.get(),
+                                isNightlyBuild, null, balaUrl.get(), balaFileName,
+                                enableOutputStream ? outStream : null, logFormatter);
+                        return new String[]{org.get(), pkgName.get(), latestVersion.get()};
+                    } else {
+                        String errorMessage = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + toolSignature +
+                                "'. BALA content download from '" + balaUrl.get() + "' failed.");
+                        handleResponseErrors(balaDownloadResponse, errorMessage);
+                    }
+                } else {
+                    String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + toolSignature +
+                            "' from the remote repository '" + url + "'. reason: bala file location is missing.");
+                    throw new CentralClientException(errorMsg);
+                }
+            }
+
+            // Unauthorized access token
+            if (packagePullResponse.code() == HTTP_UNAUTHORIZED) {
+                handleUnauthorizedResponse(body);
+            }
+
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
+                    // If request sent is invalid or when tool is not found
+                    if (packagePullResponse.code() == HTTP_BAD_REQUEST ||
+                            packagePullResponse.code() == HTTP_NOT_FOUND) {
+                        Error error = new Gson().fromJson(pkgPullResBodyContent, Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException("error: " + error.getMessage());
+                        }
+                    }
+
+                    //  When error occurred at remote repository
+                    if (packagePullResponse.code() == HTTP_INTERNAL_ERROR ||
+                            packagePullResponse.code() == HTTP_UNAVAILABLE) {
+                        Error error = new Gson().fromJson(pkgPullResBodyContent, Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            String errorMsg =
+                                    logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + toolSignature +
+                                            "' from" +
+                                            " the remote repository '" + url +
+                                            "'. reason: " + error.getMessage());
+                            throw new CentralClientException(errorMsg);
+                        }
+                    }
+                }
+            }
+
+            String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + toolSignature +
+                    "' from the remote repository '" + url + "'.");
+            throw new CentralClientException(errorMsg);
+        } catch (IOException e) {
+            throw new CentralClientException(e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+
+    /**
      * Resolve Package Names of modules.
      *
      * @return Package name resolution response
@@ -762,6 +924,69 @@ public class CentralAPIClient {
             throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "'.");
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "'. reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
+     * Search tools in central.
+     */
+    public ToolSearchResult searchTool(String keyword, String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
+        try {
+            Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+                    .url(this.baseUrl + "/" + TOOLS + "/" + SEARCH + "/" + keyword)
+                    .build();
+
+            Call httpRequestCall = client.newCall(searchReq);
+            Response searchResponse = httpRequestCall.execute();
+
+            body = Optional.ofNullable(searchResponse.body());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
+                    // If searching was successful
+                    if (searchResponse.code() == HTTP_OK) {
+                        return new Gson().fromJson(body.get().string(), ToolSearchResult.class);
+                    }
+
+                    // Unauthorized access token
+                    if (searchResponse.code() == HTTP_UNAUTHORIZED) {
+                        handleUnauthorizedResponse(body);
+                    }
+
+                    // If search request was sent wrongly
+                    if (searchResponse.code() == HTTP_BAD_REQUEST) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException(error.getMessage());
+                        }
+                    }
+
+                    // If error occurred at remote repository
+                    if (searchResponse.code() == HTTP_INTERNAL_ERROR ||
+                            searchResponse.code() == HTTP_UNAVAILABLE) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + keyword + "' reason:" +
+                                    error.getMessage());
+                        }
+                    }
+                }
+            }
+
+            throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + keyword + "'.");
+        } catch (IOException e) {
+            throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + keyword + "'. reason: " + e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {

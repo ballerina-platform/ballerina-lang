@@ -307,31 +307,47 @@ class JMethodResolver {
             throw new JInteropException(CLASS_NOT_FOUND, e.getMessage(), e);
         }
 
-        if ((throwsCheckedException && !jMethodRequest.returnsBErrorType) ||
-                (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue)) {
-            BType returnType = jMethodRequest.bReturnType;
-            String expectedRetTypeName;
-            if (returnType.tag == TypeTags.NIL || returnType instanceof BTypeReferenceType &&
-                    ((BTypeReferenceType) returnType).referredType.tag == TypeTags.ERROR) {
-                expectedRetTypeName = "error";
-            } else if (returnType instanceof BUnionType) {
-                BUnionType bUnionReturnType = (BUnionType) returnType;
-                BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
-                expectedRetTypeName = modifiedRetType + "|error";
-            } else {
-                expectedRetTypeName = returnType + "|error";
-            }
+        BType returnType = jMethodRequest.bReturnType;
+        String expectedRetTypeName;
+        if (throwsCheckedException && !jMethodRequest.returnsBErrorType) {
+            expectedRetTypeName = getExpectedReturnType(returnType);
             throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
                     "Incompatible ballerina return type for Java method '" + jMethodRequest.methodName + "' which " +
                             "throws checked exception found in class '" + jMethodRequest.declaringClass.getName() +
                             "': expected '" + expectedRetTypeName + "', found '" + returnType + "'");
+        } else if (jMethodRequest.returnsBErrorType && !throwsCheckedException && !returnsErrorValue) {
+            String errorMsgPart;
+            if (returnType instanceof BUnionType) {
+                BUnionType bUnionReturnType = (BUnionType) returnType;
+                BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
+                errorMsgPart = "expected '" + modifiedRetType + "', found '" + returnType + "'";
+            } else {
+                errorMsgPart = "no return type expected but found '" + returnType + "'";
+            }
+            throw new JInteropException(DiagnosticErrorCode.METHOD_SIGNATURE_DOES_NOT_MATCH,
+                    "Incompatible ballerina return type for Java method '" + jMethodRequest.methodName + "' which " +
+                            "throws 'java.lang.RuntimeException' found in class '" +
+                            jMethodRequest.declaringClass.getName() + "': " + errorMsgPart);
+        }
+    }
+
+    private String getExpectedReturnType(BType retType) {
+        if (retType.tag == TypeTags.NIL || (retType instanceof BTypeReferenceType &&
+                ((BTypeReferenceType) retType).referredType.tag == TypeTags.ERROR)) {
+            return "error";
+        } else if (retType instanceof BUnionType) {
+            BUnionType bUnionReturnType = (BUnionType) retType;
+            BType modifiedRetType = BUnionType.create(null, getNonErrorMembers(bUnionReturnType));
+            return modifiedRetType + "|error";
+        } else {
+            return retType + "|error";
         }
     }
 
     private LinkedHashSet<BType> getNonErrorMembers(BUnionType bUnionReturnType) {
         LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
         for (BType bType : bUnionReturnType.getMemberTypes()) {
-            if (!(bType instanceof BTypeReferenceType &&
+            if (bType.tag != TypeTags.ERROR && !(bType instanceof BTypeReferenceType &&
                     ((BTypeReferenceType) bType).referredType.tag == TypeTags.ERROR)) {
                 memTypes.add(bType);
             }

@@ -91,6 +91,18 @@ public distinct class Apple {
     }
 }
 
+public class Person {
+    int id;
+    string name;
+    int age;
+
+    public function init(int id, string name, int age) {
+        self.id = id;
+        self.name = name;
+        self.age = age;
+    }
+}
+
 public function getParameters(PublicClientObject obj, string name) returns [string, boolean, string][] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
@@ -111,3 +123,7 @@ public function getTypeIds(Common common) returns string[] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;
 
+public function getParamNamesFromObjectInit(Person person) returns string[] = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values",
+    name: "getParamNamesFromObjectInit"
+} external;

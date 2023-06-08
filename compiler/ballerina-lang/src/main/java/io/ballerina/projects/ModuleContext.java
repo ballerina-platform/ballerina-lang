@@ -411,7 +411,8 @@ class ModuleContext {
                 moduleContext.isExported(),
                 moduleContext.descriptor(),
                 moduleContext.project.kind(),
-                moduleContext.project.buildOptions().skipTests());
+                moduleContext.project.buildOptions().skipTests(),
+                moduleContext.project().sourceRoot());
         packageCache.put(moduleCompilationId, pkgNode);
 
         // Parse source files

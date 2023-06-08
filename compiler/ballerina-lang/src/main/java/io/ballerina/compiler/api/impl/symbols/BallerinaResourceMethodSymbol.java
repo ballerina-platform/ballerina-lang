@@ -88,7 +88,7 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
                 break;
             default:
                 this.resourcePath = new BallerinaPathSegmentList(internalResPath, resourceFn.pathParams,
-                                                                 resourceFn.restPathParam, this.context);
+                                        resourceFn.restPathParam, resourceFn.pathSegmentSymbols, this.context);
         }
 
         return this.resourcePath;

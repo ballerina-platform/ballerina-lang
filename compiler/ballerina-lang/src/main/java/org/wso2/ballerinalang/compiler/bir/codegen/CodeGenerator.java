@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.bir.BIRGenUtils;
 import org.wso2.ballerinalang.compiler.bir.codegen.optimizer.LargeMethodOptimizer;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -84,6 +85,10 @@ public class CodeGenerator {
         // Desugar BIR to include the observations
         JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(packageCache, symbolTable);
         jvmObservabilityGen.instrumentPackage(packageSymbol.bir);
+
+        // Re-arrange basic blocks and error entries
+        BIRGenUtils.rearrangeBasicBlocks(packageSymbol.bir);
+
         dlog.setCurrentPackageId(packageSymbol.pkgID);
         final JvmPackageGen jvmPackageGen = new JvmPackageGen(symbolTable, packageCache, dlog, types);
 

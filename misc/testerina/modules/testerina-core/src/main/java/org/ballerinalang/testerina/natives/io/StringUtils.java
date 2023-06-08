@@ -215,7 +215,7 @@ public class StringUtils {
                         case 's':
                             if (ref != null) {
                                 result.append(String.format("%" + padding + "s",
-                                        io.ballerina.runtime.api.utils.StringUtils.getStringValue(ref, null)));
+                                        io.ballerina.runtime.api.utils.StringUtils.getStringValue(ref)));
                             }
                             break;
                         case '%':

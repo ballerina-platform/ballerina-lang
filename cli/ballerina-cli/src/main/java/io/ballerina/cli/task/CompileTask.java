@@ -30,6 +30,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.ProjectDiagnosticErrorCode;
 import io.ballerina.projects.util.ProjectUtils;
@@ -42,6 +43,7 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.DOT;
@@ -106,6 +108,7 @@ public class CompileTask implements Task {
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
             }
+            Set<String> packageImports = ProjectUtils.getPackageImports(project.currentPackage());
             PackageResolution packageResolution = project.currentPackage().getResolution();
             if (project.buildOptions().dumpBuildTime()) {
                 BuildTime.getInstance().packageResolutionDuration = System.currentTimeMillis() - start;
@@ -157,7 +160,14 @@ public class CompileTask implements Task {
 
             // We dump the raw graphs twice only if code generator/modifier plugins are engaged
             // since the package has changed now
-            if (packageResolution != project.currentPackage().getResolution()) {
+
+            Set<String> newPackageImports = ProjectUtils.getPackageImports(project.currentPackage());
+            ResolutionOptions resolutionOptions = ResolutionOptions.builder().setOffline(true).build();
+            if (!packageImports.equals(newPackageImports)) {
+                resolutionOptions = ResolutionOptions.builder().setOffline(false).build();
+            }
+
+            if (packageResolution != project.currentPackage().getResolution(resolutionOptions)) {
                 packageResolution = project.currentPackage().getResolution();
                 if (project.currentPackage().compilationOptions().dumpRawGraphs()) {
                     packageResolution.dumpGraphs(out);

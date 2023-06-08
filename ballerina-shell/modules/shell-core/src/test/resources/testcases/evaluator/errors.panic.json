@@ -23,7 +23,7 @@
   {
     "description": "View error.",
     "code": "readRecord(r2);",
-    "stdout": "panic: Record is nil {}\n",
+    "stdout": "panic: Record is nil {}\nat readRecord()\n",
     "error": "InvokerPanicException"
   }
 ]

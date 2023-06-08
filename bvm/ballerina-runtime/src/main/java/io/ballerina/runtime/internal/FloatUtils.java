@@ -30,7 +30,7 @@ public class FloatUtils {
 
     public static BString getBStringIfInfiniteOrNaN(double x) {
         if (Double.isInfinite(x) || Double.isNaN(x)) {
-            return StringUtils.fromString(StringUtils.getStringValue(x, null));
+            return StringUtils.fromString(StringUtils.getStringValue(x));
         }
         return null;
     }

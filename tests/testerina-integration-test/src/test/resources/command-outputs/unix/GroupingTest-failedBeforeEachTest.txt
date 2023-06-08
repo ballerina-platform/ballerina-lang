@@ -7,7 +7,12 @@ Running Tests
 
 	failed-before-each-with-groups.bal
 	[fail] beforeEachFunction[before each test function for the test]:
-	    Before each function failed.
+	    error {ballerina/test:0}TestError ("Before each function failed.")
+			callableName: createBallerinaError moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 41
+			callableName: assertFail moduleName: ballerina.test.0 fileName: assert.bal lineNumber: 232
+			callableName: beforeEachFunction  fileName: failed-before-each-with-groups.bal lineNumber: 43
+			callableName: beforeEachFunction$lambda4$  fileName: failed-before-each-with-groups.bal lineNumber: 85
+		
 
 
 		0 passing

@@ -46,6 +46,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -65,6 +66,9 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.CLASS_EXTEN
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.PATH_SEPARATOR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_XML_FILE;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 
 /**
  * Class containing utility methods required to generate the coverage report.
@@ -72,6 +76,10 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_XML_
  * @since 1.2.0
  */
 public class CodeCoverageUtils {
+    private  static final String REPORT_ZIP_DIRECTORY = Paths.get(System.getProperty(BALLERINA_HOME))
+            .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.TOOLS_DIR_NAME)
+            .resolve(TesterinaConstants.COVERAGE_DIR).resolve(REPORT_ZIP_NAME).toString()
+            .replace(REPORT_ZIP_NAME, "");
 
     private static final PrintStream errStream = System.err;
 
@@ -203,9 +211,17 @@ public class CodeCoverageUtils {
         final ZipInputStream zipStream = new ZipInputStream(source);
         ZipEntry nextEntry;
         while ((nextEntry = zipStream.getNextEntry()) != null) {
-            final String name = nextEntry.getName();
+
+            File zipFile = new File(REPORT_ZIP_DIRECTORY + nextEntry.getName());
+            String canonicalZipPath = zipFile.getCanonicalPath();
+
+            if (!canonicalZipPath.startsWith(REPORT_ZIP_DIRECTORY)) {
+                continue;
+            }
+            String name = canonicalZipPath.replace(REPORT_ZIP_DIRECTORY, "");
+
             // only extract files
-            if (!name.endsWith("/")) {
+            if (!nextEntry.getName().endsWith("/")) {
                 final File nextFile = new File(target, name);
 
                 // create directories

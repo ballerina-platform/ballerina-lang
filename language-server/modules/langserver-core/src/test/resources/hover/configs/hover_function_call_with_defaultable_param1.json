@@ -1,0 +1,21 @@
+{
+  "position": {
+    "line": 7,
+    "character": 21
+  },
+  "source": {
+    "file": "projectls/defmodsource2.bal"
+  },
+  "expected": {
+    "result": {
+      "contents": {
+        "kind": "markdown",
+        "value": "A function with a defaultable parameter\n  \n  \n---  \n  \n### Parameters  \n  \n`string` ***name*** : Defaultable param`(default: \"defaultName\")`"
+      }
+    },
+    "id": {
+      "left": "324"
+    },
+    "jsonrpc": "2.0"
+  }
+}

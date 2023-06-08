@@ -13,3 +13,4 @@ io.ballerina.cli.cmd.ShellCommand
 io.ballerina.cli.cmd.PackCommand
 io.ballerina.cli.cmd.GraphCommand
 io.ballerina.cli.cmd.DeprecateCommand
+io.ballerina.cli.cmd.ToolCommand

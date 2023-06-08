@@ -503,4 +503,40 @@ public class NegativeValidationTest {
                 + "'No parameter is required to get the value of the static field 'isAvailable' in class " +
                 "'org/ballerinalang/nativeimpl/jvm/tests/JavaFieldAccessMutate''", 7, 1);
     }
+
+    @Test
+    public void testMethodSignatureNotMatch16() {
+
+        String path = "test-src/javainterop/negative/method_sig_not_match16.bal";
+
+        CompileResult compileResult = BCompileUtil.compile(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0,
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
+                        "'Incompatible ballerina return type for Java method " +
+                        "'acceptIntErrorUnionReturnWhichThrowsUncheckedException' which throws " +
+                        "'java.lang.RuntimeException' found in class " +
+                        "'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "expected 'int', found '(int|error)''",
+                "method_sig_not_match16.bal", 19, 1);
+    }
+
+    @Test
+    public void testMethodSignatureNotMatch17() {
+
+        String path = "test-src/javainterop/negative/method_sig_not_match17.bal";
+
+        CompileResult compileResult = BCompileUtil.compile(path);
+        compileResult.getDiagnostics();
+        Assert.assertEquals(compileResult.getDiagnostics().length, 1);
+        BAssertUtil.validateError(compileResult, 0,
+                "{ballerina/jballerina.java}METHOD_SIGNATURE_DOES_NOT_MATCH " +
+                        "'Incompatible ballerina return type for Java method " +
+                        "'acceptIntErrorUnionReturnWhichThrowsUncheckedException' which throws " +
+                        "'java.lang.RuntimeException' found in class " +
+                        "'org.ballerinalang.nativeimpl.jvm.tests.StaticMethods': " +
+                        "no return type expected but found 'error''",
+                "method_sig_not_match17.bal", 19, 1);
+    }
 }
