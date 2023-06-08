@@ -135,6 +135,17 @@ public class QueryActionOrExprTest {
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 315, 23);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'other'", 316, 21);
         validateError(negativeResult, i++, "action invocation as an expression not allowed here", 320, 50);
+        validateError(negativeResult, i++, "incompatible types: expected '(T3[]|T4[])', found '(T3|T4)[]'",
+                339, 13);
+        validateError(negativeResult, i++, "incompatible types: expected '(int[]|string[])', found '(int|string)[]'",
+                359, 24);
+        validateError(negativeResult, i++, "incompatible types: expected '(int[]|string[])', found '(int|boolean)[]'",
+                363, 24);
+        validateError(negativeResult, i++, 
+                "incompatible types: expected '(string[]|decimal[])', found '(int|float)[]'",
+                367, 28);
+        validateError(negativeResult, i++, "incompatible types: expected '(table<FooType>|table<BarType>)', " +
+                        "found 'table<(FooType|BarType)> key(id)'", 371, 39);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
