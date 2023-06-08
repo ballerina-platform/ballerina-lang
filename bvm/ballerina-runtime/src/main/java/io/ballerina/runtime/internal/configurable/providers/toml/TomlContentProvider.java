@@ -19,12 +19,9 @@
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.toml.api.Toml;
 
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
 
 /**
  * Toml parser that reads from text content for configurable implementation.
@@ -55,7 +52,7 @@ public class TomlContentProvider extends TomlProvider {
         if (configContent.isEmpty()) {
             return;
         }
-        super.tomlNode = Toml.read(configContent, CONFIG_DATA_ENV_VARIABLE).rootNode();
+        super.tomlNode = new ConfigToml(configContent).tomlAstNode();
         super.initialize();
     }
 

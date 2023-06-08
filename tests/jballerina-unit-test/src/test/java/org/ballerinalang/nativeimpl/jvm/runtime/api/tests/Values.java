@@ -474,4 +474,15 @@ public class Values {
         Parameter parameter = resourceMethod.getParameters()[0];
         return StringUtils.fromString(parameter.name);
     }
+
+    public static BArray getParamNamesFromObjectInit(BObject object) {
+        ObjectType objectType = object.getType();
+        MethodType initMethodtype = objectType.getInitMethod();
+        Parameter[] parameters = initMethodtype.getParameters();
+        BArray paramNames = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING));
+        for (int i = 0; i < parameters.length; i++) {
+            paramNames.add(i, StringUtils.fromString(parameters[i].name));
+        }
+        return paramNames;
+    }
 }
