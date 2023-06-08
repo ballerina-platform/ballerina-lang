@@ -42,6 +42,7 @@ import org.eclipse.lsp4j.FileEvent;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.eclipse.lsp4j.WorkspaceFolder;
 import org.mockito.MockSettings;
 import org.mockito.Mockito;
 import org.testng.Assert;
@@ -54,9 +55,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 /**
  * Contains a set of utility methods to manage projects.
  *
@@ -509,6 +516,50 @@ public class TestWorkspaceManager {
 
         Path target = RESOURCE_DIRECTORY.resolve("long_running").resolve("target");
         FileUtils.deleteDirectory(target.toFile());
+    }
+
+    @Test
+    public void testWorkspaceProjects() throws WorkspaceDocumentException, 
+            ExecutionException, InterruptedException {
+
+        Path workspacePath = RESOURCE_DIRECTORY.resolve("workspace");
+        Path project1File = workspacePath.resolve("workspace1").resolve("project1")
+                .resolve("modules").resolve("mod1").resolve("mod1.bal");
+        Path singleFileProject = workspacePath.resolve("workspace2").resolve("single.bal");
+        Path project2File = workspacePath.resolve("workspace3").resolve("project2").resolve("main.bal");
+        Path project3File = workspacePath.resolve("workspace3").resolve("project3").resolve("main.bal");
+      
+        
+        //Mock the ExtendedLanguageClient
+        MockSettings mockSettings = Mockito.withSettings().stubOnly();
+        ExtendedLanguageClient languageClient = Mockito.mock(ExtendedLanguageClient.class, mockSettings);
+        CompletableFuture<List<WorkspaceFolder>> workspaceFolders = 
+                CompletableFuture.supplyAsync(this::mockWorkspaceFolders);
+        Mockito.when(languageClient.workspaceFolders()).thenReturn(workspaceFolders);
+
+        //Create workspace manager
+        LanguageServerContextImpl languageServerContext = new LanguageServerContextImpl();
+        languageServerContext.put(ExtendedLanguageClient.class, languageClient);
+        workspaceManager = new BallerinaWorkspaceManager(languageServerContext);
+
+        //Open the bal files/projects in the workspace
+        openFile(project1File);
+        openFile(project2File);
+        openFile(project3File);
+        openFile(singleFileProject);
+        
+        //Get and assert response
+        Map<Path, Project> pathProjectMap = workspaceManager.workspaceProjects().get();
+        Assert.assertEquals(pathProjectMap.size(), 4);
+    }
+
+    private List<WorkspaceFolder> mockWorkspaceFolders() {
+        List<WorkspaceFolder> workspaceFolders = new ArrayList<>();
+        Path workspaceRoot = RESOURCE_DIRECTORY.resolve("workspace");
+        workspaceFolders.add(new WorkspaceFolder(workspaceRoot.resolve("workspace1").toUri().toString(), "workspace1"));
+        workspaceFolders.add(new WorkspaceFolder(workspaceRoot.resolve("workspace2").toUri().toString(), "workspace2"));
+        workspaceFolders.add(new WorkspaceFolder(workspaceRoot.resolve("workspace3").toUri().toString(), "workspace3"));
+        return workspaceFolders;
     }
 
     private static String guessJavaPath() {

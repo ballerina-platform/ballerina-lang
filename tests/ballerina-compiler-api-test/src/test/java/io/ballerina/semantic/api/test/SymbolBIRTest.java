@@ -41,6 +41,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
@@ -284,6 +285,30 @@ public class SymbolBIRTest {
         // Fields and methods
         assertTrue(symbol.fieldDescriptors().containsKey("count"));
         assertTrue(symbol.methods().isEmpty());
+    }
+
+    @Test
+    public void testSymbolLookupInModuleAlias() {
+        CompileResult compileResult = BCompileUtil.compileAndCacheBala("test-src/test-module-alias-project");
+        if (compileResult.getErrorCount() != 0) {
+            Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
+            Assert.fail("Compilation contains error");
+        }
+
+        Project project = BCompileUtil.loadProject("test-src/module_symbol_alias_import_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+        List<Symbol> visibleSymbols = model.visibleSymbols(srcFile, LinePosition.from(19, 25));
+        List<String> expectedModuleSymbols = List.of("tp", "ta");
+        int moduleSymbolsCount = 0;
+        for (Symbol visibleSymbol : visibleSymbols) {
+            if (visibleSymbol.kind() == MODULE
+                    && visibleSymbol.getName().isPresent()
+                    && expectedModuleSymbols.contains(visibleSymbol.getName().get())) {
+                moduleSymbolsCount++;
+            }
+        }
+        assertEquals(moduleSymbolsCount, 2);
     }
 
     // util methods
