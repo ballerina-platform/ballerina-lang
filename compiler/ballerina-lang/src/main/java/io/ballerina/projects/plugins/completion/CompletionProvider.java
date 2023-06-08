@@ -49,5 +49,5 @@ public interface CompletionProvider<T extends Node> {
      *
      * @return {@link List}    List of attachment points
      */
-    List<Class<T>> getAttachmentPoints();
+    List<Class<T>> getSupportedNodes();
 }

@@ -15,7 +15,6 @@
  */
 package io.ballerina.plugins.completions;
 
-import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
 
@@ -28,6 +27,6 @@ public class CompilerPluginWithCompletionProviders extends CompilerPlugin {
 
     @Override
     public void init(CompilerPluginContext pluginContext) {
-        pluginContext.addCompletionProvider(new ServiceBodyContextProvider(ServiceDeclarationNode.class));
+        pluginContext.addCompletionProvider(new ServiceBodyContextProvider());
     }
 }

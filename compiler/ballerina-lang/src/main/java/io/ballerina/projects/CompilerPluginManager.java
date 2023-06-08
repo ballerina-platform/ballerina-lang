@@ -125,6 +125,15 @@ class CompilerPluginManager {
         return codeActionManager;
     }
 
+    CompletionManager getCompletionManager() {
+        if (completionManager != null) {
+            return completionManager;
+        }
+
+        completionManager = CompletionManager.from(compilerPluginContexts);
+        return completionManager;
+    }
+
     int engagedCodeGeneratorCount() {
         int count = 0;
         for (CompilerPluginContextIml compilerPluginContext : compilerPluginContexts) {
@@ -139,15 +148,6 @@ class CompilerPluginManager {
             count += compilerPluginContext.codeModifiers().size();
         }
         return count;
-    }
-    
-    CompletionManager getCompletionManager() {
-        if (completionManager != null) {
-            return completionManager;
-        }
-        
-        completionManager = CompletionManager.from(compilerPluginContexts);
-        return completionManager;
     }
 
     private static List<CompilerPluginInfo> loadEngagedCompilerPlugins(List<Package> dependencies) {

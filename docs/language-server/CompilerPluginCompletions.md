@@ -41,7 +41,7 @@ public interface CompletionProvider<T extends Node> {
      *
      * @return List of attachment points
      */
-    List<Class<T>> getAttachmentPoints();
+    List<Class<T>> getSupportedNodes();
 }
 
 ```
@@ -49,38 +49,8 @@ public interface CompletionProvider<T extends Node> {
 
 2. `getCompletions()`: The method that returns the list of completion items for a given completion context.
 
-3. `getAttachmentPoints()`: The method that returns the list of classes of syntax nodes that the completion provider is attached to. This is used to filter out the completion providers that are not relevant to the current completion context.
+3. `getSupportedNodes()`: The method that returns the list of classes of syntax nodes that the completion provider supports. This is used to filter out the completion providers that are not relevant to the current completion context.
 
-#### `AbstractCompletionProvider` 
-
-The `AbstractCompletionProvider` defined in `io.ballerina.projects.plugins.completion` package is an abstract class that implements the `CompletionProvider` interface. This class has the `getAttachmentPoints()` method implemented. A compiler plugin developer can extend this class to develop a completion provider. 
-
-```java
-/**
- * Interface for completion item providers.
- *
- * @param <T> Provider's node type
- * @since 2201.7.0
- */
-public abstract class AbstractCompletionProvider<T extends Node> implements CompletionProvider<T> {
-
-    private final List<Class<T>> attachmentPoints;
-
-    public AbstractCompletionProvider(List<Class<T>> attachmentPoints) {
-        this.attachmentPoints = attachmentPoints;
-    }
-
-    public AbstractCompletionProvider(Class<T> attachmentPoint) {
-        this.attachmentPoints = List.of(attachmentPoint);
-    }
-
-    @Override
-    public List<Class<T>> getAttachmentPoints() {
-        return this.attachmentPoints;
-    }
-}
-
-```
 
 #### `CompletionItem`
 
@@ -236,7 +206,7 @@ path = "compiler-plugin-with-completion-provider-1.0.0.jar"
 
 Step 2: Implement the CompletionProvider
 
-You can write a completion provider extending the `AbstractCompletionProvider` class as follows:
+You can write a completion provider implementing the `CompletionProvider` interface as follows:
 
 ```java
 /**
@@ -244,10 +214,7 @@ You can write a completion provider extending the `AbstractCompletionProvider` c
  *
  * @since 2201.7.0
  */
-public class ServiceBodyContextProvider extends AbstractCompletionProvider<ServiceDeclarationNode> {
-    public ServiceBodyContextProvider(Class<ServiceDeclarationNode> attachmentPoint) {
-        super(attachmentPoint);
-    }
+public class ServiceBodyContextProvider implements CompletionProvider<ServiceDeclarationNode> {
 
     @Override
     public String name() {
@@ -271,6 +238,11 @@ public class ServiceBodyContextProvider extends AbstractCompletionProvider<Servi
         CompletionItem completionItem = new CompletionItem(label, insertText, CompletionItem.Priority.HIGH);
         return List.of(completionItem);
     }
+
+    @Override
+    public List<Class<ServiceDeclarationNode>> getSupportedNodes() {
+        return List.of(ServiceDeclarationNode.class);
+    }
 }
 ```
 
@@ -286,7 +258,7 @@ public class CompilerPluginWithCompletionProvider extends CompilerPlugin {
 
     @Override
     public void init(CompilerPluginContext pluginContext) {
-        pluginContext.addCompletionProvider(new ServiceBodyContextProvider(ServiceDeclarationNode.class));
+        pluginContext.addCompletionProvider(new ServiceBodyContextProvider());
     }
 }
 ```
@@ -380,9 +352,9 @@ Here's an example:
 
 ```jshelllanguage
 
-import java.awt.*;List < io.ballerina.projects.plugins.completion.CompletionItem > expectedList = getExpectedList();
+    List <io.ballerina.projects.plugins.completion.CompletionItem > expectedList = getExpectedList();
     // Get completions for cursor position and assert 
-    List < io.ballerina.projects.plugins.completion.CompletionItem > completionItems = CompletionUtils.getCodeActions(filePath, cursorPos, project);
+    List <io.ballerina.projects.plugins.completion.CompletionItem > completionItems = CompletionUtils.getCodeActions(filePath, cursorPos, project);
     Assert.assertTrue(completionItems.size() > 0, "Expect at least 1 completion item");
 
     // Compare expected completion item list and received completion item list

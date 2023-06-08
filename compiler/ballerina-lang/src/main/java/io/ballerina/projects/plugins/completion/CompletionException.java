@@ -22,6 +22,7 @@ package io.ballerina.projects.plugins.completion;
  */
 public class CompletionException extends RuntimeException {
     private String providerName;
+    
     public CompletionException(Throwable cause, String providerName) {
         super(cause);
         this.providerName = providerName;

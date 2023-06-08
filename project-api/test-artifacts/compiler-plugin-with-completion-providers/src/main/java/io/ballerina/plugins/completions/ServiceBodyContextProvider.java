@@ -14,13 +14,14 @@ package io.ballerina.plugins.completions;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.projects.plugins.completion.AbstractCompletionProvider;
 import io.ballerina.projects.plugins.completion.CompletionContext;
 import io.ballerina.projects.plugins.completion.CompletionException;
 import io.ballerina.projects.plugins.completion.CompletionItem;
+import io.ballerina.projects.plugins.completion.CompletionProvider;
 import io.ballerina.projects.plugins.completion.CompletionUtil;
 import io.ballerina.tools.text.TextEdit;
 import io.ballerina.tools.text.TextRange;
@@ -33,10 +34,7 @@ import java.util.List;
  *
  * @since 2201.7.0
  */
-public class ServiceBodyContextProvider extends AbstractCompletionProvider<ServiceDeclarationNode> {
-    public ServiceBodyContextProvider(Class<ServiceDeclarationNode> attachmentPoint) {
-        super(attachmentPoint);
-    }
+public class ServiceBodyContextProvider implements CompletionProvider<ServiceDeclarationNode> {
 
     @Override
     public String name() {
@@ -70,5 +68,10 @@ public class ServiceBodyContextProvider extends AbstractCompletionProvider<Servi
             completionItem.setAdditionalTextEdits(List.of(textEdit));
         }
         return List.of(completionItem);
+    }
+
+    @Override
+    public List<Class<ServiceDeclarationNode>> getSupportedNodes() {
+        return List.of(ServiceDeclarationNode.class);
     }
 }

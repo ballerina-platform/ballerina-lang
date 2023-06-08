@@ -46,7 +46,7 @@ public class CompletionManager {
         completionProviders = new HashMap<>();
         compilerPluginContexts.forEach(compilerPluginContextIml -> {
             for (CompletionProvider<Node> completionProvider : compilerPluginContextIml.completionProviders()) {
-                for (Class<?> attachmentPoint : completionProvider.getAttachmentPoints()) {
+                for (Class<?> attachmentPoint : completionProvider.getSupportedNodes()) {
                     List<CompletionProviderDescriptor> completionProviderList =
                             completionProviders.computeIfAbsent(attachmentPoint, k -> new ArrayList<>());
                     completionProviderList.add(new CompletionProviderDescriptor(completionProvider,
