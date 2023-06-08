@@ -937,9 +937,19 @@ type RecordWithNeverAndReadonly record {|
     readonly int y;
 |};
 
-type neverRecordWithNotReadonly record {|
+type RecordWithNeverWithoutReadonly record {|
     never x?;
     string y;
+|};
+
+type RecordWithNeverFieldRecord record {|
+       record {|
+           never a;
+       |} x?;
+   |};
+
+type RecordWithNeverUnion record {|
+    never|never x?;
 |};
 
 function testNeverFieldRecord() {
@@ -949,16 +959,24 @@ function testNeverFieldRecord() {
     |} c = {};
 
     readonly d = c;
-    neverRecord e = {};
-    openNeverRecord f = {};
-    neverRecordWithReadonly g = {y: 1};
-    neverRecordWithNotReadonly h = {y: "abc"};
+    RecordWithNeverField e = {};
+    readonly e1 = e;
+    OpenRecordWithNever f = {};
+    RecordWithNeverAndReadonly g = {y: 1};
+    readonly g1 = g;
+    RecordWithNeverWithoutReadonly h = {y: "abc"};
+    RecordWithNeverFieldRecord i = {};
+    readonly i1 = i;
+    RecordWithNeverUnion j = {};
+    readonly j1 = j;
 
     assertTrue(d is record {|never x?; never y?;|} & readonly);
-    assertTrue(e is record {|never x?;|} & readonly);
+    assertTrue(e1 is record {|never x?;|} & readonly);
     assertTrue(f is record {|never x?; anydata...;|});
-    assertTrue(g is record {|never x?; int y;|} & readonly);
+    assertTrue(g1 is record {|never x?; int y;|} & readonly);
     assertTrue(h is record {|never x?; string y;|});
+    assertTrue(i1 is record {|record {|never a;|} x?;|} & readonly);
+    assertTrue(j1 is record {|never|never x?;|} & readonly);
 }
 
 function assertFalse(any|error actual) {

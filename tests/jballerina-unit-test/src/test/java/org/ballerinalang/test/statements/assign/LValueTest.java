@@ -95,7 +95,8 @@ public class LValueTest {
         validateError(semanticsNegativeResult, i++, "cannot update 'readonly' value of type 'record {| |} & " +
                 "readonly'", 110, 5);
         // https://github.com/ballerina-platform/ballerina-lang/issues/39933
-        validateError(semanticsNegativeResult, i++, "incompatible types: expected 'never', found '()'", 113, 14);
+        validateError(semanticsNegativeResult, i++,
+                "cannot update 'readonly' value of type 'record {| never a?; never b?; |} & readonly'", 113, 5);
         validateError(semanticsNegativeResult, i++, "incompatible types: expected 'int', found '()'", 116, 15);
         Assert.assertEquals(semanticsNegativeResult.getErrorCount(), i);
     }
