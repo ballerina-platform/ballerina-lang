@@ -924,15 +924,15 @@ function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }
 
-type neverRecord record {|
+type RecordWithNeverField record {|
     never x?;
 |};
 
-type openNeverRecord record {
+type OpenRecordWithNever record {
     never x?;
 };
 
-type neverRecordWithReadonly record {|
+type RecordWithNeverAndReadonly record {|
     never x?;
     readonly int y;
 |};
@@ -944,15 +944,15 @@ type neverRecordWithNotReadonly record {|
 
 function testNeverFieldRecord() {
     record {|
-            never x?;
-            never y?;
+        never x?;
+        never y?;
     |} c = {};
 
     readonly d = c;
     neverRecord e = {};
     openNeverRecord f = {};
-    neverRecordWithReadonly g = { y: 1 };
-    neverRecordWithNotReadonly h = { y: "abc" };
+    neverRecordWithReadonly g = {y: 1};
+    neverRecordWithNotReadonly h = {y: "abc"};
 
     assertTrue(d is record {|never x?; never y?;|} & readonly);
     assertTrue(e is record {|never x?;|} & readonly);
