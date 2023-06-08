@@ -2000,7 +2000,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangSimpleVariableDef variableDefStmt = ASTBuilderUtil.createVariableDefStmt(pos, parentBlockStmt);
             variableDefStmt.var = ASTBuilderUtil.createVariable(pos,
                     parentErrorVariable.restDetail.name.value,
-                                                                filteredDetail.getBType(),
+                    filteredDetail.getBType(),
                     ASTBuilderUtil.createVariableRef(pos, filteredDetail.symbol),
                     parentErrorVariable.restDetail.symbol);
         }
@@ -6395,6 +6395,26 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
+    // The visitor method is called for the function pointer nodes created in QueryDesugar.
+    @Override
+    public void visit(BFunctionPointerInvocation invocation) {
+        visitArgs(invocation);
+
+        invocation.expr = rewriteExpr(invocation.expr);
+        result = invocation;
+    }
+
+    private void visitArgs(BLangInvocation invocation) {
+        // Reorder the arguments to match the original function signature.
+        reorderArguments(invocation);
+
+        rewriteExprs(invocation.requiredArgs);
+        fixStreamTypeCastsInInvocationParams(invocation);
+        fixNonRestArgTypeCastInTypeParamInvocation(invocation);
+
+        rewriteExprs(invocation.restArgs);
+    }
+
     private BLangStatementExpression createStmtExpr(BLangInvocation invocation) {
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(invocation.pos);
         BInvokableTypeSymbol invokableTypeSymbol;
@@ -6495,7 +6515,7 @@ public class Desugar extends BLangNodeVisitor {
             for (BLangNamedArgsExpression namedArg : errorConstructorExpr.namedArgs) {
                 BLangRecordLiteral.BLangRecordKeyValueField member = new BLangRecordLiteral.BLangRecordKeyValueField();
                 member.key = new BLangRecordLiteral.BLangRecordKey(ASTBuilderUtil.createLiteral(namedArg.name.pos,
-                        symTable.stringType, namedArg.name.value));
+                        symTable.stringType, StringEscapeUtils.unescapeJava(namedArg.name.value)));
 
                 if (Types.getReferredType(recordLiteral.getBType()).tag == TypeTags.RECORD) {
                     member.valueExpr = addConversionExprIfRequired(namedArg.expr, symTable.anyType);
@@ -6745,14 +6765,7 @@ public class Desugar extends BLangNodeVisitor {
             lock.lockVariables.addAll(((BInvokableSymbol) invocation.symbol).dependentGlobalVars);
         }
 
-        // Reorder the arguments to match the original function signature.
-        reorderArguments(invocation);
-
-        rewriteExprs(invocation.requiredArgs);
-        fixStreamTypeCastsInInvocationParams(invocation);
-        fixNonRestArgTypeCastInTypeParamInvocation(invocation);
-
-        rewriteExprs(invocation.restArgs);
+        visitArgs(invocation);
 
         annotationDesugar.defineStatementAnnotations(invocation.annAttachments, invocation.pos,
                                                      invocation.symbol.pkgID, invocation.symbol.owner, env);
@@ -8861,9 +8874,16 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BFunctionPointerInvocation visitFunctionPointerInvocation(BLangInvocation iExpr) {
+        BLangExpression rewritten = rewriteExpr(getFunctionPointerExpr(iExpr));
+        return new BFunctionPointerInvocation(iExpr, rewritten);
+    }
+
+    protected BLangValueExpression getFunctionPointerExpr(BLangInvocation iExpr) {
         BLangValueExpression expr;
         if (iExpr.expr == null) {
-            expr = new BLangSimpleVarRef();
+            BLangSimpleVarRef varRef = new BLangSimpleVarRef();
+            varRef.variableName = iExpr.name;
+            expr = varRef;
         } else {
             BLangFieldBasedAccess fieldBasedAccess = new BLangFieldBasedAccess();
             fieldBasedAccess.expr = iExpr.expr;
@@ -8872,9 +8892,7 @@ public class Desugar extends BLangNodeVisitor {
         }
         expr.symbol = iExpr.symbol;
         expr.setBType(iExpr.symbol.type);
-
-        BLangExpression rewritten = rewriteExpr(expr);
-        return new BFunctionPointerInvocation(iExpr, rewritten);
+        return expr;
     }
 
     private BLangExpression visitCloneInvocation(BLangExpression expr, BType lhsType) {

@@ -16,12 +16,9 @@
  */
 package org.ballerinalang.test.annotations;
 
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.types.BAnnotatableType;
-import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -50,28 +47,6 @@ public class AnonymousTupleAnnotationTest {
         BRunUtil.invoke(result, function);
     }
 
-    @Test(description = "Test annotations of tuple members from the type")
-    public void testTupleAnnotations1() {
-        Object returns = BRunUtil.invoke(result, "testTupleMemberAnnotations1", new Object[]{});
-        TupleValueImpl returnTuple = (TupleValueImpl) returns;
-
-        Object annot1 = ((BAnnotatableType) returnTuple.getType()).getAnnotation(StringUtils.fromString("$field$.0"));
-        Object annot2 = ((BAnnotatableType) returnTuple.getType()).getAnnotation(StringUtils.fromString("$field$.1"));
-
-        Assert.assertTrue(annot1 instanceof BMap);
-        Assert.assertTrue(annot2 instanceof BMap);
-    }
-
-    @Test(description = "Test annotations of tuple members from the type")
-    public void testTupleAnnotations2() {
-        Object returns = BRunUtil.invoke(result, "testTupleMemberAnnotations2", new Object[]{});
-        TupleValueImpl returnTuple = (TupleValueImpl) returns;
-
-        Object annot1 = ((BAnnotatableType) returnTuple.getType()).getAnnotation(StringUtils.fromString("$field$.0"));
-
-        Assert.assertTrue(annot1 instanceof BMap);
-    }
-
     @DataProvider(name = "dataToTestAnnotationsOfLocalTuple")
     public Object[] dataToTestAnnotationsOfLocalTuple() {
         return new String[]{
@@ -79,9 +54,10 @@ public class AnonymousTupleAnnotationTest {
                 "testAnnotationOnTupleFields2",
                 "testAnnotationOnTupleWithGlobalVariable",
                 "testMultipleAnnotationsOnLocalTuple",
-                "testGlobalAnnotationsOnFunctionPointerReturnType",
+                "testTupleAnnotationsOnFunctionPointerReturnType",
                 "testGlobalAnnotationsOnFunctionReturnType",
-                "testGlobalAnnotationsOnFunctionParameterType"
+                "testGlobalAnnotationsOnFunctionParameterType",
+                "testTupleMemberAnnotations"
         };
     }
 

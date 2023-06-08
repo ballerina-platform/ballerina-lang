@@ -21,11 +21,14 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.ITestContext;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,8 +38,10 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import static io.ballerina.projects.test.TestUtils.assertTomlFilesEquals;
+import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
 import static io.ballerina.projects.util.ProjectConstants.BUILD_FILE;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.RESOURCE_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.TARGET_DIR_NAME;
 
@@ -49,6 +54,14 @@ public class OldPackageMigrationTests extends BaseTest {
 
     private static final Path RESOURCE_DIRECTORY =
             Paths.get("src/test/resources/projects_for_resolution_tests").toAbsolutePath();
+    private static Path tempResourceDir;
+
+    @BeforeClass
+    public void setup() throws IOException {
+        // copy the resource directory to a temp directory
+        tempResourceDir = Files.createTempDirectory("project-api-test");
+        FileUtils.copyDirectory(RESOURCE_DIRECTORY.toFile(), tempResourceDir.toFile());
+    }
 
     @Test
     public void testOldPackage(ITestContext ctx) throws IOException {
@@ -56,7 +69,7 @@ public class OldPackageMigrationTests extends BaseTest {
         // package_d --> package_b --> package_c
         // package_d --> package_e
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_d");
-        Path packagePath = RESOURCE_DIRECTORY.resolve("package_f");
+        Path packagePath = tempResourceDir.resolve("package_f");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(packagePath));
 
         deleteBuildFileAndDependenciesToml(packagePath);
@@ -73,9 +86,15 @@ public class OldPackageMigrationTests extends BaseTest {
 
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.diagnostics().forEach(OUT::println);
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1, "Unexpected compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 2, "Unexpected compilation diagnostics");
         Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
-        // Check the warning
+        // Check the warnings
+        String distributionVersion = getDistributionVersionForDiagnostics();
+        Assert.assertEquals(diagnosticIterator.next().message(),
+                "Detected an attempt to compile this package using Swan Lake Update " + distributionVersion + ". " +
+                        "However, this package was built using Swan Lake Update 4 or an older Update. " +
+                        "To ensure compatibility, execute `bal build` with Swan Lake Update " + distributionVersion
+                        + " to update the dependencies with the latest compatible versions.");
         Assert.assertEquals(diagnosticIterator.next().message(),
                 "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
         // Check updating to v2 the warning
@@ -89,9 +108,12 @@ public class OldPackageMigrationTests extends BaseTest {
         // package_d --> package_b --> package_c
         // package_d --> package_e
         // package_b and package_d are local packages
-        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_b"));
-        cacheDependencyToLocalRepository(RESOURCE_DIRECTORY.resolve("package_d"));
-        Path packagePath = RESOURCE_DIRECTORY.resolve("package_f_old_local");
+        Path packageBPath = tempResourceDir.resolve("package_b");
+        replaceDistributionVersionOfDependenciesToml(packageBPath, RepoUtils.getBallerinaShortVersion());
+
+        cacheDependencyToLocalRepository(packageBPath);
+        cacheDependencyToLocalRepository(tempResourceDir.resolve("package_d"));
+        Path packagePath = tempResourceDir.resolve("package_f_old_local");
         ctx.getCurrentXmlTest().addParameter("packagePath", String.valueOf(packagePath));
 
         deleteBuildFileAndDependenciesToml(packagePath);
@@ -108,8 +130,15 @@ public class OldPackageMigrationTests extends BaseTest {
 
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
         diagnosticResult.diagnostics().forEach(OUT::println);
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 3, "Unexpected compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 4, "Unexpected compilation diagnostics");
         Iterator<Diagnostic> diagnosticIterator = diagnosticResult.diagnostics().iterator();
+        // Check the older distribution version warning
+        String distributionVersion = getDistributionVersionForDiagnostics();
+        Assert.assertEquals(diagnosticIterator.next().message(),
+                "Detected an attempt to compile this package using Swan Lake Update " + distributionVersion + ". " +
+                        "However, this package was built using Swan Lake Update 4 or an older Update. " +
+                        "To ensure compatibility, execute `bal build` with Swan Lake Update " + distributionVersion +
+                        " to update the dependencies with the latest compatible versions.");
         // Check updating to v2 the warning
         Assert.assertEquals(diagnosticIterator.next().message(),
                 "Detected an old version of Dependencies.toml file. This will be updated to v2 format.");
@@ -146,5 +175,16 @@ public class OldPackageMigrationTests extends BaseTest {
         Files.deleteIfExists(packagePath.resolve(TARGET_DIR_NAME).resolve(BUILD_FILE));
         // Delete Dependencies.toml file if exists
         Files.deleteIfExists(packagePath.resolve(DEPENDENCIES_TOML));
+    }
+
+    private String getDistributionVersionForDiagnostics() {
+        String[] versionParts = RepoUtils.getBallerinaShortVersion().split("\\.");
+        int minor = Integer.parseInt(versionParts[1]);
+        int patch = Integer.parseInt(versionParts[2].split("-")[0]);
+        String versionForDiagnostic = String.valueOf(minor);
+        if (patch != 0) {
+            versionForDiagnostic += DOT + patch;
+        }
+        return versionForDiagnostic;
     }
 }

@@ -124,6 +124,7 @@
             <class name="io.ballerina.semantic.api.test.expectedtype.RemoteActionNodeTest" />
             <class name="io.ballerina.semantic.api.test.expectedtype.QueryExpressionTest" />
             <class name="io.ballerina.semantic.api.test.expectedtype.FunctionCallExpressionTest" />
+            <class name="io.ballerina.semantic.api.test.expectedtype.ClientResourceAccessActionNodeTest" />
 
             <!--Expressions-->
             <class name="io.ballerina.semantic.api.test.expressions.QueryExpressionTest" />
