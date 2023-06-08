@@ -171,7 +171,13 @@
                               "children": [
                                 {
                                   "kind": "IDENTIFIER_TOKEN",
-                                  "value": "err"
+                                  "value": "err",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -214,6 +220,10 @@
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
+                                },
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "        "
                                 },
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
@@ -305,6 +315,10 @@
                                   "value": "\n"
                                 },
                                 {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                },
+                                {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
@@ -354,7 +368,7 @@
                                     },
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "        "
+                                      "value": "    "
                                     }
                                   ],
                                   "trailingMinutiae": [
@@ -397,7 +411,7 @@
                                                       "leadingMinutiae": [
                                                         {
                                                           "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": "            "
+                                                          "value": "        "
                                                         }
                                                       ],
                                                       "trailingMinutiae": [
@@ -462,7 +476,7 @@
                                       "leadingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "        "
+                                          "value": "    "
                                         }
                                       ],
                                       "trailingMinutiae": [
@@ -532,7 +546,13 @@
                                               "children": [
                                                 {
                                                   "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "err"
+                                                  "value": "err",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -575,6 +595,10 @@
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
                                                   "value": "\n"
+                                                },
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": "        "
                                                 },
                                                 {
                                                   "kind": "INVALID_NODE_MINUTIAE",
@@ -666,6 +690,10 @@
                                                   "value": "\n"
                                                 },
                                                 {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": "    "
+                                                },
+                                                {
                                                   "kind": "INVALID_NODE_MINUTIAE",
                                                   "invalidNode": {
                                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
@@ -715,7 +743,7 @@
                                                     },
                                                     {
                                                       "kind": "WHITESPACE_MINUTIAE",
-                                                      "value": "            "
+                                                      "value": "    "
                                                     }
                                                   ],
                                                   "trailingMinutiae": [
@@ -748,7 +776,7 @@
                                                               "leadingMinutiae": [
                                                                 {
                                                                   "kind": "WHITESPACE_MINUTIAE",
-                                                                  "value": "                "
+                                                                  "value": "        "
                                                                 }
                                                               ],
                                                               "trailingMinutiae": [
@@ -781,7 +809,7 @@
                                                                           "leadingMinutiae": [
                                                                             {
                                                                               "kind": "WHITESPACE_MINUTIAE",
-                                                                              "value": "                    "
+                                                                              "value": "            "
                                                                             }
                                                                           ],
                                                                           "trailingMinutiae": [
@@ -824,7 +852,7 @@
                                                                                               "leadingMinutiae": [
                                                                                                 {
                                                                                                   "kind": "WHITESPACE_MINUTIAE",
-                                                                                                  "value": "                        "
+                                                                                                  "value": "                "
                                                                                                 }
                                                                                               ],
                                                                                               "trailingMinutiae": [
@@ -865,7 +893,7 @@
                                                                               "leadingMinutiae": [
                                                                                 {
                                                                                   "kind": "WHITESPACE_MINUTIAE",
-                                                                                  "value": "                    "
+                                                                                  "value": "            "
                                                                                 }
                                                                               ],
                                                                               "trailingMinutiae": [
@@ -886,7 +914,7 @@
                                                                   "leadingMinutiae": [
                                                                     {
                                                                       "kind": "WHITESPACE_MINUTIAE",
-                                                                      "value": "                "
+                                                                      "value": "       "
                                                                     }
                                                                   ],
                                                                   "trailingMinutiae": [
@@ -907,7 +935,7 @@
                                                       "leadingMinutiae": [
                                                         {
                                                           "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": "            "
+                                                          "value": "    "
                                                         }
                                                       ],
                                                       "trailingMinutiae": [
@@ -977,7 +1005,13 @@
                                                               "children": [
                                                                 {
                                                                   "kind": "IDENTIFIER_TOKEN",
-                                                                  "value": "err"
+                                                                  "value": "err",
+                                                                  "trailingMinutiae": [
+                                                                    {
+                                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                                      "value": " "
+                                                                    }
+                                                                  ]
                                                                 }
                                                               ]
                                                             },
@@ -1020,6 +1054,10 @@
                                                                 {
                                                                   "kind": "END_OF_LINE_MINUTIAE",
                                                                   "value": "\n"
+                                                                },
+                                                                {
+                                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                                  "value": "        "
                                                                 },
                                                                 {
                                                                   "kind": "INVALID_NODE_MINUTIAE",
@@ -1111,6 +1149,10 @@
                                                                   "value": "\n"
                                                                 },
                                                                 {
+                                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                                  "value": "    "
+                                                                },
+                                                                {
                                                                   "kind": "INVALID_NODE_MINUTIAE",
                                                                   "invalidNode": {
                                                                     "kind": "INVALID_TOKEN_MINUTIAE_NODE",
@@ -1160,7 +1202,7 @@
                                                                     },
                                                                     {
                                                                       "kind": "WHITESPACE_MINUTIAE",
-                                                                      "value": "                "
+                                                                      "value": "    "
                                                                     }
                                                                   ],
                                                                   "trailingMinutiae": [
@@ -1196,7 +1238,7 @@
                                                                               "leadingMinutiae": [
                                                                                 {
                                                                                   "kind": "WHITESPACE_MINUTIAE",
-                                                                                  "value": "                    "
+                                                                                  "value": "        "
                                                                                 }
                                                                               ],
                                                                               "trailingMinutiae": [
@@ -1232,7 +1274,7 @@
                                                                                           "leadingMinutiae": [
                                                                                             {
                                                                                               "kind": "WHITESPACE_MINUTIAE",
-                                                                                              "value": "                        "
+                                                                                              "value": "            "
                                                                                             }
                                                                                           ],
                                                                                           "trailingMinutiae": [
@@ -1275,7 +1317,7 @@
                                                                                                               "leadingMinutiae": [
                                                                                                                 {
                                                                                                                   "kind": "WHITESPACE_MINUTIAE",
-                                                                                                                  "value": "                            "
+                                                                                                                  "value": "                "
                                                                                                                 }
                                                                                                               ],
                                                                                                               "trailingMinutiae": [
@@ -1316,7 +1358,7 @@
                                                                                               "leadingMinutiae": [
                                                                                                 {
                                                                                                   "kind": "WHITESPACE_MINUTIAE",
-                                                                                                  "value": "                        "
+                                                                                                  "value": "            "
                                                                                                 }
                                                                                               ],
                                                                                               "trailingMinutiae": [
@@ -1386,7 +1428,13 @@
                                                                                                       "children": [
                                                                                                         {
                                                                                                           "kind": "IDENTIFIER_TOKEN",
-                                                                                                          "value": "err"
+                                                                                                          "value": "err",
+                                                                                                          "trailingMinutiae": [
+                                                                                                            {
+                                                                                                              "kind": "WHITESPACE_MINUTIAE",
+                                                                                                              "value": " "
+                                                                                                            }
+                                                                                                          ]
                                                                                                         }
                                                                                                       ]
                                                                                                     },
@@ -1429,6 +1477,10 @@
                                                                                                         {
                                                                                                           "kind": "END_OF_LINE_MINUTIAE",
                                                                                                           "value": "\n"
+                                                                                                        },
+                                                                                                        {
+                                                                                                          "kind": "WHITESPACE_MINUTIAE",
+                                                                                                          "value": "                "
                                                                                                         },
                                                                                                         {
                                                                                                           "kind": "INVALID_NODE_MINUTIAE",
@@ -1520,6 +1572,10 @@
                                                                                                           "value": "\n"
                                                                                                         },
                                                                                                         {
+                                                                                                          "kind": "WHITESPACE_MINUTIAE",
+                                                                                                          "value": "            "
+                                                                                                        },
+                                                                                                        {
                                                                                                           "kind": "INVALID_NODE_MINUTIAE",
                                                                                                           "invalidNode": {
                                                                                                             "kind": "INVALID_TOKEN_MINUTIAE_NODE",
@@ -1561,7 +1617,7 @@
                                                                                                   "leadingMinutiae": [
                                                                                                     {
                                                                                                       "kind": "WHITESPACE_MINUTIAE",
-                                                                                                      "value": "                                                 "
+                                                                                                      "value": "        "
                                                                                                     }
                                                                                                   ],
                                                                                                   "trailingMinutiae": [
@@ -1584,7 +1640,7 @@
                                                                                   "leadingMinutiae": [
                                                                                     {
                                                                                       "kind": "WHITESPACE_MINUTIAE",
-                                                                                      "value": "                    "
+                                                                                      "value": "    "
                                                                                     }
                                                                                   ],
                                                                                   "trailingMinutiae": [
@@ -1654,7 +1710,13 @@
                                                                                           "children": [
                                                                                             {
                                                                                               "kind": "IDENTIFIER_TOKEN",
-                                                                                              "value": "err"
+                                                                                              "value": "err",
+                                                                                              "trailingMinutiae": [
+                                                                                                {
+                                                                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                                                                  "value": " "
+                                                                                                }
+                                                                                              ]
                                                                                             }
                                                                                           ]
                                                                                         },
@@ -1697,6 +1759,10 @@
                                                                                             {
                                                                                               "kind": "END_OF_LINE_MINUTIAE",
                                                                                               "value": "\n"
+                                                                                            },
+                                                                                            {
+                                                                                              "kind": "WHITESPACE_MINUTIAE",
+                                                                                              "value": "        "
                                                                                             },
                                                                                             {
                                                                                               "kind": "INVALID_NODE_MINUTIAE",
@@ -1788,6 +1854,10 @@
                                                                                               "value": "\n"
                                                                                             },
                                                                                             {
+                                                                                              "kind": "WHITESPACE_MINUTIAE",
+                                                                                              "value": "    "
+                                                                                            },
+                                                                                            {
                                                                                               "kind": "INVALID_NODE_MINUTIAE",
                                                                                               "invalidNode": {
                                                                                                 "kind": "INVALID_TOKEN_MINUTIAE_NODE",
@@ -1826,12 +1896,6 @@
                                                                                     },
                                                                                     {
                                                                                       "kind": "CLOSE_BRACE_TOKEN",
-                                                                                      "leadingMinutiae": [
-                                                                                        {
-                                                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                                                          "value": "                                         "
-                                                                                        }
-                                                                                      ],
                                                                                       "trailingMinutiae": [
                                                                                         {
                                                                                           "kind": "END_OF_LINE_MINUTIAE",
