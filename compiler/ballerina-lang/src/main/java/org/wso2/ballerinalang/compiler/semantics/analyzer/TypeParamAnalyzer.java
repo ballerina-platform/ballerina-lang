@@ -591,6 +591,7 @@ public class TypeParamAnalyzer {
                                       SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         LinkedHashSet<BType> members = new LinkedHashSet<>();
         for (BType type : actualType.getMemberTypes()) {
+            type = Types.getReferredType(type);
             if (type.tag == TypeTags.ARRAY) {
                 members.add(((BArrayType) type).eType);
             }

@@ -26,6 +26,7 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.internal.bala.BalToolJson;
 import io.ballerina.projects.internal.bala.BalaJson;
 import io.ballerina.projects.internal.bala.CompilerPluginJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
@@ -165,6 +166,14 @@ public class TestBalaWriter {
             Assert.assertEquals(compilerPluginJson.pluginId(), "openapi-validator");
             Assert.assertEquals(compilerPluginJson.pluginClass(), "io.ballerina.openapi.Validator");
             Assert.assertEquals(compilerPluginJson.dependencyPaths().size(), 1);
+        }
+
+        // bal-tool.json
+        Path balToolJsonPath = balaExportPath.resolve("tool").resolve("bal-tool.json");
+        try (FileReader reader = new FileReader(String.valueOf(balToolJsonPath))) {
+            BalToolJson balToolJson = gson.fromJson(reader, BalToolJson.class);
+            Assert.assertEquals(balToolJson.toolId(), "openapi");
+            Assert.assertEquals(balToolJson.dependencyPaths().size(), 1);
         }
 
         // Check if compiler plugin dependencies exists

@@ -231,6 +231,17 @@ public class CommonUtil {
     }
 
     /**
+     * As per LSP, characters like \ and $ should be escaped when using them as insert text.
+     *
+     * @param text The text to be processed
+     * @return Processed text
+     */
+    public static String escapeSpecialCharsInInsertText(String text) {
+        return text.replaceAll("\\\\", "\\\\\\\\")
+                .replaceAll("\\$", Matcher.quoteReplacement("\\$"));
+    }
+
+    /**
      * Find node of this range.
      *
      * @param range      {@link Range}
@@ -282,7 +293,11 @@ public class CommonUtil {
             if (typeRef.typeDescriptor().typeKind() == TypeDescKind.INTERSECTION) {
                 return getRawType(((IntersectionTypeSymbol) typeRef.typeDescriptor()).effectiveTypeDescriptor());
             }
-            return typeRef.typeDescriptor();
+            TypeSymbol rawType = typeRef.typeDescriptor();
+            if (rawType.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                return getRawType(rawType);
+            }
+            return rawType;
         }
         return typeDescriptor;
     }

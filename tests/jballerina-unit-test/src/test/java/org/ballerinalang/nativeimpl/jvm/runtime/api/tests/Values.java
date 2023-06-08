@@ -58,6 +58,7 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFunctionType;
 import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import org.jetbrains.annotations.Nullable;
 
@@ -460,5 +461,28 @@ public class Values {
         }
         BString annotKey = StringUtils.fromString("testorg/types.typeref:1:String");
         return TypeChecker.checkIsType(((BMap) annotation).get(annotKey), constraint.getDescribingType());
+    }
+
+    public static BString getParameterName(BFunctionPointer fpValue) {
+        Parameter parameter = ((BFunctionType) fpValue.getType()).getParameters()[0];
+        return StringUtils.fromString(parameter.name);
+    }
+
+    public static BString getParameterNameFromResource(BTypedesc type) {
+        BServiceType serviceType = (BServiceType) type.getDescribingType();
+        ResourceMethodType resourceMethod = serviceType.getResourceMethods()[0];
+        Parameter parameter = resourceMethod.getParameters()[0];
+        return StringUtils.fromString(parameter.name);
+    }
+
+    public static BArray getParamNamesFromObjectInit(BObject object) {
+        ObjectType objectType = object.getType();
+        MethodType initMethodtype = objectType.getInitMethod();
+        Parameter[] parameters = initMethodtype.getParameters();
+        BArray paramNames = ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING));
+        for (int i = 0; i < parameters.length; i++) {
+            paramNames.add(i, StringUtils.fromString(parameters[i].name));
+        }
+        return paramNames;
     }
 }

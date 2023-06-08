@@ -140,3 +140,7 @@ public function main() {
 function myFunction(string arg1, string arg2, int arg3 = 101) {
 
 }
+
+public function testLangLibFunctionCall() {
+    any|error johnName = function:call();
+}
