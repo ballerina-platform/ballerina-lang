@@ -11892,13 +11892,12 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        if (peek().kind == SyntaxKind.DO_KEYWORD) {
-            STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
-            STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
-            return parseQueryAction(queryConstructType, queryPipeline, selectClause);
-        }
-
         if (selectClause == null) {
+            if (peek().kind == SyntaxKind.DO_KEYWORD) {
+                STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
+                STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
+                return parseQueryAction(queryConstructType, queryPipeline, null);
+            }
             STNode selectKeyword = SyntaxErrors.createMissingToken(SyntaxKind.SELECT_KEYWORD);
             STNode expr = STNodeFactory
                     .createSimpleNameReferenceNode(SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
