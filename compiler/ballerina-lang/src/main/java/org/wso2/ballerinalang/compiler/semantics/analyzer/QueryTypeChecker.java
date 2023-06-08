@@ -91,6 +91,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -452,7 +453,9 @@ public class QueryTypeChecker extends TypeChecker {
             resolvedTypes.addAll(possibleResolvedTypes);
         } else {
             if (errorTypes.size() > 1) {
-                checkExpr(selectExp, env, BUnionType.create(null, errorTypes), data);
+                BType actualQueryType = silentTypeCheckExpr(queryExpr, symTable.noType, data);
+                types.checkType(queryExpr, actualQueryType, 
+                        BUnionType.create(null, new LinkedHashSet<>(expTypes)));
             } else if (errorTypes.size() == 1) {
                 checkExpr(selectExp, env, errorTypes.iterator().next(), data);
             }
