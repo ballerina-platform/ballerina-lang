@@ -1,0 +1,48 @@
+NAME
+       ballerina-tool - Manage the tools provided by Ballerina
+
+SYNOPSIS
+       bal tool <command> [<-h> |<--help>]
+       bal tool <command> [args]
+
+DESCRIPTION
+       Manage Ballerina command line tools via bal tool chain.
+
+       Facilitate pulling tools from Ballerina Central and removing
+       previously pulled tools.
+
+       Provide subcommands to list all the locally available tools and search
+       for tools that are available in Ballerina Central.
+
+OPTIONS
+       -h, --help
+           Print the usage details of all tool commands.
+
+TOOL COMMANDS
+        The following is a list of available subcommands:
+
+        pull        Pull a tool from Ballerina Central.
+        list        List all the tools available locally.
+        search      Search Ballerina Central for tools.
+        remove      Remove a tool.
+
+EXAMPLES
+       Pull a tool from Ballerina Central.
+           $ bal tool pull openapi
+
+       Pull a specific version of a tool from Ballerina Central.
+           $ bal tool pull openapi:1.5.0
+
+       List all the tools available locally.
+           $ bal tool list
+
+       Search Ballerina Central for tools.
+           $ bal tool search openapi
+
+       Remove a specific version of previously pulled tool.
+           $ bal tool remove openapi:1.5.0
+
+       Remove all the versions of a previously pulled tool.
+           $ bal tool remove openapi
+
+Use 'bal tool <command> --help' for more information on a specific command.

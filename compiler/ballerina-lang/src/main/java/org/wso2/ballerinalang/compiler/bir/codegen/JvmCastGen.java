@@ -68,6 +68,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BREF_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_HANDLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
@@ -89,7 +90,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALU
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NUMBER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REG_EXP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SIMPLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
@@ -727,7 +727,7 @@ public class JvmCastGen {
                 }
 
                 mv.visitInsn(DUP);
-                mv.visitTypeInsn(INSTANCEOF, REF_VALUE);
+                mv.visitTypeInsn(INSTANCEOF, BREF_VALUE);
                 mv.visitJumpInsn(IFNE, afterHandle);
 
                 int returnJObjectVarRefIndex = indexMap.addIfNotExists("$_ret_jobject_val_$", symbolTable.anyType);
@@ -1338,8 +1338,7 @@ public class JvmCastGen {
     private void checkCast(MethodVisitor mv, BType targetType) {
 
         jvmTypeGen.loadType(mv, targetType);
-        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkCast",
-                           CHECK_CAST, false);
+        mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "checkCast", CHECK_CAST, false);
     }
 
     static String getTargetClass(BType targetType) {

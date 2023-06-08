@@ -47,7 +47,7 @@ import static io.ballerina.cli.cmd.Constants.DOC_COMMAND;
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = DOC_COMMAND, description = "Ballerina doc - Generates API Documentation")
+@CommandLine.Command(name = DOC_COMMAND, description = "Generate current package's documentation")
 public class DocCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
@@ -195,8 +195,7 @@ public class DocCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Generates API Documentation for Ballerina projects. \n");
-        out.append("\n");
+        out.append(BLauncherCmd.getCommandUsageInfo(DOC_COMMAND));
     }
 
     @Override
@@ -215,8 +214,8 @@ public class DocCommand implements BLauncherCmd {
                 .setCodeCoverage(false)
                 .setOffline(offline)
                 .setTestReport(false)
-                .setObservabilityIncluded(false)
-                .build();
+                .setObservabilityIncluded(false);
+
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

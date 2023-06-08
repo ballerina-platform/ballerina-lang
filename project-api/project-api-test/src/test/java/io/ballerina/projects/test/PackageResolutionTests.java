@@ -88,6 +88,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.test.TestUtils.isWindows;
+import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -135,9 +136,10 @@ public class PackageResolutionTests extends BaseTest {
     }
 
     @Test(description = "tests resolution with one direct dependency")
-    public void testProjectWithOneDependency() {
+    public void testProjectWithOneDependency() throws IOException {
         // package_b --> package_c
         Path projectDirPath = tempResourceDir.resolve("package_b");
+        replaceDistributionVersionOfDependenciesToml(projectDirPath, RepoUtils.getBallerinaShortVersion());
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
@@ -459,9 +461,10 @@ public class PackageResolutionTests extends BaseTest {
     }
 
     @Test(description = "tests resolution with one transitive dependency")
-    public void testProjectWithOneTransitiveDependency() {
+    public void testProjectWithOneTransitiveDependency() throws IOException {
         // package_a --> package_b --> package_c
         Path projectDirPath = tempResourceDir.resolve("package_a");
+        replaceDistributionVersionOfDependenciesToml(projectDirPath, RepoUtils.getBallerinaShortVersion());
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
         PackageCompilation compilation = buildProject.currentPackage().getCompilation();
 
