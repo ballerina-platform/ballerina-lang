@@ -5086,7 +5086,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         this.dlog.mute();
 
         expr.cloneAttempt++;
-        BType exprCompatibleType = checkExpr(nodeCloner.cloneNode(expr), env, binaryExpr.expectedType, data);
+        BType exprCompatibleType = checkExpr(nodeCloner.cloneNodeOnce(expr), env, binaryExpr.expectedType, data);
         data.commonAnalyzerData.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         int errorCount = this.dlog.errorCount();
         this.dlog.setErrorCount(prevErrorCount);
