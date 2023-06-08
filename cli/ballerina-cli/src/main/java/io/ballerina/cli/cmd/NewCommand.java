@@ -159,7 +159,7 @@ public class NewCommand implements BLauncherCmd {
 
             //Check if package files/directories other than .bal files exist.
             String packageFiles = checkPackageFilesExists(packagePath);
-            if (!packageFiles.equals("")) {
+            if (!packageFiles.equals("") && !template.equals(DEFAULT_TEMPLATE)) {
                 CommandUtil.printError(errStream,
                         "Existing " + packageFiles.substring(0, packageFiles.length() - 2) +
                                 " file/directory(s) were found. " +

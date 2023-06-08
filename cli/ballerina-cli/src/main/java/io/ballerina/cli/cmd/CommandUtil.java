@@ -765,8 +765,10 @@ public class CommandUtil {
         if (Files.notExists(gitignore)) {
             Files.createFile(gitignore);
         }
-        String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
-        Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
+        if (Files.size(gitignore) == 0) {
+            String defaultGitignore = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + GITIGNORE);
+            Files.write(gitignore, defaultGitignore.getBytes(StandardCharsets.UTF_8));
+        }
     }
 
     private static void createDefaultDevContainer(Path path) throws IOException {
@@ -774,9 +776,11 @@ public class CommandUtil {
         if (Files.notExists(devContainer)) {
             Files.createFile(devContainer);
         }
-        String defaultDevContainer = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + DEVCONTAINER);
-        defaultDevContainer = defaultDevContainer.replace("latest", RepoUtils.getBallerinaVersion());
-        Files.write(devContainer, defaultDevContainer.getBytes(StandardCharsets.UTF_8));
+        if (Files.size(devContainer) == 0) {
+            String defaultDevContainer = FileUtils.readFileAsString(NEW_CMD_DEFAULTS + "/" + DEVCONTAINER);
+            defaultDevContainer = defaultDevContainer.replace("latest", RepoUtils.getBallerinaVersion());
+            Files.write(devContainer, defaultDevContainer.getBytes(StandardCharsets.UTF_8));
+        }
     }
 
     /**
@@ -997,8 +1001,7 @@ public class CommandUtil {
      */
     public static String checkPackageFilesExists(Path packagePath) {
         String[] packageFiles = {DEPENDENCIES_TOML, ProjectConstants.PACKAGE_MD_FILE_NAME,
-                ProjectConstants.MODULE_MD_FILE_NAME, ProjectConstants.MODULES_ROOT, ProjectConstants.TEST_DIR_NAME,
-                ProjectConstants.GITIGNORE_FILE_NAME, ProjectConstants.DEVCONTAINER};
+                ProjectConstants.MODULE_MD_FILE_NAME, ProjectConstants.MODULES_ROOT, ProjectConstants.TEST_DIR_NAME};
         String existingFiles = "";
 
         for (String file : packageFiles) {
