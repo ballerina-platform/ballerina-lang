@@ -67,8 +67,9 @@ function testInvalidUsageOfListBPInUnion() {
     [string, boolean]|[int] [name3, married3] = fn3();
     [string, boolean]|[int] [name4, married4] = fn4();
     [string, boolean]|[int] [name5, married5] = fn5();
-    [string, boolean]|error [name6, married] = fn6();
+    [string, boolean]|error [name6, married6] = fn6();
     [string, int, boolean...]|int [name7, age, ...status] = fn7();
+    [boolean, int]|[string, float] [m1, m2] = fn9();
 }
 
 function fn1() returns [string, boolean]|int => 1;
@@ -78,3 +79,52 @@ function fn4() returns [string, boolean]|[int] => ["Anne"];
 function fn5() returns [string, boolean]|[int] => ["Anne", true];
 function fn6() returns [string, boolean]|error => error("Oops!");
 function fn7() returns [string, int, boolean...]|int => ["Anne", 40, true];
+function fn9() returns [int, boolean]|[string, float] => [1, true];
+
+type Person1 record {|
+    int id;
+    string fname;
+|};
+
+type Person2 record {|
+    int id;
+|};
+
+type Person3 record {|
+    int id;
+    boolean...;
+|};
+
+type Person4 record {|
+    int id;
+    string fname?;
+|};
+
+function testInvalidUsageOfRecordBPInUnion() {
+    Person1|error  {id: pId1, fname: pFname1} = fn10();
+    Person2|Person1  {id: pId2, fname: pFname2} = fn11();
+    Person1|Person2  {id: pId4, fname: pFname4} = fn12();
+    Person1|int  {id: pId3, fname: pFname3} = fn13();
+    Person1|Person2 {id: pId5, fname: pFname5} = fn14();
+    Person3|int {id: pId6} = fn15();
+    Person3|int {id: pId7, ...otherDetails} = fn15();
+    Person4|Person1 {id: pId8, fname:pFname6} = fn16();
+    record {|int empId;|}|Person1 {id: pId9, fname:pFname9} = fn17();
+    Person1|record {|string id; byte fname;|} {id: pId10, fname: pFname10} = fn18();
+}
+
+function fn10() returns Person1|error => error("Oops!");
+function fn11() returns Person1|Person2 => {id: 12};
+function fn12() returns Person1|Person2 => {id: 12, fname: "Deelaka"};
+function fn13() returns Person1|int => 1;
+function fn14() returns Person2 => {id: 12};
+function fn15() returns Person3|int => {id:12, "status": true};
+function fn16() returns Person4|Person1 => {id:12};
+function fn17() returns Person1|record {|int empId;|} => {empId: 12};
+function fn18() returns Person1|record {|byte id; boolean fname;|} => {id: 1, fname: true};
+
+function testInvalidUsageOfErrorBPInUnion() {
+    int|error error(msg) = fn19();
+}
+
+function fn19() returns int|error => error("Oops!");

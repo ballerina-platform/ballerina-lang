@@ -2786,8 +2786,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_RECORD_BINDING_PATTERN, recordType);
                 return false;
         }
-
-        return defineVariableList(recordVar, recordVarType, env);
+        boolean status = defineVariableList(recordVar, recordVarType, env);
+        recordVar.setBType(recordVarType);
+        return status;
     }
 
     private BRecordType populatePossibleFields(BLangRecordVariable recordVar, List<BType> possibleTypes,

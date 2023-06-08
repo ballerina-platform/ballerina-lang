@@ -123,7 +123,6 @@ public class UnionTypeTest {
     @Test(description = "Test negative cases")
     public void testAmbiguousAssignment() {
         int i = 0;
-        Assert.assertEquals(negativeResult.getErrorCount(), 15);
         BAssertUtil.validateError(negativeResult, i++, "ambiguous type '(ClosedBar|ClosedFoo)'", 43, 30);
         BAssertUtil.validateError(negativeResult, i++, "ambiguous type '(ClosedBar|OpenBar)'", 44, 28);
         BAssertUtil.validateError(negativeResult, i++, "incompatible mapping constructor expression for type '" +
@@ -149,9 +148,34 @@ public class UnionTypeTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
                 "'[string,boolean]', found '([string,boolean]|[int])'", 69, 49);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
-                "'[string,boolean]', found '([string,boolean]|error)'", 70, 48);
-        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected " +
+                "'[string,boolean]', found '([string,boolean]|error)'", 70, 49);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
                 "'[string,int,boolean...]', found '([string,int,boolean...]|int)'", 71, 61);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: " +
+                "expected '[(boolean|string),(int|float)]', found '([int,boolean]|[string,float])'", 72, 47);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'Person1', found '(Person1|error)'", 104, 49);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'Person1', found '(Person1|Person2)'", 105, 51);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'Person1', found '(Person1|Person2)'", 106, 51);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'Person1', found '(Person1|int)'", 107, 47);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'Person1', found 'Person2'", 108, 50);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'Person3', found '(Person3|int)'", 109, 30);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'Person3', found '(Person3|int)'", 110, 47);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'anonymous-record', found '(Person4|Person1)'", 111, 49);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'Person1', found '(Person1|record {| int empId; |})'", 112, 63);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'anonymous-record', found '(Person1|record {| byte id; boolean fname; |})'", 113, 78);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'error', found '(int|error)'", 127, 28);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test(description = "Test nullable check")

@@ -419,22 +419,30 @@ function testParenthesisedSingletonUnionType() {
 
 function testValidUsageOfListBPInUnion() {
     [string, boolean]|[int] [name1, married1] = fn1();
-    assertEquality(true, name1 is string);
-    assertEquality(true, married1 is boolean);
     assertEquality("Anne", name1);
     assertEquality(false, married1);
 
     [string, int, boolean...]|int [name2, age2, ...status] = fn2();
-    assertEquality(true, name2 is string);
-    assertEquality(true, age2 is int);
-    assertEquality(true, status is [boolean...]);
     assertEquality("Anne", name1);
     assertEquality(40, age2);
     assertEquality(true, status[0]);
+
+    [int, boolean]|[string, float] [m1, m2] = fn3();
+    int|string a1 = m1;
+    boolean|float b1 = m2;
+    assertEquality(1, a1);
+    assertEquality(true, b1);
+
+    int[5]|[int, int, int] [a2, b2, ...c2] = fn4();
+    assertEquality(1, a2);
+    assertEquality(2, b2);
+    assertEquality(c2[0], 3);
 }
 
 function fn1() returns [string, boolean] => ["Anne"];
 function fn2() returns [string, int, boolean...] => ["Anne", 40, true];
+function fn3() returns [int, boolean]|[string, float] => [1, true];
+function fn4() returns [int, int, int]|int[5] => <int[5]> [1, 2, 3];
 
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
