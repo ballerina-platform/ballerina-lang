@@ -41,6 +41,7 @@ import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.util.ProjectUtils;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
@@ -50,7 +51,10 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -64,6 +68,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
+
 /**
  * Contains cases to test dependency graph changes with package edits.
  *
@@ -73,8 +79,14 @@ public class DependencyGraphTests extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources").toAbsolutePath();
     private static final ResolutionOptions resolutionOptions = ResolutionOptions.builder().setOffline(true).build();
     ProjectEnvironmentBuilder projectEnvironmentBuilder;
+    private static Path tempResourceDir;
+
     @BeforeClass
-    public void setup() {
+    public void setup() throws IOException {
+        // copy the resource directory to a temp directory
+        tempResourceDir = Files.createTempDirectory("project-api-test");
+        FileUtils.copyDirectory(RESOURCE_DIRECTORY.toFile(), tempResourceDir.toFile());
+
         // dist => cache (0.1.0), io (1.4.2)
         // central => cache (0.1.0), io (1.5.0)
         BCompileUtil.compileAndCacheBala(
@@ -96,13 +108,14 @@ public class DependencyGraphTests extends BaseTest {
     }
 
     @Test
-    public void testVersionChange() {
+    public void testVersionChange() throws IOException {
         /* test_dependencies_package --> package_dep (0.1.0), package_c
          * Specify minimum version for package_dep as 0.1.1
          */
 
         // 1) load the project
-        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
+        Path projectPath = tempResourceDir.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
+        replaceDistributionVersionOfDependenciesToml(projectPath, RepoUtils.getBallerinaShortVersion());
 
         // Create build options with sticky
         BuildProject project = TestUtils.loadBuildProject(projectPath, BuildOptions.builder().setSticky(true).build());
@@ -155,14 +168,16 @@ public class DependencyGraphTests extends BaseTest {
     }
 
     @Test
-    public void testRemoveDependency() {
+    public void testRemoveDependency() throws IOException {
         /*
          * package_b.mod_b2 --> package_c.mod_c1
          * Remove package_c dependency
          */
 
         // 1) load the project
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests/package_b");
+        Path projectDirPath = tempResourceDir.resolve("projects_for_resolution_tests/package_b");
+        replaceDistributionVersionOfDependenciesToml(projectDirPath, RepoUtils.getBallerinaShortVersion());
+
         BuildProject project = TestUtils.loadBuildProject(projectDirPath);
         DependencyGraph<ResolvedPackageDependency> dependencyGraphOld =
                 project.currentPackage().getResolution().dependencyGraph();
@@ -197,14 +212,15 @@ public class DependencyGraphTests extends BaseTest {
     }
 
     @Test
-    public void testAddDependency() {
+    public void testAddDependency() throws IOException {
         /*
          * package_b.mod_b2 --> package_c.mod_c1
          * Import package_e
          */
 
         // 1) load the project
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests/package_b");
+        Path projectDirPath = tempResourceDir.resolve("projects_for_resolution_tests/package_b");
+        replaceDistributionVersionOfDependenciesToml(projectDirPath, RepoUtils.getBallerinaShortVersion());
         BuildProject project = TestUtils.loadBuildProject(projectDirPath);
         DependencyGraph<ResolvedPackageDependency> dependencyGraphOld =
                 project.currentPackage().getResolution().dependencyGraph();
@@ -247,14 +263,15 @@ public class DependencyGraphTests extends BaseTest {
     }
 
     @Test
-    public void testRemoveAndAddDependencies() {
+    public void testRemoveAndAddDependencies() throws IOException {
         /*
          * package_b.mod_b2 --> package_c.mod_c1
          * Import package_e. remove pacakge_c.mod_c1
          */
 
         // 1) load the project
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests/package_b");
+        Path projectDirPath = tempResourceDir.resolve("projects_for_resolution_tests/package_b");
+        replaceDistributionVersionOfDependenciesToml(projectDirPath, RepoUtils.getBallerinaShortVersion());
         BuildProject project = TestUtils.loadBuildProject(projectDirPath);
         DependencyGraph<ResolvedPackageDependency> dependencyGraphOld =
                 project.currentPackage().getResolution().dependencyGraph();
@@ -289,14 +306,15 @@ public class DependencyGraphTests extends BaseTest {
     }
 
     @Test
-    public void testUnaffectedEdit() {
+    public void testUnaffectedEdit() throws IOException {
         /*
          * package_b.mod_b2 --> package_c.mod_c1
          * Import package_e
          */
 
         // 1) load the project
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests/package_b");
+        Path projectDirPath = tempResourceDir.resolve("projects_for_resolution_tests/package_b");
+        replaceDistributionVersionOfDependenciesToml(projectDirPath, RepoUtils.getBallerinaShortVersion());
         BuildProject project = TestUtils.loadBuildProject(projectDirPath);
         DependencyGraph<ResolvedPackageDependency> dependencyGraphOld =
                 project.currentPackage().getResolution().dependencyGraph();
@@ -331,14 +349,15 @@ public class DependencyGraphTests extends BaseTest {
     }
 
     @Test
-    public void testMissingTransitiveDependency() {
+    public void testMissingTransitiveDependency() throws IOException {
         /*
          * package_a --> package_b(0.1.0) --> package_c(0.1.0)
          * Specify package_c(0.3.0) in Ballerina.toml
          * Revert Ballerina.toml changes
          */
 
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_resolution_tests/package_a");
+        Path projectDirPath = tempResourceDir.resolve("projects_for_resolution_tests/package_a");
+        replaceDistributionVersionOfDependenciesToml(projectDirPath, RepoUtils.getBallerinaShortVersion());
         BuildProject project = TestUtils.loadBuildProject(projectDirPath);
         DependencyGraph<ResolvedPackageDependency> dependencyGraphOld =
                 project.currentPackage().getResolution().dependencyGraph();
@@ -404,7 +423,7 @@ public class DependencyGraphTests extends BaseTest {
     @Test
     public void testVersionResolutionSOFT() {
         // http -> io, cache -> io (1.4.2)
-        Path projectDirPath = RESOURCE_DIRECTORY
+        Path projectDirPath = tempResourceDir
                 .resolve("projects_for_resolution_tests/ultimate_package_resolution/package_http");
         BuildProject project = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         PackageResolver packageResolver = project.projectEnvironmentContext().getService(PackageResolver.class);
@@ -463,7 +482,7 @@ public class DependencyGraphTests extends BaseTest {
     @Test
     public void testVersionResolutionMEDIUM() {
         // http -> io, cache -> io (1.4.2)
-        Path projectDirPath = RESOURCE_DIRECTORY
+        Path projectDirPath = tempResourceDir
                 .resolve("projects_for_resolution_tests/ultimate_package_resolution/package_http");
         BuildProject project = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         PackageResolver packageResolver = project.projectEnvironmentContext().getService(PackageResolver.class);
@@ -543,7 +562,7 @@ public class DependencyGraphTests extends BaseTest {
     @Test
     public void testVersionResolutionHARD() {
         // http -> io, cache -> io (1.4.2)
-        Path projectDirPath = RESOURCE_DIRECTORY
+        Path projectDirPath = tempResourceDir
                 .resolve("projects_for_resolution_tests/ultimate_package_resolution/package_http");
         BuildProject project = TestUtils.loadBuildProject(projectEnvironmentBuilder, projectDirPath);
         PackageResolver packageResolver = project.projectEnvironmentContext().getService(PackageResolver.class);

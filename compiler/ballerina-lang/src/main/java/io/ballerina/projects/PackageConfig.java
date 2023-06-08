@@ -38,6 +38,7 @@ public class PackageConfig {
     private final DocumentConfig dependenciesToml;
     private final DocumentConfig cloudToml;
     private final DocumentConfig compilerPluginToml;
+    private final DocumentConfig balToolToml;
     private final Path packagePath;
     private final DependencyGraph<PackageDescriptor> packageDescDependencyGraph;
     private final Collection<ModuleConfig> otherModules;
@@ -51,6 +52,7 @@ public class PackageConfig {
                           DocumentConfig dependenciesToml,
                           DocumentConfig cloudToml,
                           DocumentConfig compilerPluginToml,
+                          DocumentConfig balToolToml,
                           Collection<ModuleConfig> moduleConfigs,
                           DependencyGraph<PackageDescriptor> packageDescDependencyGraph,
                           DocumentConfig packageMd) {
@@ -62,6 +64,7 @@ public class PackageConfig {
         this.dependenciesToml = dependenciesToml;
         this.cloudToml = cloudToml;
         this.compilerPluginToml = compilerPluginToml;
+        this.balToolToml = balToolToml;
         this.otherModules = moduleConfigs;
         this.packageDescDependencyGraph = packageDescDependencyGraph;
         this.packageMd = packageMd;
@@ -75,10 +78,11 @@ public class PackageConfig {
                                      DocumentConfig dependenciesToml,
                                      DocumentConfig cloudToml,
                                      DocumentConfig compilerPluginToml,
+                                     DocumentConfig balToolToml,
                                      DocumentConfig packageMd,
                                      Collection<ModuleConfig> moduleConfigs) {
         return new PackageConfig(packageId, packagePath, packageManifest, dependencyManifest, ballerinaToml,
-                                 dependenciesToml, cloudToml, compilerPluginToml, moduleConfigs,
+                                 dependenciesToml, cloudToml, compilerPluginToml, balToolToml, moduleConfigs,
                                  DependencyGraph.emptyGraph(), packageMd);
     }
 
@@ -90,11 +94,12 @@ public class PackageConfig {
                                      DocumentConfig dependenciesToml,
                                      DocumentConfig cloudToml,
                                      DocumentConfig compilerPluginToml,
+                                     DocumentConfig balToolToml,
                                      DocumentConfig packageMd,
                                      Collection<ModuleConfig> moduleConfigs,
                                      DependencyGraph<PackageDescriptor> packageDescDependencyGraph) {
         return new PackageConfig(packageId, packagePath, packageManifest, dependencyManifest, ballerinaToml,
-                                 dependenciesToml, cloudToml, compilerPluginToml, moduleConfigs,
+                                 dependenciesToml, cloudToml, compilerPluginToml, balToolToml, moduleConfigs,
                                  packageDescDependencyGraph, packageMd);
     }
 
@@ -136,6 +141,10 @@ public class PackageConfig {
 
     public Optional<DocumentConfig> compilerPluginToml() {
         return Optional.ofNullable(compilerPluginToml);
+    }
+
+    public Optional<DocumentConfig> balToolToml() {
+        return Optional.ofNullable(balToolToml);
     }
 
     public CompilationOptions compilationOptions() {

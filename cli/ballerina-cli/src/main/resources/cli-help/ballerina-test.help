@@ -2,7 +2,7 @@ NAME
        ballerina-test - Run package tests
 
 SYNOPSIS
-       bal test [OPTIONS] [<package>|<source-file>]
+       bal test [OPTIONS] [<package>|<source-file>] [(-Ckey=value)...]
                
 
 DESCRIPTION
@@ -73,7 +73,7 @@ OPTIONS
        --test-report
            Generate an HTML report containing the test results.
 
-       --native
+       --graalvm
            Execute test cases using the GraalVM native image. Native image testing
            is an experimental feature which supports only a limited set of
            functionality.
@@ -88,12 +88,17 @@ OPTIONS
             see https://ballerina.io/learn/test-ballerina-code/execute-tests/#generate-test-report-and-code-coverage.
 
 
+ARGUMENTS
+       (-Ckey=value)...
+           The list of configurable variables for the Ballerina program.
+
+
 EXAMPLES
        Run all the test functions in the current package.
            $ bal test
 
        Run all test cases using the GraalVM native image.
-           $ bal test --native
+           $ bal test --graalvm
 
        List all the test groups in the current package.
            $ bal test --list-groups
@@ -119,7 +124,7 @@ EXAMPLES
            $ bal test main_test.bal
 
        Run a standalone test file using the GraalVM native image.
-           $ bal test --native main_test.bal
+           $ bal test --graalvm main_test.bal
 
        Run the tests and generate a test report.
            $ bal test --test-report
@@ -142,3 +147,6 @@ EXAMPLES
        Run the tests with the code coverage with directories excludes from coverage
        calculation with '**' and '*'.
            $ bal test --code-coverage --excludes=<source_path1/**>,<source_path2/*>
+
+       Run the test functions with values provided for configurable variables:
+           $ bal test -Cval1=add -Cval2=10 -Cval3=5

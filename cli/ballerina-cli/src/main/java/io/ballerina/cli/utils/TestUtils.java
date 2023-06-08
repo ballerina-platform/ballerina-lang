@@ -218,6 +218,10 @@ public class TestUtils {
      * @throws IOException if file does not exist
      */
     public static ModuleStatus loadModuleStatusFromFile(Path statusJsonPath) throws IOException {
+        File statusJsonFile = new File(statusJsonPath.toUri());
+        if (!statusJsonFile.isFile()) {
+            return null;
+        }
         Gson gson = new Gson();
         BufferedReader bufferedReader = Files.newBufferedReader(statusJsonPath, StandardCharsets.UTF_8);
         return gson.fromJson(bufferedReader, ModuleStatus.class);

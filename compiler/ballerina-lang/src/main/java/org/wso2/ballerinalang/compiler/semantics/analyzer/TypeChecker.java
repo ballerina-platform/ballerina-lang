@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourcePathSegmentSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeDefinitionSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLNSSymbol;
@@ -2892,7 +2893,14 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                 actualType = varSym.type;
                 markAndRegisterClosureVariable(symbol, varRefExpr.pos, data.env, data);
             } else if ((symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
-                actualType = symbol.type.tag == TypeTags.TYPEDESC ? symbol.type : new BTypedescType(symbol.type, null);
+                if (symbol.kind == SymbolKind.TYPE_DEF) {
+                    BTypeDefinitionSymbol typeDefSym = (BTypeDefinitionSymbol) symbol;
+                    actualType = symbol.type.tag == TypeTags.TYPEDESC ? typeDefSym.referenceType
+                            : new BTypedescType(typeDefSym.referenceType, null);
+                } else {
+                    actualType = symbol.type.tag == TypeTags.TYPEDESC ? symbol.type
+                            : new BTypedescType(symbol.type, null);
+                }
                 varRefExpr.symbol = symbol;
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 BConstantSymbol constSymbol = (BConstantSymbol) symbol;
@@ -5042,8 +5050,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                 (rhsType.tag == TypeTags.DECIMAL || rhsType.tag == TypeTags.FLOAT)) {
                             errorCode = DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES_INT_FLOAT_DIVISION;
                         }
-
-                        dlog.error(binaryExpr.pos, errorCode, binaryExpr.opKind, lhsType, rhsType);
+                        if (binaryExpr.opKind != OperatorKind.UNDEFINED) {
+                            dlog.error(binaryExpr.pos, errorCode, binaryExpr.opKind, lhsType, rhsType);
+                        }
                     } else {
                         binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
                         actualType = opSymbol.type.getReturnType();
@@ -5723,7 +5732,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral, AnalyzerData data) {
         BType expType = Types.getReferredType(data.expType);
         if (expType.tag != TypeTags.XML && expType.tag != TypeTags.UNION && expType.tag != TypeTags.XML_TEXT
-        && expType != symTable.noType) {
+                && expType.tag != TypeTags.ANY && expType.tag != TypeTags.ANYDATA && expType != symTable.noType) {
             dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, data.expType,
                     "XML Sequence");
             data.resultType = symTable.semanticError;
@@ -5753,17 +5762,28 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             data.resultType = symTable.xmlTextType;
             return;
         }
+        
+        if (expType.tag == TypeTags.ANY) {
+            data.resultType = symTable.anyType;
+            return;
+        }
+
+        if (expType.tag == TypeTags.ANYDATA) {
+            data.resultType = symTable.anydataType;
+            return;
+        }
+        
         // Disallow unions with 'xml:T (singleton) items
-         for (BType item : ((BUnionType) expType).getMemberTypes()) {
-             item = Types.getReferredType(item);
-             if (item.tag != TypeTags.XML_TEXT && item.tag != TypeTags.XML) {
-                 dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
-                         expType, symTable.xmlType);
-                 data.resultType = symTable.semanticError;
-                 return;
-             }
-         }
-        data.resultType = symTable.xmlType;
+        for (BType item : ((BUnionType) expType).getMemberTypes()) {
+            item = Types.getReferredType(item);
+            if (types.isAssignable(symTable.xmlType, item)) {
+                data.resultType = symTable.xmlType;
+                return;
+            }
+        }
+        dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
+                expType, symTable.xmlType);
+        data.resultType = symTable.semanticError;
     }
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral, AnalyzerData data) {

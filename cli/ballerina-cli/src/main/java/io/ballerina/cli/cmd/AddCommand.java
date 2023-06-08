@@ -41,7 +41,7 @@ import static io.ballerina.projects.util.ProjectUtils.guessModuleName;
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = ADD_COMMAND, description = "Add a new module to Ballerina project")
+@CommandLine.Command(name = ADD_COMMAND, description = "Add a new Ballerina module to the current package")
 public class AddCommand implements BLauncherCmd {
 
     private Path userDir;
@@ -208,7 +208,7 @@ public class AddCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Add a new Ballerina module");
+        out.append(BLauncherCmd.getCommandUsageInfo(ADD_COMMAND));
     }
 
     @Override
@@ -228,7 +228,7 @@ public class AddCommand implements BLauncherCmd {
         // - modules/
         // -- mymodule/
         // --- main.bal       <- Contains default main method.
-        CommandUtil.applyTemplate(modulePath, template);
+        CommandUtil.applyTemplate(modulePath, template, false);
         Path source = modulePath.resolve(template.toLowerCase(Locale.getDefault()) + ".bal");
         Files.move(source, source.resolveSibling(guessModuleName(moduleName) + ".bal"),
                 StandardCopyOption.REPLACE_EXISTING);

@@ -18,7 +18,7 @@
 package io.ballerina.runtime.api.types;
 
 /**
- * {@code BAnydataType} represents the data types in Ballerina.
+ * {@code AnydataType} represents the data types in Ballerina.
  *
  * @since 2.0.0
  */
