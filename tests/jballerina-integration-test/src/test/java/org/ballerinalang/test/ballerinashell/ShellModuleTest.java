@@ -18,12 +18,11 @@
 
 package org.ballerinalang.test.ballerinashell;
 
-import org.testng.annotations.Test;
-
+import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.cli.BShellConfiguration;
 import io.ballerina.shell.cli.ReplShellApplication;
+import org.testng.annotations.Test;
 
-import io.ballerina.shell.Evaluator;
 import static org.testng.Assert.assertFalse;
 
 /**
