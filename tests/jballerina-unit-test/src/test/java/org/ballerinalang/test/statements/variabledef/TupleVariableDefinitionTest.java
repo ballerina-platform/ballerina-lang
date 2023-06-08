@@ -484,5 +484,6 @@ public class TupleVariableDefinitionTest {
     public void tearDown() {
         result = null;
         resultNegative = null;
+        tupleVarDefnSyntaxNegative = null;
     }
 }
