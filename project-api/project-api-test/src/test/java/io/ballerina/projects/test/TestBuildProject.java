@@ -20,6 +20,7 @@ package io.ballerina.projects.test;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.projects.BalToolToml;
 import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.CloudToml;
@@ -71,6 +72,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,6 +93,7 @@ import java.util.stream.Collectors;
 import static io.ballerina.projects.test.TestUtils.assertTomlFilesEquals;
 import static io.ballerina.projects.test.TestUtils.isWindows;
 import static io.ballerina.projects.test.TestUtils.loadProject;
+import static io.ballerina.projects.test.TestUtils.replaceDistributionVersionOfDependenciesToml;
 import static io.ballerina.projects.test.TestUtils.resetPermissions;
 import static io.ballerina.projects.test.TestUtils.writeContent;
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
@@ -867,6 +870,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(currentPackage.dependenciesToml().isPresent());
         Assert.assertTrue(currentPackage.cloudToml().isPresent());
         Assert.assertTrue(currentPackage.compilerPluginToml().isPresent());
+        Assert.assertTrue(currentPackage.balToolToml().isPresent());
         Assert.assertTrue(currentPackage.packageMd().isPresent());
         // Check module.md files
         Module defaultModule = currentPackage.getDefaultModule();
@@ -890,6 +894,9 @@ public class TestBuildProject extends BaseTest {
 
         TomlTableNode compilerPluginToml = currentPackage.compilerPluginToml().get().tomlAstNode();
         Assert.assertEquals(compilerPluginToml.entries().size(), 2);
+
+        TomlTableNode balToolToml = currentPackage.balToolToml().get().tomlAstNode();
+        Assert.assertEquals(balToolToml.entries().size(), 2);
     }
 
     @Test(description = "test editing Ballerina.toml")
@@ -951,8 +958,9 @@ public class TestBuildProject extends BaseTest {
     }
 
     @Test(description = "test editing Ballerina.toml")
-    public void testModifyDependenciesToml() {
+    public void testModifyDependenciesToml() throws IOException {
         Path projectPath = tempResourceDir.resolve("projects_for_edit_api_tests/package_test_dependencies_toml");
+        replaceDistributionVersionOfDependenciesToml(projectPath, RepoUtils.getBallerinaShortVersion());
         BuildProject project = loadBuildProject(projectPath, BuildOptions.builder().setSticky(true).build());
 
         PackageCompilation compilation = project.currentPackage().getCompilation();
@@ -967,6 +975,7 @@ public class TestBuildProject extends BaseTest {
                 .get().modify().withContent("" +
                 "[ballerina]\n" +
                 "dependencies-toml-version = \"2\"\n" +
+                "distribution-version = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n" +
                 "\n" +
                 "[[package]]\n" +
                 "org = \"foo\"\n" +
@@ -1001,6 +1010,7 @@ public class TestBuildProject extends BaseTest {
                 .get().modify().withContent("" +
                 "[ballerina]\n" +
                 "dependencies-toml-version = \"2\"\n" +
+                "distribution-version = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n" +
                 "\n" +
                 "[[package]]\n" +
                 "org = \"foo\"\n" +
@@ -1061,6 +1071,16 @@ public class TestBuildProject extends BaseTest {
         TomlTableNode compilerPluginToml = newCompilerPluginToml.tomlAstNode();
         Assert.assertEquals(compilerPluginToml.entries().size(), 2);
 
+        BalToolToml newBalToolToml = project.currentPackage().balToolToml().get().modify()
+                .withContent("" +
+                        "[tool]\n" +
+                        "id = \"openapi\"\n" +
+                        "\n" +
+                        "[[dependency]]\n" +
+                        "path = \"./libs/openapi-cli-1.3.0-java.txt\"\n").apply();
+        TomlTableNode balToolToml = newBalToolToml.tomlAstNode();
+        Assert.assertEquals(balToolToml.entries().size(), 2);
+
         // Check if PackageMd is editable
         project.currentPackage().packageMd().get().modify().withContent("#Modified").apply();
         String packageMdContent = project.currentPackage().packageMd().get().content();
@@ -1083,11 +1103,13 @@ public class TestBuildProject extends BaseTest {
         project.currentPackage().modify().removeDependenciesToml().apply();
         project.currentPackage().modify().removeCloudToml().apply();
         project.currentPackage().modify().removeCompilerPluginToml().apply();
+        project.currentPackage().modify().removeBalToolToml().apply();
         project.currentPackage().getDefaultModule().modify().removeModuleMd().apply();
 
         Assert.assertTrue(project.currentPackage().packageMd().isEmpty());
         Assert.assertTrue(project.currentPackage().cloudToml().isEmpty());
         Assert.assertTrue(project.currentPackage().compilerPluginToml().isEmpty());
+        Assert.assertTrue(project.currentPackage().balToolToml().isEmpty());
         Assert.assertTrue(project.currentPackage().dependenciesToml().isEmpty());
         Assert.assertTrue(project.currentPackage().getDefaultModule().moduleMd().isEmpty());
     }
@@ -1104,6 +1126,7 @@ public class TestBuildProject extends BaseTest {
         Assert.assertTrue(currentPackage.dependenciesToml().isEmpty());
         Assert.assertTrue(currentPackage.cloudToml().isEmpty());
         Assert.assertTrue(currentPackage.compilerPluginToml().isEmpty());
+        Assert.assertTrue(currentPackage.balToolToml().isEmpty());
         // Assert.assertTrue(currentPackage.packageMd().isEmpty());
 
         DocumentConfig dependenciesToml = DocumentConfig.from(
@@ -1151,6 +1174,20 @@ public class TestBuildProject extends BaseTest {
         currentPackage = currentPackage.modify().addCompilerPluginToml(compilerPluginToml).apply();
         TomlTableNode compilerPluginTomlTable = currentPackage.compilerPluginToml().get().tomlAstNode();
         Assert.assertEquals(compilerPluginTomlTable.entries().size(), 2);
+
+        DocumentConfig balToolToml = DocumentConfig.from(
+                DocumentId.create(ProjectConstants.BAL_TOOL_TOML, null),
+                "" +
+                        "[tool]\n" +
+                        "id = \"openapi\"\n" +
+                        "\n" +
+                        "[[dependency]]\n" +
+                        "path = \"./libs/openapi-cli-1.3.0-java.txt\"\n",
+                ProjectConstants.BAL_TOOL_TOML);
+
+        currentPackage = currentPackage.modify().addBalToolToml(balToolToml).apply();
+        TomlTableNode balToolTomlTable = currentPackage.balToolToml().get().tomlAstNode();
+        Assert.assertEquals(balToolTomlTable.entries().size(), 2);
     }
 
     @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md")

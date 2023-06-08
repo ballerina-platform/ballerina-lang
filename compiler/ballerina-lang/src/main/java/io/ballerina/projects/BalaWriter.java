@@ -28,6 +28,7 @@ import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
 import io.ballerina.projects.internal.bala.adaptors.JsonCollectionsAdaptor;
 import io.ballerina.projects.internal.bala.adaptors.JsonStringsAdaptor;
+import io.ballerina.projects.internal.model.BalToolDescriptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
@@ -81,6 +82,7 @@ public abstract class BalaWriter {
     private static final String BALLERINA_SPEC_VERSION = RepoUtils.getBallerinaSpecVersion();
     protected PackageContext packageContext;
     Optional<CompilerPluginDescriptor> compilerPluginToml;
+    protected Optional<BalToolDescriptor> balToolToml;
 
     protected BalaWriter() {
     }
@@ -127,6 +129,7 @@ public abstract class BalaWriter {
         addPackageJson(balaOutputStream, platformLibs);
 
         addCompilerPlugin(balaOutputStream);
+        addBalTool(balaOutputStream);
         addDependenciesJson(balaOutputStream);
     }
 
@@ -428,6 +431,8 @@ public abstract class BalaWriter {
             throws IOException;
 
     protected abstract void addCompilerPlugin(ZipOutputStream balaOutputStream) throws IOException;
+
+    protected abstract void addBalTool(ZipOutputStream balaOutputStream) throws IOException;
 
     // Following function was put in to handle a bug in windows zipFileSystem
     // Refer https://bugs.openjdk.java.net/browse/JDK-8195141

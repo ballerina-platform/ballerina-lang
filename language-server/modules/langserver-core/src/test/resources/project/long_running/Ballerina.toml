@@ -1,0 +1,4 @@
+[package]
+org = "baltest"
+name = "long_running"
+version = "0.1.0"
