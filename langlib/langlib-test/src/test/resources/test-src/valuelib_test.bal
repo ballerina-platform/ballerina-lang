@@ -2654,83 +2654,65 @@ function testCloneWithTypeOnRegExpNegative() {
     string s = "AB+^*";
     RegExpType|error x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '*'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing backslash before '*' token in 'AB+^*'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "AB\\hCD";
     x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\h'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: invalid character 'h' after backslash in 'AB\\hCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "AB\\pCD";
     x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\p'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing open brace '{' token in 'AB\\pCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "AB\\uCD";
     x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\u'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: invalid character 'u' after backslash in 'AB\\uCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "AB\\u{001CD";
     x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\u{001CD'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing close brace '}' token in 'AB\\u{001CD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "AB\\p{sc=Lu";
     x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Missing '}' character",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing close brace '}' token in 'AB\\p{sc=Lu'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "[^abc";
     x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Missing ']' character",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing close bracket ']' token in '[^abc'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "(abc";
     x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Missing ')' character",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing close parenthesis ')' token in '(abc'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "(ab^*)";
     x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '*'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing backslash before '*' token in '(ab^*)'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 }
 
 function testCloneWithTypeWithXML() {
@@ -2758,6 +2740,278 @@ function testCloneWithTypeWithXML() {
     json xmlArrayJson = xmlArrayAnydata.toJson();
     xml[] xmlArray = checkpanic xmlArrayJson.cloneWithType();
     test:assertValueEqual(xmlArray, xmlArrayAnydata);
+}
+
+type MyRecord record {
+    int a;
+};
+
+type FirstArr int[];
+
+type SecondArr int[];
+
+type ThirdArr FirstArr;
+
+type FirstTuple [int, string];
+
+type SecondTuple [int, string];
+
+type ThirdTuple FirstTuple;
+
+type FirstMap map<int>;
+
+type SecondMap map<int>;
+
+type ThirdMap FirstMap;
+
+type FirstRecord MyRecord;
+
+type SecondRecord MyRecord;
+
+type ThirdRecord FirstRecord;
+
+type FirstTable table<MyRecord>;
+
+type SecondTable table<MyRecord>;
+
+type ThirdTable FirstTable;
+
+type FirstNull ();
+
+type SecondNull ();
+
+type ThirdNull FirstNull;
+
+type FirstBoolean boolean;
+
+type SecondBoolean boolean;
+
+type ThirdBoolean FirstBoolean;
+
+type FirstInt int;
+
+type SecondInt int;
+
+type ThirdInt FirstInt;
+
+type FirstFloat float;
+
+type SecondFloat float;
+
+type ThirdFloat FirstFloat;
+
+type FirstDecimal decimal;
+
+type SecondDecimal decimal;
+
+type ThirdDecimal FirstDecimal;
+
+type FirstString string;
+
+type SecondString string;
+
+type ThirdString FirstString;
+
+type FirstByte byte;
+
+type SecondByte byte;
+
+type ThirdByte FirstByte;
+
+type FirstXML xml;
+
+type SecondXML xml;
+
+type ThirdXML FirstXML;
+
+type FirstJSON json;
+
+type SecondJSON json;
+
+type ThirdJSON FirstJSON;
+
+type FirstAnydata anydata;
+
+type SecondAnydata anydata;
+
+type ThirdAnydata FirstAnydata;
+
+type FirstArrayUnion ThirdArr|SecondArr|FirstArr;
+
+type SecondArrayUnion ThirdArr|SecondArr|FirstArr;
+
+type ThirdArrayUnion FirstArrayUnion;
+
+type FourthArrayUnion FirstArrayUnion|SecondArrayUnion;
+
+type FifthArrayUnion FourthArrayUnion;
+
+type SixthArrayUnion FifthArrayUnion|FourthArrayUnion;
+
+type FirstNumberUnion int|int:Unsigned8|int:Signed16;
+
+type SecondNumberUnion FirstInt|FirstByte;
+
+type ThirdNumberUnion FirstNumberUnion;
+
+type FourthNumberUnion ThirdNumberUnion|SecondNumberUnion;
+
+type FifthNumberUnion FourthNumberUnion;
+
+type SixthNumberUnion FifthNumberUnion|FourthNumberUnion;
+
+function testConvertingToReferenceTypes() {
+    int[] val0 = [1, 2, 3];
+    FirstArr val1 = [1, 2, 3];
+    SecondArr val2 = checkpanic val1.cloneWithType();
+    ThirdArr val3 = checkpanic val2.cloneWithType();
+    ThirdArr val4 = checkpanic val0.cloneWithType();
+    test:assertValueEqual((typeof val2).toString(), "typedesc SecondArr");
+    test:assertValueEqual((typeof val3).toString(), "typedesc ThirdArr");
+    test:assertValueEqual((typeof val4).toString(), "typedesc ThirdArr");
+
+    [int, string] val5 = [1, "hello"];
+    FirstTuple val6 = [1, "hello"];
+    SecondTuple val7 = checkpanic val6.cloneWithType();
+    ThirdTuple val8 = checkpanic val7.cloneWithType();
+    ThirdTuple val9 = checkpanic val5.cloneWithType();
+    test:assertValueEqual((typeof val7).toString(), "typedesc SecondTuple");
+    test:assertValueEqual((typeof val8).toString(), "typedesc ThirdTuple");
+    test:assertValueEqual((typeof val9).toString(), "typedesc ThirdTuple");
+
+    map<int> val10 = {a: 1, b: 2};
+    FirstMap val11 = {a: 1, b: 2};
+    SecondMap val12 = checkpanic val11.cloneWithType();
+    ThirdMap val13 = checkpanic val12.cloneWithType();
+    ThirdMap val14 = checkpanic val10.cloneWithType();
+    test:assertValueEqual((typeof val12).toString(), "typedesc SecondMap");
+    test:assertValueEqual((typeof val13).toString(), "typedesc ThirdMap");
+    test:assertValueEqual((typeof val14).toString(), "typedesc ThirdMap");
+
+    MyRecord val15 = {a: 1};
+    FirstRecord val16 = {a: 1};
+    SecondRecord val17 = checkpanic val16.cloneWithType();
+    ThirdRecord val18 = checkpanic val17.cloneWithType();
+    ThirdRecord val19 = checkpanic val15.cloneWithType();
+    test:assertValueEqual((typeof val17).toString(), "typedesc SecondRecord");
+    test:assertValueEqual((typeof val18).toString(), "typedesc ThirdRecord");
+    test:assertValueEqual((typeof val19).toString(), "typedesc ThirdRecord");
+
+    table<MyRecord> val20 = table [{a: 1}];
+    FirstTable val21 = table [{a: 1}];
+    SecondTable val22 = checkpanic val21.cloneWithType();
+    ThirdTable val23 = checkpanic val22.cloneWithType();
+    ThirdTable val24 = checkpanic val20.cloneWithType();
+    test:assertValueEqual((typeof val22).toString(), "typedesc SecondTable");
+    test:assertValueEqual((typeof val23).toString(), "typedesc ThirdTable");
+    test:assertValueEqual((typeof val24).toString(), "typedesc ThirdTable");
+
+    () val25 = ();
+    FirstNull val26 = ();
+    SecondNull val27 = checkpanic val26.cloneWithType();
+    ThirdNull val28 = checkpanic val27.cloneWithType();
+    ThirdNull val29 = checkpanic val25.cloneWithType();
+    test:assertValueEqual((typeof val27).toString(), "typedesc ()");
+    test:assertValueEqual((typeof val28).toString(), "typedesc ()");
+    test:assertValueEqual((typeof val29).toString(), "typedesc ()");
+
+    boolean val30 = true;
+    FirstBoolean val31 = true;
+    SecondBoolean val32 = checkpanic val31.cloneWithType();
+    ThirdBoolean val33 = checkpanic val32.cloneWithType();
+    ThirdBoolean val34 = checkpanic val30.cloneWithType();
+    test:assertValueEqual((typeof val32).toString(), "typedesc true");
+    test:assertValueEqual((typeof val33).toString(), "typedesc true");
+    test:assertValueEqual((typeof val34).toString(), "typedesc true");
+
+    int val35 = 1;
+    FirstInt val36 = 1;
+    SecondInt val37 = checkpanic val36.cloneWithType();
+    ThirdInt val38 = checkpanic val37.cloneWithType();
+    ThirdInt val39 = checkpanic val35.cloneWithType();
+    test:assertValueEqual((typeof val37).toString(), "typedesc 1");
+    test:assertValueEqual((typeof val38).toString(), "typedesc 1");
+    test:assertValueEqual((typeof val39).toString(), "typedesc 1");
+
+    float val40 = 1.0;
+    FirstFloat val41 = 1.0;
+    SecondFloat val42 = checkpanic val41.cloneWithType();
+    ThirdFloat val43 = checkpanic val42.cloneWithType();
+    ThirdFloat val44 = checkpanic val40.cloneWithType();
+    test:assertValueEqual((typeof val42).toString(), "typedesc 1.0");
+    test:assertValueEqual((typeof val43).toString(), "typedesc 1.0");
+    test:assertValueEqual((typeof val44).toString(), "typedesc 1.0");
+
+    decimal val45 = 1.0;
+    FirstDecimal val46 = 1.0;
+    SecondDecimal val47 = checkpanic val46.cloneWithType();
+    ThirdDecimal val48 = checkpanic val47.cloneWithType();
+    ThirdDecimal val49 = checkpanic val45.cloneWithType();
+    test:assertValueEqual((typeof val47).toString(), "typedesc 1.0");
+    test:assertValueEqual((typeof val48).toString(), "typedesc 1.0");
+    test:assertValueEqual((typeof val49).toString(), "typedesc 1.0");
+
+    string val50 = "hello";
+    FirstString val51 = "hello";
+    SecondString val52 = checkpanic val51.cloneWithType();
+    ThirdString val53 = checkpanic val52.cloneWithType();
+    ThirdString val54 = checkpanic val50.cloneWithType();
+    test:assertValueEqual((typeof val52).toString(), "typedesc hello");
+    test:assertValueEqual((typeof val53).toString(), "typedesc hello");
+    test:assertValueEqual((typeof val54).toString(), "typedesc hello");
+
+    byte val55 = 1;
+    FirstByte val56 = 1;
+    SecondByte val57 = checkpanic val56.cloneWithType();
+    ThirdByte val58 = checkpanic val57.cloneWithType();
+    ThirdByte val59 = checkpanic val55.cloneWithType();
+    test:assertValueEqual((typeof val57).toString(), "typedesc 1");
+    test:assertValueEqual((typeof val58).toString(), "typedesc 1");
+    test:assertValueEqual((typeof val59).toString(), "typedesc 1");
+
+    xml val60 = xml `<hello>world</hello>`;
+    FirstXML val61 = xml `<hello>world</hello>`;
+    SecondXML val62 = checkpanic val61.cloneWithType();
+    ThirdXML val63 = checkpanic val62.cloneWithType();
+    ThirdXML val64 = checkpanic val60.cloneWithType();
+    test:assertValueEqual((typeof val62).toString(),
+        "typedesc xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>");
+    test:assertValueEqual((typeof val63).toString(),
+        "typedesc xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>");
+    test:assertValueEqual((typeof val64).toString(),
+        "typedesc xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>");
+
+    json val65 = {a: 1};
+    FirstJSON val66 = {a: 1};
+    SecondJSON val67 = checkpanic val66.cloneWithType();
+    ThirdJSON val68 = checkpanic val67.cloneWithType();
+    ThirdJSON val69 = checkpanic val65.cloneWithType();
+    test:assertValueEqual((typeof val67).toString(), "typedesc map<json>");
+    test:assertValueEqual((typeof val68).toString(), "typedesc map<json>");
+    test:assertValueEqual((typeof val69).toString(), "typedesc map<json>");
+
+    anydata val70 = 1;
+    FirstAnydata val71 = 1;
+    SecondAnydata val72 = checkpanic val71.cloneWithType();
+    ThirdAnydata val73 = checkpanic val72.cloneWithType();
+    ThirdAnydata val74 = checkpanic val70.cloneWithType();
+    test:assertValueEqual((typeof val72).toString(), "typedesc 1");
+    test:assertValueEqual((typeof val73).toString(), "typedesc 1");
+    test:assertValueEqual((typeof val74).toString(), "typedesc 1");
+
+    int[] val75 = [1, 2, 3];
+    FirstFloat[] val76 = [1.0, 2.0, 3.0];
+    SixthArrayUnion val77 = checkpanic val75.cloneWithType();
+    SixthArrayUnion val78 = checkpanic val76.cloneWithType();
+    test:assertValueEqual((typeof val77).toString(), "typedesc ThirdArr");
+    test:assertValueEqual((typeof val78).toString(), "typedesc ThirdArr");
+
+    decimal val79 = 1.0d;
+    FirstDecimal val80 = 1.0d;
+    SixthNumberUnion|decimal val81 = checkpanic val79.cloneWithType();
+    SixthNumberUnion val82 = checkpanic val80.cloneWithType();
+    test:assertValueEqual((typeof val81).toString(), "typedesc 1.0");
+    test:assertValueEqual((typeof val82).toString(), "typedesc 1");
 }
 
 type union_with_int string|float|byte|int:Unsigned8|int:Signed8|int;
@@ -2914,8 +3168,149 @@ function testCloneWithTypeTableToAnydata() {
     test:assertValueEqual(result is readonly, true);
 }
 
+function testCloneWithTypeToArrays() {
+    string[2] lastNames = ["Alice", "Bob"];
+    string[] firstNames = ["Alice", "Bob"];
+
+    string[0]|error names = lastNames.cloneWithType();
+    test:assertTrue(names is error);
+    if (names is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", names.message());
+        test:assertValueEqual("'string[2]' value cannot be converted to 'string[0]': \n\t\t" +
+        "element count exceeds the target array size '0'", <string> checkpanic names.detail()["message"]);
+    }
+
+    names = firstNames.cloneWithType();
+    test:assertTrue(names is error);
+    if (names is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", names.message());
+        test:assertValueEqual("'string[]' value cannot be converted to 'string[0]': \n\t\t" +
+        "element count exceeds the target array size '0'", <string> checkpanic names.detail()["message"]);
+    }
+}
+
+type xml1 xml:ProcessingInstruction|xml:Text;
+
+type xml2 xml:Element & readonly;
+
+type xml3 xml:Element;
+
+type xml4 xml3;
+
+type xml5 xml<xml:ProcessingInstruction|xml:Text|xml:Comment>;
+
+type xml6 xml<xml:Element|(xml:ProcessingInstruction & readonly)|(xml:Comment & readonly)>;
+
+type xml7 xml<xml5|xml6> & readonly;
+
+type BigXml xml<xml1|xml2|xml4>;
+
 type ReadOnlyXmlElement xml:Element & readonly;
+
 type AnydataUnion int|anydata;
+
+type JsonUnion xml|json;
+
+type JsonUnion2 BigXml|json;
+
+function testCloneWithTypeXmlToUnion() {
+    xml z = xml `<a>1</a>`;
+    xml:Element|json z0 = checkpanic z.cloneWithType();
+    any result = z0;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(z0, xml `<a>1</a>`);
+
+    xml7 z00 = checkpanic z.cloneWithType();
+    result = z00;
+    test:assertValueEqual(result is readonly, true);
+    test:assertValueEqual(z00, xml `<a>1</a>`);
+
+    xml|json z1 = checkpanic z.cloneWithType();
+    result = z1;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(z1, xml `<a>1</a>`);
+
+    JsonUnion & readonly z2 = checkpanic z.cloneWithType();
+    result = z2;
+    test:assertValueEqual(result is readonly, true);
+    test:assertValueEqual(z2, xml `<a>1</a>`);
+
+    JsonUnion z3 = checkpanic z.cloneWithType();
+    result = z3;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(z3, xml `<a>1</a>`);
+
+    JsonUnion2 z4 = checkpanic z.cloneWithType();
+    result = z4;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(z4, xml `<a>1</a>`);
+
+    JsonUnion2 & readonly z5 = checkpanic z.cloneWithType();
+    result = z5;
+    test:assertValueEqual(result is readonly, true);
+    test:assertValueEqual(z5, xml `<a>1</a>`);
+
+    xml:Comment|json|error z6 = z.cloneWithType();
+    test:assertValueEqual(z6 is error, true);
+    if (z6 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", z6.message());
+        test:assertValueEqual("'lang.xml:Element' value cannot be converted to '(lang.xml:Comment|json)'",
+        <string>checkpanic z6.detail()["message"]);
+    }
+
+    xml xmlComment = xml `<!-- xml comment -->`;
+    JsonUnion2|error z7 = xmlComment.cloneWithType();
+    test:assertValueEqual(z7 is error, true);
+    if (z7 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", z7.message());
+        test:assertValueEqual("'lang.xml:Comment' value cannot be converted to '(BigXml|json)'",
+        <string>checkpanic z7.detail()["message"]);
+    }
+
+    xml x1 = xml `<book>The Lost World</book><!-- xml comment -->`;
+    xml<xml:Comment|xml:Element> y1 = checkpanic x1.cloneWithType();
+    result = y1;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(y1, x1);
+
+    xml<xml:Comment|xml:Element> & readonly y2 = checkpanic x1.cloneWithType();
+    result = y2;
+    test:assertValueEqual(result is readonly, true);
+    test:assertValueEqual(y2, x1);
+
+    xml<xml:Comment|(xml:Element & readonly)> y3 = checkpanic x1.cloneWithType();
+    result = y3;
+    test:assertValueEqual(result is readonly, false);
+    test:assertValueEqual(y3, x1);
+
+    xml x2 = xml `<?xml version="1.0" encoding="UTF-8"?><book>The Lost World</book>`;
+    xml<xml:Comment|xml:Element>|error y4 = x2.cloneWithType();
+    test:assertValueEqual(y4 is error, true);
+    if (y4 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", y4.message());
+        test:assertValueEqual("'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'"
+        + " value cannot be converted to 'xml<(lang.xml:Comment|lang.xml:Element)>'",
+        <string>checkpanic y4.detail()["message"]);
+    }
+
+    (xml<xml:Comment|xml:Element> & readonly)|error y5 = x2.cloneWithType();
+    test:assertValueEqual(y5 is error, true);
+    if (y5 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", y5.message());
+        test:assertValueEqual("'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'"
+        + " value cannot be converted to '(xml<(lang.xml:Comment|lang.xml:Element)> & readonly)'",
+        <string>checkpanic y5.detail()["message"]);
+    }
+
+    xml<xml:Comment|(xml:Element & readonly)>|error y6 = x2.cloneWithType();
+    test:assertValueEqual(y6 is error, true);
+    if (y6 is error) {
+        test:assertValueEqual("{ballerina/lang.value}ConversionError", y6.message());
+        test:assertValueEqual("'xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'"
+        + " value cannot be converted to 'xml<(lang.xml:Comment|(lang.xml:Element & readonly))>'",
+        <string>checkpanic y6.detail()["message"]);
+    }
+}
 
 function testConversionsBetweenXml() {
     // xml to xml
@@ -2988,7 +3383,7 @@ function testConversionsBetweenXml() {
     test:assertValueEqual(x6_cloned1 is readonly, true);
 
     // xml with anydata
-    xml a  = xml `<a>1</a>`;
+    xml a = xml `<a>1</a>`;
     AnydataUnion & readonly a1 = checkpanic a.cloneWithType();
     any result = a1;
     test:assertValueEqual(result is readonly, true);
@@ -3356,6 +3751,114 @@ function testCloneWithTypeToTableNegative() {
     if (newestEmployees is error) {
         assertEquality("{ballerina/lang.value}ConversionError", newestEmployees.message());
         assertEquality(errMsg, <string> checkpanic newestEmployees.detail()["message"]);
+    }
+}
+
+type GraphQLQuery record {|
+    string operationName?;
+    string query?;
+    record {} variables?;
+|};
+
+type PositiveIntegersUpto5 1|2|3|4|5;
+
+type GraphQLQueries0 PositiveIntegersUpto5[];
+
+type GraphQLQueries1 GraphQLQuery[];
+
+type GraphQLQueries1Further GraphQLQueries1;
+
+type GraphQLQueries2 [int, GraphQLQuery...];
+
+type GraphQLQueries3 map<GraphQLQuery>;
+
+type GraphQLQueries4 record {|
+    GraphQLQuery a;
+|};
+
+type GraphQLQueries5 table<GraphQLQuery>;
+
+type GraphQLQueries6 GraphQLQueries5;
+
+function testCloneWithTypeToJson() {
+    GraphQLQueries0 payload0 = [1, 4, 2];
+    GraphQLQueries1 payload1 = [{query: "abc"}, {query: "xyz"}];
+    GraphQLQueries1Further payload1Further = [{query: "abc"}, {query: "xyz"}];
+    GraphQLQueries2 payload2 = [1, {query: "abc"}, {query: "xyz"}];
+    GraphQLQueries3 payload3 = {"a": {query: "abc"}, "b": {query: "xyz"}};
+    GraphQLQueries4 payload4 = {a: {query: "abc"}};
+    json stdJson0 = checkpanic payload0.cloneWithType();
+    json & readonly stdJson00 = checkpanic payload0.cloneWithType();
+    json stdJson1 = checkpanic payload1.cloneWithType();
+    json stdJson1Further = checkpanic payload1Further.cloneWithType();
+    json stdJson2 = checkpanic payload2.cloneWithType();
+    json stdJson3 = checkpanic payload3.cloneWithType();
+    json stdJson4 = checkpanic payload4.cloneWithType();
+
+    assertEquality(stdJson0, <json>[1, 4, 2]);
+    assertEquality(stdJson00, <json>[1, 4, 2]);
+    assertEquality(stdJson1, <json>[{query: "abc"}, {query: "xyz"}]);
+    assertEquality(stdJson1Further, <json>[{query: "abc"}, {query: "xyz"}]);
+    assertEquality(stdJson2, <json>[1, {query: "abc"}, {query: "xyz"}]);
+    assertEquality(stdJson3, <json>{"a": {query: "abc"}, "b": {query: "xyz"}});
+    assertEquality(stdJson4, <json>{a: {query: "abc"}});
+
+    GraphQLQueries1 payload5 = [{query: "abc"}, {query: "xyz", variables: {"nonJson": xml `<a>abc</a>`}}];
+    GraphQLQueries1Further payload5Further = [{query: "abc"}, {query: "xyz", variables: {"nonJson": xml `<a>abc</a>`}}];
+    GraphQLQueries2 payload6 = [1, {query: "abc"}, {query: "xyz", variables: {"nonJson": xml `<a>abc</a>`}}];
+    GraphQLQueries3 payload7 = {"a": {query: "abc"}, "b": {query: "xyz", variables: {"nonJson": xml `<a>abc</a>`}}};
+    GraphQLQueries4 payload8 = {a: {query: "abc", variables: {"nonJson": xml `<a>abc</a>`}}};
+    table<GraphQLQuery> payload9 = table [{query: "abc"}, {query: "xyz"}];
+    GraphQLQueries5 payload10 = table [{query: "abc"}, {query: "xyz"}];
+    GraphQLQueries6 payload11 = table [{query: "abc"}, {query: "xyz"}];
+
+    json|error stdJson5 = payload5.cloneWithType();
+    assertEquality(stdJson5 is error, true);
+    if (stdJson5 is error) {
+        assertEquality("'GraphQLQueries1' value cannot be converted to 'json'",
+        <string>checkpanic stdJson5.detail()["message"]);
+    }
+    json|error stdJson5Further = payload5Further.cloneWithType();
+    assertEquality(stdJson5Further is error, true);
+    if (stdJson5Further is error) {
+        assertEquality("'GraphQLQueries1Further' value cannot be converted to 'json'",
+        <string>checkpanic stdJson5Further.detail()["message"]);
+    }
+    json|error stdJson6 = payload6.cloneWithType();
+    assertEquality(stdJson6 is error, true);
+    if (stdJson6 is error) {
+        assertEquality("'GraphQLQueries2' value cannot be converted to 'json'",
+        <string>checkpanic stdJson6.detail()["message"]);
+    }
+    json|error stdJson7 = payload7.cloneWithType();
+    assertEquality(stdJson7 is error, true);
+    if (stdJson7 is error) {
+        assertEquality("'GraphQLQueries3' value cannot be converted to 'json'",
+        <string>checkpanic stdJson7.detail()["message"]);
+    }
+    json|error stdJson8 = payload8.cloneWithType();
+    assertEquality(stdJson8 is error, true);
+    if (stdJson8 is error) {
+        assertEquality("'GraphQLQueries4' value cannot be converted to 'json'",
+        <string>checkpanic stdJson8.detail()["message"]);
+    }
+    json|error stdJson9 = payload9.cloneWithType();
+    assertEquality(stdJson9 is error, true);
+    if (stdJson9 is error) {
+        assertEquality("'table<GraphQLQuery>' value cannot be converted to 'json'",
+        <string>checkpanic stdJson9.detail()["message"]);
+    }
+    json|error stdJson10 = payload10.cloneWithType();
+    assertEquality(stdJson10 is error, true);
+    if (stdJson10 is error) {
+        assertEquality("'GraphQLQueries5' value cannot be converted to 'json'",
+        <string>checkpanic stdJson10.detail()["message"]);
+    }
+    json|error stdJson11 = payload11.cloneWithType();
+    assertEquality(stdJson11 is error, true);
+    if (stdJson11 is error) {
+        assertEquality("'GraphQLQueries6' value cannot be converted to 'json'",
+        <string>checkpanic stdJson11.detail()["message"]);
     }
 }
 
@@ -4076,6 +4579,47 @@ function testDecimalNonZeroToString() {
     assertFalse(d1.toString() == d2.toString());
     assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
     assertFalse(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
+}
+
+function testCount() {
+    assert(0, value:count());
+    assert(2, value:count(2, -1));
+    assert(1, value:count([1, 2, 3]));
+    assert(1, value:count([]));
+    assert(3, value:count(...[1, 2, 3]));
+    assert(4, value:count(error("Message1"), error("Message1"), error("Message2"), error("Message2")));
+    assert(6, value:count(error("Message1"), "str", true, 3.4, {"m": 2}, error("Message2")));
+}
+
+function testFirst() {
+    assertEquality(2, value:first(2));
+    assertEquality(2, value:first([2])[0]);
+    assertEquality(21, value:first(...[21, 31]));
+    assertEquality(1, value:first(1, 2, 4, 5));
+    var f = value:first(error("Message"), 2.0, true, {"m": 2});
+    assertEquality(true, f is error);
+    assertEquality("Message", (<error> f).message());
+    assertEquality(1, value:first(1, [2, 4, 5]));
+    assertEquality(1, value:first(1, ...[2, 4, 5]));
+    var b = value:first([false, true], ...[2, 4, 5]);
+    assertFalse(b[0]);
+    assertTrue(b[1]);
+}
+
+function testLast() {
+    assertEquality(2, value:last(2));
+    assertEquality(5, value:last(1, 2, 4, 5));
+    assertTrue([2, 3] == value:last([2, 3]));
+    assertEquality(3, value:last(...[21, 3]));
+    int[] ar = [21, 3];
+    assertEquality(3, value:last(4, ...ar));
+    var x1 = value:last(error("Message1"), error("Message2"));
+    assertEquality(true, x1 is error);
+    assertEquality("Message2", (<error> x1).message());
+    ar = [];
+    assertEquality(4, value:last(4, ...ar));
+    int[] ar1 = [1, 2, 3];
+    assertTrue([] == value:last(ar1, ar));
 }
 
 type AssertionError distinct error;

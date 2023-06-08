@@ -21,18 +21,24 @@ package io.ballerina.cli.cmd;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageVersion;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
+import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
 import io.ballerina.projects.internal.model.Dependency;
+import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.CentralClientConstants;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -57,6 +63,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,6 +77,7 @@ import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
+import static io.ballerina.projects.util.ProjectUtils.deleteDirectory;
 import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.guessPkgName;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
@@ -88,10 +96,15 @@ public class CommandUtil {
     public static final String ORG_NAME = "ORG_NAME";
     public static final String PKG_NAME = "PKG_NAME";
     public static final String DIST_VERSION = "DIST_VERSION";
+    public static final String USER_HOME = "user.home";
     public static final String GITIGNORE = "gitignore";
     public static final String DEVCONTAINER = "devcontainer";
     public static final String NEW_CMD_DEFAULTS = "new_cmd_defaults";
     public static final String CREATE_CMD_TEMPLATES = "create_cmd_templates";
+    public static final String LIBS_DIR = "libs";
+    public static final String DEFAULT_TEMPLATE = "default";
+    public static final String MAIN_TEMPLATE = "main";
+    public static final String FILE_STRING_SEPARATOR = ", ";
     private static FileSystem jarFs;
     private static Map<String, String> env;
     private static PrintStream errStream;
@@ -722,18 +735,19 @@ public class CommandUtil {
      * @param path project path
      * @param packageName name of the package
      * @param template package template
+     * @param balFilesExist if bal files exist in the project
      * @throws IOException  If any IO exception occurred
      * @throws URISyntaxException If any URISyntaxException occurred
      */
-    public static void initPackageByTemplate(Path path, String packageName, String template) throws IOException,
-            URISyntaxException {
+    public static void initPackageByTemplate(Path path, String packageName, String template, boolean balFilesExist)
+            throws IOException, URISyntaxException {
         // We will be creating following in the project directory
         // - Ballerina.toml
         // - main.bal
         // - .gitignore       <- git ignore file
         // - .devcontainer.json
 
-        applyTemplate(path, template);
+        applyTemplate(path, template, balFilesExist);
         if (template.equalsIgnoreCase("lib")) {
             initLibPackage(path, packageName);
             Path source = path.resolve("lib.bal");
@@ -817,16 +831,22 @@ public class CommandUtil {
      *
      * @param modulePath path to the module
      * @param template template name
+     * @param balFilesExist if bal files exist in the project
      * @throws IOException if any IOException occurred
      * @throws URISyntaxException if any URISyntaxException occurred
      */
-    public static void applyTemplate(Path modulePath, String template) throws IOException, URISyntaxException {
+    public static void applyTemplate(Path modulePath, String template, boolean balFilesExist)
+            throws IOException, URISyntaxException {
         Path templateDir = getTemplatePath().resolve(template);
-        if (template.equalsIgnoreCase("main")) {
-            templateDir = getTemplatePath().resolve("default");
-            Path tempDirTest = getTemplatePath().resolve("main");
+        if (template.equalsIgnoreCase(MAIN_TEMPLATE)) {
+            templateDir = getTemplatePath().resolve(DEFAULT_TEMPLATE);
+            Path tempDirTest = getTemplatePath().resolve(MAIN_TEMPLATE);
             Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
             Files.walkFileTree(tempDirTest, new FileUtils.Copy(tempDirTest, modulePath));
+        } else if (template.equalsIgnoreCase(DEFAULT_TEMPLATE)) {
+            if (!balFilesExist) {
+                Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
+            }
         } else {
             Files.walkFileTree(templateDir, new FileUtils.Copy(templateDir, modulePath));
         }
@@ -941,5 +961,127 @@ public class CommandUtil {
      */
     private static String removeLastCharacter(String str) {
         return str.substring(0, str.length() - 1);
+    }
+
+    /**
+     * Check if files of the given template exist in a given path.
+     *
+     * @param template given string
+     * @param packagePath given path
+     * @throws URISyntaxException if URI syntax exception occurred
+     * @throws IOException if IO exception occurred
+     */
+    public static String checkTemplateFilesExists(String template, Path packagePath) throws URISyntaxException,
+            IOException {
+        Path templateDir = getTemplatePath().resolve(template);
+        Stream<Path> paths = Files.list(templateDir);
+        List<Path> templateFilePathList = paths.collect(Collectors.toList());
+        String existingFiles = "";
+        for (Path path : templateFilePathList) {
+            String fileName = path.getFileName().toString();
+            if (!fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT) && Files.exists(packagePath.resolve(fileName))) {
+                existingFiles += fileName + FILE_STRING_SEPARATOR;
+            }
+        }
+        return existingFiles;
+    }
+
+    /**
+     * Check if common files of a package exist in a given path.
+     *
+     * @param packagePath given path
+     */
+    public static String checkPackageFilesExists(Path packagePath) {
+        String[] packageFiles = {DEPENDENCIES_TOML, ProjectConstants.PACKAGE_MD_FILE_NAME,
+                ProjectConstants.MODULE_MD_FILE_NAME, ProjectConstants.MODULES_ROOT, ProjectConstants.TEST_DIR_NAME,
+                ProjectConstants.GITIGNORE_FILE_NAME, ProjectConstants.DEVCONTAINER};
+        String existingFiles = "";
+
+        for (String file : packageFiles) {
+            if (Files.exists(packagePath.resolve(file))) {
+                existingFiles += file + FILE_STRING_SEPARATOR;
+            }
+        }
+        return existingFiles;
+    }
+
+    /**
+     * Check if .bal files exist in a given path.
+     *
+     * @param packagePath given path
+     * @return error message if files exists
+     */
+    public static boolean balFilesExists(Path packagePath) throws IOException {
+        //Only skip the bal file to be created if any other .bal files exists
+        return Files.list(packagePath).anyMatch(path -> path.toString().endsWith(ProjectConstants.BLANG_SOURCE_EXT));
+    }
+
+    /**
+     * Get the latest version from a given list of versions.
+     *
+     * @param versions the list of strings
+     * @return the latest version
+     */
+    static String getLatestVersion(List<String> versions) {
+        String latestVersion = versions.get(0);
+        for (String version : versions) {
+            if (SemanticVersion.from(version).greaterThan(SemanticVersion.from(latestVersion))) {
+                latestVersion = version;
+            }
+        }
+        return latestVersion;
+    }
+
+    /**
+     * Pull the dependencies of a given package from central.
+     *
+     * @param orgName org name of the dependent package
+     * @param packageName name of the dependent package
+     * @param version version of the dependent package
+     * @return true if the dependent package compilation has errors
+     */
+    static boolean pullDependencyPackages(String orgName, String packageName, String version) {
+        Path ballerinaUserHomeDirPath = ProjectUtils.createAndGetHomeReposPath();
+        Path centralRepositoryDirPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
+        Path balaDirPath = centralRepositoryDirPath.resolve(ProjectConstants.BALA_DIR_NAME);
+        Path balaPath = ProjectUtils.getPackagePath(balaDirPath, orgName, packageName, version);
+        String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
+        Path cacheDir = centralRepositoryDirPath.resolve(
+                ProjectConstants.CACHES_DIR_NAME + "-" + ballerinaShortVersion);
+
+        ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+        defaultBuilder.addCompilationCacheFactory(new FileSystemCache.FileSystemCacheFactory(cacheDir));
+        BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+
+        // Delete package cache if available
+        Path packageCacheDir = cacheDir.resolve(orgName).resolve(packageName).resolve(version);
+        if (packageCacheDir.toFile().exists()) {
+            deleteDirectory(packageCacheDir);
+        }
+
+        // getResolution pulls all dependencies of the pulled package
+        PackageCompilation packageCompilation = balaProject.currentPackage().getCompilation();
+        Collection<Diagnostic> resolutionDiagnostics = packageCompilation.getResolution()
+                .diagnosticResult().diagnostics();
+        if (!resolutionDiagnostics.isEmpty()) {
+            printDiagnostics(resolutionDiagnostics);
+        }
+        if (packageCompilation.getResolution().diagnosticResult().hasErrors()) {
+            return true;
+        }
+
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        Collection<Diagnostic> backendDiagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
+        if (!backendDiagnostics.isEmpty()) {
+            printDiagnostics(backendDiagnostics);
+        }
+        return jBallerinaBackend.diagnosticResult().hasErrors();
+    }
+
+    private static void printDiagnostics(Collection<Diagnostic> diagnostics) {
+        for (Diagnostic diagnostic: diagnostics) {
+            CommandUtil.printError(errStream, diagnostic.toString(), null, false);
+        }
     }
 }

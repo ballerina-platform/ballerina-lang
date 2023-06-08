@@ -30,16 +30,19 @@
   public interface BFuture extends BValue {
 
      /**
-      * Abort execution of the {@code Strand} that the future is attached.
+      * Abort execution of the Ballerina strand that the future is attached.
       * The abortion occurs only after the next yield point.
       */
      void cancel();
 
+     // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
      /**
       * Returns the strand that the future is attached to.
       *
-      * @return {@code Strand}
+      * @return     strand
+      * @deprecated
       */
+     @Deprecated(since = "2201.6.0", forRemoval = true)
      Strand getStrand();
 
      /**
@@ -50,7 +53,7 @@
      Object getResult();
 
      /**
-      * Returns completion status of the {@code Strand} that the future is attached.
+      * Returns completion status of the Ballerina strand that the future is attached.
       *
       * @return true if future is completed
       */
@@ -64,9 +67,9 @@
      Throwable getPanic();
 
      /**
-      * {@code CallableUnitCallback} listening on the completion of this future.
+      * Returns {@link Callback} listening on the completion of this future.
       *
-      * @return registered {@code CallableUnitCallback}
+      * @return registered {@link Callback}
       */
      Callback getCallback();
  }

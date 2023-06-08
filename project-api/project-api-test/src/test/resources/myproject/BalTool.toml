@@ -1,0 +1,5 @@
+[tool]
+id = "openapi"
+
+[[dependency]]
+path = "./libs/openapi-1.0-SNAPSHOT.jar"

@@ -30,6 +30,7 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.values.NonBmpStringValue;
 import io.ballerina.runtime.internal.values.RegExpValue;
 
 import java.util.List;
@@ -58,25 +59,66 @@ public class RegexUtil {
         }
     }
 
+    static int[] getSurrogatePositions(BString str) {
+        if (str instanceof NonBmpStringValue) {
+            return ((NonBmpStringValue) str).getSurrogates();
+        }
+        return new int[0];
+    }
+
+    static int getSurrogateAdjustedStartIndex(int startIndex, int[] surrogates) {
+        int newStartIndex = startIndex;
+        for (int surrogate : surrogates) {
+            if (startIndex != 0 && surrogate < startIndex) {
+                newStartIndex++;
+            } else if (surrogate > startIndex) {
+                break;
+            }
+        }
+        return newStartIndex;
+    }
+
     static Matcher getMatcher(BRegexpValue regexpVal, String inputStr) {
         // Map the required ballerina regexp constructs to java.
         RegExpValue translatedRegExpVal = RegExpFactory.translateRegExpConstructs((RegExpValue) regexpVal);
-        String patternStr = StringUtils.getStringValue(translatedRegExpVal, null);
-        Pattern pattern = Pattern.compile(patternStr);
+        String patternStr = StringUtils.getStringValue(translatedRegExpVal);
+        Pattern pattern = Pattern.compile(patternStr, Pattern.UNICODE_CHARACTER_CLASS);
         return pattern.matcher(inputStr);
     }
 
-    static BArray getGroupZeroAsSpan(Matcher matcher) {
+    static BArray getGroupZeroAsSpan(BString str, Matcher matcher, int[] surrogates) {
         BArray resultTuple = ValueCreator.createTupleValue(SPAN_AS_TUPLE_TYPE);
-        resultTuple.add(0, matcher.start());
-        resultTuple.add(1, matcher.end());
+        int[] adjustedPositions = getAdjustedPositions(str, matcher, surrogates);
+        resultTuple.add(0, adjustedPositions[0]);
+        resultTuple.add(1, adjustedPositions[1]);
         resultTuple.add(2, StringUtils.fromString(matcher.group()));
         return resultTuple;
     }
 
-    static BArray getMatcherGroupsAsSpanArr(Matcher matcher) {
+    static int[] getAdjustedPositions(BString str, Matcher matcher, int[] surrogates) {
+        BString subString = StringUtils.fromString(matcher.group());
+        return getAdjustedPositions(str, matcher.start(), subString, surrogates);
+    }
+
+    static int[] getAdjustedPositions(BString str, int startIndex, BString subString, int[] surrogates) {
+        int newStartIndex = startIndex;
+        int prevSurrogate = 0;
+        for (int surrogate : surrogates) {
+            long offset = str.indexOf(subString, prevSurrogate);
+            prevSurrogate = surrogate;
+            if (offset != surrogate && surrogate < startIndex) {
+                newStartIndex--;
+            } else if (surrogate > startIndex) {
+                break;
+            }
+        }
+        int newEndIndex = newStartIndex + subString.length();
+        return new int[]{newStartIndex, newEndIndex};
+    }
+
+    static BArray getMatcherGroupsAsSpanArr(BString str, Matcher matcher, int[] surrogates) {
         BArray group = ValueCreator.createArrayValue(GROUPS_AS_SPAN_ARRAY_TYPE);
-        BArray span = getGroupZeroAsSpan(matcher);
+        BArray span = getGroupZeroAsSpan(str, matcher, surrogates);
         group.append(span);
         if (matcher.groupCount() == 0) {
             return group;
@@ -87,9 +129,11 @@ public class RegexUtil {
                 continue;
             }
             BArray resultTuple = ValueCreator.createTupleValue(SPAN_AS_TUPLE_TYPE);
-            resultTuple.add(0, matcherStart);
-            resultTuple.add(1, matcher.end(i));
-            resultTuple.add(2, StringUtils.fromString(matcher.group(i)));
+            BString subString = StringUtils.fromString(matcher.group(i));
+            int[] adjustedPositions = getAdjustedPositions(str, matcherStart, subString, surrogates);
+            resultTuple.add(0, adjustedPositions[0]);
+            resultTuple.add(1, adjustedPositions[1]);
+            resultTuple.add(2, subString);
             group.append(resultTuple);
         }
         return group;
@@ -101,5 +145,23 @@ public class RegexUtil {
 
     public static long length(BString value) {
         return value.length();
+    }
+
+    protected static void checkIndexWithinRange(BString str, long startIndex) {
+        if (startIndex != (int) startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.REGEXP_OPERATION_ERROR,
+                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
+        }
+
+        if (startIndex < 0) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                    RuntimeErrors.NEGATIVE_REGEXP_FIND_INDEX);
+        }
+
+        int strLength = str.length();
+        if (strLength != 0 && strLength <= startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
+                    RuntimeErrors.INVALID_REGEXP_FIND_INDEX, startIndex, strLength);
+        }
     }
 }

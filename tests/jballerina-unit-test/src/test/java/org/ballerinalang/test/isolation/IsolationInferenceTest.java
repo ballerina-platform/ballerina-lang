@@ -182,7 +182,8 @@ public class IsolationInferenceTest {
     private Object[] testIsolatedInferenceWithVariablesFiles() {
         return new String[]{
                 "isolation_inference_with_variables_1.bal",
-                "isolation_inference_with_variables_2.bal"
+                "isolation_inference_with_variables_2.bal",
+                "isolation_inference_with_variables_3.bal"
         };
     }
 
@@ -328,12 +329,10 @@ public class IsolationInferenceTest {
 
     public static boolean isMethodIsolated(Object val, String methodName) {
         BObjectType objectType = (BObjectType) getType(val);
-
         List<MethodType> methodTypes = Lists.of(objectType.getMethods());
-
-        MethodType initializer = objectType.initializer;
-        if (initializer != null) {
-            methodTypes.add(initializer);
+        MethodType initMethod = objectType.getInitMethod();
+        if (initMethod != null) {
+            methodTypes.add(initMethod);
         }
         return isIsolated(methodTypes, methodName);
     }

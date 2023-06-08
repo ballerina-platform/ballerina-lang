@@ -479,6 +479,70 @@ isolated function testFinalReadOnlyServiceAccessInIsolatedFunction() {
     assertEquality(<int[]> [1, 2, 3], rs.x);
 }
 
+type RawTemplateType object:RawTemplate;
+
+type Template1 object {
+    *object:RawTemplate;
+    public (readonly & string[]) strings;
+    public int[] insertions;
+};
+
+final object:RawTemplate & readonly tmp1 = `Count: ${10}, ${20}`;
+
+final Template1 & readonly tmp2 = `Count: ${10}, ${20}`;
+
+final RawTemplateType & readonly tmp3 = `Count: ${10}, ${20}`;
+
+isolated function testFinalReadOnlyRawTemplateAccessInIsolatedFunction() {
+    assertEquality(<string[]>["Count: ", ", ", ""], tmp1.strings);
+    assertEquality(<int[]>[10, 20], tmp1.insertions);
+
+    assertEquality(<string[]>["Count: ", ", ", ""], tmp2.strings);
+    assertEquality(<int[]>[10, 20], tmp2.insertions);
+
+    assertEquality(<string[]>["Count: ", ", ", ""], tmp3.strings);
+    assertEquality(<int[]>[10, 20], tmp3.insertions);
+}
+
+readonly class IsolatedFunctionWithReadOnlySelfAsCapturedVariable {
+    string[] words;
+    int length;
+
+    isolated function init(string[] & readonly words, int length) {
+        self.words = words;
+        self.length = length;
+    }
+
+    isolated function getCount() returns int =>
+        self.words.filter(
+            isolated function (string word) returns boolean => word.length() == self.length).length();
+}
+
+isolated class IsolatedFunctionWithIsolatedSelfAsCapturedVariable {
+    private string[] words;
+    private int min = 10;
+
+    isolated function init(string[] words) {
+        self.words = words.clone();
+    }
+
+    isolated function compare() returns boolean {
+        lock {
+            return self.words.some(isolated function (string s) returns boolean => s.length() > self.min);
+        }
+    }
+}
+
+function testIsolatedFunctionWithSelfAsCapturedVariable() {
+    string[] words = ["hello", "world", "this", "is", "a", "test"];
+
+    IsolatedFunctionWithReadOnlySelfAsCapturedVariable a = new (words.cloneReadOnly(), 4);
+    assertEquality(2, a.getCount());
+
+    IsolatedFunctionWithIsolatedSelfAsCapturedVariable b = new (words);
+    assertEquality(false, b.compare());
+}
+
 isolated function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
