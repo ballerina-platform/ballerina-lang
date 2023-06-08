@@ -213,6 +213,7 @@ public class LangLibRegexpTest {
                 {"testNegativeInvalidFlags2"},
                 {"testNegativeInvalidFlags3"},
                 {"testNegativeInvalidFlags4"},
+                {"testInvalidUnicodeGeneralProperty"}
         };
     }
     
