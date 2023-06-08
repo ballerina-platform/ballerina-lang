@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.bir.codegen.optimizer;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodCallInstruction;
+import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -42,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,6 +52,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 
 /**
  * Split large BIR functions into smaller methods.
@@ -60,9 +66,9 @@ public class LargeMethodOptimizer {
     private static final Name DEFAULT_WORKER_NAME = new Name("function");
     private final SymbolTable symbolTable;
     // splits are done only if the original function has more instructions than the below number
-    private static final int FUNCTION_INSTRUCTION_COUNT_THRESHOLD = 1000;
+    private static final int FUNCTION_INSTRUCTION_COUNT_THRESHOLD = 2;
     // splits are done only if the newly created method will contain more instructions than the below number
-    private static final int SPLIT_INSTRUCTION_COUNT_THRESHOLD = 50;
+    private static final int SPLIT_INSTRUCTION_COUNT_THRESHOLD = 2;
     // splits are done only if the newly created method will have less function arguments than the below number
     private static final int MAX_SPLIT_FUNCTION_ARG_COUNT = 250;
     // current BIR package id
@@ -86,7 +92,7 @@ public class LargeMethodOptimizer {
             if (hasLessInstructionCount(function)) {
                 continue;
             }
-            List<BIRFunction> newBIRFunctions = splitBIRFunction(function, false);
+            List<BIRFunction> newBIRFunctions = splitBIRFunction(function, false, false, false);
             newlyAddedBIRFunctions.addAll(newBIRFunctions);
         }
         for (BIRTypeDefinition birTypeDef : birPkg.typeDefs) {
@@ -94,7 +100,7 @@ public class LargeMethodOptimizer {
                 if (hasLessInstructionCount(function)) {
                     continue;
                 }
-                List<BIRFunction> newBIRFunctions = splitBIRFunction(function, true);
+                List<BIRFunction> newBIRFunctions = splitBIRFunction(function, true, false, false);
                 newlyAddedBIRFunctions.addAll(newBIRFunctions);
             }
         }
@@ -109,13 +115,96 @@ public class LargeMethodOptimizer {
         return instructionCount < FUNCTION_INSTRUCTION_COUNT_THRESHOLD;
     }
 
-    private List<BIRFunction> splitBIRFunction(BIRFunction birFunction, boolean fromAttachedFunction) {
+    private List<BIRFunction> splitBIRFunction(BIRFunction birFunction, boolean fromAttachedFunction,
+                                               boolean fromSplitFunction, boolean splitTypeArray) {
         final List<BIRFunction> newlyAddingFunctions = new ArrayList<>();
-        List<Split> possibleSplits = getPossibleSplits(birFunction.basicBlocks, birFunction.errorTable);
+        List<Split> possibleSplits = getPossibleSplits(birFunction.basicBlocks, birFunction.errorTable,
+                birFunction.name.toString());
         if (!possibleSplits.isEmpty()) {
             generateSplits(birFunction, possibleSplits, newlyAddingFunctions, fromAttachedFunction);
+        } else if (fromSplitFunction) {
+            periodicSplitFunction(birFunction, newlyAddingFunctions, fromAttachedFunction, splitTypeArray);
         }
         return newlyAddingFunctions;
+    }
+
+    private void periodicSplitFunction(BIRFunction birFunction, List<BIRFunction> newlyAddingFunctions,
+                                       boolean fromAttachedFunction, boolean splitTypeArray) {
+        if (!splitTypeArray) {
+            return;
+        }
+        List<BIRBasicBlock> bbs = birFunction.basicBlocks;
+        BIRNonTerminator.NewArray arrayIns = (BIRNonTerminator.NewArray) bbs.get(bbs.size() - 2).instructions
+                .get(bbs.get(bbs.size() - 2).instructions.size() - 1);
+        Map<BIROperand, BIRNode.BIRListConstructorEntry> birOperands =  new HashMap<>();
+        for (BIRNode.BIRListConstructorEntry value : arrayIns.values) {
+            birOperands.put(value.exprOp, value);
+        }
+        List<BIRNonTerminator> newInsList =  new ArrayList<>();
+        JMethodCallInstruction callHandleArray = new JMethodCallInstruction(null);
+        BIRVariableDcl arraySizeVarDcl = new BIRVariableDcl(null, symbolTable.intType, new Name("%splitArraySize"),
+                VarScope.FUNCTION, VarKind.TEMP, null);
+        birFunction.localVars.add(arraySizeVarDcl);
+        BIROperand arraySizeOperand = new BIROperand(arraySizeVarDcl);
+        BIRVariableDcl handleArray = new BIRVariableDcl(null, symbolTable.handleType, new Name("%splitArray"),
+                VarScope.FUNCTION, VarKind.TEMP, null);
+        birFunction.localVars.add(handleArray);
+        BIROperand handleArrayOperand = new BIROperand(handleArray);
+        callHandleArray.lhsOp = handleArrayOperand;
+        callHandleArray.invocationType = INVOKESTATIC;
+        callHandleArray.jClassName = RUNTIME_UTILS;
+        callHandleArray.jMethodVMSig = "(J)Lio/ballerina/runtime/internal/values/HandleValue;";
+        callHandleArray.name = "getListInitialValueEntryArray";
+        callHandleArray.args = new ArrayList<>(Arrays.asList(arraySizeOperand));
+
+        BIRNonTerminator.ConstantLoad loadArraySize = new BIRNonTerminator.ConstantLoad(null,
+                (long) arrayIns.values.size(), symbolTable.intType, arraySizeOperand);
+        newInsList.add(loadArraySize);
+        newInsList.add(callHandleArray);
+
+        BIRNonTerminator.NewLargeArray newLargeArrayIns = new BIRNonTerminator.NewLargeArray(arrayIns.pos,
+                arrayIns.type, arrayIns.lhsOp, arrayIns.typedescOp, arrayIns.sizeOp, handleArrayOperand);
+
+        bbs.get(bbs.size() - 2).instructions.set(bbs.get(bbs.size() - 2).instructions.size() - 1, newLargeArrayIns);
+
+        int arrayIndex = 0;
+        for (BIRBasicBlock bb : bbs) {
+            for (BIRNonTerminator bbIns : bb.instructions) {
+                newInsList.add(bbIns);
+                BIROperand insLhsOp = bbIns.lhsOp;
+                if (birOperands.containsKey(insLhsOp)) {
+                    BIRNode.BIRListConstructorEntry listConstructorEntry = birOperands.get(insLhsOp);
+
+                    JMethodCallInstruction callSetEntry = new JMethodCallInstruction(null);
+                    callSetEntry.invocationType = INVOKESTATIC;
+                    callSetEntry.jClassName = RUNTIME_UTILS;
+                    callSetEntry.jMethodVMSig =
+                            "(Lio/ballerina/runtime/internal/values/HandleValue;Ljava/lang/Object;J)V";
+                    BIRVariableDcl arrayIndexVarDcl = new BIRVariableDcl(null, symbolTable.intType,
+                            new Name("%arrIndex_" + arrayIndex),
+                            VarScope.FUNCTION, VarKind.TEMP, null);
+                    birFunction.localVars.add(arrayIndexVarDcl);
+                    BIROperand arrayIndexOperand = new BIROperand(arrayIndexVarDcl);
+                    BIRNonTerminator.ConstantLoad loadArrayIndex = new BIRNonTerminator.ConstantLoad(null,
+                            (long) arrayIndex, symbolTable.intType, arrayIndexOperand);
+                    newInsList.add(loadArrayIndex);
+                    callSetEntry.args = new ArrayList<>(Arrays.asList(handleArrayOperand, insLhsOp, arrayIndexOperand));
+
+                    if (listConstructorEntry instanceof BIRNode.BIRListConstructorExprEntry) {
+                        // use jcall
+                        callSetEntry.name = "setExpressionEntry";
+                    } else {
+                        // BIRListConstructorSpreadMemberEntry
+                        callSetEntry.name = "setSpreadEntry";
+                    }
+                    newInsList.add(callSetEntry);
+                    arrayIndex++;
+                }
+            }
+            bb.instructions = newInsList;
+            newInsList = new ArrayList<>();
+        }
+
     }
 
     /**
@@ -123,9 +212,11 @@ public class LargeMethodOptimizer {
      *
      * @param basicBlocks available basic block list of the function
      * @param errorTableEntries available error table entries of the function
+     * @param parentFuncName
      * @return a list of possible splits
      */
-    private List<Split> getPossibleSplits(List<BIRBasicBlock> basicBlocks, List<BIRErrorEntry> errorTableEntries) {
+    private List<Split> getPossibleSplits(List<BIRBasicBlock> basicBlocks, List<BIRErrorEntry> errorTableEntries,
+                                          String parentFuncName) {
         List<Split> possibleSplits = new ArrayList<>();
         List<BIRVariableDcl> newFuncArgs;
         int splitEndBBIndex = basicBlocks.size() - 1; // goes from end to beginning
@@ -216,8 +307,8 @@ public class LargeMethodOptimizer {
                         boolean splitAgain = splitInsCount >= FUNCTION_INSTRUCTION_COUNT_THRESHOLD;
 
                         // splitTypeArray variable can be used here if that information is needed later
-                        possibleSplits.add(new Split(insNum, splitEndInsIndex, bbNum, splitEndBBIndex,
-                                lhsOperandList, newFuncArgs, splitErrorTableEntries, splitAgain, returnValAssigned));
+                        possibleSplits.add(new Split(insNum, splitEndInsIndex, bbNum, splitEndBBIndex, lhsOperandList,
+                                newFuncArgs, splitErrorTableEntries, splitAgain, splitTypeArray, returnValAssigned));
                         splitStarted = false;
                     }
                 } else {
@@ -237,7 +328,8 @@ public class LargeMethodOptimizer {
                         // if the split will have all the available instructions already in the function -
                         // no need to make that split, avoids doing the same split repeatedly
                         if ((bbNum == basicBlocks.size() - 2) && (!basicBlocks.get(0).instructions.isEmpty()) &&
-                                (basicBlocks.get(0).instructions.get(0).lhsOp == splitStartOperand)) {
+                                (basicBlocks.get(0).instructions.get(0).lhsOp == splitStartOperand)
+                                && parentFuncName.startsWith("$split$")) {
                             continue;
                         }
 
@@ -400,7 +492,8 @@ public class LargeMethodOptimizer {
             newBBNum += 2;
             newlyAddedFunctions.add(newBIRFunc);
             if (currSplit.splitFurther) {
-                newlyAddedFunctions.addAll(splitBIRFunction(newBIRFunc, fromAttachedFunction));
+                newlyAddedFunctions.addAll(splitBIRFunction(newBIRFunc, fromAttachedFunction, true,
+                        currSplit.splitTypeArray));
             }
             function.errorTable.removeAll(currSplit.errorTableEntries);
             startInsNum = currSplit.lastIns + 1;
@@ -756,7 +849,8 @@ public class LargeMethodOptimizer {
                     possibleSplits.get(splitNum).lhsVars, possibleSplits.get(splitNum).funcArgs, fromAttachedFunction);
             newlyAddedFunctions.add(newBIRFunc);
             if (possibleSplits.get(splitNum).splitFurther) {
-                newlyAddedFunctions.addAll(splitBIRFunction(newBIRFunc, fromAttachedFunction));
+                newlyAddedFunctions.addAll(splitBIRFunction(newBIRFunc, fromAttachedFunction, true,
+                        possibleSplits.get(splitNum).splitTypeArray));
             }
             currentBB.instructions.addAll(instructionList.subList(startInsNum, possibleSplits.get(splitNum).firstIns));
             startInsNum = possibleSplits.get(splitNum).lastIns + 1;
@@ -903,19 +997,21 @@ public class LargeMethodOptimizer {
         int startBBNum;
         int endBBNum;
         boolean splitFurther;
+        boolean splitTypeArray;
         boolean returnValAssigned;
         Set<BIRVariableDcl> lhsVars;
         List<BIRVariableDcl> funcArgs;
         List<BIRErrorEntry> errorTableEntries;
 
         private Split(int firstIns, int lastIns, int startBBNum, int endBBNum, Set<BIRVariableDcl> lhsVars,
-                        List<BIRVariableDcl> funcArgs, List<BIRErrorEntry> errorTableEntries, boolean splitFurther,
-                      boolean returnValAssigned) {
+                      List<BIRVariableDcl> funcArgs, List<BIRErrorEntry> errorTableEntries, boolean splitFurther,
+                      boolean splitTypeArray, boolean returnValAssigned) {
             this.firstIns = firstIns;
             this.lastIns = lastIns;
             this.startBBNum = startBBNum;
             this.endBBNum = endBBNum;
             this.splitFurther = splitFurther;
+            this.splitTypeArray = splitTypeArray;
             this.returnValAssigned = returnValAssigned;
             this.lhsVars = lhsVars;
             this.funcArgs = funcArgs;

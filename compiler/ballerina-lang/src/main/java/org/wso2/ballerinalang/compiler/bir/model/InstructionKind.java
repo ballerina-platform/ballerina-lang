@@ -123,6 +123,8 @@ public enum InstructionKind {
     NEW_RE_FLAG_ON_OFF((byte) 100),
     NEW_RE_QUANTIFIER((byte) 101),
 
+    NEW_LARGE_ARRAY((byte) 102),
+
     PLATFORM((byte) 128);
 
     byte value;
