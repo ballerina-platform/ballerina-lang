@@ -27,7 +27,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
-import org.wso2.ballerinalang.compiler.tree.BLangClientDeclaration;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable.BLangErrorDetailEntry;
@@ -45,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangResourcePathSegment;
 import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -186,7 +186,6 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPatt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangClientDeclarationStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -449,15 +448,6 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangClientDeclaration source) {
-        BLangClientDeclaration clone = new BLangClientDeclaration();
-        source.cloneRef = clone;
-        clone.uri = clone(source.uri);
-        clone.prefix = source.prefix;
-        clone.annAttachments = cloneList(source.annAttachments);
-    }
-
-    @Override
     public void visit(BLangFunction source) {
         BLangFunction clone = new BLangFunction();
         cloneFunctionNode(source, clone);
@@ -680,13 +670,6 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangClientDeclarationStatement source) {
-        BLangClientDeclarationStatement clone = new BLangClientDeclarationStatement();
-        source.cloneRef = clone;
-        clone.clientDeclaration = clone(source.clientDeclaration);
-    }
-
-    @Override
     public void visit(BLangExpressionStmt source) {
 
         BLangExpressionStmt clone = new BLangExpressionStmt();
@@ -742,8 +725,8 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangConstPattern source) {
         BLangConstPattern clone = new BLangConstPattern();
         source.cloneRef = clone;
+        clone.expr = clone(source.expr);
         clone.matchExpr = clone(source.matchExpr);
-        clone.setExpression(source.getExpresion());
     }
 
     @Override
@@ -1861,7 +1844,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangTupleTypeNode clone = new BLangTupleTypeNode();
         source.cloneRef = clone;
-        clone.memberTypeNodes = cloneList(source.memberTypeNodes);
+        clone.members = cloneList(source.members);
         clone.restParamType = clone(source.restParamType);
         cloneBLangType(source, clone);
     }
@@ -2312,11 +2295,19 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangResourceFunction clone = new BLangResourceFunction();
         cloneFunctionNode(source, clone);
 
-        clone.resourcePath = cloneList(source.resourcePath);
+        clone.resourcePathSegments = cloneList(source.resourcePathSegments);
         clone.methodName = clone(source.methodName);
         clone.restPathParam = clone(source.restPathParam);
         clone.pathParams = cloneList(source.pathParams);
-        clone.resourcePathType = clone(source.resourcePathType);
+    }
+    
+    @Override
+    public void visit(BLangResourcePathSegment source) {
+        BLangResourcePathSegment clone = new BLangResourcePathSegment(source.kind);
+        source.cloneRef = clone;
+        clone.name = clone(source.name);
+        clone.symbol = source.symbol;
+        clone.typeNode = clone(source.typeNode);
     }
 
     private void cloneFunctionNode(BLangFunction source, BLangFunction clone) {

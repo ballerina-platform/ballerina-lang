@@ -54,6 +54,7 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.SnippetContext;
 import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
@@ -117,6 +118,12 @@ public class ServiceTemplateGenerator {
         return serviceTemplateGenerator;
     }
 
+
+    /**
+     * Loads listeners from distribution concurrently at the initialization of te LS.
+     *
+     * @param lsContext Language Server Context.
+     */
     private void loadListeners(LanguageServerContext lsContext) {
         String taskId = UUID.randomUUID().toString();
         ExtendedLanguageClient languageClient = lsContext.get(ExtendedLanguageClient.class);
@@ -154,6 +161,12 @@ public class ServiceTemplateGenerator {
         });
     }
 
+    /**
+     * Loads listeners from the Ballerina user home.
+     *
+     * @param lsContext LanguageServer context
+     * @param context   DocumentService context
+     */
     private void loadListeners(LanguageServerContext lsContext, DocumentServiceContext context) {
         LSClientLogger clientLogger = LSClientLogger.getInstance(lsContext);
         CompletableFuture.runAsync(() -> {
@@ -177,9 +190,9 @@ public class ServiceTemplateGenerator {
             //Load distribution repo packages
             LSClientLogger clientLogger = LSClientLogger.getInstance(context);
             clientLogger.logTrace("Loading packages from the distribution");
-            List<LSPackageLoader.PackageInfo> packages = LSPackageLoader.getInstance(context)
+            List<LSPackageLoader.ModuleInfo> modules = LSPackageLoader.getInstance(context)
                     .getDistributionRepoPackages();
-            loadListenersFromPackages(packages, context);
+            loadListenersFromPackages(modules, context);
             this.isInitialized = true;
             clientLogger.logTrace("Finished loading packages from the distribution");
         }
@@ -198,9 +211,9 @@ public class ServiceTemplateGenerator {
             //Load packages from BallerinaUserHome
             LSClientLogger clientLogger = LSClientLogger.getInstance(lsContext);
             clientLogger.logTrace("Loading modules from the BallerinaUserHome");
-            List<LSPackageLoader.PackageInfo> packages = LSPackageLoader.getInstance(lsContext)
+            List<LSPackageLoader.ModuleInfo> modules = LSPackageLoader.getInstance(lsContext)
                     .getPackagesFromBallerinaUserHome(context);
-            loadListenersFromPackages(packages, lsContext);
+            loadListenersFromPackages(modules, lsContext);
             clientLogger.logTrace("Finished loading listener symbols from the  BallerinaUserHome");
         }
     }
@@ -208,10 +221,10 @@ public class ServiceTemplateGenerator {
     /**
      * Load projects from the distribution repo and generate service data holder.
      *
-     * @param packages List of package info.
+     * @param modules List of module info.
      */
-    private void loadListenersFromPackages(List<LSPackageLoader.PackageInfo> packages, LanguageServerContext context) {
-        packages.forEach(distPackage -> {
+    private void loadListenersFromPackages(List<LSPackageLoader.ModuleInfo> modules, LanguageServerContext context) {
+        modules.forEach(distPackage -> {
             String orgName = ModuleUtil.escapeModuleName(distPackage.packageOrg().value());
             Project project = ProjectLoader.loadProject(distPackage.sourceRoot());
             //May take some time as we are compiling projects.
@@ -243,7 +256,7 @@ public class ServiceTemplateGenerator {
      * @param newPackages packages list
      * @param context     language server context
      */
-    public void updateListenerMetaDataMap(List<LSPackageLoader.PackageInfo> newPackages,
+    public void updateListenerMetaDataMap(List<LSPackageLoader.ModuleInfo> newPackages,
                                           LanguageServerContext context) {
         this.loadListenersFromPackages(newPackages, context);
     }
@@ -354,7 +367,7 @@ public class ServiceTemplateGenerator {
             return completionItems;
         }
         boolean isDefaultModule = currentModule.get().isDefaultModule();
-        
+
         project.get().currentPackage().modules().forEach(module -> {
             //Symbols in the default module should not be visible to other modules.
             if (module.isDefaultModule() && !isDefaultModule) {
@@ -440,7 +453,7 @@ public class ServiceTemplateGenerator {
 
         //Get the attach method of the listener.
         MethodSymbol attachMethod = classSymbol.methods().get("attach");
-        if (attachMethod == null || classSymbol.getName().isEmpty()) {
+        if (attachMethod == null) {
             return Optional.empty();
         }
 
@@ -454,7 +467,8 @@ public class ServiceTemplateGenerator {
         if (typeSymbol.typeKind() == TypeDescKind.UNION) {
             //Here we consider the first service type of the union. 
             Optional<TypeSymbol> memberType = ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors()
-                    .stream().filter(member -> member.typeKind() == TypeDescKind.OBJECT).findFirst();
+                    .stream().map(CommonUtil::getRawType)
+                    .filter(member -> member.typeKind() == TypeDescKind.OBJECT).findFirst();
             if (memberType.isEmpty()) {
                 return Optional.empty();
             }
@@ -508,22 +522,24 @@ public class ServiceTemplateGenerator {
         }
 
         String listenerInitialization = "new " + symbolReference + "(" + serviceSnippet.listenerInitArgs + ")";
-        int snippetIndex = serviceSnippet.currentSnippetIndex;
         List<String> methodSnippets = new ArrayList<>();
 
+        SnippetContext snippetContext = new SnippetContext(serviceSnippet.currentSnippetIndex - 1);
+        
         if (!serviceSnippet.unimplementedMethods.isEmpty()) {
             for (MethodSymbol methodSymbol : serviceSnippet.unimplementedMethods) {
                 String functionSnippet =
-                        generateMethodSnippet(importsAcceptor, methodSymbol, snippetIndex, context);
+                        generateMethodSnippet(importsAcceptor, methodSymbol, snippetContext, context);
                 methodSnippets.add(functionSnippet);
-                snippetIndex += 1;
             }
         }
+
 
         String snippet = SyntaxKind.SERVICE_KEYWORD.stringValue() + " ${1} " +
                 SyntaxKind.ON_KEYWORD.stringValue() + " " + listenerInitialization +
                 " {" + CommonUtil.LINE_SEPARATOR + (serviceSnippet.unimplementedMethods.isEmpty() ?
-                "    ${" + snippetIndex + "}" : String.join("", methodSnippets)) + CommonUtil.LINE_SEPARATOR + "}" +
+                "    ${" + snippetContext.incrementAndGetPlaceholderCount()
+                        + "}" : String.join("", methodSnippets)) + CommonUtil.LINE_SEPARATOR + "}" +
                 CommonUtil.LINE_SEPARATOR;
 
         String label;
@@ -540,11 +556,12 @@ public class ServiceTemplateGenerator {
         filterText += "_" + serviceSnippet.symbolName;
         List<TextEdit> additionalTextEdits = new ArrayList<>(importsAcceptor.getNewImportTextEdits());
         return new StaticCompletionItem(context, ServiceTemplateCompletionItemBuilder.build(snippet, label, detail,
-                filterText.replace(".", "_"), additionalTextEdits), StaticCompletionItem.Kind.OTHER);
+                filterText.replace(".", "_"), additionalTextEdits), StaticCompletionItem.Kind.SERVICE_TEMPLATE);
 
     }
 
-    private String generateMethodSnippet(ImportsAcceptor importsAcceptor, MethodSymbol methodSymbol, int snippetIndex,
+    private String generateMethodSnippet(ImportsAcceptor importsAcceptor, MethodSymbol methodSymbol, 
+                                         SnippetContext snippetContext,
                                          BallerinaCompletionContext context) {
         String functionTypeDesc =
                 FunctionGenerator.processModuleIDsInText(importsAcceptor, methodSymbol.signature(), context);
@@ -557,9 +574,9 @@ public class ServiceTemplateGenerator {
                 if (defaultReturnValueForType.isPresent()) {
                     String defaultReturnValue = defaultReturnValueForType.get();
                     if (CommonKeys.PARANTHESES_KEY.equals(defaultReturnValue)) {
-                        returnStmt = "return;";
+                        returnStmt = "";
                     } else {
-                        returnStmt = "return ${" + snippetIndex + ":" +
+                        returnStmt = "return ${" + snippetContext.incrementAndGetPlaceholderCount() + ":" +
                                 defaultReturnValue + "}" + CommonKeys.SEMI_COLON_SYMBOL_KEY;
                     }
                 }
@@ -576,7 +593,8 @@ public class ServiceTemplateGenerator {
                 .append(CommonKeys.OPEN_BRACE_KEY)
                 .append(CommonUtil.LINE_SEPARATOR)
                 .append(StringUtils.repeat(paddingStr, 2))
-                .append((returnStmt.isEmpty() ? "${" + snippetIndex + "}" : returnStmt))
+                .append((returnStmt.isEmpty() ? "${" +
+                        snippetContext.incrementAndGetPlaceholderCount() + "}" : returnStmt))
                 .append(CommonUtil.LINE_SEPARATOR)
                 .append(paddingStr)
                 .append(CommonKeys.CLOSE_BRACE_KEY)

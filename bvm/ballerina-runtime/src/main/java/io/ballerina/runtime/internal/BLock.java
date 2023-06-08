@@ -41,6 +41,7 @@ public class BLock {
     public synchronized boolean lock(Strand strand) {
         if (isLockFree() || lockedBySameContext(strand)) {
             this.current.offerLast(strand);
+            strand.acquiredLockCount++;
             return true;
         }
 
@@ -54,7 +55,8 @@ public class BLock {
 
     public synchronized void unlock() {
         //current cannot be empty as unlock cannot be called without lock being called first.
-        this.current.removeLast();
+        Strand removedStrand = this.current.removeLast();
+        removedStrand.acquiredLockCount--;
         if (!waitingForLock.isEmpty()) {
             Strand strand = this.waitingForLock.removeFirst();
             strand.scheduler.unblockStrand(strand);

@@ -14,72 +14,72 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/runtime_api.errors;
+import testorg/errors.error_utils;
 import ballerina/lang.test as test;
 
 public function main() {
 
-    error userError = errors:getError("UserError");
-    test:assertTrue(userError is errors:GenericError);
+    error userError = error_utils:getError("UserError");
+    test:assertTrue(userError is error_utils:GenericError);
 
     // check cast
-    errors:GenericError error1 = <errors:GenericError>userError;
-    errors:UserError error2 = <errors:UserError>userError;
+    error_utils:GenericError error1 = <error_utils:GenericError>userError;
+    error_utils:UserError error2 = <error_utils:UserError>userError;
 
     // Negative Tests
-    error invalidError = trap errors:getError("UserError2");
+    error invalidError = trap error_utils:getError("UserError2");
 
     test:assertValueEqual(invalidError.message(), "No such error: UserError2");
 
     testTypeIds();
 
-    errors:IOError|error res = trap errors:getDistinctErrorNegative("UserError");
+    error_utils:IOError|error res = trap error_utils:getDistinctErrorNegative("UserError");
     test:assertTrue(res is error);
     error e = <error> res;
     test:assertValueEqual(e.message(), "'class java.lang.String' is not from a valid java runtime class. " +
         "It should be a subclass of one of the following: java.lang.Number, java.lang.Boolean or " +
         "from the package 'io.ballerina.runtime.api.values'");
 
-    error err = trap errors:getErrorNegative1("error message");
+    error err = trap error_utils:getErrorNegative1("error message");
     test:assertValueEqual(err.message(), "'class java.lang.String' is not from a valid java runtime class. " +
         "It should be a subclass of one of the following: java.lang.Number, java.lang.Boolean or " +
         "from the package 'io.ballerina.runtime.api.values'");
 
-    err = trap errors:getErrorWithTypeNegative("error message");
+    err = trap error_utils:getErrorWithTypeNegative("error message");
     test:assertValueEqual(err.message(), "'class java.lang.String' is not from a valid java runtime class. " +
         "It should be a subclass of one of the following: java.lang.Number, java.lang.Boolean or " +
         "from the package 'io.ballerina.runtime.api.values'");
 
-    err = trap errors:getErrorNegative2("error message");
+    err = trap error_utils:getErrorNegative2("error message");
     test:assertValueEqual(err.message(), "'class java.lang.String' is not from a valid java runtime class. " +
             "It should be a subclass of one of the following: java.lang.Number, java.lang.Boolean or " +
             "from the package 'io.ballerina.runtime.api.values'");
 
-    err = trap errors:getDistinctErrorWithNullDetailNegative("error message");
+    err = trap error_utils:getDistinctErrorWithNullDetailNegative("error message");
     test:assertValueEqual(err.message(), "No such error: error message");
 
-    err = trap errors:getErrorWithEmptyDetailNegative("error message");
+    err = trap error_utils:getErrorWithEmptyDetailNegative("error message");
     test:assertValueEqual(err.message(), "error message");
 
-    err = trap errors:getErrorWithNullDetailNegative("error message");
+    err = trap error_utils:getErrorWithNullDetailNegative("error message");
     test:assertValueEqual(err.message(), "error message");
 
-    err = trap errors:getErrorWithEmptyDetailNegative2("error message");
+    err = trap error_utils:getErrorWithEmptyDetailNegative2("error message");
     test:assertValueEqual(err.message(), "error message");
 
-    err = trap errors:getErrorWithNullDetailNegative2("error message");
+    err = trap error_utils:getErrorWithNullDetailNegative2("error message");
     test:assertValueEqual(err.message(), "error message");
 
-    err = trap errors:getDistinctErrorWithEmptyDetailNegative2("error message");
+    err = trap error_utils:getDistinctErrorWithEmptyDetailNegative2("error message");
     test:assertValueEqual(err.message(), "error message");
 
-    err = trap errors:getDistinctErrorWithNullDetailNegative2("error message");
+    err = trap error_utils:getDistinctErrorWithNullDetailNegative2("error message");
     test:assertValueEqual(err.message(), "error message");
 }
 
 function testTypeIds() {
-    error userError = error errors:UserError("Whoops!");
-    string[] types = errors:getTypeIds(userError);
+    error userError = error error_utils:UserError("Whoops!");
+    string[] types = error_utils:getTypeIds(userError);
     test:assertValueEqual(types.length(), 2);
     test:assertValueEqual(types[0], "UserError");
     test:assertValueEqual(types[1], "GenericError");

@@ -1,0 +1,50 @@
+{
+  "position": {
+    "line": 2,
+    "character": 28
+  },
+  "source": "template_expression/source/regex_template_expression_source10.bal",
+  "description": "",
+  "items": [
+    {
+      "label": "{}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "filterText": "a{}",
+      "insertText": "a{${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "*",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "a*",
+      "insertText": "a*",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "+",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "a+",
+      "insertText": "a+",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "?",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "a?",
+      "insertText": "a?",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "$",
+      "kind": "Value",
+      "detail": "Value",
+      "filterText": "a$",
+      "insertText": "a$",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

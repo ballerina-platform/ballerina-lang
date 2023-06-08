@@ -43,6 +43,7 @@ public class ObjectTest {
             "cannot use 'check' in the default expression of a record field";
     private static final String INVALID_USAGE_OF_CHECK_IN_INITIALIZER_IN_OBJECT_WITH_NO_INIT =
             "cannot use 'check' in an object field initializer of an object with no 'init' method";
+    private static final String CANNOT_ASSIGN_TO_FINAL_SELF = "cannot assign a value to final 'self'";
 
     private CompileResult checkInInitializerResult;
     private CompileResult checkFunctionReferencesResult;
@@ -513,6 +514,16 @@ public class ObjectTest {
                 23, 5);
     }
 
+    @Test
+    public void testObjectSelfBeingImplicitlyFinal() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_self_final_negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(result, index++, CANNOT_ASSIGN_TO_FINAL_SELF, 25, 9);
+        BAssertUtil.validateError(result, index++, CANNOT_ASSIGN_TO_FINAL_SELF, 40, 9);
+        BAssertUtil.validateError(result, index++, CANNOT_ASSIGN_TO_FINAL_SELF, 47, 13);
+        Assert.assertEquals(result.getErrorCount(), index);
+    }
+
     @Test(description = "Test nillable initialization")
     @SuppressWarnings("unchecked")
     public void testNillableInitialization() {
@@ -920,5 +931,19 @@ public class ObjectTest {
                 {"testCheckInObjectFieldInitializer5"},
                 {"testCheckInObjectFieldInitializer6"}
         };
+    }
+
+    @Test
+    public void testNonPublicSymbolsWarningInClientDecl() {
+        CompileResult result = BCompileUtil.compile("test-src/object/client_object_decl_with_non_public_symbols.bal");
+        int i = 0;
+        BAssertUtil.validateWarning(result, i++, "attempt to expose non-public symbol 'Foo'", 18, 5);
+        Assert.assertEquals(result.getWarnCount(), i);
+    }
+
+    @Test
+    public void testNonPublicSymbolsWarningInServiceClass() {
+        CompileResult result = BCompileUtil.compile("test-src/object/service_class_decl_with_non_public_symbols.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 }

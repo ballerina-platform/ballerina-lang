@@ -40,6 +40,8 @@ dependencies {
     implementation project(path: ':language-server:language-server-core', configuration: 'tests')
     implementation project(':ballerina-test-utils')
 
+    implementation "com.google.code.gson:gson"
+
     testCompile 'org.testng:testng'
     testCompile 'org.mockito:mockito-all'
     testImplementation 'org.powermock:powermock-mockito-release-full'

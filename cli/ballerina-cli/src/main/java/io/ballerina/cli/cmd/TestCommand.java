@@ -34,12 +34,15 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
@@ -52,11 +55,12 @@ import static org.ballerinalang.test.runtime.util.TesterinaConstants.JACOCO_XML_
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = TEST_COMMAND, description = "Test Ballerina modules")
+@CommandLine.Command(name = TEST_COMMAND, description = "Run package tests")
 public class TestCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
+    private Path projectPath;
     private final boolean exitWhenFinish;
 
     public TestCommand() {
@@ -115,12 +119,11 @@ public class TestCommand implements BLauncherCmd {
         this.offline = true;
     }
 
-    @CommandLine.Option(names = {"--offline"}, description = "Builds/Compiles offline without downloading " +
-            "dependencies.")
+    @CommandLine.Option(names = {"--offline"}, description = "Run package tests")
     private Boolean offline;
 
-    @CommandLine.Parameters (arity = "0..1")
-    private final Path projectPath;
+    @CommandLine.Parameters(description = "Program arguments")
+    private List<String> argList = new ArrayList<>();
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -178,11 +181,14 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
-    @CommandLine.Option(names = "--native", description = "enable running test suite against native image")
+    @CommandLine.Option(names = "--graalvm", description = "enable running test suite against native image")
     private Boolean nativeImage;
 
-    private static final String testCmd = "bal test [--offline]\n" +
-            "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
+    @CommandLine.Option(names = "--excludes", description = "option to exclude source files/folders from code coverage")
+    private String excludes;
+
+    private static final String testCmd = "bal test [--OPTIONS]\n" +
+            "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
 
     public void execute() {
         long start = 0;
@@ -190,6 +196,18 @@ public class TestCommand implements BLauncherCmd {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
             this.errStream.println(commandUsageInfo);
             return;
+        }
+
+        String[] cliArgs = new String[0];
+        if (!argList.isEmpty()) {
+            if (!argList.get(0).matches(ProjectConstants.CONFIG_ARGS_PATTERN)) {
+                this.projectPath = Paths.get(argList.get(0));
+                if (argList.size() > 1) {
+                    cliArgs = argList.subList(1, argList.size()).toArray(new String[0]);
+                }
+            } else {
+                cliArgs = argList.toArray(new String[0]);
+            }
         }
 
         if (sticky == null) {
@@ -244,6 +262,13 @@ public class TestCommand implements BLauncherCmd {
             }
         }
 
+        // If project is empty
+        if (ProjectUtils.isProjectEmpty(project)) {
+            CommandUtil.printError(this.errStream, "package is empty. Please add at least one .bal file.", null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+
         // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
         if (this.debugPort != null) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
@@ -264,6 +289,9 @@ public class TestCommand implements BLauncherCmd {
                     return;
                 }
             }
+            if (excludes != null && excludes.equals("")) {
+                this.outStream.println("warning: ignoring --excludes flag since given exclusion list is empty");
+            }
         } else {
             // Skip --includes flag if it is set without code coverage
             if (includes != null) {
@@ -274,6 +302,17 @@ public class TestCommand implements BLauncherCmd {
                 this.outStream.println("warning: ignoring --coverage-format flag since code coverage is not " +
                         "enabled");
             }
+            if (excludes != null) {
+                this.outStream.println("warning: ignoring --excludes flag since code coverage is not enabled");
+            }
+        }
+
+        if (project.buildOptions().nativeImage()) {
+            this.outStream.println("WARNING: Ballerina GraalVM Native Image test is an experimental feature");
+        }
+
+        if (project.buildOptions().nativeImage() && project.buildOptions().codeCoverage()) {
+            this.outStream.println("WARNING: Code coverage generation is not supported with Ballerina native test");
         }
 
         Iterable<Module> originalModules = project.currentPackage().modules();
@@ -293,7 +332,8 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream, false, isPackageModified, buildOptions.enableCache()))
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList, testList,
-                        includes, coverageFormat, moduleMap, listGroups), project.buildOptions().nativeImage())
+                        includes, coverageFormat, moduleMap, listGroups, excludes, cliArgs),
+                        project.buildOptions().nativeImage())
                 .addTask(new RunNativeImageTestTask(outStream, rerunTests, groupList, disableGroupList,
                         testList, includes, coverageFormat, moduleMap, listGroups),
                         !project.buildOptions().nativeImage())
@@ -320,7 +360,8 @@ public class TestCommand implements BLauncherCmd {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setNativeImage(nativeImage)
-                .build();
+                .setEnableCache(enableCache);
+
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
@@ -336,7 +377,7 @@ public class TestCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("Test a Ballerina project or a standalone Ballerina file. \n");
+        out.append(BLauncherCmd.getCommandUsageInfo(TEST_COMMAND));
     }
 
     @Override

@@ -57,7 +57,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
 
     public Set<BVarSymbol> dependentGlobalVars;
 
-    public BInvokableSymbol(int tag,
+    public BInvokableSymbol(long tag,
                             long flags,
                             Name name,
                             PackageID pkgID,
@@ -68,7 +68,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
         this(tag, flags, name, name, pkgID, type, owner, pos, origin);
     }
 
-    public BInvokableSymbol(int tag,
+    public BInvokableSymbol(long tag,
                             long flags,
                             Name name,
                             Name originalName,

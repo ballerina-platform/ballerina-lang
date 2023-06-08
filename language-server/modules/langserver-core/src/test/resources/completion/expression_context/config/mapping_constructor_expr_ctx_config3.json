@@ -18,7 +18,7 @@
     {
       "label": "empId",
       "kind": "Field",
-      "detail": "(record {|readonly int empId; string name;|}).empId",
+      "detail": "Employee.empId",
       "sortText": "K",
       "insertText": "empId: ${1:0}",
       "insertTextFormat": "Snippet"
@@ -26,15 +26,15 @@
     {
       "label": "name",
       "kind": "Field",
-      "detail": "(record {|readonly int empId; string name;|}).name",
+      "detail": "Employee.name",
       "sortText": "K",
       "insertText": "name: ${1:\"\"}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Fill record {|readonly int empId; string name;|} Required Fields",
+      "label": "Fill Employee Required Fields",
       "kind": "Property",
-      "detail": "record {|readonly int empId; string name;|}",
+      "detail": "Employee",
       "sortText": "R",
       "filterText": "fill",
       "insertText": "empId: ${1:0},\nname: ${2:\"\"}",

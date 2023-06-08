@@ -134,8 +134,7 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "+"
+                                          "kind": "PLUS_TOKEN"
                                         }
                                       ]
                                     }
@@ -239,8 +238,7 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "+"
+                                          "kind": "PLUS_TOKEN"
                                         }
                                       ]
                                     }
@@ -344,8 +342,7 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "+"
+                                          "kind": "PLUS_TOKEN"
                                         }
                                       ]
                                     }
@@ -449,8 +446,7 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "+"
+                                          "kind": "PLUS_TOKEN"
                                         }
                                       ]
                                     }
@@ -554,8 +550,7 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "+"
+                                          "kind": "PLUS_TOKEN"
                                         }
                                       ]
                                     }
@@ -659,8 +654,7 @@
                                       "kind": "RE_QUANTIFIER",
                                       "children": [
                                         {
-                                          "kind": "RE_BASE_QUANTIFIER_VALUE",
-                                          "value": "+"
+                                          "kind": "PLUS_TOKEN"
                                         }
                                       ]
                                     }

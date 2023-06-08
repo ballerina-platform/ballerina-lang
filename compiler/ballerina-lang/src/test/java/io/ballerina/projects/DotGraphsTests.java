@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.StringJoiner;
 
 /**
@@ -47,7 +48,7 @@ public class DotGraphsTests {
         DependencyGraph<DependencyNode> expectedGraph =
                 DotGraphUtils.createDependencyNodeGraph(expectedMutableGraph);
 
-        String serializedGraph = DotGraphs.serializeDependencyNodeGraph(expectedGraph);
+        String serializedGraph = DotGraphs.serializeDependencyNodeGraph(expectedGraph, Collections.emptyList());
         MutableGraph actualMutableGraph = DotGraphUtils.createGraph(serializedGraph);
         DependencyGraph<DependencyNode> actualGraph =
                 DotGraphUtils.createDependencyNodeGraph(actualMutableGraph);

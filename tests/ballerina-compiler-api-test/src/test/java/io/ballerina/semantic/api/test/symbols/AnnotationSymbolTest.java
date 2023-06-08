@@ -102,7 +102,7 @@ public class AnnotationSymbolTest {
                 {87, 22, RESOURCE_METHOD, of("v3")},
                 {96, 11, WORKER, of("v1")},
                 {105, 5, ENUM, of("v1", "v5")},
-                {109, 4, ENUM_MEMBER, of("v1")}
+                {109, 4, ENUM_MEMBER, of("v1")},
         };
     }
 

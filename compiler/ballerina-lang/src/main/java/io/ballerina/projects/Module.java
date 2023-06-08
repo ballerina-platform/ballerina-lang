@@ -188,7 +188,6 @@ public class Module {
         private MdDocumentContext moduleMdContext;
         private final Map<DocumentId, ResourceContext> resourceContextMap;
         private final Map<DocumentId, ResourceContext> testResourceContextMap;
-        private final ModuleKind kind;
 
         private Modifier(Module oldModule) {
             moduleId = oldModule.moduleId();
@@ -202,7 +201,6 @@ public class Module {
             moduleMdContext = oldModule.moduleContext.moduleMdContext().orElse(null);
             resourceContextMap = copyResources(oldModule, oldModule.moduleContext.resourceIds());
             testResourceContextMap = copyResources(oldModule, oldModule.moduleContext.testResourceIds());
-            kind = oldModule.moduleContext.kind();
         }
 
         Modifier updateDocument(DocumentContext newDocContext) {
@@ -338,7 +336,7 @@ public class Module {
             ModuleContext newModuleContext = new ModuleContext(this.project,
                     this.moduleId, this.moduleDescriptor, this.isDefaultModule, srcDocContextMap,
                     testDocContextMap, this.moduleMdContext, this.dependencies, this.resourceContextMap,
-                    this.testResourceContextMap, this.kind);
+                    this.testResourceContextMap);
             moduleContextSet.add(newModuleContext);
 
             // add dependant modules including transitives
@@ -351,7 +349,7 @@ public class Module {
                 moduleContextSet.add(new ModuleContext(this.project,
                         module.moduleId, dependentDescriptor, module.isDefaultModule, module.srcDocContextMap,
                         module.testDocContextMap, module.moduleMdContext, module.dependencies,
-                        module.resourceContextMap, module.testResourceContextMap, module.kind));
+                        module.resourceContextMap, module.testResourceContextMap));
             }
 
             Package newPackage = this.packageInstance.modify().updateModules(moduleContextSet).apply();
@@ -364,7 +362,10 @@ public class Module {
         }
 
         private Collection<ModuleDescriptor> getAllDependants(ModuleDescriptor updatedModuleDescriptor) {
-            packageInstance.getResolution(); // this will build the dependency graph if it is not built yet
+            CompilationOptions offlineCompOptions = CompilationOptions.builder().setOffline(true).build();
+            offlineCompOptions = offlineCompOptions.acceptTheirs(project.currentPackage().compilationOptions());
+            // this will build the dependency graph if it is not built yet
+            packageInstance.getResolution(offlineCompOptions);
             return getAllDependants(updatedModuleDescriptor, new HashSet<>(), new HashSet<>());
         }
 

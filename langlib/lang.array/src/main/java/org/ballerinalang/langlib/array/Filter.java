@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.async.StrandMetadata;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.internal.scheduling.AsyncUtils;
@@ -48,7 +49,7 @@ public class Filter {
 
     public static BArray filter(BArray arr, BFunctionPointer<Object, Boolean> func) {
         BArray newArr;
-        Type arrType = arr.getType();
+        Type arrType = TypeUtils.getReferredType(arr.getType());
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 newArr = ValueCreator.createArrayValue(TypeCreator.createArrayType(arr.getElementType()));

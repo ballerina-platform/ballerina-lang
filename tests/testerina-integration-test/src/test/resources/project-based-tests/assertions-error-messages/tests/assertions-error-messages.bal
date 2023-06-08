@@ -94,7 +94,8 @@ function testAssertTableAndString() {
     test:assertEquals(result.message().toString(), "Assertion Failed!\n \n" +
     "expected: <string> 'table [{id: 1, name: \"John\", salary: 300.50}," +
     "{id: 2, name: \"Bella\", salary: 500.\n50}]'" +
-    "\nactual\t: <table> '[{\"id\":1,\"name\":\"John\",\"salary\":300.5},{\"id\":2,\"name\":\"Bella\",\"salary\":500.5}]'");
+    "\nactual\t: <CustomerTable> '[{\"id\":1,\"name\":\"John\",\"salary\":300.5},{\"id\":2,\"name\":\"Bella\"," +
+    "\"salary\":500.5}]'");
 }
 
 @test:Config {}

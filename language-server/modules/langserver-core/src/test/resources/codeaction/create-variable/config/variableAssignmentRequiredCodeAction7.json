@@ -24,11 +24,11 @@
         }
       ],
       "command": {
-        "title": "Rename Variable",
+        "title": "Rename variable",
         "command": "ballerina.action.rename",
         "arguments": [
           "createVariable2.bal",
-          494
+          492
         ]
       },
       "resolvable": false

@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import org.ballerinalang.langlib.array.utils.ArrayUtils;
 
@@ -35,7 +36,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.createOpNotSuppor
 public class Reverse {
 
     public static BArray reverse(BArray arr) {
-        Type arrType = arr.getType();
+        Type arrType = TypeUtils.getReferredType(arr.getType());
         BArray reversedArr;
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:

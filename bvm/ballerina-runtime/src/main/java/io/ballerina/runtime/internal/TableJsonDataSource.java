@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BMap;
@@ -104,7 +105,7 @@ public class TableJsonDataSource implements JsonDataSource {
         public Object transform(BMap<?, ?> record) {
             MapValue<BString, Object> objNode = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
             for (Map.Entry entry : record.entrySet()) {
-                Type type = TypeChecker.getType(entry.getValue());
+                Type type = TypeUtils.getReferredType(TypeChecker.getType(entry.getValue()));
                 BString keyName = StringUtils.fromString(entry.getKey().toString());
                 constructJsonData(record, objNode, keyName, type);
             }
@@ -151,7 +152,7 @@ public class TableJsonDataSource implements JsonDataSource {
             case TypeTags.RECORD_TYPE_TAG:
                 MapValue<BString, Object> jsonData = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
                 for (Map.Entry entry : record.getMapValue(key).entrySet()) {
-                    Type internalType = TypeChecker.getType(entry.getValue());
+                    Type internalType = TypeUtils.getReferredType(TypeChecker.getType(entry.getValue()));
                     BString internalKeyName = StringUtils.fromString(entry.getKey().toString());
                     constructJsonData(record.getMapValue(key), jsonData, internalKeyName, internalType);
                 }
@@ -162,7 +163,7 @@ public class TableJsonDataSource implements JsonDataSource {
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TEXT_TAG:
-                BString strVal = StringUtils.fromString(StringUtils.getStringValue(record.get(key), null));
+                BString strVal = StringUtils.fromString(StringUtils.getStringValue(record.get(key)));
                 jsonObject.put(key, strVal);
                 break;
             default:

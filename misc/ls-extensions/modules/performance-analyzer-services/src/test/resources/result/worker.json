@@ -5,7 +5,7 @@
       "name": "Client",
       "baseUrl": "https://postman-echo.com/post",
       "pos": {
-        "filePath": "main.bal",
+        "fileName": "main.bal",
         "startLine": {
           "line": 6,
           "offset": 20

@@ -29,6 +29,7 @@ import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.projects.Module;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
+import org.ballerinalang.langserver.commons.SnippetContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -206,10 +207,11 @@ public class AnnotationUtil {
                 if (!requiredFields.isEmpty()) {
                     annotationStart.append(" ").append(OPEN_BRACE_KEY).append(LINE_SEPARATOR);
                     List<String> insertTexts = new ArrayList<>();
+                    SnippetContext snippetContext = new SnippetContext();
                     for (int i = 0; i < requiredFields.size(); i++) {
                         RecordFieldSymbol field = requiredFields.get(i);
                         String fieldInsertionText = "\t" +
-                                RecordUtil.getRecordFieldCompletionInsertText(field, i + 1);
+                                RecordUtil.getRecordFieldCompletionInsertText(field, snippetContext);
                         insertTexts.add(fieldInsertionText);
                     }
                     annotationStart.append(String.join("," + LINE_SEPARATOR, insertTexts));

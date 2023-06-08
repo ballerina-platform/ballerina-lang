@@ -10,6 +10,7 @@
     }
   },
   "source": "extract_to_function_stmts_within_class_method.bal",
+  "description": "Extract to function for statements when inside a class method",
   "expected": [
     {
       "title": "Extract to function",
@@ -42,8 +43,18 @@
           "newText": "extracted();"
         }
       ],
+      "command": {
+        "title": "Rename function",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extract_to_function_stmts_within_class_method.bal",
+          {
+            "line": 2,
+            "character": 8
+          }
+        ]
+      },
       "resolvable": false
     }
-  ],
-  "description": "Extract to function for statements when inside a class method"
+  ]
 }

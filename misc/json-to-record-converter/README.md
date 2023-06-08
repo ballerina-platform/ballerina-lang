@@ -511,4 +511,4 @@ The implementation can handle complex scenarios having many values with differen
 
 ## Contact Us
 Managed By [WSO2 Inc.](https://wso2.com/)
-Slack channel : [Ballerina Platform](https://ballerina-platform.slack.com/)
+Discord server: [Ballerina](https://discord.gg/ballerinalang)

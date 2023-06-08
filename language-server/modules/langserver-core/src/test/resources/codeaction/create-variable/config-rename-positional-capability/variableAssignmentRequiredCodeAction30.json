@@ -1,0 +1,40 @@
+{
+  "position": {
+    "line": 41,
+    "character": 4
+  },
+  "source": "createVariable5.bal",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 41,
+              "character": 4
+            },
+            "end": {
+              "line": 41,
+              "character": 4
+            }
+          },
+          "newText": "stream<Foo> streamResult = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "createVariable5.bal",
+          {
+            "line": 41,
+            "character": 16
+          }
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

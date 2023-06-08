@@ -60,7 +60,8 @@ public class StrandDumpTest extends BaseTest {
         bMainInstance = new BMainInstance(balServer);
     }
 
-    @Test
+    // TODO: enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/38737
+    @Test(enabled = false)
     public void testStrandDumpOfBalPackage() throws BallerinaTestException {
         Path expectedOutputFilePath = Paths.get(testFileLocation, "testOutputs",
                 "testPackageWithModulesStrandDumpRegEx.txt");
@@ -75,7 +76,8 @@ public class StrandDumpTest extends BaseTest {
         runJarAndVerifyStrandDump(envProperties, jarPath, sourceRoot, expectedOutputFilePath);
     }
 
-    @Test
+    // TODO: enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/38737
+    @Test(enabled = false)
     public void testStrandDumpDuringBalTest() throws BallerinaTestException {
         if (isWindowsOS()) {
             return;
@@ -89,14 +91,15 @@ public class StrandDumpTest extends BaseTest {
 
         String[] cmdArgs = new String[]{"bash", balServer.getServerHome() + "/bin/bal", "test", packageName};
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(sourceRoot));
-        startProcessAndVerifyStrandDump(processBuilder, envProperties, expectedOutputFilePath, false, 20000, 2000);
+        startProcessAndVerifyStrandDump(processBuilder, envProperties, expectedOutputFilePath, false, 30000, 2000);
     }
 
     private static boolean isWindowsOS() {
         return Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows");
     }
 
-    @Test
+    // TODO: enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/38737
+    @Test(enabled = false)
     public void testStrandDumpOfSingleBalFile() throws BallerinaTestException {
         Path expectedOutputFilePath = Paths.get(testFileLocation, "testOutputs", "balProgram1StrandDumpRegEx.txt");
         String commandDir = balServer.getServerHome();

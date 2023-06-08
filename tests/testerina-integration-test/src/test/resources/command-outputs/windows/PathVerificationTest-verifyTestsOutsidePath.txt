@@ -1,0 +1,17 @@
+Compiling source
+	intg_tests/path_verification:0.0.0
+
+Running Tests with Coverage
+
+	path_verification
+		[pass] testFunction
+		[pass] testFunction2
+
+
+		2 passing
+		0 failing
+		0 skipped
+
+Generating Test Report
+	path-verification\target\report\test_results.json
+

@@ -1,0 +1,38 @@
+{
+  "position": {
+    "line": 2,
+    "character": 17
+  },
+  "source": "createVariableWithMethodCall1.bal",
+  "description": "Test create variable code action with lang lib method",
+  "expected": [
+    {
+      "title": "Create variable",
+      "kind": "quickfix",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 4
+            }
+          },
+          "newText": "[int, string][] enumerate = "
+        }
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.rename",
+        "arguments": [
+          "createVariableWithMethodCall1.bal",
+          108
+        ]
+      },
+      "resolvable": false
+    }
+  ]
+}

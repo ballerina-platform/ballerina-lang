@@ -113,7 +113,8 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) this.getBType().tsymbol).attachedFuncs) {
             if (attachedFunc instanceof BResourceFunction) {
                 BResourceFunction resFn = (BResourceFunction) attachedFunc;
-                String resPath = resFn.resourcePath.stream().map(p -> p.value).collect(Collectors.joining("/"));
+                String resPath = resFn.pathSegmentSymbols.stream()
+                        .map(p -> p.name.value).collect(Collectors.joining("/"));
                 methods.put(resFn.accessor.value + " " + resPath,
                             symbolFactory.createResourceMethodSymbol(attachedFunc.symbol));
             } else {

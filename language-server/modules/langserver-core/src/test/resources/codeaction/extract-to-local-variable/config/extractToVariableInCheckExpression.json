@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "string var1 \u003d check getString();\n    "
+          "newText": "string var1 = check getString();\n    "
         },
         {
           "range": {
@@ -41,7 +41,19 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInCheckExpression.bal",
+          {
+            "line": 2,
+            "character": 17
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

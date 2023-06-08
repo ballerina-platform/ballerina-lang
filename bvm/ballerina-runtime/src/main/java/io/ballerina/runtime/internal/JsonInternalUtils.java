@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.internal.types.BArrayType;
@@ -52,10 +53,10 @@ import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
-import io.ballerina.runtime.internal.values.RefValue;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -231,10 +232,10 @@ public class JsonInternalUtils {
      * @return returns true if provided JSON is a JSON Array.
      */
     public static boolean isJSONArray(Object json) {
-        if (!(json instanceof RefValue)) {
+        if (!(json instanceof BRefValue)) {
             return false;
         }
-        return ((RefValue) json).getType().getTag() == TypeTags.ARRAY_TAG;
+        return ((BRefValue) json).getType().getTag() == TypeTags.ARRAY_TAG;
     }
 
     /**
@@ -244,11 +245,11 @@ public class JsonInternalUtils {
      * @return returns true if provided JSON is a JSON Object.
      */
     public static boolean isJSONObject(Object json) {
-        if (!(json instanceof RefValue)) {
+        if (!(json instanceof BRefValue)) {
             return false;
         }
 
-        Type type = ((RefValue) json).getType();
+        Type type = TypeUtils.getReferredType(((BRefValue) json).getType());
         int typeTag = type.getTag();
         return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG;
     }
@@ -344,7 +345,7 @@ public class JsonInternalUtils {
                 return jsonValue;
             case TypeTags.UNION_TAG:
                 matchingType = TypeConverter.getConvertibleTypeInTargetUnionType(jsonValue,
-                        (BUnionType) targetType, null, true, new ArrayList<>(), new ArrayList<>(), true);
+                        (BUnionType) targetType, null, new ArrayList<>(), new HashSet<>(), true);
                 if (matchingType == null) {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                             getTypeName(jsonValue));
@@ -352,7 +353,7 @@ public class JsonInternalUtils {
                 return convertJSON(jsonValue, matchingType);
             case TypeTags.FINITE_TYPE_TAG:
                 matchingType = TypeConverter.getConvertibleFiniteType(jsonValue, (BFiniteType) targetType,
-                        null, true, new ArrayList<>(), new ArrayList<>(), true);
+                        null, new ArrayList<>(), new HashSet<>(), true);
                 if (matchingType == null) {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
                             getTypeName(jsonValue));
@@ -398,7 +399,7 @@ public class JsonInternalUtils {
             return null;
         }
 
-        Type type = TypeChecker.getType(source);
+        Type type = TypeUtils.getReferredType(TypeChecker.getType(source));
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.FLOAT_TAG:
@@ -438,8 +439,8 @@ public class JsonInternalUtils {
             return null;
         }
 
-        Type j1Type = TypeChecker.getType(j1);
-        Type j2Type = TypeChecker.getType(j2);
+        Type j1Type = TypeUtils.getReferredType(TypeChecker.getType(j1));
+        Type j2Type = TypeUtils.getReferredType(TypeChecker.getType(j2));
 
         if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
             return ErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
@@ -491,8 +492,8 @@ public class JsonInternalUtils {
         }
 
         if (checkMergeability) {
-            Type j1Type = TypeChecker.getType(j1);
-            Type j2Type = TypeChecker.getType(j2);
+            Type j1Type = TypeUtils.getReferredType(TypeChecker.getType(j1));
+            Type j2Type = TypeUtils.getReferredType(TypeChecker.getType(j2));
 
             if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
                 return ErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
@@ -697,7 +698,7 @@ public class JsonInternalUtils {
                 json.append(null);
             }
 
-            Type type = TypeChecker.getType(value);
+            Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
             switch (type.getTag()) {
                 case TypeTags.JSON_TAG:
                     json.append(value);
@@ -784,7 +785,7 @@ public class JsonInternalUtils {
                 return;
             }
 
-            Type type = TypeChecker.getType(value);
+            Type type = TypeUtils.getReferredType(TypeChecker.getType(value));
             switch (type.getTag()) {
                 case TypeTags.INT_TAG:
                 case TypeTags.FLOAT_TAG:

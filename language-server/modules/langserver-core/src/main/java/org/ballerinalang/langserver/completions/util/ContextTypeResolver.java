@@ -546,9 +546,8 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 }
 
                 for (ParameterSymbol parameterSymbol : parameterSymbols.get()) {
-                    if (parameterSymbol.getName()
-                            .filter(name -> name.equals(namedArgumentNode.argumentName().name().text()))
-                            .isPresent()) {
+                    if (parameterSymbol.getName().map(name -> 
+                            name.equals(namedArgumentNode.argumentName().name().text())).orElse(false)) {
                         TypeSymbol typeDescriptor = parameterSymbol.typeDescriptor();
                         return Optional.of(typeDescriptor);
                     }
@@ -567,7 +566,10 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 if (fieldSymbol.isPresent()) {
                     return Optional.of(fieldSymbol.get().typeDescriptor());
                 }
+                break;
             }
+            case PARENTHESIZED_ARG_LIST:
+               return this.visit(namedArgumentNode.parent());
         }
 
         return Optional.empty();

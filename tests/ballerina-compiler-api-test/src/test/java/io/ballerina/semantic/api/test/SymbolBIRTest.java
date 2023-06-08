@@ -22,6 +22,8 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
@@ -39,6 +41,8 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -97,6 +101,29 @@ public class SymbolBIRTest {
         srcFile = getDocumentForSingleSource(project);
     }
 
+    @Test(dataProvider = "FunctionTypePosProvider")
+    public void test(int line, int col, String signature) {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_function_types_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
+        assertTrue(symbol.isPresent());
+        assertEquals(symbol.get().kind(), FUNCTION);
+
+        FunctionTypeSymbol functionTypeSymbol = ((FunctionSymbol) symbol.get()).typeDescriptor();
+        assertEquals(functionTypeSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "FunctionTypePosProvider")
+    private Object[][] getFunctionTypePos() {
+        return new Object[][] {
+                {19, 24, "function (function (int x, float... y) returns string fn) returns int"},
+                {23, 16, "function (function (int x, function (string s, int... t) returns float fA)" +
+                        " returns string fn) returns ()"},
+        };
+    }
+
     // Tests if the field symbols of a record type defined in testorg/testproject are accessible
     @Test(dataProvider = "RecordFieldImports")
     public void testRecordFieldSymbol(int line, int col, String fieldName, TypeDescKind typeKind, boolean isOptional,
@@ -149,12 +176,13 @@ public class SymbolBIRTest {
         BallerinaModule fooModule = (BallerinaModule) symbolsInScope.stream()
                 .filter(sym -> sym.getName().get().equals("testproject")).findAny().get();
         SemanticAPITestUtils.assertList(fooModule.functions(), List.of("loadHuman", 
-                "testAnonTypeDefSymbolsIsNotVisible", "add"));
+                "testAnonTypeDefSymbolsIsNotVisible", "add", "testFnA", "testFnB"));
         SemanticAPITestUtils.assertList(fooModule.constants(), List.of("RED", "GREEN", "BLUE", "PI", "TRUE", "FALSE"));
         
         SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), List.of("HumanObj", "ApplicationResponseError", 
                 "Person", "BasicType", "Digit", "FileNotFoundError", "EofError", "Error", "Pet", "Student", "Cat", 
-                "Annot", "Detail", "Service"));
+                "Annot", "Detail", "Service", "FnTypeA", "FnTypeB", "Address"));
+
         
         SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog", "EmployeeObj", "Human"));
         SemanticAPITestUtils.assertList(fooModule.enums(), List.of("Colour"));
@@ -257,6 +285,30 @@ public class SymbolBIRTest {
         // Fields and methods
         assertTrue(symbol.fieldDescriptors().containsKey("count"));
         assertTrue(symbol.methods().isEmpty());
+    }
+
+    @Test
+    public void testSymbolLookupInModuleAlias() {
+        CompileResult compileResult = BCompileUtil.compileAndCacheBala("test-src/test-module-alias-project");
+        if (compileResult.getErrorCount() != 0) {
+            Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
+            Assert.fail("Compilation contains error");
+        }
+
+        Project project = BCompileUtil.loadProject("test-src/module_symbol_alias_import_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+        List<Symbol> visibleSymbols = model.visibleSymbols(srcFile, LinePosition.from(19, 25));
+        List<String> expectedModuleSymbols = List.of("tp", "ta");
+        int moduleSymbolsCount = 0;
+        for (Symbol visibleSymbol : visibleSymbols) {
+            if (visibleSymbol.kind() == MODULE
+                    && visibleSymbol.getName().isPresent()
+                    && expectedModuleSymbols.contains(visibleSymbol.getName().get())) {
+                moduleSymbolsCount++;
+            }
+        }
+        assertEquals(moduleSymbolsCount, 2);
     }
 
     // util methods
@@ -363,5 +415,22 @@ public class SymbolBIRTest {
             ClassFieldSymbol fieldSymbol = (ClassFieldSymbol) symbol.get();
             assertEquals((Boolean) fieldSymbol.hasDefaultValue(), hasDefault);
         }
+    }
+
+    @Test
+    public void testIntersectionTypeDefSymbolPosBIR() {
+        Project project = BCompileUtil.loadProject("test-src/symbol_position_bir_test.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        Document srcFile = getDocumentForSingleSource(project);
+
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        LineRange lineRange = ((TypeReferenceTypeSymbol) model.symbol(srcFile,
+                from(19, 16)).get()).definition().getLocation().get().lineRange();
+        assertEquals(lineRange.startLine().line(), 143);
+        assertEquals(lineRange.startLine().offset(), 0);
+        assertEquals(lineRange.endLine().line(), 147);
+        assertEquals(lineRange.endLine().offset(), 2);
     }
 }

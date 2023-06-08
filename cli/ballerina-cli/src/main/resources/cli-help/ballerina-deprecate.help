@@ -1,0 +1,29 @@
+NAME
+       ballerina-deprecate - Deprecates a published package
+
+SYNOPSIS
+       bal deprecate [OPTIONS] <package>
+
+
+DESCRIPTION
+       The deprecate command marks the specified package as deprecated in Ballerina central.
+
+       A deprecated package will not be used as a dependency of a package unless the deprecated package is already recorded in
+       the `Dependencies.toml` and the `--sticky` option is used to build the package. Also, a deprecated package will be used as
+       a dependency of a package if there are no other versions that can satisfy dependency constraints.
+
+       A warning diagnostic will be issued whenever a deprecated package is used as a dependency.
+
+       This command does not delete the package from Ballerina central, and the package can be undeprecated using the `--undo` option.
+
+
+OPTIONS
+       --message=<msg>
+           Use the given <msg> as the deprecation message
+       --undo
+           Undeprecate a deprecated package
+
+EXAMPLES
+
+       Deprecates the package ballerina/io:1.1.1
+            bal deprecate ballerina/io:1.1.1

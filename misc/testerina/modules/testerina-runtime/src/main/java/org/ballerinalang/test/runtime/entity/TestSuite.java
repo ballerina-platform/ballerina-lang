@@ -75,7 +75,6 @@ public class TestSuite {
                      String orgName, String version, String executeFilePath) {
         this.packageId = packageId;
         this.testPackageId = testPackageId;
-        this.packageId = packageId;
         this.packageName = packageName;
         this.orgName = orgName;
         this.version = version;
@@ -244,6 +243,10 @@ public class TestSuite {
 
     public Map<String, String> getMockFunctionNamesMap() {
         return this.mockFunctionNamesMap;
+    }
+
+    public void removeAllMockFunctions() {
+        this.mockFunctionNamesMap = new HashMap<>();
     }
 
     public void addTestUtilityFunction(String functionName, String functionClassName) {

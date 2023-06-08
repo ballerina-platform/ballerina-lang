@@ -42,7 +42,7 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BA
  *
  * @since 2.0.0
  */
-@CommandLine.Command(name = SEARCH_COMMAND, description = "search for packages within Ballerina Central")
+@CommandLine.Command(name = SEARCH_COMMAND, description = "Search Ballerina Central for packages")
 public class SearchCommand implements BLauncherCmd {
 
     private PrintStream outStream;
@@ -111,7 +111,7 @@ public class SearchCommand implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder out) {
-        out.append("searches for packages within Ballerina Central \n");
+        out.append(BLauncherCmd.getCommandUsageInfo(SEARCH_COMMAND));
     }
 
     @Override

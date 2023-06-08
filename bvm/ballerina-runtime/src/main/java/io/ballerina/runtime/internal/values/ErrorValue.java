@@ -24,9 +24,10 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.TypeId;
-import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
+import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
@@ -48,6 +49,8 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.runtime.internal.util.StringUtils.getExpressionStringVal;
+import static io.ballerina.runtime.internal.util.StringUtils.getStringVal;
 
 /**
  * <p>
@@ -65,7 +68,7 @@ public class ErrorValue extends BError implements RefValue {
     private static final PrintStream outStream = System.err;
 
     private final Type type;
-    private final BTypedesc typedesc;
+    private BTypedesc typedesc;
     private final BString message;
     private final BError cause;
     private final Object details;
@@ -94,7 +97,6 @@ public class ErrorValue extends BError implements RefValue {
         this.message = message;
         this.cause = cause;
         this.details = details;
-        this.typedesc = new TypedescValueImpl(type);
     }
 
     public ErrorValue(Type type, BString message, BError cause, Object details,
@@ -106,8 +108,7 @@ public class ErrorValue extends BError implements RefValue {
         this.details = details;
         BTypeIdSet typeIdSet = new BTypeIdSet();
         typeIdSet.add(typeIdPkg, typeIdName, true);
-        ((BErrorType) type).setTypeIdSet(typeIdSet);
-        this.typedesc = new TypedescValueImpl(type);
+        ((BErrorType) TypeUtils.getReferredType(type)).setTypeIdSet(typeIdSet);
     }
 
     @Override
@@ -159,7 +160,7 @@ public class ErrorValue extends BError implements RefValue {
                         sj.add(key + "=" + ((BValue) value).informalStringValue(parent));
                         break;
                     default:
-                        sj.add(key + "=" + StringUtils.getStringValue(value, parent));
+                        sj.add(key + "=" + getStringVal(value, parent));
                         break;
                 }
             }
@@ -175,7 +176,7 @@ public class ErrorValue extends BError implements RefValue {
         StringJoiner sj = new StringJoiner(",");
         for (Object key : ((MapValue) details).getKeys()) {
             Object value = ((MapValue) details).get(key);
-            sj.add(key + "=" + StringUtils.getExpressionStringValue(value, parent));
+            sj.add(key + "=" + getExpressionStringVal(value, parent));
         }
         return "," + sj;
     }
@@ -188,6 +189,7 @@ public class ErrorValue extends BError implements RefValue {
     }
 
     private String getModuleNameToBalString() {
+        Type type = TypeUtils.getReferredType(this.type);
         if (((BErrorType) type).typeIdSet == null) {
             return "";
         }
@@ -221,7 +223,11 @@ public class ErrorValue extends BError implements RefValue {
         return this;
     }
 
+    @Override
     public BTypedesc getTypedesc() {
+        if (this.typedesc == null) {
+            this.typedesc = new TypedescValueImpl(type);
+        }
         return typedesc;
     }
 
@@ -253,8 +259,8 @@ public class ErrorValue extends BError implements RefValue {
      * @return detail record
      */
     public Object getDetails() {
-        if (details instanceof RefValue) {
-            return ((RefValue) details).frozenCopy(new HashMap<>());
+        if (details instanceof BRefValue) {
+            return ((BRefValue) details).frozenCopy(new HashMap<>());
         }
         return details;
     }

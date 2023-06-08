@@ -23,6 +23,8 @@ import org.ballerinalang.bindgen.utils.BindgenEnv;
 import java.lang.reflect.Field;
 import java.util.Collections;
 
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_NILLABLE_STRING;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_NILLABLE_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
@@ -54,7 +56,7 @@ public class JField extends BFunction {
     JField(Field field, BFunction.BFunctionKind fieldKind, BindgenEnv env, JClass jClass) {
         super(fieldKind, env);
         Class type = field.getType();
-        fieldType = getBallerinaParamType(type, env.getAliases());
+        fieldType = getBallerinaParamType(type, env);
         isStatic = isStaticField(field);
         super.setStatic(isStatic);
         fieldName = field.getName();
@@ -63,10 +65,10 @@ public class JField extends BFunction {
         if (type.isPrimitive() || type.equals(String.class)) {
             isObject = false;
         }
-        if (fieldType.equals(BALLERINA_STRING)) {
+        if (fieldType.equals(BALLERINA_STRING) || fieldType.equals(BALLERINA_NILLABLE_STRING)) {
             isString = true;
         }
-        if (fieldType.equals(BALLERINA_STRING_ARRAY)) {
+        if (fieldType.equals(BALLERINA_STRING_ARRAY) || fieldType.equals(BALLERINA_NILLABLE_STRING_ARRAY)) {
             isStringArray = true;
         }
         if (type.isArray()) {
@@ -89,7 +91,7 @@ public class JField extends BFunction {
             setParameters(Collections.singletonList(fieldObj));
             fieldMethodName = "set" + StringUtils.capitalize(fieldName);
         }
-        setExternalReturnType(getBallerinaHandleType(type));
+        setExternalReturnType(getBallerinaHandleType(env, type));
         setExternalFunctionName(jClass.getCurrentClass().getName().replace(".", "_")
                 .replace("$", "_") + "_" + fieldMethodName);
         setReturnType(fieldType);
@@ -121,9 +123,6 @@ public class JField extends BFunction {
         StringBuilder returnString = new StringBuilder();
         if (super.getKind() == BFunctionKind.FIELD_GET) {
             returnString.append(fieldObj.getShortTypeName());
-            if (isString || isStringArray) {
-                returnString.append("?");
-            }
             if (returnError) {
                 returnString.append("|error");
             }

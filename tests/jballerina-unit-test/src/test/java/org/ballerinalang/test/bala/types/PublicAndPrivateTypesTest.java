@@ -21,6 +21,7 @@ package org.ballerinalang.test.bala.types;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -28,11 +29,22 @@ import org.testng.annotations.Test;
  */
 public class PublicAndPrivateTypesTest {
 
+    private CompileResult compileResult;
+
+    @BeforeClass
+    public void setup() {
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_types");
+        compileResult = BCompileUtil.compile(
+                "test-src/bala/test_bala/types/public_and_private_types_test.bal");
+    }
+
     @Test
     public void testModulePublicAndPrivateTypes() {
-        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_types");
-        CompileResult compileResult = BCompileUtil.compile(
-                "test-src/bala/test_bala/types/public_and_private_types_test.bal");
         BRunUtil.invoke(compileResult, "testModulePublicAndPrivateTypes");
+    }
+
+    @Test
+    public void testAnonymousDistinctErrorTypes() {
+        BRunUtil.invoke(compileResult, "testAnonymousDistinctErrorTypes");
     }
 }

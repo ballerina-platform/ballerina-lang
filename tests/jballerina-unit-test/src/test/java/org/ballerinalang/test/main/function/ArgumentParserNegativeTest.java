@@ -38,7 +38,7 @@ public class ArgumentParserNegativeTest {
     public void testTooManyArgs() {
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_int_param.bal");
-        BRunUtil.runMain(compileResult, new String[]{"1", "Hello World"});
+        BRunUtil.runMain(compileResult, "1", "Hello World");
     }
 
     @Test(expectedExceptions = RuntimeException.class,
@@ -46,7 +46,7 @@ public class ArgumentParserNegativeTest {
     public void testInsufficientArgs() {
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_multiple_typed_params.bal");
-        BRunUtil.runMain(compileResult, new String[]{"1"});
+        BRunUtil.runMain(compileResult, "1");
     }
 
     @Test(description = "Test passing undefined parameters to the main function",
@@ -55,7 +55,7 @@ public class ArgumentParserNegativeTest {
     public void testIncorrectArgs() {
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_int_param.bal");
-        BRunUtil.runMain(compileResult, new String[]{"-j=1"});
+        BRunUtil.runMain(compileResult, "-j=1");
     }
 
     @Test(dataProvider = "intValues")
@@ -63,10 +63,22 @@ public class ArgumentParserNegativeTest {
         try {
             CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                        + "test_main_with_int_param.bal");
-            BRunUtil.runMain(compileResult, new String[]{arg});
+            BRunUtil.runMain(compileResult, arg);
         } catch (RuntimeException e) {
             Assert.assertEquals(e.getMessage(), "error: invalid argument '" + arg +
                     "' for parameter 'i', expected integer value");
+        }
+    }
+
+    @Test(dataProvider = "floatValues")
+    public void testInvalidFloatArg(String arg) {
+        try {
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_float_param.bal");
+            BRunUtil.runMain(compileResult, arg);
+        } catch (RuntimeException e) {
+            Assert.assertEquals(e.getMessage(), "error: invalid argument '" + arg +
+                    "' for parameter 'f', expected float value");
         }
     }
 
@@ -88,15 +100,15 @@ public class ArgumentParserNegativeTest {
         String argument = "5.5s";
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_multiple_typed_params.bal");
-        BRunUtil.runMain(compileResult, new String[]{"10", argument});
+        BRunUtil.runMain(compileResult, "10", argument);
     }
 
     @Test(expectedExceptions = RuntimeException.class,
           expectedExceptionsMessageRegExp = "error: all operand arguments are not matched")
     public void testInvalidArgsWithDefaultableParams() {
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
-                                                                   + "test_main_with_defaultable_param.bal");
-        BRunUtil.runMain(compileResult, new String[]{"1", "true", "hi", "not", "yes"});
+                + "test_main_with_defaultable_param.bal");
+        BRunUtil.runMain(compileResult, "1", "true", "1", "2.3", "4e5", "6", "hi", "hello");
     }
 
     @Test(expectedExceptions = RuntimeException.class,
@@ -105,7 +117,7 @@ public class ArgumentParserNegativeTest {
         String argument = "[true, \"hi\", 5]";
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_int_array_param.bal");
-        BRunUtil.runMain(compileResult, new String[]{argument});
+        BRunUtil.runMain(compileResult, argument);
     }
 
     @Test(expectedExceptions = RuntimeException.class,
@@ -114,18 +126,69 @@ public class ArgumentParserNegativeTest {
         String argument = "5, 1, hi.there";
         CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                                                                    + "test_main_with_float_array_param.bal");
-        BRunUtil.runMain(compileResult, new String[]{argument});
+        BRunUtil.runMain(compileResult, argument);
+    }
+
+    @Test
+    public void testInvalidByteArg() {
+        try {
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_byte_param.bal");
+            BRunUtil.runMain(compileResult, "256");
+        } catch (RuntimeException e) {
+            Assert.assertEquals(e.getMessage(),
+                    "error: invalid argument '256' for parameter 'i', expected byte value");
+        }
+    }
+
+    @Test
+    public void testInvalidCharArg() {
+        try {
+            CompileResult compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
+                    + "test_main_with_char_param.bal");
+            BRunUtil.runMain(compileResult, "ABC");
+        } catch (RuntimeException e) {
+            Assert.assertEquals(e.getMessage(),
+                    "error: invalid argument 'ABC' for parameter 'c', expected string:Char value");
+        }
     }
 
     @DataProvider(name = "intValues")
-    public Object[][] intValues() {
-        return new Object[][]{
-                {"5ss"},
-                {"0c10"},
-                {"0b2101"},
-                {"0B11015"},
-                {"0xkef"},
-                {"0XFSF1"}
+    public Object[] intValues() {
+        return new Object[]{
+                "10.0",
+                "142.5",
+                "5ss",
+                "0c10",
+                "0b2101",
+                "0B11015",
+                "0x1efa2",
+                "-0x1efa2",
+                "0XFAF1",
+                "-0XFAF1",
+                "0xkef",
+                "0XFSF1",
+                "12d",
+                "-128D",
+                ""
+        };
+    }
+
+    @DataProvider(name = "floatValues")
+    public Object[] floatValues() {
+        return new Object[]{
+                "13.24f",
+                "123asd",
+                "0x1ef.a2pa5",
+                "2.0d",
+                "-2d",
+                "-4.5f",
+                "0x23dfp-2d",
+                "124.56f",
+                "-345.34F",
+                "-4.235E34f",
+                "-5.278e-45D",
+                ""
         };
     }
 
@@ -135,7 +198,16 @@ public class ArgumentParserNegativeTest {
                 "13.24f",
                 "123asd",
                 "0x1ef.a2",
-                "0X1EF.A2P-2"
+                "0X1EF.A2P-2",
+                "-0X1EF.A2p-2",
+                "2.0d",
+                "-2d",
+                "4.5f",
+                "0x23dfp-2d",
+                "42.46D",
+                "-456.678d",
+                "-1.34e-6145f",
+                ""
         };
     }
 }

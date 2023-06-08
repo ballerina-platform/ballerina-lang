@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BFiniteType;
-import io.ballerina.runtime.internal.types.BType;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANY;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
@@ -37,6 +36,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_FUTURE;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_JSON;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NEVER;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STREAM;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
@@ -45,7 +45,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_XML;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_XML_ATTRIBUTES;
 
 /**
- * This class contains various methods manipulate {@link BType}s in Ballerina.
+ * This class contains various methods to manipulate {@link Type}s in Ballerina.
  *
  * @since 2.0.0
  */
@@ -55,23 +55,26 @@ public class TypeUtils {
     }
 
     public static boolean isValueType(Type type) {
-        if (type == TYPE_INT || type == TYPE_BYTE ||
-                type == TYPE_FLOAT ||
-                type == TYPE_DECIMAL || type == TYPE_STRING ||
-                type == TYPE_BOOLEAN) {
-            return true;
-        }
-
-        if (type != null && type.getTag() == TypeTags.FINITE_TYPE_TAG) {
-            // All the types in value space should be value types.
-            for (Object value : ((BFiniteType) type).valueSpace) {
-                if (!isValueType(TypeChecker.getType(value))) {
-                    return false;
+        Type referredType = TypeUtils.getReferredType(type);
+        switch (referredType.getTag()) {
+            case TypeTags.INT_TAG:
+            case TypeTags.BYTE_TAG:
+            case TypeTags.FLOAT_TAG:
+            case TypeTags.DECIMAL_TAG:
+            case TypeTags.BOOLEAN_TAG:
+            case TypeTags.STRING_TAG:
+                return true;
+            case TypeTags.FINITE_TYPE_TAG:
+                for (Object value : ((BFiniteType) referredType).valueSpace) {
+                    if (!isValueType(TypeChecker.getType(value))) {
+                        return false;
+                    }
                 }
-            }
-            return true;
+                return true;
+            default:
+                return false;
+
         }
-        return false;
     }
 
     public static Type getTypeFromName(String typeName) {
@@ -110,6 +113,8 @@ public class TypeUtils {
                 return TYPE_ERROR;
             case TypeConstants.ANYDATA_TNAME:
                 return TYPE_ANYDATA;
+            case TypeConstants.NEVER_TNAME:
+                return TYPE_NEVER;
             default:
                 throw new IllegalStateException("Unknown type name");
         }

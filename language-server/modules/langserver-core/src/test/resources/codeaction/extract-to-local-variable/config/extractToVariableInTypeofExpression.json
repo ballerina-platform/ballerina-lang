@@ -26,7 +26,7 @@
               "character": 4
             }
           },
-          "newText": "typedesc\u003cT1\u003e var1 \u003d typeof a;\n    "
+          "newText": "typedesc<T1> var1 = typeof a;\n    "
         },
         {
           "range": {
@@ -41,7 +41,19 @@
           },
           "newText": "var1"
         }
-      ]
+      ],
+      "command": {
+        "title": "Rename variable",
+        "command": "ballerina.action.positional.rename",
+        "arguments": [
+          "extractToVariableInTypeofExpression.bal",
+          {
+            "line": 8,
+            "character": 22
+          }
+        ]
+      },
+      "resolvable": false
     }
   ]
 }

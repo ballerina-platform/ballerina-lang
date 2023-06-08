@@ -38,8 +38,6 @@ public enum Snippet {
 
     DEF_FUNCTION_SIGNATURE(SnippetGenerator.getFunctionSignatureSnippet()),
 
-    DEF_MAIN_FUNCTION(SnippetGenerator.getMainFunctionSnippet()),
-
     DEF_OBJECT_TYPE_DESC_SNIPPET(SnippetGenerator.getObjectTypeDescSnippet()),
 
     DEF_OBJECT_SNIPPET(SnippetGenerator.getObjectDefinitionSnippet()),
@@ -106,8 +104,6 @@ public enum Snippet {
 
 //    DEF_SERVICE_VAR(SnippetGenerator.getServiceVarSnippet()),
 
-    DEF_CLIENT_DECLARATION(SnippetGenerator.getClientDeclarationSnippet()),
-
     DEF_CLASS(SnippetGenerator.getClassDefSnippet()),
 
     DEF_ENUM(SnippetGenerator.getEnumDefSnippet()),
@@ -129,6 +125,16 @@ public enum Snippet {
     DEF_IMMEDIATE_STOP_FUNCTION(SnippetGenerator.getImmediateStopFunctionSnippet()),
 
     DEF_DETACH_FUNCTION(SnippetGenerator.getDetachFunctionSnippet()),
+
+    DEF_REG_EXP(SnippetGenerator.getRegularExpressionSnippet()),
+
+    DEF_STRING(SnippetGenerator.getStringSnippet()),
+
+    DEF_XML(SnippetGenerator.getXmlSnippet()),
+    
+    DEF_PARANTHESIS(SnippetGenerator.getParanthesisSnippet()),
+    
+    DEF_SQUARE_BRACKET(SnippetGenerator.getSquareBracketSnippet()),
     
     // Expressions Snippets
     EXPR_ERROR_CONSTRUCTOR(SnippetGenerator.getErrorConstructorSnippet()),
@@ -172,8 +178,6 @@ public enum Snippet {
     KW_START(SnippetGenerator.getStartKeywordSnippet()),
 
     KW_AS(SnippetGenerator.getAsKeywordSnippet()),
-
-    KW_VERSION(SnippetGenerator.getVersionKeywordSnippet()),
 
     KW_FROM(SnippetGenerator.getFromKeywordSnippet()),
 
@@ -357,9 +361,7 @@ public enum Snippet {
 
     CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet()),
 
-    CLAUSE_ON_CONFLICT(SnippetGenerator.getOnConflictClauseSnippet()),
-
-    TYPE_MAP(SnippetGenerator.getMapTypeSnippet());
+    CLAUSE_ON_CONFLICT(SnippetGenerator.getOnConflictClauseSnippet());
 
     private final SnippetBlock snippetBlock;
 

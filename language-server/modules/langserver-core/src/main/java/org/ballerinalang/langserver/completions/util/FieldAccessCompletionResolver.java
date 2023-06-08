@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions.util;
 
 import io.ballerina.compiler.api.ModuleID;
-import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
@@ -48,6 +47,7 @@ import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
@@ -80,27 +80,15 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
-        Optional<Symbol> symbol = this.getSymbolByName(context.visibleSymbols(context.getCursorPosition()),
-                node.name().text());
-
-        if (node.parent().kind() == SyntaxKind.FIELD_ACCESS) {
-            Optional<SemanticModel> semanticModel = this.context.currentSemanticModel();
-            if (semanticModel.isEmpty()) {
-                return Optional.empty();
-            }
-
-            Optional<TypeSymbol> typeSymbol = semanticModel.get()
-                    .typeOf(((FieldAccessExpressionNode) node.parent()).expression());
-            if (typeSymbol.isPresent()) {
-                return SymbolUtil.getTypeDescriptor(typeSymbol.get());
-            }
+        Optional<TypeSymbol> typeSymbol = this.context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(node));
+        if (typeSymbol.isPresent()) {
+            return typeSymbol;
         }
 
-        if (symbol.isEmpty()) {
-            return Optional.empty();
-        }
-
-        return SymbolUtil.getTypeDescriptor(symbol.get());
+        List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
+        return this.getSymbolByName(visibleSymbols, node.name().text())
+                .flatMap(SymbolUtil::getTypeDescriptor);
     }
 
     @Override
@@ -207,6 +195,13 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
     }
 
     @Override
+    public Optional<TypeSymbol> transform(TemplateExpressionNode templateExpressionNode) {
+        return this.context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.typeOf(templateExpressionNode))
+                .map(CommonUtil::getRawType);
+    }
+
+    @Override
     protected Optional<TypeSymbol> transformSyntaxNode(Node node) {
         if (node instanceof ExpressionNode) {
             return this.context.currentSemanticModel().get().typeOf(node);
@@ -297,6 +292,9 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                         .findFirst()
                         .get();
                 visibleEntries.addAll(new ArrayList<>(((RecordTypeSymbol) recordType).fieldDescriptors().values()));
+                break;
+            case TYPE_REFERENCE:
+                visibleEntries = getVisibleEntries(rawType, node);
                 break;
             default:
                 break;

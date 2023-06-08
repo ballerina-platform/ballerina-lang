@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BTypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmArrayTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmBStringConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmBallerinaConstantsGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmErrorTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmModuleConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmRefTypeConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.split.constants.JvmTupleTypeConstantsGen;
@@ -32,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeReferenceType;
@@ -50,6 +52,8 @@ public class JvmConstantsGen {
     private final JvmBallerinaConstantsGen jvmBallerinaConstantsGen;
 
     private final JvmUnionTypeConstantsGen unionTypeConstantsGen;
+
+    private final JvmErrorTypeConstantsGen errorTypeConstantsGen;
 
     private final JvmBStringConstantsGen stringConstantsGen;
 
@@ -70,13 +74,14 @@ public class JvmConstantsGen {
         this.moduleConstantsGen = new JvmModuleConstantsGen(module);
         this.jvmBallerinaConstantsGen = new JvmBallerinaConstantsGen(module, moduleInitClass, this);
         this.unionTypeConstantsGen = new JvmUnionTypeConstantsGen(module.packageID, bTypeHashComparator);
+        this.errorTypeConstantsGen = new JvmErrorTypeConstantsGen(module.packageID, bTypeHashComparator);
         this.tupleTypeConstantsGen = new JvmTupleTypeConstantsGen(module.packageID, bTypeHashComparator);
         this.arrayTypeConstantsGen = new JvmArrayTypeConstantsGen(module.packageID, bTypeHashComparator, types);
         this.refTypeConstantsGen = new JvmRefTypeConstantsGen(module.packageID, bTypeHashComparator);
     }
 
-    public String getBStringConstantVar(String value) {
-        return stringConstantsGen.addBString(value);
+    public int getBStringConstantVarIndex(String value) {
+        return stringConstantsGen.addBStringConstantVarIndex(value);
     }
 
     public String getModuleConstantVar(PackageID packageID) {
@@ -85,6 +90,7 @@ public class JvmConstantsGen {
 
     public void setJvmCreateTypeGen(JvmCreateTypeGen jvmCreateTypeGen) {
         unionTypeConstantsGen.setJvmUnionTypeGen(jvmCreateTypeGen.getJvmUnionTypeGen());
+        errorTypeConstantsGen.setJvmErrorTypeGen(jvmCreateTypeGen.getJvmErrorTypeGen());
         tupleTypeConstantsGen.setJvmTupleTypeGen(jvmCreateTypeGen.getJvmTupleTypeGen());
         arrayTypeConstantsGen.setJvmArrayTypeGen(jvmCreateTypeGen.getJvmArrayTypeGen());
         refTypeConstantsGen.setJvmRefTypeGen(jvmCreateTypeGen.getJvmRefTypeGen());
@@ -93,11 +99,16 @@ public class JvmConstantsGen {
     public void generateConstants(Map<String, byte[]> jarEntries) {
         jvmBallerinaConstantsGen.generateConstantInit(jarEntries);
         unionTypeConstantsGen.generateClass(jarEntries);
+        errorTypeConstantsGen.generateClass(jarEntries);
         moduleConstantsGen.generateConstantInit(jarEntries);
         stringConstantsGen.generateConstantInit(jarEntries);
         tupleTypeConstantsGen.generateClass(jarEntries);
         arrayTypeConstantsGen.generateClass(jarEntries);
         refTypeConstantsGen.generateClass(jarEntries);
+    }
+
+    public void generateGetBErrorType(MethodVisitor mv, String varName) {
+        errorTypeConstantsGen.generateGetBErrorType(mv, varName);
     }
 
     public void generateGetBUnionType(MethodVisitor mv, String varName) {
@@ -114,6 +125,8 @@ public class JvmConstantsGen {
 
     public String getTypeConstantsVar(BType type, SymbolTable symbolTable) {
         switch (type.tag) {
+            case TypeTags.ERROR:
+                return errorTypeConstantsGen.add((BErrorType) type);
             case TypeTags.ARRAY:
                 return arrayTypeConstantsGen.add((BArrayType) type);
             case TypeTags.TUPLE:
@@ -131,6 +144,26 @@ public class JvmConstantsGen {
 
     public String getModuleConstantClass() {
         return moduleConstantsGen.getModuleConstantClass();
+    }
+
+    public String getRefTypeConstantsClass() {
+        return refTypeConstantsGen.getRefTypeConstantsClass();
+    }
+
+    public String getArrayTypeConstantClass() {
+        return arrayTypeConstantsGen.getArrayTypeConstantClass();
+    }
+
+    public String getTupleTypeConstantsClass() {
+        return tupleTypeConstantsGen.getTupleTypeConstantsClass();
+    }
+
+    public String getUnionTypeConstantClass() {
+        return unionTypeConstantsGen.getUnionTypeConstantClass();
+    }
+
+    public String getErrorTypeConstantClass() {
+        return errorTypeConstantsGen.getErrorTypeConstantClass();
     }
 
     public String getConstantClass() {

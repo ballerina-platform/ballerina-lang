@@ -140,12 +140,14 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
                 if (symbol.kind() == WORKER) {
                     rank = 1;
                 } else if (symbol.kind() == VARIABLE
-                        && ((VariableSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.FUTURE) {
-                    Optional<TypeSymbol> typeSymbol 
+                        && ((VariableSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.FUTURE 
+                        && contextType.isPresent() && contextType.get().typeKind() == TypeDescKind.FUTURE) {
+                    Optional<TypeSymbol> completionItemTypeSymbol 
                             = ((FutureTypeSymbol) ((VariableSymbol) symbol).typeDescriptor()).typeParameter();
-                    if (typeSymbol.isPresent() && contextType.isPresent() 
-                            && typeSymbol.get().subtypeOf(contextType.get())) {
-                        rank = 1;
+                    Optional<TypeSymbol> contextTypeSymbol = ((FutureTypeSymbol) contextType.get()).typeParameter();
+                    if (completionItemTypeSymbol.isPresent() && contextTypeSymbol.isPresent() 
+                            && completionItemTypeSymbol.get().subtypeOf(contextTypeSymbol.get())) {
+                            rank = 1;
                     } else {
                         rank = 2;
                     }

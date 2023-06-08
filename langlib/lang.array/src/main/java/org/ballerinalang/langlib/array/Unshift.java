@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
+import io.ballerina.runtime.api.utils.TypeUtils;
 import io.ballerina.runtime.api.values.BArray;
 
 import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyOperation;
@@ -30,7 +31,7 @@ import static org.ballerinalang.langlib.array.utils.ArrayUtils.checkIsArrayOnlyO
 public class Unshift {
 
     public static void unshift(BArray arr, Object... vals) {
-        checkIsArrayOnlyOperation(arr.getType(), "unshift()");
+        checkIsArrayOnlyOperation(TypeUtils.getReferredType(arr.getType()), "unshift()");
         arr.unshift(vals);
     }
 }
