@@ -184,6 +184,10 @@ public class PackageManifest {
         return platforms.get(platformCode);
     }
 
+    public Map<String, Platform> platforms() {
+        return platforms;
+    }
+
     // TODO Do we need to custom key/value par mapping here
     public Object getValue(String key) {
         return otherEntries.get(key);

@@ -55,7 +55,7 @@ public class PackageJson {
     private String template_version; //?
 
     // GraalVM compatibility property for package
-    private boolean graalvmCompatible;
+    private Boolean graalvmCompatible;
 
     public PackageJson(String organization, String name, String version) {
         this.organization = organization;
