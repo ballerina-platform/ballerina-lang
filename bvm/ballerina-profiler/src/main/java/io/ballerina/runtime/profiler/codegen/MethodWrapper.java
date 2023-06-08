@@ -39,7 +39,6 @@ public class MethodWrapper extends ClassLoader {
             command = Arrays.copyOf(command, command.length + 1);
             command[3] = balJarArgs;
         }
-
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();

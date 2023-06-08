@@ -24,7 +24,6 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
 
 public class StrandCheckAdapter extends AdviceAdapter {
-
     String profilerOwner = "io/ballerina/runtime/profiler/runtime/Profiler";
     String profilerDescriptor = "()Lio/ballerina/runtime/profiler/runtime/Profiler;";
     Label tryStart = new Label();

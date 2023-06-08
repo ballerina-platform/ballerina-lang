@@ -21,16 +21,12 @@ package io.ballerina.runtime.profiler.codegen;
 import org.objectweb.asm.ClassReader;
 
 public class CustomClassLoader extends ClassLoader {
-
     public CustomClassLoader(ClassLoader parent) {
         super(parent);
     }
-
     public Class<?> loadClass(byte[] code) {
         Class<?> classOut = null;
-
         String name = readClassName(code);
-
         try {
             classOut = defineClass(name, code, 0, code.length);
         } catch (Error e) {

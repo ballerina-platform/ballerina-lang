@@ -24,7 +24,6 @@ import org.objectweb.asm.commons.AdviceAdapter;
 
 
 public class NonStrandCheckAdapter extends AdviceAdapter {
-
     String profilerOwner = "io/ballerina/runtime/profiler/runtime/Profiler";
     String profilerDescriptor = "()Lio/ballerina/runtime/profiler/runtime/Profiler;";
 
