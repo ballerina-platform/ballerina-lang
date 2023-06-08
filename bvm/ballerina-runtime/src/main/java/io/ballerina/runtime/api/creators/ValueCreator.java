@@ -297,22 +297,25 @@ public class ValueCreator {
         return new DecimalValue(value);
     }
 
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
     /**
      * Create a decimal from given string and value kind.
      *
      * @param value     string value
      * @param valueKind value kind
      * @return          decimal value
+     * @deprecated      use {@link #createDecimalValue(String)} instead.
      */
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     public static BDecimal createDecimalValue(String value, DecimalValueKind valueKind) {
         return new DecimalValue(value, valueKind);
     }
 
     /**
-     * Create function pointer to the given function with given {@code BType}.
+     * Create function pointer to the given function with given {@code FunctionType}.
      *
      * @param function pointing function
-     * @param type     {@code BFunctionType} of the function pointer
+     * @param type     {@code FunctionType} of the function pointer
      * @return         function pointer
      */
     public static BFunctionPointer createFPValue(Function function, FunctionType type) {
@@ -320,10 +323,10 @@ public class ValueCreator {
     }
 
     /**
-     * Create function pointer to the given function with given {@code BType}.
+     * Create function pointer to the given function with given {@code FunctionType}.
      *
      * @param function   pointing function
-     * @param type       {@code BFunctionType} of the function pointer
+     * @param type       {@code FunctionType} of the function pointer
      * @param strandName name for newly creating strand which is used to run the function pointer
      * @return           function pointer
      */
@@ -331,12 +334,15 @@ public class ValueCreator {
         return new FPValue(function, type, strandName, false);
     }
 
+    // TODO: remove this with https://github.com/ballerina-platform/ballerina-lang/issues/40175
     /**
      * Create {@code StreamingJsonValue} with given datasource.
      *
      * @param datasource {@code JSONDataSource} to be used
      * @return           created {@code StreamingJsonValue}
+     * @deprecated
      */
+    @Deprecated(since = "2201.6.0", forRemoval = true)
     public static BStreamingJson createStreamingJsonValue(JsonDataSource datasource) {
         return new StreamingJsonValue(datasource);
     }
@@ -365,7 +371,7 @@ public class ValueCreator {
     /**
      * Create a type descriptor value.
      *
-     * @param describingType {@code BType} of the value describe by this value
+     * @param describingType {@code Type} of the value describe by this value
      * @return               type descriptor
      */
     public static BTypedesc createTypedescValue(Type describingType) {
@@ -373,73 +379,73 @@ public class ValueCreator {
     }
 
     /**
-     * Create an empty {@code XMLItem}.
+     * Create an empty {@code BXmlItem}.
      *
-     * @return {@code XMLItem}
+     * @return {@code BXmlItem}
      */
     public static BXmlItem createXmlItem() {
         return new XmlItem(new QName(null), new XmlSequence());
     }
 
     /**
-     * Create a {@code XMLItem} from a XML string.
+     * Create a {@code BXmlItem} from a XML string.
      *
      * @param name     QName
      * @param children Xml sequence
-     * @return         {@code XMLItem}
+     * @return         {@code BXmlItem}
      */
     public static BXmlItem createXmlItem(QName name, BXmlSequence children) {
         return new XmlItem(name, (XmlSequence) children);
     }
 
     /**
-     * Create a {@code XMLItem} from a XML string.
+     * Create a {@code BXmlItem} from a XML string.
      *
      * @param name QName
-     * @return     {@code XMLItem}
+     * @return     {@code BXmlItem}
      */
     public static BXmlItem createXmlItem(QName name) {
         return new XmlItem(name);
     }
 
     /**
-     * Create a {@code XMLItem} from a XML string.
+     * Create a {@code BXmlItem} from a XML string.
      *
      * @param name     QName
      * @param readonly Whether the element is immutable
-     * @return         {@code XMLItem}
+     * @return         {@code BXmlItem}
      */
     public static BXmlItem createXmlItem(QName name, boolean readonly) {
         return new XmlItem(name, readonly);
     }
 
     /**
-     * Create a {@code XMLItem} from a XML string.
+     * Create a {@code BXmlItem} from a XML string.
      *
      * @param name     QName
      * @param children Xml sequence
      * @param readonly Whether the element is immutable
-     * @return         {@code XMLItem}
+     * @return         {@code BXmlItem}
      */
     public static BXmlItem createXmlItem(QName name, BXmlSequence children, boolean readonly) {
         return new XmlItem(name, (XmlSequence) children, readonly);
     }
 
     /**
-     * Create a {@code XMLItem} from a XML string.
+     * Create a {@code BXml} from a XML string.
      *
      * @param xmlValue A XML string
-     * @return         {@code XMLItem}
+     * @return         {@code BXml}
      */
     public static BXml createXmlValue(String xmlValue) {
         return XmlFactory.parse(xmlValue);
     }
 
     /**
-     * Create a {@code XMLItem} from a {@link InputStream}.
+     * Create a {@code BXml} from a {@link InputStream}.
      *
      * @param inputStream Input Stream
-     * @return            {@code XMLItem}
+     * @return            {@code BXml}
      */
     public static BXml createXmlValue(InputStream inputStream) {
         return XmlFactory.parse(inputStream);

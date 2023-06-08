@@ -32,6 +32,8 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
 
+import static io.ballerina.cli.cmd.Constants.VERSION_COMMAND;
+
 /**
  * This class executes a Ballerina program.
  *
@@ -98,7 +100,9 @@ public class Main {
                     // is not provided
                     .setEndOfOptionsDelimiter("");
             cmdParser.getSubcommands().get("build").setStopAtUnmatched(false).setStopAtPositional(true);
-            cmdParser.getSubcommands().get("test").setStopAtUnmatched(false).setStopAtPositional(true);
+            cmdParser.getSubcommands().get("test").setStopAtUnmatched(true).setStopAtPositional(true)
+                    .setUnmatchedOptionsArePositionalParams(true)
+                    .setEndOfOptionsDelimiter("");
 
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();
@@ -242,6 +246,7 @@ public class Main {
         public void setParentCmdParser(CommandLine parentCmdParser) {
             this.parentCmdParser = parentCmdParser;
         }
+
     }
 
     /**
@@ -249,7 +254,7 @@ public class Main {
      *
      * @since 0.8.1
      */
-    @CommandLine.Command(name = "version", description = "Prints Ballerina version")
+    @CommandLine.Command(name = "version", description = "Print the Ballerina version")
     private static class VersionCmd implements BLauncherCmd {
 
         @CommandLine.Parameters(description = "Command name")
@@ -278,12 +283,12 @@ public class Main {
 
         @Override
         public void printLongDesc(StringBuilder out) {
-
+            out.append(BLauncherCmd.getCommandUsageInfo(VERSION_COMMAND));
         }
 
         @Override
         public void printUsage(StringBuilder out) {
-            out.append("  bal version\n");
+            out.append("Print the Ballerina version");
         }
 
         @Override
@@ -369,6 +374,8 @@ public class Main {
         @CommandLine.Parameters(arity = "0..1")
         private List<String> argList = new ArrayList<>();
 
+        private CommandLine parentCmdParser;
+
         @Override
         public void execute() {
             if (versionFlag) {
@@ -400,6 +407,7 @@ public class Main {
 
         @Override
         public void setParentCmdParser(CommandLine parentCmdParser) {
+            this.parentCmdParser = parentCmdParser;
         }
     }
 }

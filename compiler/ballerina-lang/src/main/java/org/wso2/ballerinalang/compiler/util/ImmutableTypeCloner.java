@@ -605,6 +605,7 @@ public class ImmutableTypeCloner {
         defineObjectFunctions(objectSymbol, origObjectTSymbol, names, symTable);
 
         BObjectType immutableObjectType = new BObjectType(objectSymbol, origObjectType.flags | Flags.READONLY);
+        immutableObjectType.typeIdSet = origObjectType.typeIdSet;
 
         BIntersectionType immutableObjectIntersectionType = createImmutableIntersectionType(env, originalType,
                                                                                             immutableObjectType,

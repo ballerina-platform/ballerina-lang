@@ -25,6 +25,8 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlNonElementItem;
 import io.ballerina.runtime.internal.BallerinaXmlSerializer;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import org.apache.axiom.om.OMAbstractFactory;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMNode;
@@ -142,7 +144,11 @@ public abstract class XmlNonElementItem extends XmlValue implements BXmlNonEleme
         if (index == 0) {
             return this;
         }
-        return new XmlSequence();
+        if (index > 0) {
+            return new XmlSequence();
+        }
+        throw BLangExceptionHelper.getRuntimeException(
+                RuntimeErrors.XML_SEQUENCE_INDEX_OUT_OF_RANGE, 1, index);
     }
 
     @Override

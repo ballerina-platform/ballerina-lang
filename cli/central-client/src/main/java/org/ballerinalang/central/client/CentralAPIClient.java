@@ -43,6 +43,7 @@ import org.ballerinalang.central.client.model.PackageNameResolutionResponse;
 import org.ballerinalang.central.client.model.PackageResolutionRequest;
 import org.ballerinalang.central.client.model.PackageResolutionResponse;
 import org.ballerinalang.central.client.model.PackageSearchResult;
+import org.ballerinalang.central.client.model.ToolSearchResult;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -73,19 +74,24 @@ import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENC
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
 import static org.ballerinalang.central.client.CentralClientConstants.AUTHORIZATION;
+import static org.ballerinalang.central.client.CentralClientConstants.BALA_URL;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_PLATFORM;
 import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
+import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_TYPE;
 import static org.ballerinalang.central.client.CentralClientConstants.DEPRECATE_MESSAGE;
 import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.CentralClientConstants.IS_DEPRECATED;
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
+import static org.ballerinalang.central.client.CentralClientConstants.ORGANIZATION;
+import static org.ballerinalang.central.client.CentralClientConstants.PKG_NAME;
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
+import static org.ballerinalang.central.client.CentralClientConstants.VERSION;
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
 import static org.ballerinalang.central.client.Utils.getBearerToken;
+import static org.ballerinalang.central.client.Utils.getRemoteRepo;
 import static org.ballerinalang.central.client.Utils.isApplicationJsonContentType;
-
 /**
  * {@code CentralAPIClient} is a client for the Central API.
  *
@@ -94,8 +100,10 @@ import static org.ballerinalang.central.client.Utils.isApplicationJsonContentTyp
 public class CentralAPIClient {
 
     private static final String PACKAGES = "packages";
+    private static final String TOOLS = "tools";
     private static final String CONNECTORS = "connectors";
     private static final String TRIGGERS = "triggers";
+    private static final String SEARCH = "search";
     private static final String RESOLVE_DEPENDENCIES = "resolve-dependencies";
     private static final String RESOLVE_MODULES = "resolve-modules";
     private static final String DEPRECATE = "deprecate";
@@ -337,9 +345,10 @@ public class CentralAPIClient {
                     .addFormDataPart("bala-file", fileName,
                             RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
                     .build();
-
+            String remoteRepo = getRemoteRepo();
+            String projectRepo = balaPath.toString().split(name)[0] + name;
             ProgressRequestBody balaFileReqBodyWithProgressBar = new ProgressRequestBody(balaFileReqBody,
-                    packageSignature + " [project repo -> central]", this.outStream);
+                    packageSignature + " [" + projectRepo + " -> " + remoteRepo + "]", this.outStream);
 
             // If OutStream is disabled, then pass `balaFileReqBody` only
             Request pushRequest = getNewRequest(supportedPlatform, ballerinaVersion)
@@ -566,6 +575,160 @@ public class CentralAPIClient {
     }
 
     /**
+     * Pull a tool from central.
+     *
+     * @param toolId                    The id of the tool.
+     * @param version                   The version of the package.
+     * @param balaCacheDirPath    The package path in Bala cache.
+     * @param supportedPlatform         The supported platform.
+     * @param ballerinaVersion          The ballerina version.
+     * @param isBuild                   If build option is enabled or not.
+     * @return An array containing the organization, package name and version.
+     * @throws CentralClientException   Central Client exception.
+     */
+    public String[] pullTool(String toolId, String version, Path balaCacheDirPath, String supportedPlatform,
+                         String ballerinaVersion, boolean isBuild) throws CentralClientException {
+        String resourceUrl = "/" + TOOLS + "/" + toolId;
+        boolean enableOutputStream =
+                Boolean.parseBoolean(System.getProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM));
+        String toolSignature = toolId;
+
+        String url = this.baseUrl + resourceUrl;
+        // append version to url if available
+        if (null != version && !version.isEmpty()) {
+            url += "/" + version;
+            toolSignature += ":" + version;
+        }
+
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
+        try {
+            LogFormatter logFormatter = new LogFormatter();
+            if (isBuild) {
+                logFormatter = new BuildLogFormatter();
+            }
+
+            Request packagePullReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+                    .url(url)
+                    .addHeader(CONTENT_TYPE, APPLICATION_JSON)
+                    .build();
+            logRequestInitVerbose(packagePullReq);
+            Call toolPullReqCall = client.newCall(packagePullReq);
+            Response packagePullResponse = toolPullReqCall.execute();
+            logRequestConnectVerbose(packagePullReq, resourceUrl);
+
+            body = Optional.ofNullable(packagePullResponse.body());
+            String pkgPullResBodyContent = null;
+            if (body.isPresent()) {
+                pkgPullResBodyContent = body.get().string();
+            }
+            logResponseVerbose(packagePullResponse, pkgPullResBodyContent);
+
+            // 302   - Package is found
+            if (packagePullResponse.code() == HTTP_OK) {
+                Optional<String> org = Optional.empty();
+                Optional<String> pkgName = Optional.empty();
+                Optional<String> latestVersion = Optional.empty();
+                Optional<String> balaUrl = Optional.empty();
+                if (body.isPresent()) {
+                    Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                    if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
+                        JsonObject jsonContent = new Gson().fromJson(pkgPullResBodyContent, JsonObject.class);
+                        org = Optional.ofNullable(jsonContent.get(ORGANIZATION).getAsString());
+                        pkgName = Optional.ofNullable(jsonContent.get(PKG_NAME).getAsString());
+                        latestVersion = Optional.ofNullable(jsonContent.get(VERSION).getAsString());
+                        balaUrl = Optional.ofNullable(jsonContent.get(BALA_URL).getAsString());
+                    }
+                }
+
+                if (balaUrl.isPresent() && org.isPresent() && latestVersion.isPresent()
+                        && pkgName.isPresent()) {
+                    // gayaldassanayake-tool_openapi-any-0.1.1.bala
+                    String balaFileName = "attachment; filename=" + org.get() + "-" + pkgName.get() + "-any-"
+                            + latestVersion.get() + ".bala";
+                    Request downloadBalaRequest = getNewRequest(supportedPlatform, ballerinaVersion)
+                            .get()
+                            .url(balaUrl.get())
+                            .header(ACCEPT_ENCODING, IDENTITY)
+                            .addHeader(CONTENT_DISPOSITION, balaFileName)
+                            .build();
+                    logRequestInitVerbose(downloadBalaRequest);
+                    Call downloadBalaRequestCall = client.newCall(downloadBalaRequest);
+                    Response balaDownloadResponse = downloadBalaRequestCall.execute();
+                    logRequestConnectVerbose(downloadBalaRequest, balaUrl.get());
+                    logResponseVerbose(balaDownloadResponse, null);
+
+                    Path packagePathInBalaCache = balaCacheDirPath.resolve(org.get()).resolve(pkgName.get());
+
+                    if (balaDownloadResponse.code() == HTTP_OK) {
+                        boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
+                        createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org.get(), pkgName.get(),
+                                isNightlyBuild, null, balaUrl.get(), balaFileName,
+                                enableOutputStream ? outStream : null, logFormatter);
+                        return new String[]{org.get(), pkgName.get(), latestVersion.get()};
+                    } else {
+                        String errorMessage = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + toolSignature +
+                                "'. BALA content download from '" + balaUrl.get() + "' failed.");
+                        handleResponseErrors(balaDownloadResponse, errorMessage);
+                    }
+                } else {
+                    String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + toolSignature +
+                            "' from the remote repository '" + url + "'. reason: bala file location is missing.");
+                    throw new CentralClientException(errorMsg);
+                }
+            }
+
+            // Unauthorized access token
+            if (packagePullResponse.code() == HTTP_UNAUTHORIZED) {
+                handleUnauthorizedResponse(body);
+            }
+
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
+                    // If request sent is invalid or when tool is not found
+                    if (packagePullResponse.code() == HTTP_BAD_REQUEST ||
+                            packagePullResponse.code() == HTTP_NOT_FOUND) {
+                        Error error = new Gson().fromJson(pkgPullResBodyContent, Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException("error: " + error.getMessage());
+                        }
+                    }
+
+                    //  When error occurred at remote repository
+                    if (packagePullResponse.code() == HTTP_INTERNAL_ERROR ||
+                            packagePullResponse.code() == HTTP_UNAVAILABLE) {
+                        Error error = new Gson().fromJson(pkgPullResBodyContent, Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            String errorMsg =
+                                    logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + toolSignature +
+                                            "' from" +
+                                            " the remote repository '" + url +
+                                            "'. reason: " + error.getMessage());
+                            throw new CentralClientException(errorMsg);
+                        }
+                    }
+                }
+            }
+
+            String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + toolSignature +
+                    "' from the remote repository '" + url + "'.");
+            throw new CentralClientException(errorMsg);
+        } catch (IOException e) {
+            throw new CentralClientException(e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+
+    /**
      * Resolve Package Names of modules.
      *
      * @return Package name resolution response
@@ -772,10 +935,85 @@ public class CentralAPIClient {
     }
 
     /**
+     * Search tools in central.
+     */
+    public ToolSearchResult searchTool(String keyword, String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
+        try {
+            Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
+                    .get()
+                    .url(this.baseUrl + "/" + TOOLS + "/" + SEARCH + "/" + keyword)
+                    .build();
+
+            Call httpRequestCall = client.newCall(searchReq);
+            Response searchResponse = httpRequestCall.execute();
+
+            body = Optional.ofNullable(searchResponse.body());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
+                    // If searching was successful
+                    if (searchResponse.code() == HTTP_OK) {
+                        return new Gson().fromJson(body.get().string(), ToolSearchResult.class);
+                    }
+
+                    // Unauthorized access token
+                    if (searchResponse.code() == HTTP_UNAUTHORIZED) {
+                        handleUnauthorizedResponse(body);
+                    }
+
+                    // If search request was sent wrongly
+                    if (searchResponse.code() == HTTP_BAD_REQUEST) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException(error.getMessage());
+                        }
+                    }
+
+                    // If error occurred at remote repository
+                    if (searchResponse.code() == HTTP_INTERNAL_ERROR ||
+                            searchResponse.code() == HTTP_UNAVAILABLE) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + keyword + "' reason:" +
+                                    error.getMessage());
+                        }
+                    }
+                }
+            }
+
+            throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + keyword + "'.");
+        } catch (IOException e) {
+            throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + keyword + "'. reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
+
+    /**
      * Deprecate a package in registry.
      */
     public void deprecatePackage(String packageInfo, String deprecationMsg, String supportedPlatform,
                                  String ballerinaVersion, Boolean isUndo) throws CentralClientException {
+        // Get existing package details
+        // PackageInfo is already validated to support the format org-name/package-name:version
+        Package existingPackage = getPackage(packageInfo.split("/")[0], packageInfo.split("/")[1].split(":")[0],
+                packageInfo.split("/")[1].split(":")[1], supportedPlatform, ballerinaVersion);
+
+        String packageValue = packageInfo.endsWith(":*") ? packageInfo.substring(0, packageInfo.length() - 2) :
+                packageInfo;
+        if (isUndo && !existingPackage.getDeprecated()) {
+            this.outStream.println("package " + packageValue + " is not marked as deprecated in central");
+            return;
+        }
+
         Optional<ResponseBody> body = Optional.empty();
         OkHttpClient client = this.getClient();
         try {
@@ -809,9 +1047,15 @@ public class CentralAPIClient {
                     if (deprecationResponse.code() == HTTP_OK) {
                         Package packageResponse = new Gson().fromJson(body.get().string(), Package.class);
                         if (packageResponse.getDeprecated()) {
-                            this.outStream.println(packageInfo + " marked as deprecated in central successfully");
+                            if (existingPackage.getDeprecated()) {
+                                this.outStream.println("deprecation message is successfully updated for the package "
+                                        + packageValue + " in central");
+                            } else {
+                                this.outStream.println("package " + packageValue
+                                        + " marked as deprecated in central successfully");
+                            }
                         } else {
-                            this.outStream.println("deprecation of " + packageInfo +
+                            this.outStream.println("deprecation of the package " + packageValue +
                                     " is successfully undone in central");
                         }
                     }
@@ -843,7 +1087,7 @@ public class CentralAPIClient {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             String errorMsg = isUndo ? ERR_PACKAGE_UN_DEPRECATE : ERR_PACKAGE_DEPRECATE;
-                            throw new CentralClientException(errorMsg + "'" + packageInfo +
+                            throw new CentralClientException(errorMsg + "'" + packageValue +
                                     "' reason:" + error.getMessage());
                         }
                     }
@@ -851,7 +1095,7 @@ public class CentralAPIClient {
             }
         } catch (IOException e) {
             String errorMsg = isUndo ? ERR_PACKAGE_UN_DEPRECATE : ERR_PACKAGE_DEPRECATE;
-            throw new CentralClientException(errorMsg + "'" + packageInfo + "'. reason: " + e.getMessage());
+            throw new CentralClientException(errorMsg + "'" + packageValue + "'. reason: " + e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {

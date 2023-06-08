@@ -16,6 +16,9 @@
 package org.ballerinalang.langserver.completions.builder;
 
 import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
+import io.ballerina.compiler.api.symbols.resourcepath.PathRestParam;
+import io.ballerina.compiler.api.symbols.resourcepath.PathSegmentList;
+import io.ballerina.compiler.api.symbols.resourcepath.ResourcePath;
 import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -29,8 +32,10 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.TextEdit;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * This class is being used to build resource access completion item.
@@ -40,48 +45,52 @@ import java.util.Optional;
 public class ResourcePathCompletionItemBuilder {
 
     /**
-     * Creates and returns a completion item.
+     * Creates and returns completion items given a resource method symbol.
      *
      * @param functionSymbol resourceMethodSymbol
      * @param context        LS context
      * @return {@link CompletionItem}
      */
-    public static CompletionItem build(ResourceMethodSymbol functionSymbol, BallerinaCompletionContext context) {
-        Pair<String, String> functionSignature = ResourcePathCompletionUtil
-                .getResourceAccessSignature(functionSymbol, context);
-        CompletionItem item = build(functionSymbol, functionSignature, context);
-        item.setFilterText(ResourcePathCompletionUtil.getFilterTextForClientResourceAccessAction(functionSymbol));
-        return item;
+    public static List<CompletionItem> build(ResourceMethodSymbol functionSymbol,
+                                             BallerinaCompletionContext context) {
+        ResourcePath resourcePath = functionSymbol.resourcePath();
+        if (resourcePath.kind() == ResourcePath.Kind.PATH_SEGMENT_LIST) {
+            return build(functionSymbol, ((PathSegmentList) resourcePath).list(), context);
+        }
+        if (resourcePath.kind() == ResourcePath.Kind.PATH_REST_PARAM) {
+            return build(functionSymbol, List.of(((PathRestParam) resourcePath).parameter()), context);
+        }
+        return build(functionSymbol, Collections.emptyList(), context);
     }
 
     /**
-     * Creates and returns a completion item.
+     * Creates and returns completion items given a resource method symbol and a list of path segments.
      *
      * @param resourceMethodSymbol resource method symbol.
      * @param segments             path segments.
      * @param context              LS context
      * @return {@link CompletionItem}
      */
-    public static CompletionItem build(ResourceMethodSymbol resourceMethodSymbol,
-                                       List<PathSegment> segments,
-                                       BallerinaCompletionContext context) {
-        Pair<String, String> functionSignature = ResourcePathCompletionUtil
-                .getResourceAccessSignature(resourceMethodSymbol, context, segments);
-        CompletionItem item = build(resourceMethodSymbol, functionSignature, context);
-        item.setFilterText(ResourcePathCompletionUtil
-                .getFilterTextForClientResourceAccessAction(resourceMethodSymbol, segments));
-        return item;
+    public static List<CompletionItem> build(ResourceMethodSymbol resourceMethodSymbol,
+                                             List<PathSegment> segments,
+                                             BallerinaCompletionContext context) {
+        List<Pair<String, String>> resourceAccessInfo = ResourcePathCompletionUtil
+                .getResourceAccessInfo(resourceMethodSymbol, context, segments);
+        return resourceAccessInfo.stream().map(info -> {
+            CompletionItem item = buildCompletionItem(resourceMethodSymbol, info, context);
+            item.setFilterText(ResourcePathCompletionUtil
+                    .getFilterTextForClientResourceAccessAction(resourceMethodSymbol, segments));
+            return item;
+        }).collect(Collectors.toList());
     }
 
-    private static CompletionItem build(ResourceMethodSymbol resourceMethodSymbol,
-                                        Pair<String, String> functionSignature,
-                                        BallerinaCompletionContext context) {
-
+    private static CompletionItem buildCompletionItem(ResourceMethodSymbol resourceMethodSymbol, 
+                                                      Pair<String, String> functionSignature,
+                                                      BallerinaCompletionContext context) {
         CompletionItem item = new CompletionItem();
         FunctionCompletionItemBuilder.setMeta(item, resourceMethodSymbol, context);
         item.setLabel(functionSignature.getRight());
         item.setInsertText(functionSignature.getLeft());
-
         //Add additional text edits
         checkAndSetAdditionalTextEdits(item, context);
         return item;
