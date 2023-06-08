@@ -116,13 +116,15 @@ public class NewCommand implements BLauncherCmd {
         Path packagePath = argPath;
         Path currentDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         try {
-            Optional<Path> optionalRelativeToCurrentDir = Optional.ofNullable(Paths.get(currentDir.toString(),
-                    packagePath.toString()).normalize());
-            if (optionalRelativeToCurrentDir.isPresent()) {
-                Path relativeToCurrentDir = optionalRelativeToCurrentDir.get();
-                if (Files.exists(relativeToCurrentDir) || Files.exists(relativeToCurrentDir.getParent())) {
-                    packagePath = relativeToCurrentDir;
-                }
+            Path relativeToCurrentDir = Paths.get(currentDir.toString(),
+                    packagePath.toString()).normalize();
+            Path relativeParent = relativeToCurrentDir.getParent();
+            Optional<Path> optionalRelativeParent = Optional.ofNullable(relativeToCurrentDir.getParent());
+            if (optionalRelativeParent.isPresent()) {
+                relativeParent = optionalRelativeParent.get();
+            }
+            if (Files.exists(relativeToCurrentDir) || Files.exists(relativeParent)) {
+                packagePath = relativeToCurrentDir;
             }
         } catch (InvalidPathException ignored) {
             // If the path is not a valid path, use the given path as it is.
@@ -131,6 +133,16 @@ public class NewCommand implements BLauncherCmd {
         CommandUtil.setPrintStream(errStream);
         Path packageDirectory;
         String packageName;
+        Optional<Path> optionalPackageName = Optional.ofNullable(packagePath.getFileName());
+        if (optionalPackageName.isEmpty()) {
+            CommandUtil.printError(errStream,
+                    "package name could not be derived",
+                    "bal new <project-path>",
+                    true);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+        }
+        packageName = optionalPackageName.get().toString();
         boolean balFilesExist = false;
 
         // Check if the given path is a valid path
@@ -179,7 +191,6 @@ public class NewCommand implements BLauncherCmd {
             }
 
             packageDirectory = packagePath;
-            packageName = packagePath.getFileName().toString();
         } else {
             if (packagePath.getParent() == null) {
                 CommandUtil.printError(errStream,
@@ -189,8 +200,8 @@ public class NewCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
-            packageDirectory = packagePath.getParent();
-            packageName = packagePath.getFileName().toString();
+            Optional<Path> optionalPackageDirectory = Optional.ofNullable(packagePath.getParent());
+            packageDirectory = optionalPackageDirectory.get();
             // Check if the parent directory path is a valid path
             if (!Files.exists((packageDirectory))) {
                 CommandUtil.printError(errStream,
