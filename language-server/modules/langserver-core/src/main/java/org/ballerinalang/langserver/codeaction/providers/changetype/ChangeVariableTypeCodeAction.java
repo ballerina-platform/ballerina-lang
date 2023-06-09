@@ -151,6 +151,10 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             return Optional.of(sNode);
         } else if (isVariableNode(sNode.parent()) || sNode.parent().kind() == SyntaxKind.OBJECT_FIELD) {
             return Optional.of(sNode.parent());
+        } else if (sNode.parent().kind() == SyntaxKind.COLLECT_CLAUSE 
+                && sNode.parent().parent().kind() == SyntaxKind.QUERY_EXPRESSION 
+                && isVariableNode(sNode.parent().parent().parent())) {
+            return Optional.of(sNode.parent().parent().parent());
         }
 
         return Optional.empty();
