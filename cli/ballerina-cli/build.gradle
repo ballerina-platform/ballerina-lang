@@ -56,10 +56,11 @@ dependencies {
     implementation group: 'org.ow2.asm', name: 'asm-commons', version: "${project.ow2AsmCommonsVersion}"
     implementation group: 'org.ow2.asm', name: 'asm-tree', version: "${project.ow2AsmTreeVersion}"
 
-    testImplementation 'org.testng:testng'
-    testImplementation 'org.mockito:mockito-all'
-    testImplementation 'org.powermock:powermock-mockito-release-full'
-    testImplementation 'org.powermock:powermock-module-testng-common'
+    testImplementation "org.testng:testng:${project.testngVersion}"
+    testImplementation 'org.mockito:mockito-testng'
+    testImplementation 'org.powermock:powermock-api-mockito2'
+    testImplementation "org.powermock:powermock-module-testng:${project.powermockModuleTestngVersion}"
+    testImplementation "org.powermock:powermock-module-testng-common:${project.powermockModuleTestngVersion}"
     testImplementation 'commons-io:commons-io'
 
     distributionBala project(path: ':ballerina-langlib:test', configuration: 'distributionBala')

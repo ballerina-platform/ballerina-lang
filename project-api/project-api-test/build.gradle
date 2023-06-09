@@ -37,7 +37,7 @@ configurations {
 dependencies {
     testImplementation 'org.testng:testng'
     testImplementation 'org.slf4j:slf4j-jdk14'
-    testImplementation 'org.powermock:powermock-mockito-release-full'
+    testImplementation 'org.powermock:powermock-api-mockito2'
     testImplementation 'org.powermock:powermock-module-testng-common'
 
     testImplementation project(':ballerina-test-utils')

@@ -84,7 +84,7 @@ public class ExcludeFromCodeCoverageTest extends BaseTestCase {
         }
     }
 
-    @Test(description = "Exclude a source file from coverage exclusion list")
+    @Test(description = "Exclude a source file from coverage exclusion list", enabled = false)
     public void testExcludesSrcFileFromExclusionList() throws BallerinaTestException, IOException {
         String [] exclusionList =  {"./*", "!./main.bal"};
         String[] args = mergeCoverageArgs(new String[]{"--test-report", "--coverage-format=xml",

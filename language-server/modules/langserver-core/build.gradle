@@ -79,9 +79,9 @@ dependencies {
     dependency "com.google.guava:guava:${project.guavaVersion}"
     
     testImplementation 'org.testng:testng'
-    testImplementation 'org.mockito:mockito-all'
+    testImplementation 'org.mockito:mockito-core'
     testImplementation 'org.awaitility:awaitility'
-    testImplementation 'org.powermock:powermock-mockito-release-full'
+    testImplementation 'org.powermock:powermock-api-mockito2'
     testImplementation 'org.powermock:powermock-module-testng-common'
 }
 
