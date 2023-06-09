@@ -318,8 +318,8 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangResourcePathSegment pathSegment) {
-        if (pathSegment.getKind() == RESOURCE_PATH_PARAM_SEGMENT
-                || pathSegment.getKind() == RESOURCE_PATH_REST_PARAM_SEGMENT) {
+        NodeKind pathSegmentKind = pathSegment.getKind();
+        if (pathSegmentKind == RESOURCE_PATH_PARAM_SEGMENT || pathSegmentKind == RESOURCE_PATH_REST_PARAM_SEGMENT) {
             lookupNode(pathSegment.typeNode);
         }
         setEnclosingNode(pathSegment.symbol, pathSegment.symbol.pos);
@@ -1747,7 +1747,6 @@ class SymbolFinder extends BaseVisitor {
 
         // Iterate through path expressions
         for (int i = 0; i < pathExprs.size(); i++) {
-            BLangExpression expr = pathExprs.get(i);
             BResourcePathSegmentSymbol pathSymbol = pathSegSymbols.get(i);
 
             if (pathSymbol.getKind() == SymbolKind.RESOURCE_PATH_REST_PARAM_SEGMENT) {
@@ -1756,6 +1755,7 @@ class SymbolFinder extends BaseVisitor {
                 return;
             }
 
+            BLangExpression expr = pathExprs.get(i);
             if (expr.getKind() == NodeKind.LITERAL
                     && pathSymbol.getKind() == SymbolKind.RESOURCE_PATH_IDENTIFIER_SEGMENT
                     && setEnclosingNode(pathSymbol, expr.pos)) {
