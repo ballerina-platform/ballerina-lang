@@ -466,12 +466,18 @@ function testSubTypingForDifferentOrgNameAndVersionWithAllPublicFields() {
     assertTrue((<any> ob3) is foo2:ObjectWithPublicFieldsAndMethods);
 }
 
-readonly service class FooClass {
+readonly client class FooClass {
     *foo2:FooObj;
 
-    isolated remote function execute(string aVar, int bVar) {
-
+    isolated remote function execute(string aVar, int bVar) returns int {
+        return bVar;
     }
+}
+
+function testRemoteFunctionReturnForObjectInclusion() {
+    FooClass foo = new;
+    int result = foo->execute("a", 1);
+    assertEquals(1, result);
 }
 
 function assertTrue(anydata actual) {

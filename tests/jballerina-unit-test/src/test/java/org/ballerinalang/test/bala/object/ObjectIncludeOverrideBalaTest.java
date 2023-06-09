@@ -25,10 +25,16 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Name;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
@@ -65,14 +71,12 @@ public class ObjectIncludeOverrideBalaTest {
 
     @Test
     public void testOverriddenFunctionInformation() {
-        BPackageSymbol fooPackage = (BPackageSymbol) packageSymbol.scope.lookup(new Name("foo")).symbol;
-        BSymbol fooObj = fooPackage.scope.lookup(new Name("FooObj")).symbol;
-        PackageID pkgID = fooObj.pkgID;
-        assertEquals(fooObj.kind, SymbolKind.TYPE_DEF);
-        assertEquals(fooObj.origin, SymbolOrigin.COMPILED_SOURCE);
-        assertEquals(pkgID.orgName.getValue(), "testorg");
-        assertEquals(pkgID.pkgName.getValue(), "foo");
-        assertEquals(pkgID.name.getValue(), "foo");
+        BSymbol fooClass = packageSymbol.scope.lookup(new Name("FooClass")).symbol;
+        assertEquals(((BClassSymbol) fooClass).attachedFuncs.size(), 1);
+        BInvokableSymbol fnSymbol = ((BClassSymbol) fooClass).attachedFuncs.get(0).symbol;
+        assertEquals(fnSymbol.getName().getValue(), "FooClass.execute");
+        assertEquals(fnSymbol.getParameters().get(0).getName().getValue(), "aVar");
+        assertEquals(fnSymbol.getParameters().get(1).getName().getValue(), "bVar");
     }
 
     @Test
@@ -97,6 +101,8 @@ public class ObjectIncludeOverrideBalaTest {
                 "a referenced type across modules cannot have non-public fields or methods", 48, 6);
         validateError(negativeRes, index++, "mismatched function signatures: expected 'public function " +
                 "execute(string aVar, int bVar)', found 'public function execute(int aVar, int bVar)'", 58, 5);
+        validateError(negativeRes, index++, "mismatched function signatures: expected 'public function " +
+                "execute(string aVar, int bVar)', found 'public function execute(string cVar, int dVar)'", 65, 5);
         assertEquals(negativeRes.getErrorCount(), index);
     }
 }
