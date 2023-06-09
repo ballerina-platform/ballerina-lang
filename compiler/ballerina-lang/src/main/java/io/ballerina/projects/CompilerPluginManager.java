@@ -42,7 +42,6 @@ class CompilerPluginManager {
     private CodeModifierManager codeModifierManager;
     private CompilerLifecycleManager compilerLifecycleListenerManager;
     private CodeActionManager codeActionManager;
-    
     private CompletionManager completionManager;
 
     private CompilerPluginManager(PackageCompilation compilation,
