@@ -169,6 +169,8 @@ public class CyclicTypeDefinitionsTest {
         BAssertUtil.validateError(negativeResult, i++, "cyclic type reference not yet supported for 'A10'", 104, 10);
         BAssertUtil.validateError(negativeResult, i++, "invalid constraint type. expected subtype of " +
                 "'map<any|error>' but found 'A11'", 106, 16);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference not yet supported for 'A12'", 108, 10);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference not yet supported for 'A13'", 110, 10);
         Assert.assertEquals(i, negativeResult.getErrorCount());
     }
 

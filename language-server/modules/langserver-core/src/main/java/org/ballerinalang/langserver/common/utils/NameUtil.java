@@ -212,7 +212,7 @@ public class NameUtil {
      */
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
         String typeSignature = typeSymbol.typeKind() == 
-                TypeDescKind.COMPILATION_ERROR ? "" :typeSymbol.signature();
+                TypeDescKind.COMPILATION_ERROR ? "" : typeSymbol.signature();
         return CommonUtil.getModifiedSignature(context, typeSignature);
     }
 

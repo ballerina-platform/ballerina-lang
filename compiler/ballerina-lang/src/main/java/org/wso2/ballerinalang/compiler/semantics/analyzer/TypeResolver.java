@@ -820,7 +820,7 @@ public class TypeResolver {
         }
 
         BType type = resolveTypeDesc(data.env, data.typeDefinition, data.depth + 1, td.type, data);
-        BXMLType constrainedType = new BXMLType(symTable.neverType, null);
+        BXMLType constrainedType = new BXMLType(symTable.semanticError, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                 typeSymbol.originalName, typeSymbol.pkgID, constrainedType, typeSymbol.owner,
