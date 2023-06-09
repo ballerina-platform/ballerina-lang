@@ -59,29 +59,18 @@ class DocumentContext {
     private final DocumentId documentId;
     private final String name;
     private final String content;
-    private boolean enableSyntaxTree = true;
+    private boolean disableSyntaxTree = false;
 
-    private DocumentContext(DocumentId documentId, String name, String content) {
+    private DocumentContext(DocumentId documentId, String name, String content, boolean disableSyntaxTree) {
         this.documentId = documentId;
         this.name = name;
         this.content = content;
+        this.disableSyntaxTree = disableSyntaxTree;
     }
 
-    private DocumentContext(DocumentId documentId, String name, String content, boolean enableSyntaxTree) {
-        this.documentId = documentId;
-        this.name = name;
-        this.content = content;
-        this.enableSyntaxTree = enableSyntaxTree;
-    }
-
-    static DocumentContext from(DocumentConfig documentConfig) {
+    static DocumentContext from(DocumentConfig documentConfig, boolean disableSyntaxTree) {
         return new DocumentContext(documentConfig.documentId(), documentConfig.name(), documentConfig.content(),
-                true);
-    }
-
-    static DocumentContext from(DocumentConfig documentConfig, boolean enableSyntaxTree) {
-        return new DocumentContext(documentConfig.documentId(), documentConfig.name(), documentConfig.content(),
-                enableSyntaxTree);
+                disableSyntaxTree);
     }
 
     DocumentId documentId() {
@@ -96,7 +85,7 @@ class DocumentContext {
         if (syntaxTree != null) {
             return syntaxTree;
         }
-        if (enableSyntaxTree) {
+        if (!disableSyntaxTree) {
             syntaxTree = SyntaxTree.from(this.textDocument(), name);
             return syntaxTree;
         }
@@ -196,6 +185,6 @@ class DocumentContext {
     }
 
     DocumentContext duplicate() {
-        return new DocumentContext(this.documentId, this.name, syntaxTree().toSourceCode());
+        return new DocumentContext(this.documentId, this.name, syntaxTree().toSourceCode(), false);
     }
 }

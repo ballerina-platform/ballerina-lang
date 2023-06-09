@@ -270,7 +270,7 @@ public class PackCommand implements BLauncherCmd {
                 .setSticky(sticky)
                 .setConfigSchemaGen(configSchemaGen)
                 .setEnableCache(enableCache)
-                .disableSyntaxTree(disableSyntaxTreeCaching);;
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

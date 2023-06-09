@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  */
 public class PackageConfigCreator {
 
-    public static PackageConfig createBuildProjectConfig(Path projectDirPath, Boolean disableSyntaxTree) {
+    public static PackageConfig createBuildProjectConfig(Path projectDirPath, boolean disableSyntaxTree) {
         ProjectFiles.validateBuildProjectDirPath(projectDirPath);
 
         // TODO Create the PackageManifest from the BallerinaToml file
@@ -77,7 +77,7 @@ public class PackageConfigCreator {
         DependencyManifest dependencyManifest = dependencyManifestBuilder.dependencyManifest();
 
         return createPackageConfig(packageData, packageManifest, dependencyManifest, DependencyGraph.emptyGraph(),
-                Collections.emptyMap(), !disableSyntaxTree);
+                Collections.emptyMap(), disableSyntaxTree);
     }
 
 
@@ -96,13 +96,12 @@ public class PackageConfigCreator {
 
         PackageData packageData = ProjectFiles.loadSingleFileProjectPackageData(filePath);
         return createPackageConfig(packageData, packageManifest, dependencyManifest, DependencyGraph.emptyGraph(),
-                Collections.emptyMap(), !disableSyntaxTree);
+                Collections.emptyMap(), disableSyntaxTree);
     }
 
     public static PackageConfig createSingleFileProjectConfig(Path filePath) {
         return createSingleFileProjectConfig(filePath, false);
     }
-
 
     public static PackageConfig createBalaProjectConfig(Path balaPath) {
         ProjectFiles.validateBalaProjectPath(balaPath);
@@ -120,7 +119,7 @@ public class PackageConfigCreator {
                                                     PackageManifest packageManifest,
                                                     DependencyManifest dependencyManifest) {
         return createPackageConfig(packageData, packageManifest, dependencyManifest, DependencyGraph.emptyGraph(),
-                Collections.emptyMap(), true);
+                Collections.emptyMap(), false);
     }
 
     private static PackageConfig createPackageConfig(PackageData packageData,
@@ -128,7 +127,7 @@ public class PackageConfigCreator {
                                                     DependencyManifest dependencyManifest,
                                                     DependencyGraph<PackageDescriptor> packageDependencyGraph,
                                                     Map<ModuleDescriptor, List<ModuleDescriptor>>
-                                                            moduleDependencyGraph, boolean enableSyntaxTree) {
+                                                            moduleDependencyGraph, boolean disableSyntaxTree) {
         // TODO PackageData should contain the packageName. This should come from the Ballerina.toml file.
         // TODO For now, I take the directory name as the project name. I am not handling the case where the
         //  directory name is not a valid Ballerina identifier.
@@ -163,7 +162,7 @@ public class PackageConfigCreator {
         return PackageConfig
                 .from(packageId, packageData.packagePath(), packageManifest, dependencyManifest, ballerinaToml,
                         dependenciesToml, cloudToml, compilerPluginToml, balToolToml, packageMd, moduleConfigs,
-                        packageDependencyGraph, enableSyntaxTree);
+                        packageDependencyGraph, disableSyntaxTree);
     }
     public static PackageConfig createPackageConfig(PackageData packageData,
                                                     PackageManifest packageManifest,
@@ -172,7 +171,7 @@ public class PackageConfigCreator {
                                                     Map<ModuleDescriptor, List<ModuleDescriptor>>
                                                             moduleDependencyGraph) {
         return createPackageConfig(packageData, packageManifest, dependencyManifest, packageDependencyGraph,
-                moduleDependencyGraph, false);
+                moduleDependencyGraph, true);
     }
 
 

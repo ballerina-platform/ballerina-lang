@@ -259,7 +259,7 @@ public class RunCommand implements BLauncherCmd {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setConfigSchemaGen(configSchemaGen)
-                .disableSyntaxTree(disableSyntaxTreeCaching);;
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

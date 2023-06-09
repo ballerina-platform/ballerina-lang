@@ -219,7 +219,7 @@ public class DocCommand implements BLauncherCmd {
                 .setOffline(offline)
                 .setTestReport(false)
                 .setObservabilityIncluded(false)
-                .disableSyntaxTree(disableSyntaxTreeCaching);;
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
 
 
         if (targetDir != null) {

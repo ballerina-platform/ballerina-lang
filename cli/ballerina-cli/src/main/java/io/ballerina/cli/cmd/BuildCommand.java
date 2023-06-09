@@ -304,9 +304,7 @@ public class BuildCommand implements BLauncherCmd {
                 .setExportComponentModel(exportComponentModel)
                 .setEnableCache(enableCache)
                 .setNativeImage(nativeImage)
-                .disableSyntaxTree(disableSyntaxTreeCaching);
-
-
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

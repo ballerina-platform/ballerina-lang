@@ -31,11 +31,10 @@ public class BuildOptions {
     private Boolean enableCache;
     private Boolean nativeImage;
     private Boolean exportComponentModel;
-    private Boolean disableSyntaxTree;
 
     BuildOptions(Boolean testReport, Boolean codeCoverage, Boolean dumpBuildTime, Boolean skipTests,
                  CompilationOptions compilationOptions, String targetPath, Boolean enableCache,
-                 Boolean nativeImage, Boolean exportComponentModel, Boolean disableSyntaxTree) {
+                 Boolean nativeImage, Boolean exportComponentModel) {
         this.testReport = testReport;
         this.codeCoverage = codeCoverage;
         this.dumpBuildTime = dumpBuildTime;
@@ -45,7 +44,6 @@ public class BuildOptions {
         this.enableCache = enableCache;
         this.nativeImage = nativeImage;
         this.exportComponentModel = exportComponentModel;
-        this.disableSyntaxTree = disableSyntaxTree;
     }
 
     public boolean testReport() {
@@ -74,7 +72,7 @@ public class BuildOptions {
     }
 
     public boolean disableSyntaxTree() {
-        return toBooleanDefaultIfNull(this.disableSyntaxTree);
+        return this.compilationOptions.disableSyntaxTree();
     }
 
     /**
@@ -249,14 +247,14 @@ public class BuildOptions {
         private final CompilationOptions.CompilationOptionsBuilder compilationOptionsBuilder;
         private Boolean nativeImage;
         private Boolean exportComponentModel;
-        private Boolean disableSyntaxTree;
+
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
         }
 
-        public BuildOptionsBuilder disableSyntaxTree(Boolean value) {
-            disableSyntaxTree = value;
+        public BuildOptionsBuilder disableSyntaxTreeCaching(Boolean value) {
+            compilationOptionsBuilder.disableSyntaxTree(value);
             return this;
         }
 
@@ -371,7 +369,7 @@ public class BuildOptions {
         public BuildOptions build() {
             CompilationOptions compilationOptions = compilationOptionsBuilder.build();
             return new BuildOptions(testReport, codeCoverage, dumpBuildTime, skipTests,
-                    compilationOptions, targetPath, enableCache, nativeImage, exportComponentModel, disableSyntaxTree);
+                    compilationOptions, targetPath, enableCache, nativeImage, exportComponentModel);
         }
     }
 }

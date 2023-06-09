@@ -365,7 +365,7 @@ public class TestCommand implements BLauncherCmd {
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setNativeImage(nativeImage)
                 .setEnableCache(enableCache)
-                .disableSyntaxTree(disableSyntaxTreeCaching);;
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
 
 
         if (targetDir != null) {

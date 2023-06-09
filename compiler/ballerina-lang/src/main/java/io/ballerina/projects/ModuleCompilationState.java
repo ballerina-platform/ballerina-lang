@@ -28,6 +28,7 @@ enum ModuleCompilationState {
     LOADED_FROM_SOURCES {
         @Override
         void parse(ModuleContext moduleContext) {
+            ModuleContext.parseInternal(moduleContext);
             moduleContext.setCompilationState(PARSED);
         }
 

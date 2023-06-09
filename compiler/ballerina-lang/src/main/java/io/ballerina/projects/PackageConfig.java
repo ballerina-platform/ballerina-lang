@@ -17,8 +17,6 @@
  */
 package io.ballerina.projects;
 
-
-
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
@@ -45,7 +43,7 @@ public class PackageConfig {
     private final DependencyGraph<PackageDescriptor> packageDescDependencyGraph;
     private final Collection<ModuleConfig> otherModules;
     private final DocumentConfig packageMd;
-    private final boolean enableSyntaxTree;
+    private final boolean disableSyntaxTree;
 
     private PackageConfig(PackageId packageId,
                           Path packagePath,
@@ -59,7 +57,7 @@ public class PackageConfig {
                           Collection<ModuleConfig> moduleConfigs,
                           DependencyGraph<PackageDescriptor> packageDescDependencyGraph,
                           DocumentConfig packageMd,
-                          boolean enableSyntaxTree) {
+                          boolean disableSyntaxTree) {
         this.packageId = packageId;
         this.packagePath = packagePath;
         this.packageManifest = packageManifest;
@@ -72,7 +70,7 @@ public class PackageConfig {
         this.otherModules = moduleConfigs;
         this.packageDescDependencyGraph = packageDescDependencyGraph;
         this.packageMd = packageMd;
-        this.enableSyntaxTree = enableSyntaxTree;
+        this.disableSyntaxTree = disableSyntaxTree;
     }
 
     public static PackageConfig from(PackageId packageId,
@@ -88,7 +86,7 @@ public class PackageConfig {
                                      Collection<ModuleConfig> moduleConfigs) {
         return new PackageConfig(packageId, packagePath, packageManifest, dependencyManifest, ballerinaToml,
                                  dependenciesToml, cloudToml, compilerPluginToml, balToolToml, moduleConfigs,
-                                 DependencyGraph.emptyGraph(), packageMd, true);
+                                 DependencyGraph.emptyGraph(), packageMd, false);
     }
 
     public static PackageConfig from(PackageId packageId,
@@ -105,7 +103,7 @@ public class PackageConfig {
                                      DependencyGraph<PackageDescriptor> packageDescDependencyGraph) {
         return new PackageConfig(packageId, packagePath, packageManifest, dependencyManifest, ballerinaToml,
                                  dependenciesToml, cloudToml, compilerPluginToml, balToolToml, moduleConfigs,
-                                 packageDescDependencyGraph, packageMd, true);
+                                 packageDescDependencyGraph, packageMd, false);
     }
 
     public static PackageConfig from(PackageId packageId,
@@ -120,10 +118,10 @@ public class PackageConfig {
                                      DocumentConfig packageMd,
                                      Collection<ModuleConfig> moduleConfigs,
                                      DependencyGraph<PackageDescriptor> packageDescDependencyGraph,
-                                     boolean enableSyntaxTree) {
+                                     boolean disableSyntaxTree) {
         return new PackageConfig(packageId, packagePath, packageManifest, dependencyManifest, ballerinaToml,
                 dependenciesToml, cloudToml, compilerPluginToml, balToolToml, moduleConfigs,
-                packageDescDependencyGraph, packageMd, enableSyntaxTree);
+                packageDescDependencyGraph, packageMd, disableSyntaxTree);
     }
 
     public PackageId packageId() {
@@ -196,7 +194,7 @@ public class PackageConfig {
         return Optional.ofNullable(this.dependenciesToml);
     }
 
-    boolean isSyntaxTreeEnabled() {
-        return enableSyntaxTree;
+    boolean isSyntaxTreeDisabled() {
+        return disableSyntaxTree;
     }
 }
