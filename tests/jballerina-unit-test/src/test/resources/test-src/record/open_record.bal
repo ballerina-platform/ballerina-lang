@@ -702,6 +702,10 @@ type R1 record {
     string f;
 };
 
+type R2 record {
+    int|string h = 101;
+};
+
 type Foo1 record {|
     int a = 1250;
 |};
@@ -711,10 +715,18 @@ type Bar1 record {|
     byte a = 100;
 |};
 
+type Bar3 record {|
+    *Foo;
+    *R2;
+    byte a = 100;
+|};
 
 function testTypeInclusionWithOpenRecord() {
     R1 r1 = {f : "hello"};
     assert("hello", r1.f);
     Bar1 b = {};
     assert(100, b.a);
+    Bar3 b3 = {};
+    assert(100, b3.a);
+    assert(101, b3.h);
 }
