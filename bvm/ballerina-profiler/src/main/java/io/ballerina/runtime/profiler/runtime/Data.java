@@ -45,7 +45,6 @@ public class Data {
         if (elapsed < this.minTime) {
             this.minTime = elapsed;
         }
-
         if (elapsed > this.maxTime) {
             this.maxTime = elapsed;
         }
