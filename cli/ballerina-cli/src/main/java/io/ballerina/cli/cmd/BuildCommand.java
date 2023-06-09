@@ -178,7 +178,7 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
-    @CommandLine.Option(names = "--native", description = "enable native image generation")
+    @CommandLine.Option(names = "--graalvm", description = "enable native image generation")
     private Boolean nativeImage;
 
     public void execute() {
