@@ -186,7 +186,7 @@ function testAssignKeylessTableValueToTableType() {
     assertEqual(a3, a4);
 }
 
-function testTableVlueAssignmentToAny() {
+function testTableValueAssignmentToAny() {
     any tbl = table [];
     table<map<any|error>> a1 = <table<map<any|error>>>tbl;
     a1.add({"any": "any"});
