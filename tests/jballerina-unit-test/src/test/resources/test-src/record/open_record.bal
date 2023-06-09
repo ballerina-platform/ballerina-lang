@@ -103,8 +103,20 @@ type Mat record {
     int x = fn();
 };
 
+type Bar2 record {
+    int x = xFn();
+    int y = yFn();
+};
 isolated function fn() returns int {
     return 10;
+}
+
+isolated function xFn() returns int {
+    return 101;
+}
+
+isolated function yFn() returns int {
+    return 102;
 }
 
 function testDefaultVal() {
@@ -116,6 +128,21 @@ function testDefaultVal() {
     assert(999, p.age);
     assert(10, m.x);
     assert(1, m2.x);
+}
+
+function testOpenRecordWithSpreadOperator() {
+    record {| int x; int y?; |} r = {x: 123};
+    Bar2 b = {...r};
+    assert(123, b.x);
+    assert(102, b.y);
+    // record {| int x; int y?; |} r1 = {x: 123, y: 456};
+    // Bar2 b1 = {...r1};
+    // assert(123, b1.x);
+    // assert(102, b1.y);
+    // map<int> r2 = {x: 123};
+    // Bar2 b2 = {...r2};
+    // assert(101, b2.x);
+    // assert(102, b2.y);
 }
 
 function testNestedFieldDefaultVal () returns [string, string, int] {

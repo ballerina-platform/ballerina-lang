@@ -79,6 +79,10 @@ public class OpenRecordTest {
     public void testDefaultValue() {
         BRunUtil.invoke(compileResult, "testDefaultVal");
     }
+    @Test
+    public void testOpenRecordWithSpreadOperator() {
+        BRunUtil.invoke(compileResult, "testOpenRecordWithSpreadOperator");
+    }
 
     @Test(description = "Test default value of a nested record field")
     public void testNestedFieldDefaultValue() {
