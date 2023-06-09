@@ -132,7 +132,7 @@ public class DocModelTest {
                 "Fifth membertype orgName should be ballerina");
         Assert.assertEquals(unionType.get().memberTypes.get(4).moduleName, "docerina_project.world",
                 "Fifth membertype moduleName should be test");
-        Assert.assertEquals(unionType.get().memberTypes.get(4).category, "classes",
+        Assert.assertEquals(unionType.get().memberTypes.get(4).category, "libs",
                 "Fifth membertype category should be classes");
 
         Assert.assertEquals(unionType.get().memberTypes.get(5).category, "builtin",
@@ -409,7 +409,7 @@ public class DocModelTest {
         Assert.assertEquals(uuidRec.get().fields.get(0).type.moduleName, "lang.int");
         Assert.assertEquals(uuidRec.get().fields.get(0).type.version, "0.0.0");
         Assert.assertEquals(uuidRec.get().fields.get(0).type.name, "Unsigned32");
-        Assert.assertEquals(uuidRec.get().fields.get(0).type.category, "types");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.category, "libs");
 
         Optional<BObjectType> controller = testModule.objectTypes.stream().filter(record -> record.name
                 .equals("Controller")).findAny();
