@@ -1539,7 +1539,7 @@ public class Types {
             case TypeTags.ARRAY:
                 BArrayType arrayType = (BArrayType) type;
                 BType elementType = arrayType.eType;
-                if (elementType == symTable.semanticError && arrayType.mutableType != null) {
+                if (elementType == symTable.neverType && arrayType.mutableType != null) {
                     elementType = arrayType.mutableType.eType;
                 }
                 return isInherentlyImmutableType(elementType) ||
@@ -1582,7 +1582,7 @@ public class Types {
             case TypeTags.MAP:
                 BMapType mapType = (BMapType) type;
                 BType constraintType = mapType.constraint;
-                if (constraintType == symTable.semanticError && mapType.mutableType != null) {
+                if (constraintType == symTable.neverType && mapType.mutableType != null) {
                     constraintType = mapType.mutableType.constraint;
                 }
                 return isInherentlyImmutableType(constraintType) ||
@@ -1604,7 +1604,7 @@ public class Types {
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) type;
                 BType tableConstraintType = tableType.constraint;
-                if (tableConstraintType == symTable.semanticError && tableType.mutableType != null) {
+                if (tableConstraintType == symTable.neverType && tableType.mutableType != null) {
                     tableConstraintType = tableType.mutableType.constraint;
                 }
                 return isInherentlyImmutableType(tableConstraintType) ||
@@ -1613,9 +1613,6 @@ public class Types {
                 boolean readonlyIntersectionExists = false;
                 BUnionType unionType = (BUnionType) type;
                 LinkedHashSet<BType> memberTypes = unionType.getMemberTypes();
-                if (memberTypes.isEmpty() && unionType.mutableType != null) {
-                    memberTypes = unionType.mutableType.getMemberTypes();
-                }
                 for (BType memberType : memberTypes) {
                     if (isInherentlyImmutableType(memberType) ||
                             isSelectivelyImmutableType(memberType, unresolvedTypes, forceCheck, packageID)) {
@@ -7172,19 +7169,6 @@ public class Types {
     public static class CommonAnalyzerData {
         Stack<SymbolEnv> queryEnvs = new Stack<>();
         Stack<BLangNode> queryFinalClauses = new Stack<>();
-        HashSet<BType> checkedErrorList = new HashSet<>();
-        boolean breakToParallelQueryEnv = false;
-        int letCount = 0;
-        boolean nonErrorLoggingCheck = false;
-    }
-
-    /**
-     * Holds common analyzer data between {@link TypeResolver} and {@link ConstantTypeChecker}.
-     */
-    public static class CommonConstantAnalyzerData {
-        Stack<SymbolEnv> queryEnvs = new Stack<>();
-        Stack<BLangNode> queryFinalClauses = new Stack<>();
-        boolean checkWithinQueryExpr = false;
         HashSet<BType> checkedErrorList = new HashSet<>();
         boolean breakToParallelQueryEnv = false;
         int letCount = 0;

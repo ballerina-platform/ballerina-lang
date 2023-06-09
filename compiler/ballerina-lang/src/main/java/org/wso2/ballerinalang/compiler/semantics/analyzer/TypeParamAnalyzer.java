@@ -171,12 +171,6 @@ public class TypeParamAnalyzer {
         return createBuiltInType(type, name, flag);
     }
 
-    BType createTypeParam(BType type, Name name) {
-
-        var flag = type.flags | Flags.TYPE_PARAM;
-        return createBuiltInType(type, name, flag);
-    }
-
     BType createTypeParam(BSymbol symbol) {
         BType type = symbol.type;
         var flag = type.flags | Flags.TYPE_PARAM;

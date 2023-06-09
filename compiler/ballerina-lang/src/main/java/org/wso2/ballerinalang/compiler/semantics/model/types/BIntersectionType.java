@@ -89,9 +89,6 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     @Override
     public boolean isNullable() {
-        if (effectiveType == null) { // TODO: Fix this
-            return false;
-        }
         return this.effectiveType.isNullable();
     }
 

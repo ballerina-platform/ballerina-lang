@@ -706,7 +706,6 @@ public class ImmutableTypeCloner {
             return immutableTypeOptional.get();
         } else {
             BUnionType immutableUnionType = BUnionType.create(origUnionTypeSymbol);
-            immutableUnionType.mutableType = type;
             Types.addImmutableType(symTable, pkgId, type, createImmutableIntersectionType(pkgId, owner,
                                       type, immutableUnionType, symTable));
         }
