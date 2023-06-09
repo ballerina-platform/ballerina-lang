@@ -1,10 +1,10 @@
 {
   "position": {
-    "line": 21,
-    "character": 57
+    "line": 32,
+    "character": 35
   },
-  "source": "action_node_context/source/client_resource_access_method_call_source1.bal",
-  "description": "Tests completions in method call context of client resource access action",
+  "source": "action_node_context/source/client_resource_access_action_source26.bal",
+  "description": "Test completions in positional argument context",
   "items": [
     {
       "label": "start",
@@ -634,11 +634,50 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "myClient",
+      "label": "myInt",
       "kind": "Variable",
-      "detail": "MyClient",
+      "detail": "int",
       "sortText": "F",
-      "insertText": "myClient",
+      "insertText": "myInt",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myString",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "AB",
+      "insertText": "myString",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "R",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getInt()",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `int`   \n  \n"
+        }
+      },
+      "sortText": "G",
+      "filterText": "getInt",
+      "insertText": "getInt()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "cl",
+      "kind": "Variable",
+      "detail": "MyClass",
+      "sortText": "F",
+      "insertText": "cl",
       "insertTextFormat": "Snippet"
     },
     {
@@ -653,62 +692,49 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "R",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "response",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "AB",
-      "insertText": "response",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testClient(string param1, int count)",
+      "label": "name()",
       "kind": "Function",
-      "detail": "error?",
+      "detail": "()",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` param1  \n- `int` count  \n  \n**Return** `error?`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n"
         }
       },
       "sortText": "G",
-      "filterText": "testClient",
-      "insertText": "testClient(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "filterText": "name",
+      "insertText": "name()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "MyClient",
+      "label": "getString()",
+      "kind": "Function",
+      "detail": "string",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Return** `string`   \n  \n"
+        }
+      },
+      "sortText": "AC",
+      "filterText": "getString",
+      "insertText": "getString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Pet",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "Q",
+      "insertText": "Pet",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "MyClass",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "O",
-      "insertText": "MyClient",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "count",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "F",
-      "insertText": "count",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "param1",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "AB",
-      "insertText": "param1",
+      "insertText": "MyClass",
       "insertTextFormat": "Snippet"
     },
     {
