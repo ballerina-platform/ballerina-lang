@@ -25,6 +25,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -37,7 +38,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -179,6 +179,7 @@ import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -207,6 +208,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
     private BLangNode result;
     private SymbolResolver symResolver;
     private AnnotationDesugar annotationDesugar;
+    private Types types;
 
     public static ClosureGenerator getInstance(CompilerContext context) {
         ClosureGenerator closureGenerator = context.get(CLOSURE_GENERATOR_KEY);
@@ -222,6 +224,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
         this.symTable = SymbolTable.getInstance(context);
         this.queue = new LinkedList<>();
         this.annotationClosureReferences = new LinkedList<>();
+        this.types = Types.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
     }
@@ -394,14 +397,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
         BTypeSymbol typeSymbol = recordTypeNode.getBType().tsymbol;
         BSymbol owner = typeSymbol.owner;
         desugarFieldAnnotations(owner, typeSymbol, recordTypeNode.fields, recordTypeNode.pos);
-        if (((BRecordType) recordTypeNode.getBType()).mutableType != null) {
-            BRecordTypeSymbol mutableTypeSymbol =
-                                      (BRecordTypeSymbol) ((BRecordType) recordTypeNode.getBType()).mutableType.tsymbol;
-            ((BRecordTypeSymbol) recordTypeNode.getBType().tsymbol).defaultValues = mutableTypeSymbol.defaultValues;
-            recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
-            result = recordTypeNode;
-            return;
-        }
         for (BLangSimpleVariable field : recordTypeNode.fields) {
             rewrite(field, recordTypeNode.typeDefEnv);
         }
@@ -559,11 +554,57 @@ public class ClosureGenerator extends BLangNodeVisitor {
         return symbolEnv.enclPkg.symbol;
     }
 
+    BLangExpression addConversionExprIfRequired(BLangExpression expr, BType lhsType) {
+        if (lhsType.tag == TypeTags.NONE) {
+            return expr;
+        }
+
+        BType rhsType = expr.getBType();
+
+        if (lhsType.tag == TypeTags.TYPEREFDESC && rhsType.tag != TypeTags.TYPEREFDESC) {
+            return addConversionExprIfRequired(expr, Types.getReferredType(lhsType));
+        }
+
+        if (types.isSameType(rhsType, lhsType)) {
+            return expr;
+        }
+
+        types.setImplicitCastExpr(expr, rhsType, lhsType);
+        if (expr.impConversionExpr != null) {
+            BLangExpression impConversionExpr = expr.impConversionExpr;
+            expr.impConversionExpr = null;
+            return impConversionExpr;
+        }
+
+        if (lhsType.tag == TypeTags.JSON && rhsType.tag == TypeTags.NIL) {
+            return expr;
+        }
+
+        if (lhsType.tag == TypeTags.NIL && rhsType.isNullable()) {
+            return expr;
+        }
+
+        if (lhsType.tag == TypeTags.ARRAY && rhsType.tag == TypeTags.TUPLE) {
+            return expr;
+        }
+
+        // Create a type cast expression
+        BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr)
+                TreeBuilder.createTypeConversionNode();
+        conversionExpr.expr = expr;
+        conversionExpr.targetType = lhsType;
+        conversionExpr.setBType(lhsType);
+        conversionExpr.pos = expr.pos;
+        conversionExpr.checkTypes = false;
+        conversionExpr.internal = true;
+        return conversionExpr;
+    }
+
     private void generateClosureForDefaultValues(String closureName, String paramName, BLangSimpleVariable varNode) {
         BSymbol owner = getOwner(env);
         BLangFunction function = createFunction(closureName, varNode.pos, owner.pkgID, owner, varNode.getBType());
         BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, (BLangBlockFunctionBody) function.body);
-        returnStmt.expr = varNode.expr;
+        returnStmt.expr = addConversionExprIfRequired(varNode.expr, function.returnTypeNode.getBType());
         BLangLambdaFunction lambdaFunction = createLambdaFunction(function);
         lambdaFunction.capturedClosureEnv = env.createClone();
         BInvokableSymbol varSymbol = createSimpleVariable(function, lambdaFunction, false);
@@ -597,7 +638,6 @@ public class ClosureGenerator extends BLangNodeVisitor {
                                         varSymbol.type, null, varSymbol));
         }
     }
-
 
     BLangLambdaFunction createLambdaFunction(BLangFunction function) {
         BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
