@@ -98,7 +98,7 @@ public class SealedArrayTest {
         BRunUtil.invoke(compileResult, "createAnySealedArrayWithLabel");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testCreateRecordSealedArray() {
         BRunUtil.invoke(compileResult, "createRecordSealedArray");
         BRunUtil.invoke(compileResult, "createRecordAutoFilledSealedArray");

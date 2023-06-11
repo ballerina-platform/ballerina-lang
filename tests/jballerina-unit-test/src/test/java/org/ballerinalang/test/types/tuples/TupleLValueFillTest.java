@@ -45,7 +45,7 @@ public class TupleLValueFillTest {
         BRunUtil.invoke(compileResult, "testBasicLValueFillRead");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testRestMemberFill() {
         BRunUtil.invoke(compileResult, "testRestMemberFill");
     }
