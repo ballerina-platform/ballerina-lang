@@ -22,7 +22,7 @@ package io.ballerina.compiler.internal.parser.tree;
  *
  * @since 2.0.0
  */
-public enum STNodeFlags {
-    HAS_DIAGNOSTICS,
-    IS_MISSING
+public class STNodeFlags {
+    public static final byte HAS_DIAGNOSTIC = 1 << 0x1;
+    public static final byte IS_MISSING = 1 << 0x2;
 }
