@@ -282,6 +282,8 @@ public class IfElseStmtTest {
         BRunUtil.invoke(result, "testResetTypeNarrowingForCompoundAssignment");
         BRunUtil.invoke(result, "testResetTypeNarrowing");
         BRunUtil.invoke(result, "testResetTypeNarrowingWithBlockStmt");
+        BRunUtil.invoke(result, "testTypeNarrowingWithReturningIf1");
+        BRunUtil.invoke(result, "testTypeNarrowingWithReturningIf2");
         Object returns = BRunUtil.invoke(result, "testTypeNarrowing", args);
         
         Assert.assertEquals(returns.toString(), "ballerina");

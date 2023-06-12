@@ -3897,6 +3897,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             this.analyzeNode(foreach.onFailClause, data);
         }
         data.notCompletedNormally = false;
+        data.ifWithReturn = false;
         data.breakFound = prevBreakFound;
     }
 
@@ -3941,6 +3942,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         data.notCompletedNormally =
                 ConditionResolver.checkConstCondition(types, symTable, whileNode.expr) == symTable.trueType
                         && !data.breakFound;
+        data.ifWithReturn = false;
         data.breakFound = prevBreakFound;
     }
 

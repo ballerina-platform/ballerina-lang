@@ -217,6 +217,47 @@ function testResetTypeNarrowingWithBlockStmt() {
     }
 }
 
+const DOT = ".";
+
+public function testTypeNarrowingWithReturningIf1() returns error? {
+    int i = 0;
+    string word = "";
+    while i < 3 {
+        string:Char? char = check getChar();
+        if char is () {
+            return error("Failed");
+        } else if char !is DOT {
+            return error("Failed");
+        }
+        word += char;
+        i = i + 1;
+    }
+
+    assertEquality("...", word);
+}
+
+public function testTypeNarrowingWithReturningIf2() returns error? {
+    int i = 0;
+    string word = "";
+    while i < 3 {
+        string:Char? char = check getChar();
+        if char is () {
+            return error("Failed");
+        } else if char !is DOT {
+            return error("Failed");
+        }
+        i = i + 1;
+        assertTrue(word is DOT);
+        word += char;
+    }
+
+    assertEquality("...", word);
+}
+
+public function getChar() returns string:Char|error? {
+    return check string:fromCodePointInt(89);
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }
