@@ -52,7 +52,6 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
-import org.wso2.ballerinalang.compiler.packaging.converters.RemoteAuthenticator;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Lists;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -64,7 +63,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.Authenticator;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
@@ -725,13 +723,8 @@ public class ProjectUtils {
     public static Proxy initializeProxy(io.ballerina.projects.internal.model.Proxy proxy) {
         if (proxy != null && !"".equals(proxy.host()) && proxy.port() > 0) {
             InetSocketAddress proxyInet = new InetSocketAddress(proxy.host(), proxy.port());
-            if (!"".equals(proxy.username()) && "".equals(proxy.password())) {
-                Authenticator authenticator = new RemoteAuthenticator();
-                Authenticator.setDefault(authenticator);
-            }
             return new Proxy(Proxy.Type.HTTP, proxyInet);
         }
-
         return null;
     }
 
