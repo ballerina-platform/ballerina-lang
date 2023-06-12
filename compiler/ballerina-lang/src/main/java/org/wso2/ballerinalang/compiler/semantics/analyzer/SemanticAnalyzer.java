@@ -579,6 +579,7 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             boolean analyzedStmt = analyzeBlockStmtFollowingIfWithoutElse(stmt,
                     stmtCount > 0 ? body.stmts.get(stmtCount - 1) : null, funcBodyEnv, data);
             if (analyzedStmt) {
+                funcBodyEnv = data.env;
                 continue;
             }
             data.env = funcBodyEnv;
@@ -617,8 +618,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             data.prevEnvs.push(currentEnv);
             // Types are narrowed following an `if` statement, if it returns.
             data.env = narrowForReturningIf(ifStmt, currentStmt, currentEnv);
-            analyzeStmt(currentStmt, data);
             data.prevEnvs.pop();
+            analyzeStmt(currentStmt, data);
             return true;
         }
         return false;
