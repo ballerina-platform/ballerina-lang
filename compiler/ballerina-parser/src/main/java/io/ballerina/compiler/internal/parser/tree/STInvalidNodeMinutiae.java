@@ -49,8 +49,8 @@ public class STInvalidNodeMinutiae extends STMinutiae {
     }
 
     private void updateDiagnostics(STInvalidTokenMinutiaeNode invalidNode) {
-        if ((invalidNode.flags & STNodeFlags.HAS_DIAGNOSTIC) != 0) {
-            this.flags |= STNodeFlags.HAS_DIAGNOSTIC;
+        if (STNodeFlags.isFlagSet(invalidNode.flags, STNodeFlags.HAS_DIAGNOSTIC)) {
+            this.flags = STNodeFlags.withFlag(this.flags, STNodeFlags.HAS_DIAGNOSTIC);
         }
     }
 }

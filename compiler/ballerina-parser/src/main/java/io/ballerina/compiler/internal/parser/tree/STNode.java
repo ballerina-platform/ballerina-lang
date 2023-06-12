@@ -56,7 +56,7 @@ public abstract class STNode {
     STNode(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics, boolean isMissing) {
         this(kind, diagnostics);
         if (isMissing) {
-            flags |= STNodeFlags.IS_MISSING;
+            flags = STNodeFlags.withFlag(flags, STNodeFlags.IS_MISSING);
         }
     }
 
@@ -64,7 +64,7 @@ public abstract class STNode {
         this.kind = kind;
         this.diagnostics = diagnostics;
         if (diagnostics.size() > 0) {
-            flags |= STNodeFlags.HAS_DIAGNOSTIC;
+            flags = STNodeFlags.withFlag(flags, STNodeFlags.HAS_DIAGNOSTIC);
         }
     }
 
@@ -99,7 +99,7 @@ public abstract class STNode {
     }
 
     public boolean hasDiagnostics() {
-        return (flags & STNodeFlags.HAS_DIAGNOSTIC) != 0;
+        return STNodeFlags.isFlagSet(flags, STNodeFlags.HAS_DIAGNOSTIC);
     }
 
     public Collection<STNodeDiagnostic> diagnostics() {
@@ -338,8 +338,8 @@ public abstract class STNode {
             if (!SyntaxUtils.isSTNodePresent(child)) {
                 continue;
             }
-            if ((child.flags & STNodeFlags.HAS_DIAGNOSTIC) != 0) {
-                this.flags |= STNodeFlags.HAS_DIAGNOSTIC;
+            if (STNodeFlags.isFlagSet(child.flags, STNodeFlags.HAS_DIAGNOSTIC)) {
+                this.flags = STNodeFlags.withFlag(this.flags, STNodeFlags.HAS_DIAGNOSTIC);
                 return;
             }
         }
