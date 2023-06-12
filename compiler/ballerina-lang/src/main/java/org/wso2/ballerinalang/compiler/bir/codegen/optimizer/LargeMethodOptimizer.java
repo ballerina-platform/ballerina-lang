@@ -136,10 +136,6 @@ public class LargeMethodOptimizer {
         List<BIRBasicBlock> bbs = birFunction.basicBlocks;
         BIRNonTerminator.NewArray arrayIns = (BIRNonTerminator.NewArray) bbs.get(bbs.size() - 2).instructions
                 .get(bbs.get(bbs.size() - 2).instructions.size() - 1);
-        Map<BIROperand, BIRNode.BIRListConstructorEntry> birOperands =  new HashMap<>();
-        for (BIRNode.BIRListConstructorEntry value : arrayIns.values) {
-            birOperands.put(value.exprOp, value);
-        }
         List<BIRNonTerminator> newInsList =  new ArrayList<>();
         JMethodCallInstruction callHandleArray = new JMethodCallInstruction(null);
         BIRVariableDcl arraySizeVarDcl = new BIRVariableDcl(null, symbolTable.intType, new Name("%splitArraySize"),
@@ -167,44 +163,79 @@ public class LargeMethodOptimizer {
 
         bbs.get(bbs.size() - 2).instructions.set(bbs.get(bbs.size() - 2).instructions.size() - 1, newLargeArrayIns);
 
-        int arrayIndex = 0;
+        // populating ListConstructorEntry array elements at runtime using jMethodCalls
+        Map<BIROperand, BIRListConstructorEntryWithIndex> birOperands =  new HashMap<>();
+        int arrIndex = 0;
+        for (BIRNode.BIRListConstructorEntry value : arrayIns.values) {
+            BIRVariableDcl arrElementVarDcl = value.exprOp.variableDcl;
+            if (isTempOrSyntheticVar(arrElementVarDcl)) {
+                birOperands.put(value.exprOp, new BIRListConstructorEntryWithIndex(value, arrIndex));
+            } else {
+                setArrayElement(birFunction, newInsList, handleArrayOperand, value.exprOp, value, arrIndex);
+            }
+            arrIndex++;
+        }
         for (BIRBasicBlock bb : bbs) {
             for (BIRNonTerminator bbIns : bb.instructions) {
                 newInsList.add(bbIns);
-                BIROperand insLhsOp = bbIns.lhsOp;
-                if (birOperands.containsKey(insLhsOp)) {
-                    BIRNode.BIRListConstructorEntry listConstructorEntry = birOperands.get(insLhsOp);
-
-                    JMethodCallInstruction callSetEntry = new JMethodCallInstruction(null);
-                    callSetEntry.invocationType = INVOKESTATIC;
-                    callSetEntry.jClassName = RUNTIME_UTILS;
-                    callSetEntry.jMethodVMSig =
-                            "(Lio/ballerina/runtime/internal/values/HandleValue;Ljava/lang/Object;J)V";
-                    BIRVariableDcl arrayIndexVarDcl = new BIRVariableDcl(null, symbolTable.intType,
-                            new Name("%arrIndex_" + arrayIndex),
-                            VarScope.FUNCTION, VarKind.TEMP, null);
-                    birFunction.localVars.add(arrayIndexVarDcl);
-                    BIROperand arrayIndexOperand = new BIROperand(arrayIndexVarDcl);
-                    BIRNonTerminator.ConstantLoad loadArrayIndex = new BIRNonTerminator.ConstantLoad(null,
-                            (long) arrayIndex, symbolTable.intType, arrayIndexOperand);
-                    newInsList.add(loadArrayIndex);
-                    callSetEntry.args = new ArrayList<>(Arrays.asList(handleArrayOperand, insLhsOp, arrayIndexOperand));
-
-                    if (listConstructorEntry instanceof BIRNode.BIRListConstructorExprEntry) {
-                        // use jcall
-                        callSetEntry.name = "setExpressionEntry";
-                    } else {
-                        // BIRListConstructorSpreadMemberEntry
-                        callSetEntry.name = "setSpreadEntry";
-                    }
-                    newInsList.add(callSetEntry);
-                    arrayIndex++;
-                }
+                setArrayElementGivenLhsOp(birFunction, birOperands, newInsList, handleArrayOperand, bbIns.lhsOp);
             }
             bb.instructions = newInsList;
             newInsList = new ArrayList<>();
+            // next consider lhs op in BIR terminator, branch terms won't have array element as lhs op
+            // so it is safe if we found a lhs op to add to next bb's ins list
+            setArrayElementGivenLhsOp(birFunction, birOperands, newInsList, handleArrayOperand, bb.terminator.lhsOp);
         }
 
+    }
+
+    private void setArrayElementGivenLhsOp(BIRFunction birFunction,
+                                           Map<BIROperand, BIRListConstructorEntryWithIndex> birOperands,
+                                           List<BIRNonTerminator> newInsList, BIROperand handleArrayOperand,
+                                           BIROperand insLhsOp) {
+        if (insLhsOp != null && birOperands.containsKey(insLhsOp)) {
+            BIRListConstructorEntryWithIndex listConstructorEntryWithIndex = birOperands.get(insLhsOp);
+            BIRNode.BIRListConstructorEntry listConstructorEntry = listConstructorEntryWithIndex.listConstructorEntry;
+            int arrayIndex = listConstructorEntryWithIndex.index;
+            setArrayElement(birFunction, newInsList, handleArrayOperand, insLhsOp, listConstructorEntry, arrayIndex);
+        }
+    }
+
+    private void setArrayElement(BIRFunction birFunction, List<BIRNonTerminator> newInsList,
+                                 BIROperand handleArrayOperand, BIROperand insLhsOp,
+                                 BIRNode.BIRListConstructorEntry listConstructorEntry, int arrayIndex) {
+        JMethodCallInstruction callSetEntry = new JMethodCallInstruction(null);
+        callSetEntry.invocationType = INVOKESTATIC;
+        callSetEntry.jClassName = RUNTIME_UTILS;
+        callSetEntry.jMethodVMSig =
+                "(Lio/ballerina/runtime/internal/values/HandleValue;Ljava/lang/Object;J)V";
+        BIRVariableDcl arrayIndexVarDcl = new BIRVariableDcl(null, symbolTable.intType,
+                new Name("%arrIndex_" + arrayIndex),
+                VarScope.FUNCTION, VarKind.TEMP, null);
+        birFunction.localVars.add(arrayIndexVarDcl);
+        BIROperand arrayIndexOperand = new BIROperand(arrayIndexVarDcl);
+        BIRNonTerminator.ConstantLoad loadArrayIndex = new BIRNonTerminator.ConstantLoad(null,
+                (long) arrayIndex, symbolTable.intType, arrayIndexOperand);
+        newInsList.add(loadArrayIndex);
+
+        BIRVariableDcl typeCastVarDcl = new BIRVariableDcl(null, symbolTable.anyOrErrorType,
+                new Name("%typeCast_" + arrayIndex),
+                VarScope.FUNCTION, VarKind.TEMP, null);
+        birFunction.localVars.add(typeCastVarDcl);
+        BIROperand typeCastOperand = new BIROperand(typeCastVarDcl);
+        BIRNonTerminator.TypeCast typeCastInstruction = new BIRNonTerminator.TypeCast(null,
+                typeCastOperand, insLhsOp, symbolTable.anyOrErrorType, true);
+        newInsList.add(typeCastInstruction);
+        callSetEntry.args = new ArrayList<>(Arrays.asList(handleArrayOperand, typeCastOperand, arrayIndexOperand));
+
+        if (listConstructorEntry instanceof BIRNode.BIRListConstructorExprEntry) {
+            // use jcall
+            callSetEntry.name = "setExpressionEntry";
+        } else {
+            // BIRListConstructorSpreadMemberEntry
+            callSetEntry.name = "setSpreadEntry";
+        }
+        newInsList.add(callSetEntry);
     }
 
     /**
@@ -1016,6 +1047,16 @@ public class LargeMethodOptimizer {
             this.lhsVars = lhsVars;
             this.funcArgs = funcArgs;
             this.errorTableEntries = errorTableEntries;
+        }
+    }
+
+    static class BIRListConstructorEntryWithIndex {
+        BIRNode.BIRListConstructorEntry listConstructorEntry;
+        int index;
+
+        private BIRListConstructorEntryWithIndex(BIRNode.BIRListConstructorEntry listConstructorEntry, int index) {
+            this.listConstructorEntry = listConstructorEntry;
+            this.index = index;
         }
     }
 }
