@@ -57,10 +57,8 @@ dependencies {
     implementation group: 'org.ow2.asm', name: 'asm-tree', version: "${project.ow2AsmTreeVersion}"
 
     testImplementation "org.testng:testng:${project.testngVersion}"
+    testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
     testImplementation 'org.mockito:mockito-testng'
-    testImplementation 'org.powermock:powermock-api-mockito2'
-    testImplementation "org.powermock:powermock-module-testng:${project.powermockModuleTestngVersion}"
-    testImplementation "org.powermock:powermock-module-testng-common:${project.powermockModuleTestngVersion}"
     testImplementation 'commons-io:commons-io'
 
     distributionBala project(path: ':ballerina-langlib:test', configuration: 'distributionBala')
@@ -92,6 +90,7 @@ test {
     dependsOn createTestDistributionCache
     dependsOn createTestBre
 
+    maxParallelForks = 1
     systemProperty "ballerina.home", "$buildDir"
 
     useTestNG() {

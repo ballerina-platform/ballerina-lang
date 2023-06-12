@@ -38,10 +38,10 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp'
     implementation 'com.squareup.okio:okio'
 
+    testImplementation "org.mockito:mockito-core:${mockitoCoreVersion}"
+    testImplementation "org.mockito:mockito-testng:${mockitoTestNGVersion}"
     testImplementation 'org.testng:testng'
     testImplementation 'org.awaitility:awaitility'
-    testImplementation 'org.powermock:powermock-api-mockito2'
-    testImplementation 'org.powermock:powermock-module-testng-common'
 }
 
 task createTestDistributionCache(type: Copy) {
