@@ -795,12 +795,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     WORKER_SEND_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT(
             "BCE4042", "worker.send.action.not.allowed.in.lock.statement"),
     WORKER_RECEIVE_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT(
-            "BCE4043", "worker.receive.action.not.allowed.in.lock.statement"),
-    EMPTY_REGEXP_STRING_DISALLOWED(
-            "BCS4044", "empty.regexp.string.disallowed"),
-    UNSUPPORTED_EMPTY_CHARACTER_CLASS(
-            "BCS4045", "unsupported.empty.character.class"),
-    REST_ARG_CANNOT_BE_NAMED_ARG("BCE4046", "rest.arg.cannot.be.named.arg"),        
+            "BCE4043", "worker.receive.action.not.allowed.in.lock.statement"),   
     EMPTY_REGEXP_STRING_DISALLOWED("BCE4044", "empty.regexp.string.disallowed"),
     UNSUPPORTED_EMPTY_CHARACTER_CLASS("BCE4045", "unsupported.empty.character.class"),
     REST_ARG_CANNOT_BE_NAMED_ARG("BCE4046", "rest.arg.cannot.be.named.arg")
