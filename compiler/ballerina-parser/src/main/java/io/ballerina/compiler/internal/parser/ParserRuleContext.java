@@ -634,7 +634,7 @@ public enum ParserRuleContext {
     BRACED_EXPRESSION("braced-expression"),
     ACTION("action"),
     CHECKING_EXPRESSION("checking-expr"),
-    CHECK_EXPRESSION_END("query-expr-end"),
+    CHECKING_EXPRESSION_END("checking-expr-end"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),

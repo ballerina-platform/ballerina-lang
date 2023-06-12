@@ -3041,7 +3041,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.CLIENT_RESOURCE_ACCESS_ACTION) {
             nextContext = ParserRuleContext.CLOSE_BRACKET;
         } else if (parentCtx == ParserRuleContext.CHECKING_EXPRESSION) {
-            nextContext = ParserRuleContext.ON_FAIL_CHECK;
+            STToken nextToken = this.tokenReader.peek(lookahead);
+            STToken nextNextToken = this.tokenReader.peek(lookahead + 1);
+            if (nextToken.kind == SyntaxKind.ON_KEYWORD && nextNextToken.kind == SyntaxKind.FAIL_KEYWORD) {
+                nextContext = ParserRuleContext.ON_FAIL_CHECK;
+            } else {
+                nextContext = ParserRuleContext.CHECKING_EXPRESSION_END;
+            }
         } else {
             throw new IllegalStateException("seekMatchInExpressionRhs found: " + parentCtx);
         }
@@ -3445,7 +3451,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TUPLE_MEMBER;
             case ON_FAIL_CHECK:
                 return ParserRuleContext.ON_KEYWORD;
-            case CHECK_EXPRESSION_END:
+            case CHECKING_EXPRESSION_END:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
             default:
@@ -3875,7 +3881,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 } else if (parentCtx == ParserRuleContext.ON_CLAUSE) {
                     return ParserRuleContext.EXPRESSION;
                 } else if (parentCtx == ParserRuleContext.ON_FAIL_CLAUSE ||
-                            parentCtx == ParserRuleContext.ON_FAIL_CHECK) {
+                            parentCtx == ParserRuleContext.CHECKING_EXPRESSION) {
                     return ParserRuleContext.FAIL_KEYWORD;
                 }
                 return ParserRuleContext.LISTENERS_LIST;
@@ -3919,10 +3925,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CHECKING_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
             case FAIL_KEYWORD:
-                if (getParentContext() == ParserRuleContext.ON_FAIL_CLAUSE) {
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.ON_FAIL_CLAUSE) {
                     return ParserRuleContext.ON_FAIL_OPTIONAL_BINDING_PATTERN;
                 }
-                if (getParentContext() == ParserRuleContext.CHECKING_KEYWORD) {
+                if (parentCtx == ParserRuleContext.CHECKING_KEYWORD) {
                     return ParserRuleContext.VARIABLE_NAME;
                 }
                 return ParserRuleContext.EXPRESSION;

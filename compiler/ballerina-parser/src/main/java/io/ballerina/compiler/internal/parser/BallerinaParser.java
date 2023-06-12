@@ -7180,12 +7180,11 @@ public class BallerinaParser extends AbstractParser {
         STNode checkingKeyword = parseCheckingKeyword();
         STNode expr =
                 parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions, isInConditionalExpr);
-        STToken onKeyword = peek();
-        STToken failKeyword = getNextNextToken();
         STNode onFailCheck = STNodeFactory.createEmptyNode();
-        if (onKeyword.kind == SyntaxKind.ON_KEYWORD && failKeyword.kind == SyntaxKind.FAIL_KEYWORD) {
+        if (peek().kind == SyntaxKind.ON_KEYWORD && getNextNextToken().kind == SyntaxKind.FAIL_KEYWORD) {
             onFailCheck = parseOnFailCheck();
         }
+
         endContext();
         if (isAction(expr)) {
             return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_ACTION, checkingKeyword, expr,
@@ -9077,7 +9076,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * This method is used to parse on-fail-check node.
+     * Parse on-fail-check node.
      *
      * <p>
      * <code>
