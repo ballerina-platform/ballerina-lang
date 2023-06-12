@@ -1538,7 +1538,7 @@ public class Types {
             case TypeTags.ARRAY:
                 BArrayType arrayType = (BArrayType) type;
                 BType elementType = arrayType.eType;
-                if (elementType == symTable.neverType && arrayType.mutableType != null) {
+                if (elementType == symTable.semanticError && arrayType.mutableType != null) {
                     elementType = arrayType.mutableType.eType;
                 }
                 return isInherentlyImmutableType(elementType) ||
@@ -1581,7 +1581,7 @@ public class Types {
             case TypeTags.MAP:
                 BMapType mapType = (BMapType) type;
                 BType constraintType = mapType.constraint;
-                if (constraintType == symTable.neverType && mapType.mutableType != null) {
+                if (constraintType == symTable.semanticError && mapType.mutableType != null) {
                     constraintType = mapType.mutableType.constraint;
                 }
                 return isInherentlyImmutableType(constraintType) ||
@@ -1603,7 +1603,7 @@ public class Types {
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) type;
                 BType tableConstraintType = tableType.constraint;
-                if (tableConstraintType == symTable.neverType && tableType.mutableType != null) {
+                if (tableConstraintType == symTable.semanticError && tableType.mutableType != null) {
                     tableConstraintType = tableType.mutableType.constraint;
                 }
                 return isInherentlyImmutableType(tableConstraintType) ||
