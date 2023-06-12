@@ -28,7 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * This is a generated internal syntax tree node.
+ * Represents a missing token in the internal syntax tree.
  *
  * @since 2.0.0
  */

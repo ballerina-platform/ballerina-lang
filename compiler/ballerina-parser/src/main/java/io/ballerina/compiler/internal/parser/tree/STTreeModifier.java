@@ -2870,7 +2870,8 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 mostTimesMatchedDigit,
                 closeBraceToken);
     }
-  
+
+    @Override
     public STMemberTypeDescriptorNode transform(
             STMemberTypeDescriptorNode memberTypeDescriptorNode) {
         STNode annotations = modifyNode(memberTypeDescriptorNode.annotations);
