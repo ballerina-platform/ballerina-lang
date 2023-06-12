@@ -649,7 +649,7 @@ public class NewCommandTest extends BaseCommandTest {
         String expectedTomlLibContent =
                 "artifactId = \"snakeyaml\"\n" +
                 "groupId = \"org.yaml\"\n" +
-                "version = \"1.32\"";
+                "version = \"2.0\"";
 
         Assert.assertTrue(tomlContent.contains(expectedTomlPkgContent));
         Assert.assertTrue(tomlContent.contains(expectedTomlLibContent));

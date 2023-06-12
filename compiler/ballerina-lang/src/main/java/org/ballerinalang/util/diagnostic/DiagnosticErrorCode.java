@@ -800,7 +800,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCS4044", "empty.regexp.string.disallowed"),
     UNSUPPORTED_EMPTY_CHARACTER_CLASS(
             "BCS4045", "unsupported.empty.character.class"),
-    REST_ARG_CANNOT_BE_NAMED_ARG("BCE4046", "rest.arg.cannot.be.named.arg")        
+    REST_ARG_CANNOT_BE_NAMED_ARG("BCE4046", "rest.arg.cannot.be.named.arg"),        
+    EMPTY_REGEXP_STRING_DISALLOWED("BCE4044", "empty.regexp.string.disallowed"),
+    UNSUPPORTED_EMPTY_CHARACTER_CLASS("BCE4045", "unsupported.empty.character.class"),
+    REST_ARG_CANNOT_BE_NAMED_ARG("BCE4046", "rest.arg.cannot.be.named.arg")
     ;
 
     private String diagnosticId;
