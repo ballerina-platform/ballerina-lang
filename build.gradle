@@ -134,5 +134,10 @@ sonarqube {
 }
 
 copyBallerinaClassFiles.dependsOn copyExecFilesAndJavaClassFiles 
-createCodeCoverageReport.dependsOn copyBallerinaClassFiles 
+createCodeCoverageReport.dependsOn copyBallerinaClassFiles
 
+//subprojects{
+//    tasks.withType(Test).configureEach{
+//        jvmArgs = jvmArgs + ['--add-opens=java.base/java.lang=ALL-UNNAMED']
+//    }
+//}

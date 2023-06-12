@@ -15,7 +15,7 @@
  ~ limitations under the License.
 -->
 
-<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="jBallerina-Test-Suite" time-out="120000">
     <listeners>
