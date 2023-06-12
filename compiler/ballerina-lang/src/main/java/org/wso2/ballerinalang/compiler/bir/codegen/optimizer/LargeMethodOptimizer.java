@@ -161,17 +161,16 @@ public class LargeMethodOptimizer {
         BIRNonTerminator.NewLargeArray newLargeArrayIns = new BIRNonTerminator.NewLargeArray(arrayIns.pos,
                 arrayIns.type, arrayIns.lhsOp, arrayIns.typedescOp, arrayIns.sizeOp, handleArrayOperand);
 
-        bbs.get(bbs.size() - 2).instructions.set(bbs.get(bbs.size() - 2).instructions.size() - 1, newLargeArrayIns);
-
         // populating ListConstructorEntry array elements at runtime using jMethodCalls
         Map<BIROperand, BIRListConstructorEntryWithIndex> birOperands =  new HashMap<>();
+        List<BIRNonTerminator> globalAndArgVarIns = new ArrayList<>();
         int arrIndex = 0;
         for (BIRNode.BIRListConstructorEntry value : arrayIns.values) {
             BIRVariableDcl arrElementVarDcl = value.exprOp.variableDcl;
             if (isTempOrSyntheticVar(arrElementVarDcl)) {
                 birOperands.put(value.exprOp, new BIRListConstructorEntryWithIndex(value, arrIndex));
             } else {
-                setArrayElement(birFunction, newInsList, handleArrayOperand, value.exprOp, value, arrIndex);
+                setArrayElement(birFunction, globalAndArgVarIns, handleArrayOperand, value.exprOp, value, arrIndex);
             }
             arrIndex++;
         }
@@ -187,6 +186,10 @@ public class LargeMethodOptimizer {
             setArrayElementGivenLhsOp(birFunction, birOperands, newInsList, handleArrayOperand, bb.terminator.lhsOp);
         }
 
+        BIRBasicBlock insBB = bbs.get(bbs.size() - 2);
+        insBB.instructions.remove(insBB.instructions.size() - 1);
+        insBB.instructions.addAll(globalAndArgVarIns);
+        insBB.instructions.add(newLargeArrayIns);
     }
 
     private void setArrayElementGivenLhsOp(BIRFunction birFunction,
