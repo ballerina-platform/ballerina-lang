@@ -241,10 +241,12 @@ public class BLangDiagnosticLog implements DiagnosticLog {
             return;
         }
 
-        for (Object arg : args) {
-            if (arg instanceof BType) {
-                if ((((BType) arg).getKind() == TypeKind.OTHER) && errorCount > 1) {
-                    return;
+        if (errorCount > 1) {
+            for (Object arg : args) {
+                if (arg instanceof BType) {
+                    if ((((BType) arg).getKind() == TypeKind.OTHER)) {
+                        return;
+                    }
                 }
             }
         }
