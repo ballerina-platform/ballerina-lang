@@ -156,30 +156,6 @@ function testCyclicReadonlyErrorTypeDefinition() {
     assertEquals(error2.detail().toString(), "{\"errB\":error ErrB (\"Whoops\",errB=null)}");
 }
 
-type T1 [T1?] & readonly;
-
-type T2 T3 & readonly;
-type T3 [T2?] & readonly;
-type T4 [T4?, 1, "a"] & readonly;
-
-public function testCyclicReadonlyTupleTypeDefinition() {
-    T1 t1 = [];
-    assertTrue(t1 is readonly);
-    assertEquals(t1.toString(), "[null]");
-
-    T2 t2 = [];
-    assertTrue(t2 is readonly);
-    assertEquals(t2.toString(), "[null]");
-
-    T3 t3 = [];
-    assertTrue(t3 is readonly);
-    assertEquals(t3.toString(), "[null]");
-
-    T4 t4 = [(), 1, "a"];
-    assertTrue(t4 is readonly);
-    assertEquals(t4.toString(), "[null,1,\"a\"]");
-}
-
 type A2 table<B2> key<int>|();
 type B2 C2 & readonly;
 
@@ -211,16 +187,6 @@ type B4 record{
 function testCyclicArrayTypeDefinition() {
     A4 a4 = [];
     assertEquals(a4.toString(), "[]");
-}
-
-type A5 [B5?] & readonly;
-type B5 record{
-    A5 a5;
-};
-
-function testCyclicTupleTypeDefinition() {
-    A5 a5 = [];
-    assertEquals(a5.toString(), "[null]");
 }
 
 type A6 table<B6> & readonly;

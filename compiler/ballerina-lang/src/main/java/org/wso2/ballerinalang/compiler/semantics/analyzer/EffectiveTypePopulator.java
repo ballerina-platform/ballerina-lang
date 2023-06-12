@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
-import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -61,13 +60,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -267,15 +263,6 @@ public class EffectiveTypePopulator implements TypeVisitor {
                 for (BType memberType : bTupleType.getTupleTypes()) {
                     updateType(memberType, loc, pkgID, typeNode, env);
                 }
-            }
-
-            BTypeSymbol tsymbol = bTupleType.tsymbol;
-            if (tsymbol != null && tsymbol.name != null && !tsymbol.name.value.isEmpty()) {
-                BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
-                tupleTypeNode.setBType(bTupleType);
-                BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(bTupleType,
-                        bTupleType.tsymbol, tupleTypeNode, env);
-                typeDefinition.pos = loc;
             }
             bTupleType.mutableType = null;
         }
