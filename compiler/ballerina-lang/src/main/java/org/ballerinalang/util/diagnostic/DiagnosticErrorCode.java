@@ -806,6 +806,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "cannot.use.alternate.wait.action.within.multiple.wait.action"),
     EXPRESSION_OF_FUTURE_TYPE_EXPECTED("BCE4049", "future.expression.expected")
 ;
+    ;
 
     private String diagnosticId;
     private String messageKey;

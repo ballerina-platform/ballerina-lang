@@ -5064,8 +5064,9 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                 (rhsType.tag == TypeTags.DECIMAL || rhsType.tag == TypeTags.FLOAT)) {
                             errorCode = DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES_INT_FLOAT_DIVISION;
                         }
-
-                        dlog.error(binaryExpr.pos, errorCode, binaryExpr.opKind, lhsType, rhsType);
+                        if (binaryExpr.opKind != OperatorKind.UNDEFINED) {
+                            dlog.error(binaryExpr.pos, errorCode, binaryExpr.opKind, lhsType, rhsType);
+                        }
                     } else {
                         binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
                         actualType = opSymbol.type.getReturnType();

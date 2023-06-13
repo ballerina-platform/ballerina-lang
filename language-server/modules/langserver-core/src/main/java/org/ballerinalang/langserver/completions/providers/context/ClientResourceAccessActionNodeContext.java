@@ -112,7 +112,7 @@ public class ClientResourceAccessActionNodeContext
                 completionItems.addAll(items);
             } else {
                 List<Node> arguments = new ArrayList<>();
-                node.arguments().ifPresent(argList -> 
+                node.arguments().ifPresent(argList ->
                         arguments.addAll(argList.arguments().stream().collect(Collectors.toList())));
                 if (isNotInNamedArgOnlyContext(context, arguments)) {
                     completionItems.addAll(this.actionKWCompletions(context));
@@ -181,14 +181,14 @@ public class ClientResourceAccessActionNodeContext
                     break;
                 }
             }
-            
+
             separatorIndex += 1;
         }
         return resourcePathSegments;
     }
 
     private static boolean hasTrailingNewLineMinutiae(Node segment) {
-        return !segment.trailingMinutiae().isEmpty() 
+        return !segment.trailingMinutiae().isEmpty()
                 && StreamSupport.stream(segment.trailingMinutiae().spliterator(), false)
                 .anyMatch(minutiae -> minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE);
     }
