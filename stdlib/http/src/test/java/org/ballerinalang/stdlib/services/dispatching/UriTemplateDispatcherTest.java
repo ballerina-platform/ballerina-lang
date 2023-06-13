@@ -201,8 +201,8 @@ public class UriTemplateDispatcherTest {
         //Expected Json message : {"Products":{"p1":"name1","p2":"name2"}}
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(((BMap<String, BValue>) bJson).get("Products").stringValue(),
-                "{\"products\":[{\"productOneOf\":{\"productId\":\"0123456789\",\"productCategory\":\"LargeProduct\"}}]}",
-                "ProductID variable not set properly.");
+            "{\"products\":[{\"productOneOf\":{\"productId\":\"0123456789\",\"productCategory\":\"LargeProduct\"}}]}",
+            "ProductID variable not set properly.");
     }
 
     @DataProvider(name = "validUrl")
