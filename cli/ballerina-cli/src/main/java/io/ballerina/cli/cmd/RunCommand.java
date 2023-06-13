@@ -87,6 +87,10 @@ public class RunCommand implements BLauncherCmd {
             "dependency resolution process.", hidden = true)
     private boolean dumpRawGraphs;
 
+    @CommandLine.Option(names = "--profile", description = "profiles the jar", hidden = true)
+    private Boolean enableProfiler = false;
+    private String output;
+
     @CommandLine.Option(names = "--generate-config-schema", hidden = true)
     private Boolean configSchemaGen;
 
@@ -95,11 +99,6 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
-
-    @CommandLine.Option(names = "--profile", description = "profiles the jar", hidden = true)
-    private Boolean enableProfiler = false;
-
-    private String output;
 
     private static final String runCmd =
             "bal run [--debug <port>] <executable-jar> \n" +
