@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
-import static io.ballerina.projects.util.ProjectUtils.defaultVersion;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 /**
@@ -231,10 +230,24 @@ public class RunCommand implements BLauncherCmd {
         String profilerSource = System.getenv("BALLERINA_HOME") + "/bre/lib/ballerina-profiler-1.0.jar";
         try {
             Files.copy(Path.of(profilerSource), Path.of(project.targetDir() + "/bin/Profiler.jar"), StandardCopyOption.REPLACE_EXISTING);
-            if (args.length == 0){
-                profilerCommand = new String[]{"java", "-jar", "Profiler.jar", "--file", "[" + project.currentPackage().packageName() + ".jar" + "]"};
-            }else {
-                profilerCommand = new String[]{"java", "-jar", "Profiler.jar", "--file", "[" + project.currentPackage().packageName() + ".jar" + "]", "--args", "[" + profilerArguments + "]"};
+            if (args.length == 0) {
+                profilerCommand = new String[]{
+                        "java",
+                        "-jar",
+                        "Profiler.jar",
+                        "--file",
+                        "[" + project.currentPackage().packageName() + ".jar" + "]"
+                };
+            } else {
+                profilerCommand = new String[]{
+                        "java",
+                        "-jar",
+                        "Profiler.jar",
+                        "--file",
+                        "[" + project.currentPackage().packageName() + ".jar" + "]",
+                        "--args",
+                        "[" + profilerArguments + "]"
+                };
             }
             ProcessBuilder profilerProcessBuilder = new ProcessBuilder(profilerCommand);
             profilerProcessBuilder.directory(new File(project.targetDir() + "/bin"));
