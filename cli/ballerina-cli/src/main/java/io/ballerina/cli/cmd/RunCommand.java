@@ -259,9 +259,7 @@ public class RunCommand implements BLauncherCmd {
             BufferedReader profilerReader = new BufferedReader(new InputStreamReader(profilerProcess.getInputStream()));
             profilerReader.lines().forEach(System.out::println);
             profilerProcess.waitFor();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+        } catch (Exception ignore) {}
     }
 
     @Override
