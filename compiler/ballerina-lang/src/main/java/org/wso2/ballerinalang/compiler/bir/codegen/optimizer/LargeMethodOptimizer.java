@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -54,6 +55,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
+import static org.wso2.ballerinalang.compiler.bir.BIRGenUtils.rearrangeBasicBlocks;
+import static org.wso2.ballerinalang.compiler.bir.BIRGenUtils.renumberBasicBlock;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_UTILS;
 
 /**
@@ -174,25 +177,41 @@ public class LargeMethodOptimizer {
             }
             arrIndex++;
         }
+        List<BIRBasicBlock> parentFuncNewBBList = new ArrayList<>();
+        // parent function's BBs will be numbered in ascending order simultaneously
+        int currentBBId = 0;
         for (BIRBasicBlock bb : bbs) {
             for (BIRNonTerminator bbIns : bb.instructions) {
                 newInsList.add(bbIns);
                 setArrayElementGivenLhsOp(birFunction, birOperands, newInsList, handleArrayOperand, bbIns.lhsOp);
             }
             bb.instructions = newInsList;
+            currentBBId = renumberBasicBlock(currentBBId, bb);
+            parentFuncNewBBList.add(bb);
             newInsList = new ArrayList<>();
+
             // next consider lhs op in BIR terminator, branch terms won't have array element as lhs op
-            // so it is safe if we found a lhs op to add to next bb's ins list
-            setArrayElementGivenLhsOp(birFunction, birOperands, newInsList, handleArrayOperand, bb.terminator.lhsOp);
+            // if we found a lhs op, we need to create a new BB and change the terminator
+            List<BIRNonTerminator> newBBInsList = new ArrayList<>();
+            if (setArrayElementGivenLhsOp(birFunction, birOperands, newBBInsList, handleArrayOperand,
+                    bb.terminator.lhsOp)) {
+                BIRBasicBlock newBB = new BIRBasicBlock(currentBBId++);
+                newBB.instructions.addAll(newBBInsList);
+                newBB.terminator = new BIRTerminator.GOTO(null, bb.terminator.thenBB, bb.terminator.scope);
+                bb.terminator.thenBB = newBB;
+                parentFuncNewBBList.add(newBB);
+            }
         }
 
         BIRBasicBlock insBB = bbs.get(bbs.size() - 2);
         insBB.instructions.remove(insBB.instructions.size() - 1);
         insBB.instructions.addAll(globalAndArgVarIns);
         insBB.instructions.add(newLargeArrayIns);
+        birFunction.basicBlocks = parentFuncNewBBList;
+        birFunction.errorTable.sort(Comparator.comparingInt(o -> o.trapBB.number));
     }
 
-    private void setArrayElementGivenLhsOp(BIRFunction birFunction,
+    private boolean setArrayElementGivenLhsOp(BIRFunction birFunction,
                                            Map<BIROperand, BIRListConstructorEntryWithIndex> birOperands,
                                            List<BIRNonTerminator> newInsList, BIROperand handleArrayOperand,
                                            BIROperand insLhsOp) {
@@ -201,7 +220,9 @@ public class LargeMethodOptimizer {
             BIRNode.BIRListConstructorEntry listConstructorEntry = listConstructorEntryWithIndex.listConstructorEntry;
             int arrayIndex = listConstructorEntryWithIndex.index;
             setArrayElement(birFunction, newInsList, handleArrayOperand, insLhsOp, listConstructorEntry, arrayIndex);
+            return true;
         }
+        return false;
     }
 
     private void setArrayElement(BIRFunction birFunction, List<BIRNonTerminator> newInsList,
@@ -557,6 +578,7 @@ public class LargeMethodOptimizer {
         // unused temp and synthetic vars in the original function are removed
         // and onlyUsedInSingleBB flag in BIRVariableDcl is changed in needed places
         removeUnusedVarsAndSetVarUsage(function);
+        // renumbering BBs is not necessary here as it will be done later and fixing error table does not require order
         // set error table changed BBs
         fixErrorTableEndBBs(function.errorTable, changedErrorTableEndBB);
     }
@@ -807,6 +829,7 @@ public class LargeMethodOptimizer {
         basicBlocks.add(lastBB);
         basicBlocks.add(exitBB);
         rectifyVarKindsAndTerminators(birFunc, selfVarDcl, exitBB);
+        rearrangeBasicBlocks(birFunc);
         return birFunc;
     }
 
