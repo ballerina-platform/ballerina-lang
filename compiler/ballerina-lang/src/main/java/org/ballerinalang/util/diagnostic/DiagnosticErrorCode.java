@@ -173,6 +173,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     TUPLE_AND_EXPRESSION_SIZE_DOES_NOT_MATCH("BCE2136", "tuple.and.expression.size.does.not.match"),
     CANNOT_SPECIFY_NAMED_ARG_FOR_FIELD_OF_INCLUDED_RECORD_WHEN_ARG_SPECIFIED_FOR_INCLUDED_RECORD("BCE2137",
             "cannot.specify.named.argument.for.field.of.included.record.when.arg.specified.for.included.record"),
+    CYCLIC_TYPE_REFERENCE_NOT_YET_SUPPORTED("BCE2138", "cyclic.type.reference.not.yet.supported"),
 
     //Transaction related error codes
     ROLLBACK_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("BCE2300", "rollback.cannot.be.outside.transaction.block"),

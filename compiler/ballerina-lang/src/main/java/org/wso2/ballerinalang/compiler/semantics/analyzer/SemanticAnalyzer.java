@@ -324,7 +324,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
                 analyzeNode((BLangNode) constant, data);
             }
         }
-        this.constantValueResolver.resolve(pkgNode.constants, pkgNode.packageID, pkgEnv);
 
         validateEnumMemberMetadata(pkgNode.constants);
 
@@ -4319,16 +4318,6 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             }
         });
         this.anonTypeNameSuffixes.pop();
-
-        BLangExpression expression = constant.expr;
-        if (isNodeKindAllowedForConstants(expression, constant)) {
-            // This has to return, because constant.symbol.type is required for further validations.
-            // ATM this is only special cased for unary expressions with `+` and `-` operators with numeric expressions.
-            dlog.error(expression.pos, DiagnosticErrorCode.TYPE_REQUIRED_FOR_CONST_WITH_EXPRESSIONS);
-            return;
-        }
-
-        typeChecker.checkExpr(expression, data.env, constant.symbol.type, data.prevEnvs, data.commonAnalyzerData);
 
         // Check nested expressions.
         constantAnalyzer.visit(constant);
