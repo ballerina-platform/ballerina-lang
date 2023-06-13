@@ -191,6 +191,11 @@ public class TestCommand implements BLauncherCmd {
             "caching for source files", defaultValue = "false")
     private Boolean disableSyntaxTreeCaching;
 
+    @CommandLine.Option(names = "--graalvm-build-options", description = "additional build options for native image " +
+            "generation")
+    private String graalVMBuildOptions;
+
+
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
 
@@ -216,6 +221,16 @@ public class TestCommand implements BLauncherCmd {
 
         if (sticky == null) {
             sticky = false;
+        }
+
+
+        if (nativeImage == null) {
+            nativeImage = false;
+        }
+
+        if (!nativeImage && graalVMBuildOptions != null) {
+            this.outStream.println("WARNING: --graalvm-build-options flag is ignored since --graalvm flag is not " +
+                    "provided");
         }
 
         // load project
@@ -365,7 +380,8 @@ public class TestCommand implements BLauncherCmd {
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setNativeImage(nativeImage)
                 .setEnableCache(enableCache)
-                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
+                .setGraalVMBuildOptions(graalVMBuildOptions);
 
 
         if (targetDir != null) {

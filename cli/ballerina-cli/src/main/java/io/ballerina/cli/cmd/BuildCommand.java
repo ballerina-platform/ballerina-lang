@@ -185,6 +185,10 @@ public class BuildCommand implements BLauncherCmd {
             "caching for source files", defaultValue = "false")
     private Boolean disableSyntaxTreeCaching;
 
+    @CommandLine.Option(names = "--graalvm-build-options", description = "additional build options for native image " +
+            "generation")
+    private String graalVMBuildOptions;
+
     public void execute() {
         long start = 0;
         if (this.helpFlag) {
@@ -195,6 +199,15 @@ public class BuildCommand implements BLauncherCmd {
 
         if (sticky == null) {
             sticky = false;
+        }
+
+        if (nativeImage == null) {
+            nativeImage = false;
+        }
+
+        if (!nativeImage && graalVMBuildOptions != null) {
+            this.outStream.println("WARNING: --graalvm-build-options flag is ignored since --graalvm flag is not " +
+                    "provided");
         }
 
         // load project
@@ -304,7 +317,8 @@ public class BuildCommand implements BLauncherCmd {
                 .setExportComponentModel(exportComponentModel)
                 .setEnableCache(enableCache)
                 .setNativeImage(nativeImage)
-                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
+                .setGraalVMBuildOptions(graalVMBuildOptions);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());
