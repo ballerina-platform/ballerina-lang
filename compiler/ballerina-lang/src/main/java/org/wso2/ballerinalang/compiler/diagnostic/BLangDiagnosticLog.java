@@ -38,13 +38,24 @@ import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BSymbolicProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.NonCatProperty;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.*;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * Logger class for logging various compiler diagnostics.
@@ -331,6 +342,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
                         if (constraint.getKind() == TypeKind.OTHER) {
                             return true;
                         }
+                        break;
                     default:
                         break;
                 }
