@@ -117,6 +117,24 @@ service Ecommerce on testEP {
     }
 
     @http:ResourceConfig {
+        methods:["GET"],
+        path:"/productsQueryParam"
+    }
+    resource function productsInfo7 (http:Caller caller, http:Request req) {
+        json responseJson;
+        map<string[]> params = req.getQueryParams();
+        string[]? productsArr = params["products"];
+        string products = productsArr is string[] ? productsArr[0] : "";
+        io:println ("Products " + products);
+        responseJson = {"Products": products};
+        io:println (responseJson.toString ());
+
+        http:Response res = new;
+        res.setJsonPayload(<@untainted json> responseJson);
+        checkpanic caller->respond(res);
+    }
+
+    @http:ResourceConfig {
         path:""
     }
     resource function echo1 (http:Caller caller, http:Request req) {
@@ -261,5 +279,25 @@ service echo114 on testEP {
         json responseJson = {"echo114": foo};
         res.setJsonPayload(<@untainted json> responseJson);
         checkpanic caller->respond(res);
+    }
+}
+
+@http:ServiceConfig {
+    basePath:"/echo115"
+}
+service echo115 on testEP {
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/echo115/{foo}"
+    }
+    resource function queryParams (http:Caller caller, http:Request req, string foo) {
+        var bar = req.getQueryParamValue("bar");
+        json responseJson = {
+            "queryParam": bar
+        };
+        http:Response res = new;
+        res.setJsonPayload(<@untainted>responseJson);
+        var result = caller->respond(res);
     }
 }
