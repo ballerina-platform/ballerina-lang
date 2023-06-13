@@ -316,6 +316,9 @@ public class TypeParamAnalyzer {
                     ((BTypeDefinitionSymbol) symbol).referenceType.referredType = cloneableType;
                     return cloneableType;
                 }
+                break;
+            default:
+                break;
         }
         // For others, we will use TSymbol.
         return type;

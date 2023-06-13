@@ -535,9 +535,10 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                         : symTable.semanticError;
             case TypeTags.READONLY:
                 return checkConstExpr(mappingConstructor, possibleType, data);
+            default:
+                reportIncompatibleMappingConstructorError(mappingConstructor, expType);
+                return symTable.semanticError;
         }
-        reportIncompatibleMappingConstructorError(mappingConstructor, expType);
-        return symTable.semanticError;
     }
 
     private void reportIncompatibleMappingConstructorError(BLangRecordLiteral mappingConstructorExpr, BType expType) {
@@ -623,8 +624,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 BType refType = Types.getReferredType(type);
                 BType compatibleType = getMappingConstructorCompatibleNonUnionType(refType, data);
                 return compatibleType == refType ? type : compatibleType;
+            default:
+                return symTable.semanticError;
         }
-        return symTable.semanticError;
     }
 
     private BType validateSpecifiedFieldsAndGetType(BLangRecordLiteral mappingConstructor, BType possibleType,
@@ -635,8 +637,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 return validateMapTypeAndInferredType(mappingConstructor, expType, possibleType, data);
             case TypeTags.RECORD:
                 return validateRecordType(mappingConstructor, (BRecordType) possibleType, data);
+            default:
+                return symTable.semanticError;
         }
-        return symTable.semanticError;
     }
 
     private BType validateMapTypeAndInferredType(BLangRecordLiteral mappingConstructor, BType expType,
@@ -1133,8 +1136,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 return checkTupleType((BTupleType) possibleType, listConstructor, data);
             case TypeTags.READONLY:
                 return checkConstExpr(listConstructor, possibleType, data);
+            default:
+                return symTable.semanticError;
         }
-        return symTable.semanticError;
     }
 
     private BType checkArrayType(BArrayType arrayType, BLangListConstructorExpr listConstructor, AnalyzerData data) {
@@ -1171,6 +1175,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                         dlog.error(spreadOpExpr.pos,
                                 DiagnosticErrorCode.INVALID_SPREAD_OP_FIXED_LENGTH_LIST_EXPECTED);
                         return symTable.semanticError;
+                    default:
+                        break;
                 }
             }
         }
@@ -1278,6 +1284,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
                         dlog.error(spreadOpExpr.pos, DiagnosticErrorCode.INVALID_SPREAD_OP_FIXED_LENGTH_LIST_EXPECTED);
                         return symTable.semanticError;
+                    default:
+                        break;
                 }
             }
 
@@ -1404,10 +1412,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                                 symTable, anonymousModelHelper, names);
             case TypeTags.INTERSECTION:
                 return ((BIntersectionType) type).effectiveType;
-//            case TypeTags.TYPEREFDESC:
-//                return type;
+            default:
+                return symTable.semanticError;
         }
-        return symTable.semanticError;
     }
 
     private BType getBroadType(BType type) {
@@ -1546,91 +1553,80 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     private Object calculateAddition(Object lhs, Object rhs, BType type, AnalyzerData data) {
-        Object result = null;
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 try {
-                    result = Math.addExact((Long) lhs, (Long) rhs);
+                    return Math.addExact((Long) lhs, (Long) rhs);
                 } catch (ArithmeticException ae) {
                     dlog.error(data.pos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
                     return null;
                 }
-                break;
             case TypeTags.FLOAT:
-                result = String.valueOf(Double.parseDouble(String.valueOf(lhs))
+                return String.valueOf(Double.parseDouble(String.valueOf(lhs))
                         + Double.parseDouble(String.valueOf(rhs)));
-                break;
             case TypeTags.DECIMAL:
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.add(rhsDecimal, MathContext.DECIMAL128);
                 resultDecimal = types.getValidDecimalNumber(data.pos, resultDecimal);
-                result = resultDecimal != null ? resultDecimal.toPlainString() : null;
-                break;
+                return resultDecimal != null ? resultDecimal.toPlainString() : null;
             case TypeTags.STRING:
-                result = String.valueOf(lhs) + String.valueOf(rhs);
-                break;
+                return String.valueOf(lhs) + String.valueOf(rhs);
+            default:
+                return null;
         }
-        return result;
     }
 
     private Object calculateSubtract(Object lhs, Object rhs, BType type, AnalyzerData data) {
-        Object result = null;
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 try {
-                    result = Math.subtractExact((Long) lhs, (Long) rhs);
+                    return Math.subtractExact((Long) lhs, (Long) rhs);
                 } catch (ArithmeticException ae) {
                     dlog.error(data.pos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
                     return null;
                 }
-                break;
             case TypeTags.FLOAT:
-                result = String.valueOf(Double.parseDouble(String.valueOf(lhs))
+                return String.valueOf(Double.parseDouble(String.valueOf(lhs))
                         - Double.parseDouble(String.valueOf(rhs)));
-                break;
             case TypeTags.DECIMAL:
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.subtract(rhsDecimal, MathContext.DECIMAL128);
                 resultDecimal = types.getValidDecimalNumber(data.pos, resultDecimal);
-                result = resultDecimal != null ? resultDecimal.toPlainString() : null;
-                break;
+                return resultDecimal != null ? resultDecimal.toPlainString() : null;
+            default:
+                return null;
         }
-        return result;
     }
 
     private Object calculateMultiplication(Object lhs, Object rhs, BType type, AnalyzerData data) {
-        Object result = null;
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 try {
-                    result = Math.multiplyExact((Long) lhs, (Long) rhs);
+                    return Math.multiplyExact((Long) lhs, (Long) rhs);
                 } catch (ArithmeticException ae) {
                     dlog.error(data.pos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
                     return null;
                 }
-                break;
             case TypeTags.FLOAT:
-                result = String.valueOf(Double.parseDouble(String.valueOf(lhs))
+                return String.valueOf(Double.parseDouble(String.valueOf(lhs))
                         * Double.parseDouble(String.valueOf(rhs)));
-                break;
             case TypeTags.DECIMAL:
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.multiply(rhsDecimal, MathContext.DECIMAL128);
                 resultDecimal = types.getValidDecimalNumber(data.pos, resultDecimal);
-                result = resultDecimal != null ? resultDecimal.toPlainString() : null;
-                break;
+                return resultDecimal != null ? resultDecimal.toPlainString() : null;
+            default:
+                return null;
         }
-        return result;
     }
 
     private Object calculateDivision(Object lhs, Object rhs, BType type, AnalyzerData data) {
-        Object result = null;
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
@@ -1638,42 +1634,38 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     dlog.error(data.pos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
                     return null;
                 }
-                result = ((Long) lhs / (Long) rhs);
-                break;
+                return ((Long) lhs / (Long) rhs);
             case TypeTags.FLOAT:
-                result = String.valueOf(Double.parseDouble(String.valueOf(lhs))
+                return String.valueOf(Double.parseDouble(String.valueOf(lhs))
                         / Double.parseDouble(String.valueOf(rhs)));
-                break;
             case TypeTags.DECIMAL:
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.divide(rhsDecimal, MathContext.DECIMAL128);
                 resultDecimal = types.getValidDecimalNumber(data.pos, resultDecimal);
-                result = resultDecimal != null ? resultDecimal.toPlainString() : null;
-                break;
+                return resultDecimal != null ? resultDecimal.toPlainString() : null;
+            default:
+                return null;
         }
-        return result;
     }
 
     private Object calculateMod(Object lhs, Object rhs, BType type) {
-        Object result = null;
         switch (Types.getReferredType(type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
-                result = ((Long) lhs % (Long) rhs);
-                break;
+                return ((Long) lhs % (Long) rhs);
             case TypeTags.FLOAT:
-                result = String.valueOf(Double.parseDouble(String.valueOf(lhs))
+                return String.valueOf(Double.parseDouble(String.valueOf(lhs))
                         % Double.parseDouble(String.valueOf(rhs)));
-                break;
             case TypeTags.DECIMAL:
                 BigDecimal lhsDecimal = new BigDecimal(String.valueOf(lhs), MathContext.DECIMAL128);
                 BigDecimal rhsDecimal = new BigDecimal(String.valueOf(rhs), MathContext.DECIMAL128);
                 BigDecimal resultDecimal = lhsDecimal.remainder(rhsDecimal, MathContext.DECIMAL128);
-                result = resultDecimal.toPlainString();
-                break;
+                return resultDecimal.toPlainString();
+
+            default:
+                return null;
         }
-        return result;
     }
 
     private Object calculateNegationForInt(Object value, AnalyzerData data) {
@@ -1696,20 +1688,16 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     }
 
     private Object calculateNegation(Object value, BType type, AnalyzerData data) {
-        Object result = null;
-
         switch (type.tag) {
             case TypeTags.INT:
-                result = calculateNegationForInt(value, data);
-                break;
+                return calculateNegationForInt(value, data);
             case TypeTags.FLOAT:
-                result = calculateNegationForFloat(value);
-                break;
+                return calculateNegationForFloat(value);
             case TypeTags.DECIMAL:
-                result = calculateNegationForDecimal(value);
-                break;
+                return calculateNegationForDecimal(value);
+            default:
+                return null;
         }
-        return result;
     }
 
     private Object calculateBitWiseComplement(Object value, BType type) {
@@ -1862,6 +1850,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     }
                 }
                 break;
+            default:
+                break;
         }
 
         if (!(literalValue instanceof Long)) {
@@ -1942,6 +1932,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                         return symTable.decimalType;
                     }
                 }
+                break;
+            default:
                 break;
         }
         return symTable.semanticError;
@@ -2606,6 +2598,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 return new BLangConstantValue(members, type);
             case TypeTags.NIL:
                 return new BLangConstantValue (type.tsymbol.getType().toString(), type.tsymbol.getType());
+            default:
+                break;
         }
         return null;
     }
@@ -2810,6 +2804,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     paramTypes.add(binaryExpr.rhsExpr.getBType());
                     invokableType.paramTypes = paramTypes;
                     invokableType.retType = binaryExpr.getBType();
+                    break;
+                default:
+                    break;
             }
         }
 
