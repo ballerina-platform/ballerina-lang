@@ -1,8 +1,0 @@
-[package]
-org = "test"
-name = "TestClient"
-version = "0.1.1"
-distribution = "2201.3.2"
-
-[build-options]
-observabilityIncluded = true
