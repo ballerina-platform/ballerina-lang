@@ -2670,7 +2670,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 mostTimesMatchedDigit,
                 closeBraceToken);
     }
-  
+
     public static STNode createMemberTypeDescriptorNode(
             STNode annotations,
             STNode typeDescriptor) {

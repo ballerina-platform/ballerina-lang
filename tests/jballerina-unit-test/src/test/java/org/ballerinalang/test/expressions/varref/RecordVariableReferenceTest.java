@@ -218,10 +218,8 @@ public class RecordVariableReferenceTest {
                 "invalid record binding pattern; unknown field 'unknown2' in record type 'Person'", 119, 5);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "invalid record binding pattern; unknown field 'unknown1' in record type 'Age'", 119, 26);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "unknown type 'Data'", 123, 6);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "unknown type 'Data'", 128, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "unknown type 'Data'", 123, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "unknown type 'Data'", 128, 6);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "incompatible types: expected 'map<int>', found 'record {| never name?; boolean married; int...; |}'",
                 161, 16);

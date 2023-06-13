@@ -7,67 +7,7 @@
   "description": "",
   "items": [
     {
-      "label": "/[string... ids]",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
-        }
-      },
-      "sortText": "C",
-      "filterText": "get",
-      "insertText": "/[${1:\"path\"}];",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 38,
-              "character": 43
-            },
-            "end": {
-              "line": 38,
-              "character": 44
-            }
-          },
-          "newText": ""
-        }
-      ]
-    },
-    {
-      "label": "/<path>",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` ids"
-        }
-      },
-      "sortText": "C",
-      "filterText": "get",
-      "insertText": "/${1:path};",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 38,
-              "character": 43
-            },
-            "end": {
-              "line": 38,
-              "character": 44
-            }
-          },
-          "newText": ""
-        }
-      ]
-    },
-    {
-      "label": "/[string... ids].post(string b, string... ids2)",
+      "label": ".post(string b, string... ids2)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -77,42 +17,8 @@
         }
       },
       "sortText": "C",
-      "filterText": "|post",
-      "insertText": "/[${1:\"path\"}].post(${2});",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 38,
-              "character": 43
-            },
-            "end": {
-              "line": 38,
-              "character": 44
-            }
-          },
-          "newText": ""
-        }
-      ],
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "/<path>.post(string b, string... ids2)",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string` id1  \n- `string[]` ids  \n- `string` b  \n- `string[]` ids2"
-        }
-      },
-      "sortText": "C",
-      "filterText": "|post",
-      "insertText": "/${1:path}.post(${2});",
+      "filterText": "post",
+      "insertText": ".post(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
