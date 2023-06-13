@@ -4974,9 +4974,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         SymbolEnv rhsExprEnv;
         BType lhsType;
         BType referredExpType = Types.getReferredType(binaryExpr.expectedType);
-        if (referredExpType.tag == TypeTags.FLOAT || referredExpType.tag == TypeTags.DECIMAL ||
-                isOptionalFloatOrDecimal(referredExpType)) {
+        if ((referredExpType.tag == TypeTags.FLOAT || referredExpType.tag == TypeTags.DECIMAL ||
+                isOptionalFloatOrDecimal(referredExpType)) && isNumericLiteral(binaryExpr.lhsExpr)) {
             lhsType = checkAndGetType(binaryExpr.lhsExpr, data.env, binaryExpr, data);
+        } else if (isBinaryExpr(binaryExpr.lhsExpr) && (
+                ((BLangBinaryExpr) binaryExpr).opKind == OperatorKind.ADD ||
+                ((BLangBinaryExpr) binaryExpr).opKind == OperatorKind.SUB ||
+                ((BLangBinaryExpr) binaryExpr).opKind == OperatorKind.MUL ||
+                ((BLangBinaryExpr) binaryExpr).opKind == OperatorKind.DIV)) {
+            lhsType = checkExpr(binaryExpr.lhsExpr, data.expType, data);
         } else {
             lhsType = checkExpr(binaryExpr.lhsExpr, data);
         }
@@ -4991,9 +4997,15 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         BType rhsType;
 
-        if (referredExpType.tag == TypeTags.FLOAT || referredExpType.tag == TypeTags.DECIMAL ||
-                isOptionalFloatOrDecimal(referredExpType)) {
+        if ((referredExpType.tag == TypeTags.FLOAT || referredExpType.tag == TypeTags.DECIMAL ||
+                isOptionalFloatOrDecimal(referredExpType)) && isNumericLiteral(binaryExpr.rhsExpr)) {
             rhsType = checkAndGetType(binaryExpr.rhsExpr, rhsExprEnv, binaryExpr, data);
+        } else if (isBinaryExpr(binaryExpr.rhsExpr) && (
+                ((BLangBinaryExpr) binaryExpr).opKind == OperatorKind.ADD ||
+                        ((BLangBinaryExpr) binaryExpr).opKind == OperatorKind.SUB ||
+                        ((BLangBinaryExpr) binaryExpr).opKind == OperatorKind.MUL ||
+                        ((BLangBinaryExpr) binaryExpr).opKind == OperatorKind.DIV)) {
+            rhsType = checkExpr(binaryExpr.rhsExpr, data.expType, data);
         } else {
             rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv, data);
         }
@@ -5064,6 +5076,28 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         data.resultType = types.checkType(binaryExpr, actualType, data.expType);
     }
 
+    private boolean isNumericLiteral(BLangExpression expr) {
+        NodeKind kind = expr.getKind();
+        switch (kind) {
+            case NUMERIC_LITERAL:
+                return true;
+            case UNARY_EXPR:
+                return isNumericLiteral(((BLangUnaryExpr) expr).expr);
+            default:
+                return false;
+        }
+    }
+
+    private boolean isBinaryExpr(BLangExpression expr) {
+        if (expr.getKind() == NodeKind.BINARY_EXPR) {
+            return true;
+        }
+        if (expr.getKind() == NodeKind.GROUP_EXPR) {
+            return isBinaryExpr(((BLangGroupExpr) expr).expression);
+        }
+        return false;
+    }
+
     private boolean isOptionalFloatOrDecimal(BType expectedType) {
         if (expectedType.tag == TypeTags.UNION && expectedType.isNullable() && expectedType.tag != TypeTags.ANY) {
             Iterator<BType> memberTypeIterator = ((BUnionType) expectedType).getMemberTypes().iterator();
@@ -5086,7 +5120,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         this.dlog.mute();
 
         expr.cloneAttempt++;
-        BType exprCompatibleType = checkExpr(nodeCloner.cloneNodeOnce(expr), env, binaryExpr.expectedType, data);
+        BType exprCompatibleType = checkExpr(nodeCloner.cloneNode(expr), env, binaryExpr.expectedType, data);
         data.commonAnalyzerData.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         int errorCount = this.dlog.errorCount();
         this.dlog.setErrorCount(prevErrorCount);
