@@ -229,7 +229,10 @@ public class RunCommand implements BLauncherCmd {
 
         String profilerSource = System.getenv("BALLERINA_HOME") + "/bre/lib/ballerina-profiler-1.0.jar";
         try {
-            Files.copy(Path.of(profilerSource), Path.of(project.targetDir() + "/bin/Profiler.jar"), StandardCopyOption.REPLACE_EXISTING);
+            Path sourcePath = Path.of(profilerSource);
+            Path targetPath = Path.of(project.targetDir() + "/bin/Profiler.jar");
+            StandardCopyOption copyOption = StandardCopyOption.REPLACE_EXISTING;
+            Files.copy(sourcePath, targetPath, copyOption);
             if (args.length == 0) {
                 profilerCommand = new String[]{
                         "java",
