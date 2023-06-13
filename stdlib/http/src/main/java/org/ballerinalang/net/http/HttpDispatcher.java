@@ -34,7 +34,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.List;
@@ -107,16 +106,6 @@ public class HttpDispatcher {
         inboundReqMsg.setProperty(HttpConstants.SUB_PATH, subPath);
         //store query params comes with request as it is
         inboundReqMsg.setProperty(HttpConstants.RAW_QUERY_STR, rawQuery);
-    }
-
-    public static URI getValidatedURI(String uriStr) {
-        URI requestUri;
-        try {
-            requestUri = URI.create(uriStr);
-        } catch (IllegalArgumentException e) {
-            throw new BallerinaConnectorException(e.getMessage());
-        }
-        return requestUri;
     }
 
     /**
