@@ -20,8 +20,8 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
-import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
 import io.ballerina.cli.task.CreateExecutableTask;
 import io.ballerina.cli.task.DumpBuildTimeTask;
@@ -37,9 +37,9 @@ import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
 import java.nio.file.PathMatcher;
+import java.io.BufferedReader;
 import java.nio.file.FileSystems;
 import java.io.File;
-import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.nio.file.Files;
