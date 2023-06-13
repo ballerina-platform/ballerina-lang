@@ -585,8 +585,7 @@ function testCloneWithTypeTupleToJSON() {
     assert(jsonValue is error, true);
     err = <error> jsonValue;
     assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(<string> checkpanic err.detail()["message"], "'[int,(string|xml<(lang.xml:Element|lang.xml:Comment|" +
-        "lang.xml:ProcessingInstruction|lang.xml:Text)>),A...]' value cannot be converted to 'json'");
+    assert(<string> checkpanic err.detail()["message"], "'A' value cannot be converted to 'json'");
 }
 
 function testCloneWithTypeJsonRec1() {

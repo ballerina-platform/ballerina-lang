@@ -255,3 +255,20 @@ const map<map<string>> complexData = { "data": data, "moreData": { "user": "WSO2
 function testNestedConstMapAccess() returns boolean {
     return complexData["data"]["user"] == "Ballerina" && complexData["data"]["ID"] == "1234";
 }
+
+// -----------------------------------------------------------
+
+const CONSTA = "b";
+const map<string> X = {a : "A", [CONSTA] : "B"};
+
+function testConstMapWithComputedField() {
+    assertEqual(X["a"], "A");
+    assertEqual(X["b"], "B");
+    assertEqual(X.toString(), "{\"a\":\"A\",\"b\":\"B\"}");
+}
+
+function assertEqual(int|float|decimal|boolean|string actual, int|float|decimal|boolean|string expected) {
+    if (actual != expected) {
+        panic error(string `Assertion error: expected ${expected} found ${actual}`);
+    }
+}
