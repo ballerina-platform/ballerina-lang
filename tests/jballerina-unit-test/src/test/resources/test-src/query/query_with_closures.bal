@@ -282,6 +282,48 @@ function testClosureInQueryActionInDo5() returns error? {
   }
 }
 
+function testClosureInQueryActionInDo6() returns error? {
+    string str2 = "string-2";
+    EvenNumberGenerator evenGen = new;
+    stream<int, error?> evenNumberStream = new (evenGen);
+    int|string str3 = "string-3";
+
+    if (str3 is int) {
+    } else {
+        int[] _ = check from var _ in evenNumberStream
+        let
+            string _ = str1,
+            string _ = str2,
+            string _ = str3,
+            int length1 = str1.length(),
+            int length2 = str2.length(),
+            int length3 = str3.length()
+        select 1;
+  }
+}
+
+function testClosureInQueryActionInDo7() returns error? {
+    A object2 = new ("Jane");
+    EvenNumberGenerator evenGen = new ();
+    stream<int, error?> evenNumberStream = new (evenGen);
+    A|error object3 = new ("Anne");
+
+    if (object3 is error) {
+    } else {
+    int[][] _ = check from var _ in evenNumberStream
+        select check from var _ in evenNumberStream
+        let
+            A _ = object1,
+            A _ = object2,
+            A _ = object3,
+
+            string objectName1 = check object1.getName(),
+            string objectName2 = check object2.getName(),
+            string objectName3 = check object3.getName()
+        select 1;
+    }
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(anydata expected, anydata actual) {
