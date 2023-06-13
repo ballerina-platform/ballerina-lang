@@ -74,11 +74,11 @@ public class GraalVMCompatibilityUtils {
                         "************************************************************%n" +
                                 "* WARNING: Package is not compatible with GraalVM.         *%n" +
                                 "************************************************************%n%n" +
-                                "The package '%s' has been marked with its GraalVM compatibility property set to false. " +
-                                "This setting suggests potential compatibility issues with GraalVM.%n%n" +
-                                "To ensure this package can function seamlessly with GraalVM, it's recommended to either " +
-                                "modify the package dependencies or consider GraalVM-compatible alternatives.%n%n" +
-                                "************************************************************%n", packageName);
+                                "The package '%s' has been marked with its GraalVM compatibility property set to " +
+                                "false. This setting suggests potential compatibility issues with GraalVM.%n%n" +
+                                "To ensure this package can function seamlessly with GraalVM, it's recommended to " +
+                                "either modify the package dependencies or consider GraalVM-compatible alternatives" +
+                                ".%n%n************************************************************%n", packageName);
             }
         }
         return null;
