@@ -71,7 +71,7 @@ public class CreateBalaTask implements Task {
             if (project.buildOptions().dumpBuildTime()) {
                 start = System.currentTimeMillis();
             }
-            String warning = GraalVMCompatibilityUtils.getGraalVMCompatibilityWarning(
+            String warning = GraalVMCompatibilityUtils.getWarningForPackage(
                     project.currentPackage(), jBallerinaBackend.targetPlatform().code());
             if (warning != null) {
                 out.println("\n" + warning);

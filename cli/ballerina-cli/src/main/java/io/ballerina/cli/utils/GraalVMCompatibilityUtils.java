@@ -5,7 +5,6 @@ import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.util.ProjectUtils;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,27 +18,12 @@ import java.util.Optional;
  * @since 2201.7.0
  */
 public class GraalVMCompatibilityUtils {
-    private static boolean isPackageBelongsToTarget(io.ballerina.projects.Package pkg, String targetPlatform) {
-        ResolvedPackageDependency resolvedPackageDependency = new ResolvedPackageDependency(pkg,
-                PackageDependencyScope.DEFAULT);
-        // 1) Check direct dependencies of imports in the package have any `ballerina/java` dependency
-        for (ResolvedPackageDependency dependency :
-                pkg.getCompilation().getResolution().dependencyGraph().getDirectDependencies(
-                        resolvedPackageDependency)) {
-            if (dependency.packageInstance().packageOrg().value().equals(
-                    Names.BALLERINA_ORG.value) && dependency.packageInstance().packageName().value().equals(
-                    Names.JAVA.value)) {
-                return true;
-            }
-        }
 
-        // 2) Check package has defined any platform dependency
+    private static boolean hasExternalPlatformDependencies(io.ballerina.projects.Package pkg, String targetPlatform) {
+        // Check if external platform dependencies are defined
         PackageManifest manifest = pkg.manifest();
-        if ((manifest.platform(targetPlatform) != null &&
-                !manifest.platform(targetPlatform).dependencies().isEmpty())) {
-            return true;
-        }
-        return false;
+        return manifest.platform(targetPlatform) != null &&
+                !manifest.platform(targetPlatform).dependencies().isEmpty();
     }
 
     /**
@@ -49,45 +33,43 @@ public class GraalVMCompatibilityUtils {
      * @param targetPlatform Target platform
      * @return Warning message
      */
-    public static String getGraalVMCompatibilityWarning(io.ballerina.projects.Package pkg, String targetPlatform) {
+    public static String getWarningForPackage(io.ballerina.projects.Package pkg, String targetPlatform) {
         // Verify that Java dependencies (if exist) of this package are GraalVM compatible
-        if (isPackageBelongsToTarget(pkg, targetPlatform)) {
+        if (hasExternalPlatformDependencies(pkg, targetPlatform)) {
             PackageManifest.Platform platform = pkg.manifest().platform(targetPlatform);
             String packageName = pkg.manifest().name().value();
 
             if (platform == null || platform.graalvmCompatible() == null) {
-                return String.format("warning: GraalVM compatibility is not defined for the package '%s'. " +
-                        "To dismiss this warning," + " please verify that Java dependencies of this package are " +
-                        "GraalVM compatible and add" + " 'graalvmCompatible = true' under '[platform.%s]' in the" +
-                        " Ballerina.toml file.%n", packageName, targetPlatform);
+                return String.format("************************************************************%n" +
+                                "* WARNING: Package is not verified with GraalVM.           *%n" +
+                                "************************************************************%n%n" +
+                                "The GraalVM compatibility property has not been defined for the package '%s'. " +
+                                "This could potentially lead to compatibility issues with GraalVM.%n%n" +
+                                "To resolve this warning, please ensure that all Java dependencies of this package " +
+                                "are compatible with GraalVM. Subsequently, update the Ballerina.toml file under " +
+                                "the section '[platform.%s]' with the attribute 'graalvmCompatible = true'.%n%n" +
+                                "************************************************************%n",
+                        packageName, targetPlatform);
             } else if (!platform.graalvmCompatible()) {
-                return String.format("warning: Java dependencies of the package '%s' are not GraalVM compatible. " +
-                        "This package may fail during execution on GraalVM.%n", packageName);
+                return String.format("************************************************************%n" +
+                        "* WARNING: Package is not compatible with GraalVM.         *%n" +
+                        "************************************************************%n%n" +
+                        "The package '%s' has been marked with its GraalVM compatibility property set to false. " +
+                        "This setting suggests potential compatibility issues with GraalVM.%n%n" +
+                        "To ensure this package can function seamlessly with GraalVM, it's recommended to either " +
+                        "modify the package dependencies or consider GraalVM-compatible alternatives.%n%n" +
+                        "************************************************************%n", packageName);
             }
         }
         return null;
     }
 
+    private static String getWarningForDependencies(io.ballerina.projects.Package pkg,
+                                                    boolean isTestExec) {
 
-    /**
-     * Get all GraalVM compatibility warnings of a package including it's dependencies.
-     *
-     * @param pkg            Package to get warnings
-     * @param targetPlatform String
-     * @return All warnings as a String
-     */
-    public static String getAllGraalVMCompatibilityWarnings(io.ballerina.projects.Package pkg, String targetPlatform) {
-        StringBuilder warning = new StringBuilder();
-
-        // Verify that Java dependencies (if exist) of this package are GraalVM compatible
-        String packageWarning = getGraalVMCompatibilityWarning(pkg, targetPlatform);
-        if (packageWarning != null) {
-            warning.append(packageWarning);
-        }
-        // List all dependencies that are not GraalVM compatible
         Collection<ResolvedPackageDependency> allDependencies = pkg.getCompilation().getResolution().allDependencies();
-        List<String> nonGraalVMCompatibleDependencies = new ArrayList<>();
-        List<String> nonVerifiedDependencies = new ArrayList<>();
+        List<ResolvedPackageDependency> nonGraalVMCompatibleDependencies = new ArrayList<>();
+        List<ResolvedPackageDependency> nonVerifiedDependencies = new ArrayList<>();
 
         allDependencies.stream().filter(dependency -> !ProjectUtils.isLangLibPackage(
                 dependency.packageInstance().descriptor().org(),
@@ -97,25 +79,93 @@ public class GraalVMCompatibilityUtils {
                     platformMap.entrySet().stream().findFirst();
             if (platform.isPresent() && !AnyTarget.ANY.code().equals(platform.get().getKey())) {
                 Boolean isGraalVMCompatible = platform.get().getValue().graalvmCompatible();
-                String dependencyName = dependency.packageInstance().descriptor().toString();
                 if (isGraalVMCompatible == null) {
-                    nonVerifiedDependencies.add(dependencyName);
+                    nonVerifiedDependencies.add(dependency);
                 } else if (!isGraalVMCompatible) {
-                    nonGraalVMCompatibleDependencies.add(dependencyName);
+                    nonGraalVMCompatibleDependencies.add(dependency);
                 }
             }
         });
+        return getDependenciesWarningMessage(getDependenciesList(nonGraalVMCompatibleDependencies, isTestExec),
+                getDependenciesList(nonVerifiedDependencies, isTestExec));
+    }
+
+    /**
+     * Get all the applicable warning messages for GraalVM compatibility of the package.
+     *
+     * @param pkg            Package to be verified
+     * @param targetPlatform Target platform
+     * @param isTestExec     Whether it is a test execution
+     * @return Warning message
+     */
+    public static String getAllWarnings(io.ballerina.projects.Package pkg, String targetPlatform, boolean isTestExec) {
+        StringBuilder warnings = new StringBuilder();
+        // Verify that Java dependencies (if exist) of this package are GraalVM compatible
+        String packageWarning = getWarningForPackage(pkg, targetPlatform);
+        if (packageWarning != null) {
+            warnings.append(packageWarning);
+        }
+        // List all dependencies that are not GraalVM compatible
+        String dependencyWarning = getWarningForDependencies(pkg, isTestExec);
+        if (dependencyWarning != null) {
+            if (warnings.length() > 0) {
+                warnings.append(System.lineSeparator());
+            }
+            warnings.append(dependencyWarning);
+        }
+        return warnings.toString();
+    }
+
+
+    private static String getDependenciesWarningMessage(
+            String nonGraalVMCompatibleDependencies,
+            String nonVerifiedDependencies) {
+        // If there are no non-GraalVM compatible dependencies, return null
+        if (nonGraalVMCompatibleDependencies.isEmpty() && nonVerifiedDependencies.isEmpty()) {
+            return null;
+        }
+        StringBuilder warning = new StringBuilder(String.format("**************************************************" +
+                "**********%n* WARNING: Some dependencies may not be GraalVM compatible.*%n" +
+                "************************************************************%n%n" +
+                "The following Ballerina dependencies in your project could pose compatibility issues " +
+                "with GraalVM. %n"));
         if (!nonVerifiedDependencies.isEmpty()) {
-            warning.append("\nwarning: GraalVM compatibility is not defined for the following " +
-                    "dependencies of this package. These packages may or may not be compatible with GraalVM.").append(
-                            "\n\t").append(String.join("\n\t", nonVerifiedDependencies)).append("\n");
+            warning.append("\nPackages pending compatibility verification with GraalVM:");
+            warning.append(nonVerifiedDependencies);
+            warning.append("\n");
         }
         if (!nonGraalVMCompatibleDependencies.isEmpty()) {
-            warning.append("\nwarning: The following dependencies of this package are not GraalVM " +
-                    "compatible. This package may fail during execution on GraalVM.").append("\n\t").append(
-                            String.join("\n\t", nonGraalVMCompatibleDependencies)).append("\n");
+            warning.append("\nPackages marked as incompatible with GraalVM:");
+            warning.append(nonGraalVMCompatibleDependencies);
+            warning.append("\n");
         }
+        warning.append(String.format("%nPlease note that generating a GraalVM native image may fail or result in " +
+                "runtime issues if these packages rely on features that are not supported by GraalVM's native " +
+                "image generation process.%n%nIt is recommended to review the API documentation or contact the " +
+                "maintainers of these packages for more information on their GraalVM compatibility status. " +
+                "You may need to adjust or find alternatives for these packages before proceeding with GraalVM " +
+                "native image generation.%n%n************************************************************%n"));
         return warning.toString();
+    }
+
+    private static String getDependenciesList(List<ResolvedPackageDependency> dependencies, boolean includeAllScopes) {
+        StringBuilder dependenciesList = new StringBuilder();
+        for (ResolvedPackageDependency dependency : dependencies) {
+            if (!includeAllScopes && PackageDependencyScope.TEST_ONLY.equals(dependency.scope())) {
+                continue;
+            }
+            dependenciesList.append(System.lineSeparator())
+                    .append(getDependencyDetail(dependency));
+        }
+        return dependenciesList.toString();
+    }
+
+    private static String getDependencyDetail(ResolvedPackageDependency dependency) {
+        StringBuilder dependencyDetail = new StringBuilder("\t" + dependency.packageInstance().descriptor().toString());
+        if (PackageDependencyScope.TEST_ONLY.equals(dependency.scope())) {
+            dependencyDetail.append(" [").append(PackageDependencyScope.TEST_ONLY.getValue()).append("]");
+        }
+        return dependencyDetail.toString();
     }
 
 }
