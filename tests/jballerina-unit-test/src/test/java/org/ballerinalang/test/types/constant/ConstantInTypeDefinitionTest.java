@@ -106,7 +106,7 @@ public class ConstantInTypeDefinitionTest {
     public void testByteTypeWithType() {
         Object returns = BRunUtil.invoke(compileResult, "testByteTypeWithType");
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns, 240);
+        Assert.assertEquals(returns, 240L);
     }
 
     @Test
