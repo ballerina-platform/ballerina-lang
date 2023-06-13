@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2023, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 package io.ballerina.cli.utils;
 
 import io.ballerina.projects.AnyTarget;
@@ -13,7 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * {@code GraalVMCompatibilityUtils} has utilities to verify the compatibility of a package with GraalVM.
+ * Utilities to verify the compatibility of a package with GraalVM.
  *
  * @since 2201.7.0
  */
@@ -40,7 +58,8 @@ public class GraalVMCompatibilityUtils {
             String packageName = pkg.manifest().name().value();
 
             if (platform == null || platform.graalvmCompatible() == null) {
-                return String.format("************************************************************%n" +
+                return String.format(
+                        "************************************************************%n" +
                                 "* WARNING: Package is not verified with GraalVM.           *%n" +
                                 "************************************************************%n%n" +
                                 "The GraalVM compatibility property has not been defined for the package '%s'. " +
@@ -51,14 +70,15 @@ public class GraalVMCompatibilityUtils {
                                 "************************************************************%n",
                         packageName, targetPlatform);
             } else if (!platform.graalvmCompatible()) {
-                return String.format("************************************************************%n" +
-                        "* WARNING: Package is not compatible with GraalVM.         *%n" +
-                        "************************************************************%n%n" +
-                        "The package '%s' has been marked with its GraalVM compatibility property set to false. " +
-                        "This setting suggests potential compatibility issues with GraalVM.%n%n" +
-                        "To ensure this package can function seamlessly with GraalVM, it's recommended to either " +
-                        "modify the package dependencies or consider GraalVM-compatible alternatives.%n%n" +
-                        "************************************************************%n", packageName);
+                return String.format(
+                        "************************************************************%n" +
+                                "* WARNING: Package is not compatible with GraalVM.         *%n" +
+                                "************************************************************%n%n" +
+                                "The package '%s' has been marked with its GraalVM compatibility property set to false. " +
+                                "This setting suggests potential compatibility issues with GraalVM.%n%n" +
+                                "To ensure this package can function seamlessly with GraalVM, it's recommended to either " +
+                                "modify the package dependencies or consider GraalVM-compatible alternatives.%n%n" +
+                                "************************************************************%n", packageName);
             }
         }
         return null;
@@ -117,18 +137,18 @@ public class GraalVMCompatibilityUtils {
     }
 
 
-    private static String getDependenciesWarningMessage(
-            String nonGraalVMCompatibleDependencies,
-            String nonVerifiedDependencies) {
+    private static String getDependenciesWarningMessage(String nonGraalVMCompatibleDependencies,
+                                                        String nonVerifiedDependencies) {
         // If there are no non-GraalVM compatible dependencies, return null
         if (nonGraalVMCompatibleDependencies.isEmpty() && nonVerifiedDependencies.isEmpty()) {
             return null;
         }
-        StringBuilder warning = new StringBuilder(String.format("**************************************************" +
-                "**********%n* WARNING: Some dependencies may not be GraalVM compatible.*%n" +
-                "************************************************************%n%n" +
-                "The following Ballerina dependencies in your project could pose compatibility issues " +
-                "with GraalVM. %n"));
+        StringBuilder warning = new StringBuilder(
+                String.format("************************************************************%n" +
+                        "* WARNING: Some dependencies may not be GraalVM compatible.*%n" +
+                        "************************************************************%n%n" +
+                        "The following Ballerina dependencies in your project could pose compatibility issues " +
+                        "with GraalVM.%n"));
         if (!nonVerifiedDependencies.isEmpty()) {
             warning.append("\nPackages pending compatibility verification with GraalVM:");
             warning.append(nonVerifiedDependencies);

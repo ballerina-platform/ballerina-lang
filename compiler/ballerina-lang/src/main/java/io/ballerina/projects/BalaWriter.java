@@ -207,7 +207,6 @@ public abstract class BalaWriter {
         }
     }
 
-
     // TODO when iterating and adding source files should create source files from Package sources
 
     private void addPackageDoc(ZipOutputStream balaOutputStream, Path packageSourceDir, String pkgName)
