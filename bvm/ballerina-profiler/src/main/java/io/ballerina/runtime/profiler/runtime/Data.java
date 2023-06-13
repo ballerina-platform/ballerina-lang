@@ -51,6 +51,7 @@ public class Data {
         this.totalTime += elapsed;
     }
 
+
     private String getFormattedStats() {
 
         int time = (int) this.totalTime;
