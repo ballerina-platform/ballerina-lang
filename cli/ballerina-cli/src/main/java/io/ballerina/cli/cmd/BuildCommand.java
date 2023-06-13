@@ -102,7 +102,7 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                 boolean dumpBuildTime, boolean nativeImage) {
+                 boolean dumpBuildTime, boolean nativeImage, String graalVMBuildOptions) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -110,6 +110,7 @@ public class BuildCommand implements BLauncherCmd {
         this.dumpBuildTime = dumpBuildTime;
         this.offline = true;
         this.nativeImage = nativeImage;
+        this.graalVMBuildOptions = graalVMBuildOptions;
     }
 
     @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +

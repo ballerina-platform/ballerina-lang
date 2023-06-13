@@ -110,13 +110,14 @@ public class TestCommand implements BLauncherCmd {
     }
 
     TestCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                boolean nativeImage) {
+                boolean nativeImage, String graalVMBuildOptions) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.nativeImage = nativeImage;
         this.offline = true;
+        this.graalVMBuildOptions = graalVMBuildOptions;
     }
 
     @CommandLine.Option(names = {"--offline"}, description = "Run package tests")

@@ -232,7 +232,7 @@ public class BuildOptions {
         TARGET_DIR("targetDir"),
         NATIVE_IMAGE("native"),
         EXPORT_COMPONENT_MODEL("exportComponentModel"),
-        GRAAL_VM_BUILD_OPTIONS("graalVMBuildOptions");
+        GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions");
 
         private final String name;
 
