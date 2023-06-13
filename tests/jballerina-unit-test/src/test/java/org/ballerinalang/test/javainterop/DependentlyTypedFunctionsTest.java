@@ -58,7 +58,6 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++, "incompatible types: expected 'typedesc<(int|float|decimal|string|boolean)>', "
                           + "found 'typedesc<json>'", 41, 23);
         validateError(errors, indx++, "unknown type 'aTypeVar'", 44, 60);
-        validateError(errors, indx++, "incompatible types: expected 'map<int>', found 'map<other>'", 51, 18);
         validateError(errors, indx++, "incompatible types: expected 'int', found 'customType'", 61, 13);
         validateError(errors, indx++, "incompatible types: expected 'float', found 'customType'", 62, 15);
         validateError(errors, indx++, "unknown type 'td'", 65, 73);

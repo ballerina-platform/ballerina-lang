@@ -38,17 +38,13 @@ import org.wso2.ballerinalang.compiler.diagnostic.properties.BStringProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.BSymbolicProperty;
 import org.wso2.ballerinalang.compiler.diagnostic.properties.NonCatProperty;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.*;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * Logger class for logging various compiler diagnostics.
@@ -241,14 +237,8 @@ public class BLangDiagnosticLog implements DiagnosticLog {
             return;
         }
 
-        if (errorCount > 1) {
-            for (Object arg : args) {
-                if (arg instanceof BType) {
-                    if ((((BType) arg).getKind() == TypeKind.OTHER)) {
-                        return;
-                    }
-                }
-            }
+        if (errorCount > 1 && hasOtherTypeInArgs(args)) {
+            return;
         }
 
         DiagnosticInfo diagInfo;
@@ -299,5 +289,53 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     private void storeDiagnosticInModule(PackageID pkgId, Diagnostic diagnostic) {
         BLangPackage pkgNode = this.packageCache.get(pkgId);
         pkgNode.addDiagnostic(diagnostic);
+    }
+
+    private boolean hasOtherTypeInArgs(Object[] args) {
+        BType constraint;
+        for (Object arg : args) {
+            if (arg instanceof BType) {
+                switch (((BType) arg).getKind()) {
+                    case OTHER:
+                        return true;
+                    case TUPLE:
+                        List<BTupleMember> members = ((BTupleType) arg).getMembers();
+                        for (BTupleMember bTupleMember : members) {
+                            if (bTupleMember.type.getKind() == TypeKind.OTHER) {
+                                return true;
+                            }
+                        }
+                        break;
+                    case UNION:
+                        LinkedHashSet<BType> memberTypes = ((BUnionType) arg).getMemberTypes();
+                        for (BType memberType : memberTypes) {
+                            if (memberType.getKind() == TypeKind.OTHER) {
+                                return true;
+                            }
+                        }
+                        break;
+                    case TABLE:
+                        constraint = ((BTableType) arg).getConstraint();
+                        if (constraint.getKind() == TypeKind.OTHER) {
+                            return true;
+                        }
+                        break;
+                    case MAP:
+                        constraint = ((BMapType) arg).getConstraint();
+                        if (constraint.getKind() == TypeKind.OTHER) {
+                            return true;
+                        }
+                        break;
+                    case TYPEDESC:
+                        constraint = ((BTypedescType) arg).getConstraint();
+                        if (constraint.getKind() == TypeKind.OTHER) {
+                            return true;
+                        }
+                    default:
+                        break;
+                }
+            }
+        }
+        return false;
     }
 }

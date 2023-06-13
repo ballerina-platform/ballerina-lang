@@ -107,8 +107,6 @@ public class TupleDestructureTest {
         CompileResult result = BCompileUtil.compile("test-src/types/tuples/tuple_destructure_invalid_syntax.bal");
         int i = 0;
         BAssertUtil.validateError(result, i++, "invalid binding pattern", 18, 6);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected '[other]', " +
-                "found 'string'", 18, 11);
     }
 
     @AfterClass

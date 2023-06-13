@@ -117,12 +117,10 @@ public class IterableArrowExprTest {
     @Test(description = "Negative test cases for arrow expression used for functional iterations")
     public void testNegativeArrowExpr() {
         int i = 0;
-        Assert.assertEquals(resultNegative.getErrorCount(), 10);
+        Assert.assertEquals(resultNegative.getErrorCount(), 9);
 
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'int[]', found 'map<string>'", 22, 21);
-        BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'string[]', found 'map<other>'", 23, 24);
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid number of parameters used in arrow expression. expected: '1' but found '2'", 23, 34);
         BAssertUtil.validateError(resultNegative, i++,
