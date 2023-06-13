@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -151,6 +152,14 @@ public class NewCommand implements BLauncherCmd {
             if (ProjectUtils.isBallerinaProject(packagePath)) {
                 CommandUtil.printError(errStream,
                         "directory is already a Ballerina project.",
+                        null,
+                        false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+            if (FileUtils.checkBallerinaTomlInExistingDir(packagePath)) {
+                CommandUtil.printError(errStream,
+                        "Directory already contains a Ballerina project",
                         null,
                         false);
                 CommandUtil.exitError(this.exitWhenFinish);

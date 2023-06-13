@@ -30,7 +30,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
@@ -54,6 +56,8 @@ import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
 public class FileUtils {
 
     private static final String PNG_HEX_HEADER = "89504E470D0A1A0A";
+    private static final PathMatcher FILE_MATCHER = FileSystems.getDefault().getPathMatcher("glob:**/Ballerina.toml");
+    private static boolean ballerinaTomlFound = false;
 
     /**
      * Get the name of the without the extension.
@@ -320,6 +324,48 @@ public class FileUtils {
                 throws IOException {
 
             Files.copy(file, toPath.resolve(fromPath.relativize(file).toString()), copyOption);
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
+    public static boolean checkBallerinaTomlInExistingDir(Path startingDir) {
+        try {
+            Files.walkFileTree(startingDir, new BallerinaTomlChecker(startingDir));
+        } catch (IOException e) {
+            System.out.println("An error occurred while looking for existing projects: " + e.getMessage());
+        }
+        return ballerinaTomlFound;
+    }
+
+    /**
+     * Look for existing Ballerina.toml file in the given directory up to 10 levels.
+     */
+    public static class BallerinaTomlChecker extends SimpleFileVisitor<Path> {
+        private Path startingPath;
+
+        public BallerinaTomlChecker(Path startingPath) {
+            this.startingPath = startingPath;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                throws IOException {
+
+            int depth = dir.getNameCount() - startingPath.getNameCount();
+            if (depth >= 10) {
+                return FileVisitResult.SKIP_SUBTREE;
+            }
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                throws IOException {
+
+            if (FILE_MATCHER.matches(file)) {
+                ballerinaTomlFound = true;
+                return FileVisitResult.TERMINATE;
+            }
             return FileVisitResult.CONTINUE;
         }
     }

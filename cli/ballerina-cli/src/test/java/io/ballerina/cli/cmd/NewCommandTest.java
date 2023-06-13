@@ -278,6 +278,19 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(readOutput().contains("Created new package"));
     }
 
+    @Test(description = "Create a new project in an existing directory containing projects in sub directories")
+    public void testNewCommandInExistingDirectoryWithProjectsInSubDir() throws IOException {
+        System.setProperty(USER_NAME, "testuserorg");
+        Path packageDir = testResources.resolve(ProjectConstants.EXISTING_PACKAGE_FILES_DIR).
+                resolve("directoryWithProjectsInSubDir");
+        String[] args = {packageDir.toString()};
+        NewCommand newCommand = new NewCommand(printStream, false);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("Directory already contains a Ballerina project"));
+    }
+
     @Test(description = "Create a new project inside an existing directory with an invalid name")
     public void testNewCommandInExistingDirectoryWithInvalidName() throws IOException {
         System.setProperty(USER_NAME, "testuserorg");
