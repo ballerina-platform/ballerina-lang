@@ -105,6 +105,7 @@ public class HttpDispatcher {
         String subPath = URIUtil.getSubPath(rawPath, basePath);
         inboundReqMsg.setProperty(HttpConstants.BASE_PATH, basePath);
         inboundReqMsg.setProperty(HttpConstants.SUB_PATH, subPath);
+        inboundReqMsg.setProperty(HttpConstants.QUERY_STR, rawQuery);
         //store query params comes with request as it is
         inboundReqMsg.setProperty(HttpConstants.RAW_QUERY_STR, rawQuery);
     }
