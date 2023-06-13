@@ -48,6 +48,7 @@ public class HttpConstants {
     public static final String DEFAULT_INTERFACE = "0.0.0.0:8080";
     public static final String DEFAULT_BASE_PATH = "/";
     public static final String DEFAULT_SUB_PATH = "/*";
+    public static final String QUERY_STRING_SEPARATOR = "\\?";
 
     public static final String PROTOCOL_HTTP = "http";
     public static final String PROTOCOL_PACKAGE_HTTP = "ballerina" + ORG_NAME_SEPARATOR + "http";
