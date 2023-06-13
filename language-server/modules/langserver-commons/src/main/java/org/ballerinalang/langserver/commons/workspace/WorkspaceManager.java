@@ -37,7 +37,9 @@ import org.eclipse.lsp4j.jsonrpc.validation.NonNull;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Contains a set of utility methods to manage projects.
@@ -252,4 +254,11 @@ public interface WorkspaceManager {
      * @since 2201.6.0
      */
     boolean stop(Path filePath);
+
+    /**
+     * Returns the map of projects loaded in the workspace manager.
+     *
+     * @return map of project's source root to project 
+     */
+    CompletableFuture<Map<Path, Project>> workspaceProjects();
 }
