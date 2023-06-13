@@ -281,23 +281,3 @@ service echo114 on testEP {
         checkpanic caller->respond(res);
     }
 }
-
-@http:ServiceConfig {
-    basePath:"/echo115"
-}
-service echo115 on testEP {
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/echo115/{foo}"
-    }
-    resource function queryParams (http:Caller caller, http:Request req, string foo) {
-        var bar = req.getQueryParamValue("bar");
-        json responseJson = {
-            "queryParam": bar
-        };
-        http:Response res = new;
-        res.setJsonPayload(<@untainted>responseJson);
-        var result = caller->respond(res);
-    }
-}
