@@ -25,6 +25,7 @@ configurations {
     jballerinaTools
 }
 
+
 dependencies {
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
     implementation group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j.debug', version: '0.12.0'
