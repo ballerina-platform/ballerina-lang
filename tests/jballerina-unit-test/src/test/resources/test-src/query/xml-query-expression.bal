@@ -99,7 +99,8 @@ class BookGenerator {
         self.i += 1;
         if (self.i < 0) {
             return error("Error");
-        } else if (self.i >= 3) {
+        }
+        if (self.i >= 3) {
             return ();
         }
         return {
