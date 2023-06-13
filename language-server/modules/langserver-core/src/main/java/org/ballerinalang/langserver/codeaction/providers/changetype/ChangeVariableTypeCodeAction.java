@@ -121,7 +121,11 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         List<TextEdit> importEdits = new ArrayList<>();
         List<String> types;
         if ("BCE3931".equals(diagnostic.diagnosticInfo().code())) {
-            types = Collections.singletonList(((TypeDescTypeSymbol) foundType).typeParameter().get().signature());
+            Optional<TypeSymbol> typeSymbol = ((TypeDescTypeSymbol) foundType).typeParameter();
+            if (typeSymbol.isEmpty()) {
+                return Collections.emptyList();
+            }
+            types = Collections.singletonList((typeSymbol.get().signature()));
         } else {
             types = CodeActionUtil.getPossibleTypes(foundType, importEdits, context);
         }
