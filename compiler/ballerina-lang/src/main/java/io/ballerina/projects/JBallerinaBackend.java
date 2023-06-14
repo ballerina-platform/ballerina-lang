@@ -550,8 +550,6 @@ public class JBallerinaBackend extends CompilerBackend {
         Project project = this.packageContext().project();
         String nativeImageCommand = System.getenv("GRAALVM_HOME");
 
-
-
         if (nativeImageCommand == null) {
             throw new ProjectException("GraalVM installation directory not found. Set GRAALVM_HOME as an " +
                     "environment variable\nHINT: To install GraalVM, follow the link: " +
