@@ -302,7 +302,7 @@ public class ImmutableTypeCloner {
                             type.flags | Flags.READONLY), symTable));
         }
 
-        BIntersectionType immutableTableType = Types.getImmutableType(symTable, pkgId, type).get();
+        BIntersectionType immutableTableType = Types.getImmutableType(symTable, pkgId, type).orElseThrow();
         BTableType tableEffectiveImmutableType = (BTableType) immutableTableType.effectiveType;
         tableEffectiveImmutableType.constraint = getImmutableType(pos, types, type.constraint, env, pkgId, owner,
                 symTable, anonymousModelHelper, names, unresolvedTypes);
@@ -343,7 +343,7 @@ public class ImmutableTypeCloner {
                     symTable));
         }
 
-        BIntersectionType immutableXMLType = Types.getImmutableType(symTable, pkgId, type).get();
+        BIntersectionType immutableXMLType = Types.getImmutableType(symTable, pkgId, type).orElseThrow();
         BXMLType xmlEffectiveImmutableType = (BXMLType) immutableXMLType.effectiveType;
         xmlEffectiveImmutableType.mutableType = type;
         xmlEffectiveImmutableType.constraint = getImmutableType(pos, types, type.constraint, env, pkgId, owner,
@@ -366,7 +366,7 @@ public class ImmutableTypeCloner {
                             type.flags | Flags.READONLY), symTable));
         }
 
-        BIntersectionType immutableArrayType = Types.getImmutableType(symTable, pkgId, type).get();
+        BIntersectionType immutableArrayType = Types.getImmutableType(symTable, pkgId, type).orElseThrow();
         BArrayType arrayEffectiveImmutableType = (BArrayType) immutableArrayType.effectiveType;
         arrayEffectiveImmutableType.mutableType = type;
         arrayEffectiveImmutableType.eType = getImmutableType(pos, types, type.eType, env, pkgId, owner,
@@ -389,7 +389,7 @@ public class ImmutableTypeCloner {
                             type.flags | Flags.READONLY), symTable));
         }
 
-        BIntersectionType immutableMapType = Types.getImmutableType(symTable, pkgId, type).get();
+        BIntersectionType immutableMapType = Types.getImmutableType(symTable, pkgId, type).orElseThrow();
 
         BMapType mapEffectiveImmutableType = (BMapType) immutableMapType.effectiveType;
         mapEffectiveImmutableType.mutableType = type;

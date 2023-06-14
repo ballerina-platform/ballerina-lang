@@ -7266,7 +7266,8 @@ public class Types {
                     }
                 }
                 return false;
+            default:
+                return false;
         }
-        return false;
     }
 }

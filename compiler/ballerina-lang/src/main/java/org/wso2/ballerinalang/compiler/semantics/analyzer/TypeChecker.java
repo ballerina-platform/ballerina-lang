@@ -194,6 +194,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.BinaryOperator;
@@ -2693,7 +2694,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return hasAllRequiredFields;
     }
 
-    public HashSet<String> getFieldNames(List<RecordLiteralNode.RecordField> specifiedFields, AnalyzerData data) {
+    private HashSet<String> getFieldNames(List<RecordLiteralNode.RecordField> specifiedFields, AnalyzerData data) {
         HashSet<String> fieldNames = new HashSet<>();
 
         for (RecordLiteralNode.RecordField specifiedField : specifiedFields) {
@@ -2924,10 +2925,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         if (expectedType.tag != TypeTags.UNION) {
                             actualType = types.isAssignable(symbolType, expectedType) ? expectedType : actualType;
                         } else {
-                            BType posibleType = types.getAllTypes(expectedType, true).stream()
+                            Optional<BType> posibleType = types.getAllTypes(expectedType, true).stream()
                                     .filter(targetMemType ->
-                                            types.isAssignable(symbolType, targetMemType)).findFirst().get();
-                            actualType = posibleType != null ? posibleType : actualType;
+                                            types.isAssignable(symbolType, targetMemType)).findFirst();
+                            actualType = posibleType.isPresent() ? posibleType.get() : actualType;
                         }
                     }
                 }

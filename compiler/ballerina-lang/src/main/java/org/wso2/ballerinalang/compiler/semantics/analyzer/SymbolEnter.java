@@ -2029,27 +2029,29 @@ public class SymbolEnter extends BLangNodeVisitor {
         return false;
     }
 
-    public void handleLangLibTypes(BLangTypeDefinition typeDefinition) {
+    private void handleLangLibTypes(BLangTypeDefinition typeDefinition) {
 
         // As per spec 2020R3 built-in types are limited only within lang.* modules.
-        for (BLangAnnotationAttachment attachment : typeDefinition.annAttachments) {
-            if (attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value)) {
-                BSymbol typeDefSymbol = typeDefinition.symbol;
-                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol);
-                typeDefSymbol.flags |= Flags.TYPE_PARAM;
-                break;
-            } else if (attachment.annotationName.value.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.value)) {
-                // Type is pre-defined in symbol Table.
-                BType type = symTable.getLangLibSubType(typeDefinition.name.value);
-                typeDefinition.symbol.type = type;
-                typeDefinition.symbol.flags |= type.tsymbol.flags;
-                ((BTypeDefinitionSymbol) typeDefinition.symbol).referenceType.tsymbol.flags |= type.tsymbol.flags;
-                ((BTypeDefinitionSymbol) typeDefinition.symbol).referenceType.referredType = type;
-                typeDefinition.setBType(type);
-                typeDefinition.typeNode.setBType(type);
-                typeDefinition.isBuiltinTypeDef = true;
-                break;
-            }
+        if (typeDefinition.annAttachments.isEmpty()) {
+            defineSymbol(typeDefinition.name.pos, typeDefinition.symbol);
+            return;
+        }
+        BLangAnnotationAttachment attachment = typeDefinition.annAttachments.get(0);
+        if (attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value)) {
+            BSymbol typeDefSymbol = typeDefinition.symbol;
+            typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol);
+            typeDefSymbol.flags |= Flags.TYPE_PARAM;
+        } else if (attachment.annotationName.value.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.value)) {
+            // Type is pre-defined in symbol Table.
+            BType type = symTable.getLangLibSubType(typeDefinition.name.value);
+            typeDefinition.symbol.type = type;
+            typeDefinition.symbol.flags |= type.tsymbol.flags;
+            ((BTypeDefinitionSymbol) typeDefinition.symbol).referenceType.tsymbol.flags |= type.tsymbol.flags;
+            ((BTypeDefinitionSymbol) typeDefinition.symbol).referenceType.referredType = type;
+            typeDefinition.setBType(type);
+            typeDefinition.typeNode.setBType(type);
+            typeDefinition.isBuiltinTypeDef = true;
+        } else {
             throw new IllegalStateException("Not supported annotation attachment at:" + attachment.pos);
         }
         defineSymbol(typeDefinition.name.pos, typeDefinition.symbol);
@@ -2058,24 +2060,26 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void handleLangLibTypes(BLangTypeDefinition typeDefinition, SymbolEnv env) {
 
         // As per spec 2020R3 built-in types are limited only within lang.* modules.
-        for (BLangAnnotationAttachment attachment : typeDefinition.annAttachments) {
-            if (attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value)) {
-                BSymbol typeDefSymbol = typeDefinition.symbol;
-                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol);
-                typeDefSymbol.flags |= Flags.TYPE_PARAM;
-                break;
-            } else if (attachment.annotationName.value.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.value)) {
-                // Type is pre-defined in symbol Table.
-                BType type = symTable.getLangLibSubType(typeDefinition.name.value);
-                typeDefinition.symbol.type = type;
-                typeDefinition.symbol.flags |= type.tsymbol.flags;
-                ((BTypeDefinitionSymbol) typeDefinition.symbol).referenceType.tsymbol.flags |= type.tsymbol.flags;
-                ((BTypeDefinitionSymbol) typeDefinition.symbol).referenceType.referredType = type;
-                typeDefinition.setBType(type);
-                typeDefinition.typeNode.setBType(type);
-                typeDefinition.isBuiltinTypeDef = true;
-                break;
-            }
+        if (typeDefinition.annAttachments.isEmpty()) {
+            defineSymbol(typeDefinition.name.pos, typeDefinition.symbol, env);
+            return;
+        }
+        BLangAnnotationAttachment attachment = typeDefinition.annAttachments.get(0);
+        if (attachment.annotationName.value.equals(Names.ANNOTATION_TYPE_PARAM.value)) {
+            BSymbol typeDefSymbol = typeDefinition.symbol;
+            typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol);
+            typeDefSymbol.flags |= Flags.TYPE_PARAM;
+        } else if (attachment.annotationName.value.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.value)) {
+            // Type is pre-defined in symbol Table.
+            BType type = symTable.getLangLibSubType(typeDefinition.name.value);
+            typeDefinition.symbol.type = type;
+            typeDefinition.symbol.flags |= type.tsymbol.flags;
+            ((BTypeDefinitionSymbol) typeDefinition.symbol).referenceType.tsymbol.flags |= type.tsymbol.flags;
+            ((BTypeDefinitionSymbol) typeDefinition.symbol).referenceType.referredType = type;
+            typeDefinition.setBType(type);
+            typeDefinition.typeNode.setBType(type);
+            typeDefinition.isBuiltinTypeDef = true;
+        } else {
             throw new IllegalStateException("Not supported annotation attachment at:" + attachment.pos);
         }
         defineSymbol(typeDefinition.name.pos, typeDefinition.symbol, env);
