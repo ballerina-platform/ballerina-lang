@@ -130,11 +130,11 @@ public class InlayHintProvider {
                     libFunction.get().restParam());
         } else {
             FunctionCallExpressionNode functionCallExpressionNode = (FunctionCallExpressionNode) invokableNode;
-            return getParamaterSymbolsForFunctionCall(context, functionCallExpressionNode);
+            return getParameterSymbolsForFunctionCall(context, functionCallExpressionNode);
         }
     }
 
-    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParamaterSymbolsForFunctionCall(
+    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParameterSymbolsForFunctionCall(
             InlayHintContext context,
             FunctionCallExpressionNode node) {
         LineRange lineRange = node.lineRange();
@@ -176,12 +176,8 @@ public class InlayHintProvider {
                 .filter(typeDescriptor -> typeDescriptor instanceof FunctionTypeSymbol)
                 .map(typeDescriptor -> (FunctionTypeSymbol) typeDescriptor);
 
-        if (functionTypeSymbol.isEmpty()) {
-            return Pair.of(Collections.emptyList(), Optional.empty());
-        }
-
-        Optional<ParameterSymbol> restParam = functionTypeSymbol.get().restParam();
-        return Pair.of(functionTypeSymbol.get().params().orElse(Collections.emptyList()), restParam);
+        return functionTypeSymbol.map(symbol -> Pair.of(symbol.params().orElse(Collections.emptyList()),
+                symbol.restParam())).orElse(Pair.of(Collections.emptyList(), Optional.empty()));
     }
 
     /**
