@@ -1,5 +1,6 @@
 package io.ballerina.projects;
 
+import io.ballerina.projects.environment.ResolutionOptions;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.DependencyManifestBuilder;
 import io.ballerina.projects.internal.ManifestBuilder;
@@ -154,6 +155,14 @@ public class Package {
 
     public PackageResolution getResolution(CompilationOptions compilationOptions) {
         return this.packageContext.getResolution(compilationOptions);
+    }
+
+    public PackageResolution getResolution(ResolutionOptions resolutionOptions) {
+        boolean offline = resolutionOptions.offline();
+        boolean sticky = resolutionOptions.sticky();
+        CompilationOptions newCompOptions = CompilationOptions.builder().setOffline(offline).setSticky(sticky).build();
+        newCompOptions = newCompOptions.acceptTheirs(project.currentPackage().compilationOptions());
+        return getResolution(newCompOptions);
     }
 
     public DependencyGraph<ModuleDescriptor> moduleDependencyGraph() {
