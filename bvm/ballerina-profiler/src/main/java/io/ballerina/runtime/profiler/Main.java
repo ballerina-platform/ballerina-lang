@@ -43,7 +43,7 @@ import static io.ballerina.runtime.profiler.ui.HTTPServer.initializeServer;
 /**
  * Used to profile Ballerina programs.
  *
- * @since 2201.6.0
+ * @since 2201.7.0
  */
 public class Main {
     // Define ANSI escape codes for colored console output
