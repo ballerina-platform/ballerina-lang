@@ -30,7 +30,6 @@ import org.testng.annotations.Test;
 import java.util.List;
 
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUNCTION;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NONE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
@@ -68,7 +67,7 @@ public class DiagnosticsTest {
         List<Diagnostic> diagnostics = model.diagnostics(range);
 
         assertEquals(diagnostics.size(), 1);
-        assertDiagnostic(diagnostics.get(0), getExpectedErrors()[19]);
+        assertDiagnostic(diagnostics.get(0), getExpectedErrors()[18]);
     }
 
     @Test
@@ -80,7 +79,7 @@ public class DiagnosticsTest {
                 LinePosition.from(39, 1));
         List<Diagnostic> diagnostics = model.diagnostics(range);
 
-        assertEquals(diagnostics.size(), 15);
+        assertEquals(diagnostics.size(), 14);
         assertDiagnosticProperties(diagnostics);
     }
 
@@ -94,7 +93,6 @@ public class DiagnosticsTest {
                 {"missing open parenthesis token", 17, 24},
                 {"missing semicolon token", 18, 0},
                 // TODO: Update the following with https://github.com/ballerina-platform/ballerina-lang/issues/33235
-                {"incompatible types: expected 'map<string>', found 'map<other>'", 26, 20},
                 {"incompatible types: expected 'function (ballerina/lang.map:0.0.0:Type) returns " +
                         "(ballerina/lang.map:0.0.0:Type1)', found 'string'", 27, 7},
                 {"missing open parenthesis token", 27, 7},
@@ -130,8 +128,6 @@ public class DiagnosticsTest {
         return new Object[][] {
                 {"[string]|record {|string arg2;|}", UNION},
                 {"()", NIL},
-                {"map<string>", MAP},
-                {"map<$UndefinedType$>", MAP},
                 {"function (ballerina/lang.map:0.0.0:Type val) returns ballerina/lang.map:0.0.0:Type1", FUNCTION},
                 {"string", STRING},
                 {"$UndefinedType$", NONE},
