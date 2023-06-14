@@ -111,7 +111,7 @@ public abstract class STNode {
     }
 
     public boolean isMissing() {
-        return this instanceof STMissingToken;
+        return STNodeFlags.isFlagSet(flags, STNodeFlags.IS_MISSING);
     }
 
     public List<STToken> tokens() {
