@@ -179,6 +179,31 @@ public class UriTemplateDispatcherTest {
                 , "RegID variable not set properly.");
     }
 
+    @Test(description = "Test dispatching with query params.")
+    public void testUrlTemplateWithQueryParamWithoutURIEncode() {
+        String path = "/ecommerceservice/productsQueryParam?products={%22p1%22:%22name1%22%2C%22p2%22:%22name2%22}";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        //Expected Json message : {"Products":{"p1":"name1","p2":"name2"}}
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Products").stringValue(),
+                "{\"p1\":\"name1\",\"p2\":\"name2\"}", "ProductID variable not set properly.");
+    }
+
+    @Test(description = "Test dispatching with nested json query params.")
+    public void testUrlTemplateWithNestedJsonQueryParamWithoutURIEncode() {
+        String path = "/ecommerceservice/productsQueryParam?products={%22products%22:[{%22productOneOf%22:" +
+                "{%22productId%22:%220123456789%22%2C%22productCategory%22:%22LargeProduct%22}}]}";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+        Assert.assertNotNull(response, "Response message not found");
+        //Expected Json message : {"Products":{"p1":"name1","p2":"name2"}}
+        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(((BMap<String, BValue>) bJson).get("Products").stringValue(),
+            "{\"products\":[{\"productOneOf\":{\"productId\":\"0123456789\",\"productCategory\":\"LargeProduct\"}}]}",
+            "ProductID variable not set properly.");
+    }
 
     @DataProvider(name = "validUrl")
     public static Object[][] validUrl() {

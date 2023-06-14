@@ -117,6 +117,24 @@ service Ecommerce on testEP {
     }
 
     @http:ResourceConfig {
+        methods:["GET"],
+        path:"/productsQueryParam"
+    }
+    resource function productsInfo7 (http:Caller caller, http:Request req) {
+        json responseJson;
+        map<string[]> params = req.getQueryParams();
+        string[]? productsArr = params["products"];
+        string products = productsArr is string[] ? productsArr[0] : "";
+        io:println ("Products " + products);
+        responseJson = {"Products": products};
+        io:println (responseJson.toString ());
+
+        http:Response res = new;
+        res.setJsonPayload(<@untainted json> responseJson);
+        checkpanic caller->respond(res);
+    }
+
+    @http:ResourceConfig {
         path:""
     }
     resource function echo1 (http:Caller caller, http:Request req) {

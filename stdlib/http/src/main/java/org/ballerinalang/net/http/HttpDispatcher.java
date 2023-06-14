@@ -41,6 +41,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
+import static org.ballerinalang.net.http.HttpConstants.EMPTY;
+import static org.ballerinalang.net.http.HttpConstants.QUERY_STRING_SEPARATOR;
 import static org.ballerinalang.net.http.compiler.ResourceSignatureValidator.COMPULSORY_PARAM_COUNT;
 
 /**
@@ -76,32 +78,36 @@ public class HttpDispatcher {
             inboundReqMsg.setProperty(HttpConstants.TO, uriWithoutMatrixParams);
             inboundReqMsg.setProperty(HttpConstants.MATRIX_PARAMS, matrixParams);
 
-            URI validatedUri = getValidatedURI(uriWithoutMatrixParams);
+            String[] rawPathAndQuery = new String[2];
+            String[] splittedUri = uriWithoutMatrixParams.split(QUERY_STRING_SEPARATOR);
+            rawPathAndQuery[0] = splittedUri[0];
+            rawPathAndQuery[1] = splittedUri.length > 1 ? splittedUri[1] : EMPTY;
 
-            String basePath = servicesRegistry.findTheMostSpecificBasePath(validatedUri.getRawPath(),
+            String basePath = servicesRegistry.findTheMostSpecificBasePath(rawPathAndQuery[0],
                     servicesOnInterface, sortedServiceURIs);
 
             if (basePath == null) {
                 inboundReqMsg.setHttpStatusCode(404);
                 throw new BallerinaConnectorException("no matching service found for path : " +
-                        validatedUri.getRawPath());
+                        rawPathAndQuery[0]);
             }
 
             HttpService service = servicesOnInterface.get(basePath);
-            setInboundReqProperties(inboundReqMsg, validatedUri, basePath);
+            setInboundReqProperties(inboundReqMsg, rawPathAndQuery[0], basePath, rawPathAndQuery[1]);
             return service;
         } catch (Exception e) {
             throw new BallerinaConnectorException(e.getMessage());
         }
     }
 
-    private static void setInboundReqProperties(HttpCarbonMessage inboundReqMsg, URI requestUri, String basePath) {
-        String subPath = URIUtil.getSubPath(requestUri.getRawPath(), basePath);
+    private static void setInboundReqProperties(HttpCarbonMessage inboundReqMsg, String rawPath,
+                                                String basePath, String rawQuery) {
+        String subPath = URIUtil.getSubPath(rawPath, basePath);
         inboundReqMsg.setProperty(HttpConstants.BASE_PATH, basePath);
         inboundReqMsg.setProperty(HttpConstants.SUB_PATH, subPath);
-        inboundReqMsg.setProperty(HttpConstants.QUERY_STR, requestUri.getQuery());
+        inboundReqMsg.setProperty(HttpConstants.QUERY_STR, rawQuery);
         //store query params comes with request as it is
-        inboundReqMsg.setProperty(HttpConstants.RAW_QUERY_STR, requestUri.getRawQuery());
+        inboundReqMsg.setProperty(HttpConstants.RAW_QUERY_STR, rawQuery);
     }
 
     public static URI getValidatedURI(String uriStr) {
