@@ -1,0 +1,68 @@
+{
+  "position": {
+    "line": 8,
+    "character": 21
+  },
+  "source": "included_record/source3.bal",
+  "expected": {
+    "result": {
+      "signatures": [
+        {
+          "label": "getInt(json body, module1:TestRecord1 rec1)",
+          "parameters": [
+            {
+              "label": {
+                "right": {
+                  "first": 12,
+                  "second": 16
+                }
+              },
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "**Parameter**  \n**`json`body**: json body"
+                }
+              }
+            },
+            {
+              "label": {
+                "right": {
+                  "first": 38,
+                  "second": 42
+                }
+              },
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "**Parameter**  \n**`ballerina/module1:0.1.0:TestRecord1`rec1**: ballerina/module1:0.1.0:TestRecord1 rec1"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "label": "getInt(Response response)",
+          "parameters": [
+            {
+              "label": {
+                "right": {
+                  "first": 16,
+                  "second": 24
+                }
+              },
+              "documentation": {
+                "right": {
+                  "kind": "markdown",
+                  "value": "**Parameter**  \n**`Response`response**"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "activeSignature": 0,
+      "activeParameter": 0
+    },
+    "jsonrpc": "2.0"
+  }
+}

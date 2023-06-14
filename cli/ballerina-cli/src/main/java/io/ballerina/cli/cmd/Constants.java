@@ -54,4 +54,8 @@ public class Constants {
     public static final String START_DEBUG_ADAPTER_COMMAND =  "start-debugger-adapter";
     public static final String HELP_COMMAND = "help";
     public static final String HOME_COMMAND = "home";
+    public static final String GENCACHE_COMMAND = "gencache";
+
+    public static final String TOML_EXT = ".toml";
+    public static final String DIST_TOOL_TOML_PREFIX = "dist-";
 }

@@ -33,7 +33,8 @@ import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.types.BXmlType;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -521,8 +522,8 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             }
             return (XmlValue) this.children.get(index);
         } catch (Exception e) {
-            throw ErrorCreator.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
-                                           StringUtils.fromString(e.getMessage()));
+            throw BLangExceptionHelper.getRuntimeException(
+                    RuntimeErrors.XML_SEQUENCE_INDEX_OUT_OF_RANGE, this.children.size(), index);
         }
     }
 

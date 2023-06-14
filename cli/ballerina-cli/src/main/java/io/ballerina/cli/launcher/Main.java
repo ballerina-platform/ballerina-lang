@@ -24,11 +24,14 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.compiler.BLangCompilerException;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.ServiceLoader;
@@ -84,7 +87,27 @@ public class Main {
             cmdParser.setStopAtPositional(true);
 
             // loading additional commands via SPI
-            ServiceLoader<BLauncherCmd> bCmds = ServiceLoader.load(BLauncherCmd.class);
+            ServiceLoader<BLauncherCmd> bCmds;
+            if (null != args && args.length > 0 && LauncherUtils.isToolCommand(args[0])) {
+                List<File> jars = LauncherUtils.getToolCommandJarAndDependenciesPath(args[0]);
+                URL[] urls = jars.stream()
+                        .map(file -> {
+                            try {
+                                return file.toURI().toURL();
+                            } catch (MalformedURLException e) {
+                                throw LauncherUtils.createUsageExceptionWithHelp("invalid tool jar: " + file
+                                        .getAbsolutePath());
+                            }
+                        })
+                        .toArray(URL[]::new);
+                // Combine custom class loader with system class loader
+                ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+                ClassLoader combinedClassLoader = new URLClassLoader(urls, systemClassLoader);
+                bCmds = ServiceLoader.load(BLauncherCmd.class, combinedClassLoader);
+            } else {
+                bCmds = ServiceLoader.load(BLauncherCmd.class);
+            }
+
             for (BLauncherCmd bCmd : bCmds) {
                 cmdParser.addSubcommand(bCmd.getName(), bCmd);
                 bCmd.setParentCmdParser(cmdParser);
@@ -212,24 +235,21 @@ public class Main {
         private CommandLine parentCmdParser;
 
         public void execute() {
-            Map<String, CommandLine> subCommands = parentCmdParser.getSubcommands();
-
             if (helpCommands == null) {
-                String generalHelp = LauncherUtils.generateGeneralHelp(subCommands);
-                outStream.println(generalHelp);
+                printUsageInfo(BallerinaCliCommands.HELP);
                 return;
+
             } else if (helpCommands.size() > 1) {
                 throw LauncherUtils.createUsageExceptionWithHelp("too many arguments given");
             }
 
             String userCommand = helpCommands.get(0);
-            if (subCommands.get(userCommand) == null) {
+            if (parentCmdParser.getSubcommands().get(userCommand) == null) {
                 throw LauncherUtils.createUsageExceptionWithHelp("unknown help topic `" + userCommand + "`");
             }
-            StringBuilder commandUsageInfo = new StringBuilder();
-            BLauncherCmd cmd = subCommands.get(userCommand).getCommand();
-            cmd.printLongDesc(commandUsageInfo);
-            outStream.println(commandUsageInfo);
+
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(userCommand);
+            errStream.println(commandUsageInfo);
         }
 
         @Override
@@ -391,9 +411,8 @@ public class Main {
                 printUsageInfo(argList.get(0));
                 return;
             }
-            Map<String, CommandLine> subCommands = parentCmdParser.getSubcommands();
-            String generalHelp = LauncherUtils.generateGeneralHelp(subCommands);
-            outStream.println(generalHelp);
+
+            printUsageInfo(BallerinaCliCommands.HELP);
         }
 
         @Override

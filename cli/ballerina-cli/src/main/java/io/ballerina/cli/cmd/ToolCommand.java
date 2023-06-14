@@ -45,6 +45,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static io.ballerina.cli.cmd.Constants.DIST_TOOL_TOML_PREFIX;
+import static io.ballerina.cli.cmd.Constants.TOML_EXT;
 import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
@@ -80,7 +82,8 @@ public class ToolCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final PrintStream errStream;
 
-    private final String distSpecificToolsTomlName = "dist-" + RepoUtils.getBallerinaShortVersion() + ".toml";
+    private final String distSpecificToolsTomlName = DIST_TOOL_TOML_PREFIX + RepoUtils.getBallerinaShortVersion()
+            + TOML_EXT;
     Path distSpecificToolsTomlPath = Path.of(
             System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, CONFIG_DIR,
             distSpecificToolsTomlName);
@@ -338,8 +341,8 @@ public class ToolCommand implements BLauncherCmd {
             settings = Settings.from();
         }
         CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                initializeProxy(settings.getProxy()),
-                getAccessTokenOfCLI(settings));
+                initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                settings.getProxy().password(), getAccessTokenOfCLI(settings));
         String[] toolInfo = client.pullTool(toolId, version, balaCacheDirPath, supportedPlatform,
                 RepoUtils.getBallerinaVersion(), false);
         org = toolInfo[0];

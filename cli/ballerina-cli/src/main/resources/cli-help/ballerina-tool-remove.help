@@ -15,5 +15,5 @@ DESCRIPTION
        If the version is not specified, all versions of the tool will be
        removed.
 
-       When the latest version of the tool is removed, the next latest version
-       available will be used as the latest version.
+       If the most recent version of the tool is removed, the next most recent
+       version available will be used as the active version.
