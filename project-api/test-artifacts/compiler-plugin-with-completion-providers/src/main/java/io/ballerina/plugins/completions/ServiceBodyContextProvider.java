@@ -1,4 +1,3 @@
-package io.ballerina.plugins.completions;
 /*
  * Copyright (c) 2023, WSO2 LLC. (http://wso2.com) All Rights Reserved.
  *
@@ -14,6 +13,7 @@ package io.ballerina.plugins.completions;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.ballerina.plugins.completions;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;

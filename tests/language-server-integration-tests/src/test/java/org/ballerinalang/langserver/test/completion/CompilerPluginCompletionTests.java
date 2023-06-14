@@ -1,4 +1,3 @@
-package org.ballerinalang.langserver.test.completion;
 /*
  * Copyright (c) 2023, WSO2 LLC. (http://wso2.com) All Rights Reserved.
  *
@@ -14,6 +13,7 @@ package org.ballerinalang.langserver.test.completion;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.ballerinalang.langserver.test.completion;
 
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.completion.CompletionTest;

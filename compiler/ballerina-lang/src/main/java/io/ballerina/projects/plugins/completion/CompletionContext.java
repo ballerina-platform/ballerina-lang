@@ -19,7 +19,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.projects.plugins.codeaction.PositionedActionContext;
 
 /**
- * Code action context.
+ * Completion context.
  *
  * @since 2201.7.0
  */

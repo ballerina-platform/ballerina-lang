@@ -1,4 +1,3 @@
-package io.ballerina.projects;
 /*
  * Copyright (c) 2023, WSO2 LLC. (http://wso2.com) All Rights Reserved.
  *
@@ -14,6 +13,8 @@ package io.ballerina.projects;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package io.ballerina.projects;
+
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
