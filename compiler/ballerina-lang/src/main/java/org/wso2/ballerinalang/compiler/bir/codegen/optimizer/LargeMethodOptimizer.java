@@ -702,21 +702,6 @@ public class LargeMethodOptimizer {
                     branchTerminator.falseBB = lastBB;
                 }
                 break;
-            case LOCK:
-                if (((BIRTerminator.Lock) terminator).lockedBB.number == lastBBIdNum) {
-                    ((BIRTerminator.Lock) terminator).lockedBB = lastBB;
-                }
-                break;
-            case FIELD_LOCK:
-                if (((BIRTerminator.FieldLock) terminator).lockedBB.number == lastBBIdNum) {
-                    ((BIRTerminator.FieldLock) terminator).lockedBB = lastBB;
-                }
-                break;
-            case UNLOCK:
-                if (((BIRTerminator.Unlock) terminator).unlockBB.number == lastBBIdNum) {
-                    ((BIRTerminator.Unlock) terminator).unlockBB = lastBB;
-                }
-                break;
             default:
                 break;
         }
