@@ -23,7 +23,6 @@ import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.TypeUtils;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
@@ -163,7 +162,7 @@ public class StringUtils {
      *
      * @param value The value on which the function is invoked
      * @return Ballerina value represented by Ballerina expression syntax
-     * @throws BError for any parsing error
+     * @throws BallerinaException for any parsing error
      */
     public static Object parseExpressionStringVal(String value, BLink parent) throws BallerinaException {
         String exprValue = value.trim();
