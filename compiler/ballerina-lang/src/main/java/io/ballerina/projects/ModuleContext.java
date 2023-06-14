@@ -121,15 +121,17 @@ class ModuleContext {
         this.compilationCache = projectEnvironment.getService(CompilationCache.class);
     }
 
-    static ModuleContext from(Project project, ModuleConfig moduleConfig) {
+    static ModuleContext from(Project project, ModuleConfig moduleConfig, boolean disableSyntaxTree) {
         Map<DocumentId, DocumentContext> srcDocContextMap = new LinkedHashMap<>();
         for (DocumentConfig sourceDocConfig : moduleConfig.sourceDocs()) {
-            srcDocContextMap.put(sourceDocConfig.documentId(), DocumentContext.from(sourceDocConfig));
+            srcDocContextMap.put(sourceDocConfig.documentId(), DocumentContext.from(sourceDocConfig,
+                    disableSyntaxTree));
         }
 
         Map<DocumentId, DocumentContext> testDocContextMap = new LinkedHashMap<>();
         for (DocumentConfig testSrcDocConfig : moduleConfig.testSourceDocs()) {
-            testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig));
+            testDocContextMap.put(testSrcDocConfig.documentId(), DocumentContext.from(testSrcDocConfig,
+                    disableSyntaxTree));
         }
 
         Map<DocumentId, ResourceContext> resourceContextMap = new HashMap<>();

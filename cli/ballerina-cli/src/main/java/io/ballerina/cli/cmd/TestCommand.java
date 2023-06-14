@@ -182,6 +182,11 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--native", description = "enable running test suite against native image")
     private Boolean nativeImage;
 
+    @CommandLine.Option(names = "--disable-syntax-tree-caching", hidden = true, description = "disable syntax tree " +
+            "caching for source files", defaultValue = "false")
+    private Boolean disableSyntaxTreeCaching;
+
+
     private static final String testCmd = "bal test [--offline]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
 
@@ -332,7 +337,8 @@ public class TestCommand implements BLauncherCmd {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setNativeImage(nativeImage)
-                .setEnableCache(enableCache);
+                .setEnableCache(enableCache)
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
 
 
         if (targetDir != null) {

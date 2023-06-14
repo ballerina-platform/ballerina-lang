@@ -63,6 +63,10 @@ public class BuildOptions {
         return toBooleanTrueIfNull(this.skipTests);
     }
 
+    public boolean disableSyntaxTree() {
+        return this.compilationOptions.disableSyntaxTree();
+    }
+
     public boolean offlineBuild() {
         return this.compilationOptions.offlineBuild();
     }
@@ -246,6 +250,11 @@ public class BuildOptions {
 
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
+        }
+
+        public BuildOptionsBuilder disableSyntaxTreeCaching(Boolean value) {
+            compilationOptionsBuilder.disableSyntaxTree(value);
+            return this;
         }
 
         public BuildOptionsBuilder setTestReport(Boolean value) {
