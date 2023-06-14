@@ -1156,6 +1156,7 @@ public class ProjectUtils {
      * Given a list of patterns in include field, find the directories and files in the package that match the patterns.
      *
      * @param patterns list of string patterns to be matched
+     * @param packageRoot package root
      * @return the list of matching paths
      */
     public static List<Path> getPathsMatchingIncludePatterns(List<String> patterns, Path packageRoot) {
