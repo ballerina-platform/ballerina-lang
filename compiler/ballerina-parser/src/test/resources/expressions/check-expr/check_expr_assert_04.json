@@ -119,15 +119,59 @@
                   ]
                 },
                 {
-                  "kind": "CHECK_EXPRESSION",
+                  "kind": "BINARY_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "CHECK_KEYWORD",
-                      "trailingMinutiae": [
+                      "kind": "CHECK_EXPRESSION",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "CHECK_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "FUNCTION_CALL",
+                          "children": [
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "OPEN_PAREN_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "CLOSE_PAREN_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ]
+                            }
+                          ]
                         }
+                      ]
+                    },
+                    {
+                      "kind": "PLUS_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_BINARY_OPERATOR"
                       ]
                     },
                     {
@@ -138,7 +182,7 @@
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "a"
+                              "value": "b"
                             }
                           ]
                         },
@@ -150,52 +194,9 @@
                           "children": []
                         },
                         {
-                          "kind": "CLOSE_PAREN_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ]
+                          "kind": "CLOSE_PAREN_TOKEN"
                         }
                       ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_SEMICOLON_TOKEN"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "CALL_STATEMENT",
-              "children": [
-                {
-                  "kind": "FUNCTION_CALL",
-                  "children": [
-                    {
-                      "kind": "SIMPLE_NAME_REFERENCE",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "b"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "OPEN_PAREN_TOKEN"
-                    },
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    },
-                    {
-                      "kind": "CLOSE_PAREN_TOKEN"
                     }
                   ]
                 },
