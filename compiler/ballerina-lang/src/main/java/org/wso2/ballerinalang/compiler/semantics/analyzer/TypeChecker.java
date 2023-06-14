@@ -4972,20 +4972,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         SymbolEnv rhsExprEnv;
-        BType lhsType;
         BType referredExpType = Types.getReferredType(binaryExpr.expectedType);
-        if ((referredExpType.tag == TypeTags.FLOAT || referredExpType.tag == TypeTags.DECIMAL ||
-                isOptionalFloatOrDecimal(referredExpType)) && isNumericLiteral(binaryExpr.lhsExpr)) {
-            lhsType = checkAndGetType(binaryExpr.lhsExpr, data.env, binaryExpr, data);
-        } else if (isBinaryExpr(binaryExpr.lhsExpr) && (
-                ((BLangBinaryExpr) binaryExpr).opKind == OperatorKind.ADD ||
-                ((BLangBinaryExpr) binaryExpr).opKind == OperatorKind.SUB ||
-                ((BLangBinaryExpr) binaryExpr).opKind == OperatorKind.MUL ||
-                ((BLangBinaryExpr) binaryExpr).opKind == OperatorKind.DIV)) {
-            lhsType = checkExpr(binaryExpr.lhsExpr, data.expType, data);
-        } else {
-            lhsType = checkExpr(binaryExpr.lhsExpr, data);
-        }
+        BType lhsType = getBinaryOperandType(binaryExpr.lhsExpr, binaryExpr, referredExpType, data.env, data);
 
         if (binaryExpr.opKind == OperatorKind.AND) {
             rhsExprEnv = typeNarrower.evaluateTruth(binaryExpr.lhsExpr, binaryExpr.rhsExpr, data.env, true);
@@ -4995,20 +4983,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             rhsExprEnv = data.env;
         }
 
-        BType rhsType;
-
-        if ((referredExpType.tag == TypeTags.FLOAT || referredExpType.tag == TypeTags.DECIMAL ||
-                isOptionalFloatOrDecimal(referredExpType)) && isNumericLiteral(binaryExpr.rhsExpr)) {
-            rhsType = checkAndGetType(binaryExpr.rhsExpr, rhsExprEnv, binaryExpr, data);
-        } else if (isBinaryExpr(binaryExpr.rhsExpr) && (
-                ((BLangBinaryExpr) binaryExpr).opKind == OperatorKind.ADD ||
-                        ((BLangBinaryExpr) binaryExpr).opKind == OperatorKind.SUB ||
-                        ((BLangBinaryExpr) binaryExpr).opKind == OperatorKind.MUL ||
-                        ((BLangBinaryExpr) binaryExpr).opKind == OperatorKind.DIV)) {
-            rhsType = checkExpr(binaryExpr.rhsExpr, data.expType, data);
-        } else {
-            rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv, data);
-        }
+        BType rhsType = getBinaryOperandType(binaryExpr.rhsExpr, binaryExpr, referredExpType, rhsExprEnv, data);
 
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
@@ -5074,6 +5049,24 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         }
 
         data.resultType = types.checkType(binaryExpr, actualType, data.expType);
+    }
+
+    private BType getBinaryOperandType(BLangExpression operand, BLangBinaryExpr binaryExpr, BType referredExpType,
+                                       SymbolEnv env, AnalyzerData data) {
+        if ((referredExpType.tag == TypeTags.FLOAT || referredExpType.tag == TypeTags.DECIMAL ||
+                isOptionalFloatOrDecimal(referredExpType)) && isNumericLiteral(operand)) {
+            return checkAndGetType(operand, env, binaryExpr, data);
+        }
+        if (isBinaryExpr(operand)) {
+            OperatorKind opKind = binaryExpr.opKind;
+            if (opKind == OperatorKind.ADD
+                    || opKind == OperatorKind.SUB
+                    || opKind == OperatorKind.MUL
+                    || opKind == OperatorKind.DIV) {
+                return checkExpr(operand, data.expType, data);
+            }
+        }
+        return checkExpr(operand, env, data);
     }
 
     private boolean isNumericLiteral(BLangExpression expr) {

@@ -61,11 +61,6 @@ public abstract class BLangNode implements Node, Cloneable {
     protected BType determinedType;
 
     /**
-     * Indicates whether the node has already been cloned.
-     */
-    public boolean cloned;
-
-    /**
      * Sets the specified type as the type of the node.
      *
      * @param type The type of the node

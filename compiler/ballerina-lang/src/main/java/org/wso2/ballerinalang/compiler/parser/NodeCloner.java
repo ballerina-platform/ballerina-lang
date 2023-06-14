@@ -248,8 +248,6 @@ public class NodeCloner extends BLangNodeVisitor {
 
     int currentCloneAttempt;
 
-    boolean cloned;
-
     private NodeCloner() {
 
     }
@@ -292,21 +290,6 @@ public class NodeCloner extends BLangNodeVisitor {
         return (T) result;
     }
 
-    public <T extends Node> T cloneNodeOnce(T source) {
-        if (source == null) {
-            return null;
-        }
-        this.cloned = true;
-        BLangNode sourceNode = (BLangNode) source;
-        int prevCloneAttempt = currentCloneAttempt;
-        currentCloneAttempt = ((BLangNode) source).cloneAttempt;
-        currentCloneAttempt++;
-        BLangNode result = clone(sourceNode);
-        currentCloneAttempt = prevCloneAttempt;
-        this.cloned = false;
-        return (T) result;
-    }
-
     private <T extends Node> List<T> cloneList(List<T> nodes) {
 
         if (nodes == null) {
@@ -331,8 +314,6 @@ public class NodeCloner extends BLangNodeVisitor {
         if (sourceNode.cloneRef != null && ((BLangNode) source).cloneAttempt == this.currentCloneAttempt) {
             // This is already cloned.
             result = sourceNode.cloneRef;
-        } else if (sourceNode.cloned) {
-            result = sourceNode;
         } else {
             sourceNode.cloneAttempt = this.currentCloneAttempt;
             sourceNode.cloneRef = null;
@@ -341,7 +322,6 @@ public class NodeCloner extends BLangNodeVisitor {
             result.pos = sourceNode.pos;
             result.internal = sourceNode.internal;
             result.setBType(sourceNode.getBType());
-            result.cloned = this.cloned;
         }
         return (T) result;
     }
