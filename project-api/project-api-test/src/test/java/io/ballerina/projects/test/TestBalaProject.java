@@ -93,7 +93,7 @@ public class TestBalaProject {
         Assert.assertEquals(manifest.authors().get(0), "wso2");
         Assert.assertEquals(manifest.exportedModules().size(), 2);
         Assert.assertEquals(manifest.exportedModules().get(0), "winery");
-        Assert.assertEquals(manifest.exportedModules().get(1), "winery.service");
+        Assert.assertEquals(manifest.exportedModules().get(1), "winery.services");
 
         // 3) Load the default module
         Module defaultModule = currentPackage.getDefaultModule();
