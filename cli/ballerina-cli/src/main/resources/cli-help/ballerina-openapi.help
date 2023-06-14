@@ -83,7 +83,8 @@ OPTIONS
             This option can be used in client generation to select the client method type, which can be `resource` or `remote`. (The default option is `remote`).
 
         --without-data-binding
-            This option can be used in service generation to generate a low level service without data binding.
+            This option can be used in the service generation to generate a low-level service
+            without any data-binding logic.
 
 EXAMPLES
        Generate a Ballerina mock service using a `hello.yaml` OpenAPI contract.
