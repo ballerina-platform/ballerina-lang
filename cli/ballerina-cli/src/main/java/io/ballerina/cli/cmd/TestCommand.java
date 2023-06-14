@@ -187,6 +187,10 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--excludes", description = "option to exclude source files/folders from code coverage")
     private String excludes;
 
+    @CommandLine.Option(names = "--disable-syntax-tree-caching", hidden = true, description = "disable syntax tree " +
+            "caching for source files", defaultValue = "false")
+    private Boolean disableSyntaxTreeCaching;
+
     private static final String testCmd = "bal test [--OPTIONS]\n" +
             "                   [<ballerina-file> | <package-path>] [(-Ckey=value)...]";
 
@@ -360,7 +364,8 @@ public class TestCommand implements BLauncherCmd {
                 .setDumpGraph(dumpGraph)
                 .setDumpRawGraphs(dumpRawGraphs)
                 .setNativeImage(nativeImage)
-                .setEnableCache(enableCache);
+                .setEnableCache(enableCache)
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
 
 
         if (targetDir != null) {

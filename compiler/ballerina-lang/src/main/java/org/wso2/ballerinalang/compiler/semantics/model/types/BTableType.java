@@ -45,6 +45,7 @@ public class BTableType extends BType implements TableType {
     public Location constraintPos;
 
     private BIntersectionType intersectionType = null;
+    public BTableType mutableType;
 
     public BTableType(int tag, BType constraint, BTypeSymbol tSymbol) {
         super(tag, tSymbol);

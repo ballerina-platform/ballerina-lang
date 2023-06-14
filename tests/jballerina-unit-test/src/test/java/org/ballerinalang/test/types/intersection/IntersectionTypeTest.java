@@ -146,6 +146,11 @@ public class IntersectionTypeTest {
     }
 
     @Test
+    public void testErrorIntersectionWithDistinctErrors() {
+        BRunUtil.invoke(errorIntersectionResults, "testErrorIntersectionWithDistinctErrors");
+    }
+
+    @Test
     public void testErrorIntersectionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/intersection/error_intersection_type_negative.bal");
 
@@ -238,11 +243,8 @@ public class IntersectionTypeTest {
                 BCompileUtil.compile("test-src/types/intersection/unsupported_intersection_negative.bal");
         int index = 0;
         validateError(result, index++, "unsupported intersection", 17, 8);
-        validateError(result, index++, "unsupported intersection", 18, 9);
         validateError(result, index++, "unsupported intersection", 19, 9);
         validateError(result, index++, "unsupported intersection", 21, 1);
-        validateError(result, index++, "unknown type 'A'", 23, 14);
-        validateError(result, index++, "unknown type 'II'", 23, 19);
         validateError(result, index++, "unsupported intersection", 23, 25);
         assertEquals(result.getErrorCount(), index);
     }
