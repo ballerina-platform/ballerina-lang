@@ -71,6 +71,10 @@ public class BuildOptions {
         return this.compilationOptions.sticky();
     }
 
+    public boolean disableSyntaxTree() {
+        return this.compilationOptions.disableSyntaxTree();
+    }
+
     /**
      * Checks whether experimental compilation option is set.
      *
@@ -244,8 +248,14 @@ public class BuildOptions {
         private Boolean nativeImage;
         private Boolean exportComponentModel;
 
+
         private BuildOptionsBuilder() {
             compilationOptionsBuilder = CompilationOptions.builder();
+        }
+
+        public BuildOptionsBuilder disableSyntaxTreeCaching(Boolean value) {
+            compilationOptionsBuilder.disableSyntaxTree(value);
+            return this;
         }
 
         public BuildOptionsBuilder setTestReport(Boolean value) {

@@ -11892,7 +11892,7 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        if (peek().kind == SyntaxKind.DO_KEYWORD) {
+        if (peek().kind == SyntaxKind.DO_KEYWORD && (!isNestedQueryExpr() || selectClause == null)) {
             STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
             STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
             return parseQueryAction(queryConstructType, queryPipeline, selectClause);
@@ -17209,6 +17209,9 @@ public class BallerinaParser extends AbstractParser {
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 return SyntaxKind.NONE;
             case ERROR_CONSTRUCTOR:
+                if (isTypedBindingPattern) {
+                    return SyntaxKind.LIST_BINDING_PATTERN;
+                }
                 if (isPossibleErrorBindingPattern((STErrorConstructorExpressionNode) memberNode)) {
                     return SyntaxKind.NONE;
                 }
@@ -17630,7 +17633,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseAsListBindingPattern(STNode openBracket, List<STNode> memberList, STNode member,
                                              boolean isRoot) {
         memberList = getBindingPatternsList(memberList, true);
-        memberList.add(member);
+        memberList.add(getBindingPattern(member, true));
         switchContext(ParserRuleContext.LIST_BINDING_PATTERN);
         STNode listBindingPattern = parseListBindingPattern(openBracket, member, memberList);
         endContext();

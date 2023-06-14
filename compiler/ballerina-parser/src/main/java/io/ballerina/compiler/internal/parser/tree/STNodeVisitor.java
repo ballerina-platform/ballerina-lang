@@ -920,7 +920,7 @@ public abstract class STNodeVisitor {
     public void visit(STReBracedQuantifierNode reBracedQuantifierNode) {
         visitSyntaxNode(reBracedQuantifierNode);
     }
-  
+
     public void visit(STMemberTypeDescriptorNode memberTypeDescriptorNode) {
         visitSyntaxNode(memberTypeDescriptorNode);
     }

@@ -1082,6 +1082,13 @@ public class ConstantPropagation extends BLangNodeVisitor {
             // If the var ref is a const-ref of value type, then replace the ref
             // from a simple literal
             BType literalType = Types.getReferredType(constSymbol.literalType);
+            BType varRefType = Types.getReferredType(varRefExpr.getBType());
+
+            // Handle the assignment of int to subtypes of int (byte, int:Signed16, ...).
+            if (literalType.tag == TypeTags.INT && types.isContainSubtypeOfInt(varRefType)) {
+                literalType = varRefType;
+            }
+
             if (literalType.tag <= TypeTags.BOOLEAN || literalType.tag == TypeTags.NIL) {
                 BLangConstRef constRef = ASTBuilderUtil.createBLangConstRef(varRefExpr.pos, literalType,
                                                                             constSymbol.value.value);
@@ -1097,7 +1104,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
                     implConversionExpr.targetType = varRefExpr.impConversionExpr.targetType;
                     constRef.impConversionExpr = implConversionExpr;
                 } else {
-                    types.setImplicitCastExpr(constRef, constRef.getBType(), varRefExpr.getBType());
+                    types.setImplicitCastExpr(constRef, constRef.getBType(), varRefType);
                 }
                 result = constRef;
                 return;

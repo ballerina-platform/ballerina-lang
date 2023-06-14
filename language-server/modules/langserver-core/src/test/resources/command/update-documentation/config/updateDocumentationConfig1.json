@@ -29,7 +29,7 @@
                     "character": 18
                   }
                 },
-                "newText": "# This function has a doc with multiple lines. Once updated, it should\n# preserve these lines\n#\n# + name - My Name  \n# + val - Parameter Description"
+                "newText": "# This function has a doc with multiple lines. Once updated, it should\n# preserve these lines\n#\n# + name - My Name  \n# + val - parameter description"
               }
             ]
           }
