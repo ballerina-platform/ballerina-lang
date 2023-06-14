@@ -1284,7 +1284,7 @@ public class CentralAPIClient {
                 .proxy(this.proxy)
                 .build();
 
-        if ((!"".equals(this.proxyUsername) && !"".equals(this.proxyPassword))) {
+        if ((!(this.proxyUsername).isEmpty() && !(this.proxyPassword).isEmpty())) {
             Authenticator proxyAuthenticator = (route, response) -> {
                 if (response.request().header("Proxy-Authorization") != null) {
                     return null; // Give up, we've already attempted to authenticate.
