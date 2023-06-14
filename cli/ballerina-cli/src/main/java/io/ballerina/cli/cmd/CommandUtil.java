@@ -168,7 +168,7 @@ public class CommandUtil {
 
 
     static void applyTemplate(String orgName, String templatePkgName, String version, String packageName,
-                              Path projectPath, Path balaCache) {
+                              Path projectPath, Path balaCache, List<Path> filesInDir) {
         Path balaPath = balaCache.resolve(
                 ProjectUtils.getRelativeBalaPath(orgName, templatePkgName, version, null));
         //First we will check for a bala that match any platform
@@ -185,7 +185,7 @@ public class CommandUtil {
         try {
             addModules(balaPath, projectPath, packageName, platform);
         } catch (IOException e) {
-            ProjectUtils.deleteDirectory(projectPath);
+            ProjectUtils.deleteSelectedFilesInDirectory(projectPath, filesInDir);
             CommandUtil.printError(errStream,
                     "error occurred while creating the package: " + e.getMessage(),
                     null,
@@ -381,7 +381,7 @@ public class CommandUtil {
         }
     }
 
-    public static void initPackageFromCentral(Path balaCache, Path projectPath, String packageName, String template) {
+    public static void initPackageFromCentral(Path balaCache, Path projectPath, String packageName, String template, List<Path> filesInDir) {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
         String templatePackageName = findPkgName(template);
         String orgName = findOrg(template);
@@ -418,7 +418,7 @@ public class CommandUtil {
             PackageVersion latest = findLatest(packageVersions);
             version = Objects.requireNonNull(latest).toString();
         }
-        applyTemplate(orgName, templatePackageName, version, packageName, projectPath, balaCache);
+        applyTemplate(orgName, templatePackageName, version, packageName, projectPath, balaCache, filesInDir);
     }
 
     private static void pullPackageFromRemote(String orgName, String packageName, String version, Path destination)

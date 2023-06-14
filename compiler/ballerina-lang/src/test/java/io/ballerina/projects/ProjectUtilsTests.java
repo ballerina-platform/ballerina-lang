@@ -20,6 +20,7 @@ package io.ballerina.projects;
 
 import com.google.gson.JsonSyntaxException;
 import io.ballerina.projects.internal.model.BuildJson;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
@@ -31,7 +32,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Test {@code ProjectUtils}.
@@ -79,5 +82,21 @@ public class ProjectUtilsTests {
         Assert.assertThrows(JsonSyntaxException.class, () -> {
             ProjectUtils.readBuildJson(buildFilePath);
         });
+    }
+
+    @Test()
+    public void testDeleteSelectedFilesInDirectory() throws IOException {
+        Path directory = PROJECT_UTILS_RESOURCES.resolve("delete-files");
+        Path fromDir = PROJECT_UTILS_RESOURCES.resolve("delete-file-samples");
+        List<Path> filesToKeep = new ArrayList<>();
+        filesToKeep.add(directory.resolve("test.txt"));
+        filesToKeep.add(directory.resolve("examples"));
+        Files.walkFileTree(fromDir, new FileUtils.Copy(fromDir, directory));
+        ProjectUtils.deleteSelectedFilesInDirectory(directory, filesToKeep);
+        Assert.assertFalse(Files.exists(directory.resolve("Ballerina.toml")));
+        Assert.assertFalse(Files.exists(directory.resolve("main.bal")));
+        Assert.assertFalse(Files.exists(directory.resolve("tests").resolve("main-test.bal")));
+        Assert.assertTrue(Files.exists(directory.resolve("test.txt")));
+        Assert.assertTrue(Files.exists(directory.resolve("examples").resolve("example.txt")));
     }
 }

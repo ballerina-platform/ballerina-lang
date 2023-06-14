@@ -34,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -116,6 +117,7 @@ public class NewCommand implements BLauncherCmd {
         Path argPath = Paths.get(argList.get(0));
         Path packagePath = argPath;
         Path currentDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        List<Path> filesInDir = new ArrayList<>();
         try {
             Path relativeToCurrentDir = Paths.get(currentDir.toString(),
                     packagePath.toString()).normalize();
@@ -200,6 +202,7 @@ public class NewCommand implements BLauncherCmd {
             }
 
             packageDirectory = packagePath;
+            filesInDir = FileUtils.getFilesInDirectory(packageDirectory);
         } else {
             if (packagePath.getParent() == null) {
                 CommandUtil.printError(errStream,
@@ -282,7 +285,7 @@ public class NewCommand implements BLauncherCmd {
                 Path balaCache = homeCache.resolve(ProjectConstants.REPOSITORIES_DIR)
                         .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
                         .resolve(ProjectConstants.BALA_DIR_NAME);
-                initPackageFromCentral(balaCache, packagePath, packageName, template);
+                initPackageFromCentral(balaCache, packagePath, packageName, template, filesInDir);
             }
         } catch (AccessDeniedException e) {
             CommandUtil.printError(errStream,

@@ -37,9 +37,12 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_SOURCE_EXT;
@@ -57,7 +60,6 @@ public class FileUtils {
 
     private static final String PNG_HEX_HEADER = "89504E470D0A1A0A";
     private static final PathMatcher FILE_MATCHER = FileSystems.getDefault().getPathMatcher("glob:**/Ballerina.toml");
-    private static boolean ballerinaTomlFound = false;
 
     /**
      * Get the name of the without the extension.
@@ -290,6 +292,22 @@ public class FileUtils {
     }
 
     /**
+     * Get the list of files and directories in a directory.
+     *
+     * @param directoryPath directory path
+     * @return list of files
+     */
+    public static List<Path> getFilesInDirectory(Path directoryPath) {
+        List<Path> files = new ArrayList<>();
+        try (Stream<Path> paths = Files.list(directoryPath)) {
+            paths.forEach(files::add);
+        } catch (IOException e) {
+            // ignore
+        }
+        return files;
+    }
+
+    /**
      * Copy files to the given destination.
      */
     public static class Copy extends SimpleFileVisitor<Path> {
@@ -329,12 +347,13 @@ public class FileUtils {
     }
 
     public static boolean checkBallerinaTomlInExistingDir(Path startingDir) {
+        BallerinaTomlChecker ballerinaTomlChecker = new BallerinaTomlChecker(startingDir);
         try {
-            Files.walkFileTree(startingDir, new BallerinaTomlChecker(startingDir));
+           Files.walkFileTree(startingDir, ballerinaTomlChecker);
         } catch (IOException e) {
             System.out.println("An error occurred while looking for existing projects: " + e.getMessage());
         }
-        return ballerinaTomlFound;
+        return ballerinaTomlChecker.isBallerinaTomlFound();
     }
 
     /**
@@ -342,6 +361,15 @@ public class FileUtils {
      */
     public static class BallerinaTomlChecker extends SimpleFileVisitor<Path> {
         private Path startingPath;
+        private boolean ballerinaTomlFound = false;
+
+        public boolean isBallerinaTomlFound() {
+            return ballerinaTomlFound;
+        }
+
+        public void setBallerinaTomlFound(boolean ballerinaTomlFound) {
+            this.ballerinaTomlFound = ballerinaTomlFound;
+        }
 
         public BallerinaTomlChecker(Path startingPath) {
             this.startingPath = startingPath;
@@ -363,7 +391,7 @@ public class FileUtils {
                 throws IOException {
 
             if (FILE_MATCHER.matches(file)) {
-                ballerinaTomlFound = true;
+                setBallerinaTomlFound(true);
                 return FileVisitResult.TERMINATE;
             }
             return FileVisitResult.CONTINUE;
