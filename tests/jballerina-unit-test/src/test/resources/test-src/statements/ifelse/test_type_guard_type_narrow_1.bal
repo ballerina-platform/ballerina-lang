@@ -57,50 +57,6 @@ function test4(int|string s) {
     string _ = s;
 }
 
-function test5(int|string|boolean b) {
-    if b is string {
-        string _ = b;
-        return;
-    } else if b is boolean {
-        boolean _ = b;
-        return;
-    }
-
-    int _ = b; // type not narrowed. issue #34307
-}
-
-function test6(int|string|boolean? b) {
-    if b is string? {
-        string? _ = b;
-        return;
-    } else if b is boolean {
-        boolean _ = b;
-        return;
-    }
-
-    int _ = b; // type not narrowed. issue #34307
-}
-
-function test7(boolean? b) {
-    if b is () {
-        () _ = b;
-        return;
-    }
-
-    boolean _ = b;
-}
-
-function test8(boolean? b) {
-    if b is () {
-        () _ = b;
-        return;
-    } else {
-        boolean _ = b;
-    }
-
-    boolean _ = b; // type not narrowed. issue #34307
-}
-
 function test9(boolean? b) {
     if b is true {
         true _ = b;

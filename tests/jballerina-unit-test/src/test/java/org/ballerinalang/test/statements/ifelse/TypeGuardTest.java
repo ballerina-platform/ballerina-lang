@@ -908,55 +908,45 @@ public class TypeGuardTest {
                 36, 13);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found '(int|string|boolean)?'",
                 48, 13);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found '(int|string|boolean)'",
-                69, 13); // issue #34307 TODO: clean all, once the issue is fixed.
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found '(int|string|boolean)?'",
-                81, 13); // issue #34307
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'boolean', found 'boolean?'",
-                101, 17); // issue #34307
         BAssertUtil.validateError(result, index++, "incompatible types: expected '()', found 'boolean?'",
-                112, 16); // issue #30598, #33217
+                68, 16); // issue #30598, #33217
         BAssertUtil.validateError(result, index++, "incompatible types: expected '()', found 'boolean?'",
-                115, 12); // issue #34307
-        BAssertUtil.validateError(result, index++, "incompatible types: expected '()', found '(false|true)?'",
-                129, 12); // issue #34307
+                71, 12); // issue #34307
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found '(int|boolean|string)?'",
-                141, 13);
+                97, 13);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found '(int|boolean)'",
-                152, 17);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string', found 'string?'", 160, 20);
+                108, 17);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'string', found 'string?'", 116, 20);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found '(int|boolean|string)?'",
-                163, 13);
+                119, 13);
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected '(int|string)?', found '(int|boolean|string)?'", 185, 21); // issue #34307
+                "incompatible types: expected '(int|string)?', found '(int|boolean|string)?'", 141, 21); // issue #34307
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'int', found '(PosInts|Zero|NegInts)?'", 205, 13);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found 'Ints?'", 217, 13);
+                "incompatible types: expected 'int', found '(PosInts|Zero|NegInts)?'", 161, 13);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found 'Ints?'", 173, 13);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '-1', found '-1|-2'",
-                254, 20); // issue #34307
-        BAssertUtil.validateError(result, index++, "incompatible types: expected '-3', found '(-4|-3)'", 264, 20);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected '0', found 'Ints'", 270, 11);
+                210, 20); // issue #34307
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '-3', found '(-4|-3)'", 220, 20);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '0', found 'Ints'", 226, 11);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'string?', found '(int|string)?'",
-                283, 17); // issue #34307
+                239, 17); // issue #34307
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'string', found '(int|string|boolean)?'", 302, 16); // issue #34307
-        BAssertUtil.validateError(result, index++, "incompatible types: expected '()', found '(int|boolean|string)?'",
-                336, 12); // issue #34307
+                "incompatible types: expected 'string', found '(int|string|boolean)?'", 258, 16); // issue #34307
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'int', found '((int[] & readonly)|string[])?'", 346, 13);
+                "incompatible types: expected 'int', found '((int[] & readonly)|string[])?'", 302, 13);
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'string[]?', found '(int[]|string[])?'", 353, 23);
+                "incompatible types: expected 'string[]?', found '(int[]|string[])?'", 309, 23);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found '(int[]|string[])?'",
-                356, 13);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'M', found '(L|M)'", 444, 11);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'M', found '(L|N)'", 459, 15);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'L', found '(L|N)'", 462, 11);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'N', found '(L|N)'", 470, 11);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected 'N', found '(M|N)'", 480, 11);
+                312, 13);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'M', found '(L|M)'", 400, 11);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'M', found '(L|N)'", 415, 15);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'L', found '(L|N)'", 418, 11);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'N', found '(L|N)'", 426, 11);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected 'N', found '(M|N)'", 436, 11);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'string', found '(int|string)'",
-                544, 16);
+                500, 16);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'string', found '(int|string)'",
-                556, 16);
+                512, 16);
         Assert.assertEquals(result.getDiagnostics().length, index);
     }
 
@@ -992,13 +982,7 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected 'int', found '(false|1|\"foo\")?'", 84, 13);
         BAssertUtil.validateError(result, index++,
-                "incompatible types: expected '3', found '3?'", 130, 11); // issue #34307
-        BAssertUtil.validateError(result, index++,
-                "incompatible types: expected '\"baz\"', found '\"foo\"|\"bar\"|\"baz\"'", 142, 15); // issue #34307
-        BAssertUtil.validateError(result, index++,
-                "incompatible types: expected '\"foo\"', found '(\"baz\"|\"foo\"|\"bar\")?'", 154, 15);
-        BAssertUtil.validateError(result, index++,
-                "incompatible types: expected '\"foo\"?', found '(\"baz\"|\"foo\"|\"bar\")?'", 155, 16); // issue #34307
+                "incompatible types: expected '\"foo\"', found '\"foo\"?'", 154, 15);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '\"c\"', found '\"a\"'", 166, 17);
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected '(\"c\"|\"b\")?', found '(\"c\"|\"a\"|\"b\")?'", 170, 18); // issue #34307
@@ -1006,8 +990,6 @@ public class TypeGuardTest {
                 "incompatible types: expected '()', found 'boolean?'", 181, 16); // issue #30598, #33217
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected '()', found 'boolean?'", 184, 12); // issue #34307
-        BAssertUtil.validateError(result, index++,
-                "incompatible types: expected '()', found '(false|true)?'", 198, 12); // issue #34307
         BAssertUtil.validateError(result, index++, "incompatible types: expected '3', found '2.0f'", 208, 19);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '2.3f', found '2.0f'", 214, 21);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found '(3.3f|1)'", 217, 21);
@@ -1091,8 +1073,6 @@ public class TypeGuardTest {
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'int', found '(int|string)'", 316, 13);
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected 'string', found '(string|int)'", 323, 20);
-        BAssertUtil.validateError(result, index++,
-                "incompatible types: expected 'string', found '(int|string|float)'", 349, 16); // issue #34307
         BAssertUtil.validateError(result, index++,
                 "incompatible types: expected 'string', found '(int|string|float)'", 359, 16);
         BAssertUtil.validateError(result, index++,

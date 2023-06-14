@@ -618,8 +618,8 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
             data.prevEnvs.push(currentEnv);
             // Types are narrowed following an `if` statement, if it returns.
             data.env = narrowForReturningIf(ifStmt, currentStmt, currentEnv);
-            data.prevEnvs.pop();
             analyzeStmt(currentStmt, data);
+            data.prevEnvs.pop();
             return true;
         }
         return false;
