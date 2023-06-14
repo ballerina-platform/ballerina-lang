@@ -1707,7 +1707,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return new BTupleType(memTypes);
     }
 
-    private BType checkListConstructorCompatibility(BType bType, BLangListConstructorExpr listConstructor,
+    protected BType checkListConstructorCompatibility(BType bType, BLangListConstructorExpr listConstructor,
                                                     AnalyzerData data) {
         int tag = bType.tag;
         if (tag == TypeTags.UNION) {
@@ -2259,7 +2259,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         List<BType> restMemberTypes = new ArrayList<>();
     }
 
-    private BType getInferredTupleType(BLangListConstructorExpr listConstructor, BType expType, AnalyzerData data) {
+    protected BType getInferredTupleType(BLangListConstructorExpr listConstructor, BType expType, AnalyzerData data) {
 
         InferredTupleDetails inferredTupleDetails = checkExprList(listConstructor.exprs, expType, data);
         List<BType> fixedMemberTypes = inferredTupleDetails.fixedMemberTypes;
@@ -7166,8 +7166,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             restType = data.resultType;
         } else if (!iExpr.restArgs.isEmpty()) {
             if (listTypeRestArg.tag == TypeTags.ARRAY) {
-                BType elementType = ((BArrayType) listTypeRestArg).eType;
-                for (BLangExpression restArg : iExpr.restArgs) {
+                BType elementType = ((BArrayType) listTypeRestArg).eType; // int
+                for (BLangExpression restArg : iExpr.restArgs) { // seq int
                     checkTypeParamExpr(restArg, elementType, true, data);
                     if (restType != symTable.semanticError && data.resultType == symTable.semanticError) {
                         restType = data.resultType;
@@ -7345,6 +7345,10 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
     private BFutureType generateFutureType(BInvokableSymbol invocableSymbol, BType retType) {
         boolean isWorkerStart = Symbols.isFlagOn(invocableSymbol.flags, Flags.WORKER);
         return new BFutureType(TypeTags.FUTURE, retType, null, isWorkerStart);
+    }
+
+    protected void checkTypeParamExpr(BLangExpression arg, BType expectedType, AnalyzerData data) {
+        checkTypeParamExpr(arg, expectedType, true, data);
     }
 
     private void checkTypeParamExpr(BLangExpression arg, BType expectedType,
@@ -9519,6 +9523,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         BType expType;
         BType resultType;
         boolean isResourceAccessPathSegments = false;
-        QueryTypeChecker.AnalyzerData queryData;
+        QueryTypeChecker.AnalyzerData queryData = new QueryTypeChecker.AnalyzerData();
+        Set<String> queryVariables;
     }
 }
