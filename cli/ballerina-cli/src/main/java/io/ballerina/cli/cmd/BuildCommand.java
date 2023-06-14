@@ -254,10 +254,6 @@ public class BuildCommand implements BLauncherCmd {
                 return;
         }
 
-        if (project.buildOptions().nativeImage()) {
-            this.outStream.println("WARNING: Ballerina GraalVM Native Image generation is an experimental feature");
-        }
-
         // Validate Settings.toml file
         try {
             RepoUtils.readSettings();

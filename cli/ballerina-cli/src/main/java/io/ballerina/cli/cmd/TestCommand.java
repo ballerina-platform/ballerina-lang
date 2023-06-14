@@ -311,10 +311,6 @@ public class TestCommand implements BLauncherCmd {
             }
         }
 
-        if (project.buildOptions().nativeImage()) {
-            this.outStream.println("WARNING: Ballerina GraalVM Native Image test is an experimental feature");
-        }
-
         if (project.buildOptions().nativeImage() && project.buildOptions().codeCoverage()) {
             this.outStream.println("WARNING: Code coverage generation is not supported with Ballerina native test");
         }
