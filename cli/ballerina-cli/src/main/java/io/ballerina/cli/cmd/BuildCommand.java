@@ -102,7 +102,7 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                 boolean dumpBuildTime, boolean nativeImage) {
+                 boolean dumpBuildTime, boolean nativeImage, String graalVMBuildOptions) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -110,6 +110,7 @@ public class BuildCommand implements BLauncherCmd {
         this.dumpBuildTime = dumpBuildTime;
         this.offline = true;
         this.nativeImage = nativeImage;
+        this.graalVMBuildOptions = graalVMBuildOptions;
     }
 
     @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
@@ -185,6 +186,10 @@ public class BuildCommand implements BLauncherCmd {
             "caching for source files", defaultValue = "false")
     private Boolean disableSyntaxTreeCaching;
 
+    @CommandLine.Option(names = "--graalvm-build-options", description = "additional build options for native image " +
+            "generation")
+    private String graalVMBuildOptions;
+
     public void execute() {
         long start = 0;
         if (this.helpFlag) {
@@ -195,6 +200,15 @@ public class BuildCommand implements BLauncherCmd {
 
         if (sticky == null) {
             sticky = false;
+        }
+
+        if (nativeImage == null) {
+            nativeImage = false;
+        }
+
+        if (!nativeImage && graalVMBuildOptions != null) {
+            this.outStream.println("WARNING: --graalvm-build-options flag is ignored since --graalvm flag is not " +
+                    "provided");
         }
 
         // load project
@@ -304,7 +318,8 @@ public class BuildCommand implements BLauncherCmd {
                 .setExportComponentModel(exportComponentModel)
                 .setEnableCache(enableCache)
                 .setNativeImage(nativeImage)
-                .disableSyntaxTreeCaching(disableSyntaxTreeCaching);
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
+                .setGraalVMBuildOptions(graalVMBuildOptions);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

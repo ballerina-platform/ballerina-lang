@@ -574,6 +574,9 @@ public class ManifestBuilder {
                 BuildOptions.OptionName.NATIVE_IMAGE.toString());
         Boolean exportComponentModel = getBooleanFromBuildOptionsTableNode(tableNode,
                 BuildOptions.OptionName.EXPORT_COMPONENT_MODEL.toString());
+        String graalVMBuildOptions = getStringFromBuildOptionsTableNode(tableNode,
+                BuildOptions.OptionName.GRAAL_VM_BUILD_OPTIONS.toString());
+
 
         buildOptionsBuilder
                 .setOffline(offline)
@@ -586,7 +589,8 @@ public class ManifestBuilder {
                 .setSticky(sticky)
                 .setEnableCache(enableCache)
                 .setNativeImage(nativeImage)
-                .setExportComponentModel(exportComponentModel);
+                .setExportComponentModel(exportComponentModel)
+                .setGraalVMBuildOptions(graalVMBuildOptions);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir);
