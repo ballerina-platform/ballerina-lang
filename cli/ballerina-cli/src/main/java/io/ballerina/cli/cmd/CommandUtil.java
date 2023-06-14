@@ -381,7 +381,8 @@ public class CommandUtil {
         }
     }
 
-    public static void initPackageFromCentral(Path balaCache, Path projectPath, String packageName, String template, List<Path> filesInDir) {
+    public static void initPackageFromCentral(Path balaCache, Path projectPath, String packageName, String template,
+                                              List<Path> filesInDir) {
         System.setProperty(CentralClientConstants.ENABLE_OUTPUT_STREAM, "true");
         String templatePackageName = findPkgName(template);
         String orgName = findOrg(template);

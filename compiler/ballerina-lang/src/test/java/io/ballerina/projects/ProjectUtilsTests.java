@@ -86,17 +86,18 @@ public class ProjectUtilsTests {
 
     @Test()
     public void testDeleteSelectedFilesInDirectory() throws IOException {
-        Path directory = PROJECT_UTILS_RESOURCES.resolve("delete-files");
-        Path fromDir = PROJECT_UTILS_RESOURCES.resolve("delete-file-samples");
+        Path fromDir = PROJECT_UTILS_RESOURCES.resolve("delete-files");
+        Path tempPackageDir = tempDirectory.resolve("delete-files");
+        Files.createDirectory(tempPackageDir);
         List<Path> filesToKeep = new ArrayList<>();
-        filesToKeep.add(directory.resolve("test.txt"));
-        filesToKeep.add(directory.resolve("examples"));
-        Files.walkFileTree(fromDir, new FileUtils.Copy(fromDir, directory));
-        ProjectUtils.deleteSelectedFilesInDirectory(directory, filesToKeep);
-        Assert.assertFalse(Files.exists(directory.resolve("Ballerina.toml")));
-        Assert.assertFalse(Files.exists(directory.resolve("main.bal")));
-        Assert.assertFalse(Files.exists(directory.resolve("tests").resolve("main-test.bal")));
-        Assert.assertTrue(Files.exists(directory.resolve("test.txt")));
-        Assert.assertTrue(Files.exists(directory.resolve("examples").resolve("example.txt")));
+        filesToKeep.add(tempPackageDir.resolve("test.txt"));
+        filesToKeep.add(tempPackageDir.resolve("examples"));
+        Files.walkFileTree(fromDir, new FileUtils.Copy(fromDir, tempPackageDir));
+        ProjectUtils.deleteSelectedFilesInDirectory(tempPackageDir, filesToKeep);
+        Assert.assertFalse(Files.exists(tempPackageDir.resolve("Ballerina.toml")));
+        Assert.assertFalse(Files.exists(tempPackageDir.resolve("main.bal")));
+        Assert.assertFalse(Files.exists(tempPackageDir.resolve("tests").resolve("main-test.bal")));
+        Assert.assertTrue(Files.exists(tempPackageDir.resolve("test.txt")));
+        Assert.assertTrue(Files.exists(tempPackageDir.resolve("examples").resolve("example.txt")));
     }
 }

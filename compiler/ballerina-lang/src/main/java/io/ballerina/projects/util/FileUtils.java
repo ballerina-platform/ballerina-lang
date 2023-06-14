@@ -28,9 +28,9 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
@@ -351,7 +351,7 @@ public class FileUtils {
         try {
            Files.walkFileTree(startingDir, ballerinaTomlChecker);
         } catch (IOException e) {
-            System.out.println("An error occurred while looking for existing projects: " + e.getMessage());
+            // ignore
         }
         return ballerinaTomlChecker.isBallerinaTomlFound();
     }
