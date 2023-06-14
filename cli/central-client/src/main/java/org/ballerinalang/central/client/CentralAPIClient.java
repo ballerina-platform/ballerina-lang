@@ -118,7 +118,6 @@ public class CentralAPIClient {
     private static final String ERR_CANNOT_PULL_PACKAGE = "error: failed to pull the package: ";
     private static final String ERR_CANNOT_SEARCH = "error: failed to search packages: ";
     private static final String ERR_CANNOT_GET_CONNECTOR = "error: failed to find connector: ";
-    private static final String ERR_CANNOT_GET_PACKAGE = "error: failed to find package: ";
     private static final String ERR_CANNOT_GET_TRIGGERS = "error: failed to find triggers: ";
     private static final String ERR_CANNOT_GET_TRIGGER = "error: failed to find the trigger: ";
     private static final String ERR_PACKAGE_DEPRECATE = "error: failed to deprecate the package: ";
@@ -1157,18 +1156,19 @@ public class CentralAPIClient {
             Call httpRequestCall = client.newCall(searchReq);
             Response searchResponse = httpRequestCall.execute();
 
-            body = Optional.ofNullable(searchResponse.body());
+            ResponseBody responseBody = searchResponse.body();
+            body = responseBody != null ? Optional.of(responseBody) : Optional.empty();
             if (body.isPresent()) {
-                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
-                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString()) &&
+                MediaType contentType = body.get().contentType() != null ? body.get().contentType() : null;
+                if (contentType != null && isApplicationJsonContentType(contentType.toString()) &&
                         searchResponse.code() == HttpsURLConnection.HTTP_OK) {
                     return new Gson().toJsonTree(body.get().string());
                 }
             }
-            handleResponseErrors(searchResponse, ERR_CANNOT_GET_PACKAGE);
+            handleResponseErrors(searchResponse, ERR_CANNOT_SEARCH);
             return new JsonArray();
         } catch (IOException e) {
-            throw new CentralClientException(ERR_CANNOT_GET_PACKAGE + "'. Reason: " + e.getMessage());
+            throw new CentralClientException(ERR_CANNOT_SEARCH + "'. Reason: " + e.getMessage());
         } finally {
             body.ifPresent(ResponseBody::close);
             try {

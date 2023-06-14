@@ -20,14 +20,11 @@ import org.ballerinalang.langserver.util.PerformanceTestUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Range;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.net.http.HttpClient;
 import java.nio.file.Path;
 
 /**
@@ -36,8 +33,6 @@ import java.nio.file.Path;
  * @since 2.0.0
  */
 public class CodeActionPerformanceTest extends AbstractCodeActionTest {
-
-    private static final Logger log = LoggerFactory.getLogger(HttpClient.class);
 
     @Override
     public String getResourceDir() {
@@ -52,12 +47,6 @@ public class CodeActionPerformanceTest extends AbstractCodeActionTest {
 
     @Override
     public String getResponse(Path sourcePath, Range range, CodeActionContext codeActionContext) {
-        // Waiting for the server to load the packages from the distribution and central
-        try {
-            Thread.sleep(20000);
-        } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting to load the packages from the distribution and central");
-        }
         long start = System.currentTimeMillis();
         String res = TestUtil.getCodeActionResponse(getServiceEndpoint(), sourcePath.toString(), range, 
                 codeActionContext);

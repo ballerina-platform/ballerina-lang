@@ -159,7 +159,7 @@ public class LSPackageLoader {
                         Either.forLeft(beginNotification)));
             }
         }).thenRunAsync(() -> {
-            CentralPackageDescriptorHolder.getInstance(lsContext).getPackagesFromCentral().forEach(packageInfo -> {
+            CentralPackageDescriptorLoader.getInstance(lsContext).getPackagesFromCentral().forEach(packageInfo -> {
                 PackageOrg packageOrg = PackageOrg.from(packageInfo.getOrganization());
                 PackageName packageName = PackageName.from(packageInfo.getName());
                 PackageVersion packageVersion = PackageVersion.from(packageInfo.getVersion());

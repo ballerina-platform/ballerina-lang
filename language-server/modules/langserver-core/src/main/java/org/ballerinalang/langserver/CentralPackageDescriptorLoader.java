@@ -33,21 +33,21 @@ import java.util.Map;
 /**
  * Central package descriptor holder.
  *
- * @since 2201.6.0
+ * @since 2201.7.0
  */
-public class CentralPackageDescriptorHolder {
-    public static final LanguageServerContext.Key<CentralPackageDescriptorHolder> CENTRAL_PACKAGE_HOLDER_KEY =
+public class CentralPackageDescriptorLoader {
+    public static final LanguageServerContext.Key<CentralPackageDescriptorLoader> CENTRAL_PACKAGE_HOLDER_KEY =
             new LanguageServerContext.Key<>();
 
-    public static CentralPackageDescriptorHolder getInstance(LanguageServerContext context) {
-        CentralPackageDescriptorHolder centralPackageDescriptorHolder = context.get(CENTRAL_PACKAGE_HOLDER_KEY);
-        if (centralPackageDescriptorHolder == null) {
-            centralPackageDescriptorHolder = new CentralPackageDescriptorHolder(context);
+    public static CentralPackageDescriptorLoader getInstance(LanguageServerContext context) {
+        CentralPackageDescriptorLoader centralPackageDescriptorLoader = context.get(CENTRAL_PACKAGE_HOLDER_KEY);
+        if (centralPackageDescriptorLoader == null) {
+            centralPackageDescriptorLoader = new CentralPackageDescriptorLoader(context);
         }
-        return centralPackageDescriptorHolder;
+        return centralPackageDescriptorLoader;
     }
 
-    public CentralPackageDescriptorHolder(LanguageServerContext context) {
+    private CentralPackageDescriptorLoader(LanguageServerContext context) {
         context.put(CENTRAL_PACKAGE_HOLDER_KEY, this);
     }
 
