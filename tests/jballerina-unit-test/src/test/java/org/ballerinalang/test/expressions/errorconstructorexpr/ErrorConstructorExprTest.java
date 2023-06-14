@@ -99,7 +99,7 @@ public class ErrorConstructorExprTest {
         validateError(negativeSemanticResult, i++, "unknown type 'Blah'", 60, 27);
         validateError(negativeSemanticResult, i++, "cannot create a new error value from 'ErrorU1'", 62, 19);
         validateError(negativeSemanticResult, i++, "cannot create a new error value from 'ErrorU2'", 63, 19);
-        validateError(negativeSemanticResult, i++, "undefined error type descriptor 'ErrorU3'", 64, 19);
+        validateError(negativeSemanticResult, i++, "cannot create a new error value from 'ErrorU3'", 64, 19);
         validateError(negativeSemanticResult, i++, "incompatible types: expected '(int|string)', found 'ErrorA'",
                 66, 18);
         validateError(negativeSemanticResult, i++, "compatible type for error constructor expression not " +
