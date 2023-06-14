@@ -174,10 +174,10 @@ function testClosureInQueryActionInDo2() {
 
 class EvenNumberGenerator {
     int i = 0;
-    public isolated function next() returns record {|int value;|}|error? {
+    public isolated function next() returns record {|int value;|}? {
         self.i += 2;
         if (self.i >= 10) {
-            return error("Error");
+            return ();
         }
         return {value: self.i};
     }
@@ -289,8 +289,9 @@ function testClosureInQueryActionInDo6() returns error? {
     int|string str3 = "string-3";
 
     if (str3 is int) {
+        assertTrue(false);
     } else {
-        int[] _ = check from var _ in evenNumberStream
+        int[][] result = check from var _ in evenNumberStream
         let
             string _ = str1,
             string _ = str2,
@@ -298,29 +299,36 @@ function testClosureInQueryActionInDo6() returns error? {
             int length1 = str1.length(),
             int length2 = str2.length(),
             int length3 = str3.length()
-        select 1;
+        select [length1, length2, length3];
+        assertEquality([[8, 8, 8], [8, 8, 8], [8, 8, 8], [8, 8, 8]], result);
   }
 }
 
 function testClosureInQueryActionInDo7() returns error? {
     A object2 = new ("Jane");
     EvenNumberGenerator evenGen = new ();
+    EvenNumberGenerator evenGen2 = new ();
     stream<int, error?> evenNumberStream = new (evenGen);
+    stream<int, error?> evenNumberStream2 = new (evenGen2);
     A|error object3 = new ("Anne");
 
     if (object3 is error) {
+        assertTrue(false);
     } else {
-    int[][] _ = check from var _ in evenNumberStream
-        select check from var _ in evenNumberStream
-        let
-            A _ = object1,
-            A _ = object2,
-            A _ = object3,
+        string[][] result = check from var _ in evenNumberStream
+                select check from var _ in evenNumberStream2
+                let
+                    A _ = object1,
+                    A _ = object2,
+                    A _ = object3,
 
-            string objectName1 = check object1.getName(),
-            string objectName2 = check object2.getName(),
-            string objectName3 = check object3.getName()
-        select 1;
+                string objectName1 = check object1.getName(),
+                string objectName2 = check object2.getName(),
+                string objectName3 = check object3.getName()
+
+                select "result";
+                // select string `${objectName1}`; issue:- #40701
+        assertEquality([["result", "result", "result", "result"],[],[],[]], result);
     }
 }
 
