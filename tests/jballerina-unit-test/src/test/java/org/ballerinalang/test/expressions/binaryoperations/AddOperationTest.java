@@ -176,6 +176,11 @@ public class AddOperationTest {
         };
     }
 
+    @Test
+    public void testLargeNumberOfOperands() {
+        BRunUtil.invoke(result, "testLargeNumberOfOperands");
+    }
+
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
         int i = 0;
