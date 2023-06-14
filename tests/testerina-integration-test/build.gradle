@@ -39,6 +39,7 @@ dependencies {
     implementation "org.ow2.asm:asm:${project.ow2AsmVersion}"
     implementation "org.ow2.asm:asm-commons:${project.ow2AsmCommonsVersion}"
     implementation "org.ow2.asm:asm-tree:${project.ow2AsmTreeVersion}"
+    implementation "org.testng:testng:${project.testngVersion}"
 
     implementation group: 'org.jacoco', name: 'org.jacoco.core', version: "${project.jacocoVersion}"
     implementation group: 'org.jacoco', name: 'org.jacoco.report', version: "${project.jacocoVersion}"

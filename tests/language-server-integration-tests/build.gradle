@@ -43,9 +43,8 @@ dependencies {
     implementation "com.google.code.gson:gson"
 
     testImplementation 'org.testng:testng'
-    testImplementation 'org.mockito:mockito-all'
-    testImplementation 'org.powermock:powermock-api-mockito2'
-    testImplementation 'org.powermock:powermock-module-testng-common'
+    testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
+    testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
 
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-codeactions')
 }
