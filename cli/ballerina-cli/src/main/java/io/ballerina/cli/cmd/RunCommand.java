@@ -20,12 +20,6 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
-import io.ballerina.cli.task.CleanTargetDirTask;
-import io.ballerina.cli.task.ResolveMavenDependenciesTask;
-import io.ballerina.cli.task.CompileTask;
-import io.ballerina.cli.task.CreateExecutableTask;
-import io.ballerina.cli.task.DumpBuildTimeTask;
-import io.ballerina.cli.task.RunExecutableTask;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.Project;
@@ -34,24 +28,31 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.cli.task.CleanTargetDirTask;
+import io.ballerina.cli.task.ResolveMavenDependenciesTask;
+import io.ballerina.cli.task.CompileTask;
+import io.ballerina.cli.task.CreateExecutableTask;
+import io.ballerina.cli.task.DumpBuildTimeTask;
+import io.ballerina.cli.task.RunExecutableTask;
 import picocli.CommandLine;
 
-import java.nio.file.PathMatcher;
 import java.io.BufferedReader;
-import java.nio.file.FileSystems;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.nio.file.PathMatcher;
 
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
 import static io.ballerina.projects.util.ProjectUtils.isProjectUpdated;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
+
 /**
  * This class represents the "run" command and it holds arguments and flags specified by the user.
  *
