@@ -37,9 +37,9 @@ import io.ballerina.projects.util.ProjectUtils;
 import picocli.CommandLine;
 
 import java.nio.file.PathMatcher;
+import java.io.File;
 import java.io.BufferedReader;
 import java.nio.file.FileSystems;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.nio.file.Files;
