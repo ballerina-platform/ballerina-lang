@@ -41,8 +41,6 @@ public class BTupleType extends BType implements TupleType {
     public boolean resolvingToString = false;
     public boolean isCyclic = false;
 
-    private BIntersectionType intersectionType = null;
-
     public BTupleType(List<BTupleMember> members) {
         super(TypeTags.TUPLE, null);
         this.members = members;

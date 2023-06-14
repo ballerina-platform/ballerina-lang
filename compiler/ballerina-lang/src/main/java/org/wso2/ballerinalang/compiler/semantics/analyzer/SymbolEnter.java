@@ -1326,17 +1326,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         BLangIntersectionTypeNode intersectionTypeNode =
                 (BLangIntersectionTypeNode) ((BLangTypeDefinition) typeDef).typeNode;
 
-//        Set<BType> errorTypes = new HashSet<>();
-
+        int errorTypeCount = 0;
         for (BLangType type : intersectionTypeNode.constituentTypeNodes) {
             BType bType = symResolver.resolveTypeNode(type, env);
             if (Types.getReferredType(bType).tag == TypeTags.ERROR) {
-//                errorTypes.add(bType);
-                return true;
+                errorTypeCount++;
             }
         }
-//        return errorTypes.size() > 1;
-        return false;
+        return errorTypeCount > 1;
     }
 
     private void checkErrors(SymbolEnv env, BLangNode unresolvedType, BLangNode currentTypeOrClassNode,
@@ -1680,7 +1677,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             typeDefSymbol.pos = typeDefinition.name.pos;
         }
 
-        boolean isErrorIntersection = isErrorIntersection(definedType);
+        boolean isErrorIntersection = isErrorIntersectionTypeCreatingNewType(typeDefinition, env);
         if (isErrorIntersection) {
             populateAllReadyDefinedErrorIntersection(definedType, typeDefinition, env);
         }
@@ -1869,21 +1866,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private BSymbol lookupTypeSymbol(SymbolEnv env, BLangIdentifier name) {
         return symResolver.lookupSymbolInMainSpace(env, names.fromString(name.value));
-    }
-
-    private void populateSymbolNameOfErrorIntersection(BType definedType, String typeDefName) {
-        BErrorType effectiveErrorType = (BErrorType) ((BIntersectionType) definedType).effectiveType;
-        effectiveErrorType.tsymbol.name = names.fromString(typeDefName);
-    }
-
-    private boolean isErrorIntersection(BType definedType) {
-        BType type = Types.getReferredType(definedType, false);
-        if (type.tag == TypeTags.INTERSECTION) {
-            BIntersectionType intersectionType = (BIntersectionType) type;
-            return Types.getReferredType(intersectionType.effectiveType).tag == TypeTags.ERROR;
-        }
-
-        return false;
     }
 
     private BEnumSymbol createEnumSymbol(BLangTypeDefinition typeDefinition, BType definedType) {

@@ -32,7 +32,6 @@ public class BErrorType extends BType implements ErrorType {
     public BType detailType;
     public BTypeIdSet typeIdSet;
 
-    private BIntersectionType intersectionType = null;
     private static final String DOLLAR = "$";
     private static final String ERROR = "error<";
     private static final String CLOSE_ERROR = ">";

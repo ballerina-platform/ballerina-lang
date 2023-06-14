@@ -2760,7 +2760,7 @@ public class TypeChecker {
             return false;
         }
         TableValueImpl tableValue = (TableValueImpl) sourceValue;
-        BTableType sourceType = (BTableType) tableValue.getType();
+        BTableType sourceType = (BTableType) TypeUtils.getReferredType(tableValue.getType());
         if (targetType.getKeyType() != null && sourceType.getFieldNames().length == 0) {
             return false;
         }
