@@ -28,4 +28,7 @@ dependencies {
    compileOnly 'org.apache.maven.plugin-tools:maven-plugin-annotations'
 }
 
+checkstyleMain {
+}
+
 description = 'Ballerina - Docerina gradle Plugin'
