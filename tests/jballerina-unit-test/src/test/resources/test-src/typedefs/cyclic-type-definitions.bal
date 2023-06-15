@@ -210,6 +210,46 @@ function testCyclicObjectTypeDefinition() {
     assertEquals(a7.a.toString(), "5");
 }
 
+type T1 [T1?] & readonly;
+
+type T2 T3 & readonly;
+type T3 [T2?] & readonly;
+type T4 [T4?, 1, "a"] & readonly;
+
+type T5 [(T5 & readonly)?];
+
+public function testCyclicReadonlyTupleTypeDefinition1() {
+    T1 t1 = [];
+    assertTrue(t1 is readonly);
+    assertEquals(t1.toString(), "[null]");
+
+    T2 t2 = [];
+    assertTrue(t2 is readonly);
+    assertEquals(t2.toString(), "[null]");
+
+    T3 t3 = [];
+    assertTrue(t3 is readonly);
+    assertEquals(t3.toString(), "[null]");
+
+    T4 t4 = [(), 1, "a"];
+    assertTrue(t4 is readonly);
+    assertEquals(t4.toString(), "[null,1,\"a\"]");
+
+    T5 t5 = [[]];
+    assertTrue(t5[0] is readonly);
+    assertEquals(t5.toString(), "[[null]]");
+}
+
+type A5 [B5?] & readonly;
+type B5 record{
+    A5 a5;
+};
+
+function testCyclicReadonlyTupleTypeDefinition2() {
+    A5 a5 = [];
+    assertEquals(a5.toString(), "[null]");
+}
+
 function assertTrue(anydata actual) {
     assertEquals(true, actual);
 }
