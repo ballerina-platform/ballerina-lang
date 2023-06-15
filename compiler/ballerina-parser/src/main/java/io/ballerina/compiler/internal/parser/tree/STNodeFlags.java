@@ -22,7 +22,28 @@ package io.ballerina.compiler.internal.parser.tree;
  *
  * @since 2.0.0
  */
-public enum STNodeFlags {
-    HAS_DIAGNOSTICS,
-    IS_MISSING
+public class STNodeFlags {
+    public static final byte HAS_DIAGNOSTIC = 1 << 0x1;
+    public static final byte IS_MISSING = 1 << 0x2;
+
+    /**
+     * Checks whether the given flag is set in the given flags.
+     * @param flags the flags to check
+     * @param flag the flag to check for
+     * @return <code>true</code> if the flag is set. <code>false</code> otherwise
+     */
+    public static boolean isFlagSet(byte flags, byte flag) {
+        return (flags & flag) != 0;
+    }
+
+    /**
+     * Sets a flag in the given flags.
+     *
+     * @param flags the original flags
+     * @param flag  the flag to set
+     * @return the updated flags with the specified flag
+     */
+    public static byte withFlag(byte flags, byte flag) {
+        return (byte) (flags | flag);
+    }
 }

@@ -7,7 +7,7 @@
   "description": "",
   "items": [
     {
-      "label": "/[string... params](string id)",
+      "label": "(string id)",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -18,7 +18,7 @@
       },
       "sortText": "G",
       "filterText": "get",
-      "insertText": "/[${1:\"path\"}](${2});",
+      "insertText": "(${1})",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -41,41 +41,7 @@
       }
     },
     {
-      "label": "/<path>(string id)",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` params  \n- `string` id"
-        }
-      },
-      "sortText": "G",
-      "filterText": "get",
-      "insertText": "/${1:path}(${2});",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 38,
-              "character": 21
-            },
-            "end": {
-              "line": 38,
-              "character": 22
-            }
-          },
-          "newText": ""
-        }
-      ],
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "/[string... params].post",
+      "label": ".post",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -86,7 +52,7 @@
       },
       "sortText": "G",
       "filterText": "post",
-      "insertText": "/[${1:\"path\"}].post;",
+      "insertText": ".post",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -105,37 +71,7 @@
       ]
     },
     {
-      "label": "/<path>.post",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` params"
-        }
-      },
-      "sortText": "G",
-      "filterText": "post",
-      "insertText": "/${1:path}.post;",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 38,
-              "character": 21
-            },
-            "end": {
-              "line": 38,
-              "character": 22
-            }
-          },
-          "newText": ""
-        }
-      ]
-    },
-    {
-      "label": "/[string... params].put",
+      "label": ".put",
       "kind": "Function",
       "detail": "()",
       "documentation": {
@@ -146,37 +82,7 @@
       },
       "sortText": "G",
       "filterText": "put",
-      "insertText": "/[${1:\"path\"}].put;",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 38,
-              "character": 21
-            },
-            "end": {
-              "line": 38,
-              "character": 22
-            }
-          },
-          "newText": ""
-        }
-      ]
-    },
-    {
-      "label": "/<path>.put",
-      "kind": "Function",
-      "detail": "()",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `string[]` params"
-        }
-      },
-      "sortText": "G",
-      "filterText": "put",
-      "insertText": "/${1:path}.put;",
+      "insertText": ".put",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

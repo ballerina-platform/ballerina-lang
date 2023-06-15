@@ -63,6 +63,7 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
                 {"undefinedFunctionCodeAction5.json"},
                 {"undefinedFunctionCodeAction6.json"},
                 {"undefinedFunctionCodeAction20.json"},
+                {"undefinedFunctionCodeAction24.json"},
                 // TODO Doesn't support method creation in objects
                 // {"undefinedFunctionCodeAction7.json", "createUndefinedFunction5.bal"},
                 // TODO Doesn't support methods inside services yet

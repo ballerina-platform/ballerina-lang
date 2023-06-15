@@ -215,7 +215,9 @@ public class TypeDefBuilderHelper {
         typeDefinition.setBType(type);
         typeDefinition.symbol = symbol;
         typeDefinition.name = createIdentifier(symbol.pos, symbol.name.value);
-        env.enclPkg.addTypeDefinition(typeDefinition);
+        if (env != null) {
+            env.enclPkg.addTypeDefinition(typeDefinition);
+        }
         return typeDefinition;
     }
 
