@@ -507,17 +507,19 @@ artifacts {
     unzipped file: file("$buildDir/extracted-distributions/${project.name}-${project.version}"), builtBy: createDistribution
 }
 
-////// This section makes sure that checkstyle/spotbug runs when dist is build.
-//project.afterEvaluate {
-//    configurations.dist.dependencies
-//        .findAll { it instanceof ProjectDependency }
-//        .each {
-//            it.dependencyProject.afterEvaluate {
-//                def dependencyCheck = it.tasks.find { it.name == 'check' }
-//                check.dependsOn dependencyCheck
-//            }
-//        }
-//}
+// This section makes sure that checkstyle/spotbug runs when dist is build.
+tasks.whenTaskAdded { task ->
+    if (task.name == 'check') {
+        configurations.dist.dependencies
+                .findAll { it instanceof ProjectDependency }
+                .each { dependency ->
+                    dependency.dependencyProject.afterEvaluate {
+                        def dependencyCheck = tasks.named('check')
+                        task.dependsOn dependencyCheck
+                    }
+                }
+    }
+}
 
 publishing {
     publications {
