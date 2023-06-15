@@ -371,3 +371,7 @@ function testQueryExprWithUnionInSelectClause4() {
     table<FooType>|table<BarType> _ = table key(id) from var i in [1, 2, 3, 4] 
         select i % 2 == 0 ? <FooType>{foo: "Foo", id: i} : <BarType>{bar: "Bar", id: i};
 }
+
+function testQueryWithAmbiguousType2() {
+    string:Char[]|string _ = from var letter in ["a", "b", "c", "AA"] select letter == "B" ? letter : "L";
+}
