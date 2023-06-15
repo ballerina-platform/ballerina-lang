@@ -282,6 +282,17 @@ function testListConstExprWithoutExpectedType() {
     assertEquals(TUPLE_37.toString(), "[[{\"a\":1,\"b\":2}],\"ABC\",1]");
 }
 
+const TUPLE_40 = [3, 1];
+const TUPLE_40 TUPLE_41 = [3, 1];
+
+function testTupleWithConstAsExpectedType() {
+    assertTrue(TUPLE_40.length() == 2);
+    assertEquals(TUPLE_40.toString(), "[3,1]");
+
+    assertTrue(TUPLE_41.length() == 2);
+    assertEquals(TUPLE_41.toString(), "[3,1]");
+}
+
 function assertTrue(anydata actual) {
     assertEquals(true, actual);
 }

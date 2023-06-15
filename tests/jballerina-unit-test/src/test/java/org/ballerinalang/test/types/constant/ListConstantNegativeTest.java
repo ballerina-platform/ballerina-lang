@@ -47,6 +47,7 @@ public class ListConstantNegativeTest {
         validateError(compileResult, i++, "invalid usage of list constructor: type '1|2' does not have a filler value",
                 31, 26);
         validateError(compileResult, i++, "ambiguous type '(int[2]|[int,int])'", 32, 38);
+        validateError(compileResult, i++, "incompatible types: expected '1', found '3'", 33, 27);
         Assert.assertEquals(compileResult.getErrorCount(), i);
     }
 

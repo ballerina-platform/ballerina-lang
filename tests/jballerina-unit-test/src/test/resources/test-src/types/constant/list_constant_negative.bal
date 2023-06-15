@@ -30,3 +30,4 @@ const [int, float] ERR_TUPLE2 = [3, 1, 3]; // incompatible types, size mismatch
 [record {| int a; 2 b;|}] ERR_TUPLE_3 = []; // does not have a filler value
 const [1|2] ERR_TUPLE4 = []; // no fill members
 const int[2]|[int, int] ERR_TUPLE5 = []; // ambiguous types
+const TUPLE1 TUPLE2 = [3, 3]; // incompatible types
