@@ -1126,7 +1126,7 @@ public class JsonParser {
                         continue;
                     }
                     this.reset(sm);
-                    throw new JsonParserException("expected hexadecimal value of an unicode character");
+                    throw new JsonParserException("expected the hexadecimal value of a unicode character");
                 }
                 sm.index = i + 1;
                 return state;
