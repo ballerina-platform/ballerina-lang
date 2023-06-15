@@ -476,29 +476,29 @@ public class FreezeAndIsFrozenTest {
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found 'PersonObj[]'", 29, 9);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '" +
-                              "(PersonObjTwo|PersonObj)?[]'", 32, 10);
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '" +
+                        "(PersonObjTwo|PersonObj)?[]'", 32, 10);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '[" +
-                              "(PersonObj|PersonObjTwo),PersonObjTwo]'",
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '[" +
+                        "(PersonObj|PersonObjTwo),PersonObjTwo]'",
                 39, 9);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found 'Department'", 44, 9);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found 'map<" +
-                              "(string|PersonObj)>'", 49, 32);
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found 'map<" +
+                        "(string|PersonObj)>'", 49, 32);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found 'map<[(string|PersonObj)," +
                         "(FreezeAllowedDepartment|float)]>'", 52, 26);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '" +
-                              "(boolean|PersonObj|float)?[]'", 55, 39);
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '" +
+                        "(boolean|PersonObj|float)?[]'", 55, 39);
         validateError(semanticsNegativeResult, index++,
-                      "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '" +
-                              "(boolean|PersonObj|float)?[]'", 57, 16);
+                "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '" +
+                        "(boolean|PersonObj|float)?[]'", 57, 16);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found '[(string|PersonObj),"
-                + "(FreezeAllowedDepartment|float)]'", 60, 60);
+                        + "(FreezeAllowedDepartment|float)]'", 60, 60);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'ballerina/lang.value:0.0.0:Cloneable', found " +
                         "'FreezeAllowedDepartment'", 63, 35);

@@ -114,6 +114,55 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
         testFile("query-expr/query_expr_source_77.bal", "query-expr/query_expr_assert_77.json");
     }
 
+    @Test
+    public void testQueryWithGroupByUsingVarDefGroupingKeyWithVar() {
+        testFile("query-expr/query_expr_source_80.bal", "query-expr/query_expr_assert_80.json");
+    }
+
+    @Test
+    public void testQueryWithGroupByUsingVarDefGroupingKeyWithTypeDef() {
+        testFile("query-expr/query_expr_source_81.bal", "query-expr/query_expr_assert_81.json");
+    }
+
+    @Test
+    public void testQueryWithGroupByUsingVarNameGroupingKey() {
+        testFile("query-expr/query_expr_source_82.bal", "query-expr/query_expr_assert_82.json");
+    }
+
+    @Test
+    public void testQueryWithGroupByUsingMultipleVarNameGroupingKeys() {
+        testFile("query-expr/query_expr_source_83.bal", "query-expr/query_expr_assert_83.json");
+    }
+
+    @Test
+    public void testQueryWithGroupByUsingMultipleVarDefGroupingKeys() {
+        testFile("query-expr/query_expr_source_84.bal", "query-expr/query_expr_assert_84.json");
+    }
+
+    @Test
+    public void testQueryWithGroupByUsingMultipleGroupingKeys() {
+        testFile("query-expr/query_expr_source_85.bal", "query-expr/query_expr_assert_85.json");
+    }
+
+    @Test
+    public void testQueryWithGroupByUsingVarDefGroupingKeyWithWildcardBP() {
+        testFile("query-expr/query_expr_source_110.bal", "query-expr/query_expr_assert_110.json");
+        testFile("query-expr/query_expr_source_111.bal", "query-expr/query_expr_assert_111.json");
+    }
+
+    @Test
+    public void testQueryWithGroupByUsingMultipleGroupingKeysWithWildcardBP() {
+        testFile("query-expr/query_expr_source_112.bal", "query-expr/query_expr_assert_112.json");
+        testFile("query-expr/query_expr_source_113.bal", "query-expr/query_expr_assert_113.json");
+        testFile("query-expr/query_expr_source_114.bal", "query-expr/query_expr_assert_114.json");
+    }
+
+    @Test
+    public void testQueryWithCollectClause() {
+        testFile("query-expr/query_expr_source_119.bal", "query-expr/query_expr_assert_119.json");
+        testFile("query-expr/query_expr_source_122.bal", "query-expr/query_expr_assert_122.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -280,5 +329,48 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
     @Test
     public void testQueryWithMapKeyword() {
         test("map from int a in b select e", "query-expr/query_expr_assert_79.json");
+    }
+
+    @Test
+    public void testQueryWithGroupByRecovery() {
+        test("from int a in b group by select c", "query-expr/query_expr_assert_86.json");
+        test("from int a in b group c select d", "query-expr/query_expr_assert_87.json");
+        test("from int a in b by c select d", "query-expr/query_expr_assert_88.json");
+        test("from int a in b group select c", "query-expr/query_expr_assert_91.json");
+        test("from int a in b by select c", "query-expr/query_expr_assert_92.json");
+        testFile("query-expr/query_expr_source_89.bal", "query-expr/query_expr_assert_89.json");
+        testFile("query-expr/query_expr_source_90.bal", "query-expr/query_expr_assert_90.json");
+        testFile("query-expr/query_expr_source_93.bal", "query-expr/query_expr_assert_93.json");
+        testFile("query-expr/query_expr_source_94.bal", "query-expr/query_expr_assert_94.json");
+        testFile("query-expr/query_expr_source_95.bal", "query-expr/query_expr_assert_95.json");
+        testFile("query-expr/query_expr_source_96.bal", "query-expr/query_expr_assert_96.json");
+        testFile("query-expr/query_expr_source_97.bal", "query-expr/query_expr_assert_97.json");
+        testFile("query-expr/query_expr_source_98.bal", "query-expr/query_expr_assert_98.json");
+        testFile("query-expr/query_expr_source_99.bal", "query-expr/query_expr_assert_99.json");
+        testFile("query-expr/query_expr_source_100.bal", "query-expr/query_expr_assert_100.json");
+        testFile("query-expr/query_expr_source_101.bal", "query-expr/query_expr_assert_101.json");
+        testFile("query-expr/query_expr_source_102.bal", "query-expr/query_expr_assert_102.json");
+        testFile("query-expr/query_expr_source_103.bal", "query-expr/query_expr_assert_103.json");
+        testFile("query-expr/query_expr_source_104.bal", "query-expr/query_expr_assert_104.json");
+        testFile("query-expr/query_expr_source_105.bal", "query-expr/query_expr_assert_105.json");
+        test("from int a in b group by c", "query-expr/query_expr_assert_106.json");
+        test("from int a in b group by c order d select e", "query-expr/query_expr_assert_107.json");
+        test("from int a in b group by order d select e", "query-expr/query_expr_assert_108.json");
+        test("from int a in b group @ by c select e", "query-expr/query_expr_assert_109.json");
+        testFile("query-expr/query_expr_source_115.bal", "query-expr/query_expr_assert_115.json");
+        testFile("query-expr/query_expr_source_125.bal", "query-expr/query_expr_assert_125.json");
+    }
+
+    @Test
+    public void testQueryWithCollectClauseRecovery() {
+        testFile("query-expr/query_expr_source_116.bal", "query-expr/query_expr_assert_116.json");
+        testFile("query-expr/query_expr_source_117.bal", "query-expr/query_expr_assert_117.json");
+        testFile("query-expr/query_expr_source_118.bal", "query-expr/query_expr_assert_118.json");
+        testFile("query-expr/query_expr_source_120.bal", "query-expr/query_expr_assert_120.json");
+        testFile("query-expr/query_expr_source_121.bal", "query-expr/query_expr_assert_121.json");
+        testFile("query-expr/query_expr_source_123.bal", "query-expr/query_expr_assert_123.json");
+        testFile("query-expr/query_expr_source_124.bal", "query-expr/query_expr_assert_124.json");
+        testFile("query-expr/query_expr_source_126.bal", "query-expr/query_expr_assert_126.json");
+        testFile("query-expr/query_expr_source_127.bal", "query-expr/query_expr_assert_127.json");
     }
 }
