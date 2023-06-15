@@ -6904,17 +6904,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                             incRecordAllowAdditionalFields = false;
                         }
                         iExpr.requiredArgs.add(expr);
-                    } else if (invokableSymbol.restParam != null &&
-                            invokableSymbol.restParam.name.value.equals(((BLangNamedArgsExpression) expr).name.value)) {
-                        checkTypeParamExpr(expr, symTable.noType, iExpr.langLibInvocation, data);
-                        dlog.error(expr.pos, DiagnosticErrorCode.NAMED_ARG_NOT_ALLOWED_FOR_REST_PARAM, iExpr.name.value);
+                    } else if (incRecordAllowAdditionalFields && !namedArgForIncRecordParam) {
+                        iExpr.requiredArgs.add(expr);
                     } else {
-                        if (incRecordAllowAdditionalFields && !namedArgForIncRecordParam) {
-                            iExpr.requiredArgs.add(expr);
-                        } else {
-                            checkTypeParamExpr(expr, symTable.noType, iExpr.langLibInvocation, data);
-                            dlog.error(expr.pos, DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
-                        }
+                        boolean referringToARest = invokableSymbol.restParam != null && invokableSymbol.restParam.name
+                                .value.equals(((BLangNamedArgsExpression) expr).name.value);
+                        DiagnosticErrorCode errorCode = referringToARest ?
+                                DiagnosticErrorCode.NAMED_ARG_NOT_ALLOWED_FOR_REST_PARAM
+                                : DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL;
+                        checkTypeParamExpr(expr, symTable.noType, iExpr.langLibInvocation, data);
+                        dlog.error(expr.pos, errorCode, iExpr.name.value);
                     }
                     i++;
                     break;
