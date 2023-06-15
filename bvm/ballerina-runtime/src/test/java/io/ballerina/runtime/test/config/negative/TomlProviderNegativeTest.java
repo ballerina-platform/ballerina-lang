@@ -109,7 +109,8 @@ public class TomlProviderNegativeTest {
                         "[InvalidModuleStructure1.toml:(1:13,1:22)] invalid TOML structure found for module " +
                                 "'myOrg.mod' with variable 'intVar'. Please provide the module name as '[myOrg.mod]'",
                         "[InvalidModuleStructure1.toml:(1:13,1:22)] invalid TOML structure found for module " +
-                                "'myOrg.mod' with variable 'stringVar'. Please provide the module name as '[myOrg.mod]'",
+                                "'myOrg.mod' with variable 'stringVar'. Please provide the module name as " +
+                                "'[myOrg.mod]'",
                         "[InvalidModuleStructure1.toml:(1:1,1:22)] unused configuration value 'myOrg.mod'"
                 }, 3},
 
@@ -117,7 +118,8 @@ public class TomlProviderNegativeTest {
                         "[InvalidModuleStructure2.toml:(1:1,2:7)] invalid TOML structure found for module " +
                                 "'myOrg.mod' with variable 'intVar'. Please provide the module name as '[myOrg.mod]'",
                         "[InvalidModuleStructure2.toml:(1:1,2:7)] invalid TOML structure found for module " +
-                                "'myOrg.mod' with variable 'stringVar'. Please provide the module name as '[myOrg.mod]'",
+                                "'myOrg.mod' with variable 'stringVar'. Please provide the module name as " +
+                                "'[myOrg.mod]'",
                         "[InvalidModuleStructure2.toml:(2:1,2:7)] unused configuration value 'mod.a'"
                 }, 3},
                 {"PrimitiveTypeError", new String[]{
