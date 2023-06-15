@@ -118,10 +118,10 @@ function f3() returns null|1|null => null;
 
 function invalidRestParam() {
     int x = 1;
-    func1(i = x); // rest argument cannot be a named argument
-    func1(i = 2); // rest argument cannot be a named argument
-    func2(x, i = x); // rest argument cannot be a named argument
-    func2(t = x, i = x); // rest argument cannot be a named argument
+    func1(i = x); // named argument is not allowed for rest parameter
+    func1(i = 2); // named argument is not allowed for rest parameter
+    func2(x, i = x); // named argument is not allowed for rest parameter
+    func2(t = x, i = x); // named argument is not allowed for rest parameter
 }
 
 function func1(int... i) {}

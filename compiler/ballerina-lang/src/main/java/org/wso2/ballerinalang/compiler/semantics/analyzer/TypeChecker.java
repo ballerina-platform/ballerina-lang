@@ -6862,9 +6862,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                         iExpr.requiredArgs.add(expr);
                     } else if (invokableSymbol.restParam != null &&
                             invokableSymbol.restParam.name.value.equals(((BLangNamedArgsExpression) expr).name.value)) {
-                        // can not provide a rest parameters as named args
                         checkTypeParamExpr(expr, symTable.noType, iExpr.langLibInvocation, data);
-                        dlog.error(expr.pos, DiagnosticErrorCode.REST_ARG_CANNOT_BE_NAMED_ARG, iExpr.name.value);
+                        dlog.error(expr.pos, DiagnosticErrorCode.NAMED_ARG_NOT_ALLOWED_FOR_REST_PARAM, iExpr.name.value);
                     } else {
                         if (incRecordAllowAdditionalFields && !namedArgForIncRecordParam) {
                             iExpr.requiredArgs.add(expr);

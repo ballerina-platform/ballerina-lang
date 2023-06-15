@@ -797,10 +797,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     WORKER_RECEIVE_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT(
             "BCE4043", "worker.receive.action.not.allowed.in.lock.statement"),
     EMPTY_REGEXP_STRING_DISALLOWED(
-            "BCS4044", "empty.regexp.string.disallowed"),
+            "BCE4044", "empty.regexp.string.disallowed"),
     UNSUPPORTED_EMPTY_CHARACTER_CLASS(
-            "BCS4045", "unsupported.empty.character.class"),
-    REST_ARG_CANNOT_BE_NAMED_ARG("BCE4046", "rest.arg.cannot.be.named.arg")        
+            "BCE4045", "unsupported.empty.character.class"),
+    NAMED_ARG_NOT_ALLOWED_FOR_REST_PARAM("BCE4046", "named.arg.not.allowed.for.rest.param")
     ;
 
     private String diagnosticId;
