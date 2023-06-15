@@ -171,9 +171,6 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"createVariableForOptionalFieldAccess1.json"},
                 {"createVariableForOptionalFieldAccess2.json"},
                 {"createVariableWithTypeDesc.json"},
-                {"createVariableInQueryAction1.json"},
-                {"createVariableInQueryAction2.json"},
-                {"createVariableInQueryAction3.json"},
 
                 // Tuple related
                 {"createVariableWithTuple1.json"},

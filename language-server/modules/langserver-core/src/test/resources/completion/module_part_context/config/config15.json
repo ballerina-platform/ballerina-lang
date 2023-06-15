@@ -4,6 +4,7 @@
     "character": 4
   },
   "source": "module_part_context/source/source14.bal",
+  "description": "",
   "items": [
     {
       "label": "type",
@@ -655,16 +656,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service on Listener",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "AC",
-      "filterText": "service_Listener",
-      "insertText": "service ${1} on new Listener() {\n\n    remote function method1() {\n        return;\n    }\n\n}\n",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": []
-    },
-    {
       "label": "ballerina/lang.regexp",
       "kind": "Module",
       "detail": "Module",
@@ -841,6 +832,16 @@
       "sortText": "CA",
       "insertText": "typedesc",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service on Listener",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "AC",
+      "filterText": "service_Listener",
+      "insertText": "service ${1} on new Listener() {\n\n    remote function method1() {\n        ${2}\n    }\n\n}\n",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }
