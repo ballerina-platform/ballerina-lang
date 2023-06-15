@@ -28,16 +28,21 @@ import java.io.InputStreamReader;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static io.ballerina.projects.util.ProjectConstants.BALLERINA_TOML;
 import static io.ballerina.projects.util.ProjectConstants.BLANG_SOURCE_EXT;
@@ -54,6 +59,7 @@ import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
 public class FileUtils {
 
     private static final String PNG_HEX_HEADER = "89504E470D0A1A0A";
+    private static final PathMatcher FILE_MATCHER = FileSystems.getDefault().getPathMatcher("glob:**/Ballerina.toml");
 
     /**
      * Get the name of the without the extension.
@@ -286,6 +292,22 @@ public class FileUtils {
     }
 
     /**
+     * Get the list of files and directories in a directory.
+     *
+     * @param directoryPath directory path
+     * @return list of files
+     */
+    public static List<Path> getFilesInDirectory(Path directoryPath) {
+        List<Path> files = new ArrayList<>();
+        try (Stream<Path> paths = Files.list(directoryPath)) {
+            paths.forEach(files::add);
+        } catch (IOException e) {
+            // ignore
+        }
+        return files;
+    }
+
+    /**
      * Copy files to the given destination.
      */
     public static class Copy extends SimpleFileVisitor<Path> {
@@ -320,6 +342,58 @@ public class FileUtils {
                 throws IOException {
 
             Files.copy(file, toPath.resolve(fromPath.relativize(file).toString()), copyOption);
+            return FileVisitResult.CONTINUE;
+        }
+    }
+
+    public static boolean checkBallerinaTomlInExistingDir(Path startingDir) {
+        BallerinaTomlChecker ballerinaTomlChecker = new BallerinaTomlChecker(startingDir);
+        try {
+           Files.walkFileTree(startingDir, ballerinaTomlChecker);
+        } catch (IOException e) {
+            // ignore
+        }
+        return ballerinaTomlChecker.isBallerinaTomlFound();
+    }
+
+    /**
+     * Look for existing Ballerina.toml file in the given directory up to 10 levels.
+     */
+    public static class BallerinaTomlChecker extends SimpleFileVisitor<Path> {
+        private Path startingPath;
+        private boolean ballerinaTomlFound = false;
+
+        public boolean isBallerinaTomlFound() {
+            return ballerinaTomlFound;
+        }
+
+        public void setBallerinaTomlFound(boolean ballerinaTomlFound) {
+            this.ballerinaTomlFound = ballerinaTomlFound;
+        }
+
+        public BallerinaTomlChecker(Path startingPath) {
+            this.startingPath = startingPath;
+        }
+
+        @Override
+        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                throws IOException {
+
+            int depth = dir.getNameCount() - startingPath.getNameCount();
+            if (depth >= 10) {
+                return FileVisitResult.SKIP_SUBTREE;
+            }
+            return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                throws IOException {
+
+            if (FILE_MATCHER.matches(file)) {
+                setBallerinaTomlFound(true);
+                return FileVisitResult.TERMINATE;
+            }
             return FileVisitResult.CONTINUE;
         }
     }
