@@ -5,6 +5,7 @@
 
 [ballerina]
 dependencies-toml-version = "2"
+distribution-version = "2201.7.0-SNAPSHOT"
 
 [[package]]
 org = "ballerina"
@@ -16,28 +17,22 @@ modules = [
 
 [[package]]
 org = "ballerina"
-name = "test"
+name = "lang.error"
 version = "0.0.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"}
 ]
-modules = [
-	{org = "ballerina", packageName = "test", moduleName = "test"}
-]
 
 [[package]]
-org = "lakshan"
-name = "myPackage2"
-version = "0.1.0"
+org = "ballerina"
+name = "test"
+version = "0.0.0"
 dependencies = [
 	{org = "ballerina", name = "jballerina.java"},
-	{org = "ballerina", name = "test"},
-	{org = "waruna", name = "http"},
-	{org = "waruna", name = "websub"}
+	{org = "ballerina", name = "lang.error"}
 ]
 modules = [
-	{org = "lakshan", packageName = "myPackage2", moduleName = "myPackage2"},
-	{org = "lakshan", packageName = "myPackage2", moduleName = "myPackage2.mod1"}
+	{org = "ballerina", packageName = "test", moduleName = "test"}
 ]
 
 [[package]]
@@ -61,4 +56,18 @@ modules = [
 	{org = "waruna", packageName = "websub", moduleName = "websub.server"}
 ]
 
+[[package]]
+org = "wso2"
+name = "myPackage2"
+version = "0.1.0"
+dependencies = [
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "test"},
+	{org = "waruna", name = "http"},
+	{org = "waruna", name = "websub"}
+]
+modules = [
+	{org = "wso2", packageName = "myPackage2", moduleName = "myPackage2"},
+	{org = "wso2", packageName = "myPackage2", moduleName = "myPackage2.mod1"}
+]
 

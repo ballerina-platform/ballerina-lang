@@ -38,6 +38,7 @@ import picocli.CommandLine;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.nio.file.FileSystems;
@@ -232,7 +233,11 @@ public class RunCommand implements BLauncherCmd {
                     .addTask(new DumpBuildTimeTask(outStream), !project.buildOptions().dumpBuildTime())
                     .build()
                     .executeTasks(project);
-            initiateProfiler(project, args);
+            try {
+                initiateProfiler(project, args);
+            } catch (Throwable throwable) {
+
+            }
         } else {
             taskBuilder
                     .addTask(new RunExecutableTask(args, outStream, errStream))
@@ -241,12 +246,11 @@ public class RunCommand implements BLauncherCmd {
         }
     }
 
-    private void initiateProfiler(Project project, String[] args) {
+    private void initiateProfiler(Project project, String[] args) throws java.io.IOException, InterruptedException {
         String[] profilerCommand;
         String profilerArguments = String.join(" ", args);
 
         String profilerSource = System.getenv("BALLERINA_HOME") + "/bre/lib/ballerina-profiler-1.0.jar";
-        try {
             Path sourcePath = Path.of(profilerSource);
             Path targetPath = Path.of(project.targetDir() + "/bin/Profiler.jar");
             StandardCopyOption copyOption = StandardCopyOption.REPLACE_EXISTING;
@@ -274,11 +278,17 @@ public class RunCommand implements BLauncherCmd {
             profilerProcessBuilder.directory(new File(project.targetDir() + "/bin"));
             profilerProcessBuilder.redirectErrorStream(true);
             Process profilerProcess = profilerProcessBuilder.start();
-            BufferedReader profilerReader = new BufferedReader(new InputStreamReader(profilerProcess.getInputStream()));
-            profilerReader.lines().forEach(System.out::println);
+            InputStream processInputStream = profilerProcess.getInputStream();
+            if (processInputStream != null) {
+                try (InputStreamReader inputStreamReader = new InputStreamReader(
+                        processInputStream,
+                        java.nio.charset.StandardCharsets.UTF_8
+                );
+                     BufferedReader profilerReader = new BufferedReader(inputStreamReader)) {
+                    profilerReader.lines().forEach(System.out::println);
+                }
+            }
             profilerProcess.waitFor();
-        } catch (Exception ignore) {
-        }
     }
 
     @Override
