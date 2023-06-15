@@ -4231,7 +4231,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                     }
                     // If constituent type is error, we have already validated error intersections.
                     if (!types.isSelectivelyImmutableType(constituentType, true, packageID)
-                            && Types.getReferredType(constituentType).tag != TypeTags.ERROR) {
+                            && Types.getReferredType(types.getTypeWithEffectiveIntersectionTypes(
+                                    constituentType)).tag != TypeTags.ERROR) {
                         hasNonReadOnlyElement = true;
                         break;
                     }
