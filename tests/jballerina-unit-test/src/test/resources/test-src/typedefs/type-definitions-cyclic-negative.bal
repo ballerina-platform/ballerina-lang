@@ -100,3 +100,11 @@ type MyIntersection6 A7 & readonly;
 type A8 A8[] & readonly;
 
 type A9 map<A9> & readonly;
+
+type A10 future<A10>;
+
+type A11 table<A11> & readonly;
+
+type A12 xml<A12> & readonly;
+
+type A13 typedesc<A13> & readonly;

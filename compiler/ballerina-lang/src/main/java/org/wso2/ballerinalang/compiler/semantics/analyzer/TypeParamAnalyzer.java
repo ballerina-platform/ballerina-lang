@@ -171,12 +171,6 @@ public class TypeParamAnalyzer {
         return createBuiltInType(type, name, flag);
     }
 
-    BType createTypeParam(BType type, Name name) {
-
-        var flag = type.flags | Flags.TYPE_PARAM;
-        return createBuiltInType(type, name, flag);
-    }
-
     BType createTypeParam(BSymbol symbol) {
         BType type = symbol.type;
         var flag = type.flags | Flags.TYPE_PARAM;
@@ -285,16 +279,7 @@ public class TypeParamAnalyzer {
             case TypeTags.ANY:
                 return new BAnyType(type.tag, null, name, flags);
             case TypeTags.ANYDATA:
-                BUnionType unionType = (BUnionType) type;
-                BAnydataType anydataType = new BAnydataType(unionType);
-                Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, PackageID.ANNOTATIONS,
-                                                                                   unionType);
-                if (immutableType.isPresent()) {
-                    Types.addImmutableType(symTable, PackageID.ANNOTATIONS, anydataType, immutableType.get());
-                }
-                anydataType.name = name;
-                anydataType.flags |= flags;
-                return anydataType;
+                return createAnydataType((BUnionType) type, name, flags);
             case TypeTags.READONLY:
                 return new BReadonlyType(type.tag, null, name, flags);
         }
@@ -316,16 +301,7 @@ public class TypeParamAnalyzer {
             case TypeTags.ANY:
                 return new BAnyType(type.tag, null, name, flags);
             case TypeTags.ANYDATA:
-                BUnionType unionType = (BUnionType) type;
-                BAnydataType anydataType = new BAnydataType(unionType);
-                Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, PackageID.ANNOTATIONS,
-                        unionType);
-                if (immutableType.isPresent()) {
-                    Types.addImmutableType(symTable, PackageID.ANNOTATIONS, anydataType, immutableType.get());
-                }
-                anydataType.name = name;
-                anydataType.flags |= flags;
-                return anydataType;
+                return createAnydataType((BUnionType) type, name, flags);
             case TypeTags.READONLY:
                 return new BReadonlyType(type.tag, null, name, flags);
             case TypeTags.UNION:
@@ -340,9 +316,23 @@ public class TypeParamAnalyzer {
                     ((BTypeDefinitionSymbol) symbol).referenceType.referredType = cloneableType;
                     return cloneableType;
                 }
+                break;
+            default:
+                break;
         }
         // For others, we will use TSymbol.
         return type;
+    }
+
+    private BAnydataType createAnydataType(BUnionType unionType, Name name, long flags) {
+        BAnydataType anydataType = new BAnydataType(unionType);
+        Optional<BIntersectionType> immutableType = Types.getImmutableType(symTable, PackageID.ANNOTATIONS,
+                unionType);
+        immutableType.ifPresent(bIntersectionType ->
+                Types.addImmutableType(symTable, PackageID.ANNOTATIONS, anydataType, bIntersectionType));
+        anydataType.name = name;
+        anydataType.flags |= flags;
+        return anydataType;
     }
 
     private void addCyclicArrayMapTableOfMapMembers(BUnionType unionType) {

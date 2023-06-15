@@ -86,7 +86,13 @@ public class CyclicTypeDefinitionsTest {
                 {"testCyclicReadonlyErrorTypeDefinition"},
                 {"testComplexCyclicRecordTypeDefinition"},
                 {"testComplexCyclicRecordTypeDefinition2"},
-                {"testCyclicReadonlyTupleTypeDefinition"}
+                {"testCyclicTableTypeDefinition"},
+                {"testCyclicMapTypeDefinition"},
+                {"testCyclicArrayTypeDefinition"},
+                {"testCyclicTableTypeDefinition2"},
+                {"testCyclicObjectTypeDefinition"},
+                {"testCyclicReadonlyTupleTypeDefinition1"},
+                {"testCyclicReadonlyTupleTypeDefinition2"}
         };
     }
 
@@ -118,7 +124,7 @@ public class CyclicTypeDefinitionsTest {
     public void testCyclicTypeDefNegative() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[A, A]'", 1, 1);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'B'", 3, 8);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference not yet supported for 'B'", 3, 8);
         BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in '[C, D, C]'", 5, 1);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'E', found 'string'", 8, 25);
         BAssertUtil.validateError(negativeResult, i++, "operator '==' not defined for 'CyclicDecimal' and 'float'", 15
@@ -152,14 +158,19 @@ public class CyclicTypeDefinitionsTest {
                 79, 9);
         BAssertUtil.validateError(negativeResult, i++, "invalid constraint type. expected subtype of " +
                 "'map<any|error>' but found 'B2'", 82, 15);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A3'", 85, 9);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A4'", 89, 9);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A5'", 91, 9);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A6'", 94, 9);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference not yet supported for 'A3'", 85, 9);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference not yet supported for 'A4'", 89, 9);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference not yet supported for 'A5'", 91, 9);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference not yet supported for 'A6'", 94, 9);
         BAssertUtil.validateError(negativeResult, i++, "invalid constraint type. expected subtype of " +
                 "'map<any|error>' but found 'table<A7>'", 97, 15);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A8'", 100, 9);
-        BAssertUtil.validateError(negativeResult, i++, "invalid cyclic type reference in 'A9'", 102, 9);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference not yet supported for 'A8'", 100, 9);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference not yet supported for 'A9'", 102, 9);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference not yet supported for 'A10'", 104, 10);
+        BAssertUtil.validateError(negativeResult, i++, "invalid constraint type. expected subtype of " +
+                "'map<any|error>' but found 'A11'", 106, 16);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference not yet supported for 'A12'", 108, 10);
+        BAssertUtil.validateError(negativeResult, i++, "cyclic type reference not yet supported for 'A13'", 110, 10);
         Assert.assertEquals(i, negativeResult.getErrorCount());
     }
 

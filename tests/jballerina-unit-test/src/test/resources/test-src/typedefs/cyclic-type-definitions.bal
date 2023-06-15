@@ -156,12 +156,69 @@ function testCyclicReadonlyErrorTypeDefinition() {
     assertEquals(error2.detail().toString(), "{\"errB\":error ErrB (\"Whoops\",errB=null)}");
 }
 
+type A2 table<B2> key<int>|();
+type B2 C2 & readonly;
+
+type C2 record {|
+    readonly int k;
+    A2 a;
+|};
+
+function testCyclicTableTypeDefinition() {
+    A2 a2 = table key(k) [{k: 1, a: ()}];
+    assertEquals(a2.toString(), "[{\"k\":1,\"a\":null}]");
+}
+
+type A3 map<B3> & readonly;
+type B3 record{
+    A3 a3;
+};
+
+function testCyclicMapTypeDefinition() {
+    A3 a3 = {};
+    assertEquals(a3.toString(), "{}");
+}
+
+type A4 B4[] & readonly;
+type B4 record{
+    A4 a4;
+};
+
+function testCyclicArrayTypeDefinition() {
+    A4 a4 = [];
+    assertEquals(a4.toString(), "[]");
+}
+
+type A6 table<B6> & readonly;
+type B6 record {
+    A6 a6?;
+};
+
+function testCyclicTableTypeDefinition2() {
+    A6 a6 = table [{}];
+    assertEquals(a6.toString(), "[{}]");
+}
+
+type A7 B7 & readonly;
+
+type B7 object {
+    A7|int a;
+};
+
+function testCyclicObjectTypeDefinition() {
+    A7 a7 = object {A7|int a = 5;};
+    assertEquals(a7.a.toString(), "5");
+}
+
 type T1 [T1?] & readonly;
 
 type T2 T3 & readonly;
 type T3 [T2?] & readonly;
+type T4 [T4?, 1, "a"] & readonly;
 
-public function testCyclicReadonlyTupleTypeDefinition() {
+type T5 [(T5 & readonly)?];
+
+public function testCyclicReadonlyTupleTypeDefinition1() {
     T1 t1 = [];
     assertTrue(t1 is readonly);
     assertEquals(t1.toString(), "[null]");
@@ -173,6 +230,24 @@ public function testCyclicReadonlyTupleTypeDefinition() {
     T3 t3 = [];
     assertTrue(t3 is readonly);
     assertEquals(t3.toString(), "[null]");
+
+    T4 t4 = [(), 1, "a"];
+    assertTrue(t4 is readonly);
+    assertEquals(t4.toString(), "[null,1,\"a\"]");
+
+    T5 t5 = [[]];
+    assertTrue(t5[0] is readonly);
+    assertEquals(t5.toString(), "[[null]]");
+}
+
+type A5 [B5?] & readonly;
+type B5 record{
+    A5 a5;
+};
+
+function testCyclicReadonlyTupleTypeDefinition2() {
+    A5 a5 = [];
+    assertEquals(a5.toString(), "[null]");
 }
 
 function assertTrue(anydata actual) {
