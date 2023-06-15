@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 @PrepareForTest({LSPackageLoader.class})
 public abstract class AbstractLSTest {
 
+    private static final Gson gson = new Gson();
     private static final Map<String, String> REMOTE_PROJECTS = Map.of("project1", "main.bal", "project2", "main.bal");
     private static final Map<String, String> LOCAL_PROJECTS =
             Map.of("local_project1", "main.bal", "local_project2", "main.bal");
@@ -73,7 +74,7 @@ public abstract class AbstractLSTest {
                     languageServer.getWorkspaceManager(), context).stream().map(LSPackageLoader.ModuleInfo::new)
                     .collect(Collectors.toList()));
             FileReader fileReader = new FileReader(FileUtils.RES_DIR.resolve("central/centralPackages.json").toFile());
-            CENTRAL_PACKAGES.addAll(new Gson().fromJson(fileReader, CentralPackageListResult.class).getPackages());
+            CENTRAL_PACKAGES.addAll(gson.fromJson(fileReader, CentralPackageListResult.class).getPackages());
         } catch (Exception e) {
             //ignore
         } finally {
