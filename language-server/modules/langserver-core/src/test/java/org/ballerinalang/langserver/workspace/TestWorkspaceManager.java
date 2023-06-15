@@ -39,10 +39,12 @@ import org.eclipse.lsp4j.DidChangeTextDocumentParams;
 import org.eclipse.lsp4j.DidOpenTextDocumentParams;
 import org.eclipse.lsp4j.FileChangeType;
 import org.eclipse.lsp4j.FileEvent;
+import org.eclipse.lsp4j.LogTraceParams;
 import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.TextDocumentItem;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceFolder;
+import org.mockito.ArgumentCaptor;
 import org.mockito.MockSettings;
 import org.mockito.Mockito;
 import org.testng.Assert;
@@ -63,6 +65,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
+import static io.ballerina.projects.util.ProjectConstants.BALLERINA_HOME;
+import static org.awaitility.Awaitility.await;
 
 /**
  * Contains a set of utility methods to manage projects.
@@ -498,6 +504,7 @@ public class TestWorkspaceManager {
             throws WorkspaceDocumentException, EventSyncException, IOException, LSCommandExecutorException {
         Path filePath = RESOURCE_DIRECTORY.resolve("long_running").resolve("main.bal").toAbsolutePath();
         System.setProperty("java.command", guessJavaPath());
+        System.setProperty(BALLERINA_HOME, "./build");
         workspaceManager.loadProject(filePath);
         RunExecutor runExecutor = new RunExecutor();
         MockSettings mockSettings = Mockito.withSettings().stubOnly();
@@ -506,9 +513,12 @@ public class TestWorkspaceManager {
         Mockito.when(execContext.getArguments()).thenReturn(Collections.singletonList(arg));
         Mockito.when(execContext.workspace()).thenReturn(workspaceManager);
         ExtendedLanguageClient languageClient = Mockito.mock(ExtendedLanguageClient.class, mockSettings);
+        ArgumentCaptor<LogTraceParams> logCaptor = ArgumentCaptor.forClass(LogTraceParams.class);
+        Mockito.doNothing().when(languageClient).logTrace(logCaptor.capture());
         Mockito.when(execContext.getLanguageClient()).thenReturn(languageClient);
         Boolean didRan = runExecutor.execute(execContext);
         Assert.assertTrue(didRan);
+        Assert.assertEquals(reduceToOutString(logCaptor), "Hello, World!" + System.lineSeparator());
 
         StopExecutor stopExecutor = new StopExecutor();
         Boolean didStop = stopExecutor.execute(execContext);
@@ -516,6 +526,21 @@ public class TestWorkspaceManager {
 
         Path target = RESOURCE_DIRECTORY.resolve("long_running").resolve("target");
         FileUtils.deleteDirectory(target.toFile());
+    }
+
+    private static String reduceToOutString(ArgumentCaptor<LogTraceParams> logCaptor) {
+        List<LogTraceParams> params = waitGetAllValues(logCaptor);
+        StringBuilder sb = new StringBuilder();
+        for (LogTraceParams param : params) {
+            sb.append(param.getMessage());
+            Assert.assertEquals(param.getVerbose(), "out"); // not "err"
+        }
+        return sb.toString();
+    }
+
+    private static List<LogTraceParams> waitGetAllValues(ArgumentCaptor<LogTraceParams> logCaptor) {
+        await().atMost(5, TimeUnit.SECONDS).until(() -> !logCaptor.getAllValues().isEmpty());
+        return logCaptor.getAllValues();
     }
 
     @Test
