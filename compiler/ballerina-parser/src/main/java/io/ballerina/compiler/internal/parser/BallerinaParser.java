@@ -18,6 +18,7 @@
 package io.ballerina.compiler.internal.parser;
 
 import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
+import io.ballerina.compiler.internal.diagnostics.DiagnosticWarningCode;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerina.compiler.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerina.compiler.internal.parser.tree.STAbstractNodeFactory;
@@ -100,6 +101,8 @@ public class BallerinaParser extends AbstractParser {
     public STNode parse() {
         return parseCompUnit();
     }
+
+    // ---------------------------------------- NodeParser related methods -------------------------------------------
 
     /**
      * Completely parses a given input a statement.
@@ -349,6 +352,41 @@ public class BallerinaParser extends AbstractParser {
         letVarDeclaration = invalidateRestAndAddToTrailingMinutiae(letVarDeclaration);
         return letVarDeclaration;
     }
+
+    /**
+     * Completely parses a given input as an annotation.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsAnnotation() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        startContext(ParserRuleContext.ANNOTATIONS);
+        STNode annotation = parseAnnotation();
+        annotation = invalidateRestAndAddToTrailingMinutiae(annotation);
+        return annotation;
+    }
+
+    /**
+     * Completely parses a given input as a markdown documentation.
+     *
+     * @return Parsed node
+     */
+    public STNode parseAsMarkdownDocumentation() {
+        startContext(ParserRuleContext.COMP_UNIT);
+        STNode markdownDoc = parseMarkdownDocumentation();
+        if (markdownDoc.toSourceCode().isEmpty()) {
+            STNode missingHash = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.HASH_TOKEN,
+                    DiagnosticWarningCode.WARNING_MISSING_HASH_TOKEN);
+            STNode docLine = STNodeFactory.createMarkdownDocumentationLineNode(SyntaxKind.MARKDOWN_DOCUMENTATION_LINE,
+                    missingHash, STNodeFactory.createEmptyNodeList());
+            markdownDoc = STNodeFactory.createMarkdownDocumentationNode(STNodeFactory.createNodeList(docLine));
+        }
+
+        markdownDoc = invalidateRestAndAddToTrailingMinutiae(markdownDoc);
+        return markdownDoc;
+    }
+
+    // --------------------------------------- End of NodeParser related methods -------------------------------------
 
     /**
      * Start parsing the input from a given context. Supported starting points are:
