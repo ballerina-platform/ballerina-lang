@@ -65,6 +65,7 @@ import org.eclipse.lsp4j.FoldingRangeRequestParams;
 import org.eclipse.lsp4j.HoverParams;
 import org.eclipse.lsp4j.InitializeParams;
 import org.eclipse.lsp4j.InitializedParams;
+import org.eclipse.lsp4j.InlayHintParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PrepareRenameParams;
 import org.eclipse.lsp4j.Range;
@@ -137,6 +138,8 @@ public class TestUtil {
     private static final String CODE_ACTION = "textDocument/codeAction";
 
     private static final String CODE_ACTION_RESOLVE = "codeAction/resolve";
+
+    private static final String INLAY_HINT = "textDocument/inlayHint";
 
     private static final String FORMATTING = "textDocument/formatting";
 
@@ -345,6 +348,13 @@ public class TestUtil {
      */
     public static String getCodeActionResolveResponse(Endpoint serviceEndpoint, Object codeAction) {
         CompletableFuture<?> result = serviceEndpoint.request(CODE_ACTION_RESOLVE, codeAction);
+        return getResponseString(result);
+    }
+
+    public static String getInlayHintsResponse(Endpoint serviceEndpoint, String filePath, Range range) {
+        TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
+        InlayHintParams inlayHintsParams = new InlayHintParams(identifier, range);
+        CompletableFuture<?> result = serviceEndpoint.request(INLAY_HINT, inlayHintsParams);
         return getResponseString(result);
     }
 

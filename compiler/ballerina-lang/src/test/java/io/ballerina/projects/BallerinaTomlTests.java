@@ -189,6 +189,13 @@ public class BallerinaTomlTests {
                 "incompatible type for key 'build-options': expected 'OBJECT', found 'ARRAY'");
     }
 
+    @Test(description = "Test graalvmBuildOptions parsed properly")
+    public void testBallerinaTomlWithGraalvmBuildOptions() throws IOException {
+        BuildOptions buildOptions =
+                getBuildOptions(BAL_TOML_REPO.resolve("build-options-as-table.toml"));
+        Assert.assertTrue(buildOptions.graalVMBuildOptions().equals("--static"));
+    }
+
     @Test(description = "Platform libs should be given as [[platform.java11.dependency]], " +
             "Here checking error when it given as [platform.java11.dependency]")
     public void testBallerinaTomlWithPlatformLibsGivenAsTable() throws IOException {
@@ -576,5 +583,11 @@ public class BallerinaTomlTests {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
         return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).packageManifest();
+    }
+
+    static BuildOptions getBuildOptions(Path tomlPath) throws IOException {
+        String tomlContent = Files.readString(tomlPath);
+        TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
+        return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).buildOptions();
     }
 }

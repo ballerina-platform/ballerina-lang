@@ -4,6 +4,7 @@
     "character": 14
   },
   "source": "field_access_expression_context/source/foreach_stmt_ctx_source19.bal",
+  "description": "",
   "items": [
     {
       "label": "foreach",
@@ -38,7 +39,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nSelects the members from a stream for which a function returns true.\n  \n**Params**  \n- `function (stream:Type val) returns boolean` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `stream<int, stream:CompletionType>`   \n- new stream only containing members of parameter `stm` for which parameter `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nSelects the members from a stream for which a function returns true.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nscores.filter(score => score > 50).next() ⇒ {\"value\":60}\n```\n  \n**Params**  \n- `function (stream:Type val) returns boolean` func: a predicate to apply to each member to test whether it should be selected  \n  \n**Return** `stream<int, stream:CompletionType>`   \n- new stream only containing members of parameter `stm` for which parameter `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "CD",
@@ -57,7 +58,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nCombines the members of a stream using a combining function.\n\nThe combining function takes the combined value so far and a member of the stream,\nand returns a new combined value.\n  \n**Params**  \n- `function (stream:Type1 accum, stream:Type val) returns stream:Type1` func: combining function  \n- `stream:Type1` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `stream:Type1|stream:ErrorType`   \n- result of combining the members of parameter `stm` using parameter `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nCombines the members of a stream using a combining function.\n\nThe combining function takes the combined value so far and a member of the stream,\nand returns a new combined value.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nscores.reduce(isolated function (int total, int score) returns int => total + score, 0) ⇒ 300\n```\n  \n**Params**  \n- `function (stream:Type1 accum, stream:Type val) returns stream:Type1` func: combining function  \n- `stream:Type1` initial: initial value for the first argument of combining parameter `func`  \n  \n**Return** `stream:Type1|stream:ErrorType`   \n- result of combining the members of parameter `stm` using parameter `func`  \n  \n"
         }
       },
       "sortText": "CD",
@@ -76,7 +77,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream.\n\nThe parameter `func` is applied to each member of parameter `stm` stream in order.\n  \n**Params**  \n- `function (stream:Type val) returns ()` func: a function to apply to each member  \n  \n**Return** `stream:CompletionType`   \n- () if the close completed successfully, otherwise an error  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream.\n\nThe parameter `func` is applied to each member of parameter `stm` stream in order.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nint total = 0;\nscores.forEach(function(int score) {\n    total += score;\n});\ntotal ⇒ 300\n```\n  \n**Params**  \n- `function (stream:Type val) returns ()` func: a function to apply to each member  \n  \n**Return** `stream:CompletionType`   \n- () if the close completed successfully, otherwise an error  \n  \n"
         }
       },
       "sortText": "CD",
@@ -95,7 +96,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nSafely casts a value to a type.\n\nThis casts a value to a type in the same way as a type cast expression,\nbut returns an error if the cast cannot be done, rather than panicking.\n\n```ballerina\njson student = {name: \"Jo\", subjects: [\"CS1212\", \"CS2021\"]};\njson[] subjects = check student.subjects.ensureType();\nsubjects ⇒ [\"CS1212\",\"CS2021\"]\nanydata vowel = \"I\";\nvowel.ensureType(string:Char) ⇒ I;\nvowel.ensureType(int) ⇒ error\n```\n  \n**Params**  \n- `typedesc<any>` t: a typedesc for the type to which to cast it(Defaultable)  \n  \n**Return** `t|error`   \n- `v` cast to the type described by parameter `t`, or an error, if the cast cannot be done  \n  \n"
         }
       },
       "sortText": "CD",
@@ -114,7 +115,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream and returns a stream of the results.\n  \n**Params**  \n- `function (stream:Type val) returns stream:Type1` func: a function to apply to each member  \n  \n**Return** `stream<stream:Type1, stream:CompletionType>`   \n- new stream containing result of applying parameter `func` to each member of parameter `stm` in order  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nApplies a function to each member of a stream and returns a stream of the results.\n\n```ballerina\nstream<float> ms = [14.5f, 45.5f, 6.8f, 4f].toStream();\nstream<float> cms = ms.map(m => m * 100.0);\ncms.next() ⇒ {\"value\":1450.0}\n```\n  \n**Params**  \n- `function (stream:Type val) returns stream:Type1` func: a function to apply to each member  \n  \n**Return** `stream<stream:Type1, stream:CompletionType>`   \n- new stream containing result of applying parameter `func` to each member of parameter `stm` in order  \n  \n"
         }
       },
       "sortText": "CD",
@@ -133,7 +134,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns the next element in the stream wrapped in a record or () if the stream ends.\n  \n  \n  \n**Return** `record {|int value;|}|stream:CompletionType`   \n- If the stream has elements, return the element wrapped in a record with single field called `value`,  \notherwise returns ()  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns the next element in the stream wrapped in a record or () if the stream ends.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nscores.next() ⇒ {\"value\":45}\n```\n  \n  \n  \n**Return** `record {|int value;|}|stream:CompletionType`   \n- If the stream has elements, return the element wrapped in a record with single field called `value`,  \notherwise returns ()  \n  \n"
         }
       },
       "sortText": "CD",
@@ -148,7 +149,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns an iterator over a stream.\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|int value;|}|stream:CompletionType;}`   \n- a new iterator object that will iterate over the members of parameter `stm`.  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nReturns an iterator over a stream.\n\n```ballerina\nstream<int> scores = [45, 60, 75, 30, 90].toStream();\nobject {\n    public isolated function next() returns record {|int value;|}?;\n} iterator = scores.iterator();\niterator.next() ⇒ {\"value\":45}\n```\n  \n  \n  \n**Return** `object {public isolated function next() returns record {|int value;|}|stream:CompletionType;}`   \n- a new iterator object that will iterate over the members of parameter `stm`.  \n  \n"
         }
       },
       "sortText": "CD",
@@ -163,7 +164,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nCloses a stream.\n\nThis releases any system resources being used by the stream.\nClosing a stream that has already been closed has no efffect and returns `()`.\n  \n  \n  \n**Return** `stream:CompletionType?`   \n- () if the close completed successfully, otherwise an error  \n  \n"
+          "value": "**Package:** _ballerina/lang.stream:0.0.0_  \n  \nCloses a stream.\n\nThis releases any system resources being used by the stream.\nClosing a stream that has already been closed has no effect and returns `()`.\n\n```ballerina\nstream<int, error?> strm = new;\ncheck strm.close();\n```\n  \n  \n  \n**Return** `stream:CompletionType?`   \n- () if the close completed successfully, otherwise an error  \n  \n"
         }
       },
       "sortText": "CD",
@@ -178,7 +179,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.\n\nIf parameter `v` is anydata and does not have cycles, then the result will\nconform to the grammar for a Ballerina expression and when evaluated\nwill result in a value that is == to parameter `v`.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the expression style.\n\n```ballerina\ndecimal value = 12.12d;\nvalue.toBalString() ⇒ 12.12d\nanydata[] data = [1, \"Sam\", 12.3f, 12.12d, {value: 12}];\ndata.toBalString() ⇒ [1,\"Sam\",12.3,12.12d,{\"value\":12}]\n```\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
       "sortText": "CD",
@@ -193,13 +194,70 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nPerforms a direct conversion of a value to a string.\n\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n\nThe details of the conversion are specified by the ToString abstract operation\ndefined in the Ballerina Language Specification, using the direct style.\n\n```ballerina\ndecimal value = 12.12d;\nvalue.toString() ⇒ 12.12\nanydata[] data = [1, \"Sam\", 12.3f, 12.12d, {value: 12}];\ndata.toString() ⇒ [1,\"Sam\",12.3,12.12,{\"value\":12}]\n```\n  \n  \n  \n**Return** `string`   \n- a string resulting from the conversion  \n  \n"
         }
       },
       "sortText": "CD",
       "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "last(value:Type... vs)",
+      "kind": "Function",
+      "detail": "value:Type",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the last argument.\n\n```ballerina\nvalue:last(1, 2, 3) ⇒ 3\n```\n  \n**Params**  \n- `value:Type[]` vs: rest of the arguments  \n  \n**Return** `value:Type`   \n- last argument  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "last",
+      "insertText": "last(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "count(any|error... vs)",
+      "kind": "Function",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the number of arguments.\n\n```ballerina\nvalue:count(1, 2, 3) ⇒ 3\n```\n  \n  \n  \n**Return** `int`   \n- number of arguments  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "count",
+      "insertText": "count(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "first(any|error... vs)",
+      "kind": "Function",
+      "detail": "value:Type",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:0.0.0_  \n  \nReturns the first argument.\n\n```ballerina\nvalue:first(1, 2, 3) ⇒ 1\n```\n  \n**Params**  \n- `(any|error)[]` vs: rest of the arguments  \n  \n**Return** `value:Type`   \n- first argument  \n  \n"
+        }
+      },
+      "sortText": "CD",
+      "filterText": "first",
+      "insertText": "first(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }

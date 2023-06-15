@@ -221,11 +221,19 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
         Predicate<Symbol> symbolFilter = this.getVariableFilter();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition()).stream()
                 .filter(symbolFilter.and(symbol -> {
-                    Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol);
-                    return typeDescriptor.isPresent() 
-                            && (CommonUtil.getRawType(typeDescriptor.get()).typeKind() == TypeDescKind.MAP 
-                            && ((MapTypeSymbol) typeDescriptor.get()).typeParam().subtypeOf(resolvedType.get())
-                            );
+                    Optional<TypeSymbol> typeDescriptor = SymbolUtil.getTypeDescriptor(symbol)
+                            .map(CommonUtil::getRawType);
+                    if (typeDescriptor.isEmpty() || typeDescriptor.get().typeKind() != TypeDescKind.MAP) {
+                        return false;
+                    }
+                    MapTypeSymbol mapTypeSymbol = (MapTypeSymbol) typeDescriptor.get();
+                    if (resolvedType.get().typeKind() != TypeDescKind.MAP
+                            && mapTypeSymbol.typeParam().subtypeOf(resolvedType.get())) {
+                        return true;
+                    }
+                    // For nested maps, we have to treat specially
+                    return resolvedType.get().typeKind() == TypeDescKind.MAP 
+                            && mapTypeSymbol.subtypeOf(resolvedType.get());
                 })).collect(Collectors.toList());
 
         return getSpreadFieldCompletionItemList(visibleSymbols, context);
@@ -344,14 +352,15 @@ public abstract class MappingContextProvider<T extends Node> extends AbstractCom
                      T node,
                      List<LSCompletionItem> completionItems) {
         Optional<TypeSymbol> contextType = context.getContextType();
-        if (contextType.isPresent()) {
-            completionItems.forEach(lsCItem -> {
-                String sortText = SortingUtil.genSortTextByAssignability(context, lsCItem, contextType.get());
-                lsCItem.getCompletionItem().setSortText(sortText);
-            });
+        if (contextType.isEmpty()) {
+            super.sort(context, node, completionItems);
             return;
         }
-        super.sort(context, node, completionItems);
+        
+        completionItems.forEach(lsCItem -> {
+            String sortText = SortingUtil.genSortTextByAssignability(context, lsCItem, contextType.get());
+            lsCItem.getCompletionItem().setSortText(sortText);
+        });
     }
 
 }

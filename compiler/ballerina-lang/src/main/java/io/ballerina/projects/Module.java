@@ -259,7 +259,7 @@ public class Module {
          * @return an instance of the Module.Modifier
          */
         public Modifier addDocument(DocumentConfig documentConfig) {
-            DocumentContext newDocumentContext = DocumentContext.from(documentConfig);
+            DocumentContext newDocumentContext = DocumentContext.from(documentConfig, false);
             this.srcDocContextMap.put(newDocumentContext.documentId(), newDocumentContext);
             this.srcDocContextMap = sortDocuments(this.srcDocContextMap);
             return this;
@@ -272,7 +272,7 @@ public class Module {
          * @return an instance of the Module.Modifier
          */
         public Modifier addTestDocument(DocumentConfig documentConfig) {
-            DocumentContext newDocumentContext = DocumentContext.from(documentConfig);
+            DocumentContext newDocumentContext = DocumentContext.from(documentConfig, false);
             this.testDocContextMap.put(newDocumentContext.documentId(), newDocumentContext);
             this.testDocContextMap = sortDocuments(this.testDocContextMap);
             return this;
@@ -362,7 +362,10 @@ public class Module {
         }
 
         private Collection<ModuleDescriptor> getAllDependants(ModuleDescriptor updatedModuleDescriptor) {
-            packageInstance.getResolution(); // this will build the dependency graph if it is not built yet
+            CompilationOptions offlineCompOptions = CompilationOptions.builder().setOffline(true).build();
+            offlineCompOptions = offlineCompOptions.acceptTheirs(project.currentPackage().compilationOptions());
+            // this will build the dependency graph if it is not built yet
+            packageInstance.getResolution(offlineCompOptions);
             return getAllDependants(updatedModuleDescriptor, new HashSet<>(), new HashSet<>());
         }
 

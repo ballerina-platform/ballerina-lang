@@ -45,7 +45,7 @@ public class NamedArgCompletionItemBuilder {
         String defaultValueToInsert = DefaultValueGenerationUtil.getDefaultPlaceholderForType(argSymbol).orElse("");
         String defaultValueToDetail = DefaultValueGenerationUtil.getDefaultValueForType(argSymbol).orElse("");
         String label = argName + " = ...";
-        String insertText = CommonUtil.escapeEscapeCharsInIdentifier(argName) + " = ${1:" + defaultValueToInsert + "}";
+        String insertText = CommonUtil.escapeSpecialCharsInInsertText(argName) + " = ${1:" + defaultValueToInsert + "}";
         String detail = argName + " = " + defaultValueToDetail;
         CompletionItem item = new CompletionItem();
         item.setLabel(label);

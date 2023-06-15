@@ -4,6 +4,7 @@
     "character": 22
   },
   "source": "action_node_context/source/client_resource_access_action_source18.bal",
+  "description": "",
   "items": [
     {
       "label": "(string id)",

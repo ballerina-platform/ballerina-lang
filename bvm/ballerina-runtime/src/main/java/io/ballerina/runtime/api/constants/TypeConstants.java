@@ -87,4 +87,6 @@ public class TypeConstants {
 
     // Return type of the next function in iterators
     public static final String ITERATOR_NEXT_RETURN_TYPE = "$$returnType$$";
+
+    private TypeConstants() {}
 }
