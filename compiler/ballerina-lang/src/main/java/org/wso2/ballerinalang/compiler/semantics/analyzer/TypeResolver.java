@@ -422,9 +422,9 @@ public class TypeResolver {
         BType typeOneReference = Types.getReferredType(typeOne);
         BType typeTwoReference = Types.getReferredType(typeTwo);
 
-        if (typeOneReference.tag != TypeTags.ERROR || typeTwoReference.tag != TypeTags.ERROR) {
-            dlog.error(typeNode.pos,
-                    DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION);
+        if (getEffectiveTypeTag(typeOneReference) != TypeTags.ERROR
+                || getEffectiveTypeTag(typeTwoReference) != TypeTags.ERROR) {
+            dlog.error(typeNode.pos, DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION);
             return symTable.semanticError;
         }
 
@@ -439,6 +439,10 @@ public class TypeResolver {
 
         symEnter.lookupTypeSymbol(pkgEnv, name).type = potentialIntersectionType;
         return potentialIntersectionType;
+    }
+
+    private int getEffectiveTypeTag(BType type) {
+        return type.tag == TypeTags.INTERSECTION ? Types.getEffectiveType(type).tag : type.tag;
     }
 
     private void handleDistinctDefinitionOfErrorIntersection(BLangTypeDefinition typeDefinition,
@@ -1402,7 +1406,8 @@ public class TypeResolver {
                 numOfNonReadOnlyConstituents++;
             }
             constituentTypes.add(constituentType);
-            if (Types.getReferredType(constituentType).tag == TypeTags.ERROR) {
+            if ((Types.getReferredType(
+                    types.getTypeWithEffectiveIntersectionTypes(constituentType))).tag == TypeTags.ERROR) {
                 errorTypesCount++;
             }
         }
