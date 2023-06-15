@@ -39,9 +39,6 @@ public class InstanceMethods {
 
     private Integer counter = 0;
 
-    public InstanceMethods() {
-    }
-
     public void increaseCounterByOne() {
         this.counter = this.counter + 1;
     }

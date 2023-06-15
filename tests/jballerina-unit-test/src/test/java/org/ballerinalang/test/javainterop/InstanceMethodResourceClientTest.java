@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for interop of Java instance methods with client resource methods.
  *
- * @since 2201.6.0
+ * @since 2201.7.0
  */
 public class InstanceMethodResourceClientTest {
 

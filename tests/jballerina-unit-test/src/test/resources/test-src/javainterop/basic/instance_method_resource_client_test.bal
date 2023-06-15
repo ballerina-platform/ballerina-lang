@@ -35,7 +35,8 @@ public client isolated class Client {
     isolated resource function get abc/[string p1]/[string p2] (handle h, int i) returns string = @java:Method {
         'class: "org.ballerinalang.nativeimpl.jvm.tests.InstanceMethods",
         name: "getResourceWithBundledPaths",
-        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject", "io.ballerina.runtime.api.values.BArray", "long"]
+        paramTypes: ["io.ballerina.runtime.api.Environment", "io.ballerina.runtime.api.values.BObject",
+                        "io.ballerina.runtime.api.values.BArray", "long"]
     } external;
 }
 
