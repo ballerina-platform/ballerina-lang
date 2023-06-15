@@ -148,6 +148,7 @@ public class SymbolTable {
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
     public final BType invokableType = new BInvokableType(null, null, null, null);
+    public final BType empty = new BType(TypeTags.EMPTY, null);
 
     public BConstructorSymbol errorConstructor;
     public BUnionType anyOrErrorType;

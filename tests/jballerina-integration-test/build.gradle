@@ -43,6 +43,7 @@ configurations {
 
 dependencies {
     implementation 'org.ballerinalang:ballerina-lang:0.992.0-m2-SNAPSHOT'
+    implementation project(':ballerina-io-internal')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime')
@@ -53,6 +54,8 @@ dependencies {
 //    implementation project(':ballerina-transactions')
     implementation project(':ballerina-lang:jballerina.java')
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
+    implementation project(':ballerina-shell:shell-core')
+    implementation project(':ballerina-shell:shell-cli')
     implementation 'org.slf4j:slf4j-api'
 
     balRuntime project(':ballerina-runtime')
@@ -82,6 +85,8 @@ dependencies {
     launchListenerTestUtils project(':test-launch-listener-04')
 
     testLibs 'org.hsqldb:hsqldb:2.4.1'
+
+    distributionBala project(path: ':ballerina-io-internal', configuration: 'distributionBala')
 }
 
 task createBre(type: Copy) {

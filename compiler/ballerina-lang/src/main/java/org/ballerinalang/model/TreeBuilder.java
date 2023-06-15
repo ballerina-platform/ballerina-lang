@@ -17,7 +17,10 @@
  */
 package org.ballerinalang.model;
 
+import org.ballerinalang.model.clauses.CollectClauseNode;
 import org.ballerinalang.model.clauses.DoClauseNode;
+import org.ballerinalang.model.clauses.GroupByClauseNode;
+import org.ballerinalang.model.clauses.GroupingKeyNode;
 import org.ballerinalang.model.clauses.InputClauseNode;
 import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.LimitClauseNode;
@@ -69,6 +72,7 @@ import org.ballerinalang.model.tree.expressions.ArrowFunctionNode;
 import org.ballerinalang.model.tree.expressions.BinaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.CheckPanickedExpressionNode;
 import org.ballerinalang.model.tree.expressions.CheckedExpressionNode;
+import org.ballerinalang.model.tree.expressions.CollectContextInvocationNode;
 import org.ballerinalang.model.tree.expressions.ElvisExpressionNode;
 import org.ballerinalang.model.tree.expressions.ErrorConstructorExpressionNode;
 import org.ballerinalang.model.tree.expressions.ErrorVariableReferenceNode;
@@ -222,8 +226,11 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBinding
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -240,6 +247,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -587,6 +595,10 @@ public class TreeBuilder {
 
     public static InvocationNode createInvocationNode() {
         return new BLangInvocation();
+    }
+    
+    public static CollectContextInvocationNode createCollectContextInvocationNode() {
+        return new BLangCollectContextInvocation();
     }
 
     public static InvocationNode createActionInvocation() {
@@ -942,8 +954,20 @@ public class TreeBuilder {
         return new BLangOrderByClause();
     }
 
+    public static GroupByClauseNode createGroupByClauseNode() {
+        return new BLangGroupByClause();
+    }
+
+    public static GroupingKeyNode createGroupingKeyNode() {
+        return new BLangGroupingKey();
+    }
+
     public static SelectClauseNode createSelectClauseNode() {
         return new BLangSelectClause();
+    }
+
+    public static CollectClauseNode createCollectClauseNode() {
+        return new BLangCollectClause();
     }
 
     public static OnConflictClauseNode createOnConflictClauseNode() {

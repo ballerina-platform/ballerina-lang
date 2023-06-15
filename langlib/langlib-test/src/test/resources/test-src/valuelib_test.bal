@@ -585,8 +585,7 @@ function testCloneWithTypeTupleToJSON() {
     assert(jsonValue is error, true);
     err = <error> jsonValue;
     assert(err.message(), "{ballerina/lang.value}ConversionError");
-    assert(<string> checkpanic err.detail()["message"], "'[int,(string|xml<(lang.xml:Element|lang.xml:Comment|" +
-        "lang.xml:ProcessingInstruction|lang.xml:Text)>),A...]' value cannot be converted to 'json'");
+    assert(<string> checkpanic err.detail()["message"], "'A' value cannot be converted to 'json'");
 }
 
 function testCloneWithTypeJsonRec1() {
@@ -2654,83 +2653,65 @@ function testCloneWithTypeOnRegExpNegative() {
     string s = "AB+^*";
     RegExpType|error x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '*'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing backslash before '*' token in 'AB+^*'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "AB\\hCD";
     x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\h'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: invalid character 'h' after backslash in 'AB\\hCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "AB\\pCD";
     x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\p'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing open brace '{' token in 'AB\\pCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "AB\\uCD";
     x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\u'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: invalid character 'u' after backslash in 'AB\\uCD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "AB\\u{001CD";
     x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '\\u{001CD'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing close brace '}' token in 'AB\\u{001CD'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "AB\\p{sc=Lu";
     x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Missing '}' character",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing close brace '}' token in 'AB\\p{sc=Lu'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "[^abc";
     x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Missing ']' character",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing close bracket ']' token in '[^abc'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "(abc";
     x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Missing ')' character",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing close parenthesis ')' token in '(abc'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 
     s = "(ab^*)";
     x1 = s.cloneWithType(RegExpType);
     assertEquality(x1 is error, true);
-    if (x1 is error) {
-        assertEquality("{ballerina/lang.value}ConversionError", x1.message());
-        assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: Invalid character '*'",
-        <string> checkpanic x1.detail()["message"]);
-    }
+    assertEquality("{ballerina/lang.value}ConversionError", (<error>x1).message());
+    assertEquality("'string' value cannot be converted to 'RegExpType': Failed to parse regular expression: missing backslash before '*' token in '(ab^*)'",
+        <string>checkpanic (<error>x1).detail()["message"]);
 }
 
 function testCloneWithTypeWithXML() {
@@ -4180,7 +4161,7 @@ json  p = {
     ],
     married: false,
     bloodType: {
-        group: "O",
+        bloodGroup: "O",
         RHD: "+"
     }
 };
@@ -4329,7 +4310,7 @@ function testEnsureType() {
     assert(<float|string>(checkpanic testEnsureTypeWithUnion2()), name2);
     assert(<json>(checkpanic testEnsureTypeWithJson1()), 24);
     assert(<json>(checkpanic testEnsureTypeWithJson2()),h1);
-    assert(<json>(checkpanic testEnsureTypeWithJson3()), {group: "O", RHD: "+"});
+    assert(<json>(checkpanic testEnsureTypeWithJson3()), {bloodGroup: "O", RHD: "+"});
     assert(<json>(checkpanic testEnsureTypeWithJson4()), [125.0/3.0, "xyz street",
     {province: "southern", Country: "Sri Lanka"}, 81000]);
     assert(<json>(checkpanic testEnsureTypeWithJson5()), 72.5);
@@ -4337,7 +4318,7 @@ function testEnsureType() {
     assert(<boolean>(checkpanic testEnsureTypeWithCast1()), false);
     assert(<json[]>(checkpanic testEnsureTypeWithCast2()), [125.0/3.0, "xyz street",
     {province: "southern", Country: "Sri Lanka"}, 81000]);
-    assert(<map<json>>(checkpanic testEnsureTypeWithJson3()), {group: "O", RHD: "+"});
+    assert(<map<json>>(checkpanic testEnsureTypeWithJson3()), {bloodGroup: "O", RHD: "+"});
     assert(testEnsureTypeFunction() is int:Unsigned32, true);
     assert(testEnsureTypeFunction1() is string, true);
     assert(testEnsureTypeFunction2() is string[], true);
@@ -4597,6 +4578,47 @@ function testDecimalNonZeroToString() {
     assertFalse(d1.toString() == d2.toString());
     assertTrue(checkpanic decimal:fromString(d1.toString()) == checkpanic decimal:fromString(d2.toString()));
     assertFalse(checkpanic decimal:fromString(d1.toString()) === checkpanic decimal:fromString(d2.toString()));
+}
+
+function testCount() {
+    assert(0, value:count());
+    assert(2, value:count(2, -1));
+    assert(1, value:count([1, 2, 3]));
+    assert(1, value:count([]));
+    assert(3, value:count(...[1, 2, 3]));
+    assert(4, value:count(error("Message1"), error("Message1"), error("Message2"), error("Message2")));
+    assert(6, value:count(error("Message1"), "str", true, 3.4, {"m": 2}, error("Message2")));
+}
+
+function testFirst() {
+    assertEquality(2, value:first(2));
+    assertEquality(2, value:first([2])[0]);
+    assertEquality(21, value:first(...[21, 31]));
+    assertEquality(1, value:first(1, 2, 4, 5));
+    var f = value:first(error("Message"), 2.0, true, {"m": 2});
+    assertEquality(true, f is error);
+    assertEquality("Message", (<error> f).message());
+    assertEquality(1, value:first(1, [2, 4, 5]));
+    assertEquality(1, value:first(1, ...[2, 4, 5]));
+    var b = value:first([false, true], ...[2, 4, 5]);
+    assertFalse(b[0]);
+    assertTrue(b[1]);
+}
+
+function testLast() {
+    assertEquality(2, value:last(2));
+    assertEquality(5, value:last(1, 2, 4, 5));
+    assertTrue([2, 3] == value:last([2, 3]));
+    assertEquality(3, value:last(...[21, 3]));
+    int[] ar = [21, 3];
+    assertEquality(3, value:last(4, ...ar));
+    var x1 = value:last(error("Message1"), error("Message2"));
+    assertEquality(true, x1 is error);
+    assertEquality("Message2", (<error> x1).message());
+    ar = [];
+    assertEquality(4, value:last(4, ...ar));
+    int[] ar1 = [1, 2, 3];
+    assertTrue([] == value:last(ar1, ar));
 }
 
 type AssertionError distinct error;

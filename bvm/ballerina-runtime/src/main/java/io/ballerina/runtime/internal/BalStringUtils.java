@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
+import static io.ballerina.runtime.internal.util.StringUtils.parseExpressionStringVal;
 
 /**
  * Common utility methods used for Ballerina expression syntax manipulation.
@@ -68,7 +69,7 @@ public class BalStringUtils {
         Set<Type> typeSet = new HashSet<>();
         for (int i = 0; i < list.size(); i++) {
             String e = list.get(i);
-            Object val = StringUtils.parseExpressionStringValue(e, node);
+            Object val = parseExpressionStringVal(e, node);
             Type type = TypeChecker.getType(val);
             typeSet.add(type);
             arr.add(i, val);
@@ -163,7 +164,7 @@ public class BalStringUtils {
             }
             String key = e.substring(1, colonIndex - 1);
             String value = e.substring(colonIndex + 1);
-            Object val = StringUtils.parseExpressionStringValue(value, node);
+            Object val = parseExpressionStringVal(value, node);
             eleMap.put(StringUtils.fromString(key), val);
             Type type = TypeChecker.getType(val);
             typeSet.add(type);
@@ -197,8 +198,8 @@ public class BalStringUtils {
         ArrayValue keyFieldNames = keys[0].isEmpty() ? (ArrayValue) ValueCreator.createArrayValue(new BString[]{}) :
                 (ArrayValue) StringUtils.fromStringArray(keys);
         // start index of table members string = index of ')' + 2
-        ArrayValueImpl data = (ArrayValueImpl) StringUtils.parseExpressionStringValue(exprValue.substring
-                (exprValue.indexOf(')') + 2), parent);
+        ArrayValueImpl data = (ArrayValueImpl) parseExpressionStringVal(exprValue.substring(exprValue.indexOf(')') + 2),
+                parent);
 
         MapType mapType = TypeCreator.createMapType(TYPE_ANYDATA, false);
         BTableType tableType;

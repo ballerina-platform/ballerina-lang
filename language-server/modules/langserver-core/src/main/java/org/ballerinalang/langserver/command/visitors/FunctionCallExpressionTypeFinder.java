@@ -46,6 +46,7 @@ import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.GroupingKeyVarDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetExpressionNode;
@@ -478,6 +479,12 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
         } else {
             checkExpressionNode.parent().accept(this);
         }
+    }
+    @Override
+    public void visit(GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        Symbol symbol = semanticModel.symbol(groupingKeyVarDeclarationNode.typeDescriptor()).orElse(null);
+        TypeSymbol typeDescriptor = SymbolUtil.getTypeDescriptor(symbol).orElse(null);
+        checkAndSetTypeResult(typeDescriptor);
     }
 
     @Override

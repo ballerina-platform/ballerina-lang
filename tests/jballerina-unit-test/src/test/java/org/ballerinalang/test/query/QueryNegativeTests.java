@@ -60,8 +60,6 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 278, 24);
         validateError(compileResult, index++, "a type compatible with mapping constructor expressions " +
                 "not found in type 'string'", 292, 24);
-        validateError(compileResult, index++, "ambiguous type '[xml, xml]'", 314, 24);
-        validateError(compileResult, index++, "ambiguous type '[string, string]'", 327, 24);
         validateError(compileResult, index++, "redeclared symbol 'fname'", 351, 36);
         validateError(compileResult, index++, "redeclared symbol 'age'", 364, 21);
         validateError(compileResult, index++, "redeclared symbol 'age'", 381, 44);
@@ -77,9 +75,9 @@ public class QueryNegativeTests {
                 416, 29);
         validateError(compileResult, index++, "incompatible types: expected 'error?', " +
                         "found 'stream<record {| int a; |},error?>'", 421, 12);
-        validateError(compileResult, index++, "invalid record binding pattern with type 'anydata'", 426, 22);
+        validateError(compileResult, index++, "invalid record binding pattern with type 'anydata'", 426, 18);
         validateError(compileResult, index++, "undefined symbol 'k'", 427, 25);
-        validateError(compileResult, index++, "invalid record binding pattern with type 'any'", 432, 22);
+        validateError(compileResult, index++, "invalid record binding pattern with type 'any'", 432, 18);
         validateError(compileResult, index++, "undefined symbol 'k'", 433, 25);
         validateError(compileResult, index++, "field name 'id' used in key specifier is not found in " +
                         "table constraint type 'record {| User user; |}'", 451, 28);
@@ -114,6 +112,19 @@ public class QueryNegativeTests {
         int warnCount = 2;
         Assert.assertEquals(compileResult.getWarnCount(), warnCount);
         Assert.assertEquals(compileResult.getErrorCount(), index - warnCount);
+    }
+
+    @Test
+    public void testAmbiguousTypesInUnionExpectedType() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/query/query_ambiguous_type_negative.bal");
+        int index = 0;
+        validateError(compileResult, index++, "ambiguous type '[string:Char, string]'", 27, 58);
+        validateError(compileResult, index++, "ambiguous type '[string, string:Char]'", 28, 58);
+        validateError(compileResult, index++, "ambiguous type '[string, string:Char]'", 31, 103);
+        validateError(compileResult, index++, "incompatible types: expected 'int', found 'string:Char'", 43, 65);
+        validateError(compileResult, index++, "incompatible types: expected '(stream<int,error?>|string)', found " +
+                "'stream<string>'", 44, 36);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
     @Test
