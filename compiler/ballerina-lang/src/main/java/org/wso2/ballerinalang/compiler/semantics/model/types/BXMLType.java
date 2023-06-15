@@ -31,6 +31,7 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
     public BType constraint;
+    public BXMLType mutableType;
 
     public BXMLType(BType constraint, BTypeSymbol tsymbol) {
         super(TypeTags.XML, tsymbol);

@@ -41,6 +41,8 @@ public class BTupleType extends BType implements TupleType {
     public boolean resolvingToString = false;
     public boolean isCyclic = false;
 
+    public BTupleType mutableType;
+
     public BTupleType(List<BTupleMember> members) {
         super(TypeTags.TUPLE, null);
         this.members = members;

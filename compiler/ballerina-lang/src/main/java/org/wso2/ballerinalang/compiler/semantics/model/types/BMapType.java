@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.util.Flags;
  */
 public class BMapType extends BBuiltInRefType implements ConstrainedType, SelectivelyImmutableReferenceType {
     public BType constraint;
+    public BMapType mutableType;
 
     public BMapType(int tag, BType constraint, BTypeSymbol tsymbol) {
         super(tag, tsymbol);

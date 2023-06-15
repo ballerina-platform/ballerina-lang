@@ -536,6 +536,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(selectClauseNode);
     }
 
+    public T transform(CollectClauseNode collectClauseNode) {
+        return transformSyntaxNode(collectClauseNode);
+    }
+
     public T transform(QueryExpressionNode queryExpressionNode) {
         return transformSyntaxNode(queryExpressionNode);
     }
@@ -800,6 +804,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(orderKeyNode);
     }
 
+    public T transform(GroupByClauseNode groupByClauseNode) {
+        return transformSyntaxNode(groupByClauseNode);
+    }
+
+    public T transform(GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        return transformSyntaxNode(groupingKeyVarDeclarationNode);
+    }
+
     public T transform(OnFailClauseNode onFailClauseNode) {
         return transformSyntaxNode(onFailClauseNode);
     }
@@ -931,7 +943,7 @@ public abstract class NodeTransformer<T> {
     public T transform(ReBracedQuantifierNode reBracedQuantifierNode) {
         return transformSyntaxNode(reBracedQuantifierNode);
     }
-  
+
     public T transform(MemberTypeDescriptorNode memberTypeDescriptorNode) {
         return transformSyntaxNode(memberTypeDescriptorNode);
     }

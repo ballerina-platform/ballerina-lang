@@ -36,7 +36,6 @@ public class GlobalVarNegativeTest {
     public void testGlobalVarNegatives() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/statements/variabledef/global_variable_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 7);
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, "missing non-defaultable required record field 'x'", 22, 12);
         BAssertUtil.validateError(resultNegative, i++, "invalid character ':' in field access expression", 23, 15);
@@ -44,8 +43,9 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(resultNegative, i++, "missing identifier", 27, 46);
         BAssertUtil.validateError(resultNegative, i++, "missing equal token", 29, 59);
         BAssertUtil.validateError(resultNegative, i++, "missing identifier", 29, 59);
-        BAssertUtil.validateError(resultNegative, i++, "invalid cyclic type reference in '[Listener, Listener]'", 31,
-                1);
+        BAssertUtil.validateError(resultNegative, i++, "invalid cyclic type reference in '[Listener, Listener]'",
+                31, 1);
+        Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
     @Test
