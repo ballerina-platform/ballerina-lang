@@ -33,6 +33,8 @@ import java.util.ResourceBundle;
 
 /**
  * Utility class for handling error messages.
+ *
+ * @since 2201.7.0
  */
 public class ErrorHelper {
 
@@ -73,9 +75,9 @@ public class ErrorHelper {
     }
 
     /**
-     * Handle any XML related exception.
+     * Handle any XML related exceptions.
      *
-     * @param operation Operation that executed
+     * @param operation Operation that is executed
      * @param e Throwable to handle
      */
     public static void handleXMLException(String operation, Throwable e) {
