@@ -146,6 +146,7 @@ public class QueryActionOrExprTest {
                 367, 28);
         validateError(negativeResult, i++, "incompatible types: expected '(table<FooType>|table<BarType>)', " +
                         "found 'table<(FooType|BarType)> key(id)'", 371, 39);
+        validateError(negativeResult, i++, "ambiguous type '[string:Char, string]'", 376, 78);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
