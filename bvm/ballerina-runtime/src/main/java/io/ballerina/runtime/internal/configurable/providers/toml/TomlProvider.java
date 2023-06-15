@@ -515,12 +515,8 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private void throwInvalidImportedModuleError(Toml toml, Module module, String variableName) {
-        TomlNode errorNode = null;
         String orgModuleKey = getModuleKey(module);
-        Optional<TomlNode> optionalErrorNode = getErrorNode(toml, module.getName(), orgModuleKey, variableName);
-        if (optionalErrorNode.isPresent()) {
-            errorNode = optionalErrorNode.get();
-        }
+        TomlNode errorNode = getErrorNode(toml, module.getName(), orgModuleKey, variableName);
         if (errorNode != null) {
             invalidRequiredModuleSet.add(module.toString());
             invalidTomlLines.add(errorNode.location().lineRange());
@@ -563,11 +559,8 @@ public class TomlProvider implements ConfigProvider {
 
     private void throwInvalidSubModuleError(Toml toml, Module module, String variableName) {
         String moduleName = module.getName();
-        Optional<TomlNode> optionalErrorNode = getErrorNode(toml, moduleName, getModuleKey(module), variableName);
-        TomlNode errorNode = null;
-        if (optionalErrorNode.isPresent()) {
-            errorNode = optionalErrorNode.get();
-        } else {
+        TomlNode errorNode = getErrorNode(toml, moduleName, getModuleKey(module), variableName);
+        if (errorNode == null) {
             Optional<Toml> tomlValueNode = toml.getTable(moduleName.replaceFirst(rootModule.getName() + ".", ""));
             if (tomlValueNode.isPresent()) {
                 errorNode = tomlValueNode.get().rootNode();
@@ -581,7 +574,8 @@ public class TomlProvider implements ConfigProvider {
         }
     }
 
-    private Optional<TomlNode> getErrorNode(Toml toml, String moduleName, String orgModuleKey, String variableName) {
+    private TomlNode getErrorNode(Toml toml, String moduleName, String orgModuleKey, String variableName) {
+
         Optional<TomlValueNode> valueNode = toml.get(moduleName);
         Optional<Toml> tableNode = toml.getTable(moduleName);
         List<Toml> tomlTables = toml.getTables(moduleName);
@@ -604,15 +598,15 @@ public class TomlProvider implements ConfigProvider {
             tableNode = toml.getTable(variableName);
         }
         if (valueNode.isPresent()) {
-            return Optional.of(valueNode.get());
+            return valueNode.get();
         }
         if (tableNode.isPresent()) {
-            return Optional.of(tableNode.get().rootNode());
+            return tableNode.get().rootNode();
         }
-        if (tomlTables.isEmpty()) {
-            return Optional.empty();
+        if (!tomlTables.isEmpty()) {
+            return tomlTables.get(0).rootNode();
         }
-        return Optional.of(tomlTables.get(0).rootNode());
+        return null;
     }
 
     private List<TomlTableNode> getRootModuleNode(Toml baseToml) {
