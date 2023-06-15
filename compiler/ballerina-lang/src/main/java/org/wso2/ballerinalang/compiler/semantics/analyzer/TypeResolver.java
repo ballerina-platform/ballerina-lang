@@ -1418,8 +1418,9 @@ public class TypeResolver {
             return symTable.semanticError;
         }
 
-        BTypeSymbol intersectionSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC, Names.EMPTY,
-                symEnv.enclPkg.symbol.pkgID, null, symEnv.scope.owner, td.pos, BUILTIN);
+        BTypeSymbol intersectionSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.PUBLIC,
+                Names.fromString(typeDefinition.name.value), symEnv.enclPkg.symbol.pkgID, null,
+                symEnv.scope.owner, td.pos, BUILTIN);
         BIntersectionType intersectionType = new BIntersectionType(intersectionSymbol);
         intersectionSymbol.type = intersectionType;
         intersectionType.setConstituentTypes(constituentTypes);
@@ -1430,14 +1431,9 @@ public class TypeResolver {
 
         boolean isErrorIntersection = errorTypesCount > 1;
         if (isErrorIntersection) {
-            long flags = 0;
-            if (typeDefinition.flagSet.contains(Flag.PUBLIC)) {
-                flags = Flags.PUBLIC;
-            }
-
-            BErrorType intersectionErrorType = types.createErrorType(null, flags, symEnv);
-            intersectionErrorType.tsymbol.name = Names.fromString(typeDefinition.name.value);
-            defineErrorType(typeDefinition.pos, intersectionErrorType, symEnv);
+            long flags = typeDefinition.flagSet.contains(Flag.PUBLIC) ? Flags.PUBLIC : 0;
+            intersectionType.effectiveType = types.createErrorType(null, flags, symEnv);
+            defineErrorIntersection(typeDefinition.pos, intersectionType, symEnv);
         }
 
         // Differ cyclic intersection between more than 2 non-readonly types.
@@ -2160,13 +2156,13 @@ public class TypeResolver {
         }
     }
 
-    private void defineErrorType(Location pos, BErrorType errorType, SymbolEnv env) {
+    private void defineErrorIntersection(Location pos, BIntersectionType intersectionType, SymbolEnv env) {
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
-        BTypeSymbol errorTSymbol = errorType.tsymbol;
-        errorTSymbol.scope = new Scope(errorTSymbol);
+        BTypeSymbol intersectionTSymbol = intersectionType.tsymbol;
+        intersectionTSymbol.scope = new Scope(intersectionTSymbol);
 
-        if (symResolver.checkForUniqueSymbol(pos, pkgEnv, errorTSymbol)) {
-            pkgEnv.scope.define(errorTSymbol.name, errorTSymbol);
+        if (symResolver.checkForUniqueSymbol(pos, pkgEnv, intersectionTSymbol)) {
+            pkgEnv.scope.define(intersectionTSymbol.name, intersectionTSymbol);
         }
     }
 
