@@ -629,6 +629,7 @@ function testRecordsWithFieldsWithBuiltinNames() {
     assert("{\"error\":error(\"bam\",message=\"new error\"),\"json\":{\"s\":\"s\"},\"anydata\":3}", f.toString());
 }
 
+
 type Details record {
     string name;
     BirthDay birthDay = {};
@@ -642,6 +643,29 @@ function  testIntersectionOfReadonlyAndRecordTypeWithDefaultValues() {
     Student & readonly student = {id: 0};
     assert(student.details.name, "chirans");
     assert(student.details.birthDay.year, 2000);
+}
+
+type DefaultableFieldsWithQuotedIdentifiersForTypeKeywords record {
+    error? 'error = ();
+    json 'json = 10;
+    anydata 'anydata = "hello";
+};
+
+function testDefaultableRecordFieldsWithQuotedIdentifiersForTypeKeywords() {
+    DefaultableFieldsWithQuotedIdentifiersForTypeKeywords r = {};
+    assert(true, r?.'error is ());
+    assert(10, r?.'json);
+    assert("hello", r?.'anydata);
+
+    error err = error("oops!", code = 404);
+    DefaultableFieldsWithQuotedIdentifiersForTypeKeywords s = {
+        'error: err,
+        'anydata: 1234,
+        'json: true
+    };
+    assert(true, s?.'error === err);
+    assert(true, s?.'json);
+    assert(1234, s?.'anydata);
 }
 
 // Util functions

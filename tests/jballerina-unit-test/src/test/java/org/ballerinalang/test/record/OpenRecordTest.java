@@ -531,6 +531,11 @@ public class OpenRecordTest {
         BRunUtil.invoke(compileResult, "testRecordsWithFieldsWithBuiltinNames");
     }
 
+    @Test
+    public void testDefaultableRecordFieldsWithQuotedIdentifiersForTypeKeywords() {
+        BRunUtil.invoke(compileResult, "testDefaultableRecordFieldsWithQuotedIdentifiersForTypeKeywords");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

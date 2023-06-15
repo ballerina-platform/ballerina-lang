@@ -5833,11 +5833,6 @@ public class Desugar extends BLangNodeVisitor {
         result = rewriteExpr(rewriteMappingConstructor(recordLiteral));
     }
 
-    @Override
-    public void visit(BFunctionPointerInvocation functionPointerInvocation) {
-        result = functionPointerInvocation;
-    }
-
     private List<String> getNamesOfUserSpecifiedRecordFields(List<RecordLiteralNode.RecordField> userSpecifiedFields) {
         List<String> fieldNames = new ArrayList<>();
         for (RecordLiteralNode.RecordField field : userSpecifiedFields) {
