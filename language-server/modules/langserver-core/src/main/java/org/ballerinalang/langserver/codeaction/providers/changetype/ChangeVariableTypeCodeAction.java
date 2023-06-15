@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.SingletonTypeSymbol;
 import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeDescTypeSymbol;
@@ -84,19 +85,24 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                                            DiagBasedPositionDetails positionDetails,
                                            CodeActionContext context) {
 
-        Optional<TypeSymbol> foundType;
+        Optional<TypeSymbol> optionalFoundType;
         if ("BCE2068".equals(diagnostic.diagnosticInfo().code())) {
-            foundType = positionDetails.diagnosticProperty(
+            optionalFoundType = positionDetails.diagnosticProperty(
                     CodeActionUtil.getDiagPropertyFilterFunction(
                             DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX));
         } else {
-            foundType = positionDetails.diagnosticProperty(
+            optionalFoundType = positionDetails.diagnosticProperty(
                     DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
         }
-        if (foundType.isEmpty() || !isValidType(foundType.get())) {
+
+        if (optionalFoundType.isEmpty() || !isValidType(optionalFoundType.get())) {
             return Collections.emptyList();
         }
-
+        TypeSymbol foundType = optionalFoundType.get();
+        if (foundType.typeKind() == TypeDescKind.SINGLETON) {
+            foundType = ((SingletonTypeSymbol) foundType).originalType();
+        }
+        
         // Skip, non-local var declarations
         Optional<NonTerminalNode> variableNode = getVariableOrObjectFieldNode(positionDetails.matchedNode());
         if (variableNode.isEmpty()) {
@@ -115,9 +121,13 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         List<TextEdit> importEdits = new ArrayList<>();
         List<String> types;
         if ("BCE3931".equals(diagnostic.diagnosticInfo().code())) {
-            types = Collections.singletonList(((TypeDescTypeSymbol) foundType.get()).typeParameter().get().signature());
+            Optional<TypeSymbol> typeSymbol = ((TypeDescTypeSymbol) foundType).typeParameter();
+            if (typeSymbol.isEmpty()) {
+                return Collections.emptyList();
+            }
+            types = Collections.singletonList((typeSymbol.get().signature()));
         } else {
-            types = CodeActionUtil.getPossibleTypes(foundType.get(), importEdits, context);
+            types = CodeActionUtil.getPossibleTypes(foundType, importEdits, context);
         }
         for (String type : types) {
             String typeName = FunctionGenerator.processModuleIDsInText(new ImportsAcceptor(context), type, context);
@@ -151,6 +161,10 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             return Optional.of(sNode);
         } else if (isVariableNode(sNode.parent()) || sNode.parent().kind() == SyntaxKind.OBJECT_FIELD) {
             return Optional.of(sNode.parent());
+        } else if (sNode.parent().kind() == SyntaxKind.COLLECT_CLAUSE 
+                && sNode.parent().parent().kind() == SyntaxKind.QUERY_EXPRESSION 
+                && isVariableNode(sNode.parent().parent().parent())) {
+            return Optional.of(sNode.parent().parent().parent());
         }
 
         return Optional.empty();
