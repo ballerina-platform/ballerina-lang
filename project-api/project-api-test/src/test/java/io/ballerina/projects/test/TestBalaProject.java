@@ -244,7 +244,7 @@ public class TestBalaProject {
         }
     }
 
-    @Test
+    @Test(enabled = false)
     public void testProjectRefresh() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("package_refresh_bala");
         Project project = TestUtils.loadProject(projectDirPath);

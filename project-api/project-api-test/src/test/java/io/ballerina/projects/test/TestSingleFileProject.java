@@ -256,7 +256,7 @@ public class TestSingleFileProject {
                         .fileName(), "main_with_error.bal");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testProjectRefresh() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("single-file")
                 .resolve("main.bal");

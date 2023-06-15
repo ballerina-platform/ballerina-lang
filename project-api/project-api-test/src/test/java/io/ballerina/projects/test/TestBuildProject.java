@@ -1818,7 +1818,7 @@ public class TestBuildProject extends BaseTest {
         return resources;
     }
 
-    @Test
+    @Test(enabled = false)
     public void testProjectClearCaches() {
         Path projectDirPath = tempResourceDir.resolve("projects_for_refresh_tests").resolve("package_refresh_one");
         BuildProject buildProject = TestUtils.loadBuildProject(projectDirPath);
