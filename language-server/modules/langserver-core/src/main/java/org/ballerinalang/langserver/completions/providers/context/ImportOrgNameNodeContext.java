@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ImportOrgNameNode} context.
@@ -56,21 +55,16 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
             throw new AssertionError("ModuleName cannot be empty");
         }
 
-        List<LSPackageLoader.ModuleInfo> moduleList =
-                new ArrayList<>(LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx));
-        ArrayList<LSCompletionItem> completionItems = moduleNameContextCompletions(ctx, orgName, moduleList);
+        ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (orgName.equals("ballerinax")) {
             List<LSPackageLoader.ModuleInfo> packagesFromCentral = LSPackageLoader.getInstance(
                     ctx.languageServercontext()).getCentralPackages(ctx.languageServercontext());
-            ArrayList<LSCompletionItem> packages = moduleNameContextCompletions(ctx, "ballerinax", packagesFromCentral);
-            completionItems.addAll(packages.stream()
-                    .filter(lsCompletionItem -> completionItems.stream()
-                            .filter(completionItem -> completionItem.getCompletionItem().getLabel()
-                                    .equals(lsCompletionItem.getCompletionItem().getLabel()))
-                            .findFirst()
-                            .isEmpty())
-                    .collect(Collectors.toList()));
+            completionItems.addAll(moduleNameContextCompletions(ctx, "ballerinax", packagesFromCentral));
+        } else {
+            List<LSPackageLoader.ModuleInfo> moduleList = new ArrayList<>(
+                    LSPackageLoader.getInstance(ctx.languageServercontext()).getAllVisiblePackages(ctx));
+            completionItems = moduleNameContextCompletions(ctx, orgName, moduleList);
         }
 
         this.sort(ctx, node, completionItems);

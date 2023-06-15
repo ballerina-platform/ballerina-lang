@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Central package descriptor holder.
@@ -38,6 +39,8 @@ import java.util.Map;
 public class CentralPackageDescriptorLoader {
     public static final LanguageServerContext.Key<CentralPackageDescriptorLoader> CENTRAL_PACKAGE_HOLDER_KEY =
             new LanguageServerContext.Key<>();
+    private static final List<Package> centralPackages = new ArrayList<>();
+    private boolean isLoaded = false;
 
     public static CentralPackageDescriptorLoader getInstance(LanguageServerContext context) {
         CentralPackageDescriptorLoader centralPackageDescriptorLoader = context.get(CENTRAL_PACKAGE_HOLDER_KEY);
@@ -51,7 +54,21 @@ public class CentralPackageDescriptorLoader {
         context.put(CENTRAL_PACKAGE_HOLDER_KEY, this);
     }
 
-    public List<Package> getPackagesFromCentral() {
+    public void loadBallerinaxPackagesFromCentral(LanguageServerContext lsContext) {
+        CompletableFuture.runAsync(() -> {
+            centralPackages.addAll(CentralPackageDescriptorLoader.getInstance(lsContext).getPackagesFromCentral());
+        });
+        isLoaded = true;
+    }
+
+    public List<Package> getCentralPackages(LanguageServerContext context) {
+        if (!isLoaded) {
+            loadBallerinaxPackagesFromCentral(context);
+        }
+        return centralPackages;
+    }
+
+    private List<Package> getPackagesFromCentral() {
         List<Package> packageList = new ArrayList<>();
         try {
             for (int page = 0;; page++) {

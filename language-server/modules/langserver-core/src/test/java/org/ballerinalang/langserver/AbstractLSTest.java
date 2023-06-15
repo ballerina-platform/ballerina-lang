@@ -77,7 +77,6 @@ public abstract class AbstractLSTest {
                     .collect(Collectors.toList()));
             FileReader fileReader = new FileReader(FileUtils.RES_DIR.resolve("central/centralPackages.json").toFile());
             CENTRAL_PACKAGES.addAll(gson.fromJson(fileReader, CentralPackageListResult.class).getPackages());
-            int x = 0;
         } catch (Exception e) {
             //ignore
         } finally {
@@ -112,7 +111,7 @@ public abstract class AbstractLSTest {
         this.languageServer.getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, this.lsPackageLoader);
         Mockito.when(this.lsPackageLoader.getRemoteRepoPackages(Mockito.any())).thenReturn(REMOTE_PACKAGES);
         Mockito.when(this.lsPackageLoader.getLocalRepoPackages(Mockito.any())).thenReturn(LOCAL_PACKAGES);
-        Mockito.when(this.descriptorLoader.getPackagesFromCentral()).thenReturn(CENTRAL_PACKAGES);
+        Mockito.when(this.descriptorLoader.getCentralPackages(Mockito.any())).thenReturn(CENTRAL_PACKAGES);
         Mockito.when(this.lsPackageLoader.getCentralPackages(Mockito.any())).thenCallRealMethod();
         Mockito.when(this.lsPackageLoader.getDistributionRepoPackages()).thenCallRealMethod();
         Mockito.when(this.lsPackageLoader.getAllVisiblePackages(Mockito.any())).thenCallRealMethod();
@@ -137,6 +136,10 @@ public abstract class AbstractLSTest {
         if (this.lsPackageLoader != null) {
             Mockito.reset(this.lsPackageLoader);
             this.lsPackageLoader = null;
+        }
+        if (this.descriptorLoader != null) {
+            Mockito.reset(this.descriptorLoader);
+            this.descriptorLoader = null;
         }
     }
 
