@@ -19,6 +19,9 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
+/**
+ * Represents Ballerina Map Type.
+ */
 public class MapType extends Construct {
     @Expose
     public Type mapParameterType;

@@ -19,6 +19,9 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
+/**
+ * Represents Ballerina Table Type.
+ */
 public class TableType extends Construct {
     @Expose
     public Type rowParameterType;
