@@ -852,29 +852,21 @@ public class MethodGen {
             int index = indexMap.addIfNotExists(localVar.name.value, bType);
             mv.visitInsn(DUP);
 
-            generateFrameClassFieldUpdate(mv, frameName, localVar, bType, index);
-        }
-    }
-
-    private void generateFrameClassFieldUpdate(MethodVisitor mv, String frameName, BIRVariableDcl localVar,
-                                               BType bType, int index) {
-        if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            mv.visitVarInsn(LLOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, "J");
-        } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                    GET_BSTRING);
-        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
-            mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                    GET_XML);
-        } else if (TypeTags.REGEXP == bType.tag) {
-            mv.visitVarInsn(ALOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName,
-                    GET_REGEXP);
-        } else {
-            generateFrameClassFieldUpdateByTypeTag(mv, frameName, localVar, index, bType);
+            if (TypeTags.isIntegerTypeTag(bType.tag)) {
+                mv.visitVarInsn(LLOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, "J");
+            } else if (TypeTags.isStringTypeTag(bType.tag)) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_BSTRING);
+            } else if (TypeTags.isXMLTypeTag(bType.tag)) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_XML);
+            } else if (TypeTags.REGEXP == bType.tag) {
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.jvmVarName, GET_REGEXP);
+            } else {
+                generateFrameClassFieldUpdateByTypeTag(mv, frameName, localVar, index, bType);
+            }
         }
     }
 
