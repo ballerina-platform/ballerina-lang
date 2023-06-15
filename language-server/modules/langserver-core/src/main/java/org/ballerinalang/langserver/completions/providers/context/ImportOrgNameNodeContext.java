@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ImportOrgNameNode} context.
@@ -61,8 +62,15 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
 
         if (orgName.equals("ballerinax")) {
             List<LSPackageLoader.ModuleInfo> packagesFromCentral = LSPackageLoader.getInstance(
-                    ctx.languageServercontext()).getCentralPackages();
-            completionItems.addAll(moduleNameContextCompletions(ctx, "ballerinax", packagesFromCentral));
+                    ctx.languageServercontext()).getCentralPackages(ctx.languageServercontext());
+            ArrayList<LSCompletionItem> packages = moduleNameContextCompletions(ctx, "ballerinax", packagesFromCentral);
+            completionItems.addAll(packages.stream()
+                    .filter(lsCompletionItem -> completionItems.stream()
+                            .filter(completionItem -> completionItem.getCompletionItem().getLabel()
+                                    .equals(lsCompletionItem.getCompletionItem().getLabel()))
+                            .findFirst()
+                            .isEmpty())
+                    .collect(Collectors.toList()));
         }
 
         this.sort(ctx, node, completionItems);

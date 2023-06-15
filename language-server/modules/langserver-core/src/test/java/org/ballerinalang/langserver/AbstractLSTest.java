@@ -45,7 +45,7 @@ import java.util.stream.Collectors;
  *
  * @since 2201.1.0
  */
-@PrepareForTest({LSPackageLoader.class})
+@PrepareForTest({LSPackageLoader.class, CentralPackageDescriptorLoader.class})
 public abstract class AbstractLSTest {
 
     private static final Gson gson = new Gson();
@@ -59,6 +59,8 @@ public abstract class AbstractLSTest {
     private Endpoint serviceEndpoint;
 
     private LSPackageLoader lsPackageLoader;
+
+    private CentralPackageDescriptorLoader descriptorLoader;
 
     private BallerinaLanguageServer languageServer;
 
@@ -75,6 +77,7 @@ public abstract class AbstractLSTest {
                     .collect(Collectors.toList()));
             FileReader fileReader = new FileReader(FileUtils.RES_DIR.resolve("central/centralPackages.json").toFile());
             CENTRAL_PACKAGES.addAll(gson.fromJson(fileReader, CentralPackageListResult.class).getPackages());
+            int x = 0;
         } catch (Exception e) {
             //ignore
         } finally {
@@ -103,17 +106,17 @@ public abstract class AbstractLSTest {
 
     public void setUp() {
         this.lsPackageLoader = Mockito.mock(LSPackageLoader.class, Mockito.withSettings().stubOnly());
-        CentralPackageDescriptorLoader descriptorLoader = Mockito.mock(
-                CentralPackageDescriptorLoader.class, Mockito.withSettings().stubOnly());
+        this.descriptorLoader = Mockito.mock(CentralPackageDescriptorLoader.class, Mockito.withSettings().stubOnly());
         languageServer.getServerContext().put(
                 CentralPackageDescriptorLoader.CENTRAL_PACKAGE_HOLDER_KEY, descriptorLoader);
         this.languageServer.getServerContext().put(LSPackageLoader.LS_PACKAGE_LOADER_KEY, this.lsPackageLoader);
         Mockito.when(this.lsPackageLoader.getRemoteRepoPackages(Mockito.any())).thenReturn(REMOTE_PACKAGES);
         Mockito.when(this.lsPackageLoader.getLocalRepoPackages(Mockito.any())).thenReturn(LOCAL_PACKAGES);
+        Mockito.when(this.descriptorLoader.getPackagesFromCentral()).thenReturn(CENTRAL_PACKAGES);
+        Mockito.when(this.lsPackageLoader.getCentralPackages(Mockito.any())).thenCallRealMethod();
         Mockito.when(this.lsPackageLoader.getDistributionRepoPackages()).thenCallRealMethod();
         Mockito.when(this.lsPackageLoader.getAllVisiblePackages(Mockito.any())).thenCallRealMethod();
         Mockito.when(this.lsPackageLoader.getPackagesFromBallerinaUserHome(Mockito.any())).thenCallRealMethod();
-        Mockito.when(descriptorLoader.getPackagesFromCentral()).thenReturn(CENTRAL_PACKAGES);
     }
 
     protected static List<Package> getPackages(Map<String, String> projects,
