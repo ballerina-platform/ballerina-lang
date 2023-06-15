@@ -519,8 +519,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(classDefinition, env);
         tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
                 tempGeneratedInitFunction.symbol.scope, env);
-        SemanticAnalyzer.AnalyzerData data = new SemanticAnalyzer.AnalyzerData(env);
-        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, data);
+        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
         classDefinition.generatedInitFunction = tempGeneratedInitFunction;
 
         // Add generated init function to the attached function list
@@ -8059,8 +8058,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(classDef, env);
         tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
                                                                           tempGeneratedInitFunction.symbol.scope, env);
-        SemanticAnalyzer.AnalyzerData data = new SemanticAnalyzer.AnalyzerData(env);
-        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, data);
+        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
         classDef.generatedInitFunction = tempGeneratedInitFunction;
         env.enclPkg.functions.add(classDef.generatedInitFunction);
         env.enclPkg.topLevelNodes.add(classDef.generatedInitFunction);
@@ -8814,7 +8812,7 @@ public class Desugar extends BLangNodeVisitor {
         return invocationNode;
     }
 
-    private BLangInvocation createLangLibInvocationNode(String functionName,
+    protected BLangInvocation createLangLibInvocationNode(String functionName,
                                                         BLangExpression onExpr,
                                                         List<BLangExpression> args,
                                                         BType retType,
