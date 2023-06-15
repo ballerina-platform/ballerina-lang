@@ -19,7 +19,7 @@
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
 import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -32,7 +32,7 @@ import java.util.List;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.Utils.getOneBasedLineRange;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_READ_FAILED;
+import static io.ballerina.runtime.internal.errors.ErrorCodes.CONFIG_TOML_READ_FAILED;
 
 /**
  * Represents configuration TOML document for `configurable` variables.
@@ -64,7 +64,7 @@ public class ConfigToml {
 
         List<Diagnostic> diagnosticList = getDiagnostics();
         if (!diagnosticList.isEmpty()) {
-            throw new ConfigException(RuntimeErrors.CONFIG_TOML_INVALID_FILE, getErrorMessage(diagnosticList));
+            throw new ConfigException(ErrorCodes.CONFIG_TOML_INVALID_FILE, getErrorMessage(diagnosticList));
         }
         return tomlAstNode;
     }
