@@ -19,6 +19,7 @@
 package io.ballerina.shell.snippet.factory;
 
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.SnippetException;
 import io.ballerina.shell.snippet.Snippet;
@@ -40,43 +41,60 @@ import java.util.List;
  */
 public abstract class SnippetFactory extends DiagnosticReporter {
     /**
-     * Creates a snippet from the given node.
+     * Creates snippets from the given node.
      * This will throw and error if the resultant snippet is an erroneous snippet.
      *
      * @param nodes Root node to create snippet from.
-     * @return Snippet that contains the node.
+     * @return Snippets that contains the node.
      * @throws SnippetException If couldn't identify the snippet.
      */
     public Collection<Snippet> createSnippets(Collection<Node> nodes) throws SnippetException {
         List<Snippet> snippets = new ArrayList<>();
         for (Node node : nodes) {
-            snippets.add(createSnippet(node));
+            snippets.addAll(createSnippets(node));
         }
         return snippets;
     }
 
     /**
-     * Creates a snippet from the given node.
+     * Creates snippets from the given node.
      * This will throw and error if the resultant snippet is an erroneous snippet.
      *
      * @param node Root node to create snippet from.
-     * @return Snippet that contains the node.
+     * @return Snippets that contains the node.
      * @throws SnippetException If couldn't identify the snippet.
      */
-    public Snippet createSnippet(Node node) throws SnippetException {
+    public Collection<Snippet> createSnippets(Node node) throws SnippetException {
         List<SnippetCreator> functions = new ArrayList<>();
         functions.add(this::createImportSnippet);
-        functions.add(this::createVariableDeclarationSnippet);
         functions.add(this::createModuleMemberDeclarationSnippet);
         functions.add(this::createStatementSnippet);
         functions.add(this::createExpressionSnippet);
         Snippet snippet;
+        List<Snippet> snippetList = new ArrayList<>();
+
+        if (node.kind() == SyntaxKind.LOCAL_VAR_DECL || node.kind() == SyntaxKind.MODULE_VAR_DECL) {
+            List<VariableDeclarationSnippet> variableDeclarationSnippets = createVariableDeclarationSnippets(node);
+            if (variableDeclarationSnippets != null) {
+                for (Snippet varSnippets : variableDeclarationSnippets) {
+                    if (varSnippets != null) {
+                        String message = String.format("Node identified as a %s snippet.", varSnippets.getKind());
+                        addDebugDiagnostic(message);
+                        snippetList.add(varSnippets);
+                    }
+                }
+
+                return snippetList;
+            }
+        }
+
         for (SnippetCreator function : functions) {
             snippet = function.create(node);
             if (snippet != null) {
                 String message = String.format("Node identified as a %s snippet.", snippet.getKind());
                 addDebugDiagnostic(message);
-                return snippet;
+                snippetList.add(snippet);
+                return snippetList;
             }
         }
 
@@ -94,13 +112,13 @@ public abstract class SnippetFactory extends DiagnosticReporter {
     public abstract ImportDeclarationSnippet createImportSnippet(Node node);
 
     /**
-     * Create a variable declaration snippet from the given node.
+     * Create variable declaration snippets from the given node.
      * Returns null if snippet cannot be created.
      *
      * @param node Root node to create snippet from.
-     * @return Snippet that contains the node.
+     * @return Snippets that contains the node.
      */
-    public abstract VariableDeclarationSnippet createVariableDeclarationSnippet(Node node);
+    public abstract List<VariableDeclarationSnippet> createVariableDeclarationSnippets(Node node);
 
     /**
      * Create a module member declaration snippet from the given node.

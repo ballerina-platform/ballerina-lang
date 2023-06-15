@@ -37,7 +37,9 @@ import io.ballerina.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ClauseNode;
 import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
+import io.ballerina.compiler.syntax.tree.CollectClauseNode;
 import io.ballerina.compiler.syntax.tree.CommitActionNode;
 import io.ballerina.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
@@ -77,6 +79,8 @@ import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.GroupByClauseNode;
+import io.ballerina.compiler.syntax.tree.GroupingKeyVarDeclarationNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerina.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
@@ -2804,6 +2808,16 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
+    public CollectClauseNode transform(CollectClauseNode collectClauseNode) {
+        Token collectKeyword = formatToken(collectClauseNode.collectKeyword(), 1, 0);
+        ExpressionNode expression = formatNode(collectClauseNode.expression(), env.trailingWS, env.trailingNL);
+        return collectClauseNode.modify()
+                .withCollectKeyword(collectKeyword)
+                .withExpression(expression)
+                .apply();
+    }
+
+    @Override
     public QueryExpressionNode transform(QueryExpressionNode queryExpressionNode) {
         int lineLength = env.lineLength;
         if (lineLength != 0) {
@@ -2814,11 +2828,11 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatNode(queryExpressionNode.queryConstructType().orElse(null), 1, 0);
         QueryPipelineNode queryPipeline = formatNode(queryExpressionNode.queryPipeline(), 0, 1);
 
-        SelectClauseNode selectClause;
+        ClauseNode resultClause;
         if (queryExpressionNode.onConflictClause().isPresent()) {
-            selectClause = formatNode(queryExpressionNode.selectClause(), 0, 1);
+            resultClause = formatNode(queryExpressionNode.resultClause(), 0, 1);
         } else {
-            selectClause = formatNode(queryExpressionNode.selectClause(), env.trailingWS, env.trailingNL);
+            resultClause = formatNode(queryExpressionNode.resultClause(), env.trailingWS, env.trailingNL);
         }
 
         OnConflictClauseNode onConflictClause = formatNode(queryExpressionNode.onConflictClause().orElse(null),
@@ -2830,7 +2844,7 @@ public class FormattingTreeModifier extends TreeModifier {
         return queryExpressionNode.modify()
                 .withQueryConstructType(queryConstructType)
                 .withQueryPipeline(queryPipeline)
-                .withSelectClause(selectClause)
+                .withResultClause(resultClause)
                 .withOnConflictClause(onConflictClause)
                 .apply();
     }
@@ -3373,6 +3387,36 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withOrderKeyword(orderKeyword)
                 .withByKeyword(byKeyword)
                 .withOrderKey(orderKey)
+                .apply();
+    }
+
+    @Override
+    public GroupByClauseNode transform(GroupByClauseNode groupByClauseNode) {
+        Token groupKeyword = formatToken(groupByClauseNode.groupKeyword(), 1, 0);
+        Token byKeyword = formatToken(groupByClauseNode.byKeyword(), 1, 0);
+        SeparatedNodeList<Node> groupingKey = formatSeparatedNodeList(groupByClauseNode.groupingKey(),
+                0, 0, env.trailingWS, env.trailingNL);
+
+        return groupByClauseNode.modify()
+                .withGroupKeyword(groupKeyword)
+                .withByKeyword(byKeyword)
+                .withGroupingKey(groupingKey)
+                .apply();
+    }
+
+    @Override
+    public GroupingKeyVarDeclarationNode transform(GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        TypeDescriptorNode typeDescriptor = formatNode(groupingKeyVarDeclarationNode.typeDescriptor(), 1, 0);
+        BindingPatternNode simpleBP = formatNode(groupingKeyVarDeclarationNode.simpleBindingPattern(), 1, 0);
+        Token equalsToken = formatToken(groupingKeyVarDeclarationNode.equalsToken(), 1, 0);
+        ExpressionNode expression = formatNode(groupingKeyVarDeclarationNode.expression(), env.trailingWS,
+                env.trailingNL);
+
+        return groupingKeyVarDeclarationNode.modify()
+                .withTypeDescriptor(typeDescriptor)
+                .withSimpleBindingPattern(simpleBP)
+                .withEqualsToken(equalsToken)
+                .withExpression(expression)
                 .apply();
     }
 
