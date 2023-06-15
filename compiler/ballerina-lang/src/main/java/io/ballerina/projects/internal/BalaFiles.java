@@ -274,7 +274,6 @@ public class BalaFiles {
         if (Files.notExists(packageJsonPath)) {
             throw new ProjectException("package.json does not exists in '" + balrPath + "'");
         }
-
         // Load `package.json`
         PackageJson packageJson = readPackageJson(balrPath, packageJsonPath);
         validatePackageJson(packageJson, balrPath);
@@ -284,10 +283,13 @@ public class BalaFiles {
         if (!Files.notExists(compilerPluginJsonPath)) {
             CompilerPluginJson compilerPluginJson = readCompilerPluginJson(balrPath, compilerPluginJsonPath);
             setCompilerPluginDependencyPaths(compilerPluginJson, balrPath);
-            return getPackageManifest(packageJson, Optional.of(compilerPluginJson), null);
+            return getPackageManifest(packageJson, Optional.of(compilerPluginJson), getDeprecationMsg(balrPath));
         }
-        // Load `deprecated.txt`
-        Path deprecateFilePath = balrPath.resolve(DEPRECATED_META_FILE_NAME);
+        return getPackageManifest(packageJson, Optional.empty(), getDeprecationMsg(balrPath));
+    }
+
+    private static String getDeprecationMsg(Path balaPath) {
+        Path deprecateFilePath = balaPath.resolve(DEPRECATED_META_FILE_NAME);
         if (Files.exists(deprecateFilePath)) {
             StringBuilder fileContents = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new FileReader(deprecateFilePath.toString(),
@@ -300,11 +302,9 @@ public class BalaFiles {
                 throw new ProjectException("unable to read content from the file '" + DEPRECATED_META_FILE_NAME +
                         "'", e);
             }
-            // pass the deprecation message to the package manifest
-            return getPackageManifest(packageJson, Optional.empty(), fileContents.substring(0, fileContents
-                    .length() - 1));
+            return fileContents.substring(0, fileContents.length() - 1);
         }
-        return getPackageManifest(packageJson, Optional.empty(), null);
+        return null;
     }
 
     private static DependencyManifest createDependencyManifestFromBalaFile(Path balrPath) {
@@ -402,18 +402,7 @@ public class BalaFiles {
             pkgDesc = PackageDescriptor.from(PackageOrg.from(packageJson.getOrganization()),
                     PackageName.from(packageJson.getName()), PackageVersion.from(packageJson.getVersion()));
         }
-
-        Map<String, PackageManifest.Platform> platforms = new HashMap<>(Collections.emptyMap());
-        if (packageJson.getPlatformDependencies() != null) {
-            List<Map<String, Object>> platformDependencies = new ArrayList<>();
-            packageJson.getPlatformDependencies().forEach(dependency -> {
-                String jsonStr = gson.toJson(dependency);
-                platformDependencies.add(gson.fromJson(jsonStr, Map.class));
-
-            });
-            PackageManifest.Platform platform = new PackageManifest.Platform(platformDependencies);
-            platforms.put(packageJson.getPlatform(), platform);
-        }
+        Map<String, PackageManifest.Platform> platforms = getPlatforms(packageJson);
 
         List<PackageManifest.Dependency> dependencies = new ArrayList<>();
         if (packageJson.getLocalDependencies() != null) {
@@ -437,6 +426,25 @@ public class BalaFiles {
                                 packageJson.getInclude(), packageJson.getSourceRepository(),
                                 packageJson.getBallerinaVersion(), packageJson.getVisibility(),
                                 packageJson.getTemplate()));
+    }
+
+    private static Map<String, PackageManifest.Platform> getPlatforms(PackageJson packageJson) {
+        List<Map<String, Object>> platformDependencies = new ArrayList<>();
+        Boolean graalvmCompatible = null;
+        Map<String, PackageManifest.Platform> platforms = new HashMap<>();
+        if (packageJson.getPlatformDependencies() != null) {
+            packageJson.getPlatformDependencies().forEach(dependency -> {
+                String jsonStr = gson.toJson(dependency);
+                platformDependencies.add(gson.fromJson(jsonStr, Map.class));
+            });
+        }
+        if (packageJson.getGraalvmCompatible() != null) {
+            graalvmCompatible = packageJson.getGraalvmCompatible();
+        }
+        PackageManifest.Platform platform = new PackageManifest.Platform(platformDependencies, Collections.emptyList(),
+                graalvmCompatible);
+        platforms.put(packageJson.getPlatform(), platform);
+        return platforms;
     }
 
     private static DependencyManifest getDependencyManifest(DependencyGraphJson dependencyGraphJson) {

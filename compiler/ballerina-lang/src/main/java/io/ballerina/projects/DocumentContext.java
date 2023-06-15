@@ -59,15 +59,18 @@ class DocumentContext {
     private final DocumentId documentId;
     private final String name;
     private final String content;
+    private boolean disableSyntaxTree = false;
 
-    private DocumentContext(DocumentId documentId, String name, String content) {
+    private DocumentContext(DocumentId documentId, String name, String content, boolean disableSyntaxTree) {
         this.documentId = documentId;
         this.name = name;
         this.content = content;
+        this.disableSyntaxTree = disableSyntaxTree;
     }
 
-    static DocumentContext from(DocumentConfig documentConfig) {
-        return new DocumentContext(documentConfig.documentId(), documentConfig.name(), documentConfig.content());
+    static DocumentContext from(DocumentConfig documentConfig, boolean disableSyntaxTree) {
+        return new DocumentContext(documentConfig.documentId(), documentConfig.name(), documentConfig.content(),
+                disableSyntaxTree);
     }
 
     DocumentId documentId() {
@@ -78,17 +81,19 @@ class DocumentContext {
         return this.name;
     }
 
-    void parse() {
+    SyntaxTree parse() {
         if (syntaxTree != null) {
-            return;
+            return syntaxTree;
         }
-
-        syntaxTree = SyntaxTree.from(this.textDocument(), name);
+        if (!disableSyntaxTree) {
+            syntaxTree = SyntaxTree.from(this.textDocument(), name);
+            return syntaxTree;
+        }
+        return SyntaxTree.from(this.textDocument(), name);
     }
 
     SyntaxTree syntaxTree() {
-        parse();
-        return syntaxTree;
+        return parse();
     }
 
     TextDocument textDocument() {
@@ -180,6 +185,6 @@ class DocumentContext {
     }
 
     DocumentContext duplicate() {
-        return new DocumentContext(this.documentId, this.name, syntaxTree().toSourceCode());
+        return new DocumentContext(this.documentId, this.name, syntaxTree().toSourceCode(), false);
     }
 }
