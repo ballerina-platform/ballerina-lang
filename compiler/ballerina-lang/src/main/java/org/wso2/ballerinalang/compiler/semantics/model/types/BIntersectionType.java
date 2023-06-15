@@ -60,6 +60,10 @@ public class BIntersectionType extends BType implements IntersectionType {
         effectiveType.setIntersectionType(this);
     }
 
+    public BIntersectionType(BTypeSymbol tsymbol) {
+        super(TypeTags.INTERSECTION, tsymbol);
+    }
+
     public BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> types, IntersectableReferenceType effectiveType,
                              long flags) {
         super(TypeTags.INTERSECTION, tsymbol, flags);

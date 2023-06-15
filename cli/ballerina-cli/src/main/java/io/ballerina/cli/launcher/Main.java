@@ -24,8 +24,12 @@ import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.compiler.BLangCompilerException;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -83,7 +87,27 @@ public class Main {
             cmdParser.setStopAtPositional(true);
 
             // loading additional commands via SPI
-            ServiceLoader<BLauncherCmd> bCmds = ServiceLoader.load(BLauncherCmd.class);
+            ServiceLoader<BLauncherCmd> bCmds;
+            if (null != args && args.length > 0 && LauncherUtils.isToolCommand(args[0])) {
+                List<File> jars = LauncherUtils.getToolCommandJarAndDependenciesPath(args[0]);
+                URL[] urls = jars.stream()
+                        .map(file -> {
+                            try {
+                                return file.toURI().toURL();
+                            } catch (MalformedURLException e) {
+                                throw LauncherUtils.createUsageExceptionWithHelp("invalid tool jar: " + file
+                                        .getAbsolutePath());
+                            }
+                        })
+                        .toArray(URL[]::new);
+                // Combine custom class loader with system class loader
+                ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+                ClassLoader combinedClassLoader = new URLClassLoader(urls, systemClassLoader);
+                bCmds = ServiceLoader.load(BLauncherCmd.class, combinedClassLoader);
+            } else {
+                bCmds = ServiceLoader.load(BLauncherCmd.class);
+            }
+
             for (BLauncherCmd bCmd : bCmds) {
                 cmdParser.addSubcommand(bCmd.getName(), bCmd);
                 bCmd.setParentCmdParser(cmdParser);

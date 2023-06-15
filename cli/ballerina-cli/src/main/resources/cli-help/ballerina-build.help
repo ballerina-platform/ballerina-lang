@@ -51,10 +51,13 @@ OPTIONS
        --target-dir <path>
            Target directory path.
 
-       --native
+       --graalvm
            Generate a GraalVM native image. Native image generation is an
            experimental feature which supports only a limited set of
            functionality.
+
+       --graalvm-build-options
+           Additional build options to be passed to the GraalVM native image.
 
 
 
@@ -69,3 +72,6 @@ EXAMPLES
 
        Build the 'app' package from a different directory.
            $ bal build <app-package-path>
+
+       Build the package with additional GraalVM native image options.
+           $ bal build --graalvm --graalvm-build-options="--static -H:Name=hello-world"

@@ -433,7 +433,8 @@ public class CommandUtil {
                 settings = Settings.from();
             }
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                    initializeProxy(settings.getProxy()),
+                    initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                    settings.getProxy().password(),
                     getAccessTokenOfCLI(settings));
             client.pullPackage(orgName, packageName, version, destination, supportedPlatform,
                     RepoUtils.getBallerinaVersion(), false);

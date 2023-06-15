@@ -14,10 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/jballerina.java;
 import ballerina/lang.runtime;
 
 public function entryfunc() {
-   func1();
+    func1();
 }
 
 function func1() {
@@ -27,21 +28,22 @@ function func1() {
 function func2() {
     func3();
 }
- 
-function func3() {
-   worker w1 {
-       sleep_and_wait();
-       int x = 10;
-       x ->> w2;
-       x+1 -> w2;
-   }
- 
-   worker w2 {
-       int y = <- w1;
-       int z = <- w1;
-   }
 
-   wait w1;
+function func3() {
+    worker w1 {
+        sleep_and_wait();
+        int x = 10;
+        x ->> w2;
+        x + 1 -> w2;
+    }
+
+    worker w2 {
+        println("func3 w2 anotherutils");
+        int y = <- w1;
+        int z = <- w1;
+    }
+
+    wait w1;
 }
 
 function sleep_and_wait() {
@@ -49,5 +51,23 @@ function sleep_and_wait() {
 }
 
 function sleep_and_wait_nested() {
+    println("sleep_and_wait_nested anotherutils");
     runtime:sleep(100);
 }
+
+public function println(string value) {
+    handle strValue = java:fromString(value);
+    handle stdout1 = stdout();
+    printlnInternal(stdout1, strValue);
+}
+
+function stdout() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java/lang/System"
+} external;
+
+function printlnInternal(handle receiver, handle strValue) = @java:Method {
+    name: "println",
+    'class: "java/io/PrintStream",
+    paramTypes: ["java.lang.String"]
+} external;
