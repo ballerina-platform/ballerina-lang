@@ -79,7 +79,7 @@ public class TracersStore {
                 store.put(serviceName, tracer);
             } else {
                 tracer = io.opentelemetry.api.trace.TracerProvider.noop().get("");
-                consoleError.println("error: tracing disabled as tracer provider had not been initialized.");
+                consoleError.println("error: tracing disabled as the tracer provider had not been initialized.");
             }
         }
         return tracer;
