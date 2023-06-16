@@ -594,7 +594,7 @@ public class NewCommandTest extends BaseCommandTest {
                 "name = \"" + packageName + "\"\n" +
                 "version = \"1.0.0\"\n" +
                 "export = [\"sample_tool_template\"]\n" +
-                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "distribution = \"2201.6.0-SNAPSHOT\"\n\n" +
                 "[build-options]\n" +
                 "observabilityIncluded = true\n";
         Assert.assertEquals(
