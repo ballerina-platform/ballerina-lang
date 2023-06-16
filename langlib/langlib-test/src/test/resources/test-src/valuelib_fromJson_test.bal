@@ -835,6 +835,7 @@ function testFromJsonStringWithUnexpectedChars() {
     string s4 = "{\"a\": [1, 2,]}";
     string s5 = "[{\"x\": 1}, {\"y\": 2]";
     string s6 = "{\"a\": \"\\👹👺\\👻😺🐈\\\\🦁😀\"}";
+    string s7 = "{\"a\": \"\\u123Z\"}";
 
     error err = <error> s1.fromJsonStringWithType(json);
     assertEquality(<string> checkpanic err.detail()["message"], "expected a field value at line: 1 column: 6");
@@ -858,6 +859,11 @@ function testFromJsonStringWithUnexpectedChars() {
 
     err = <error> s6.fromJsonString();
     assertEquality(<string> checkpanic err.detail()["message"], "expected escaped characters at line: 1 column: 9");
+    assertEquality(err.message(), "{ballerina/lang.value}FromJsonStringError");
+
+    err = <error> s7.fromJsonString();
+    assertEquality(<string> checkpanic err.detail()["message"],
+                        "expected hexadecimal value of an unicode character at line: 1 column: 15");
     assertEquality(err.message(), "{ballerina/lang.value}FromJsonStringError");
 }
 
