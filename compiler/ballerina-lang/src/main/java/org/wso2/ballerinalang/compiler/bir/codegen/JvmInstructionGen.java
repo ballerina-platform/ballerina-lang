@@ -2204,7 +2204,7 @@ public class JvmInstructionGen {
     private void generateRecordDefaultFPLoadIns(BIRNonTerminator.RecordDefaultFPLoad inst) {
         jvmTypeGen.loadType(this.mv, inst.enclosedType);
         this.mv.visitTypeInsn(CHECKCAST, RECORD_TYPE_IMPL);
-        this.mv.visitLdcInsn(inst.fieldName);
+        this.mv.visitLdcInsn(Utils.unescapeBallerina(inst.fieldName));
         this.loadVar(inst.lhsOp.variableDcl);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, RECORD_TYPE_IMPL, "setDefaultValue", SET_DEFAULT_VALUE_METHOD, false);
     }

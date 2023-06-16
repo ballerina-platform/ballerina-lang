@@ -1059,16 +1059,19 @@ public class ArrayValueImpl extends AbstractArrayValue {
             default:
                 if (arrayType.hasFillerValue()) {
                     extractComplexFillerValues(index);
-                    System.out.println("Called fill values - " + this);
                 }
         }
     }
 
     private void extractComplexFillerValues(int index) {
         for (int i = size; i < index; i++) {
-            this.refValues[i] = this.elementType.getZeroValue();
-            System.out.println("filled value - " + this.refValues[i]);
+            this.refValues[i] = getElementZeroValue();
         }
+    }
+
+    private Object getElementZeroValue() {
+        return this.elementTypedescValue == null ? this.elementType.getZeroValue() :
+                this.elementTypedescValue.getDescribingType().getZeroValue();
     }
 
     private void extractRecordFillerValues(int index) {

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.desugar;
 
+import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.tools.diagnostics.Location;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -5874,7 +5875,7 @@ public class Desugar extends BLangNodeVisitor {
             }
             BLangRecordLiteral.BLangRecordKeyValueField member = new BLangRecordLiteral.BLangRecordKeyValueField();
             member.key = new BLangRecordLiteral.BLangRecordKey(ASTBuilderUtil.createLiteral(pos, symTable.stringType,
-                                                                                            fieldName));
+                    Utils.unescapeJava(fieldName)));
             member.valueExpr = addConversionExprIfRequired(expression, expression.getBType());
             fields.add(member);
         }

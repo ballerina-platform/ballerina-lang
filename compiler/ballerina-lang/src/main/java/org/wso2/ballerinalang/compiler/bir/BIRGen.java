@@ -208,10 +208,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.RECORD_DELIMITER;
 import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
 import static org.ballerinalang.model.tree.NodeKind.INVOCATION;
 import static org.ballerinalang.model.tree.NodeKind.STATEMENT_EXPRESSION;
@@ -836,8 +838,8 @@ public class BIRGen extends BLangNodeVisitor {
                                             funcName, lhsOp, params, closureMapOperands,
                                             lambdaExpr.getBType(), lambdaExpr.function.symbol.strandName,
                                             lambdaExpr.function.symbol.schedulerPolicy, isWorker));
-        BType targetType = getTargetType(funcName.value);
-        if (lambdaExpr.function.flagSet.contains(Flag.RECORD) && targetType.tag == TypeTags.RECORD) {
+        BType targetType = getRecordTargetType(funcName.value);
+        if (lambdaExpr.function.flagSet.contains(Flag.RECORD) && targetType != null && targetType.tag == TypeTags.RECORD) {
             // If the function is for record type and has captured variables, then we need to create a
             // temp value in the type and keep it
 
@@ -849,12 +851,18 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private String getFieldName(String funcName, String typeName) {
-       return funcName.substring(funcName.lastIndexOf(typeName) + typeName.length() + 1);
+        String[] splitNames = funcName.split(Pattern.quote(typeName + "$$"));
+        return splitNames[splitNames.length - 1];
     }
 
-    private BType getTargetType(String funcName) {
+    private BType getRecordTargetType(String funcName) {
+        if (!funcName.contains(RECORD_DELIMITER)) {
+            return null;
+        }
+        String[] split = funcName.split(Pattern.quote(RECORD_DELIMITER));
+        String typeName = split[split.length - 2];
         for (BIRTypeDefinition type : this.env.enclPkg.typeDefs) {
-            if (funcName.contains(type.originalName.value)) {
+            if (typeName.equals(type.originalName.value)) {
                 return type.type;
             }
         }
@@ -1655,7 +1663,7 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleLiteral tupleLiteral) {
         BType type = tupleLiteral.getBType();
-        visitTypedesc(tupleLiteral.pos, type);
+        visitTypedesc(tupleLiteral.pos, type, getAnnotations(type.tsymbol, this.env));
         generateListConstructorExpr(tupleLiteral);
     }
 
@@ -2228,6 +2236,10 @@ public class BIRGen extends BLangNodeVisitor {
 
     private void visitTypedesc(Location pos, BType type) {
         visitTypedesc(pos, type, Collections.emptyList(), null);
+    }
+
+    private void visitTypedesc(Location pos, BType type, BIROperand annotations) {
+        visitTypedesc(pos, type, Collections.emptyList(), annotations);
     }
 
     private void visitTypedesc(Location pos, BType type, List<BIROperand> varDcls, BIROperand annotations) {

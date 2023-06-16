@@ -189,6 +189,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOLLAR;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.RECORD_DELIMITER;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNDERSCORE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 
@@ -710,7 +711,7 @@ public class ClosureGenerator extends BLangNodeVisitor {
                 name = ((BLangService) parent).name.getValue() + UNDERSCORE + name;
                 return generateName(name, parent.parent);
             case RECORD_TYPE:
-                name = ((BLangRecordTypeNode) parent).symbol.name.getValue() + UNDERSCORE + name;
+                name = RECORD_DELIMITER + ((BLangRecordTypeNode) parent).symbol.name.getValue() + RECORD_DELIMITER + name;
                 return generateName(name, parent.parent);
             default:
                 return generateName(name, parent.parent);
