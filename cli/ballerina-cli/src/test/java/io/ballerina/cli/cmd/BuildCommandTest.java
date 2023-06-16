@@ -364,8 +364,8 @@ public class BuildCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Build a valid ballerina project with java imports")
-    public void testBuildJava11BalProject() throws IOException {
-        Path projectPath = this.testResources.resolve("validJava11Project");
+    public void testBuildJavaBalProject() throws IOException {
+        Path projectPath = this.testResources.resolve("validJavaProject");
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
         // non existing bal file
