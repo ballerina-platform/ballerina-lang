@@ -918,65 +918,65 @@ function testDefaultValueFromCETBeingUsedWithReadOnlyFieldsInTheMappingConstruct
     assertFalse(f is record {|readonly string a; readonly string b; readonly string[] c;|});
 }
 
-const ASSERTION_ERROR_REASON = "AssertionError";
-
-function assertTrue(any|error actual) {
-    assertEquality(true, actual);
-}
-
-type RecordWithNeverField record {|
+type R1 record {|
     never x?;
 |};
 
-type OpenRecordWithNever record {
+type R2 record {
     never x?;
 };
 
-type RecordWithNeverAndReadonly record {|
+type R3 record {|
     never x?;
     readonly int y;
 |};
 
-type RecordWithNeverWithoutReadonly record {|
+type R4 record {|
     never x?;
     string y;
 |};
 
-type RecordWithNeverFieldRecord record {|
-       record {|
-           never a;
-       |} x?;
-   |};
+type R5 record {|
+   record {|
+       never a;
+   |} x?;
+|};
 
-type RecordWithNeverUnion record {|
+type R6 record {|
     never|never x?;
 |};
 
-function testNeverFieldRecord() {
+function testRecordReadonlynessWithNeverFields() {
     record {|
         never x?;
         never y?;
     |} c = {};
 
     readonly d = c;
-    RecordWithNeverField e = {};
+    R1 e = {};
     readonly e1 = e;
-    OpenRecordWithNever f = {};
-    RecordWithNeverAndReadonly g = {y: 1};
+    R2 f = {};
+    R3 g = {y: 1};
     readonly g1 = g;
-    RecordWithNeverWithoutReadonly h = {y: "abc"};
-    RecordWithNeverFieldRecord i = {};
+    R4 h = {y: "abc"};
+    R5 i = {};
     readonly i1 = i;
-    RecordWithNeverUnion j = {};
+    R6 j = {};
     readonly j1 = j;
 
     assertTrue(d is record {|never x?; never y?;|} & readonly);
     assertTrue(e1 is record {|never x?;|} & readonly);
-    assertTrue(f is record {|never x?; anydata...;|});
+    assertFalse(f is record {|never x?; anydata...;|} & readonly);
     assertTrue(g1 is record {|never x?; int y;|} & readonly);
-    assertTrue(h is record {|never x?; string y;|});
+    assertFalse(h is record {|never x?; string y;|} & readonly);
     assertTrue(i1 is record {|record {|never a;|} x?;|} & readonly);
     assertTrue(j1 is record {|never|never x?;|} & readonly);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
 }
 
 function assertFalse(any|error actual) {

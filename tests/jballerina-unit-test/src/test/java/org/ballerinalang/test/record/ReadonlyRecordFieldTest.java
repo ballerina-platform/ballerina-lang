@@ -62,7 +62,7 @@ public class ReadonlyRecordFieldTest {
                 {"testTypeReadOnlynessWithReadOnlyFieldsViaInclusion"},
                 {"testRecordWithFunctionTypeField"},
                 {"testDefaultValueFromCETBeingUsedWithReadOnlyFieldsInTheMappingConstructor"},
-                {"testNeverFieldRecord"}
+                {"testRecordReadonlynessWithNeverFields"}
         };
     }
 
@@ -118,8 +118,8 @@ public class ReadonlyRecordFieldTest {
         validateError(result, index++, "incompatible types: expected 'readonly', found 'Unauthorized?'", 273, 18);
         validateError(result, index++, "missing non-defaultable required record field 'y'", 285, 42);
         validateError(result, index++, "incompatible types: expected 'RecordWithReadOnlyFields', found 'int'", 286, 53);
-        validateError(result, index++, "incompatible types: expected 'readonly', found 'openNeverRecord'", 301, 18);
-        validateError(result, index++, "incompatible types: expected 'readonly', found 'neverRecordWithNotReadonly'",
+        validateError(result, index++, "incompatible types: expected 'readonly', found 'R1'", 301, 18);
+        validateError(result, index++, "incompatible types: expected 'readonly', found 'R2'",
                 302, 18);
         assertEquals(result.getErrorCount(), index);
     }
