@@ -326,9 +326,9 @@ function testMethodVarargEvaluationCount() {
     assertValueEquality(1, counter);
 }
 
-type Func function ();
+type Func isolated function ();
 
-public function f1() {
+public isolated function f1() {
     json|error res = foo:testFunc("f1");
 }
 
@@ -343,6 +343,18 @@ public isolated function testFunc() {
     }
     _ = f();
 }
+
+public function f2() returns int {
+    json|error res = foo:testFunc("f2");
+    if res is error {
+        return -1;
+    }
+    return 1;
+}
+
+final readonly & map<int> func1 = {
+    "f1": f2()
+};
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

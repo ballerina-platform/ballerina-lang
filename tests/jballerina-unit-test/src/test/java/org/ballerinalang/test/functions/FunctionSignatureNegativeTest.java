@@ -141,4 +141,11 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, 2,
                 "external resource methods are not yet supported in service objects", 23, 5);
     }
+
+    @Test
+    public void testCyclicFunctions() {
+        CompileResult result = BCompileUtil.compile("test-src/functions/cyclic-functions-negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        BAssertUtil.validateError(result, 0, "illegal cyclic reference '[func, f1, testFunc]'", 19, 1);
+    }
 }
