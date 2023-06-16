@@ -296,8 +296,14 @@ type R2 record {|
 
 function testRecordReadonlynessWithNeverFields() {
     R1 r1 = {};
-    R2 r2 = {y: "hello"};
-
     readonly x = r1;
+
+    R2 r2 = {y: "hello"};
     readonly y = r2;
+
+    record {
+        int x;
+        never y?;
+    } r3 = {x: 1};
+    readonly z = r3;
 }

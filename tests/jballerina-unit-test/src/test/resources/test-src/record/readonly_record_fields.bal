@@ -952,16 +952,17 @@ function testRecordReadonlynessWithNeverFields() {
         never y?;
     |} c = {};
 
-    readonly d = c;
     R1 e = {};
-    readonly e1 = e;
     R2 f = {};
     R3 g = {y: 1};
-    readonly g1 = g;
     R4 h = {y: "abc"};
     R5 i = {};
-    readonly i1 = i;
     R6 j = {};
+
+    readonly d = c;
+    readonly e1 = e;
+    readonly g1 = g;
+    readonly i1 = i;
     readonly j1 = j;
 
     assertTrue(d is record {|never x?; never y?;|} & readonly);
