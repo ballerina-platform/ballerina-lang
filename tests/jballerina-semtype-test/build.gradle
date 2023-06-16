@@ -41,3 +41,5 @@ test {
         suites 'src/test/resources/testng.xml'
     }
 }
+
+tasks.compileTestJava.dependsOn(':ballerina-lang-test:copyInteropImports')

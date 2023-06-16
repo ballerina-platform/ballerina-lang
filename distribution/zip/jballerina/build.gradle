@@ -166,3 +166,4 @@ project.afterEvaluate {
             }
         }
 }
+tasks.createZip.dependsOn(':ballerina-io-internal:copyInteropImports')

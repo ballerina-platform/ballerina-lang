@@ -65,7 +65,8 @@ compileJava {
 
 jar {
     // we omit the version since the jar is refered from ballerina.toml
-    archiveName 'jballerina-benchmark-test.jar'
+    archiveBaseName = 'jballerina-benchmark-test'
+    version = null
 }
 
 test {
