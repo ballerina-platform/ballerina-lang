@@ -1312,7 +1312,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.intersectionTypes.add(typeDef);
     }
 
-    private boolean isErrorIntersectionTypeCreatingNewType(BLangNode typeDef, SymbolEnv env) {
+    boolean isErrorIntersectionTypeCreatingNewType(BLangNode typeDef, SymbolEnv env) {
         // TODO: we should be able to remove this method
         boolean isIntersectionType = typeDef.getKind() == NodeKind.TYPE_DEFINITION
                 && ((BLangTypeDefinition) typeDef).typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE;

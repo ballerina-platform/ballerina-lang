@@ -437,13 +437,12 @@ public class TypeResolver {
             return symTable.semanticError;
         }
 
-        symEnter.lookupTypeSymbol(pkgEnv, name).type = potentialIntersectionType;
         return potentialIntersectionType;
     }
 
     private void handleDistinctDefinitionOfErrorIntersection(BLangTypeDefinition typeDefinition,
                                                              BType definedType) {
-        BType referenceConstraintType = Types.getReferredType(definedType);
+        BType referenceConstraintType = Types.getReferredType(definedType, false);
         BSymbol typeDefSymbol = typeDefinition.symbol;
 
         if (referenceConstraintType.tag == TypeTags.INTERSECTION &&
@@ -489,10 +488,7 @@ public class TypeResolver {
             if (((BTypeDefinitionSymbol) typeDefSymbol).referenceType != null) {
                 ((BTypeDefinitionSymbol) typeDefSymbol).referenceType.referredType = definedType;
             }
-
-            if (!effectiveType.typeIdSet.isEmpty()) {
-                definedType.flags |= Flags.DISTINCT;
-            }
+            definedType.flags |= Flags.DISTINCT;
         }
     }
 
@@ -1888,16 +1884,16 @@ public class TypeResolver {
             typeDefSymbol.pos = typeDefinition.name.pos;
         }
 
-        BType referenceConstraintType = Types.getReferredType(resolvedType);
+        BType referenceConstraintType = Types.getReferredType(resolvedType, false);
         boolean isIntersectionType = referenceConstraintType.tag == TypeTags.INTERSECTION && !isLabel;
 
         BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
                 referenceConstraintType;
 
-        boolean isErrorIntersection = isErrorIntersection(resolvedType);
-        if (isErrorIntersection && effectiveDefinedType.tag == TypeTags.ERROR) {
-            symEnter.populateSymbolNameOfErrorIntersection(resolvedType, typeDefinition.name.value);
-        }
+        boolean isErrorIntersection = symEnter.isErrorIntersectionTypeCreatingNewType(typeDefinition, env);
+//        if (isErrorIntersection && effectiveDefinedType.tag == TypeTags.ERROR) {
+//            symEnter.populateSymbolNameOfErrorIntersection(resolvedType, typeDefinition.name.value);
+//        }
 
         boolean isIntersectionTypeWithNonNullEffectiveTypeSymbol =
                 isIntersectionType && effectiveDefinedType != null && effectiveDefinedType.tsymbol != null;
@@ -1958,21 +1954,6 @@ public class TypeResolver {
             symEnter.defineSymbol(typeDefinition.name.pos, typeDefSymbol, env);
         }
         return resolvedType;
-    }
-
-    private boolean isErrorIntersection(BType definedType) {
-        BType type = Types.getReferredType(definedType);
-        if (type.tag == TypeTags.INTERSECTION) {
-            if (((BIntersectionType) type).effectiveType != null
-                    && ((BIntersectionType) type).effectiveType != symTable.semanticError) {
-                BIntersectionType intersectionType = (BIntersectionType) type;
-                return intersectionType.effectiveType.tag == TypeTags.ERROR;
-            } else {
-                return ((BIntersectionType) type).getConstituentTypes().stream()
-                        .anyMatch(t -> Types.getReferredType(t).tag == TypeTags.ERROR);
-            }
-        }
-        return false;
     }
 
     private BEnumSymbol createEnumSymbol(BLangTypeDefinition typeDefinition, BType definedType, SymbolEnv env) {

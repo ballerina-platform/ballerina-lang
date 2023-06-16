@@ -1821,10 +1821,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 return getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, expBroadType);
             case TypeTags.UNION:
                 BUnionType expectedUnionType = (BUnionType) expectedType;
-                List<BType> memberTypes = types.getAllReferredTypes(expectedUnionType);
                 List<BType> validTypes = new ArrayList<>();
                 dlog.mute();
-                for (BType memType : memberTypes) {
+                for (BType memType : expectedUnionType.getMemberTypes()) {
                     BType validType = getIntegerLiteralTypeUsingExpType(literalExpr, literalValue, memType);
                     if (validType.tag != TypeTags.SEMANTIC_ERROR) {
                         validTypes.add(validType);
@@ -1912,10 +1911,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 return getTypeOfDecimalFloatingPointLiteralUsingExpType(literalExpr, literalValue, expBroadType);
             case TypeTags.UNION:
                 BUnionType expectedUnionType = (BUnionType) expectedType;
-                List<BType> memberTypes = types.getAllReferredTypes(expectedUnionType);
                 List<BType> validTypes = new ArrayList<>();
                 dlog.mute();
-                for (BType memType : memberTypes) {
+                for (BType memType : expectedUnionType.getMemberTypes()) {
                     BType validType = getTypeOfDecimalFloatingPointLiteralUsingExpType(literalExpr, literalValue,
                             memType);
                     if (validType.tag != TypeTags.SEMANTIC_ERROR) {
@@ -2583,11 +2581,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     BLangConstantValue constantValue = getConstantValue(recordFields.get(key).type);
                     fields.put(key, constantValue);
                 }
-                Optional<BIntersectionType> intersectionType = ((BRecordType) type).getIntersectionType();
-                if (intersectionType.isPresent()) {
-                    return new BLangConstantValue(fields, intersectionType.get());
-                }
-                break;
+                return new BLangConstantValue(fields, type);
             case TypeTags.TUPLE:
                 List<BLangConstantValue> members = new ArrayList<>();
                 List<BType> tupleTypes = ((BTupleType) type).getTupleTypes();

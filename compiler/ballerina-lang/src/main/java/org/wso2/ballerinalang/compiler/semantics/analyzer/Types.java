@@ -2873,35 +2873,10 @@ public class Types {
 
         @Override
         public Boolean visit(BIntersectionType tIntersectionType, BType s) {
-            if (s.tag != TypeTags.INTERSECTION || !hasSameReadonlyFlag(s, tIntersectionType)) {
+            if (s.tag != TypeTags.INTERSECTION) {
                 return false;
             }
-
-            BIntersectionType sIntersectionType = (BIntersectionType) s;
-
-            if (sIntersectionType.getConstituentTypes().size() != tIntersectionType.getConstituentTypes().size()) {
-                return false;
-            }
-
-            Set<BType> sourceTypes = new LinkedHashSet<>(sIntersectionType.getConstituentTypes());
-            Set<BType> targetTypes = new LinkedHashSet<>(tIntersectionType.getConstituentTypes());
-
-            for (BType sourceType : sourceTypes) {
-                boolean foundSameType = false;
-
-                for (BType targetType : targetTypes) {
-                    if (equality.test(sourceType, targetType, new HashSet<>(this.unresolvedTypes))) {
-                        foundSameType = true;
-                        break;
-                    }
-                }
-
-                if (!foundSameType) {
-                    return false;
-                }
-            }
-
-            return true;
+            return visit(tIntersectionType.effectiveType, ((BIntersectionType) s).effectiveType);
         }
 
         @Override

@@ -42,7 +42,7 @@ public class BTableType extends BType implements TableType {
     public boolean isTypeInlineDefined;
     public Location constraintPos;
 
-    public BMapType mutableType;
+    public BTableType mutableType;
 
     public BTableType(int tag, BType constraint, BTypeSymbol tSymbol) {
         super(tag, tSymbol);

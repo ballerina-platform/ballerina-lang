@@ -772,8 +772,8 @@ public class TypeGuardTest {
                 "found '[int]'", 261, 33);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '[int]', " +
                 "found '[string] & readonly'", 272, 19);
-        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int]', found '([string] & " +
-                "readonly)'", 278, 19);
+        BAssertUtil.validateError(result, index++, "incompatible types: expected '[int]', found '[string] & " +
+                "readonly'", 278, 19);
         BAssertUtil.validateError(result, index++, "incompatible types: expected '[int]', found '[string] & " +
                 "readonly'", 292, 19);
         BAssertUtil.validateError(result, index++, "incompatible types: expected 'string[]', " +
