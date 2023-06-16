@@ -451,4 +451,7 @@
         <Class name="io.ballerina.compiler.api.impl.util.SymbolUtils" />
         <Bug pattern="BC_UNCONFIRMED_CAST" />
     </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2,MS_EXPOSE_REP,MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR"/>
+    </Match>
 </FindBugsFilter>
