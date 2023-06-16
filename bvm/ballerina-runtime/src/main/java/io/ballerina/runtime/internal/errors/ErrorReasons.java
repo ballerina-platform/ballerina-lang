@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.runtime.internal.util.exceptions;
+package io.ballerina.runtime.internal.errors;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
@@ -31,11 +31,13 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.VALUE_LANG_LIB
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
 
 /**
- * This is a temporary class for reasons for Ballerina errors from the VM either returned or causing panic.
+ * This class contains reasons for Ballerina errors from the VM either returned or causing panic.
  *
  * @since 0.990.0
  */
-public class BallerinaErrorReasons {
+public class ErrorReasons {
+
+    private ErrorReasons() {}
 
     private static final String BALLERINA_PREFIX = "{ballerina}";
     private static final String BALLERINA_ORG_PREFIX = "{ballerina/";

@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.util.exceptions;
+package io.ballerina.runtime.internal.errors;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -24,7 +24,7 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 /**
  * Error codes and Error keys to represent the runtime errors.
  */
-public enum RuntimeErrors implements DiagnosticCode {
+public enum ErrorCodes implements DiagnosticCode {
 
     CASTING_ANY_TYPE_TO_WRONG_VALUE_TYPE("casting.any.to.wrong.value.type", "RUNTIME_0001"),
     CASTING_ANY_TYPE_WITHOUT_INIT("casting.any.without.init", "RUNTIME_0002"),
@@ -145,13 +145,15 @@ public enum RuntimeErrors implements DiagnosticCode {
     REGEXP_INVALID_UNICODE_GENERAL_CATEGORY_VALUE("regexp.invalid.unicode.general.category.value", "RUNTIME_0117"),
     REGEXP_INVALID_UNICODE_PROPERTY_VALUE("regexp.invalid.unicode.property.value", "RUNTIME_0118"),
     REGEXP_EMPTY_CHARACTER_CLASS_DISALLOWED("regexp.empty.character.class.disallowed", "RUNTIME_0119"),
+
+    REGEXP_INVALID_HEX_DIGIT("regexp.invalid.hex.digit", "RUNTIME_0120"),
     CONFIG_TOML_INVALID_MODULE_STRUCTURE_WITH_VARIABLE("config.toml.invalid.module.structure.with.variable",
-            "RUNTIME_0120");
+                                                               "RUNTIME_0121");
 
     private final String errorMsgKey;
     private final String errorCode;
 
-    RuntimeErrors(String errorMessageKey, String errorCode) {
+    ErrorCodes(String errorMessageKey, String errorCode) {
         this.errorMsgKey = errorMessageKey;
         this.errorCode = errorCode;
     }

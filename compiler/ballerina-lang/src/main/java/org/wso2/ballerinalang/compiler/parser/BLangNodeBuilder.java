@@ -1509,6 +1509,7 @@ public class BLangNodeBuilder extends NodeTransformer<BLangNode> {
         BLangSimpleVariable simpleVar = createSimpleVar(recordFieldNode.fieldName(), recordFieldNode.typeName(),
                 getAnnotations(recordFieldNode.metadata()));
         simpleVar.flagSet.add(Flag.PUBLIC);
+        simpleVar.flagSet.add(Flag.FIELD);
         if (isPresent(recordFieldNode.expression())) {
             simpleVar.setInitialExpression(createExpression(recordFieldNode.expression()));
         }

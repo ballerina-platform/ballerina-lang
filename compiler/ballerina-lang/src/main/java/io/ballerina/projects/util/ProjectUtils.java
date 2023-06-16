@@ -1000,7 +1000,36 @@ public class ProjectUtils {
     }
 
     /**
-     * Delete all files and subdirectories expect a given file inside the given directory.
+     * Delete the all contents in the given directory except for selected files.
+     *
+     * @param directoryPath Directory to delete.
+     * @param filesToKeep files to keep.
+     */
+    public static boolean deleteSelectedFilesInDirectory(Path directoryPath, List<Path> filesToKeep) {
+        if (filesToKeep.isEmpty()) {
+            return deleteDirectory(directoryPath);
+        }
+        File directory = new File(String.valueOf(directoryPath));
+        File[] files = directory.listFiles();
+        boolean success = true;
+        if (files != null) {
+            for (File f : files) {
+                if (!filesToKeep.contains(f.toPath()) && f.isDirectory()) {
+                    success = deleteDirectory(f.toPath());
+                } else if (!filesToKeep.contains(f.toPath()) && f.isFile()) {
+                    success = f.delete();
+                }
+
+            }
+                if (!success) {
+                    return false;
+                }
+        }
+        return true;
+    }
+
+    /**
+     * Delete all files and subdirectories except a given file inside the given directory.
      *
      * @param directoryPath Directory to delete.
      * @param fileNameToKeep file name to keep
