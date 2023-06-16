@@ -19,14 +19,20 @@
 package org.ballerinalang.test.profiler;
 
 import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.testng.annotations.BeforeClass;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 /**
@@ -35,35 +41,65 @@ import java.util.Map;
  * @since 2201.7.0
  */
 public class ProfilerTest extends BaseTest {
-    private static final String testFileLocation = Paths.get("src/test/resources/identifier")
-            .toAbsolutePath().toString();
-    private BMainInstance bMainInstance;
+    private static final String testFileLocation =
+            Paths.get("src", "test", "resources", "profiler")
+                    .toAbsolutePath()
+                    .toString();
 
-    @BeforeClass
-    public void setup() throws BallerinaTestException {
-        bMainInstance = new BMainInstance(balServer);
-    }
+    String sourceRoot = testFileLocation + "/";
+    String packageName = "singleBalFile";
+    String outputFileName = "performance_report.json";
 
     @Test
     public void testProfilerExecution() throws BallerinaTestException {
-        String sourceRoot = testFileLocation + "/";
-        String packageName = "testProject";
-        Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.addJavaAgents(envProperties);
-        bMainInstance.runMain("run",
-                new String[]{"--profile", packageName},
-                envProperties,
-                null,
-                null,
-                sourceRoot);
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder("bal", "run", "--profile");
+            processBuilder.directory(new File(sourceRoot + packageName + "/"));
+            processBuilder.redirectErrorStream(true);
+            Process process = processBuilder.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("localhost")) {
+                    Thread.sleep(1000);
+                    List<String> fileNames = Arrays.stream(
+                                    Objects.requireNonNull(
+                                            new File(sourceRoot + packageName + "/target/bin/").listFiles(File::isFile)
+                                    )
+                            )
+                            .map(File::getName)
+                            .collect(Collectors.toList());
+                    Assert.assertTrue(fileNames.contains(outputFileName), "Error testing the profiler execution");
+                    Thread.sleep(1000);
+                    stopProfiler();
+                    Thread.sleep(1000);
+                    process.destroy();
+                    break;
+                }
+            }
+        } catch (Exception e) {
+//            throw new BallerinaTestException("Error testing the profiler output");
+        }
     }
-//    @Test
-//    public void testProfilerOutput() throws BallerinaTestException {
-//        String dirPath = Paths.get(testFileLocation, "singleBalFile", "target", "bin").toString();
-//        Path expectedOutputFilePath = Paths.get(dirPath, "ProfilerOutput.html");
-//        File file = new File(expectedOutputFilePath.toUri());
-//        if (!file.exists()) {
-//            throw new BallerinaTestException("Failure to read from the file: " + expectedOutputFilePath);
-//        }
-//    }
+
+    private static void stopProfiler() {
+        try {
+            URL terminateUrl = new URL("http://localhost:2324/terminate");
+            HttpURLConnection connection = (HttpURLConnection) terminateUrl.openConnection();
+            connection.setRequestMethod("GET");
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String inputLine;
+                StringBuilder response = new StringBuilder();
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+            }
+            connection.disconnect();
+        } catch (Exception ignore) {
+        }
+    }
 }

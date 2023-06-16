@@ -14,10 +14,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/typesbir;
-
-public type ExampleDec decimal;
+import ballerina/io;
 
 public function main() {
-    typesbir:AnInt x = 5;
+    io:println("Ballerina Profiler");
+    foo();
+    doneLog();
+}
+
+public function foo() {
+    io:println("Test 1");
+    bar();
+}
+
+public function bar() {
+    io:println("Test 2");
+}
+
+public function doneLog() {
+    io:println("doneLog");
 }
