@@ -32,6 +32,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.SignatureContext;
 import org.ballerinalang.langserver.util.MarkupUtils;
 import org.eclipse.lsp4j.MarkupContent;
@@ -267,13 +268,16 @@ public class SignatureInfoModelBuilder {
             }
             int labelOffset = startOffset + paramLabelBuilder.length();
             ParameterInformation paramInfo = new ParameterInformation();
-            String typeSignature = fieldType.signature();
             Optional<String> fieldName = recordFieldSymbol.getName();
-            recordFieldSymbol.typeDescriptor().signature();
             String paramDocs = parameterDocumentation
                     .getOrDefault(fieldName.orElse(""), recordFieldSymbol.signature());
-            getParameterDocumentation(typeSignature, fieldName.orElse(""), paramDocs);
-            paramLabelBuilder.append(recordFieldSymbol.typeDescriptor().signature());
+            
+            String typeSignature = fieldType.signature();
+            MarkupContent parameterDocs = getParameterDocumentation(typeSignature, fieldName.orElse(""), 
+                    paramDocs);
+            paramInfo.setDocumentation(parameterDocs);
+            typeSignature = FunctionGenerator.processModuleIDsInText(typeSignature);
+            paramLabelBuilder.append(typeSignature);
             int paramStart = labelOffset;
             int paramEnd = labelOffset + typeSignature.length();
             if (fieldName.isPresent()) {

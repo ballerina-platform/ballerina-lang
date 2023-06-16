@@ -798,7 +798,16 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     WORKER_RECEIVE_ACTION_NOT_ALLOWED_IN_LOCK_STATEMENT(
             "BCE4043", "worker.receive.action.not.allowed.in.lock.statement"),
     EMPTY_REGEXP_STRING_DISALLOWED("BCE4044", "empty.regexp.string.disallowed"),
-    UNSUPPORTED_EMPTY_CHARACTER_CLASS("BCE4045", "unsupported.empty.character.class")
+    UNSUPPORTED_EMPTY_CHARACTER_CLASS("BCE4045", "unsupported.empty.character.class"),
+    USER_DEFINED_FUNCTIONS_ARE_DISALLOWED_WITH_AGGREGATED_VARIABLES(
+            "BCS4046", "user.defined.functions.not.allowed.with.aggregated.variables"),
+    SEQUENCE_VARIABLE_CAN_BE_USED_IN_SINGLE_ELEMENT_LIST_CTR_OR_FUNC_INVOCATION(
+            "BCS4047", "seq.var.used.in.single.element.list.ctr.or.func.invocation"),
+    SEQ_ARG_FOLLOWED_BY_ANOTHER_SEQ_ARG("BCS4048", "seq.arg.followed.by.another.seq.arg"),
+
+    QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT("BCS4049", "query.construct.types.cannot.be.used.with.collect"),
+    VARIABLE_IS_SEQUENCED_MORE_THAN_ONCE("BCS4050", "variable.is.sequenced.more.than.once"),
+    INVALID_GROUPING_KEY_TYPE("BCS4051", "invalid.grouping.key.type")
     ;
 
     private String diagnosticId;
