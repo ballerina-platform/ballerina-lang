@@ -1519,6 +1519,9 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     /**
      * Represents a map of Path to ProjectContext.
      * <p>
+     *
+     * @param <K> cache key
+     * @param <V> cache value
      * Clear out front-faced cache implementation whenever a modification operation triggered for this map.
      */
     private static class SourceRootToProjectMap<K, V> extends HashMap<K, V> {
