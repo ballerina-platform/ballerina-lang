@@ -528,3 +528,9 @@ publishing {
         }
     }
 }
+
+tasks.createZip.dependsOn(':ballerina-io-internal:jar')
+tasks.createZip.dependsOn(':ballerina-io-internal:copyInteropImports')
+tasks.createDistribution.dependsOn(':ballerina-io-internal:jar')
+tasks.createDistribution.dependsOn(':ballerina-io-internal:copyInteropImports')
+
