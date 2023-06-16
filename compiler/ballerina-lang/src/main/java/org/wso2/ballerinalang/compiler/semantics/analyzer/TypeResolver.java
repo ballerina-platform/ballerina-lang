@@ -423,8 +423,7 @@ public class TypeResolver {
         BType typeTwoReference = Types.getReferredType(typeTwo);
 
         if (typeOneReference.tag != TypeTags.ERROR || typeTwoReference.tag != TypeTags.ERROR) {
-            dlog.error(typeNode.pos,
-                    DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION);
+            dlog.error(typeNode.pos, DiagnosticErrorCode.UNSUPPORTED_TYPE_INTERSECTION);
             return symTable.semanticError;
         }
 

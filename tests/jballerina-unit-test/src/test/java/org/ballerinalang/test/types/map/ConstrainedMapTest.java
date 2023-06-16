@@ -23,11 +23,11 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -73,7 +73,7 @@ public class ConstrainedMapTest {
     }
 
     @Test(description = "Test Map constrained with value type value retrieval negative case.",
-            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp =
                     "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find" +
                             " key 'names'.*")
@@ -105,7 +105,7 @@ public class ConstrainedMapTest {
     }
 
     @Test(description = "Test Map constrained with user defined type value retrieval negative case.",
-            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot " +
                     "find key 'item-not'.*")
     public void testConstrainedMapStructTypeNegative() {
@@ -288,7 +288,7 @@ public class ConstrainedMapTest {
     }
 
     @Test(description = "Test map constrained with string update with invalid type negative.",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation " +
                     "\\{\"message\":\"invalid map" +
                     " insertion: expected value of type 'string', found 'int'.*")
@@ -512,7 +512,7 @@ public class ConstrainedMapTest {
     }
 
     @Test(description = "Test basic map constrained to union case three.",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound " +
                     "\\{\"message\":\"cannot find key 'non-existing-key'.*")
     public void testMapConstrainedToUnionCaseThree() {
@@ -531,7 +531,7 @@ public class ConstrainedMapTest {
     }
 
     @Test(description = "Test basic map constrained to nullable union retrieve non existing key.",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot " +
                     "find key 'nonexist'.*")
     public void testMapConstrainedToNullableUnionNonExistingKey() {
@@ -548,7 +548,7 @@ public class ConstrainedMapTest {
     }
 
     @Test(description = "Test basic map constrained to string non existing key retrieve.",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound " +
                     "\\{\"message\":\"cannot find key 'nonexist-key'.*")
     public void testMapConstrainedStringNonExistingKeyRetrieve() {
@@ -557,7 +557,7 @@ public class ConstrainedMapTest {
     }
 
     @Test(description = "Test inherent type violation with nil value.",
-            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InherentTypeViolation " +
                     "\\{\"message\":\"invalid map" +
                     " insertion: expected value of type 'string', found '\\(\\)'.*")

@@ -18,9 +18,9 @@ package io.ballerina.runtime.internal.regexp;
 import io.ballerina.identifier.Utils;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.RegExpAssertion;
 import io.ballerina.runtime.internal.values.RegExpAtom;
@@ -112,7 +112,7 @@ public class RegExpFactory {
             TokenReader tokenReader = new TokenReader(new TreeTraverser(charReader));
             TreeBuilder treeBuilder = new TreeBuilder(tokenReader);
             return treeBuilder.parse();
-        } catch (BallerinaException e) {
+        } catch (BError e) {
             throw ErrorCreator.createError(StringUtils.fromString("Failed to parse regular expression: "
                     + e.getMessage() + " in '" + regExpStr + "'"));
         }
@@ -124,8 +124,8 @@ public class RegExpFactory {
             TokenReader tokenReader = new TokenReader(new TreeTraverser(charReader));
             TreeBuilder treeBuilder = new TreeBuilder(tokenReader);
             treeBuilder.parseInsertion();
-        } catch (BallerinaException e) {
-            throw ErrorCreator.createError(BallerinaErrorReasons.REG_EXP_PARSING_ERROR,
+        } catch (BError e) {
+            throw ErrorCreator.createError(ErrorReasons.REG_EXP_PARSING_ERROR,
                     StringUtils.fromString(e.getMessage() + " in insertion substring '"
                             + regExpStr.substring(3, regExpStr.length() - 1) + "'"));
         }

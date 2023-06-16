@@ -202,15 +202,6 @@ public class BuildCommand implements BLauncherCmd {
             sticky = false;
         }
 
-        if (nativeImage == null) {
-            nativeImage = false;
-        }
-
-        if (!nativeImage && graalVMBuildOptions != null) {
-            this.outStream.println("WARNING: --graalvm-build-options flag is ignored since --graalvm flag is not " +
-                    "provided");
-        }
-
         // load project
         Project project;
         BuildOptions buildOptions = constructBuildOptions();
@@ -268,15 +259,16 @@ public class BuildCommand implements BLauncherCmd {
                 return;
         }
 
-        if (project.buildOptions().nativeImage()) {
-            this.outStream.println("WARNING: Ballerina GraalVM Native Image generation is an experimental feature");
-        }
-
         // Validate Settings.toml file
         try {
             RepoUtils.readSettings();
         } catch (SettingsTomlException e) {
             this.outStream.println("warning: " + e.getMessage());
+        }
+
+        if (!project.buildOptions().nativeImage() && !project.buildOptions().graalVMBuildOptions().isEmpty()) {
+            this.outStream.println("WARNING: Additional GraalVM build options are ignored since graalvm " +
+                    "flag is not set");
         }
 
         // Check package files are modified after last build
