@@ -3646,14 +3646,6 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
         return type;
     }
 
-    protected BType checkExprSilent(BLangExpression expr, SymbolEnv env, BType expType, AnalyzerData data) {
-        SymbolEnv prevEnv = data.env;
-        data.env = env;
-        BType type = checkExprSilent(nodeCloner.cloneNode(expr), expType, data);
-        data.env = prevEnv;
-        return type;
-    }
-
     private BLangRecordLiteral createRecordLiteralForErrorConstructor(BLangErrorConstructorExpr errorConstructorExpr) {
         BLangRecordLiteral recordLiteral = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         for (NamedArgNode namedArg : errorConstructorExpr.getNamedArgs()) {
