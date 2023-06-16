@@ -650,12 +650,12 @@ public class DocModelTest {
 
     @Test(description = "Test type params and builtin subtype")
     public void testTypeParamAndBuiltinSubtype() {
-        Optional<BType> typeParam = testModule.anyTypes.stream()
+        Optional<BType> typeParam = testModule.unionTypes.stream()
                 .filter(bType -> bType.name.equals("TypeParam")).findAny();
-        Optional<BType> charSubType = testModule.types.stream()
+        Optional<BType> charSubType = testModule.stringTypes.stream()
                 .filter(bType -> bType.name.equals("Char")).findAny();
 
-        Optional<BType> anyDataType = testModule.types.stream()
+        Optional<BType> anyDataType = testModule.anyDataTypes.stream()
                 .filter(bType -> bType.name.equals("AnydataType")).findAny();
 
         Assert.assertTrue(typeParam.isPresent());
