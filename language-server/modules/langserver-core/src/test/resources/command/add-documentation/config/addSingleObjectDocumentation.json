@@ -29,7 +29,7 @@
                     "character": 0
                   }
                 },
-                "newText": "# Description\n#\n# + testString - Field Description\n"
+                "newText": "# Description.\n#\n# + testString - field description\n"
               }
             ]
           }

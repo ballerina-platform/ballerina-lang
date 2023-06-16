@@ -898,6 +898,84 @@ function testNestedQueryActionOrExprWithClientResourceAccessAction() {
     assertEquality([["book1", "book4"]], res3);
 }
 
+function testQueryActionWithQueryExpression() {
+    string[] res = [];
+    int[] res2 = [];
+
+    from var item in from string letter in ["a", "b", "c"] select letter
+    do {
+        res.push(item);
+    };
+
+    from var x in from int num in [2, -3, -4, 5] where num > 0 select num * num
+    do {
+        res2.push(x);
+    };
+
+    assertEquality([4, 25], res2);
+}
+
+type T1 record {
+    T3[] t3s;
+};
+
+type T2 record {
+    T3[]|T4[] t3OrT4;
+};
+
+type T3 record {
+    string str;
+};
+
+type T4 record {
+    boolean foo;
+};
+
+function transform(T1 t1) returns T2 => {
+    t3OrT4: from var t3sItem in t1.t3s
+        select {
+           str: "transformed_" + t3sItem.str
+        }
+};
+
+function testQueryActionOrExpressionWithUnionRecordResultType() {
+    T1 t1 = {t3s: [{str: "str1"}, {str: "str2"}]};
+    T2 t2 = transform(t1);
+    assertEquality([{str: "transformed_str1"}, {str: "transformed_str2"}], t2.t3OrT4);
+}
+
+type Student record {
+    string firstName;
+    string lastName;
+    int intakeYear;
+    float gpa;
+};
+
+function calGraduationYear(int year) returns int {
+    return year + 5;
+}
+
+function getBestStudents() returns any|error {
+
+    Student s1 = {firstName: "Martin", lastName: "Sadler", intakeYear: 1990, gpa: 3.5};
+    Student s2 = {firstName: "Ranjan", lastName: "Fonseka", intakeYear: 2001, gpa: 1.9};
+    Student s3 = {firstName: "Michelle", lastName: "Guthrie", intakeYear: 2002, gpa: 3.7};
+    Student s4 = {firstName: "George", lastName: "Fernando", intakeYear: 2005, gpa: 4.0};
+    Student[] studentList = [s1, s2, s3];
+
+    return from var student in studentList
+        where student.gpa >= 2.0
+        let string degreeName = "Bachelor of Medicine", int graduationYear = calGraduationYear(student.intakeYear)
+        order by student.gpa descending
+        limit 2
+        select {name: student.firstName + " " + student.lastName, degree: degreeName, graduationYear: graduationYear};
+}
+
+function testQueryActionOrExprWithAnyOrErrResultType() {
+    assertTrue(getBestStudents() is record {|string name; string degree; int graduationYear;|}[]);
+
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(anydata expected, anydata actual) {

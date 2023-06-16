@@ -132,7 +132,7 @@ public class DocModelTest {
                 "Fifth membertype orgName should be ballerina");
         Assert.assertEquals(unionType.get().memberTypes.get(4).moduleName, "docerina_project.world",
                 "Fifth membertype moduleName should be test");
-        Assert.assertEquals(unionType.get().memberTypes.get(4).category, "classes",
+        Assert.assertEquals(unionType.get().memberTypes.get(4).category, "libs",
                 "Fifth membertype category should be classes");
 
         Assert.assertEquals(unionType.get().memberTypes.get(5).category, "builtin",
@@ -314,8 +314,8 @@ public class DocModelTest {
                 "First field in Human Record should be controller");
         Assert.assertEquals(humanRec.get().fields.get(0).type.name, "MainController",
                 "Type name of first field in Human Record should be MainController");
-        Assert.assertEquals(humanRec.get().fields.get(0).type.category, "classes",
-                "Category of first field in Human Record should be classes");
+        Assert.assertEquals(humanRec.get().fields.get(0).type.category, "reference",
+                "Category of first field in Human Record should be reference");
         Assert.assertEquals(humanRec.get().fields.get(0).description, "A MainController to control the human" +
                         System.lineSeparator(),
                 "Description of first field in Human Record should be: A MainController to control the human" +
@@ -347,8 +347,8 @@ public class DocModelTest {
                 "Fourth field in Human Record should be listnr");
         Assert.assertEquals(humanRec.get().fields.get(3).type.name, "Listener",
                 "Type name of fourth field in Human Record should be Listener");
-        Assert.assertEquals(humanRec.get().fields.get(3).type.category, "listeners",
-                "Category of fourth field in Human Record should be listeners");
+        Assert.assertEquals(humanRec.get().fields.get(3).type.category, "reference",
+                "Category of fourth field in Human Record should be reference");
         Assert.assertTrue(humanRec.get().fields.get(3).type.isNullable,
                 "Fourth field in Human Record should be optional");
 
@@ -356,8 +356,8 @@ public class DocModelTest {
                 "Fifth field in Human Record should be caller");
         Assert.assertEquals(humanRec.get().fields.get(4).type.name, "Caller",
                 "Type name of fifth field in Human Record should be Caller");
-        Assert.assertEquals(humanRec.get().fields.get(4).type.category, "clients",
-                "Category of fifth field in Human Record should be clients");
+        Assert.assertEquals(humanRec.get().fields.get(4).type.category, "reference",
+                "Category of fifth field in Human Record should be reference");
 
         Assert.assertEquals(humanRec.get().fields.get(5).name, "userID",
                 "Sixth field in Human Record should be userID");
@@ -409,7 +409,7 @@ public class DocModelTest {
         Assert.assertEquals(uuidRec.get().fields.get(0).type.moduleName, "lang.int");
         Assert.assertEquals(uuidRec.get().fields.get(0).type.version, "0.0.0");
         Assert.assertEquals(uuidRec.get().fields.get(0).type.name, "Unsigned32");
-        Assert.assertEquals(uuidRec.get().fields.get(0).type.category, "types");
+        Assert.assertEquals(uuidRec.get().fields.get(0).type.category, "libs");
 
         Optional<BObjectType> controller = testModule.objectTypes.stream().filter(record -> record.name
                 .equals("Controller")).findAny();
@@ -428,13 +428,13 @@ public class DocModelTest {
         Assert.assertEquals(function.get().parameters.get(0).type.orgName, "test_org");
         Assert.assertEquals(function.get().parameters.get(0).type.moduleName, "docerina_project");
         Assert.assertEquals(function.get().parameters.get(0).type.version, "1.0.0");
-        Assert.assertEquals(function.get().parameters.get(0).type.category, "objectTypes");
+        Assert.assertEquals(function.get().parameters.get(0).type.category, "types");
 
         Assert.assertEquals(function.get().parameters.get(1).name, "uuid");
         Assert.assertEquals(function.get().parameters.get(1).type.orgName, "test_org");
         Assert.assertEquals(function.get().parameters.get(1).type.moduleName, "docerina_project");
         Assert.assertEquals(function.get().parameters.get(1).type.version, "1.0.0");
-        Assert.assertEquals(function.get().parameters.get(1).type.category, "records");
+        Assert.assertEquals(function.get().parameters.get(1).type.category, "types");
     }
 
     @Test(description = "Test deciaml type")
