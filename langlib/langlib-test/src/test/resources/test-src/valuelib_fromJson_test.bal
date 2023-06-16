@@ -863,7 +863,7 @@ function testFromJsonStringWithUnexpectedChars() {
 
     err = <error> s7.fromJsonString();
     assertEquality(<string> checkpanic err.detail()["message"],
-                        "expected hexadecimal value of an unicode character at line: 1 column: 15");
+                        "expected the hexadecimal value of a unicode character at line: 1 column: 13");
     assertEquality(err.message(), "{ballerina/lang.value}FromJsonStringError");
 }
 
