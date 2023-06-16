@@ -57,6 +57,7 @@ public class Constants {
     public static final String GENCACHE_COMMAND = "gencache";
     public static final String VERSION_OPTION = "--version";
     public static final String HELP_OPTION = "--help";
+    public static final String DEBUG_OPTION = "--debug";
     public static final String VERSION_SHORT_OPTION = "-v";
     public static final String HELP_SHORT_OPTION = "-h";
 

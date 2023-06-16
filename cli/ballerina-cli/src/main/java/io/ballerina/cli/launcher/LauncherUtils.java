@@ -41,6 +41,7 @@ import static io.ballerina.cli.cmd.Constants.ASYNCAPI_COMMAND;
 import static io.ballerina.cli.cmd.Constants.BINDGEN_COMMAND;
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
+import static io.ballerina.cli.cmd.Constants.DEBUG_OPTION;
 import static io.ballerina.cli.cmd.Constants.DEPRECATE_COMMAND;
 import static io.ballerina.cli.cmd.Constants.DIST_COMMAND;
 import static io.ballerina.cli.cmd.Constants.DIST_TOOL_TOML_PREFIX;
@@ -91,7 +92,7 @@ public class LauncherUtils {
     public static final String LIBS = "libs";
 
     private static final List<String> options = Arrays.asList(VERSION_OPTION, VERSION_SHORT_OPTION, HELP_OPTION,
-            HELP_SHORT_OPTION);
+            HELP_SHORT_OPTION, DEBUG_OPTION);
     private static final List<String> coreCommands = Arrays.asList(
             BUILD_COMMAND, RUN_COMMAND, TEST_COMMAND, DOC_COMMAND, PACK_COMMAND);
     private static final List<String> packageCommands = Arrays.asList(NEW_COMMAND, ADD_COMMAND, PULL_COMMAND,
