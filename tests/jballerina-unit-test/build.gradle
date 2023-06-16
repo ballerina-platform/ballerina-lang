@@ -76,11 +76,7 @@ test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "enableJBallerinaTests", "true"
 
-<<<<<<< HEAD
-    jvmArgs = ['-Xms512m', '-Xmx3g', "--add-opens=java.base/java.util=ALL-UNNAMED"]
-=======
     jvmArgs = ['-Xms512m', '-Xmx3g', '--add-opens=java.base/java.util=ALL-UNNAMED']
->>>>>>> f16726a464e (Fix heap space issue in unit tests)
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'

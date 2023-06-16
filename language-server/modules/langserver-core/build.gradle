@@ -142,6 +142,7 @@ task copyRuntime() {
 }
 
 test {
+    jvmArgs = ['-Xms512m', '-Xmx3g']
     dependsOn deleteGeneratedModules
     dependsOn loadDistributionCache
     dependsOn copyRuntime
