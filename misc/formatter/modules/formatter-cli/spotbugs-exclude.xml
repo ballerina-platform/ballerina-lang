@@ -18,25 +18,7 @@
 
 <FindBugsFilter>
     <Match>
-        <Or>
-            <And>
-                <Class name="org.ballerinalang.debugger.test.utils.DebugOutputListener"/>
-                <Bug pattern="EI_EXPOSE_REP"/>
-            </And>
-            <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON"/>
-            <And>
-                <Class name="org.ballerinalang.debugger.test.utils.client.connection.ProcessStreamConnectionProvider"/>
-                <Bug pattern="DE_MIGHT_IGNORE"/>
-            </And>
-            <And>
-                <Class name="org.ballerinalang.debugger.test.utils.client.connection.SocketStreamConnectionProvider"/>
-                <Bug pattern="REC_CATCH_EXCEPTION"/>
-            </And>
-        </Or>
-
-
-    </Match>
-    <Match>
-        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Class name="org.ballerinalang.formatter.cli.FormatUtil"/>
+        <Bug pattern="DCN_NULLPOINTER_EXCEPTION"/>
     </Match>
 </FindBugsFilter>
