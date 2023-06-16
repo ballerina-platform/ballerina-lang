@@ -19,6 +19,7 @@ import ballerina/io;
 public function main() {
     io:println("Ballerina Profiler");
     foo();
+    doneLog();
 }
 
 public function foo() {
@@ -28,4 +29,8 @@ public function foo() {
 
 public function bar() {
     io:println("Test 2");
+}
+
+public function doneLog() {
+    io:println("doneLog");
 }

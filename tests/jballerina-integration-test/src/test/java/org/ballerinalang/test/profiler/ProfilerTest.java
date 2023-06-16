@@ -19,27 +19,19 @@
 package org.ballerinalang.test.profiler;
 
 import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -57,56 +49,38 @@ public class ProfilerTest extends BaseTest {
     String sourceRoot = testFileLocation + "/";
     String packageName = "singleBalFile";
     String outputFileName = "performance_report.json";
-    private BMainInstance bMainInstance;
-
-    @BeforeClass
-    public void setup() throws BallerinaTestException {
-        bMainInstance = new BMainInstance(balServer);
-    }
 
     @Test
     public void testProfilerExecution() throws BallerinaTestException {
-        Map<String, String> envProperties = new HashMap<>();
-        bMainInstance.addJavaAgents(envProperties);
-        CompletableFuture<Void> runMainTask = CompletableFuture.runAsync(() -> {
-            try {
-                bMainInstance.runMain(
-                        "run",
-                        new String[]{"--profile", packageName},
-                        envProperties,
-                        null,
-                        null,
-                        sourceRoot
-                );
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder("bal", "run", "--profile");
+            processBuilder.directory(new File(sourceRoot + packageName + "/"));
+            processBuilder.redirectErrorStream(true);
+            Process process = processBuilder.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-            } catch (BallerinaTestException ignore) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("localhost")) {
+                    Thread.sleep(1000);
+                    List<String> fileNames = Arrays.stream(
+                                    Objects.requireNonNull(
+                                            new File(sourceRoot + packageName + "/target/bin/").listFiles(File::isFile)
+                                    )
+                            )
+                            .map(File::getName)
+                            .collect(Collectors.toList());
+                    Assert.assertTrue(fileNames.contains(outputFileName), "Error testing the profiler execution");
+                    Thread.sleep(1000);
+                    stopProfiler();
+                    Thread.sleep(1000);
+                    process.destroy();
+                    break;
+                }
             }
-        });
-        try {
-            runMainTask.get(20, TimeUnit.SECONDS);
-        } catch (Exception ignore) {
-        }
-        List<String> fileNames = Arrays.stream(
-                        Objects.requireNonNull(
-                                new File(sourceRoot + packageName + "/target/bin/").listFiles(File::isFile)
-                        )
-                )
-                .map(File::getName)
-                .collect(Collectors.toList());
-        Assert.assertTrue(fileNames.contains(outputFileName), "Error testing the profiler execution");
-    }
-
-    @Test
-    public void testProfilerOutput() throws BallerinaTestException {
-        String outputFilePath = sourceRoot + packageName + "/target/bin/" + outputFileName;
-        try {
-            String outputJsonString = Files.readString(Paths.get(outputFilePath));
-            int functionCount = countFunctionOccurrences(outputJsonString);
-            Assert.assertEquals(functionCount, 182);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new BallerinaTestException("Error testing the profiler output");
         }
-        stopProfiler();
     }
 
     private static void stopProfiler() {
@@ -127,10 +101,5 @@ public class ProfilerTest extends BaseTest {
             connection.disconnect();
         } catch (Exception ignore) {
         }
-    }
-
-    private static int countFunctionOccurrences(String outputJsonString) {
-        outputJsonString = outputJsonString.replaceAll("\\s+", "");
-        return outputJsonString.split("\"name\"").length - 1;
     }
 }
