@@ -14,16 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/test;
-import largeMethods.functions as f;
-import largeMethods.objects as o;
+import largeMethods2.records as r;
 
 public function main() {
-    test:assertTrue(checkpanic f:largeMethod());
-    boolean|error largeMethodWithCheckResult = f:largeMethodWithCheck();
-    test:assertTrue(largeMethodWithCheckResult is error);
-    o:largeClass largeObject = new();
-    largeObject.validate();
-    f:testFunctionWithWorkers();
-    f:testInvalidRegExp();
+    r:testLargeRecord();
+    r:testQueryExpressionsWithLargeArraysAndRecords();
+    r:testAnnotationsOnLocalRecordFields();
 }
