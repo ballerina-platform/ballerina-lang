@@ -36,7 +36,16 @@ modules = [
 ]
 
 [[package]]
-org = "gabilan"
+org = "waruna"
+name = "http"
+version = "1.1.2"
+modules = [
+	{org = "waruna", packageName = "http", moduleName = "http"},
+	{org = "waruna", packageName = "http", moduleName = "http.client"}
+]
+
+[[package]]
+org = "waruna"
 name = "myPackage2"
 version = "0.1.0"
 dependencies = [
@@ -46,17 +55,8 @@ dependencies = [
 	{org = "waruna", name = "websub"}
 ]
 modules = [
-	{org = "gabilan", packageName = "myPackage2", moduleName = "myPackage2"},
-	{org = "gabilan", packageName = "myPackage2", moduleName = "myPackage2.mod1"}
-]
-
-[[package]]
-org = "waruna"
-name = "http"
-version = "1.1.2"
-modules = [
-	{org = "waruna", packageName = "http", moduleName = "http"},
-	{org = "waruna", packageName = "http", moduleName = "http.client"}
+	{org = "waruna", packageName = "myPackage2", moduleName = "myPackage2"},
+	{org = "waruna", packageName = "myPackage2", moduleName = "myPackage2.mod1"}
 ]
 
 [[package]]
