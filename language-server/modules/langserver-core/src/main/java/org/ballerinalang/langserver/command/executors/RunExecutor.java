@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * Command executor for running a Ballerina file. Each project at most has a single instance running at a time.
@@ -41,11 +42,13 @@ public class RunExecutor implements LSCommandExecutor {
     @Override
     public Boolean execute(ExecuteCommandContext context) throws LSCommandExecutorException {
         try {
-            Optional<Process> process = context.workspace().run(extractPath(context));
-            if (process.isEmpty()) {
+            Optional<Process> processOpt = context.workspace().run(extractPath(context));
+            if (processOpt.isEmpty()) {
                 return false;
             }
-            listenOutput(process.get(), context.getLanguageClient());
+            Process process = processOpt.get();
+            listenOutputAsync(context.getLanguageClient(), process::getInputStream, "out");
+            listenOutputAsync(context.getLanguageClient(), process::getErrorStream, "err");
             return true;
         } catch (IOException e) {
             throw new LSCommandExecutorException(e);
@@ -56,20 +59,20 @@ public class RunExecutor implements LSCommandExecutor {
         return Path.of(context.getArguments().get(0).<JsonPrimitive>value().getAsString());
     }
 
-    public void listenOutput(Process process, ExtendedLanguageClient client) throws IOException {
-        Thread thread = new Thread(() -> listenOutputAsync(client, process));
+    public void listenOutputAsync(ExtendedLanguageClient client, Supplier<InputStream> getInputStream, String channel) {
+        Thread thread = new Thread(() -> listenOutput(client, getInputStream, channel));
         thread.setDaemon(true);
         thread.start();
     }
 
-    private static void listenOutputAsync(ExtendedLanguageClient client, Process process) {
-        InputStream in = process.getInputStream();
+    private static void listenOutput(ExtendedLanguageClient client, Supplier<InputStream> inSupplier, String channel) {
+        InputStream in = inSupplier.get();
         try { // Can't use resource style due to SpotBugs bug.
             byte[] buffer = new byte[1024];
             int count;
             while ((count = in.read(buffer)) > 0) {
                 String str = new String(buffer, 0, count, StandardCharsets.UTF_8);
-                client.logTrace(new LogTraceParams(str, ""));
+                client.logTrace(new LogTraceParams(str, channel));
             }
         } catch (IOException ignored) {
         } finally {

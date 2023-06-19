@@ -478,6 +478,7 @@ public class ImmutableTypeCloner {
         BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(effectiveType,
                 effectiveType.tsymbol, tupleTypeNode, env);
         typeDefinition.pos = pos;
+        effectiveType.flags |= Flags.EFFECTIVE_TYPE_DEF;
         return immutableTupleIntersectionType;
     }
 

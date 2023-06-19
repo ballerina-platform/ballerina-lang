@@ -90,7 +90,9 @@ public class CyclicTypeDefinitionsTest {
                 {"testCyclicMapTypeDefinition"},
                 {"testCyclicArrayTypeDefinition"},
                 {"testCyclicTableTypeDefinition2"},
-                {"testCyclicObjectTypeDefinition"}
+                {"testCyclicObjectTypeDefinition"},
+                {"testCyclicReadonlyTupleTypeDefinition1"},
+                {"testCyclicReadonlyTupleTypeDefinition2"}
         };
     }
 

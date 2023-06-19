@@ -230,7 +230,7 @@ public class BuildOptions {
         CODE_COVERAGE("codeCoverage"),
         DUMP_BUILD_TIME("dumpBuildTime"),
         TARGET_DIR("targetDir"),
-        NATIVE_IMAGE("native"),
+        NATIVE_IMAGE("graalvm"),
         EXPORT_COMPONENT_MODEL("exportComponentModel"),
         GRAAL_VM_BUILD_OPTIONS("graalvmBuildOptions");
 
