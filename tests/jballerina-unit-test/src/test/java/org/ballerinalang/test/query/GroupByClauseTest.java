@@ -35,12 +35,14 @@ public class GroupByClauseTest {
     private CompileResult resultWithListCtr;
     private CompileResult resultWithInvocation;
     private CompileResult negativeResult;
+    private CompileResult negativeSemanticResult;
 
     @BeforeClass
     public void setup() {
         resultWithListCtr = BCompileUtil.compile("test-src/query/group_by_clause_with_list_ctr.bal");
         resultWithInvocation = BCompileUtil.compile("test-src/query/group_by_clause_with_invocation.bal");
         negativeResult = BCompileUtil.compile("test-src/query/group_by_clause_negative.bal");
+        negativeSemanticResult = BCompileUtil.compile("test-src/query/group_by_clause_negative_semantic.bal");
     }
 
     @Test(dataProvider = "dataToTestGroupByClauseWithListCtr")
@@ -302,5 +304,13 @@ public class GroupByClauseTest {
         BAssertUtil.validateError(negativeResult, i++, "invalid grouping key type 'error', expected a subtype of " +
                 "'anydata'", 178, 26);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @Test
+    public void testNegativeSemanticCases() {
+        int i = 0;
+        BAssertUtil.validateError(negativeSemanticResult, i++, "invalid usage of the 'check' expression operator: " +
+                "no matching error return type(s) in the enclosing invokable", 24, 37);
+        Assert.assertEquals(negativeSemanticResult.getErrorCount(), i);
     }
 }
