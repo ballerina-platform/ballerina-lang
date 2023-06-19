@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - master
+      - java_17_migration
 
 jobs:
   build-lang:
