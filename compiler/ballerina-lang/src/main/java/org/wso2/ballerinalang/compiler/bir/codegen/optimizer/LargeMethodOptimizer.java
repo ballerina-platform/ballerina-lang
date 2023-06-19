@@ -147,19 +147,10 @@ public class LargeMethodOptimizer {
         }
 
 
-        List<BIRBasicBlock> parentFuncNewBBList = new ArrayList<>();
-        List<BIRNonTerminator> parentFuncNewInsList =  new ArrayList<>();
-        Set<BIRVariableDcl> parentFuncLocalVarList = new HashSet<>();
-        List<BIRBasicBlock> splitFuncNewBBList = new ArrayList<>();
-        List<BIRNonTerminator> splitFuncNewInsList =  new ArrayList<>();
-        Set<BIRVariableDcl> splitFuncLocalVarList = new HashSet<>();
-        Set<BIROperand> splitAvailableOperands = new HashSet<>();
-        Set<BIRVariableDcl> splitFuncArgs = new LinkedHashSet<>(); // see hashset is possible
-        List<BIRErrorEntry> splitFuncErrorTable = new ArrayList<>();
-        //for split funcs we need to always create BBs and change the terminators BB, local var end BBs, and error table
-        Map<Integer, BIRBasicBlock> splitFuncChangedBBs = new HashMap<>();
-        Set<BIRBasicBlock> splitFuncCorrectTerminatorBBs = new HashSet<>();
-        int errorTableIndex = 0;
+        // creating necessary temp variables
+        TempVarsForArraySplit parentFuncTempVars = getTempVarsForArraySplit();
+        ParentFuncEnv parentFuncEnv = new ParentFuncEnv(parentFuncTempVars);
+        SplitFuncEnv splitFuncEnv = new SplitFuncEnv(getTempVarsForArraySplit());
 
         List<BIRBasicBlock> bbs = parentFunc.basicBlocks;
         int newArrayInsBBNum = bbs.size() - 2;
@@ -170,11 +161,11 @@ public class LargeMethodOptimizer {
         JMethodCallInstruction callHandleArray = new JMethodCallInstruction(null);
         BIRVariableDcl arraySizeVarDcl = new BIRVariableDcl(null, symbolTable.intType, new Name("%splitArraySize"),
                 VarScope.FUNCTION, VarKind.TEMP, null);
-        parentFuncLocalVarList.add(arraySizeVarDcl);
+        parentFuncEnv.parentFuncLocalVarList.add(arraySizeVarDcl);
         BIROperand arraySizeOperand = new BIROperand(arraySizeVarDcl);
         BIRVariableDcl handleArray = new BIRVariableDcl(null, symbolTable.handleType, new Name("%splitArray"),
                 VarScope.FUNCTION, VarKind.TEMP, null);
-        parentFuncLocalVarList.add(handleArray);
+        parentFuncEnv.parentFuncLocalVarList.add(handleArray);
         BIROperand handleArrayOperand = new BIROperand(handleArray);
         callHandleArray.lhsOp = handleArrayOperand;
         callHandleArray.invocationType = INVOKESTATIC;
@@ -185,16 +176,13 @@ public class LargeMethodOptimizer {
 
         BIRNonTerminator.ConstantLoad loadArraySize = new BIRNonTerminator.ConstantLoad(null,
                 (long) arrayIns.values.size(), symbolTable.intType, arraySizeOperand);
-        parentFuncNewInsList.add(loadArraySize);
-        parentFuncNewInsList.add(callHandleArray);
+        parentFuncEnv.parentFuncNewInsList.add(loadArraySize);
+        parentFuncEnv.parentFuncNewInsList.add(callHandleArray);
 
         BIRNonTerminator.NewLargeArray newLargeArrayIns = new BIRNonTerminator.NewLargeArray(arrayIns.pos,
                 arrayIns.type, arrayIns.lhsOp, arrayIns.typedescOp, arrayIns.sizeOp, handleArrayOperand);
 
         // populating ListConstructorEntry array elements at runtime using jMethodCalls
-        // creating necessary temp variables
-        TempVarsForArraySplit parentFuncTempVars = getTempVarsForArraySplit();
-        TempVarsForArraySplit splitFuncTempVars = getTempVarsForArraySplit();
         // creating method calls
         Map<BIROperand, BIRListConstructorEntryWithIndex> birOperands =  new HashMap<>();
         List<BIRNonTerminator> globalAndArgVarIns = new ArrayList<>();
@@ -210,66 +198,44 @@ public class LargeMethodOptimizer {
             arrIndex++;
         }
 
-        parentFuncNewInsList.add(bbs.get(0).instructions.get(0));
-        parentFuncLocalVarList.add(bbs.get(0).instructions.get(0).lhsOp.variableDcl);
+        parentFuncEnv.parentFuncNewInsList.add(bbs.get(0).instructions.get(0));
+        parentFuncEnv.parentFuncLocalVarList.add(bbs.get(0).instructions.get(0).lhsOp.variableDcl);
 
-        // parent function's BBs will be numbered in ascending order simultaneously
-        int periodicSplitInsCount = 0;
-        int parentFuncBBId = 0;
-        BIRBasicBlock splitFuncBB = new BIRBasicBlock(0);
-        BIRBasicBlock parentFuncNewBB = new BIRBasicBlock(parentFuncBBId++);
+        splitParentFuncAndGetCurrentBB(parentFunc, newlyAddingFunctions, fromAttachedFunction,
+                bbs, newArrayInsBBNum, newArrayInsNumInRelevantBB,
+                handleArray, handleArrayOperand, birOperands, splitFuncEnv, parentFuncEnv);
 
-        parentFuncNewBB = splitParentFuncAndGetCurrentBB(parentFunc, newlyAddingFunctions, fromAttachedFunction,
-                parentFuncNewBBList, parentFuncNewInsList, splitFuncNewBBList, splitFuncNewInsList,
-                splitFuncLocalVarList, splitAvailableOperands, splitFuncArgs, splitFuncErrorTable, splitFuncChangedBBs,
-                splitFuncCorrectTerminatorBBs, errorTableIndex, bbs, newArrayInsBBNum, newArrayInsNumInRelevantBB,
-                handleArray, handleArrayOperand, splitFuncTempVars, birOperands, periodicSplitInsCount, parentFuncBBId,
-                splitFuncBB, parentFuncNewBB);
-
-        parentFuncNewBB.instructions.addAll(globalAndArgVarIns);
-        parentFuncNewBB.instructions.add(newLargeArrayIns);
-        parentFuncNewBB.terminator = bbs.get(newArrayInsBBNum).terminator;
-        parentFuncNewBBList.add(parentFuncNewBB);
+        parentFuncEnv.parentFuncNewBB.instructions.addAll(globalAndArgVarIns);
+        parentFuncEnv.parentFuncNewBB.instructions.add(newLargeArrayIns);
+        parentFuncEnv.parentFuncNewBB.terminator = bbs.get(newArrayInsBBNum).terminator;
+        parentFuncEnv.parentFuncNewBBList.add(parentFuncEnv.parentFuncNewBB);
         BIRBasicBlock parentFuncExitBB = bbs.get(newArrayInsBBNum + 1);
-        BIRGenUtils.renumberBasicBlock(parentFuncNewBB.number + 1, parentFuncExitBB);
-        parentFuncNewBBList.add(parentFuncExitBB);
-        parentFunc.basicBlocks = parentFuncNewBBList;
-        parentFunc.localVars = new ArrayList<>();
+        BIRGenUtils.renumberBasicBlock(parentFuncEnv.parentFuncNewBB.number + 1, parentFuncExitBB);
+        parentFuncEnv.parentFuncNewBBList.add(parentFuncExitBB);
+        parentFunc.basicBlocks = parentFuncEnv.parentFuncNewBBList;
         parentFunc.errorTable = new ArrayList<>();
 
+        parentFunc.localVars = new ArrayList<>();
         parentFunc.localVars.add(parentFunc.returnVariable);
         parentFunc.localVars.addAll(parentFunc.parameters);
-        parentFunc.localVars.addAll(parentFuncLocalVarList);
+        parentFunc.localVars.addAll(parentFuncEnv.parentFuncLocalVarList);
         if (parentFuncTempVars.tempVarsUsed) {
             parentFunc.localVars.add(parentFuncTempVars.arrayIndexVarDcl);
             parentFunc.localVars.add(parentFuncTempVars.typeCastVarDcl);
         }
     }
 
-    private BIRBasicBlock splitParentFuncAndGetCurrentBB(BIRFunction parentFunc, List<BIRFunction> newlyAddingFunctions,
+    private void splitParentFuncAndGetCurrentBB(BIRFunction parentFunc, List<BIRFunction> newlyAddingFunctions,
                                                          boolean fromAttachedFunction,
-                                                         List<BIRBasicBlock> parentFuncNewBBList,
-                                                         List<BIRNonTerminator> parentFuncNewInsList,
-                                                         List<BIRBasicBlock> splitFuncNewBBList,
-                                                         List<BIRNonTerminator> splitFuncNewInsList,
-                                                         Set<BIRVariableDcl> splitFuncLocalVarList,
-                                                         Set<BIROperand> splitAvailableOperands,
-                                                         Set<BIRVariableDcl> splitFuncArgs,
-                                                         List<BIRErrorEntry> splitFuncErrorTable,
-                                                         Map<Integer, BIRBasicBlock> splitFuncChangedBBs,
-                                                         Set<BIRBasicBlock> splitFuncCorrectTerminatorBBs,
-                                                         int errorTableIndex, List<BIRBasicBlock> bbs,
+                                                         List<BIRBasicBlock> bbs,
                                                          int newArrayInsBBNum, int newArrayInsNumInRelevantBB,
                                                          BIRVariableDcl handleArray, BIROperand handleArrayOperand,
-                                                         TempVarsForArraySplit splitFuncTempVars,
                                                          Map<BIROperand, BIRListConstructorEntryWithIndex> birOperands,
-                                                         int periodicSplitInsCount, int parentFuncBBId,
-                                                         BIRBasicBlock splitFuncBB,
-                                                         BIRBasicBlock parentFuncNewBB) {
-        int splitFuncBBId = 1; // 0 was set outside the function before calling this
+                                                         SplitFuncEnv splitFuncEnv,
+                                                         ParentFuncEnv parentFuncEnv) {
         for (int bbIndex = 0; bbIndex < bbs.size() - 1; bbIndex++) {
             BIRBasicBlock bb = bbs.get(bbIndex);
-            splitFuncChangedBBs.put(bb.number, splitFuncBB);
+            splitFuncEnv.splitFuncChangedBBs.put(bb.number, splitFuncEnv.splitFuncBB);
             for (int insIndex = 0; insIndex < bb.instructions.size(); insIndex++) {
                 if (bbIndex == 0 && insIndex == 0) { // array size ins
                     continue;
@@ -279,13 +245,13 @@ public class LargeMethodOptimizer {
                     Location returnPos = bb.instructions.get(newArrayInsNumInRelevantBB).pos;
                     BirScope returnScope = bb.instructions.get(newArrayInsNumInRelevantBB).scope;
 
-                    if (splitFuncTempVars.tempVarsUsed) {
-                        splitFuncArgs.add(handleArray);
+                    if (splitFuncEnv.splitFuncTempVars.tempVarsUsed) {
+                        splitFuncEnv.splitFuncArgs.add(handleArray);
                     }
 
                     //create new spilt BIRFunction
                     List<BType> paramTypes = new ArrayList<>();
-                    for (BIRVariableDcl funcArg : splitFuncArgs) {
+                    for (BIRVariableDcl funcArg : splitFuncEnv.splitFuncArgs) {
                         paramTypes.add(funcArg.type);
                     }
                     BInvokableType type = new BInvokableType(paramTypes, symbolTable.nilType, null);
@@ -297,7 +263,7 @@ public class LargeMethodOptimizer {
 
                     //---copied below
                     List<BIRFunctionParameter> functionParams = new ArrayList<>();
-                    for (BIRVariableDcl funcArg : splitFuncArgs) {
+                    for (BIRVariableDcl funcArg : splitFuncEnv.splitFuncArgs) {
                         Name argName = funcArg.name;
                         splitBirFunc.requiredParams.add(new BIRParameter(returnPos, argName, 0));
                         BIRFunctionParameter funcParameter = new BIRFunctionParameter(returnPos, funcArg.type, argName,
@@ -305,7 +271,7 @@ public class LargeMethodOptimizer {
                         functionParams.add(funcParameter);
                         splitBirFunc.parameters.add(funcParameter);
                     }
-                    splitBirFunc.argsCount = splitFuncArgs.size();
+                    splitBirFunc.argsCount = splitFuncEnv.splitFuncArgs.size();
                     if (fromAttachedFunction) {
                         splitBirFunc.returnVariable = new BIRVariableDcl(returnPos, symbolTable.nilType, new Name("%1"),
                                 VarScope.FUNCTION, VarKind.RETURN, null);
@@ -316,37 +282,37 @@ public class LargeMethodOptimizer {
                     BIROperand returnValOperand = new BIROperand(splitBirFunc.returnVariable);
                     splitBirFunc.localVars.add(0, splitBirFunc.returnVariable);
                     splitBirFunc.localVars.addAll(functionParams);
-                    splitBirFunc.localVars.addAll(splitFuncLocalVarList);
+                    splitBirFunc.localVars.addAll(splitFuncEnv.splitFuncLocalVarList);
 
-                    if (splitFuncTempVars.tempVarsUsed) {
-                        splitBirFunc.localVars.add(splitFuncTempVars.arrayIndexVarDcl);
-                        splitBirFunc.localVars.add(splitFuncTempVars.typeCastVarDcl);
+                    if (splitFuncEnv.splitFuncTempVars.tempVarsUsed) {
+                        splitBirFunc.localVars.add(splitFuncEnv.splitFuncTempVars.arrayIndexVarDcl);
+                        splitBirFunc.localVars.add(splitFuncEnv.splitFuncTempVars.typeCastVarDcl);
                     }
 
-                    while (errorTableIndex < parentFunc.errorTable.size()
-                            && parentFunc.errorTable.get(errorTableIndex).trapBB.number <= bb.number) {
-                        splitFuncErrorTable.add(parentFunc.errorTable.get(errorTableIndex));
-                        errorTableIndex++;
+                    while (parentFuncEnv.errorTableIndex < parentFunc.errorTable.size()
+                            && parentFunc.errorTable.get(parentFuncEnv.errorTableIndex).trapBB.number <= bb.number) {
+                        splitFuncEnv.splitFuncErrorTable.add(parentFunc.errorTable.get(parentFuncEnv.errorTableIndex));
+                        parentFuncEnv.errorTableIndex++;
                     }
-                    splitBirFunc.errorTable = splitFuncErrorTable;
+                    splitBirFunc.errorTable = splitFuncEnv.splitFuncErrorTable;
                     // --copied above
 
                     // need to add BBs and () return var assignment and return BB
                     BIRNonTerminator.ConstantLoad constantLoad = new BIRNonTerminator.ConstantLoad(returnPos,
                             new Name("()"), symbolTable.nilType, returnValOperand);
-                    splitFuncNewInsList.add(constantLoad);
-                    splitFuncBB.instructions.addAll(splitFuncNewInsList);
-                    BIRBasicBlock exitBB = new BIRBasicBlock(splitFuncBBId);
+                    splitFuncEnv.splitFuncNewInsList.add(constantLoad);
+                    splitFuncEnv.splitFuncBB.instructions.addAll(splitFuncEnv.splitFuncNewInsList);
+                    BIRBasicBlock exitBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
                     exitBB.terminator = new BIRTerminator.Return(null);
-                    splitFuncBB.terminator = new BIRTerminator.GOTO(null, exitBB, returnScope);
-                    splitFuncNewBBList.add(splitFuncBB);
-                    splitFuncNewBBList.add(exitBB);
-                    splitBirFunc.basicBlocks = splitFuncNewBBList;
+                    splitFuncEnv.splitFuncBB.terminator = new BIRTerminator.GOTO(null, exitBB, returnScope);
+                    splitFuncEnv.splitFuncNewBBList.add(splitFuncEnv.splitFuncBB);
+                    splitFuncEnv.splitFuncNewBBList.add(exitBB);
+                    splitBirFunc.basicBlocks = splitFuncEnv.splitFuncNewBBList;
                     newlyAddingFunctions.add(splitBirFunc);
 
                     // now we need to call this function from parent func
                     List<BIROperand> args = new ArrayList<>();
-                    for (BIRVariableDcl funcArg : splitFuncArgs) {
+                    for (BIRVariableDcl funcArg : splitFuncEnv.splitFuncArgs) {
                         args.add(new BIROperand(funcArg));
                     }
 
@@ -360,48 +326,47 @@ public class LargeMethodOptimizer {
 //                    splitFuncBBId = 0;
 //                    splitFuncCorrectTerminatorBBs = new HashSet<>();
 
-                    BIRBasicBlock parentFuncNextBB = new BIRBasicBlock(parentFuncBBId);
-                    parentFuncNewBB.instructions = parentFuncNewInsList;
-                    parentFuncNewBB.terminator = new BIRTerminator.Call(returnPos, InstructionKind.CALL, false,
+                    BIRBasicBlock parentFuncNextBB = new BIRBasicBlock(parentFuncEnv.parentFuncBBId);
+                    parentFuncEnv.parentFuncNewBB.instructions = parentFuncEnv.parentFuncNewInsList;
+                    parentFuncEnv.parentFuncNewBB.terminator = new BIRTerminator.Call(returnPos, InstructionKind.CALL, false,
                             currentPackageId, newFuncName, args, null, parentFuncNextBB,
                             Collections.emptyList(), Collections.emptySet(), returnScope);
-//                    parentFuncNewInsList = new ArrayList<>();
-                    parentFuncNewBBList.add(parentFuncNewBB);
-                    parentFuncNewBB = parentFuncNextBB;
-                    return parentFuncNewBB;
+                    parentFuncEnv.parentFuncNewBBList.add(parentFuncEnv.parentFuncNewBB);
+                    parentFuncEnv.parentFuncNewBB = parentFuncNextBB;
+                    return;
                 }
 
                 BIRNonTerminator bbIns = bb.instructions.get(insIndex);
-                splitFuncNewInsList.add(bbIns);
-                periodicSplitInsCount++;
+                splitFuncEnv.splitFuncNewInsList.add(bbIns);
+                splitFuncEnv.periodicSplitInsCount++;
                 for (BIROperand rhsOperand : bbIns.getRhsOperands()) {
-                    if (!splitAvailableOperands.contains(rhsOperand) && needToPassRhsVarDclAsArg(rhsOperand)) {
-                        splitFuncArgs.add(rhsOperand.variableDcl);
+                    if (!splitFuncEnv.splitAvailableOperands.contains(rhsOperand) && needToPassRhsVarDclAsArg(rhsOperand)) {
+                        splitFuncEnv.splitFuncArgs.add(rhsOperand.variableDcl);
                     }
                 }
                 if (bbIns.lhsOp != null) {
-                    splitAvailableOperands.add(bbIns.lhsOp);
+                    splitFuncEnv.splitAvailableOperands.add(bbIns.lhsOp);
                     if (needToPassLhsVarDclAsArg(bbIns.lhsOp)) {
-                        splitFuncArgs.add(bbIns.lhsOp.variableDcl);
+                        splitFuncEnv.splitFuncArgs.add(bbIns.lhsOp.variableDcl);
                     }
                     if (isTempOrSyntheticVar(bbIns.lhsOp.variableDcl)) {
-                        splitFuncLocalVarList.add(bbIns.lhsOp.variableDcl);
+                        splitFuncEnv.splitFuncLocalVarList.add(bbIns.lhsOp.variableDcl);
                     }
                 }
-                setArrayElementGivenLhsOp(birOperands, splitFuncNewInsList, handleArrayOperand, bbIns.lhsOp,
-                        splitFuncTempVars);
+                setArrayElementGivenLhsOp(birOperands, splitFuncEnv.splitFuncNewInsList, handleArrayOperand, bbIns.lhsOp,
+                        splitFuncEnv.splitFuncTempVars);
 
                 // create split func if needed
-                if (periodicSplitInsCount > INS_COUNT_PERIODIC_SPLIT_THRESHOLD) {
-                    periodicSplitInsCount = 0;
+                if (splitFuncEnv.periodicSplitInsCount > INS_COUNT_PERIODIC_SPLIT_THRESHOLD) {
+                    splitFuncEnv.periodicSplitInsCount = 0;
 
-                    if (splitFuncTempVars.tempVarsUsed) {
-                        splitFuncArgs.add(handleArray);
+                    if (splitFuncEnv.splitFuncTempVars.tempVarsUsed) {
+                        splitFuncEnv.splitFuncArgs.add(handleArray);
                     }
 
                     //create new spilt BIRFunction
                     List<BType> paramTypes = new ArrayList<>();
-                    for (BIRVariableDcl funcArg : splitFuncArgs) {
+                    for (BIRVariableDcl funcArg : splitFuncEnv.splitFuncArgs) {
                         paramTypes.add(funcArg.type);
                     }
                     BInvokableType type = new BInvokableType(paramTypes, symbolTable.nilType, null);
@@ -413,7 +378,7 @@ public class LargeMethodOptimizer {
 
                     //---copied below
                     List<BIRFunctionParameter> functionParams = new ArrayList<>();
-                    for (BIRVariableDcl funcArg : splitFuncArgs) {
+                    for (BIRVariableDcl funcArg : splitFuncEnv.splitFuncArgs) {
                         Name argName = funcArg.name;
                         splitBirFunc.requiredParams.add(new BIRParameter(bbIns.pos, argName, 0));
                         BIRFunctionParameter funcParameter = new BIRFunctionParameter(bbIns.pos, funcArg.type, argName,
@@ -421,7 +386,7 @@ public class LargeMethodOptimizer {
                         functionParams.add(funcParameter);
                         splitBirFunc.parameters.add(funcParameter);
                     }
-                    splitBirFunc.argsCount = splitFuncArgs.size();
+                    splitBirFunc.argsCount = splitFuncEnv.splitFuncArgs.size();
                     if (fromAttachedFunction) {
                         splitBirFunc.returnVariable = new BIRVariableDcl(bbIns.pos, symbolTable.nilType, new Name("%1"),
                                 VarScope.FUNCTION, VarKind.RETURN, null);
@@ -432,66 +397,57 @@ public class LargeMethodOptimizer {
                     BIROperand returnValOperand = new BIROperand(splitBirFunc.returnVariable);
                     splitBirFunc.localVars.add(0, splitBirFunc.returnVariable);
                     splitBirFunc.localVars.addAll(functionParams);
-                    splitBirFunc.localVars.addAll(splitFuncLocalVarList);
+                    splitBirFunc.localVars.addAll(splitFuncEnv.splitFuncLocalVarList);
 
-                    if (splitFuncTempVars.tempVarsUsed) {
-                        splitBirFunc.localVars.add(splitFuncTempVars.arrayIndexVarDcl);
-                        splitBirFunc.localVars.add(splitFuncTempVars.typeCastVarDcl);
+                    if (splitFuncEnv.splitFuncTempVars.tempVarsUsed) {
+                        splitBirFunc.localVars.add(splitFuncEnv.splitFuncTempVars.arrayIndexVarDcl);
+                        splitBirFunc.localVars.add(splitFuncEnv.splitFuncTempVars.typeCastVarDcl);
                     }
 
-                    while (errorTableIndex < parentFunc.errorTable.size()
-                            && parentFunc.errorTable.get(errorTableIndex).trapBB.number <= bb.number) {
-                        splitFuncErrorTable.add(parentFunc.errorTable.get(errorTableIndex));
-                        errorTableIndex++;
+                    while (parentFuncEnv.errorTableIndex < parentFunc.errorTable.size()
+                            && parentFunc.errorTable.get(parentFuncEnv.errorTableIndex).trapBB.number <= bb.number) {
+                        splitFuncEnv.splitFuncErrorTable.add(parentFunc.errorTable.get(parentFuncEnv.errorTableIndex));
+                        parentFuncEnv.errorTableIndex++;
                     }
-                    splitBirFunc.errorTable = splitFuncErrorTable;
+                    splitBirFunc.errorTable = splitFuncEnv.splitFuncErrorTable;
                     // --copied above
 
                     // need to add BBs and () return var assignment and return BB
                     BIRNonTerminator.ConstantLoad constantLoad = new BIRNonTerminator.ConstantLoad(bbIns.pos,
                             new Name("()"), symbolTable.nilType, returnValOperand);
-                    splitFuncNewInsList.add(constantLoad);
-                    splitFuncBB.instructions.addAll(splitFuncNewInsList);
-                    BIRBasicBlock exitBB = new BIRBasicBlock(splitFuncBBId++);
+                    splitFuncEnv.splitFuncNewInsList.add(constantLoad);
+                    splitFuncEnv.splitFuncBB.instructions.addAll(splitFuncEnv.splitFuncNewInsList);
+                    BIRBasicBlock exitBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
                     exitBB.terminator = new BIRTerminator.Return(null);
-                    splitFuncBB.terminator = new BIRTerminator.GOTO(null, exitBB, bbIns.scope);
-                    splitFuncNewBBList.add(splitFuncBB);
-                    splitFuncNewBBList.add(exitBB);
-                    splitBirFunc.basicBlocks = splitFuncNewBBList;
+                    splitFuncEnv.splitFuncBB.terminator = new BIRTerminator.GOTO(null, exitBB, bbIns.scope);
+                    splitFuncEnv.splitFuncNewBBList.add(splitFuncEnv.splitFuncBB);
+                    splitFuncEnv.splitFuncNewBBList.add(exitBB);
+                    splitBirFunc.basicBlocks = splitFuncEnv.splitFuncNewBBList;
                     newlyAddingFunctions.add(splitBirFunc);
 
                     // now we need to call this function from parent func
                     List<BIROperand> args = new ArrayList<>();
-                    for (BIRVariableDcl funcArg : splitFuncArgs) {
+                    for (BIRVariableDcl funcArg : splitFuncEnv.splitFuncArgs) {
                         args.add(new BIROperand(funcArg));
                     }
 
-                    splitFuncNewBBList = new ArrayList<>();
-                    splitFuncNewInsList =  new ArrayList<>();
-                    splitFuncLocalVarList = new HashSet<>();
-                    splitAvailableOperands = new HashSet<>();
-                    splitFuncErrorTable = new ArrayList<>();
-                    splitFuncTempVars = getTempVarsForArraySplit();
-                    splitFuncArgs = new LinkedHashSet<>(); // see hashset is possible
-                    splitFuncBBId = 0;
-                    splitFuncBB = new BIRBasicBlock(splitFuncBBId++);
-                    splitFuncCorrectTerminatorBBs = new HashSet<>();
+                    splitFuncEnv.reset(getTempVarsForArraySplit());
 
-                    BIRBasicBlock parentFuncNextBB = new BIRBasicBlock(parentFuncBBId++);
-                    parentFuncNewBB.instructions = parentFuncNewInsList;
-                    parentFuncNewBB.terminator = new BIRTerminator.Call(bbIns.pos, InstructionKind.CALL, false,
+                    BIRBasicBlock parentFuncNextBB = new BIRBasicBlock(parentFuncEnv.parentFuncBBId++);
+                    parentFuncEnv.parentFuncNewBB.instructions = parentFuncEnv.parentFuncNewInsList;
+                    parentFuncEnv.parentFuncNewBB.terminator = new BIRTerminator.Call(bbIns.pos, InstructionKind.CALL, false,
                             currentPackageId, newFuncName, args, null, parentFuncNextBB,
                             Collections.emptyList(), Collections.emptySet(), bbIns.scope);
-                    parentFuncNewInsList = new ArrayList<>();
-                    parentFuncNewBBList.add(parentFuncNewBB);
-                    parentFuncNewBB = parentFuncNextBB;
+                    parentFuncEnv.parentFuncNewInsList = new ArrayList<>();
+                    parentFuncEnv.parentFuncNewBBList.add(parentFuncEnv.parentFuncNewBB);
+                    parentFuncEnv.parentFuncNewBB = parentFuncNextBB;
                 }
             }
 
-            splitFuncBB.instructions = splitFuncNewInsList;
-            splitFuncBB.terminator = bb.terminator;
-            splitFuncNewBBList.add(splitFuncBB);
-            splitFuncNewInsList =  new ArrayList<>();
+            splitFuncEnv.splitFuncBB.instructions = splitFuncEnv.splitFuncNewInsList;
+            splitFuncEnv.splitFuncBB.terminator = bb.terminator;
+            splitFuncEnv.splitFuncNewBBList.add(splitFuncEnv.splitFuncBB);
+            splitFuncEnv.splitFuncNewInsList =  new ArrayList<>();
 
 //            bb.instructions = parentFuncNewInsList;  // not needed these two
 //            parentFuncBBId = renumberBasicBlock(parentFuncBBId, bb);
@@ -504,45 +460,45 @@ public class LargeMethodOptimizer {
             // now these will be in the split funcs
 
             for (BIROperand rhsOperand : bb.terminator.getRhsOperands()) {
-                if (!splitAvailableOperands.contains(rhsOperand) && needToPassRhsVarDclAsArg(rhsOperand)) {
-                    splitFuncArgs.add(rhsOperand.variableDcl);
+                if (!splitFuncEnv.splitAvailableOperands.contains(rhsOperand) && needToPassRhsVarDclAsArg(rhsOperand)) {
+                    splitFuncEnv.splitFuncArgs.add(rhsOperand.variableDcl);
                 }
             }
             if (bb.terminator.lhsOp != null) {
-                splitAvailableOperands.add(bb.terminator.lhsOp);
+                splitFuncEnv.splitAvailableOperands.add(bb.terminator.lhsOp);
                 if (needToPassLhsVarDclAsArg(bb.terminator.lhsOp)) {
-                    splitFuncArgs.add(bb.terminator.lhsOp.variableDcl);
+                    splitFuncEnv.splitFuncArgs.add(bb.terminator.lhsOp.variableDcl);
                 }
                 if (isTempOrSyntheticVar(bb.terminator.lhsOp.variableDcl)) {
-                    splitFuncLocalVarList.add(bb.terminator.lhsOp.variableDcl);
+                    splitFuncEnv.splitFuncLocalVarList.add(bb.terminator.lhsOp.variableDcl);
                 }
             }
-            periodicSplitInsCount++;
+            splitFuncEnv.periodicSplitInsCount++;
 
             List<BIRNonTerminator> newBBInsList = new ArrayList<>();
             if (setArrayElementGivenLhsOp(birOperands, newBBInsList, handleArrayOperand,
-                    bb.terminator.lhsOp, splitFuncTempVars)) {
-                BIRBasicBlock newBB = new BIRBasicBlock(splitFuncBBId++);
+                    bb.terminator.lhsOp, splitFuncEnv.splitFuncTempVars)) {
+                BIRBasicBlock newBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
                 newBB.instructions.addAll(newBBInsList);
                 newBB.terminator = new BIRTerminator.GOTO(null, bb.terminator.thenBB, bb.terminator.scope);
                 bb.terminator.thenBB = newBB;
-                splitFuncNewBBList.add(newBB);
-                splitFuncCorrectTerminatorBBs.add(splitFuncBB);
+                splitFuncEnv.splitFuncNewBBList.add(newBB);
+                splitFuncEnv.splitFuncCorrectTerminatorBBs.add(splitFuncEnv.splitFuncBB);
             }
-            splitFuncBB = new BIRBasicBlock(splitFuncBBId++);
+            splitFuncEnv.splitFuncBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
 
             // -- copied from above
 
-            if (periodicSplitInsCount > INS_COUNT_PERIODIC_SPLIT_THRESHOLD) {
-                periodicSplitInsCount = 0;
+            if (splitFuncEnv.periodicSplitInsCount > INS_COUNT_PERIODIC_SPLIT_THRESHOLD) {
+                splitFuncEnv.periodicSplitInsCount = 0;
 
-                if (splitFuncTempVars.tempVarsUsed) {
-                    splitFuncArgs.add(handleArray);
+                if (splitFuncEnv.splitFuncTempVars.tempVarsUsed) {
+                    splitFuncEnv.splitFuncArgs.add(handleArray);
                 }
 
                 //create new spilt BIRFunction
                 List<BType> paramTypes = new ArrayList<>();
-                for (BIRVariableDcl funcArg : splitFuncArgs) {
+                for (BIRVariableDcl funcArg : splitFuncEnv.splitFuncArgs) {
                     paramTypes.add(funcArg.type);
                 }
                 BInvokableType type = new BInvokableType(paramTypes, symbolTable.nilType, null);
@@ -554,7 +510,7 @@ public class LargeMethodOptimizer {
 
                 //---copied below
                 List<BIRFunctionParameter> functionParams = new ArrayList<>();
-                for (BIRVariableDcl funcArg : splitFuncArgs) {
+                for (BIRVariableDcl funcArg : splitFuncEnv.splitFuncArgs) {
                     Name argName = funcArg.name;
                     splitBirFunc.requiredParams.add(new BIRParameter(bb.terminator.pos, argName, 0));
                     BIRFunctionParameter funcParameter = new BIRFunctionParameter(bb.terminator.pos, funcArg.type,
@@ -562,7 +518,7 @@ public class LargeMethodOptimizer {
                     functionParams.add(funcParameter);
                     splitBirFunc.parameters.add(funcParameter);
                 }
-                splitBirFunc.argsCount = splitFuncArgs.size();
+                splitBirFunc.argsCount = splitFuncEnv.splitFuncArgs.size();
                 if (fromAttachedFunction) {
                     splitBirFunc.returnVariable = new BIRVariableDcl(bb.terminator.pos, symbolTable.nilType,
                             new Name("%1"), VarScope.FUNCTION, VarKind.RETURN, null);
@@ -573,61 +529,53 @@ public class LargeMethodOptimizer {
                 BIROperand returnValOperand = new BIROperand(splitBirFunc.returnVariable);
                 splitBirFunc.localVars.add(0, splitBirFunc.returnVariable);
                 splitBirFunc.localVars.addAll(functionParams);
-                splitBirFunc.localVars.addAll(splitFuncLocalVarList);
+                splitBirFunc.localVars.addAll(splitFuncEnv.splitFuncLocalVarList);
 
-                if (splitFuncTempVars.tempVarsUsed) {
-                    splitBirFunc.localVars.add(splitFuncTempVars.arrayIndexVarDcl);
-                    splitBirFunc.localVars.add(splitFuncTempVars.typeCastVarDcl);
+                if (splitFuncEnv.splitFuncTempVars.tempVarsUsed) {
+                    splitBirFunc.localVars.add(splitFuncEnv.splitFuncTempVars.arrayIndexVarDcl);
+                    splitBirFunc.localVars.add(splitFuncEnv.splitFuncTempVars.typeCastVarDcl);
                 }
 
-                while (errorTableIndex < parentFunc.errorTable.size()
-                        && parentFunc.errorTable.get(errorTableIndex).trapBB.number <= bb.number) {
-                    splitFuncErrorTable.add(parentFunc.errorTable.get(errorTableIndex));
-                    errorTableIndex++;
+                while (parentFuncEnv.errorTableIndex < parentFunc.errorTable.size()
+                        && parentFunc.errorTable.get(parentFuncEnv.errorTableIndex).trapBB.number <= bb.number) {
+                    splitFuncEnv.splitFuncErrorTable.add(parentFunc.errorTable.get(parentFuncEnv.errorTableIndex));
+                    parentFuncEnv.errorTableIndex++;
                 }
-                splitBirFunc.errorTable = splitFuncErrorTable;
+                splitBirFunc.errorTable = splitFuncEnv.splitFuncErrorTable;
                 // --copied above
 
                 // need to add BBs and () return var assignment and return BB
                 BIRNonTerminator.ConstantLoad constantLoad = new BIRNonTerminator.ConstantLoad(bb.terminator.pos,
                         new Name("()"), symbolTable.nilType, returnValOperand);
-                splitFuncNewInsList.add(constantLoad);
-                splitFuncBB.instructions.addAll(splitFuncNewInsList);
-                BIRBasicBlock exitBB = new BIRBasicBlock(splitFuncBBId++);
+                splitFuncEnv.splitFuncNewInsList.add(constantLoad);
+                splitFuncEnv.splitFuncBB.instructions.addAll(splitFuncEnv.splitFuncNewInsList);
+                BIRBasicBlock exitBB = new BIRBasicBlock(splitFuncEnv.splitFuncBBId++);
                 exitBB.terminator = new BIRTerminator.Return(null);
-                splitFuncBB.terminator = new BIRTerminator.GOTO(null, exitBB, bb.terminator.scope);
-                splitFuncNewBBList.add(splitFuncBB);
-                splitFuncNewBBList.add(exitBB);
-                splitBirFunc.basicBlocks = splitFuncNewBBList;
+                splitFuncEnv.splitFuncBB.terminator = new BIRTerminator.GOTO(null, exitBB, bb.terminator.scope);
+                splitFuncEnv.splitFuncNewBBList.add(splitFuncEnv.splitFuncBB);
+                splitFuncEnv.splitFuncNewBBList.add(exitBB);
+                splitBirFunc.basicBlocks = splitFuncEnv.splitFuncNewBBList;
                 newlyAddingFunctions.add(splitBirFunc);
 
                 // now we need to call this function from parent func
                 List<BIROperand> args = new ArrayList<>();
-                for (BIRVariableDcl funcArg : splitFuncArgs) {
+                for (BIRVariableDcl funcArg : splitFuncEnv.splitFuncArgs) {
                     args.add(new BIROperand(funcArg));
                 }
 
-                splitFuncNewBBList = new ArrayList<>();
-                splitFuncNewInsList =  new ArrayList<>();
-                splitFuncLocalVarList = new HashSet<>();
-                splitAvailableOperands = new HashSet<>();
-                splitFuncErrorTable = new ArrayList<>();
-                splitFuncTempVars = getTempVarsForArraySplit();
-                splitFuncArgs = new LinkedHashSet<>(); // see hashset is possible
-                splitFuncBBId = 0;
-                splitFuncBB = new BIRBasicBlock(splitFuncBBId++);
+                splitFuncEnv.reset(getTempVarsForArraySplit());
 
-                BIRBasicBlock parentFuncNextBB = new BIRBasicBlock(parentFuncBBId++);
-                parentFuncNewBB.instructions = parentFuncNewInsList;
-                parentFuncNewBB.terminator = new BIRTerminator.Call(bb.terminator.pos, InstructionKind.CALL, false,
+                BIRBasicBlock parentFuncNextBB = new BIRBasicBlock(parentFuncEnv.parentFuncBBId++);
+                parentFuncEnv.parentFuncNewBB.instructions = parentFuncEnv.parentFuncNewInsList;
+                parentFuncEnv.parentFuncNewBB.terminator = new BIRTerminator.Call(bb.terminator.pos,
+                        InstructionKind.CALL, false,
                         currentPackageId, newFuncName, args, null, parentFuncNextBB,
                         Collections.emptyList(), Collections.emptySet(), bb.terminator.scope);
-                parentFuncNewInsList = new ArrayList<>();
-                parentFuncNewBBList.add(parentFuncNewBB);
-                parentFuncNewBB = parentFuncNextBB;
+                parentFuncEnv.parentFuncNewInsList = new ArrayList<>();
+                parentFuncEnv.parentFuncNewBBList.add(parentFuncEnv.parentFuncNewBB);
+                parentFuncEnv.parentFuncNewBB = parentFuncNextBB;
             }
         }
-        return parentFuncNewBB;
     }
 
     private TempVarsForArraySplit getTempVarsForArraySplit() {
@@ -1518,6 +1466,54 @@ public class LargeMethodOptimizer {
             this.typeCastVarDcl = typeCastVarDcl;
             this.arrayIndexOperand = new BIROperand(arrayIndexVarDcl);
             this.typeCastOperand = new BIROperand(typeCastVarDcl);
+        }
+    }
+
+    static class SplitFuncEnv {
+        List<BIRBasicBlock> splitFuncNewBBList = new ArrayList<>();
+        List<BIRNonTerminator> splitFuncNewInsList =  new ArrayList<>();
+        Set<BIRVariableDcl> splitFuncLocalVarList = new HashSet<>();
+        Set<BIROperand> splitAvailableOperands = new HashSet<>();
+        Set<BIRVariableDcl> splitFuncArgs = new LinkedHashSet<>(); // see hashset is possible
+        List<BIRErrorEntry> splitFuncErrorTable = new ArrayList<>();
+        //for split funcs we need to always create BBs and change the terminators BB, local var end BBs, and error table
+        Map<Integer, BIRBasicBlock> splitFuncChangedBBs = new HashMap<>();
+        Set<BIRBasicBlock> splitFuncCorrectTerminatorBBs = new HashSet<>();
+        int periodicSplitInsCount = 0;
+        int splitFuncBBId = 0;
+        BIRBasicBlock splitFuncBB = new BIRBasicBlock(splitFuncBBId++);
+        TempVarsForArraySplit splitFuncTempVars;
+
+        private SplitFuncEnv(TempVarsForArraySplit splitFuncTempVars) {
+            this.splitFuncTempVars = splitFuncTempVars;
+        }
+
+        void reset(TempVarsForArraySplit tempVars) {
+            this.splitFuncNewBBList = new ArrayList<>();
+            this.splitFuncNewInsList =  new ArrayList<>();
+            this.splitFuncLocalVarList = new HashSet<>();
+            this.splitAvailableOperands = new HashSet<>();
+            this.splitFuncArgs = new LinkedHashSet<>(); // see hashset is possible
+            this.splitFuncErrorTable = new ArrayList<>();
+            this.splitFuncChangedBBs = new HashMap<>();
+            this.splitFuncCorrectTerminatorBBs = new HashSet<>();
+            this.splitFuncTempVars = tempVars;
+            this.splitFuncBBId = 0;
+            this.splitFuncBB = new BIRBasicBlock(this.splitFuncBBId++);
+        }
+    }
+
+    static class ParentFuncEnv {
+        List<BIRBasicBlock> parentFuncNewBBList = new ArrayList<>();
+        List<BIRNonTerminator> parentFuncNewInsList =  new ArrayList<>();
+        Set<BIRVariableDcl> parentFuncLocalVarList = new HashSet<>();
+        int errorTableIndex = 0;
+        int parentFuncBBId = 0;
+        BIRBasicBlock parentFuncNewBB = new BIRBasicBlock(parentFuncBBId++);
+        TempVarsForArraySplit parentFuncTempVars;
+
+        private ParentFuncEnv(TempVarsForArraySplit parentFuncTempVars) {
+            this.parentFuncTempVars = parentFuncTempVars;
         }
     }
 }
