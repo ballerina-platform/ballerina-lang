@@ -22,8 +22,6 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.Test;
 
-import java.nio.file.Paths;
-
 
 /**
  * Tests ballerina profiler.
@@ -31,10 +29,17 @@ import java.nio.file.Paths;
  * @since 2201.7.0
  */
 public class ProfilerTest extends BaseTest {
-    private static final String testFileLocation =
-            Paths.get("src", "test", "resources", "profiler")
-                    .toAbsolutePath()
-                    .toString();
+
+    @Test
+    public void testProfilerExecution1() throws BallerinaTestException {
+        System.out.println("Hi");
+    }
+
+
+//    private static final String testFileLocation =
+//            Paths.get("src", "test", "resources", "profiler")
+//                    .toAbsolutePath()
+//                    .toString();
 
 //    String sourceRoot = testFileLocation + "/";
 //    String packageName = "singleBalFile";
@@ -71,11 +76,6 @@ public class ProfilerTest extends BaseTest {
 //            throw new BallerinaTestException("Error testing the profiler output");
 //        }
 //    }
-
-    @Test
-    public void testProfilerExecution() throws BallerinaTestException {
-        System.out.println("Hi");
-    }
 
 //    private static void stopProfiler() {
 //        try {
