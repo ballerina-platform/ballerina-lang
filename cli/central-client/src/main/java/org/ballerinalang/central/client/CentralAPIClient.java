@@ -105,7 +105,7 @@ public class CentralAPIClient {
     private static final String TOOLS = "tools";
     private static final String CONNECTORS = "connectors";
     private static final String TRIGGERS = "triggers";
-    private static final String SEARCH = "search";
+    private static final String SEARCH_QUERY = "?q=";
     private static final String RESOLVE_DEPENDENCIES = "resolve-dependencies";
     private static final String RESOLVE_MODULES = "resolve-modules";
     private static final String DEPRECATE = "deprecate";
@@ -661,7 +661,6 @@ public class CentralAPIClient {
 
                 if (balaUrl.isPresent() && org.isPresent() && latestVersion.isPresent()
                         && pkgName.isPresent()) {
-                    // gayaldassanayake-tool_openapi-any-0.1.1.bala
                     String balaFileName = "attachment; filename=" + org.get() + "-" + pkgName.get() + "-any-"
                             + latestVersion.get() + ".bala";
                     Request downloadBalaRequest = getNewRequest(supportedPlatform, ballerinaVersion)
@@ -961,7 +960,7 @@ public class CentralAPIClient {
         try {
             Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
-                    .url(this.baseUrl + "/" + TOOLS + "/" + SEARCH + "/" + keyword)
+                    .url(this.baseUrl + "/" + TOOLS + SEARCH_QUERY + keyword)
                     .build();
 
             Call httpRequestCall = client.newCall(searchReq);
