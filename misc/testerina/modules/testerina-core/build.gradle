@@ -65,4 +65,5 @@ ballerinaLangLibBuild {
     skipBootstrap = 'true'
 }
 
+tasks.generateMetadataFileForMavenJavaPublication.dependsOn(":testerina:testerina-core:copyInteropImports")
 description = 'Ballerina - Testerina - Core'
