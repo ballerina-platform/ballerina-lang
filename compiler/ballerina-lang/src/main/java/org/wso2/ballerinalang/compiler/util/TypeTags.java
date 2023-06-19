@@ -83,6 +83,8 @@ public class TypeTags {
     public static final int REGEXP = PARAMETERIZED_TYPE + 1;
     public static final int EMPTY = REGEXP + 1;
 
+    public static final int SEQUENCE = REGEXP + 1;
+
     private TypeTags() {
 
     }
