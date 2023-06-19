@@ -32,6 +32,6 @@ public class ProfilerTest extends BaseTest {
 
     @Test
     public void testProfilerExecution1() {
-        Assert.assertEquals(2,2);
+        Assert.assertEquals(2, 2);
     }
 }
