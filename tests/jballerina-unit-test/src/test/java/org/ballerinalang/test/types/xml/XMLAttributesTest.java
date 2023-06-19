@@ -20,10 +20,10 @@ package org.ballerinalang.test.types.xml;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -56,7 +56,7 @@ public class XMLAttributesTest {
                         "ns1:foo2=\"bar2\" ns4:foo3=\"bar3\"/>");
     }
 
-    @Test(expectedExceptions = {BLangRuntimeException.class},
+    @Test(expectedExceptions = {BLangTestException.class},
             expectedExceptionsMessageRegExp = ".*localname of the attribute cannot be empty.*")
     public void testAddAttributeWithoutLocalname() {
         Object returns = BRunUtil.invoke(xmlAttrProgFile, "testAddAttributeWithoutLocalname");
