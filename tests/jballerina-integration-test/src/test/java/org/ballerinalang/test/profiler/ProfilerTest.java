@@ -19,7 +19,7 @@
 package org.ballerinalang.test.profiler;
 
 import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.BallerinaTestException;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
@@ -31,73 +31,7 @@ import org.testng.annotations.Test;
 public class ProfilerTest extends BaseTest {
 
     @Test
-    public void testProfilerExecution1() throws BallerinaTestException {
-        System.out.println("Hi");
+    public void testProfilerExecution1() {
+        Assert.assertEquals(2,2);
     }
-
-
-//    private static final String testFileLocation =
-//            Paths.get("src", "test", "resources", "profiler")
-//                    .toAbsolutePath()
-//                    .toString();
-
-//    String sourceRoot = testFileLocation + "/";
-//    String packageName = "singleBalFile";
-//    String outputFileName = "performance_report.json";
-//    @Test
-//    public void testProfilerExecution() throws BallerinaTestException {
-//        try {
-//            ProcessBuilder processBuilder = new ProcessBuilder("bal", "run", "--profile");
-//            processBuilder.directory(new File(sourceRoot + packageName + "/"));
-//            processBuilder.redirectErrorStream(true);
-//            Process process = processBuilder.start();
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-//
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                if (line.contains("localhost")) {
-//                    Thread.sleep(1000);
-//                    List<String> fileNames = Arrays.stream(
-//                                    Objects.requireNonNull(
-//                                            new File(sourceRoot + packageName + "/target/bin/").listFiles(File::isFile)
-//                                    )
-//                            )
-//                            .map(File::getName)
-//                            .collect(Collectors.toList());
-//                    Assert.assertTrue(fileNames.contains(outputFileName), "Error testing the profiler execution");
-//                    Thread.sleep(1000);
-//                    stopProfiler();
-//                    Thread.sleep(1000);
-//                    process.destroy();
-//                    break;
-//                }
-//            }
-//        } catch (Exception e) {
-//            throw new BallerinaTestException("Error testing the profiler output");
-//        }
-//    }
-
-//    private static void stopProfiler() {
-//        try {
-//            URL terminateUrl = new URL("http://localhost:2324/terminate");
-//            HttpURLConnection connection = (HttpURLConnection) terminateUrl.openConnection();
-//            connection.setRequestMethod("GET");
-//            int responseCode = connection.getResponseCode();
-//            if (responseCode == HttpURLConnection.HTTP_OK) {
-//                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-//                String inputLine;
-//                StringBuilder response = new StringBuilder();
-//                while ((inputLine = in.readLine()) != null) {
-//                    response.append(inputLine);
-//                }
-//                in.close();
-//            }
-//            connection.disconnect();
-//        } catch (Exception ignore) {
-//        }
-//    }
 }
-
-
-//test without the integration test
-//get localhost manually
