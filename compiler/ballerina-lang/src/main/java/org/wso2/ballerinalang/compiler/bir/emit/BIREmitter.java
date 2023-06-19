@@ -49,7 +49,7 @@ public class BIREmitter {
 
     private static final CompilerContext.Key<BIREmitter> BIR_EMITTER = new CompilerContext.Key<>();
     private static final PrintStream console = System.out;
-    private static boolean dumbBIR;
+    public static boolean dumbBIR;
 
     public static BIREmitter getInstance(CompilerContext context) {
 
