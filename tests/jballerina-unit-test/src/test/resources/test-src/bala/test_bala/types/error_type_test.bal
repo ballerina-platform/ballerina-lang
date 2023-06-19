@@ -70,6 +70,19 @@ function testErrorDetailDefinedAfterErrorDef() {
     assertEquality("ABCD", k.detail()["code"]);
 }
 
+type ErrorIntersection3 er:ErrorIntersection1 & error<er:Data1>;
+type ErrorIntersection4 er:ErrorIntersection1 & er:ErrorIntersection2;
+
+function testErrorIntersection() {
+    ErrorIntersection3 e3 = error ErrorIntersection3("Intersection error", num = 2);
+    assertEquality("Intersection error", e3.message());
+    assertEquality(2, e3.detail()["num"]);
+
+    ErrorIntersection4 e4 = error ErrorIntersection4("Intersection error", num = 3);
+    assertEquality("Intersection error", e4.message());
+    assertEquality(3, e4.detail()["num"]);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

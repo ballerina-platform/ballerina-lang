@@ -175,7 +175,8 @@ public class PushCommand implements BLauncherCmd {
                     return;
                 }
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                        initializeProxy(settings.getProxy()), getAccessTokenOfCLI(settings));
+                        initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                        settings.getProxy().password(), getAccessTokenOfCLI(settings));
                 if (balaPath == null) {
                     pushPackage(project, client);
                 } else {

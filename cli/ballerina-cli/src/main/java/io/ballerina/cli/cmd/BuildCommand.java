@@ -102,7 +102,7 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                 boolean dumpBuildTime, boolean nativeImage) {
+                 boolean dumpBuildTime, boolean nativeImage, String graalVMBuildOptions) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -110,6 +110,7 @@ public class BuildCommand implements BLauncherCmd {
         this.dumpBuildTime = dumpBuildTime;
         this.offline = true;
         this.nativeImage = nativeImage;
+        this.graalVMBuildOptions = graalVMBuildOptions;
     }
 
     @CommandLine.Option(names = {"--output", "-o"}, description = "Write the output to the given file. The provided " +
@@ -178,8 +179,16 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--enable-cache", description = "enable caches for the compilation", hidden = true)
     private Boolean enableCache;
 
-    @CommandLine.Option(names = "--native", description = "enable native image generation")
+    @CommandLine.Option(names = "--graalvm", description = "enable native image generation")
     private Boolean nativeImage;
+
+    @CommandLine.Option(names = "--disable-syntax-tree-caching", hidden = true, description = "disable syntax tree " +
+            "caching for source files", defaultValue = "false")
+    private Boolean disableSyntaxTreeCaching;
+
+    @CommandLine.Option(names = "--graalvm-build-options", description = "additional build options for native image " +
+            "generation")
+    private String graalVMBuildOptions;
 
     public void execute() {
         long start = 0;
@@ -250,15 +259,16 @@ public class BuildCommand implements BLauncherCmd {
                 return;
         }
 
-        if (project.buildOptions().nativeImage()) {
-            this.outStream.println("WARNING: Ballerina GraalVM Native Image generation is an experimental feature");
-        }
-
         // Validate Settings.toml file
         try {
             RepoUtils.readSettings();
         } catch (SettingsTomlException e) {
             this.outStream.println("warning: " + e.getMessage());
+        }
+
+        if (!project.buildOptions().nativeImage() && !project.buildOptions().graalVMBuildOptions().isEmpty()) {
+            this.outStream.println("WARNING: Additional GraalVM build options are ignored since graalvm " +
+                    "flag is not set");
         }
 
         // Check package files are modified after last build
@@ -299,7 +309,9 @@ public class BuildCommand implements BLauncherCmd {
                 .setExportOpenAPI(exportOpenAPI)
                 .setExportComponentModel(exportComponentModel)
                 .setEnableCache(enableCache)
-                .setNativeImage(nativeImage);
+                .setNativeImage(nativeImage)
+                .disableSyntaxTreeCaching(disableSyntaxTreeCaching)
+                .setGraalVMBuildOptions(graalVMBuildOptions);
 
         if (targetDir != null) {
             buildOptionsBuilder.targetDir(targetDir.toString());

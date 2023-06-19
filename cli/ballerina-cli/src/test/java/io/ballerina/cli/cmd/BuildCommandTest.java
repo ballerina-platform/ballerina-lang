@@ -21,13 +21,16 @@ package io.ballerina.cli.cmd;
 import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.cli.utils.BuildTime;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -44,9 +47,13 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 import java.util.jar.JarFile;
 
+import static io.ballerina.cli.cmd.CommandOutputUtils.assertTomlFilesEquals;
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
+import static io.ballerina.cli.cmd.CommandOutputUtils.replaceDependenciesTomlContent;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
+import static io.ballerina.projects.util.ProjectUtils.deleteDirectory;
 
 /**
  * Build command tests.
@@ -888,12 +895,293 @@ public class BuildCommandTest extends BaseCommandTest {
                     .replace("{{username}}", username).replace("{{password}}", password);
             Files.write(projectPath.resolve("Ballerina.toml"), content.getBytes(Charset.defaultCharset()));
             BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
-            new CommandLine(buildCommand).parse(projectPath.toString());
+            new CommandLine(buildCommand).parseArgs(projectPath.toString());
             buildCommand.execute();
             Assert.assertTrue(projectPath.resolve("target").resolve("platform-libs").resolve("org")
                     .resolve("ballerinalang").resolve("ballerina-command-distribution")
                     .resolve("0.8.14").resolve("ballerina-command-distribution-0.8.14.jar").toFile().exists());
         }
+    }
+
+    @BeforeGroups(value = {"proj-with-deps-update-policy"})
+    public void publishDependencies() {
+        Path distVersionTestResources = testResources.resolve("dep-dist-version-projects");
+        BCompileUtil.compileAndCacheBala(distVersionTestResources.resolve("depA_1_0_0"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(distVersionTestResources.resolve("depB_1_0_0"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(distVersionTestResources.resolve("depA_1_0_1"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(distVersionTestResources.resolve("depB_1_0_1"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(distVersionTestResources.resolve("depA_1_1_0"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(distVersionTestResources.resolve("depB_1_1_0"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(distVersionTestResources.resolve("depA_2_0_0"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+        BCompileUtil.compileAndCacheBala(distVersionTestResources.resolve("depB_2_0_0"),
+                testDistCacheDirectory, projectEnvironmentBuilder);
+    }
+
+    @Test(description = "Build a new ballerina project without sticky flag", groups = {"proj-with-deps-update-policy"})
+    public void testBuildNewBalProjectWithoutStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("newPackage");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-new-proj-with-dep.txt"));
+
+        // Dependencies.toml should have the latest versions of the dependencies
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("new-pkg.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Delete dependencies.toml from the project
+        Files.delete(actualDependenciesToml);
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a new ballerina project with sticky flag", groups = {"proj-with-deps-update-policy"})
+    public void testBuildNewBalProjectWithStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("newPackage");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs("--sticky");
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-new-proj-with-dep.txt"));
+
+        // Dependencies.toml should have the latest versions of the dependencies
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("new-pkg.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Delete dependencies.toml from the project
+        Files.delete(actualDependenciesToml);
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a project already built with an older distribution without sticky flag",
+            groups = {"proj-with-deps-update-policy"})
+    public void testBuildProjectPrecompiledWithOlderDistWithoutStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
+        replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**", "2201.5.0");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(
+                buildLog.replaceAll("\r", ""),
+                getOutput("build-old-dist-precomp-proj-without-sticky.txt")
+                        .replaceAll("INSERT_NEW_DIST_VERSION_HERE", getNewVersionForOldDistWarning())
+                        .replaceAll("INSERT_OLD_DIST_VERSION_HERE", getOldVersionForOldDistWarning("2201.5.0")));
+
+        // Dependencies.toml should be updated to the latest minor versions.
+        // depA:1.0.0 -> depA:1.1.0
+        // depB:1.0.0 -> depB:1.1.0
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("old-dist-precomp-pkg-with-no-sticky.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Revert the distribution version and dependency versions to the placeholder values
+        replaceDependenciesTomlContent(projectPath, RepoUtils.getBallerinaShortVersion(),
+                "**INSERT_DISTRIBUTION_VERSION_HERE**");
+        replaceDependenciesTomlContent(projectPath, "1.1.0", "1.0.0");
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a project already built with an older distribution with sticky flag",
+            groups = {"proj-with-deps-update-policy"})
+    public void testBuildProjectPrecompiledWithOlderDistWithStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
+        replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**", "2201.5.0");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs("--sticky");
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(
+                buildLog.replaceAll("\r", ""),
+                getOutput("build-old-dist-precomp-proj-with-sticky.txt")
+                        .replaceAll("INSERT_NEW_DIST_VERSION_HERE", getNewVersionForOldDistWarning())
+                        .replaceAll("INSERT_OLD_DIST_VERSION_HERE", getOldVersionForOldDistWarning("2201.5.0")));
+
+        // Dependencies should stick to the ones already in Dependencies.toml.
+        // depA:1.0.0 -> depA:1.0.0
+        // depB:1.0.0 -> depB:1.0.0
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("precomp-pkg-with-sticky.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Revert the distribution version and dependency versions to the placeholder values
+        replaceDependenciesTomlContent(projectPath, RepoUtils.getBallerinaShortVersion(),
+                "**INSERT_DISTRIBUTION_VERSION_HERE**");
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a project already built with an U4 or older distribution without sticky flag",
+            groups = {"proj-with-deps-update-policy"})
+    public void testBuildProjectPrecompiledWithNoDistWithoutStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
+        replaceDependenciesTomlContent(
+                projectPath, "distribution-version = \"**INSERT_DISTRIBUTION_VERSION_HERE**\"", "");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(
+                buildLog.replaceAll("\r", ""),
+                getOutput("build-old-dist-precomp-proj-without-sticky.txt")
+                        .replaceAll("INSERT_NEW_DIST_VERSION_HERE", getNewVersionForOldDistWarning())
+                        .replaceAll("INSERT_OLD_DIST_VERSION_HERE", "4 or an older Update"));
+
+        // Dependencies.toml should be updated to the latest minor versions.
+        // depA:1.0.0 -> depA:1.1.0
+        // depB:1.0.0 -> depB:1.1.0
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("old-dist-precomp-pkg-with-no-sticky.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Revert the distribution version and dependency versions to the placeholder values
+        replaceDependenciesTomlContent(projectPath, RepoUtils.getBallerinaShortVersion(),
+                "**INSERT_DISTRIBUTION_VERSION_HERE**");
+        replaceDependenciesTomlContent(projectPath, "1.1.0", "1.0.0");
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a project already built with U4 or older distribution with sticky flag",
+            groups = {"proj-with-deps-update-policy"})
+    public void testBuildProjectPrecompiledWithNoDistWithStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
+        replaceDependenciesTomlContent(
+                projectPath, "distribution-version = \"**INSERT_DISTRIBUTION_VERSION_HERE**\"", "");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs("--sticky");
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(
+                buildLog.replaceAll("\r", ""),
+                getOutput("build-old-dist-precomp-proj-with-sticky.txt")
+                        .replaceAll("INSERT_NEW_DIST_VERSION_HERE", getNewVersionForOldDistWarning())
+                        .replaceAll("INSERT_OLD_DIST_VERSION_HERE", "4 or an older Update"));
+
+        // Dependencies should stick to the ones already in Dependencies.toml.
+        // depA:1.0.0 -> depA:1.0.0
+        // depB:1.0.0 -> depB:1.0.0
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("precomp-pkg-with-sticky.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Revert the distribution version and dependency versions to the placeholder values
+        replaceDependenciesTomlContent(projectPath, RepoUtils.getBallerinaShortVersion(),
+                "**INSERT_DISTRIBUTION_VERSION_HERE**");
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a project already built with the current distribution without sticky flag",
+            groups = {"proj-with-deps-update-policy"})
+    public void testBuildProjectPrecompiledWithCurrentDistWithoutStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
+        replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
+                RepoUtils.getBallerinaShortVersion());
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-curr-dist-precomp-proj-with-dep.txt"));
+
+        // Dependencies.toml should be updated to the latest patch versions.
+        // depA:1.0.0 -> depA:1.0.1
+        // depB:1.0.0 -> depB:1.0.1
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("curr-dist-precomp-pkg-with-no-sticky.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Revert the distribution version and dependency versions to the placeholder values
+        replaceDependenciesTomlContent(projectPath, RepoUtils.getBallerinaShortVersion(),
+                "**INSERT_DISTRIBUTION_VERSION_HERE**");
+        replaceDependenciesTomlContent(projectPath, "1.0.1", "1.0.0");
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    @Test(description = "Build a project already built with an older distribution with sticky flag",
+            groups = {"proj-with-deps-update-policy"})
+    public void testBuildProjectPrecompiledWithCurrentDistWithStickyFlag() throws IOException {
+        Path projectPath = testResources.resolve("dep-dist-version-projects").resolve("preCompiledPackage");
+        replaceDependenciesTomlContent(projectPath, "**INSERT_DISTRIBUTION_VERSION_HERE**",
+                RepoUtils.getBallerinaShortVersion());
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false);
+
+        new CommandLine(buildCommand).parseArgs("--sticky");
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-curr-dist-precomp-proj-with-dep.txt"));
+
+        // Dependencies should stick to the ones already in Dependencies.toml.
+        // depA:1.0.0 -> depA:1.0.0
+        // depB:1.0.0 -> depB:1.0.0
+        Path actualDependenciesToml = projectPath.resolve("Dependencies.toml");
+        Path expectedDependenciesToml = testResources.resolve("dep-dist-version-projects").resolve("expected-dep-tomls")
+                .resolve("precomp-pkg-with-sticky.toml");
+        Assert.assertTrue(actualDependenciesToml.toFile().exists());
+        assertTomlFilesEquals(actualDependenciesToml, expectedDependenciesToml);
+
+        // Revert the distribution version and dependency versions to the placeholder values
+        replaceDependenciesTomlContent(projectPath, RepoUtils.getBallerinaShortVersion(),
+                "**INSERT_DISTRIBUTION_VERSION_HERE**");
+        deleteDirectory(projectPath.resolve("target"));
+    }
+
+    private String getNewVersionForOldDistWarning() {
+        SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
+        String currentVersionForDiagnostic = String.valueOf(currentDistributionVersion.minor());
+        if (currentDistributionVersion.patch() != 0) {
+            currentVersionForDiagnostic += DOT + currentDistributionVersion.patch();
+        }
+        return currentVersionForDiagnostic;
+    }
+
+    private String getOldVersionForOldDistWarning(String version) {
+        SemanticVersion prevDistributionVersion = SemanticVersion.from(version);
+        String prevVersionForDiagnostic;
+        if (null != prevDistributionVersion) {
+            prevVersionForDiagnostic = String.valueOf(prevDistributionVersion.minor());
+            if (prevDistributionVersion.patch() != 0) {
+                prevVersionForDiagnostic += DOT + prevDistributionVersion.patch();
+            }
+        } else {
+            prevVersionForDiagnostic = "4 or an older Update";
+        }
+        return prevVersionForDiagnostic;
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

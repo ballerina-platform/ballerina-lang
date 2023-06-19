@@ -201,6 +201,9 @@
                   }
                 }
               }
+            },
+            "graalvmCompatible": {
+              "type": "boolean"
             }
           },
           "required": [

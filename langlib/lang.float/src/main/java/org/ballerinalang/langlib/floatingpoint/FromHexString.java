@@ -26,8 +26,8 @@ import io.ballerina.runtime.api.values.BString;
 import java.util.regex.Pattern;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.FLOAT_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
+import static io.ballerina.runtime.internal.errors.ErrorReasons.getModulePrefixedReason;
 
 /**
  * Native implementation of lang.float:fromHexString(string).

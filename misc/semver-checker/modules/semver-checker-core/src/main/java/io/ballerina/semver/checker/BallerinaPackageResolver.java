@@ -177,7 +177,8 @@ class BallerinaPackageResolver {
             settings = Settings.from();
         }
         this.centralClient = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
-                initializeProxy(settings.getProxy()), getAccessTokenOfCLI(settings));
+                initializeProxy(settings.getProxy()), settings.getProxy().username(),
+                settings.getProxy().password(), getAccessTokenOfCLI(settings));
     }
 
     private Path resolveBalaPath(String org, String pkgName, String version) throws SemverToolException {

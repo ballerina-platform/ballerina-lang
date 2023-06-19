@@ -55,6 +55,7 @@ under the License.
             <package name="org.ballerinalang.langserver.eventsync.*"/>
             <package name="org.ballerinalang.langserver.lspackageloader.*"/>
             <package name="org.ballerinalang.langserver.inlayhint.*"/>
+            <package name="org.ballerinalang.langserver.common.utils.*"/>
         </packages>
         <classes>
             <class name="org.ballerinalang.langserver.extensions.document.SyntaxTreeByRangeTest"/>

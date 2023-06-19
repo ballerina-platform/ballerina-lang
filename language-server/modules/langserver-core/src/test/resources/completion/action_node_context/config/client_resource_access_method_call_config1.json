@@ -1,7 +1,7 @@
 {
   "position": {
     "line": 21,
-    "character": 58
+    "character": 57
   },
   "source": "action_node_context/source/client_resource_access_method_call_source1.bal",
   "description": "Tests completions in method call context of client resource access action",

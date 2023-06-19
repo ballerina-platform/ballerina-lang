@@ -127,7 +127,7 @@ public class Generator {
                     if (classDefinition.visibilityQualifier().isPresent() && classDefinition.visibilityQualifier().get()
                             .kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
                         hasPublicConstructs = true;
-                        BClass cls = getClassModel((ClassDefinitionNode) node, semanticModel);
+                        BClass cls = getClassModel((ClassDefinitionNode) node, semanticModel, module);
                         if (cls instanceof Client) {
                             module.clients.add((Client) cls);
                         } else if (cls instanceof Listener) {
@@ -139,17 +139,17 @@ public class Generator {
                 } else if (node.kind() == SyntaxKind.FUNCTION_DEFINITION &&
                         containsToken(((FunctionDefinitionNode) node).qualifierList(), SyntaxKind.PUBLIC_KEYWORD)) {
                     hasPublicConstructs = true;
-                    module.functions.add(getFunctionModel((FunctionDefinitionNode) node, semanticModel));
+                    module.functions.add(getFunctionModel((FunctionDefinitionNode) node, semanticModel, module));
                 } else if (node.kind() == SyntaxKind.CONST_DECLARATION && ((ConstantDeclarationNode) node)
                         .visibilityQualifier().isPresent() && ((ConstantDeclarationNode) node).visibilityQualifier()
                         .get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
                     hasPublicConstructs = true;
-                    module.constants.add(getConstantTypeModel((ConstantDeclarationNode) node, semanticModel));
+                    module.constants.add(getConstantTypeModel((ConstantDeclarationNode) node, semanticModel, module));
                 } else if (node.kind() == SyntaxKind.ANNOTATION_DECLARATION && ((AnnotationDeclarationNode) node)
                         .visibilityQualifier().isPresent() && ((AnnotationDeclarationNode) node)
                         .visibilityQualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
                     hasPublicConstructs = true;
-                    module.annotations.add(getAnnotationModel((AnnotationDeclarationNode) node, semanticModel));
+                    module.annotations.add(getAnnotationModel((AnnotationDeclarationNode) node, semanticModel, module));
                 } else if (node.kind() == SyntaxKind.ENUM_DECLARATION &&
                         ((EnumDeclarationNode) node).qualifier().isPresent() &&
                         ((EnumDeclarationNode) node).qualifier().get().kind().equals(SyntaxKind.PUBLIC_KEYWORD)) {
@@ -158,7 +158,8 @@ public class Generator {
                         ((ModuleVariableDeclarationNode) node).visibilityQualifier().isPresent() &&
                         ((ModuleVariableDeclarationNode) node).visibilityQualifier().get().kind()
                                 .equals(SyntaxKind.PUBLIC_KEYWORD)) {
-                    module.variables.add(getModuleVariable((ModuleVariableDeclarationNode) node, semanticModel));
+                    module.variables.add(getModuleVariable((ModuleVariableDeclarationNode) node, semanticModel,
+                            module));
                 }
             }
         }
@@ -172,38 +173,38 @@ public class Generator {
         Optional<MetadataNode> metaDataNode = typeDefinition.metadata();
         if (typeDefinition.typeDescriptor().kind().equals(SyntaxKind.RECORD_TYPE_DESC)) {
             module.records.add(getRecordTypeModel((RecordTypeDescriptorNode) typeDefinition.typeDescriptor(),
-                    typeName, metaDataNode, semanticModel));
+                    typeName, metaDataNode, semanticModel, module));
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
             ObjectTypeDescriptorNode objectTypeDescriptorNode =
                     (ObjectTypeDescriptorNode) typeDefinition.typeDescriptor();
             BObjectType bObj = getObjectTypeModel(objectTypeDescriptorNode,
-                    typeName, metaDataNode, semanticModel);
+                    typeName, metaDataNode, semanticModel, module);
             if (containsToken(objectTypeDescriptorNode.objectTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD)) {
                 module.serviceTypes.add(bObj);
             } else {
                 module.objectTypes.add(bObj);
             }
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
-            Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
+            Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel, module);
             if (unionType.memberTypes.stream().allMatch(type ->
                     (type.category != null && type.category.equals("errors")) ||
                             (type.category != null && type.category.equals("builtin")) &&
                                     type.name.equals("error"))) {
                 module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
-                        Type.fromNode(typeDefinition.typeDescriptor(), semanticModel)));
+                        Type.fromNode(typeDefinition.typeDescriptor(), semanticModel, module)));
             } else {
                 module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(),
-                        typeName, metaDataNode, semanticModel));
+                        typeName, metaDataNode, semanticModel, module));
             }
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
+            Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel, module);
             if (refType.category.equals("errors")) {
                 module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
                         refType));
             } else {
                 module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
-                        semanticModel));
+                        semanticModel, module));
             }
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
@@ -212,7 +213,8 @@ public class Generator {
             ParameterizedTypeDescriptorNode parameterizedTypeDescNode = (ParameterizedTypeDescriptorNode)
                     ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor();
             if (parameterizedTypeDescNode.typeParamNode().isPresent()) {
-                detailType = Type.fromNode(parameterizedTypeDescNode.typeParamNode().get().typeNode(), semanticModel);
+                detailType = Type.fromNode(parameterizedTypeDescNode.typeParamNode().get().typeNode(), semanticModel,
+                        module);
             }
             Error err = new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), detailType);
             err.isDistinct = true;
@@ -224,7 +226,7 @@ public class Generator {
                     ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor();
             BObjectType bObj = getObjectTypeModel((ObjectTypeDescriptorNode)
                             ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor(), typeName,
-                    metaDataNode, semanticModel);
+                    metaDataNode, semanticModel, module);
             bObj.isDistinct = true;
             if (containsToken(objectTypeDescriptorNode.objectTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD)) {
                 module.serviceTypes.add(bObj);
@@ -236,7 +238,7 @@ public class Generator {
                         == SyntaxKind.PARENTHESISED_TYPE_DESC) {
             ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode = (ParenthesisedTypeDescriptorNode)
                     ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor();
-            Type detailType = Type.fromNode(parenthesisedTypeDescriptorNode, semanticModel);
+            Type detailType = Type.fromNode(parenthesisedTypeDescriptorNode, semanticModel, module);
             Error err = new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), detailType);
             err.isDistinct = true;
             module.errors.add(err);
@@ -244,7 +246,7 @@ public class Generator {
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                         == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             Type refType = Type.fromNode(((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor()))
-                    .typeDescriptor(), semanticModel);
+                    .typeDescriptor(), semanticModel, module);
             if (refType.category.equals("errors")) {
                 Error err = new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), refType);
                 err.isDistinct = true;
@@ -263,18 +265,18 @@ public class Generator {
             Type type = null;
             if (parameterizedTypeDescNode.typeParamNode().isPresent()) {
                 type = Type.fromNode(parameterizedTypeDescNode.typeParamNode().get().typeNode(),
-                        semanticModel);
+                        semanticModel, module);
             }
             module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), type));
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TUPLE_TYPE_DESC) {
             module.types.add(getTupleTypeModel((TupleTypeDescriptorNode) typeDefinition.typeDescriptor(),
-                    typeName, metaDataNode, semanticModel));
+                    typeName, metaDataNode, semanticModel, module));
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INTERSECTION_TYPE_DESC) {
             addIntersectionTypeModel((IntersectionTypeDescriptorNode) typeDefinition.typeDescriptor(), typeName,
                     metaDataNode, semanticModel, module);
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TYPEDESC_TYPE_DESC) {
             module.types.add(getTypeDescModel((ParameterizedTypeDescriptorNode) typeDefinition.typeDescriptor(),
-                    typeName, metaDataNode, semanticModel));
+                    typeName, metaDataNode, semanticModel, module));
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INT_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.DECIMAL_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.XML_TYPE_DESC ||
@@ -282,7 +284,8 @@ public class Generator {
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.ANYDATA_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.STRING_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.ANY_TYPE_DESC) {
-            module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode, semanticModel));
+            module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode, semanticModel,
+                    module));
         } else {
             return false;
         }
@@ -302,12 +305,12 @@ public class Generator {
     }
 
     public static DefaultableVariable getModuleVariable(ModuleVariableDeclarationNode moduleVariableNode,
-                                                        SemanticModel semanticModel) {
+                                                        SemanticModel semanticModel, Module module) {
         String name = moduleVariableNode.typedBindingPattern().bindingPattern().toSourceCode().replace(" ", "");
         String doc = getDocFromMetadata(moduleVariableNode.metadata());
         String defaultValue = moduleVariableNode.initializer().isPresent() ?
                 moduleVariableNode.initializer().get().toSourceCode() : "";
-        Type type = Type.fromNode(moduleVariableNode.typedBindingPattern().typeDescriptor(), semanticModel);
+        Type type = Type.fromNode(moduleVariableNode.typedBindingPattern().typeDescriptor(), semanticModel, module);
         return new DefaultableVariable(name, doc, false, type, defaultValue);
     }
 
@@ -330,7 +333,7 @@ public class Generator {
     }
 
     public static Annotation getAnnotationModel(AnnotationDeclarationNode annotationDeclaration,
-                                                SemanticModel semanticModel) {
+                                                SemanticModel semanticModel, Module module) {
         String annotationName = annotationDeclaration.annotationTag().text();
         StringJoiner attachPointJoiner = new StringJoiner(", ");
         for (int i = 0; i < annotationDeclaration.attachPoints().size(); i++) {
@@ -340,19 +343,19 @@ public class Generator {
         }
 
         Type dataType = annotationDeclaration.typeDescriptor().isPresent() ? Type.fromNode(annotationDeclaration.
-                typeDescriptor().get(), semanticModel) : null;
+                typeDescriptor().get(), semanticModel, module) : null;
         return new Annotation(annotationName, getDocFromMetadata(annotationDeclaration.metadata()),
                 isDeprecated(annotationDeclaration.metadata()), dataType, attachPointJoiner.toString());
     }
 
     public static Constant getConstantTypeModel(ConstantDeclarationNode constantNode,
-                                                SemanticModel semanticModel) {
+                                                SemanticModel semanticModel, Module module) {
         String constantName = constantNode.variableName().text();
         String value = constantNode.initializer().toString();
         String desc = getDocFromMetadata(constantNode.metadata());
         Type type;
         if (constantNode.typeDescriptor().isPresent()) {
-            type = Type.fromNode(constantNode.typeDescriptor().get(), semanticModel);
+            type = Type.fromNode(constantNode.typeDescriptor().get(), semanticModel, module);
         } else {
             String dataType = "";
             if (constantNode.initializer().kind() == SyntaxKind.STRING_LITERAL) {
@@ -383,20 +386,20 @@ public class Generator {
                     typeDescriptor.rightTypeDesc() : typeDescriptor.leftTypeDesc();
             if (typeDef.kind() == SyntaxKind.RECORD_TYPE_DESC) {
                 Record record = getRecordTypeModel((RecordTypeDescriptorNode) typeDef, typeName, optionalMetadataNode,
-                        semanticModel);
+                        semanticModel, module);
                 record.isReadOnly = true;
                 module.records.add(record);
                 return;
             } else if (typeDef.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
                 BObjectType bObj = getObjectTypeModel((ObjectTypeDescriptorNode) typeDef, typeName,
-                        optionalMetadataNode, semanticModel);
+                        optionalMetadataNode, semanticModel, module);
                 bObj.isReadOnly = true;
                 module.objectTypes.add(bObj);
                 return;
             }
         }
         List<Type> memberTypes = new ArrayList<>();
-        Type.addIntersectionMemberTypes(typeDescriptor, semanticModel, memberTypes);
+        Type.addIntersectionMemberTypes(typeDescriptor, semanticModel, memberTypes, module);
         BType bType = new BType(typeName, getDocFromMetadata(optionalMetadataNode),
                 isDeprecated(optionalMetadataNode), memberTypes);
         bType.isIntersectionType = true;
@@ -404,10 +407,11 @@ public class Generator {
     }
 
     private static BType getTupleTypeModel(TupleTypeDescriptorNode typeDescriptor, String tupleTypeName,
-                                           Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel) {
+                                           Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel,
+                                           Module module) {
         List<Type> memberTypes = new ArrayList<>();
         memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(type ->
-                Type.fromNode(type, semanticModel)).collect(Collectors.toList()));
+                Type.fromNode(type, semanticModel, module)).collect(Collectors.toList()));
         BType bType = new BType(tupleTypeName, getDocFromMetadata(optionalMetadataNode),
                 isDeprecated(optionalMetadataNode), memberTypes);
         bType.isTuple = true;
@@ -415,10 +419,11 @@ public class Generator {
     }
 
     private static BType getTypeDescModel(ParameterizedTypeDescriptorNode typeDescriptor, String typeName,
-                                          Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel) {
+                                          Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel,
+                                          Module module) {
         Type type = null;
         if (typeDescriptor.typeParamNode().isPresent()) {
-            type = Type.fromNode(typeDescriptor.typeParamNode().get().typeNode(), semanticModel);
+            type = Type.fromNode(typeDescriptor.typeParamNode().get().typeNode(), semanticModel, module);
         }
         BType bType = new BType(typeName, getDocFromMetadata(optionalMetadataNode), isDeprecated(optionalMetadataNode),
                 null);
@@ -429,16 +434,18 @@ public class Generator {
     }
 
     private static BType getUnionTypeModel(Node unionTypeDescriptor, String unionName,
-                                           Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel) {
+                                           Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel,
+                                           Module module) {
         List<Type> memberTypes = new ArrayList<>();
-        Type.addUnionMemberTypes(unionTypeDescriptor, semanticModel, memberTypes);
+        Type.addUnionMemberTypes(unionTypeDescriptor, semanticModel, memberTypes, module);
         BType bType = new BType(unionName, getDocFromMetadata(optionalMetadataNode),
                                 isDeprecated(optionalMetadataNode), memberTypes);
         bType.isAnonymousUnionType = true;
         return bType;
     }
 
-    private static BClass getClassModel(ClassDefinitionNode classDefinitionNode, SemanticModel semanticModel) {
+    private static BClass getClassModel(ClassDefinitionNode classDefinitionNode, SemanticModel semanticModel,
+                                        Module module) {
         List<Function> classFunctions = new ArrayList<>();
         List<Function> includedFunctions = new ArrayList<>();
         String name = classDefinitionNode.className().text();
@@ -449,16 +456,16 @@ public class Generator {
         boolean isService = containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.SERVICE_KEYWORD);
 
         List<DefaultableVariable> fields = getDefaultableVariableList(classDefinitionNode.members(),
-                classDefinitionNode.metadata(), semanticModel);
+                classDefinitionNode.metadata(), semanticModel, module);
 
         for (Node member : classDefinitionNode.members()) {
             if (member instanceof FunctionDefinitionNode && (containsToken(((FunctionDefinitionNode) member)
                     .qualifierList(), SyntaxKind.PUBLIC_KEYWORD) || containsToken(((FunctionDefinitionNode) member)
                     .qualifierList(), SyntaxKind.REMOTE_KEYWORD) || containsToken(((FunctionDefinitionNode) member)
                     .qualifierList(), SyntaxKind.RESOURCE_KEYWORD))) {
-                classFunctions.add(getFunctionModel((FunctionDefinitionNode) member, semanticModel));
+                classFunctions.add(getFunctionModel((FunctionDefinitionNode) member, semanticModel, module));
             } else if (member instanceof TypeReferenceNode) {
-                Type originType = Type.fromNode(member, semanticModel);
+                Type originType = Type.fromNode(member, semanticModel, module);
                 if (originType instanceof ObjectType) {
                     includedFunctions.addAll(mapFunctionTypesToFunctions(((ObjectType) originType).functionTypes,
                             originType));
@@ -487,7 +494,7 @@ public class Generator {
 
     private static BObjectType getObjectTypeModel(ObjectTypeDescriptorNode typeDescriptorNode, String objectName,
                                                   Optional<MetadataNode> optionalMetadataNode,
-                                                  SemanticModel semanticModel) {
+                                                  SemanticModel semanticModel, Module module) {
         List<Function> objectFunctions = new ArrayList<>();
         List<Function> includedFunctions = new ArrayList<>();
 
@@ -495,7 +502,7 @@ public class Generator {
         boolean isDeprecated = isDeprecated(optionalMetadataNode);
 
         List<DefaultableVariable> fields = getDefaultableVariableList(typeDescriptorNode.members(),
-                optionalMetadataNode, semanticModel);
+                optionalMetadataNode, semanticModel, module);
 
         for (Node member : typeDescriptorNode.members()) {
             if (member instanceof MethodDeclarationNode) {
@@ -521,12 +528,12 @@ public class Generator {
 
                     // Iterate through the parameters
                     List<DefaultableVariable> parameters = new ArrayList<>(getDefaultableVariableList(methodSignature
-                                    .parameters(), methodNode.metadata(), semanticModel));
+                                    .parameters(), methodNode.metadata(), semanticModel, module));
 
                     // return params
                     if (methodSignature.returnTypeDesc().isPresent()) {
                         ReturnTypeDescriptorNode returnType = methodSignature.returnTypeDesc().get();
-                        Type type = Type.fromNode(returnType.type(), semanticModel);
+                        Type type = Type.fromNode(returnType.type(), semanticModel, module);
                         returnParams.add(new Variable(EMPTY_STRING, getParameterDocFromMetadataList(RETURN_PARAM_NAME,
                                 methodNode.metadata()), false, type));
                     }
@@ -546,7 +553,7 @@ public class Generator {
                             SyntaxKind.ISOLATED_KEYWORD), parameters, returnParams));
                 }
             } else if (member instanceof TypeReferenceNode) {
-                Type originType = Type.fromNode(member, semanticModel);
+                Type originType = Type.fromNode(member, semanticModel, module);
                 if (originType instanceof ObjectType) {
                     includedFunctions.addAll(mapFunctionTypesToFunctions(((ObjectType) originType).functionTypes,
                             originType));
@@ -589,7 +596,7 @@ public class Generator {
     }
 
     private static Function getFunctionModel(FunctionDefinitionNode functionDefinitionNode,
-                                             SemanticModel semanticModel) {
+                                             SemanticModel semanticModel, Module module) {
         String functionName = "";
         String accessor = "";
         String resourcePath = "";
@@ -608,14 +615,14 @@ public class Generator {
 
         // Iterate through the parameters
         parameters.addAll(getDefaultableVariableList(functionSignature.parameters(),
-                functionDefinitionNode.metadata(), semanticModel));
+                functionDefinitionNode.metadata(), semanticModel, module));
 
         List<AnnotationAttachment> annotationAttachments = extractAnnotationAttachmentsFromMetadataNode(semanticModel,
                 functionDefinitionNode.metadata());
         // return params
         if (functionSignature.returnTypeDesc().isPresent()) {
             ReturnTypeDescriptorNode returnType = functionSignature.returnTypeDesc().get();
-            Type type = Type.fromNode(returnType.type(), semanticModel);
+            Type type = Type.fromNode(returnType.type(), semanticModel, module);
             returnParams.add(new Variable(EMPTY_STRING, getParameterDocFromMetadataList(RETURN_PARAM_NAME,
                     functionDefinitionNode.metadata()), false, type));
         }
@@ -638,15 +645,15 @@ public class Generator {
 
     private static Record getRecordTypeModel(RecordTypeDescriptorNode recordTypeDesc, String recordName,
                                              Optional<MetadataNode> optionalMetadataNode,
-                                             SemanticModel semanticModel) {
+                                             SemanticModel semanticModel, Module module) {
 
         List<DefaultableVariable> fields = getDefaultableVariableList(recordTypeDesc.fields(),
-                optionalMetadataNode, semanticModel);
+                optionalMetadataNode, semanticModel, module);
         boolean isClosed = (recordTypeDesc.bodyStartDelimiter()).kind().equals(SyntaxKind.OPEN_BRACE_PIPE_TOKEN);
         if (recordTypeDesc.recordRestDescriptor().isPresent()) {
             isClosed = false;
             DefaultableVariable restVariable = new DefaultableVariable("", REST_FIELD_DESCRIPTION,
-                    false, Type.fromNode(recordTypeDesc.recordRestDescriptor().get(), semanticModel), "");
+                    false, Type.fromNode(recordTypeDesc.recordRestDescriptor().get(), semanticModel, module), "");
             fields.add(restVariable);
         }
         return new Record(recordName, getDocFromMetadata(optionalMetadataNode),
@@ -655,7 +662,7 @@ public class Generator {
 
     public static List<DefaultableVariable> getDefaultableVariableList(NodeList nodeList,
                                                                        Optional<MetadataNode> optionalMetadataNode,
-                                                                       SemanticModel semanticModel) {
+                                                                       SemanticModel semanticModel, Module module) {
         List<DefaultableVariable> variables = new ArrayList<>();
         for (int i = 0; i < nodeList.size(); i++) {
             Node node = nodeList.get(i);
@@ -667,7 +674,7 @@ public class Generator {
                     doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                 }
                 String defaultValue = recordField.expression().toString();
-                Type type = Type.fromNode(recordField.typeName(), semanticModel);
+                Type type = Type.fromNode(recordField.typeName(), semanticModel, module);
                 DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc, false, type,
                         defaultValue, extractAnnotationAttachmentsFromMetadataNode(semanticModel,
                         recordField.metadata()));
@@ -682,7 +689,7 @@ public class Generator {
                 if (doc.equals("")) {
                     doc = getParameterDocFromMetadataList(name, optionalMetadataNode);
                 }
-                Type type = Type.fromNode(recordField.typeName(), semanticModel);
+                Type type = Type.fromNode(recordField.typeName(), semanticModel, module);
                 type.isNullable = recordField.questionMarkToken().isPresent();
                 DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc,
                         isDeprecated(recordField.metadata()), type, "",
@@ -692,7 +699,7 @@ public class Generator {
                 }
                 variables.add(defaultableVariable);
             } else if (node instanceof TypeReferenceNode) {
-                Type originType = Type.fromNode(node, semanticModel);
+                Type originType = Type.fromNode(node, semanticModel, module);
                 if (!originType.isPublic) {
                     variables.addAll(originType.memberTypes.stream()
                             .map(type -> new DefaultableVariable(type.name, type.description, false,
@@ -715,7 +722,7 @@ public class Generator {
                     } else {
                         defaultValue = "";
                     }
-                    Type type = Type.fromNode(objectField.typeName(), semanticModel);
+                    Type type = Type.fromNode(objectField.typeName(), semanticModel, module);
                     DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc,
                             isDeprecated(objectField.metadata()), type, defaultValue,
                             extractAnnotationAttachmentsFromMetadataNode(semanticModel, objectField.metadata()));
@@ -725,14 +732,14 @@ public class Generator {
                 RequiredParameterNode requiredParameter = (RequiredParameterNode) node;
                 String paramName = requiredParameter.paramName().isPresent() ?
                         requiredParameter.paramName().get().text() : "";
-                Type type = Type.fromNode(requiredParameter.typeName(), semanticModel);
+                Type type = Type.fromNode(requiredParameter.typeName(), semanticModel, module);
                 variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
                         optionalMetadataNode), isDeprecated(requiredParameter.annotations()), type, ""));
             } else if (node instanceof DefaultableParameterNode) {
                 DefaultableParameterNode defaultableParameter = (DefaultableParameterNode) node;
                 String paramName = defaultableParameter.paramName().isPresent() ?
                         defaultableParameter.paramName().get().text() : "";
-                Type type = Type.fromNode(defaultableParameter.typeName(), semanticModel);
+                Type type = Type.fromNode(defaultableParameter.typeName(), semanticModel, module);
                 variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
                         optionalMetadataNode), isDeprecated(defaultableParameter.annotations()),
                         type, defaultableParameter.expression().toString(),
@@ -744,14 +751,14 @@ public class Generator {
                         restParameter.paramName().get().text() : "";
                 Type type = new Type(paramName);
                 type.isRestParam = true;
-                type.elementType = Type.fromNode(restParameter.typeName(), semanticModel);
+                type.elementType = Type.fromNode(restParameter.typeName(), semanticModel, module);
                 variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
                         optionalMetadataNode), false, type, ""));
             } else if (node instanceof IncludedRecordParameterNode) {
                 IncludedRecordParameterNode includedRecord = (IncludedRecordParameterNode) node;
                 String paramName = includedRecord.paramName().isPresent() ?
                         includedRecord.paramName().get().text() : "";
-                Type type = Type.fromNode(includedRecord.typeName(), semanticModel);
+                Type type = Type.fromNode(includedRecord.typeName(), semanticModel, module);
                 type.isInclusion = true;
                 variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
                         optionalMetadataNode), false, type, ""));
