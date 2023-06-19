@@ -118,6 +118,7 @@ description = 'Ballerina - CLI'
 ext.moduleName = 'ballerina-cli'
 
 compileJava {
+    dependsOn ':testerina:testerina-core:copyInteropImports'
     inputs.property("moduleName", moduleName)
     doFirst {
         options.compilerArgs = [
@@ -126,3 +127,5 @@ compileJava {
         classpath = files()
     }
 }
+
+tasks.createJavadoc.dependsOn(':testerina:testerina-core:copyInteropImports')
