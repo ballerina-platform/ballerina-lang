@@ -384,7 +384,7 @@ task extractBalxBirs(type: Copy) {
 
 // Fix for windows class path too long issue
 task pathingJar(type: Jar) {
-    appendix = "pathing"
+    archiveAppendix = "pathing"
     doFirst {
         manifest {
             attributes "Class-Path": configurations.docerina.files.collect {
@@ -417,7 +417,7 @@ task generateDocs(type: JavaExec) {
 
 task createApiDocsZip(type: Zip) {
     from generateDocs.outputs.files
-    archiveName "ballerina-api-docs-${project.version}.zip"
+    archiveFileName = "ballerina-api-docs-${project.version}.zip"
 }
 
 task createZip(type: Zip) {
@@ -508,15 +508,17 @@ artifacts {
 }
 
 // This section makes sure that checkstyle/spotbug runs when dist is build.
-project.afterEvaluate {
-    configurations.dist.dependencies
-        .findAll { it instanceof ProjectDependency }
-        .each {
-            it.dependencyProject.afterEvaluate {
-                def dependencyCheck = it.tasks.find { it.name == 'check' }
-                check.dependsOn dependencyCheck
-            }
-        }
+tasks.whenTaskAdded { task ->
+    if (task.name == 'check') {
+        configurations.dist.dependencies
+                .findAll { it instanceof ProjectDependency }
+                .each { dependency ->
+                    dependency.dependencyProject.afterEvaluate {
+                        def dependencyCheck = tasks.named('check')
+                        task.dependsOn dependencyCheck
+                    }
+                }
+    }
 }
 
 publishing {

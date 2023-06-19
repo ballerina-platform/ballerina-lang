@@ -62,19 +62,19 @@ dependencies {
 
 //    balaTestImplementation project(path: ':ballerina-http', configuration: 'balaImplementation')
 //    balaTestImplementation project(path: ':ballerina-transactions', configuration: 'balaImplementation')
-    testRuntime project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
+    testRuntimeOnly project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
 
-    testCompile 'org.slf4j:slf4j-jdk14'
-    testCompile 'io.netty:netty-transport'
-    testCompile 'io.netty:netty-codec-http'
-    testCompile 'io.netty:netty-codec-http2'
-    testCompile 'io.netty:netty-handler'
-    testCompile 'org.yaml:snakeyaml'
-    testCompile 'org.awaitility:awaitility'
-    testCompile 'org.hsqldb:hsqldb'
-    testCompile 'io.ballerina.messaging:broker-amqp'
-    testCompile 'org.apache.commons:commons-text'
-    testCompile 'org.testng:testng'
+    testImplementation 'org.slf4j:slf4j-jdk14'
+    testImplementation 'io.netty:netty-transport'
+    testImplementation 'io.netty:netty-codec-http'
+    testImplementation 'io.netty:netty-codec-http2'
+    testImplementation 'io.netty:netty-handler'
+    testImplementation 'org.yaml:snakeyaml'
+    testImplementation 'org.awaitility:awaitility'
+    testImplementation 'org.hsqldb:hsqldb'
+    testImplementation 'io.ballerina.messaging:broker-amqp'
+    testImplementation 'org.apache.commons:commons-text'
+    testImplementation 'org.testng:testng'
 
     testUtils project(path: ':ballerina-test-utils', configuration: 'shadow')
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')

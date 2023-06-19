@@ -602,7 +602,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
         if (packageCompilation.isEmpty()) {
             return Optional.empty();
         }
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation.get(), JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation.get(), JvmTarget.JAVA_17);
         Collection<Diagnostic> diagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
         if (diagnostics.stream().anyMatch(BallerinaWorkspaceManager::isError)) {
             String msg = "Run command execution aborted due to compilation errors: " + diagnostics;

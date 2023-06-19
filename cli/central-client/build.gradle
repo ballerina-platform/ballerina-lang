@@ -22,9 +22,9 @@ configurations {
     birJar
     bir
     birJarCompile { transitive false }
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
     distributionBala
 }
 
@@ -38,10 +38,10 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp'
     implementation 'com.squareup.okio:okio'
 
-    testCompile 'org.testng:testng'
-    testCompile 'org.awaitility:awaitility'
-    testImplementation 'org.powermock:powermock-mockito-release-full'
-    testImplementation 'org.powermock:powermock-module-testng-common'
+    testImplementation "org.mockito:mockito-core:${mockitoCoreVersion}"
+    testImplementation "org.mockito:mockito-testng:${mockitoTestNGVersion}"
+    testImplementation 'org.testng:testng'
+    testImplementation 'org.awaitility:awaitility'
 }
 
 task createTestDistributionCache(type: Copy) {

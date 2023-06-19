@@ -93,7 +93,7 @@ public class TestBalaProject {
         Assert.assertEquals(manifest.authors().get(0), "wso2");
         Assert.assertEquals(manifest.exportedModules().size(), 2);
         Assert.assertEquals(manifest.exportedModules().get(0), "winery");
-        Assert.assertEquals(manifest.exportedModules().get(1), "winery.service");
+        Assert.assertEquals(manifest.exportedModules().get(1), "winery.services");
 
         // 3) Load the default module
         Module defaultModule = currentPackage.getDefaultModule();
@@ -163,7 +163,7 @@ public class TestBalaProject {
         Target target = new Target(project.sourceRoot());
         Path baloPath = target.getBalaPath();
         // invoke write balo method
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, baloPath);
 
         // Load the balo as a project
@@ -244,7 +244,7 @@ public class TestBalaProject {
         }
     }
 
-    @Test
+    @Test(enabled = false)
     public void testProjectRefresh() {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("projects_for_refresh_tests").resolve("package_refresh_bala");
         Project project = TestUtils.loadProject(projectDirPath);

@@ -78,9 +78,8 @@ dependencies {
         implementation "org.hsqldb:hsqldb:${project.hsqldbVersion}"
         implementation "org.javassist:javassist:${project.javassistVersion}"
         implementation "org.jvnet.mimepull:mimepull:${project.jvnetMimepullVersion}"
-        implementation "org.mockito:mockito-all:${project.mockitoAllVersion}"
-        implementation "org.powermock:powermock-mockito-release-full:${project.powermockMockitoReleaseVersion}"
-        implementation "org.powermock:powermock-module-testng-common:${project.powermockModuleTestngVersion}"
+        implementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
+        implementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
         implementation "org.mvel:mvel2:${project.mvel2Version}"
         implementation "org.ow2.asm:asm:${project.ow2AsmVersion}"
         implementation "org.ow2.asm:asm-util:${project.ow2AsmUtilVersion}"
@@ -143,12 +142,12 @@ tasks.withType(Checkstyle) {
 }
 
 spotbugsMain {
-    jvmArgs '-Xmx2048m'
-    it.effort "max"
-    it.reportLevel "low"
+    jvmArgs = [ '-Xmx2048m' ]
+    it.effort = "max"
+    it.reportLevel = "low"
     it.reports {
-        xml.enabled false
-        html.enabled true
+        xml.required = false
+        html.required = true
     }
     def excludeFile = file('spotbugs-exclude.xml')
     if(excludeFile.exists()) {
@@ -173,11 +172,15 @@ test {
         events "failed"
         exceptionFormat "full"
     }
+
+    jacoco {
+        destinationFile = file("$buildDir/jacoco/jacoco.exec")
+    }
 }
 
 jacocoTestReport {
     reports {
-        xml.enabled true
+        xml.required = true
     }
 }
 
@@ -192,11 +195,10 @@ check {
     dependsOn createJavadoc
 }
 
-task jacocoMergeExec(type: JacocoMerge) {
-        destinationFile = file("$buildDir/jacoco/jacoco.exec")
-        executionData = fileTree("$buildDir/jacoco/").matching {
-            include "**.exec"
-        } as FileCollection
+task jacocoMergeExec(type: JacocoReport) {
+    executionData = fileTree("$buildDir/jacoco/").matching {
+        include "**.exec"
+    } as FileCollection
 }
 
 publishing {

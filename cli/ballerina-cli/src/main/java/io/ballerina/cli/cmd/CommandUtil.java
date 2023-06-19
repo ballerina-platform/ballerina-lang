@@ -724,7 +724,7 @@ public class CommandUtil {
         String platform = "";
         if (!Files.exists(balaPath)) {
             //If bala for any platform not exist check for specific platform
-            platform = JvmTarget.JAVA_11.code();
+            platform = JvmTarget.JAVA_17.code();
         } else {
             platform = ANY_PLATFORM;
         }
@@ -1080,7 +1080,7 @@ public class CommandUtil {
             return true;
         }
 
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         Collection<Diagnostic> backendDiagnostics = jBallerinaBackend.diagnosticResult().diagnostics(false);
         if (!backendDiagnostics.isEmpty()) {
             printDiagnostics(backendDiagnostics);
