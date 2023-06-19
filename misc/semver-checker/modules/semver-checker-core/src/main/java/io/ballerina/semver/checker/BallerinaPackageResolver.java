@@ -89,7 +89,7 @@ class BallerinaPackageResolver {
             throws SemverToolException {
         try {
             List<String> publishedVersions = centralClient.getPackageVersions(orgName, pkgName,
-                    JvmTarget.JAVA_11.code(), RepoUtils.getBallerinaVersion());
+                    JvmTarget.JAVA_17.code(), RepoUtils.getBallerinaVersion());
             if (publishedVersions == null || publishedVersions.isEmpty()) {
                 throw new SemverToolException(String.format("couldn't find any published packages in " +
                         "Ballerina central under the org '%s' with name '%s'", orgName, pkgName));

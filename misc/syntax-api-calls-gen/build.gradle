@@ -21,7 +21,7 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
 
-    implementation('com.google.code.gson:gson:2.8.7')
+    implementation("com.google.code.gson:gson:2.10.1")
 
     testImplementation("org.testng:testng:${project.testngVersion}")
     testImplementation(group: 'net.openhft', name: 'compiler', version: '2.23ea0')

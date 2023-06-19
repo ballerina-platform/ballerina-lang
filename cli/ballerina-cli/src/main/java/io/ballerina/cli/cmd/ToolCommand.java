@@ -536,7 +536,7 @@ public class ToolCommand implements BLauncherCmd {
 //                    initializeProxy(settings.getProxy()),
 //                    getAccessTokenOfCLI(settings));
 //            ToolSearchResult toolSearchResult = client.searchTool(keyword,
-//                    JvmTarget.JAVA_11.code(),
+//                    JvmTarget.JAVA_17.code(),
 //                    RepoUtils.getBallerinaVersion());
 //
 //            List<Tool> tools = toolSearchResult.getTools();

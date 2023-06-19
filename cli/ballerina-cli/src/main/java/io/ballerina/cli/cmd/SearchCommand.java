@@ -144,7 +144,7 @@ public class SearchCommand implements BLauncherCmd {
                                                             settings.getProxy().password(),
                                                                 getAccessTokenOfCLI(settings));
             PackageSearchResult packageSearchResult = client.searchPackage(query,
-                                                                           JvmTarget.JAVA_11.code(),
+                                                                           JvmTarget.JAVA_17.code(),
                                                                            RepoUtils.getBallerinaVersion());
 
             if (packageSearchResult.getCount() > 0) {

@@ -45,7 +45,7 @@ public class ResolveMavenDependenciesTask implements Task {
 
     @Override
     public void execute(Project project) {
-        PackageManifest.Platform platform = project.currentPackage().manifest().platform(JvmTarget.JAVA_11.code());
+        PackageManifest.Platform platform = project.currentPackage().manifest().platform(JvmTarget.JAVA_17.code());
 
         if (platform == null) {
             return;

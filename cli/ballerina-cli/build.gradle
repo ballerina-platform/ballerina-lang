@@ -19,9 +19,9 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 apply from: "$rootDir/gradle/ballerinaLangLibLoad.gradle"
 
 configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
     distributionBala
     distributionBirJar
     balRt
@@ -45,12 +45,20 @@ dependencies {
     implementation project(':ballerina-shell:shell-cli')
     implementation project(':toml-parser')
     implementation project(':identifier-util')
-    testCompile project(':ballerina-test-utils')
+    testImplementation project(':ballerina-test-utils')
+    implementation 'org.ow2.asm:asm'
+    implementation "org.ow2.asm:asm-commons:${project.ow2AsmCommonsVersion}"
+    implementation "org.jacoco:org.jacoco.core:${project.jacocoVersion}"
+    implementation "org.jacoco:org.jacoco.report:${project.jacocoVersion}"
+    implementation group: 'org.jacoco', name: 'org.jacoco.core', version: "${project.jacocoVersion}"
+    implementation group: 'org.jacoco', name: 'org.jacoco.report', version: "${project.jacocoVersion}"
+    implementation group: 'org.ow2.asm', name: 'asm', version: "${project.ow2AsmVersion}"
+    implementation group: 'org.ow2.asm', name: 'asm-commons', version: "${project.ow2AsmCommonsVersion}"
+    implementation group: 'org.ow2.asm', name: 'asm-tree', version: "${project.ow2AsmTreeVersion}"
 
-    testCompile 'org.testng:testng'
-    testCompile 'org.mockito:mockito-all'
-    testImplementation 'org.powermock:powermock-mockito-release-full'
-    testImplementation 'org.powermock:powermock-module-testng-common'
+    testImplementation "org.testng:testng:${project.testngVersion}"
+    testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
+    testImplementation 'org.mockito:mockito-testng'
     testImplementation 'commons-io:commons-io'
 
     implementation "org.jacoco:org.jacoco.core:${project.jacocoVersion}"
@@ -69,11 +77,11 @@ dependencies {
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
     distributionBirJar project(path: ':testerina:testerina-core', configuration: 'distributionBirJar')
 
-    testRuntime project(":ballerina-lang-test")
+    testRuntimeOnly project(":ballerina-lang-test")
     balRt project(':ballerina-rt')
     testRt project(':testerina:testerina-runtime')
     testCore project(':testerina:testerina-core')
-    testRuntime project(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
+    testRuntimeOnly project(':project-api-test-artifact:simple-code-gen-plugin-with-resource-gen')
 }
 
 task createTestDistributionCache(type: Copy) {
@@ -94,6 +102,7 @@ test {
     dependsOn createTestDistributionCache
     dependsOn createTestBre
 
+    maxParallelForks = 1
     systemProperty "ballerina.home", "$buildDir"
 
     useTestNG() {
@@ -117,6 +126,3 @@ compileJava {
         classpath = files()
     }
 }
-
-tasks.compileJava.dependsOn(':testerina:testerina-core:copyInteropImports')
-tasks.createJavadoc.dependsOn(':testerina:testerina-core:copyInteropImports')

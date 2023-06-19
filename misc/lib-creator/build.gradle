@@ -43,6 +43,7 @@ description = 'Ballerina - Library creation utility'
 
 // Creating uber jar of lib-creator to avoid windows gradle build issue with long class path with java commands.
 jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from {
         configurations.dist.collect { it.isDirectory() ? it : zipTree(it) }
     } {
