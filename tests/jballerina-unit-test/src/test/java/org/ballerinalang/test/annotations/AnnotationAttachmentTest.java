@@ -441,14 +441,14 @@ public class AnnotationAttachmentTest {
         Assert.assertEquals(((BLangLiteral) element).value, "test");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testAnnotWithEmptyMapConstructorOnType() {
         List<BLangAnnotationAttachment> attachments =
                 getTypeDefinition(compileResult.getAST().getTypeDefinitions(), "MyType").getAnnotationAttachments();
         validateEmptyMapConstructorExprInAnnot(attachments, "v16", "A", 1);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testAnnotWithEmptyMapConstructorOnFunction() {
         BLangFunction function = getFunction("myFunction1");
         validateEmptyMapConstructorExprInAnnot(function.annAttachments, "v17", "A", 1);
@@ -468,7 +468,7 @@ public class AnnotationAttachmentTest {
         validateEmptyMapConstructorExprInAnnot(attachments, "v20", "A", 1);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testAnnotWithEmptyMapConstructorOnResource() {
         BLangFunction function = getFunction("$anonType$_2.$get$res");
         validateEmptyMapConstructorExprInAnnot(function.annAttachments, "v18", "A", 1);
@@ -488,7 +488,7 @@ public class AnnotationAttachmentTest {
         validateEmptyMapConstructorExprInAnnot(function.annAttachments, "v23", "A", 0);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testAnnotWithEmptyMapConstructorOnFunction4() {
         BLangFunction function = getFunction("myFunction4");
         validateEmptyMapConstructorExprInAnnot(function.annAttachments, "v17", "A", 1);

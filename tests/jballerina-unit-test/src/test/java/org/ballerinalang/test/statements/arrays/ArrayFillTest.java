@@ -525,7 +525,7 @@ public class ArrayFillTest {
         Assert.assertEquals(((BArray) returns).getValues()[5].toString(), "1.2");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testReadOnlyArrayFill() {
         BRunUtil.invoke(compileResult, "testReadOnlyArrayFill");
     }

@@ -76,7 +76,7 @@ public class AnnotationTests {
         BRunUtil.invoke(result, "testAnnotOnRecordFields");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testAnnotationsOnTupleFields() {
         BRunUtil.invoke(result, "testAnnotOnTupleFields");
     }

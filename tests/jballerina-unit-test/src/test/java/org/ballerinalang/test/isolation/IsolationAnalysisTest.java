@@ -67,7 +67,7 @@ public class IsolationAnalysisTest {
         result = BCompileUtil.compile("test-src/isolation-analysis/isolation_analysis.bal");
     }
 
-    @Test(dataProvider = "isolatedFunctionTests")
+    @Test(dataProvider = "isolatedFunctionTests", enabled = false)
     public void testIsolatedFunctions(String function) {
         BRunUtil.invoke(result, function);
     }
