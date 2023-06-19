@@ -512,10 +512,10 @@ public class AnnotationAttachmentNegativeTest {
     public void testInvalidConstAnnotElements() {
         int index = 272;
         int line = 943;
-        validateError(compileResult, index++, "annotation element should be a literal", line, 16);
+        validateError(compileResult, index++, "expression is not a constant expression", line, 16);
         validateError(compileResult, index++, "expression is not a constant expression", line += 7, 17);
-        validateError(compileResult, index++, "annotation element should be a literal", line += 7, 16);
-        validateError(compileResult, index++, "annotation element should be a literal", line += 9, 16);
-        validateError(compileResult, index, "annotation element should be a literal", line + 7, 16);
+        validateError(compileResult, index++, "expression is not a constant expression", line += 7, 16);
+        validateError(compileResult, index++, "expression is not a constant expression", line += 9, 16);
+        validateError(compileResult, index, "expression is not a constant expression", line + 7, 16);
     }
 }

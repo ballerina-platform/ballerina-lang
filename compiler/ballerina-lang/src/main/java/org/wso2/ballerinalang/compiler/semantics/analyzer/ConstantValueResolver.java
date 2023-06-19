@@ -95,7 +95,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private static final CompilerContext.Key<ConstantValueResolver> CONSTANT_VALUE_RESOLVER_KEY =
             new CompilerContext.Key<>();
     private BConstantSymbol currentConstSymbol;
-    private BType currentConstSymbolType;
     private BLangConstantValue result;
     private BLangDiagnosticLog dlog;
     private Location currentPos;
@@ -145,9 +144,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             return; // Already visited.
         }
         BConstantSymbol tempCurrentConstSymbol = this.currentConstSymbol;
-        BType tempCurrentConstSymbolType = this.currentConstSymbolType;
         this.currentConstSymbol = constant.symbol;
-        this.currentConstSymbolType = constant.symbol.type;
         this.resolvingConstants.add(this.currentConstSymbol);
         this.currentConstSymbol.value = constructBLangConstantValue(constant.expr);
         this.resolvingConstants.remove(this.currentConstSymbol);
@@ -157,7 +154,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         checkUniqueness(constant);
         unresolvedConstants.remove(this.currentConstSymbol);
         this.currentConstSymbol = tempCurrentConstSymbol;
-        this.currentConstSymbolType = tempCurrentConstSymbolType;
     }
 
     @Override
@@ -225,6 +221,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         for (RecordLiteralNode.RecordField field : recordLiteral.fields) {
             String key;
             BLangConstantValue value;
+
             if (field.isKeyValueField()) {
                 BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
                         (BLangRecordLiteral.BLangRecordKeyValueField) field;
@@ -237,10 +234,8 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 } else {
                     continue;
                 }
-                BType tempCurrentConstSymbolType = this.currentConstSymbolType;
-                this.currentConstSymbolType = keyValuePair.getBType();
+
                 value = constructBLangConstantValue(keyValuePair.valueExpr);
-                this.currentConstSymbolType = tempCurrentConstSymbolType;
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangRecordLiteral.BLangRecordVarNameField varNameField =
                         (BLangRecordLiteral.BLangRecordVarNameField) field;
@@ -305,7 +300,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         if (lhs == null || rhs == null || lhs.value == null || rhs.value == null) {
             // This is a compilation error.
             // This is to avoid NPE exceptions in sub-sequent validations.
-            return new BLangConstantValue(null, this.currentConstSymbolType);
+            return new BLangConstantValue(null, this.currentConstSymbol.type);
         }
         // See Types.isAllowedConstantType() for supported types.
         try {
@@ -342,20 +337,20 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
         // This is a compilation error already logged.
         // This is to avoid NPE exceptions in sub-sequent validations.
-        return new BLangConstantValue(null, this.currentConstSymbolType);
+        return new BLangConstantValue(null, this.currentConstSymbol.type);
     }
 
     private BLangConstantValue evaluateUnaryOperator(BLangConstantValue value, OperatorKind kind) {         
         if (value == null || value.value == null) {
             // This is a compilation error.
             // This is to avoid NPE exceptions in sub-sequent validations.
-            return new BLangConstantValue(null, this.currentConstSymbolType);
+            return new BLangConstantValue(null, this.currentConstSymbol.type);
         }
 
         try {
             switch (kind) {
                 case ADD:
-                    return new BLangConstantValue(value.value, currentConstSymbolType);
+                    return new BLangConstantValue(value.value, currentConstSymbol.type);
                 case SUB:
                     return calculateNegation(value);
                 case BITWISE_COMPLEMENT:
@@ -368,25 +363,25 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
         // This is a compilation error already logged.
         // This is to avoid NPE exceptions in sub-sequent validations.
-        return new BLangConstantValue(null, this.currentConstSymbolType);
+        return new BLangConstantValue(null, this.currentConstSymbol.type);
     }
 
     private BLangConstantValue calculateBitWiseOp(BLangConstantValue lhs, BLangConstantValue rhs,
                                                   BiFunction<Long, Long, Long> func) {
-        switch (Types.getReferredType(this.currentConstSymbolType).tag) {
+        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
                 Long val = func.apply((Long) lhs.value, (Long) rhs.value);
-                return new BLangConstantValue(val, this.currentConstSymbolType);
+                return new BLangConstantValue(val, this.currentConstSymbol.type);
             default:
                 dlog.error(currentPos, DiagnosticErrorCode.CONSTANT_EXPRESSION_NOT_SUPPORTED);
 
         }
-        return new BLangConstantValue(null, this.currentConstSymbolType);
+        return new BLangConstantValue(null, this.currentConstSymbol.type);
     }
 
     private BLangConstantValue calculateAddition(BLangConstantValue lhs, BLangConstantValue rhs) {
         Object result = null;
-        switch (Types.getReferredType(this.currentConstSymbolType).tag) {
+        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 try {
@@ -410,12 +405,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 result = String.valueOf(lhs.value) + String.valueOf(rhs.value);
                 break;
         }
-        return new BLangConstantValue(result, currentConstSymbolType);
+        return new BLangConstantValue(result, currentConstSymbol.type);
     }
 
     private BLangConstantValue calculateSubtract(BLangConstantValue lhs, BLangConstantValue rhs) {
         Object result = null;
-        switch (Types.getReferredType(this.currentConstSymbolType).tag) {
+        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 try {
@@ -436,12 +431,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 result = resultDecimal != null ? resultDecimal.toPlainString() : null;
                 break;
         }
-        return new BLangConstantValue(result, currentConstSymbolType);
+        return new BLangConstantValue(result, currentConstSymbol.type);
     }
 
     private BLangConstantValue calculateMultiplication(BLangConstantValue lhs, BLangConstantValue rhs) {
         Object result = null;
-        switch (Types.getReferredType(this.currentConstSymbolType).tag) {
+        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 try {
@@ -462,17 +457,17 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 result = resultDecimal != null ? resultDecimal.toPlainString() : null;
                 break;
         }
-        return new BLangConstantValue(result, currentConstSymbolType);
+        return new BLangConstantValue(result, currentConstSymbol.type);
     }
 
     private BLangConstantValue calculateDivision(BLangConstantValue lhs, BLangConstantValue rhs) {
         Object result = null;
-        switch (Types.getReferredType(this.currentConstSymbolType).tag) {
+        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 if ((Long) lhs.value == Long.MIN_VALUE && (Long) rhs.value == -1) {
                     dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
-                    return new BLangConstantValue(null, this.currentConstSymbolType);
+                    return new BLangConstantValue(null, this.currentConstSymbol.type);
                 }
                 result = (Long) ((Long) lhs.value / (Long) rhs.value);
                 break;
@@ -488,12 +483,12 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 result = resultDecimal != null ? resultDecimal.toPlainString() : null;
                 break;
         }
-        return new BLangConstantValue(result, currentConstSymbolType);
+        return new BLangConstantValue(result, currentConstSymbol.type);
     }
 
     private BLangConstantValue calculateMod(BLangConstantValue lhs, BLangConstantValue rhs) {
         Object result = null;
-        switch (Types.getReferredType(this.currentConstSymbolType).tag) {
+        switch (Types.getReferredType(this.currentConstSymbol.type).tag) {
             case TypeTags.INT:
             case TypeTags.BYTE: // Byte will be a compiler error.
                 result = (Long) ((Long) lhs.value % (Long) rhs.value);
@@ -509,13 +504,13 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                 result = resultDecimal.toPlainString();
                 break;
         }
-        return new BLangConstantValue(result, currentConstSymbolType);
+        return new BLangConstantValue(result, currentConstSymbol.type);
     }
 
     private Object calculateNegationForInt(BLangConstantValue value) {
         if ((Long) (value.value) == Long.MIN_VALUE) {
             dlog.error(currentPos, DiagnosticErrorCode.INT_RANGE_OVERFLOW_ERROR);
-            return new BLangConstantValue(null, this.currentConstSymbolType);
+            return new BLangConstantValue(null, this.currentConstSymbol.type);
         }
         return -1 * ((Long) (value.value));
     }
@@ -553,18 +548,18 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BLangConstantValue calculateBitWiseComplement(BLangConstantValue value) {
         Object result = null;
-        if (Types.getReferredType(this.currentConstSymbolType).tag == TypeTags.INT) {
+        if (Types.getReferredType(this.currentConstSymbol.type).tag == TypeTags.INT) {
             result = ~((Long) (value.value));
         }
-        return new BLangConstantValue(result, currentConstSymbolType);
+        return new BLangConstantValue(result, currentConstSymbol.type);
     }
 
     private BLangConstantValue calculateBooleanComplement(BLangConstantValue value) {
         Object result = null;
-        if (Types.getReferredType(this.currentConstSymbolType).tag == TypeTags.BOOLEAN) {
+        if (Types.getReferredType(this.currentConstSymbol.type).tag == TypeTags.BOOLEAN) {
             result = !((Boolean) (value.value));
         }
-        return new BLangConstantValue(result, currentConstSymbolType);
+        return new BLangConstantValue(result, currentConstSymbol.type);
     }
 
     BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
@@ -575,6 +570,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     BLangConstantValue constructBLangConstantValueWithExactType(BLangExpression expression,
                                                                 BConstantSymbol constantSymbol, SymbolEnv env,
                                                                 Stack<String> anonTypeNameSuffixes) {
+        this.currentConstSymbol = constantSymbol;
         BLangConstantValue value = constructBLangConstantValue(expression);
         constantSymbol.value = value;
 
@@ -819,7 +815,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BType createRecordType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, Location pos,
                                    SymbolEnv env) {
-        if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+        if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF || expr.getKind() == NodeKind.UNARY_EXPR) {
             return expr.getBType();
         }
 
