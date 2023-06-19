@@ -1359,7 +1359,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         BLangExpression expr = fieldAccessExpr.expr;
         analyzeNode(expr, env);
 
-        if (!isInvalidIsolatedObjectFieldOrMethodAccessViaSelfIfOutsideLock(fieldAccessExpr, true)) {
+        if (!isInvalidIsolatedObjectFieldOrMethodAccessViaSelfIfOutsideLock(fieldAccessExpr)) {
             BType bType = expr.getBType();
             BTypeSymbol tsymbol = bType.tsymbol;
             BLangIdentifier field = fieldAccessExpr.field;
@@ -2597,8 +2597,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isInvalidIsolatedObjectFieldOrMethodAccessViaSelfIfOutsideLock(
-            BLangFieldBasedAccess fieldAccessExpr, boolean ignoreInit) {
-        if (!isIsolatedObjectFieldOrMethodAccessViaSelf(fieldAccessExpr, ignoreInit)) {
+            BLangFieldBasedAccess fieldAccessExpr) {
+        if (!isIsolatedObjectFieldOrMethodAccessViaSelf(fieldAccessExpr,
+                                                        isObjectFieldInitialization(fieldAccessExpr))) {
             return false;
         }
 
@@ -2610,6 +2611,38 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         return isExpectedToBeAPrivateField(field.symbol, field.type);
+    }
+
+    private boolean isObjectFieldInitialization(BLangFieldBasedAccess fieldAccessExpr) {
+        BLangNode parent = fieldAccessExpr.parent;
+
+        if (fieldAccessExpr.isLValue) {
+            return parent.getKind() == NodeKind.ASSIGNMENT;
+        }
+
+        while (parent != null && parent.getKind() != NodeKind.ASSIGNMENT) {
+            parent = parent.parent;
+        }
+
+        if (parent == null) {
+            return false;
+        }
+
+        BLangAssignment assignment = (BLangAssignment) parent;
+
+        BLangExpression lhsExpr = assignment.varRef;
+
+        if (lhsExpr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            return false;
+        }
+
+        BLangExpression expr = ((BLangFieldBasedAccess) lhsExpr).expr;
+
+        if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+            return false;
+        }
+
+        return isSelfOfObject((BLangSimpleVarRef) expr);
     }
 
     private void validateIsolatedExpression(BType type, BLangExpression expression) {
