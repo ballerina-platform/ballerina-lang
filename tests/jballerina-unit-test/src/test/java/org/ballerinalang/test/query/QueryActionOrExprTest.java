@@ -72,7 +72,8 @@ public class QueryActionOrExprTest {
                 "testQueryActionOrExprWithQueryConstructingStream",
                 "testQueryActionOrExprWithClientResourceAccessAction",
                 "testQueryActionOrExprWithGroupedClientResourceAccessAction",
-                "testNestedQueryActionOrExprWithClientResourceAccessAction"
+                "testNestedQueryActionOrExprWithClientResourceAccessAction",
+                "testQueryActionWithQueryExpression"
         };
     }
 
@@ -180,6 +181,15 @@ public class QueryActionOrExprTest {
         validateError(negativeResult, i++, "worker send statement position not supported yet, " +
                 "must be a top level statement in a worker", 175, 26);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
+    }
+
+    @Test
+    public void testMatchStatementInsideDoClause() {
+        CompileResult result = BCompileUtil.compile("test-src/query/match-stmt-in-do-clause.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+
+        BRunUtil.invoke(result, "testConstMatchPattern1");
+        BRunUtil.invoke(result, "testConstMatchPattern2");
     }
 
     @AfterClass

@@ -68,8 +68,11 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBinding
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -87,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -1166,6 +1170,13 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangCollectContextInvocation source) {
+        BLangCollectContextInvocation clone = new BLangCollectContextInvocation();
+        source.cloneRef = clone;
+        clone.invocation = clone(source.invocation);
+    }
+
+    @Override
     public void visit(BLangTypeInit source) {
 
         BLangTypeInit clone = new BLangTypeInit();
@@ -1632,9 +1643,31 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangGroupByClause source) {
+        BLangGroupByClause clone = new BLangGroupByClause();
+        source.cloneRef = clone;
+        clone.groupingKeyList = cloneList(source.groupingKeyList);
+    }
+
+    @Override
+    public void visit(BLangGroupingKey source) {
+        BLangGroupingKey clone = new BLangGroupingKey();
+        source.cloneRef = clone;
+        clone.variableDef = clone(source.variableDef);
+        clone.variableRef = source.variableRef;
+    }
+
+    @Override
     public void visit(BLangSelectClause source) {
 
         BLangSelectClause clone = new BLangSelectClause();
+        source.cloneRef = clone;
+        clone.expression = clone(source.expression);
+    }
+
+    @Override
+    public void visit(BLangCollectClause source) {
+        BLangCollectClause clone = new BLangCollectClause();
         source.cloneRef = clone;
         clone.expression = clone(source.expression);
     }

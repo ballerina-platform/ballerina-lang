@@ -20,8 +20,11 @@ package io.ballerina.compiler.api.impl;
 
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.model.clauses.GroupingKeyNode;
 import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -59,8 +62,10 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingP
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -77,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -641,6 +647,29 @@ public class ReferenceFinder extends BaseVisitor {
         for (OrderKeyNode orderKeyNode : orderByClause.orderByKeyList) {
             find((BLangOrderKey) orderKeyNode);
         }
+    }
+
+    @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        for (GroupingKeyNode keyNode : groupByClause.getGroupingKeyList()) {
+            Node groupingKey = keyNode.getGroupingKey();
+            if (groupingKey.getKind() == NodeKind.VARIABLE_DEF) {
+                find((BLangSimpleVariableDef) keyNode.getGroupingKey());
+            } else if (groupingKey.getKind() == NodeKind.VARIABLE
+                    || groupingKey.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                find((BLangSimpleVarRef) keyNode.getGroupingKey());
+            }
+        }
+    }
+
+    @Override
+    public void visit(BLangCollectClause collectClause) {
+        find(collectClause.expression);
+    }
+
+    @Override
+    public void visit(BLangCollectContextInvocation invocation) {
+        find(invocation.invocation);
     }
 
     @Override

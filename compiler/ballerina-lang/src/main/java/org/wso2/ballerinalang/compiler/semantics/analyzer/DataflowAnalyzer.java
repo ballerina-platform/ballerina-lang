@@ -32,6 +32,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
@@ -76,8 +77,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.OCEDynamicEnvironmentData;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangCollectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupingKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
@@ -95,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCollectContextInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -1539,6 +1544,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangCollectContextInvocation collectContextInvocation) {
+        analyzeNode(collectContextInvocation.invocation, env);
+    }
+
+    @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         for (BLangExpression positionalArg : errorConstructorExpr.positionalArgs) {
             analyzeNode(positionalArg, env);
@@ -1617,8 +1627,44 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangGroupByClause groupByClause) {
+        groupByClause.groupingKeyList.forEach(value -> analyzeNode(value, env));
+        replaceWithSeqSymbol(groupByClause.env);
+    }
+
+    private void replaceWithSeqSymbol(SymbolEnv env) {
+        for (Map.Entry<Name, Scope.ScopeEntry> symbolEntry : env.scope.entries.entrySet()) {
+            BSymbol sym = null;
+            Location loc = null;
+            for (Map.Entry<BSymbol, Location> unusedLocalVariable : this.unusedLocalVariables.entrySet()) {
+                BSymbol unusedVarSymbol = unusedLocalVariable.getKey();
+                if (unusedVarSymbol.name.equals(symbolEntry.getKey())) {
+                    sym = unusedLocalVariable.getKey();
+                    loc = unusedLocalVariable.getValue();
+                    break;
+                }
+            }
+            if (sym != null) {
+                this.unusedLocalVariables.remove(sym);
+                this.unusedLocalVariables.put(symbolEntry.getValue().symbol, loc);
+            }
+        }
+    }
+
+    @Override
+    public void visit(BLangGroupingKey groupingKey) {
+        analyzeNode((BLangNode) groupingKey.getGroupingKey(), env);
+    }
+
+    @Override
     public void visit(BLangSelectClause selectClause) {
         analyzeNode(selectClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangCollectClause bLangCollectClause) {
+        replaceWithSeqSymbol(bLangCollectClause.env);
+        analyzeNode(bLangCollectClause.expression, env);
     }
 
     @Override

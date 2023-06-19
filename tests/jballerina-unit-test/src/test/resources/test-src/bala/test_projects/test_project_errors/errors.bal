@@ -21,3 +21,18 @@ public type PostDefinedError error<ErrorData>;
 public type ErrorData record {|
     string code;
 |};
+
+public type Data1 record {|
+    int num;
+|};
+
+public type Data2 record {|
+    byte num;
+|};
+
+public type Data3 record {|
+    int:Signed16 num;
+|};
+
+public type ErrorIntersection1 distinct error<Data1> & error<Data2>;
+public type ErrorIntersection2 distinct error<Data3> & error<Data2>;

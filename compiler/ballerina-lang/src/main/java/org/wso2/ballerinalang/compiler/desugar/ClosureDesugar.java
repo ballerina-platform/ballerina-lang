@@ -1232,7 +1232,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangListConstructorSpreadOpExpr listConstructorSpreadOpExpr) {
-        rewriteExpr(listConstructorSpreadOpExpr.expr);
+        listConstructorSpreadOpExpr.expr = rewriteExpr(listConstructorSpreadOpExpr.expr);
         result = listConstructorSpreadOpExpr;
     }
 

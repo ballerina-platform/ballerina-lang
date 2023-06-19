@@ -18,8 +18,13 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.Environment;
+import io.ballerina.runtime.api.Future;
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.values.BmpStringValue;
 import io.ballerina.runtime.internal.values.HandleValue;
@@ -209,4 +214,31 @@ public class InstanceMethods {
         return instanceMethods.getCurrentModule(env, b * 4);
     }
 
+    public long getResource(BString p1, BString p2) {
+        return 5;
+    }
+
+    public BString getResourceWithBundledPaths(Environment env, BObject self, BArray paths, long i) {
+        return StringUtils.fromString("resource method input: " + i);
+    }
+
+    public void getStringWithBalEnv(Environment env) {
+        Future balFuture = env.markAsync();
+        BString output = StringUtils.fromString("Hello World!");
+        balFuture.complete(output);
+    }
+
+    public void getIntWithBalEnv(Environment env) {
+        Future balFuture = env.markAsync();
+        long output = 7;
+        balFuture.complete(output);
+    }
+
+    public void getMapValueWithBalEnv(Environment env) {
+        Future balFuture = env.markAsync();
+        BMap<BString, Object> mapValue = ValueCreator.createMapValue();
+        mapValue.put(StringUtils.fromString("a"), 10);
+        mapValue.put(StringUtils.fromString("b"), 12.5);
+        balFuture.complete(mapValue);
+    }
 }
