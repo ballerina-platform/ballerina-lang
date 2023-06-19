@@ -851,7 +851,7 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private String getFieldName(String funcName, String typeName) {
-        String[] splitNames = funcName.split(Pattern.quote(typeName + "$$"));
+        String[] splitNames = funcName.split(Pattern.quote(typeName + RECORD_DELIMITER));
         return splitNames[splitNames.length - 1];
     }
 
