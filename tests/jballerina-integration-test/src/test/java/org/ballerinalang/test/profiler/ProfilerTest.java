@@ -20,19 +20,9 @@ package org.ballerinalang.test.profiler;
 
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 
 /**
@@ -46,10 +36,9 @@ public class ProfilerTest extends BaseTest {
                     .toAbsolutePath()
                     .toString();
 
-    String sourceRoot = testFileLocation + "/";
-    String packageName = "singleBalFile";
-    String outputFileName = "performance_report.json";
-
+//    String sourceRoot = testFileLocation + "/";
+//    String packageName = "singleBalFile";
+//    String outputFileName = "performance_report.json";
 //    @Test
 //    public void testProfilerExecution() throws BallerinaTestException {
 //        try {
@@ -88,25 +77,25 @@ public class ProfilerTest extends BaseTest {
         System.out.println("Hi");
     }
 
-    private static void stopProfiler() {
-        try {
-            URL terminateUrl = new URL("http://localhost:2324/terminate");
-            HttpURLConnection connection = (HttpURLConnection) terminateUrl.openConnection();
-            connection.setRequestMethod("GET");
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-            }
-            connection.disconnect();
-        } catch (Exception ignore) {
-        }
-    }
+//    private static void stopProfiler() {
+//        try {
+//            URL terminateUrl = new URL("http://localhost:2324/terminate");
+//            HttpURLConnection connection = (HttpURLConnection) terminateUrl.openConnection();
+//            connection.setRequestMethod("GET");
+//            int responseCode = connection.getResponseCode();
+//            if (responseCode == HttpURLConnection.HTTP_OK) {
+//                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+//                String inputLine;
+//                StringBuilder response = new StringBuilder();
+//                while ((inputLine = in.readLine()) != null) {
+//                    response.append(inputLine);
+//                }
+//                in.close();
+//            }
+//            connection.disconnect();
+//        } catch (Exception ignore) {
+//        }
+//    }
 }
 
 
