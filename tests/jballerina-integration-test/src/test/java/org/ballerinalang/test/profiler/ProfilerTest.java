@@ -23,8 +23,6 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -38,7 +36,7 @@ public class ProfilerTest extends BaseTest {
                     .toAbsolutePath()
                     .toString();
 
-//    String sourceRoot = testFileLocation + "/";
+    //    String sourceRoot = testFileLocation + "/";
 //    String packageName = "singleBalFile";
 //    List<String> outputs = new ArrayList<>();
     int test = 0;
