@@ -1843,10 +1843,10 @@ public class TypeResolver {
             return resolvedType;
         }
 
-        boolean isLabel = true;
+//        boolean isLabel = true;
         //todo remove after type ref introduced to runtime
         if (resolvedType.tsymbol.name == Names.EMPTY) {
-            isLabel = false;
+//            isLabel = false;
             resolvedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
             resolvedType.tsymbol.originalName = names.originalNameFromIdNode(typeDefinition.name);
             resolvedType.tsymbol.flags |= typeDefSymbol.flags;
@@ -1871,7 +1871,7 @@ public class TypeResolver {
         }
 
         BType referenceConstraintType = Types.getReferredType(resolvedType, false);
-        boolean isIntersectionType = referenceConstraintType.tag == TypeTags.INTERSECTION && !isLabel;
+        boolean isIntersectionType = referenceConstraintType.tag == TypeTags.INTERSECTION;
 
         BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
                 referenceConstraintType;

@@ -885,21 +885,23 @@ public class SemanticAnalyzer extends SimpleBLangNodeAnalyzer<SemanticAnalyzer.A
         if (tableTypeNode.tableKeyTypeConstraint != null) {
             analyzeNode(tableTypeNode.tableKeyTypeConstraint, data);
         }
-        BType constraint = Types.getReferredType(tableTypeNode.constraint.getBType());
-        if (!types.isAssignable(constraint, symTable.mapAllType) && !(constraint.getKind() == TypeKind.PARAMETERIZED
-                && ((BParameterizedType) constraint).paramValueType.getKind() == TypeKind.ANYDATA)) {
+        BType constraint = tableTypeNode.constraint.getBType();
+        BType referredConstraint = Types.getReferredType(constraint);
+        if (!types.isAssignable(referredConstraint, symTable.mapAllType) &&
+                !(referredConstraint.getKind() == TypeKind.PARAMETERIZED &&
+                        ((BParameterizedType) referredConstraint).paramValueType.getKind() == TypeKind.ANYDATA)) {
             dlog.error(tableTypeNode.constraint.pos, DiagnosticErrorCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, constraint);
             return;
         }
 
-        if (constraint.tag == TypeTags.MAP) {
+        if (referredConstraint.tag == TypeTags.MAP) {
             typeChecker.validateMapConstraintTable(tableTypeNode.tableType);
             return;
         }
 
         List<String> fieldNameList = tableTypeNode.tableType.fieldNameList;
         if (!fieldNameList.isEmpty()) {
-            typeChecker.validateKeySpecifier(fieldNameList, constraint, tableTypeNode.tableKeySpecifier.pos);
+            typeChecker.validateKeySpecifier(fieldNameList, referredConstraint, tableTypeNode.tableKeySpecifier.pos);
         }
 
         analyzeNode(tableTypeNode.constraint, data);

@@ -130,8 +130,8 @@ public class ConstantTypeTest {
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| 1 a; |}', found '" +
                 "(record {| 1 a; 2 b; |} & readonly)'", 192, 27);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '(record {| record " +
-                "{| 1 a; 2 b; |} a; record {| 3 a; |} b; |} & readonly)', found '(record {| record {| 1 a; 2 b; |} a;" +
-                " record {| 1 a; |} b; |} & readonly)'", 193, 80);
+                "{| 1 a; 2 b; |} a; record {| 3 a; |} b; |} & readonly)', found '(record {| (record {| 1 a; 2 b; |} & " +
+                "readonly) a; record {| 1 a; |} b; |} & readonly)'", 193, 80);
         BAssertUtil.validateError(compileResult1, i++, "cannot update 'readonly' value of type " +
                 "'record {| readonly 1 a; readonly 2 b; |} & readonly'", 198, 5);
         BAssertUtil.validateError(compileResult1, i++, "cannot update 'readonly' value of type " +

@@ -697,8 +697,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     continue;
                 }
 
-                if (!addFields(inferredFields, Types.getReferredType(varRefType), getKeyName(varNameField),
-                        varNameField.pos, recordSymbol)) {
+                if (!addFields(inferredFields, varRefType, getKeyName(varNameField), varNameField.pos, recordSymbol)) {
                     containErrors = true;
                 }
             } else { // Spread Field
