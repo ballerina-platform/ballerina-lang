@@ -155,8 +155,7 @@ public class TypeParamBoundMapFunctionsTest {
         assertEquals(mapFnRetType.typeKind(), TypeDescKind.MAP);
 
         TypeSymbol typeParameterSymbol = ((MapTypeSymbol) mapFnRetType).typeParam();
-        assertEquals(typeParameterSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) typeParameterSymbol).typeDescriptor().typeKind(), TypeDescKind.UNION);
+        assertEquals(typeParameterSymbol.typeKind(), TypeDescKind.FLOAT);
     }
 
     @Test
@@ -214,12 +213,10 @@ public class TypeParamBoundMapFunctionsTest {
 //        assertEquals(fnType.returnTypeDescriptor().get().typeKind(), TypeDescKind.UNION);
 
         TypeSymbol parameterTypeSymbol = params.get(2).typeDescriptor();
-        assertEquals(parameterTypeSymbol.typeKind(), TypeDescKind.TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) parameterTypeSymbol).typeDescriptor().typeKind(), TypeDescKind.UNION);
+        assertEquals(parameterTypeSymbol.typeKind(), TypeDescKind.FLOAT);
 
         TypeSymbol pushFnRetType = reduceFnType.returnTypeDescriptor().get();
-        assertEquals(pushFnRetType.typeKind(), TypeDescKind.TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) pushFnRetType).typeDescriptor().typeKind(), TypeDescKind.UNION);
+        assertEquals(pushFnRetType.typeKind(), TypeDescKind.FLOAT);
     }
 
     @Test
