@@ -2833,9 +2833,8 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
 
         asyncSendExpr.expectedType = data.expType;
 
-        // Type checking against the matching receive is done during code analysis.
-        // When the expected type is noType, set the result type as nil to avoid variable assignment is required errors.
-        data.resultType = data.expType == symTable.noType ? symTable.nilType : data.expType;
+        // Async-send-action always returns nil.
+        data.resultType = symTable.nilType;
     }
 
     @Override

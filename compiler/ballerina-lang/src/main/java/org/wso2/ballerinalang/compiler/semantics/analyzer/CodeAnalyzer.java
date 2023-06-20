@@ -2027,8 +2027,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             was.hasErrors = true;
         }
 
-        asyncSendExpr.setBType(
-                createAccumulatedErrorTypeForMatchingReceive(asyncSendExpr.pos, asyncSendExpr.expr.getBType(), data));
+        asyncSendExpr.sendType =
+                createAccumulatedErrorTypeForMatchingReceive(asyncSendExpr.pos, asyncSendExpr.expr.getBType(), data);
         was.addWorkerAction(asyncSendExpr);
         analyzeExpr(asyncSendExpr.expr, data);
         validateActionParentNode(asyncSendExpr.pos, asyncSendExpr.expr);
@@ -2084,8 +2084,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNDEFINED_WORKER, syncSendExpr.workerSymbol);
             was.hasErrors = true;
         }
-        syncSendExpr.setBType(
-                createAccumulatedErrorTypeForMatchingReceive(syncSendExpr.pos, syncSendExpr.expr.getBType(), data));
+
+        syncSendExpr.setBType(BUnionType.create(null, symTable.nilType, symTable.errorType));
+        syncSendExpr.sendType =
+                createAccumulatedErrorTypeForMatchingReceive(syncSendExpr.pos, syncSendExpr.expr.getBType(), data);
         was.addWorkerAction(syncSendExpr);
         analyzeExpr(syncSendExpr.expr, data);
     }
@@ -3811,8 +3813,8 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
         types.checkType(send.pos, symTable.nilType, send.expectedType,
                 DiagnosticErrorCode.INCOMPATIBLE_TYPES);
 
-        types.checkType(receive, send.getBType(), receive.getBType());
-        addImplicitCast(send.getBType(), receive);
+        types.checkType(receive, send.sendType, receive.getBType());
+        addImplicitCast(send.sendType, receive);
         NodeKind kind = receive.parent.getKind();
         if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR ||
                 kind == NodeKind.FAIL) {
@@ -3847,9 +3849,9 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                             DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
 
-        types.checkType(receive, send.getBType(), receive.getBType());
+        types.checkType(receive, send.sendType, receive.getBType());
 
-        addImplicitCast(send.getBType(), receive);
+        addImplicitCast(send.sendType, receive);
         NodeKind kind = receive.parent.getKind();
         if (kind == NodeKind.TRAP_EXPR || kind == NodeKind.CHECK_EXPR || kind == NodeKind.CHECK_PANIC_EXPR) {
             typeChecker.checkExpr((BLangExpression) receive.parent, receive.env);
