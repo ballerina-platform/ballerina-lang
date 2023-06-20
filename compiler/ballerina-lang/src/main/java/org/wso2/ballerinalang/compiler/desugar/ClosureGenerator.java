@@ -751,7 +751,8 @@ public class ClosureGenerator extends BLangNodeVisitor {
                 name = ((BLangService) parent).name.getValue() + UNDERSCORE + name;
                 return generateName(name, parent.parent);
             case RECORD_TYPE:
-                name = RECORD_DELIMITER + ((BLangRecordTypeNode) parent).symbol.name.getValue() + RECORD_DELIMITER + name;
+                name = RECORD_DELIMITER + ((BLangRecordTypeNode) parent).symbol.name.getValue() + RECORD_DELIMITER
+                        + name;
                 return generateName(name, parent.parent);
             default:
                 return generateName(name, parent.parent);

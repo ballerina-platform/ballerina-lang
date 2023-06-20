@@ -839,7 +839,8 @@ public class BIRGen extends BLangNodeVisitor {
                                             lambdaExpr.getBType(), lambdaExpr.function.symbol.strandName,
                                             lambdaExpr.function.symbol.schedulerPolicy, isWorker));
         BType targetType = getRecordTargetType(funcName.value);
-        if (lambdaExpr.function.flagSet.contains(Flag.RECORD) && targetType != null && targetType.tag == TypeTags.RECORD) {
+        if (lambdaExpr.function.flagSet.contains(Flag.RECORD) && targetType != null &&
+                targetType.tag == TypeTags.RECORD) {
             // If the function is for record type and has captured variables, then we need to create a
             // temp value in the type and keep it
 
