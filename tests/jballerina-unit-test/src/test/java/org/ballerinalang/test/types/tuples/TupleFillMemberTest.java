@@ -39,7 +39,7 @@ public class TupleFillMemberTest {
         compileResult = BCompileUtil.compile("test-src/types/tuples/tuple_fill_member_test.bal");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testTupleFillMember() {
         BRunUtil.invoke(compileResult, "testTupleFillMemberSimpleTypes");
         BRunUtil.invoke(compileResult, "testTupleFillMemberSimpleTypesWithRest");
