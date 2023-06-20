@@ -378,7 +378,7 @@ public class PackageResolution {
         String deprecationMsg = Optional.ofNullable(pkgDesc.getDeprecationMsg()).orElse("");
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                 ProjectDiagnosticErrorCode.DEPRECATED_PACKAGE.diagnosticId(), pkgDesc.toString() +
-                " is deprecated due to : " + deprecationMsg, DiagnosticSeverity.WARNING);
+                " is deprecated: " + deprecationMsg, DiagnosticSeverity.WARNING);
         PackageDiagnostic diagnostic = new PackageDiagnostic(
                 diagnosticInfo, this.rootPackageContext.descriptor().name().toString());
         this.diagnosticList.add(diagnostic);
@@ -490,15 +490,40 @@ public class PackageResolution {
         PackageLockingMode packageLockingMode;
         SemanticVersion prevDistributionVersion = rootPackageContext.dependencyManifest().distributionVersion();
         SemanticVersion currentDistributionVersion = SemanticVersion.from(RepoUtils.getBallerinaShortVersion());
-        if (!sticky && (null == prevDistributionVersion
-                || isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion))) {
-            packageLockingMode = PackageLockingMode.SOFT;
-            if (rootPackageContext.dependenciesTomlContext().isPresent()) {
-                addOlderSLUpdateDistributionDiagnostic(prevDistributionVersion, currentDistributionVersion);
+
+        // For new projects, the locking mode will be SOFT unless sticky == true.
+        // For existing projects, if the package was built with a previous distribution, the locking mode
+        // will be SOFT unless sticky == true. A warning is issued to notify the detection of the new distribution.
+        if (rootPackageContext.dependenciesTomlContext().isPresent()) {
+            // existing project
+            if (prevDistributionVersion == null) {
+                // Built with Update 4 or less. Therefore, we issue a warning
+                addOlderSLUpdateDistributionDiagnostic(null, currentDistributionVersion);
+                if (!sticky) {
+                    packageLockingMode = PackageLockingMode.SOFT;
+                } else {
+                    packageLockingMode = PackageLockingMode.MEDIUM;
+                }
+            } else {
+                // Built with Update 5 or above
+                boolean newUpdateDistribution =
+                        isNewUpdateDistribution(prevDistributionVersion, currentDistributionVersion);
+                if (newUpdateDistribution) {
+                    addOlderSLUpdateDistributionDiagnostic(prevDistributionVersion, currentDistributionVersion);
+                    packageLockingMode = PackageLockingMode.SOFT;
+                } else {
+                    packageLockingMode = PackageLockingMode.MEDIUM;
+                }
             }
         } else {
-            packageLockingMode = PackageLockingMode.MEDIUM;
+            // new project
+            if (!sticky) {
+                packageLockingMode = PackageLockingMode.SOFT;
+            } else {
+                packageLockingMode = PackageLockingMode.MEDIUM;
+            }
         }
+
         return ResolutionOptions.builder()
                 .setOffline(compilationOptions.offlineBuild())
                 .setSticky(sticky)
@@ -531,10 +556,11 @@ public class PackageResolution {
         }
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(
                 ProjectDiagnosticErrorCode.BUILT_WITH_OLDER_SL_UPDATE_DISTRIBUTION.diagnosticId(),
-                "Detected an attempt to build this package using Swan Lake Update " + currentVersionForDiagnostic +
+                "Detected an attempt to compile this package using Swan Lake Update " + currentVersionForDiagnostic +
                         ". However, this package was built using Swan Lake Update " + prevVersionForDiagnostic +
-                        ". To ensure compatibility, the Dependencies.toml file will be updated with the " +
-                        "latest versions that are compatible with Update " + currentVersionForDiagnostic + ".",
+                        ". To ensure compatibility, execute `bal build` with Swan Lake Update "
+                        + currentVersionForDiagnostic + " to update the dependencies with the " +
+                        "latest compatible versions.",
                 DiagnosticSeverity.WARNING);
         PackageDiagnostic diagnostic = new PackageDiagnostic(diagnosticInfo,
                 rootPackageContext.descriptor().name().toString());

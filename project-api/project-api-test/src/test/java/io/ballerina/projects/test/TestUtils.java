@@ -26,12 +26,17 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -208,5 +213,34 @@ public class TestUtils {
     private static String insertDistributionVersionToDependenciesToml(String dependenciesToml) {
         String distributionVersion = RepoUtils.getBallerinaShortVersion();
         return dependenciesToml.replace("**INSERT_DISTRIBUTION_VERSION_HERE**", distributionVersion);
+    }
+
+    public static void replaceDistributionVersionOfDependenciesToml(Path projectDirPath, String newDistributionVersion)
+            throws IOException {
+        String filename = projectDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML).toString();
+        String searchText = "distribution-version = ";
+        String replaceText;
+        if (newDistributionVersion == null) {
+            replaceText = "";
+        } else {
+            replaceText = "distribution-version = " + "\"" + newDistributionVersion + "\"";
+        }
+        File tempFile = new File(filename + "-temp.toml");
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+            String currentLine;
+            while ((currentLine = reader.readLine()) != null) {
+                if (currentLine.contains(searchText)) {
+                    writer.write(replaceText);
+                } else {
+                    writer.write(currentLine);
+                }
+                writer.newLine();
+            }
+        }
+        File originalFile = new File(filename);
+        originalFile.delete();
+        tempFile.renameTo(originalFile);
     }
 }

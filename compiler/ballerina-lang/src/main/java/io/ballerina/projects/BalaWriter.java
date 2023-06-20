@@ -28,6 +28,7 @@ import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
 import io.ballerina.projects.internal.bala.adaptors.JsonCollectionsAdaptor;
 import io.ballerina.projects.internal.bala.adaptors.JsonStringsAdaptor;
+import io.ballerina.projects.internal.model.BalToolDescriptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.util.ProjectConstants;
@@ -81,6 +82,7 @@ public abstract class BalaWriter {
     private static final String BALLERINA_SPEC_VERSION = RepoUtils.getBallerinaSpecVersion();
     protected PackageContext packageContext;
     Optional<CompilerPluginDescriptor> compilerPluginToml;
+    protected Optional<BalToolDescriptor> balToolToml;
 
     protected BalaWriter() {
     }
@@ -127,6 +129,7 @@ public abstract class BalaWriter {
         addPackageJson(balaOutputStream, platformLibs);
 
         addCompilerPlugin(balaOutputStream);
+        addBalTool(balaOutputStream);
         addDependenciesJson(balaOutputStream);
     }
 
@@ -170,6 +173,8 @@ public abstract class BalaWriter {
             Path iconPath = getIconPath(packageManifest.icon());
             packageJson.setIcon(String.valueOf(Paths.get(BALA_DOCS_DIR).resolve(iconPath.getFileName())));
         }
+        // Set graalvmCompatibility property in package.json
+        setGraalVMCompatibilityProperty(packageJson, packageManifest);
 
         // Remove fields with empty values from `package.json`
         Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new JsonCollectionsAdaptor())
@@ -180,6 +185,25 @@ public abstract class BalaWriter {
                     new ByteArrayInputStream(gson.toJson(packageJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
             throw new ProjectException("Failed to write 'package.json' file: " + e.getMessage(), e);
+        }
+    }
+
+    private void setGraalVMCompatibilityProperty(PackageJson packageJson, PackageManifest packageManifest) {
+        PackageManifest.Platform platform = packageManifest.platform(target);
+
+        if (platform != null) {
+            Boolean graalvmCompatible = platform.graalvmCompatible();
+
+            if (graalvmCompatible != null) {
+                // If the package explicitly specifies the graalvmCompatibility property, then use it
+                packageJson.setGraalvmCompatible(graalvmCompatible);
+            } else if (platform.dependencies().isEmpty()) {
+                // If the package uses only distribution provided platform libraries, then package is graalvm compatible
+                packageJson.setGraalvmCompatible(true);
+            }
+        } else if (!AnyTarget.ANY.code().equals(target)) {
+            // If the package uses only distribution provided platform libraries, then the package is graalvm compatible
+            packageJson.setGraalvmCompatible(true);
         }
     }
 
@@ -428,6 +452,8 @@ public abstract class BalaWriter {
             throws IOException;
 
     protected abstract void addCompilerPlugin(ZipOutputStream balaOutputStream) throws IOException;
+
+    protected abstract void addBalTool(ZipOutputStream balaOutputStream) throws IOException;
 
     // Following function was put in to handle a bug in windows zipFileSystem
     // Refer https://bugs.openjdk.java.net/browse/JDK-8195141

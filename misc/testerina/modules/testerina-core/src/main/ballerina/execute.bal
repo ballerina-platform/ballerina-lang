@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.'error as langError;
+
 boolean shouldSkip = false;
 boolean shouldAfterSuiteSkip = false;
 int exitCode = 0;
@@ -91,7 +93,7 @@ function executeTest(TestFunction testFunction) {
         shouldSkipDependents = true;
     }
 
-    testFunction.groups.forEach(group => groupStatusRegistry.incrementExecutedTest(group));
+    testFunction.groups.forEach('group => groupStatusRegistry.incrementExecutedTest('group));
     executeAfterEachFunctions();
     executeAfterGroupFunctions(testFunction);
 
@@ -137,7 +139,7 @@ function executeDataDrivenTest(TestFunction testFunction, string suffix, TestTyp
 
     ExecutionError|boolean err = executeTestFunction(testFunction, suffix, testType, params);
     if err is ExecutionError {
-        reportData.onFailed(name = testFunction.name, message = "[fail data provider for the function " + testFunction.name
+        reportData.onFailed(name = testFunction.name, suffix = suffix, message = "[fail data provider for the function " + testFunction.name
             + "]\n" + getErrorMessage(err), testType = testType);
         exitCode = 1;
     }
@@ -228,13 +230,13 @@ function executeAfterFunction(TestFunction testFunction) returns boolean {
 }
 
 function executeBeforeGroupFunctions(TestFunction testFunction) {
-    foreach string group in testFunction.groups {
-        TestFunction[]? beforeGroupFunctions = beforeGroupsRegistry.getFunctions(group);
-        if beforeGroupFunctions != () && !groupStatusRegistry.firstExecuted(group) {
+    foreach string 'group in testFunction.groups {
+        TestFunction[]? beforeGroupFunctions = beforeGroupsRegistry.getFunctions('group);
+        if beforeGroupFunctions != () && !groupStatusRegistry.firstExecuted('group) {
             ExecutionError? err = executeFunctions(beforeGroupFunctions, shouldSkip);
             if err is ExecutionError {
                 testFunction.skip = true;
-                groupStatusRegistry.setSkipAfterGroup(group);
+                groupStatusRegistry.setSkipAfterGroup('group);
                 exitCode = 1;
                 printExecutionError(err, "before test group function for the test");
             }
@@ -243,11 +245,11 @@ function executeBeforeGroupFunctions(TestFunction testFunction) {
 }
 
 function executeAfterGroupFunctions(TestFunction testFunction) {
-    foreach string group in testFunction.groups {
-        TestFunction[]? afterGroupFunctions = afterGroupsRegistry.getFunctions(group);
-        if afterGroupFunctions != () && groupStatusRegistry.lastExecuted(group) {
+    foreach string 'group in testFunction.groups {
+        TestFunction[]? afterGroupFunctions = afterGroupsRegistry.getFunctions('group);
+        if afterGroupFunctions != () && groupStatusRegistry.lastExecuted('group) {
             ExecutionError? err = executeFunctions(afterGroupFunctions,
-                shouldSkip || groupStatusRegistry.getSkipAfterGroup(group));
+                shouldSkip || groupStatusRegistry.getSkipAfterGroup('group));
             if err is ExecutionError {
                 exitCode = 1;
                 printExecutionError(err, "after test group function for the test");
@@ -326,7 +328,7 @@ function skipDataDrivenTest(TestFunction testFunction, string suffix, TestType t
 }
 
 function printExecutionError(ExecutionError err, string functionSuffix)
-    => println("\t[fail] " + err.detail().functionName + "[" + functionSuffix + "]" + ":\n\t    " + err.message());
+    => println("\t[fail] " + err.detail().functionName + "[" + functionSuffix + "]" + ":\n\t    " + formatFailedError(err.message(), 2));
 
 function executeFunctions(TestFunction[] testFunctions, boolean skip = false) returns ExecutionError? {
     foreach TestFunction testFunction in testFunctions {
@@ -361,8 +363,13 @@ function executeFunction(TestFunction|function testFunction) returns ExecutionEr
 }
 
 function getErrorMessage(error err) returns string {
-    string|error message = err.detail()["message"].ensureType();
-    return message is error ? err.message() : message;
+    string message = err.toBalString();
+
+    string accumulatedTrace = "";
+    foreach langError:StackFrame stackFrame in err.stackTrace() {
+        accumulatedTrace = accumulatedTrace + "\t" + stackFrame.toString() + "\n";
+    }
+    return message + "\n" + accumulatedTrace;
 }
 
 function orderTests() returns error? {

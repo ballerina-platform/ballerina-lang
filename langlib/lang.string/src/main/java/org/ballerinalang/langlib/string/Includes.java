@@ -19,9 +19,9 @@
 package org.ballerinalang.langlib.string;
 
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 
 /**
  * Extern function lang.string:includes(string, string, int).
@@ -32,8 +32,8 @@ import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 public class Includes {
     public static boolean includes(BString str, BString substr, long index) {
         if (index  > Integer.MAX_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+            throw ErrorHelper.getRuntimeException(ErrorReasons.STRING_OPERATION_ERROR,
+                    ErrorCodes.INDEX_NUMBER_TOO_LARGE, index);
         }
         try {
             return str.indexOf(substr, (int) index) >= 0;

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/test;
+
 type Employee record {
     string name;
     string status;
@@ -38,7 +40,6 @@ type Teacher record {
 class PersonObj {
     public int age = 10;
     public string name = "mohan";
-
     public int year = 2014;
     public string month = "february";
 }
@@ -51,85 +52,78 @@ class EmployeeObj {
 
 //-----------------------Union Type Stamp -------------------------------------------------------------------
 
-function stampUnionToRecord() returns Employee|error  {
-    int|float|Employee unionVar = { name: "Raja", status: "single", batch: "LK2014", "school": "Hindu College" };
-
-    Employee|error  employee = unionVar.cloneWithType(Employee);
+function stampUnionToRecord() returns Employee|error {
+    int|float|Employee unionVar = {name: "Raja", status: "single", batch: "LK2014", "school": "Hindu College"};
+    Employee|error employee = unionVar.cloneWithType(Employee);
     return employee;
 }
 
 function stampUnionToJSON() returns json|error {
-    int|float|json unionVar = { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" };
-
+    int|float|json unionVar = {name: "Raja", status: "single", batch: "LK2014", school: "Hindu College"};
     json|error jsonValue = unionVar.cloneWithType(json);
     return jsonValue;
 }
 
 type XmlType xml;
 
-function stampUnionToXML() returns xml|error  {
+function stampUnionToXML() {
     int|float|xml unionVar = xml `<book>The Lost World</book>`;
-
-    xml|error  xmlValue = unionVar.cloneWithType(XmlType);
-    return xmlValue;
+    xml xmlValue = checkpanic unionVar.cloneWithType(XmlType);
+    test:assertEquals(xmlValue, xml `<book>The Lost World</book>`);
 }
 
 type IntMap map<int>;
 
-function stampUnionToIntMap() returns map<int>|error  {
-    int|float|map<int> unionVar = { "a": 1, "b": 2 };
-
-    map<int>|error  mapValue = unionVar.cloneWithType(IntMap);
-    return mapValue;
+function stampUnionToIntMap() {
+    int|float|map<int> unionVar = {"a": 1, "b": 2};
+    map<int> mapValue = checkpanic unionVar.cloneWithType(IntMap);
+    test:assertEquals(mapValue["a"], 1);
+    test:assertEquals(mapValue["b"], 2);
+    test:assertEquals(mapValue.length(), 2);
+    test:assertEquals((typeof mapValue).toString(), "typedesc IntMap");
 }
 
 type EmployeeMap map<Employee>;
 
-function stampUnionToConstraintMap() returns map<Employee>|error  {
-    Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
-
-    map<Teacher> teacherMap = { "a": p1, "b": p2 };
-
+function stampUnionToConstraintMap() {
+    Teacher p1 = {name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College"};
+    Teacher p2 = {name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College"};
+    map<Teacher> teacherMap = {"a": p1, "b": p2};
     int|float|map<Teacher> unionVar = teacherMap;
-
-    map<Employee>|error  mapValue = unionVar.cloneWithType(EmployeeMap);
-    return mapValue;
+    map<Employee> mapValue = checkpanic unionVar.cloneWithType(EmployeeMap);
+    test:assertEquals(mapValue["a"], p1);
+    test:assertEquals(mapValue["b"], p2);
+    test:assertEquals(mapValue.length(), 2);
+    test:assertEquals((typeof mapValue).toString(), "typedesc EmployeeMap");
 }
 
 function stampUnionToAnydata() returns anydata|error {
     int|float|string|boolean unionValue = "mohan";
     anydata|error anydataValue = unionValue.cloneWithType(anydata);
-
     return anydataValue;
 }
 
 type StringString [string, string];
 
-function stampUnionToTuple() returns [string, string]|error  {
+function stampUnionToTuple() returns [string, string]|error {
     int|float|[string, string] unionVar = ["mohan", "LK2014"];
-    [string, string]|error  tupleValue = unionVar.cloneWithType(StringString);
-
+    [string, string]|error tupleValue = unionVar.cloneWithType(StringString);
     return tupleValue;
 }
 
 function stampUnionToAnydataV2() returns anydata|error {
     int|float|string|boolean unionValue = "mohan";
     anydata|error anydataValue = unionValue.cloneWithType(anydata);
-
     return anydataValue;
 }
 
 type UnionTypedesc typedesc<int|float|map<Teacher>>;
 
-function stampUnionToConstraintMapToUnion() returns int|float|map<Teacher>|error  {
-    Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
-
-    map<Teacher> teacherMap = { "a": p1, "b": p2 };
-
+function stampUnionToConstraintMapToUnion() returns int|float|map<Teacher>|error {
+    Teacher p1 = {name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College"};
+    Teacher p2 = {name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College"};
+    map<Teacher> teacherMap = {"a": p1, "b": p2};
     int|float|map<Teacher> unionVar = teacherMap;
-
-    int|float|map<Teacher>|error  mapValue = unionVar.cloneWithType(UnionTypedesc);
+    int|float|map<Teacher>|error mapValue = unionVar.cloneWithType(UnionTypedesc);
     return mapValue;
 }

@@ -136,10 +136,10 @@ public class ConstDeclSymbolTest {
                 {19, 20, "\"Value\"", TypeDescKind.STRING},
                 {23, 17, "10", TypeDescKind.INT},
                 {27, 12, "12.3", TypeDescKind.FLOAT},
-                {31, 11, "2", TypeDescKind.BYTE},
+                {31, 11, "2", TypeDescKind.INT},
                 {35, 14, "true", TypeDescKind.BOOLEAN},
                 {37, 10, "1010", TypeDescKind.INT},
-                {38, 18, "{foo: \"Value\", bar: \"BAR\"}", TypeDescKind.INTERSECTION},
+                {38, 18, "{bar: \"BAR\", foo: \"Value\"}", TypeDescKind.INTERSECTION},
                 {39, 20, "{foo: {a: 10, b: 100}}", TypeDescKind.INTERSECTION}
         };
     }

@@ -57,6 +57,7 @@ public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
     public BSymbol symbol;
 
     public SemType semType;
+
     public int cycleDepth = -1;
 
     public BLangTypeDefinition() {

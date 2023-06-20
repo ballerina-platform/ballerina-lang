@@ -106,6 +106,7 @@ public class RunTestsTask implements Task {
     private String singleExecTests;
     private Map<String, Module> coverageModules;
     private boolean listGroups;
+    private final List<String> cliArgs;
 
     TestReport testReport;
     private static final Boolean isWindows = System.getProperty("os.name").toLowerCase(Locale.getDefault())
@@ -121,10 +122,11 @@ public class RunTestsTask implements Task {
 
     public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, String groupList,
                         String disableGroupList, String testList, String includes, String coverageFormat,
-                        Map<String, Module> modules, boolean listGroups, String excludes)  {
+                        Map<String, Module> modules, boolean listGroups, String excludes, String[] cliArgs)  {
         this.out = out;
         this.err = err;
         this.isRerunTestExecution = rerunTests;
+        this.cliArgs = List.of(cliArgs);
 
         if (disableGroupList != null) {
             this.disableGroupList = disableGroupList;
@@ -246,6 +248,9 @@ public class RunTestsTask implements Task {
                     for (String moduleName : moduleNamesList) {
                         ModuleStatus moduleStatus = loadModuleStatusFromFile(
                                 testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
+                        if (moduleStatus == null) {
+                            continue;
+                        }
 
                         if (!moduleName.equals(project.currentPackage().packageName().toString())) {
                             moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
@@ -270,6 +275,8 @@ public class RunTestsTask implements Task {
                 cleanTempCache(project, cachesRoot);
                 throw createLauncherException("there are test failures");
             }
+        } else {
+            out.println("\tNo tests found");
         }
 
         // Cleanup temp cache for SingleFileProject
@@ -315,10 +322,12 @@ public class RunTestsTask implements Task {
             }
 
             if (!STANDALONE_SRC_PACKAGENAME.equals(packageName) && this.excludesInCoverage != null) {
-                List<String> exclusionSourceList = new ArrayList<>(List.of((this.excludesInCoverage).
-                                                    split(",")));
-                getclassFromSourceFilePath(exclusionSourceList, currentPackage, exclusionClassList);
-                agentCommand += ",excludes=" + String.join(":", exclusionClassList);
+                if (!this.excludesInCoverage.equals("")) {
+                    List<String> exclusionSourceList = new ArrayList<>(List.of((this.excludesInCoverage).
+                            split(",")));
+                    getclassFromSourceFilePath(exclusionSourceList, currentPackage, exclusionClassList);
+                    agentCommand += ",excludes=" + String.join(":", exclusionClassList);
+                }
             }
 
             cmdArgs.add(agentCommand);
@@ -340,6 +349,9 @@ public class RunTestsTask implements Task {
         cmdArgs.add(this.singleExecTests != null ? this.singleExecTests : "");
         cmdArgs.add(Boolean.toString(isRerunTestExecution));
         cmdArgs.add(Boolean.toString(listGroups));
+        cliArgs.forEach((arg) -> {
+            cmdArgs.add(arg);
+        });
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
@@ -416,6 +428,7 @@ public class RunTestsTask implements Task {
         List<String> unMatchedPatterns = new ArrayList<>();
         Set<Path> validSourceFileSet = new HashSet<>();
         for (String sourcePattern : sourcePatternList) {
+            String unModifiedSourcePattern = sourcePattern;
             boolean isIgnoringPattern = false;
             if (sourcePattern.startsWith(IGNORE_PATTERN)) {
                 isIgnoringPattern = true;
@@ -453,7 +466,7 @@ public class RunTestsTask implements Task {
             if (!isIgnoringPattern) {
                 List<Path> filteredPaths = filterPathStream(allSourceFilePaths.stream(), sourcePattern);
                 if (filteredPaths.isEmpty()) {
-                    unMatchedPatterns.add(sourcePattern);
+                    unMatchedPatterns.add(unModifiedSourcePattern);
                     continue;
                 }
                 validSourceFileSet.addAll(filteredPaths);
@@ -462,13 +475,13 @@ public class RunTestsTask implements Task {
 
             List<Path> filteredPaths = filterPathStream(validSourceFileSet.stream(), sourcePattern);
             if (filteredPaths.isEmpty()) {
-                unMatchedPatterns.add(IGNORE_PATTERN + sourcePattern);
+                unMatchedPatterns.add(unModifiedSourcePattern);
                 continue;
             }
             validSourceFileSet.removeAll(filteredPaths);
         }
         if (!unMatchedPatterns.isEmpty()) {
-            out.println("WARNING: " + String.join(", ", unMatchedPatterns) + " are skipped.");
+            out.println("WARNING: No matching sources found for " + String.join(", ", unMatchedPatterns));
         }
 
         return new ArrayList<>(validSourceFileSet);
