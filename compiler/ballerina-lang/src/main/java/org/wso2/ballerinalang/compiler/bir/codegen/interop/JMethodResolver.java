@@ -394,8 +394,12 @@ class JMethodResolver {
                 }
             }
 
-            BType receiverType = bParamTypes[0];
-            boolean isLastParam = bParamTypes.length == 1;
+            int receiverIndex = 0;
+            if (!jMethodRequest.pathParamSymbols.isEmpty()) {
+                receiverIndex = jMethodRequest.pathParamCount;
+            }
+            BType receiverType = bParamTypes[receiverIndex];
+            boolean isLastParam = (bParamTypes.length - jMethodRequest.pathParamCount) == 1;
             if (!isValidParamBType(jMethodRequest.declaringClass, receiverType, isLastParam,
                     jMethodRequest.restParamExist)) {
                 if (jParamTypes.length == 0 || bParamTypes[0].tag != TypeTags.HANDLE) {
@@ -405,7 +409,12 @@ class JMethodResolver {
                             jMethodRequest.declaringClass);
                 }
             }
-            i++;
+            for (int k = receiverIndex; k < bParamTypes.length - 1; k++) {
+                bParamTypes[k] = bParamTypes[k + 1];
+            }
+            BType[] bParamTypesWithoutReceiver = new BType[bParamTypes.length - 1];
+            System.arraycopy(bParamTypes, 0, bParamTypesWithoutReceiver, 0, bParamTypesWithoutReceiver.length);
+            bParamTypes = bParamTypesWithoutReceiver;
         } else if (bParamCount != jParamTypes.length) {
             if (jMethod.isBalEnvAcceptingMethod()) {
                 j++;
@@ -439,6 +448,7 @@ class JMethodResolver {
         BArrayType pathParamArrayType = new BArrayType(symbolTable.anydataType);
         paramTypes.add(initialPathParamIndex, pathParamArrayType);
         jMethodRequest.bParamTypes = paramTypes.toArray(new BType[0]);
+        jMethodRequest.pathParamCount = 1;
         jMethod.hasBundledPathParams = true;
     }
 

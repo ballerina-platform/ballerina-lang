@@ -18,10 +18,10 @@
 
 package org.ballerinalang.test.record;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -82,7 +82,7 @@ public class OpenRecordEquivalencyRulesTest {
     }
 
     @Test(description = "RHS closed and LHS open and adding a rest field in LHS",
-            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*invalid field access: field 'rest' not found in record type " +
                     "'Person1'.*")
     public void testCRToORClosedToOpenAssignment3() {
@@ -102,7 +102,7 @@ public class OpenRecordEquivalencyRulesTest {
     }
 
     @Test(description = "RHS closed and LHS open with RHS optional fields corresponding to LHS optional fields",
-            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"cannot find key 'age'.*")
     public void testCRToOROptFieldToOptField2() {
         BRunUtil.invoke(closedRecToOpenRec, "testOptFieldToOptField2");
@@ -141,7 +141,7 @@ public class OpenRecordEquivalencyRulesTest {
     }
 
     @Test(description = "RHS and LHS both open with RHS optional fields corresponding to LHS optional fields",
-            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"cannot find key 'age'.*")
     public void testORToOROptFieldToOptField2() {
         BRunUtil.invoke(openRecToOpenRec, "testOptFieldToOptField2");
@@ -162,7 +162,7 @@ public class OpenRecordEquivalencyRulesTest {
     }
 
     @Test(description = "Adding an invalid rest field type",
-            expectedExceptions = BLangRuntimeException.class,
+            expectedExceptions = BLangTestException.class,
             expectedExceptionsMessageRegExp = ".*invalid value for record field 'rest3': expected value of type " +
                     "'\\(string\\|int\\)', found 'float'.*")
     public void testORToORRestFieldToRestField2() {

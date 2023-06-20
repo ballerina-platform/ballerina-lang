@@ -623,6 +623,139 @@ class _OrderByFunction {
     }
 }
 
+type RowGroupedData record {|
+    readonly anydata groupingKey;
+    _Frame[] frames;
+|};
+
+class _GroupByFunction {
+    *_StreamFunction;
+
+    string[] keys;
+    string[] nonGroupingKeys;
+    stream<_Frame>? groupedStream;
+    table<RowGroupedData> key(groupingKey) tbl;
+
+    function init(string[] keys, string[] nonGroupingKeys) {
+        self.keys = keys;
+        self.nonGroupingKeys = nonGroupingKeys;
+        self.groupedStream = ();
+        self.tbl = table [];
+        self.prevFunc = ();
+    }
+
+    public function process() returns _Frame|error? {
+        if (self.groupedStream is ()) {
+            _StreamFunction pf = <_StreamFunction>self.prevFunc;
+            _Frame? f = check pf.process();
+            while f is _Frame {
+                anydata & readonly key = (check self.getKey(f)).cloneReadOnly();
+                if self.tbl.hasKey(key) {
+                    self.tbl.get(key).frames.push(f);
+                } else {
+                    self.tbl.add({groupingKey: key, frames: [f]});
+                }
+                f = check pf.process();
+            }
+            self.groupedStream = self.convertToStream(self.tbl);
+        }
+
+        stream<_Frame> s = <stream<_Frame>>self.groupedStream;
+        record {|_Frame value;|}|error? next = s.next();
+        return next is record {|_Frame value;|} ? next.value : next;
+    }
+
+    public function reset() {
+        self.groupedStream = ();
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+
+    private function getKey(_Frame f) returns anydata|error {
+        anydata[] keys = [];
+        foreach var key in self.keys {
+            keys.push(<anydata> check f[key]);
+        }
+        return keys;
+    }
+
+    private function convertToStream(table<RowGroupedData> key(groupingKey) tbl) returns stream<_Frame> {
+        _Frame[] groupedFrames = [];
+
+        foreach var entry in tbl {
+            _Frame groupedFrame = {};
+            _Frame firstFrame = entry.frames[0];
+            foreach var key in self.keys {
+                groupedFrame[key] = firstFrame[key];
+            }
+            foreach var nonGroupingKey in self.nonGroupingKeys {
+                groupedFrame[nonGroupingKey] = [];
+            }
+            foreach var f in entry.frames {
+                foreach var nonGroupingKey in self.nonGroupingKeys {
+                    any|error sequenceValue = groupedFrame[nonGroupingKey];
+                    if sequenceValue is any {
+                        any|error val = f[nonGroupingKey];
+                        if val !is () {
+                            (<(any|error)[]> sequenceValue).push(val);
+                        }
+                    }
+                }
+            }
+            groupedFrames.push(groupedFrame);
+        }
+        return groupedFrames.toStream();
+    }
+}
+
+class _CollectFunction {
+    *_StreamFunction;
+
+    string[] nonGroupingKeys;
+    function (_Frame _frame) returns _Frame|error? collectFunc;
+
+    function init(string[] nonGroupingKeys, function (_Frame _frame) returns _Frame|error? collectFunc) {
+        self.nonGroupingKeys = nonGroupingKeys;
+        self.collectFunc = collectFunc;
+        self.prevFunc = ();
+    }
+
+    public function process() returns _Frame|error? {
+        _Frame groupedFrame = {};
+        foreach var nonGroupingKey in self.nonGroupingKeys {
+            groupedFrame[nonGroupingKey] = [];
+        }
+        _StreamFunction pf = <_StreamFunction>self.prevFunc;
+        _Frame? f = check pf.process();
+        while f is _Frame {
+            foreach var nonGroupingKey in self.nonGroupingKeys {
+                any|error sequenceValue = groupedFrame[nonGroupingKey];
+                if (sequenceValue is any) {
+                    any|error val = f[nonGroupingKey];
+                    if val !is () {
+                        (<(any|error)[]> sequenceValue).push(val);
+                    }
+                }
+            }
+            f = check pf.process();
+        }
+        _Frame|error? cFrame = self.collectFunc(groupedFrame);
+        if (cFrame is error) {
+            return prepareQueryBodyError(cFrame);
+        }
+        return cFrame;
+    }
+
+    public function reset() {
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+}
+
 class _SelectFunction {
     *_StreamFunction;
 
