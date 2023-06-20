@@ -65,6 +65,11 @@ public class ClassTest {
     }
 
     @Test
+    public void testClassWithDefaultsWithoutInitFunc() {
+        BRunUtil.invoke(compileResult, "testClassWithDefaultsWithoutInitFunc");
+    }
+
+    @Test
     public void testSimpleDistinctClass() {
         BRunUtil.invoke(distinctCompUnit, "testDistinctAssignability");
     }

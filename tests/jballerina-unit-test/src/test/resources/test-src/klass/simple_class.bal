@@ -70,6 +70,21 @@ class Per {
     int i = 0;
 }
 
+final int classI = 111222;
+
+class ClassWithDefaultsWithoutInitFunc {
+    int i = classI;
+}
+
+function value(int k = classI) returns int {
+    return k;
+}
+
+function testClassWithDefaultsWithoutInitFunc() {
+    ClassWithDefaultsWithoutInitFunc c = new();
+    assertEquality(c.i, 111222);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
