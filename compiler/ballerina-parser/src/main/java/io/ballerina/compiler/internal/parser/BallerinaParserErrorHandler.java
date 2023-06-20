@@ -3536,10 +3536,15 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ARG_LIST_CLOSE_PAREN;
             case ARG_LIST_CLOSE_PAREN:
                 parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.CLIENT_RESOURCE_ACCESS_ACTION) {
+                    return ParserRuleContext.ACTION_END;
+                }
                 if (parentCtx == ParserRuleContext.ERROR_CONSTRUCTOR) {
                     endContext();
-                } else if (parentCtx == ParserRuleContext.CLIENT_RESOURCE_ACCESS_ACTION) {
-                    return ParserRuleContext.ACTION_END;
+                }
+                if (getParentContext() == ParserRuleContext.ON_FAIL_CHECK) {
+                    endContext();
+                    return ParserRuleContext.CHECKING_EXPRESSION_END;
                 }
                 return ParserRuleContext.EXPRESSION_RHS;
             case ARG_LIST:
@@ -3746,7 +3751,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RIGHT_DOUBLE_ARROW:
                 // Assumption: RIGHT_DOUBLE_ARROW is only occurs in match clauses
                 // in expr-func-body, it is used by a different alias.
-                if (getParentContext() == ParserRuleContext.CHECKING_EXPRESSION) {
+                if (getParentContext() == ParserRuleContext.ON_FAIL_CHECK) {
+                    endContext();
                     return ParserRuleContext.ERROR_CONSTRUCTOR;
                 }
                 return ParserRuleContext.BLOCK_STMT;
@@ -3849,8 +3855,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     endContext();
                 }
                 return getNextRuleForAction();
-            case CHECKING_KEYWORD:
-                return ParserRuleContext.EXPRESSION;
             default:
                 return getNextRuleForKeywords(currentCtx, nextLookahead);
         }
@@ -3881,7 +3885,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 } else if (parentCtx == ParserRuleContext.ON_CLAUSE) {
                     return ParserRuleContext.EXPRESSION;
                 } else if (parentCtx == ParserRuleContext.ON_FAIL_CLAUSE ||
-                            parentCtx == ParserRuleContext.CHECKING_EXPRESSION) {
+                            parentCtx == ParserRuleContext.ON_FAIL_CHECK) {
                     return ParserRuleContext.FAIL_KEYWORD;
                 }
                 return ParserRuleContext.LISTENERS_LIST;
@@ -3929,7 +3933,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 if (parentCtx == ParserRuleContext.ON_FAIL_CLAUSE) {
                     return ParserRuleContext.ON_FAIL_OPTIONAL_BINDING_PATTERN;
                 }
-                if (parentCtx == ParserRuleContext.CHECKING_KEYWORD) {
+                if (parentCtx == ParserRuleContext.ON_FAIL_CHECK) {
                     return ParserRuleContext.VARIABLE_NAME;
                 }
                 return ParserRuleContext.EXPRESSION;
@@ -4238,6 +4242,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case BRACED_EXPRESSION:
             case CLIENT_RESOURCE_ACCESS_ACTION:
             case TUPLE_MEMBERS:
+            case CHECKING_EXPRESSION:
+            case ON_FAIL_CHECK:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -4994,7 +5000,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ERROR_FIELD_MATCH_PATTERN_RHS;
             case RELATIVE_RESOURCE_PATH:
                 return ParserRuleContext.CLOSE_BRACKET;
-            case CHECKING_EXPRESSION:
+            case ON_FAIL_CHECK:
                 return ParserRuleContext.RIGHT_DOUBLE_ARROW;
             default:
                 if (isStatement(parentCtx)) {

@@ -7186,13 +7186,8 @@ public class BallerinaParser extends AbstractParser {
         }
 
         endContext();
-        if (isAction(expr)) {
-            return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_ACTION, checkingKeyword, expr,
-                    onFailCheck);
-        } else {
-            return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, checkingKeyword, expr,
-                    onFailCheck);
-        }
+        SyntaxKind kind = isAction(expr) ? SyntaxKind.CHECK_ACTION : SyntaxKind.CHECK_EXPRESSION;
+        return STNodeFactory.createCheckExpressionNode(kind, checkingKeyword, expr, onFailCheck);
     }
 
     /**
@@ -9086,12 +9081,14 @@ public class BallerinaParser extends AbstractParser {
      * @return on-fail-check node
      */
     private STNode parseOnFailCheck() {
+        startContext(ParserRuleContext.ON_FAIL_CHECK);
         STNode onKeyword = parseOnKeyword();
         STNode failKeyword = parseFailKeyword();
         STNode varName = parseVariableName();
-        STNode rightDoubleArrow = parseDoubleRightArrow();
+        STNode rightDoubleArrow = parseDoubleRightArrow(ParserRuleContext.RIGHT_DOUBLE_ARROW);
         STNode errConstructor = parseErrorConstructorExpr(false);
-        return STNodeFactory.createOnFailCheckNode(onKeyword, failKeyword, varName, rightDoubleArrow,  errConstructor);
+        endContext();
+        return STNodeFactory.createOnFailCheckNode(onKeyword, failKeyword, varName, rightDoubleArrow, errConstructor);
     }
 
     private boolean isEndOfResourceAccessPathSegments(SyntaxKind nextTokenKind,
@@ -11513,6 +11510,16 @@ public class BallerinaParser extends AbstractParser {
             return consume();
         } else {
             recover(token, ParserRuleContext.EXPR_FUNC_BODY_START);
+            return parseDoubleRightArrow();
+        }
+    }
+
+    private STNode parseDoubleRightArrow(ParserRuleContext parserRuleContext) {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN) {
+            return consume();
+        } else {
+            recover(token, parserRuleContext);
             return parseDoubleRightArrow();
         }
     }
