@@ -144,6 +144,4 @@ public client class FooTwo {
     }
 }
 
-public isolated function testFunc(string ediText) returns json|error {
-    return {};
-}
+public isolated function testFunc(string ediText) returns json|error => {};

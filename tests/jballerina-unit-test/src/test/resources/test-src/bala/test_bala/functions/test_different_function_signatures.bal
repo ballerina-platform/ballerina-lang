@@ -356,6 +356,11 @@ final readonly & map<int> func1 = {
     "f1": f2()
 };
 
+function testCyclicFuncCallWhenFuncDefinedInModuleWithSameName() {
+    assertValueEquality((), testFunc());
+    assertValueEquality(1, func1["f1"]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
