@@ -18,6 +18,7 @@ package org.ballerinalang.test.worker;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -143,8 +144,26 @@ public class BasicWorkerTest {
     public Object[] asyncSendAsExpressionFunctions() {
         return new Object[]{
                 "testAsyncSendAsExpressionReturnType",
-                "testAsyncSendAsExpressionWithPanic"
+                "testAsyncSendAsExpressionWithPanic",
+                "testAsyncSendAsExpressionWithTrapAndCheckExpr",
+                "testAsyncSendAsExpressionWithTypeCastExpr",
+                "testAsyncSendAsExpressionWithReturnStmt",
+                "testAsyncSendAsExpressionWithWildCardBindingPattern",
+                "testAsyncSendAsExpressionWithMatchStmt"
         };
+    }
+
+    @Test
+    public void testAsyncSendNegative() {
+        CompileResult asyncSendNegativeResult =
+                BCompileUtil.compile("test-src/workers/worker_async_send_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(asyncSendNegativeResult, i++, "incompatible types: '()' is not an " +
+                "iterable collection", 19, 26);
+        BAssertUtil.validateError(asyncSendNegativeResult, i++, "compound assignment not allowed with " +
+                "nullable operands", 34, 9);
+        BAssertUtil.validateError(asyncSendNegativeResult, i++, "operator '+' not defined for 'int' and '()'", 34, 9);
+        Assert.assertEquals(i, asyncSendNegativeResult.getErrorCount());
     }
 
     @AfterClass
