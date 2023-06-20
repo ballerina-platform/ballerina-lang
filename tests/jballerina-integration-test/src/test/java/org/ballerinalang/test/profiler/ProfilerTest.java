@@ -19,8 +19,16 @@
 package org.ballerinalang.test.profiler;
 
 import org.ballerinalang.test.BaseTest;
-import org.testng.Assert;
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.Test;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Tests ballerina profiler.
@@ -28,9 +36,42 @@ import org.testng.annotations.Test;
  * @since 2201.7.0
  */
 public class ProfilerTest extends BaseTest {
+    private static final String testFileLocation =
+            Paths.get("src", "test", "resources", "profiler")
+                    .toAbsolutePath()
+                    .toString();
+
+    String sourceRoot = testFileLocation + "/";
+    String packageName = "singleBalFile";
+    List<String> outputs = new ArrayList<>();
 
     @Test
-    public void testProfilerExecution1() {
-        Assert.assertEquals(2, 2);
+    public void testProfilerExecution() throws BallerinaTestException {
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder("bal", "run", "--profile");
+            processBuilder.directory(new File(sourceRoot + packageName + "/"));
+            processBuilder.redirectErrorStream(true);
+            Process process = processBuilder.start();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                outputs.add(line);
+                if (line.contains("Generating Output")) {
+                    Thread.sleep(1000);
+                    break;
+                }
+            }
+
+            if (outputs.toString().contains("Generating Output")){
+                process.destroy();
+            }else {
+                throw new BallerinaTestException("Error testing the profiler output");
+            }
+
+        } catch (Exception e) {
+            throw new BallerinaTestException("Error testing the profiler");
+        }
+
     }
 }
