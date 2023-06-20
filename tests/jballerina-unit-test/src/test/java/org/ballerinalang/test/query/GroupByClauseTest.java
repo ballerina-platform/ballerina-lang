@@ -173,7 +173,8 @@ public class GroupByClauseTest {
                 "testGroupByExpressionAndSelectWithGroupingKeys13",
                 "testGroupbyVarDefsAndSelectWithGroupingKeysFromClause1",
                 "testGroupByVarDefsAndSelectWithGroupingKeysWithJoinClause1",
-                "testGroupByVarDefsAndSelectWithGroupingKeysWithJoinClause2"
+                "testGroupByVarDefsAndSelectWithGroupingKeysWithJoinClause2",
+                "testGroupByVarAndSelectWithNonGroupingKeysWithJoinClause1"
         };
     }
 
@@ -303,6 +304,10 @@ public class GroupByClauseTest {
                 "'anydata'", 175, 26);
         BAssertUtil.validateError(negativeResult, i++, "invalid grouping key type 'error', expected a subtype of " +
                 "'anydata'", 178, 26);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'seq string'",
+                200, 24);
+        BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
+                "list constructor or function invocation", 200, 24);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
