@@ -43,6 +43,7 @@ public class ProfilerTest extends BaseTest {
 
     String sourceRoot = testFileLocation + "/";
     String packageName = "singleBalFile";
+    int test = 0;
     List<String> outputs = new ArrayList<>();
 
     @Test
@@ -54,23 +55,27 @@ public class ProfilerTest extends BaseTest {
             Process process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                outputs.add(line);
-//                if (line.contains("Generating Output")) {
-//                    Thread.sleep(1000);
-//                    break;
-//                }
-//            }
-//
-//            if (outputs.toString().contains("Generating Output")) {
-//                process.destroy();
-//            } else {
-//                throw new BallerinaTestException("Error testing the profiler output");
-//            }
+            test = 1;
+            String line;
+            while ((line = reader.readLine()) != null) {
+                outputs.add(line);
+                if (line.contains("Generating Output")) {
+                    test = 2;
+                    Thread.sleep(1000);
+                    break;
+                }
+            }
+
+            test = 3;
+            if (outputs.toString().contains("Generating Output")) {
+                test = 4;
+                process.destroy();
+            } else {
+                throw new BallerinaTestException("Error testing the profiler output");
+            }
 
         } catch (Exception e) {
-            throw new BallerinaTestException("Error testing the profiler");
+            throw new BallerinaTestException("Error testing the profiler " + test);
         }
 
     }
