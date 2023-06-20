@@ -116,7 +116,3 @@ compileJava {
 }
 
 tasks.compileJava.dependsOn(':testerina:testerina-core:copyInteropImports')
-<<<<<<< HEAD
-=======
-tasks.createJavadoc.dependsOn(':testerina:testerina-core:copyInteropImports')
->>>>>>> 6498ac929c2 (Fix gradle build issue)
