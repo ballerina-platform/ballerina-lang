@@ -64,7 +64,7 @@ public class TypeModelTest {
     @Test(description = "Test any type doc model")
     public void testAnyTypes() {
         Optional<BType> anyType = testModule.anyTypes.stream()
-                .filter(bType -> bType.name.equals("AnyDataType")).findAny();
+                .filter(bType -> bType.name.equals("AnyType")).findAny();
         Assert.assertTrue(anyType.isPresent(), "AnyType type not found");
     }
 
@@ -148,7 +148,7 @@ public class TypeModelTest {
                 "Category of first field in RecordType record should be builtin");
         Assert.assertEquals(recordType.get().fields.get(0).description, "first name of the student" +
                         System.lineSeparator(),
-                "Description of first field in Human Record should be: first name of the student" +
+                "Description of first field in RecordType record should be: first name of the student" +
                         System.lineSeparator());
 
         Assert.assertEquals(recordType.get().fields.get(1).name, "lastName",
@@ -159,7 +159,7 @@ public class TypeModelTest {
                 "Category of second field in RecordType record should be builtin");
         Assert.assertEquals(recordType.get().fields.get(1).description, "last name of the student" +
                         System.lineSeparator(),
-                "Description of second field in Human Record should be: last name of the student" +
+                "Description of second field in RecordType record should be: last name of the student" +
                         System.lineSeparator());
 
         Assert.assertEquals(recordType.get().fields.get(2).name, "age",
@@ -170,7 +170,7 @@ public class TypeModelTest {
                 "Category of third field in RecordType record should be builtin");
         Assert.assertEquals(recordType.get().fields.get(2).description, "age of the student" +
                         System.lineSeparator(),
-                "Description of third field in Human Record should be: age of the student" +
+                "Description of third field in RecordType Record should be: age of the student" +
                         System.lineSeparator());
 
         Optional<Record> readonlyRecordType = testModule.records.stream()
@@ -185,7 +185,7 @@ public class TypeModelTest {
                 "Expected 3 fields in ReadonlyRecordType Record");
 
         Optional<Record> recordReadonlyType = testModule.records.stream()
-                .filter(record -> record.name.equals("ReadonlyRecordType")).findAny();
+                .filter(record -> record.name.equals("RecordReadonlyType")).findAny();
 
         Assert.assertTrue(recordReadonlyType.isPresent(), "RecordReadonlyType record not found");
         Assert.assertTrue(recordReadonlyType.get().isClosed, "RecordReadonlyType record should be closed");

@@ -22,9 +22,9 @@ public type ErrorName error<map<FileErrorDetail>>;
 
 # Closed record type param
 #
-# + firstName - first name
-# + lastName - last name
-# + age - age
+# + firstName - first name of the student
+# + lastName - last name of the student
+# + age - age of the student
 type Student record {|
     readonly string firstName;
     string lastName;
@@ -43,9 +43,9 @@ public type MapType map<int>;
 
 # Record type param
 #
-# + firstName - first name
-# + lastName - last name
-# + age - age
+# + firstName - first name of the student
+# + lastName - last name of the student
+# + age - age of the student
 public type RecordType record {|
     readonly string firstName;
     string lastName;
@@ -54,9 +54,9 @@ public type RecordType record {|
 
 # Readonly record type param
 #
-# + firstName - first name
-# + lastName - last name
-# + age - age
+# + firstName - first name of the student
+# + lastName - last name of the student
+# + age - age of the student
 public type ReadonlyRecordType readonly & record {|
     string firstName;
     string lastName;
@@ -65,10 +65,10 @@ public type ReadonlyRecordType readonly & record {|
 
 # Readonly record type param 2
 #
-# + firstName - first name
-# + lastName - last name
-# + age - age
-public type ReadonlyRecordType2 record {|
+# + firstName - first name of the student
+# + lastName - last name of the student
+# + age - age of the student
+public type RecordReadonlyType record {|
     string firstName;
     string lastName;
     int age;
@@ -76,9 +76,9 @@ public type ReadonlyRecordType2 record {|
 
 # Optional record type param
 #
-# + firstName - first name
-# + lastName - last name
-# + age - age
+# + firstName - first name of the student
+# + lastName - last name of the student
+# + age - age of the student
 public type RecordTypeOptional record {|
     string firstName;
     string lastName;
