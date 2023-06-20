@@ -17,7 +17,7 @@
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "foo"
+      "value": "test"
     },
     {
       "kind": "LIST",
@@ -70,7 +70,7 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "CHECK_KEYWORD",
+                      "kind": "CHECKPANIC_KEYWORD",
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",

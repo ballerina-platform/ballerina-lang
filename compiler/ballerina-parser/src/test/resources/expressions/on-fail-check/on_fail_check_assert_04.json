@@ -1,6 +1,5 @@
 {
   "kind": "FUNCTION_DEFINITION",
-  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -17,7 +16,7 @@
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "foo"
+      "value": "test"
     },
     {
       "kind": "LIST",
@@ -46,7 +45,6 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
-      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
@@ -59,18 +57,15 @@
         },
         {
           "kind": "LIST",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "CALL_STATEMENT",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "CHECK_EXPRESSION",
-                  "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "CHECK_KEYWORD",
+                      "kind": "CHECKPANIC_KEYWORD",
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -116,7 +111,6 @@
                     },
                     {
                       "kind": "ON_FAIL_CHECK",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "ON_KEYWORD",
@@ -148,10 +142,11 @@
                         },
                         {
                           "kind": "RIGHT_DOUBLE_ARROW_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_RIGHT_DOUBLE_ARROW_TOKEN"
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
                           ]
                         },
                         {
