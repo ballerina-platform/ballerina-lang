@@ -22,7 +22,6 @@ import org.ballerinalang.test.BaseTest;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-
 /**
  * Tests ballerina profiler.
  *
