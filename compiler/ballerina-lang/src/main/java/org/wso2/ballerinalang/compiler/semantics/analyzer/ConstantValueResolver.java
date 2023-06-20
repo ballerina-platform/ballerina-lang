@@ -340,7 +340,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         return new BLangConstantValue(null, this.currentConstSymbol.type);
     }
 
-    private BLangConstantValue evaluateUnaryOperator(BLangConstantValue value, OperatorKind kind) {         
+    private BLangConstantValue evaluateUnaryOperator(BLangConstantValue value, OperatorKind kind) {
         if (value == null || value.value == null) {
             // This is a compilation error.
             // This is to avoid NPE exceptions in sub-sequent validations.
@@ -350,7 +350,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         try {
             switch (kind) {
                 case ADD:
-                    return new BLangConstantValue(value.value, currentConstSymbol.type);
+                    return new BLangConstantValue(value.value, value.type);
                 case SUB:
                     return calculateNegation(value);
                 case BITWISE_COMPLEMENT:
@@ -815,7 +815,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
 
     private BType createRecordType(BLangExpression expr, BConstantSymbol constantSymbol, Object value, Location pos,
                                    SymbolEnv env) {
-        if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF || expr.getKind() == NodeKind.UNARY_EXPR) {
+        if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             return expr.getBType();
         }
 
