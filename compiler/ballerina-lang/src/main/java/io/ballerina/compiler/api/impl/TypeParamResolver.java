@@ -73,11 +73,9 @@ public class TypeParamResolver implements BTypeVisitor<BType, BType> {
 
     private final Map<BType, BType> boundTypes = new HashMap<>();
     private final BType typeParam;
-    private final CompilerContext context;
     private final Types types;
     public TypeParamResolver(BType typeParam, CompilerContext context) {
         this.typeParam = typeParam;
-        this.context = context;
         types = Types.getInstance(context);
     }
 
