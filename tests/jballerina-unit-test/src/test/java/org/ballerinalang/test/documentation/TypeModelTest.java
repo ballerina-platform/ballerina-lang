@@ -66,13 +66,20 @@ public class TypeModelTest {
         Optional<BType> anyType = testModule.anyTypes.stream()
                 .filter(bType -> bType.name.equals("AnyType")).findAny();
         Assert.assertTrue(anyType.isPresent(), "AnyType type not found");
+        Assert.assertEquals(anyType.get().memberTypes.get(0).name, "any", "Member type name should be any");
+        Assert.assertEquals(anyType.get().memberTypes.get(0).category, "builtin",
+                "Member type name should be builtin");
     }
 
     @Test(description = "Test anydata type doc model")
     public void testAnyDataTypes() {
-        Optional<BType> anyType = testModule.anyDataTypes.stream()
+        Optional<BType> anyDataType = testModule.anyDataTypes.stream()
                 .filter(bType -> bType.name.equals("AnyDataType")).findAny();
-        Assert.assertTrue(anyType.isPresent(), "AnyType type not found");
+        Assert.assertTrue(anyDataType.isPresent(), "AnyDataType type not found");
+        Assert.assertEquals(anyDataType.get().memberTypes.get(0).name, "anydata",
+                "Member type name should be anydata");
+        Assert.assertEquals(anyDataType.get().memberTypes.get(0).category, "builtin",
+                "Member type name should be builtin");
     }
 
     @Test(description = "Test error type doc model")
@@ -318,5 +325,59 @@ public class TypeModelTest {
         Optional<BObjectType> serviceObjectType = testModule.serviceTypes.stream()
                 .filter(bType -> bType.name.equals("ServiceObjectType")).findAny();
         Assert.assertTrue(serviceObjectType.isPresent(), "ServiceObjectType type not found");
+    }
+
+    @Test(description = "Test integer type doc model")
+    public void testIntegerTypes() {
+        Optional<BType> integerType = testModule.integerTypes.stream()
+                .filter(bType -> bType.name.equals("IntegerType")).findAny();
+        Assert.assertTrue(integerType.isPresent(), "IntegerType type not found");
+
+        Assert.assertEquals(integerType.get().memberTypes.get(0).name, "int", "Member type name should be int");
+        Assert.assertEquals(integerType.get().memberTypes.get(0).category, "builtin",
+                "Member type name should be builtin");
+    }
+
+    @Test(description = "Test string type doc model")
+    public void testStringTypes() {
+        Optional<BType> stringType = testModule.stringTypes.stream()
+                .filter(bType -> bType.name.equals("StringType")).findAny();
+        Assert.assertTrue(stringType.isPresent(), "StringType type not found");
+
+        Assert.assertEquals(stringType.get().memberTypes.get(0).name, "string",
+                "Member type name should be string");
+        Assert.assertEquals(stringType.get().memberTypes.get(0).category, "builtin",
+                "Member type name should be builtin");
+    }
+
+    @Test(description = "Test decimal type doc model")
+    public void testDecimalTypes() {
+        Optional<BType> decimalType = testModule.decimalTypes.stream()
+                .filter(bType -> bType.name.equals("DecimalType")).findAny();
+        Assert.assertTrue(decimalType.isPresent(), "DecimalType type not found");
+
+        Assert.assertEquals(decimalType.get().memberTypes.get(0).name, "decimal",
+                "Member type name should be decimal");
+        Assert.assertEquals(decimalType.get().memberTypes.get(0).category, "builtin",
+                "Member type name should be builtin");
+    }
+
+    @Test(description = "Test stream type doc model")
+    public void testStreamTypes() {
+        Optional<BType> streamType = testModule.streamTypes.stream()
+                .filter(bType -> bType.name.equals("StreamType")).findAny();
+        Assert.assertTrue(streamType.isPresent(), "StreamType type not found");
+
+        Assert.assertEquals(streamType.get().memberTypes.get(0).name, "stream",
+                "Member type name should be stream");
+        Assert.assertEquals(streamType.get().memberTypes.get(0).category, "stream",
+                "Member type name should be stream");
+    }
+
+    @Test(description = "Test stream type doc model")
+    public void testFunctionTypes() {
+        Optional<BType> functionType = testModule.functionTypes.stream()
+                .filter(bType -> bType.name.equals("FunctionType")).findAny();
+        Assert.assertTrue(functionType.isPresent(), "FunctionType type not found");
     }
 }

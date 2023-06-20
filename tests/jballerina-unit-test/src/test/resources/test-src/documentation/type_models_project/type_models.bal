@@ -125,6 +125,12 @@ public type ServiceObjectType service object {};
 # Integer type param
 public type IntegerType int;
 
+# String type param
+public type StringType string;
+
+# Decimal type param
+public type DecimalType decimal;
+
 # Stream type param
 public type StreamType stream<Student>;
 
