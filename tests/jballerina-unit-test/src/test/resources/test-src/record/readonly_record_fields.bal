@@ -951,26 +951,29 @@ function testRecordReadonlynessWithNeverFields() {
         never x?;
         never y?;
     |} c = {};
+    readonly c1 = c;
+    assertTrue(c1 is record {|never x?; never y?;|} & readonly);
 
     R1 e = {};
-    R2 f = {};
-    R3 g = {y: 1};
-    R4 h = {y: "abc"};
-    R5 i = {};
-    R6 j = {};
-
-    readonly d = c;
     readonly e1 = e;
-    readonly g1 = g;
-    readonly i1 = i;
-    readonly j1 = j;
-
-    assertTrue(d is record {|never x?; never y?;|} & readonly);
     assertTrue(e1 is record {|never x?;|} & readonly);
+
+    R2 f = {};
     assertFalse(f is record {|never x?; anydata...;|} & readonly);
+
+    R3 g = {y: 1};
+    readonly g1 = g;
     assertTrue(g1 is record {|never x?; int y;|} & readonly);
+
+    R4 h = {y: "abc"};
     assertFalse(h is record {|never x?; string y;|} & readonly);
+
+    R5 i = {};
+    readonly i1 = i;
     assertTrue(i1 is record {|record {|never a;|} x?;|} & readonly);
+
+    R6 j = {};
+    readonly j1 = j;
     assertTrue(j1 is record {|never|never x?;|} & readonly);
 }
 
