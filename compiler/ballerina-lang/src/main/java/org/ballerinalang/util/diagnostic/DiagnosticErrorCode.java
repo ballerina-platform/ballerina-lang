@@ -415,7 +415,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     NEVER_TYPED_OBJECT_FIELD_NOT_ALLOWED("BCE2647", "never.typed.object.field.not.allowed"),
     NIL_CONDITIONAL_EXPR_NOT_YET_SUPPORTED_WITH_NIL("BCE2648", "nil.conditional.expr.not.yet.supported.with.nil"),
 
-    INVALID_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTORS("BCE2650",
+    CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES("BCE2650",
           "cannot.use.type.inclusion.with.more.than.one.open.record.with.different.rest.descriptor.types"),
     INVALID_METHOD_CALL_EXPR_ON_FIELD("BCE2651", "invalid.method.call.expr.on.field"),
     INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR("BCE2652", "incompatible.type.wait.future.expr"),

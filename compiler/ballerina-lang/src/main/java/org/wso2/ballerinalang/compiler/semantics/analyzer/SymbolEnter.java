@@ -451,7 +451,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             // We may need to move this next to defineTypeNodes() to support constants
             defineSemTypesSubset(typeAndClassDefs, pkgEnv);
         }
-        defineTypeNodes(typeAndClassDefs, pkgEnv);
         if (semtypeTest) {
             defineSemTypes(typeAndClassDefs, pkgEnv);
         }
@@ -1693,8 +1692,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                         bPackageSymbol.descriptor.packageName();
             if (!isCurrentPackageModuleImport && !bPackageSymbol.exported) {
                 dlog.error(importPkgNode.pos, DiagnosticErrorCode.MODULE_NOT_FOUND,
-                        bPackageSymbol.toString() + " is not exported");
-                return;
+                           bPackageSymbol.toString() + " is not exported");
+                           return;
             }
         }
 
@@ -3394,7 +3393,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                 if (possibleTypes.get(0).tag == TypeTags.MAP) {
                     recordVarType = createSameTypedFieldsRecordType(recordVar,
-                                                                    ((BMapType) possibleTypes.get(0)).constraint, env);
+                            ((BMapType) possibleTypes.get(0)).constraint, env);
                     break;
                 }
 
@@ -3405,7 +3404,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case TypeTags.MAP:
                 recordVarType = createSameTypedFieldsRecordType(recordVar,
-                        ((BMapType) recordType).constraint, env);
+                                                                ((BMapType) recordType).constraint, env);
                 break;
             default:
                 dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_RECORD_BINDING_PATTERN, recordType);
@@ -4695,7 +4694,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (recordType.restFieldType != null && !types.isSameType(recordType.restFieldType, restFieldType)) {
                 recordType.restFieldType = symTable.noType;
                 dlog.error(recordTypeNode.pos, DiagnosticErrorCode.
-                    INVALID_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTORS);
+                    CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES);
                 return;
             }
             recordType.restFieldType = restFieldType;
@@ -5086,7 +5085,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 (BObjectTypeSymbol) classDefinition.symbol,
                 pkgEnv);
         defineIncludedMethods(classDefinition, objMethodsEnv, true);
-
     }
 
     private void setReadOnlynessOfClassDef(BLangClassDefinition classDef, SymbolEnv pkgEnv) {
