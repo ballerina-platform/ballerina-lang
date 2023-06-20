@@ -63,9 +63,9 @@ public class ProfilerTest extends BaseTest {
                 }
             }
 
-            if (outputs.toString().contains("Generating Output")){
+            if (outputs.toString().contains("Generating Output")) {
                 process.destroy();
-            }else {
+            } else {
                 throw new BallerinaTestException("Error testing the profiler output");
             }
 
