@@ -91,7 +91,6 @@ public class TypeNarrower extends BLangNodeVisitor {
         if (typeNarrower == null) {
             typeNarrower = new TypeNarrower(context);
         }
-
         return typeNarrower;
     }
 
@@ -428,6 +427,7 @@ public class TypeNarrower extends BLangNodeVisitor {
         }
         setSemType(finiteType);
         finiteTypeSymbol.type = finiteType;
+
         return finiteType;
     }
 

@@ -64,10 +64,6 @@ public enum CompilerOptionName {
 
     ENABLE_CACHE("enableCache"),
 
-    SEMTYPE("semtype"),
-
-    SEMTYPE_TEST("semtypeTest"), // keeping additional option as semtype supports only a subset
-
     /**
      * We've introduced this temporary option to support old-project structure and the new package structure.
      * If the option is set, then the compilation is initiated by the Project APT.

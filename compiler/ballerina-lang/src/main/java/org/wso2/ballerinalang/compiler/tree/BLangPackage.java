@@ -93,10 +93,9 @@ public class BLangPackage extends BLangNode implements PackageNode {
 
     public ModuleContextDataHolder moduleContextDataHolder;
 
-    // Semtype env
     public final Env semtypeEnv;
 
-    public Map<String, BLangNode> modTable; // TODO: SemType: this is temporary
+    public Map<String, BLangNode> modTable;
 
     public BLangPackage() {
         this.compUnits = new ArrayList<>();

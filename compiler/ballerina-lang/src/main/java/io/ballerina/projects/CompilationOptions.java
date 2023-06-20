@@ -344,8 +344,8 @@ public class CompilationOptions {
         public CompilationOptions build() {
             return new CompilationOptions(offline, observabilityIncluded, dumpBir,
                     dumpBirFile, cloud, listConflictedClasses, sticky, dumpGraph, dumpRawGraph,
-                    withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI, exportComponentModel,
-                    enableCache, disableSyntaxTree);
+                    withCodeGenerators, withCodeModifiers, configSchemaGen, exportOpenAPI,
+                    exportComponentModel, enableCache, disableSyntaxTree);
         }
     }
 }

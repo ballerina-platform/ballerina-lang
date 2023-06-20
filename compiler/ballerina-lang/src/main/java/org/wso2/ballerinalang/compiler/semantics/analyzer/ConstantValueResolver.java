@@ -133,7 +133,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         if (constantValueResolver == null) {
             constantValueResolver = new ConstantValueResolver(context);
         }
-
         return constantValueResolver;
     }
 
@@ -592,7 +591,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue constructBLangConstantValue(BLangExpression node) {
-
         if (!node.typeChecked && !semtypeActive && !semtypeTest) {
             return null;
         }
