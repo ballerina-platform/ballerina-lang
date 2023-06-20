@@ -1570,16 +1570,25 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
+    public static STNode createCollectClauseNode(
+            STNode collectKeyword,
+            STNode expression) {
+
+        return new STCollectClauseNode(
+                collectKeyword,
+                expression);
+    }
+
     public static STNode createQueryExpressionNode(
             STNode queryConstructType,
             STNode queryPipeline,
-            STNode selectClause,
+            STNode resultClause,
             STNode onConflictClause) {
 
         return new STQueryExpressionNode(
                 queryConstructType,
                 queryPipeline,
-                selectClause,
+                resultClause,
                 onConflictClause);
     }
 
@@ -2298,6 +2307,30 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STOrderKeyNode(
                 expression,
                 orderDirection);
+    }
+
+    public static STNode createGroupByClauseNode(
+            STNode groupKeyword,
+            STNode byKeyword,
+            STNode groupingKey) {
+
+        return new STGroupByClauseNode(
+                groupKeyword,
+                byKeyword,
+                groupingKey);
+    }
+
+    public static STNode createGroupingKeyVarDeclarationNode(
+            STNode typeDescriptor,
+            STNode simpleBindingPattern,
+            STNode equalsToken,
+            STNode expression) {
+
+        return new STGroupingKeyVarDeclarationNode(
+                typeDescriptor,
+                simpleBindingPattern,
+                equalsToken,
+                expression);
     }
 
     public static STNode createOnFailClauseNode(

@@ -535,6 +535,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(selectClauseNode);
     }
 
+    public void visit(CollectClauseNode collectClauseNode) {
+        visitSyntaxNode(collectClauseNode);
+    }
+
     public void visit(QueryExpressionNode queryExpressionNode) {
         visitSyntaxNode(queryExpressionNode);
     }
@@ -797,6 +801,14 @@ public abstract class NodeVisitor {
 
     public void visit(OrderKeyNode orderKeyNode) {
         visitSyntaxNode(orderKeyNode);
+    }
+
+    public void visit(GroupByClauseNode groupByClauseNode) {
+        visitSyntaxNode(groupByClauseNode);
+    }
+
+    public void visit(GroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        visitSyntaxNode(groupingKeyVarDeclarationNode);
     }
 
     public void visit(OnFailClauseNode onFailClauseNode) {
