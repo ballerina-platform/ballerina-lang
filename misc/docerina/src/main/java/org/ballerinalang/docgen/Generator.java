@@ -475,10 +475,8 @@ public class Generator {
     private static MapType getMapTypeModel(MapTypeDescriptorNode typeDescriptor, String typeName,
                                            Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel,
                                            Module module) {
-        Type type = null;
-        if (!typeDescriptor.mapTypeParamsNode().isMissing()) {
-            type = Type.fromNode(typeDescriptor, semanticModel, module);
-        }
+        Type type = typeDescriptor.mapTypeParamsNode().isMissing()
+                ? null : Type.fromNode(typeDescriptor, semanticModel, module);
 
         return new MapType(typeName, getDocFromMetadata(optionalMetadataNode),
                 isDeprecated(optionalMetadataNode), type);
@@ -487,14 +485,10 @@ public class Generator {
     private static TableType getTableTypeModel(TableTypeDescriptorNode typeDescriptor, String typeName,
                                            Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel,
                                            Module module) {
-        Type rowParameterType = null;
-        if (!typeDescriptor.rowTypeParameterNode().isMissing()) {
-            rowParameterType = Type.fromNode(typeDescriptor, semanticModel, module);
-        }
-        Type keyConstraintType = null;
-        if (!typeDescriptor.keyConstraintNode().isEmpty()) {
-            keyConstraintType = Type.fromNode(typeDescriptor.keyConstraintNode().get(), semanticModel, module);
-        }
+        Type rowParameterType = typeDescriptor.rowTypeParameterNode().isMissing()
+                ? null : Type.fromNode(typeDescriptor, semanticModel, module);
+        Type keyConstraintType = typeDescriptor.keyConstraintNode().isEmpty()
+                ? null : Type.fromNode(typeDescriptor.keyConstraintNode().get(), semanticModel, module);
 
         return new TableType(typeName, getDocFromMetadata(optionalMetadataNode),
                 isDeprecated(optionalMetadataNode), rowParameterType, keyConstraintType);
