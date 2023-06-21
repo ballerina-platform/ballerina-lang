@@ -19,14 +19,14 @@
 package org.ballerinalang.test.profiler;
 
 import org.ballerinalang.test.BaseTest;
+import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -35,29 +35,21 @@ import java.util.List;
  * @since 2201.7.0
  */
 public class ProfilerTest extends BaseTest {
-    private static final String testFileLocation =
-            Paths.get("src", "test", "resources", "profiler")
-                    .toAbsolutePath()
-                    .toString();
+    private static final String testFileLocation = Paths.get("src/test/resources/profiler")
+            .toAbsolutePath().toString();
+    private BMainInstance bMainInstance;
 
-    String sourceRoot = testFileLocation + "/";
-    String packageName = "singleBalFile";
+    @BeforeClass
+    public void setup() throws BallerinaTestException {
+        bMainInstance = new BMainInstance(balServer);
+    }
 
     @Test
     public void testProfilerExecution() throws BallerinaTestException {
-        String directory = sourceRoot + packageName + "/";
-        List<String> command = new ArrayList<>();
-        command.add("bal");
-        command.add("version");
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
-        processBuilder.directory(new File(directory));
-        try {
-            Process process = processBuilder.start();
-            process.waitFor();
-        } catch (IOException e) {
-            throw new BallerinaTestException("Error executing command: " + e.getMessage());
-        } catch (InterruptedException e) {
-            throw new BallerinaTestException("Command execution interrupted: " + e.getMessage());
-        }
+        String sourceRoot = testFileLocation + "/";
+        String packageName = "singleBalFile";
+        Map<String, String> envProperties = new HashMap<>();
+        bMainInstance.addJavaAgents(envProperties);
+        bMainInstance.runMain("run", new String[]{"--profile", packageName}, envProperties, null, null, sourceRoot);
     }
 }

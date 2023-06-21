@@ -171,8 +171,6 @@ public class FrontEnd {
                 "         <nav>\n" +
                 "            <div class=\"pull-right\">\n" +
                 "               <form class=\"form-inline\" id=\"form\">\n" +
-                "                  <a id=\"remove-me\" class=\"btn\" href=\"javascript: saveAsHtml();\">Save</a>\n" +
-                "                  <a id=\"remove-me1\" class=\"btn\" href=\"javascript: stop();\">Stop</a>\n" +
                 "                  <div class=\"form-group\">\n" +
                 "                     <input placeholder=\"Search...\" id=\"searchBox\" type=\"text\" class=\"form-control\" id=\"term\">\n" +
                 "                  </div>\n" +

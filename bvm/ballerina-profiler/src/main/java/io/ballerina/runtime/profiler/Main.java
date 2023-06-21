@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static io.ballerina.runtime.profiler.ui.HTTPServer.initializeHTMLExport;
 import static io.ballerina.runtime.profiler.ui.JSONParser.initializeCPUParser;
-import static io.ballerina.runtime.profiler.ui.HTTPServer.initializeServer;
 
 /**
  * Used to profile Ballerina programs.
@@ -292,7 +292,7 @@ public class Main {
                 FileUtils.delete(new File("CpuPre.json"));
                 System.out.println(" ○ Execution Time: " + profilerTotalTime / 1000 + " Seconds");
                 deleteTempData();
-                initializeServer();
+                initializeHTMLExport();
                 FileUtils.delete(new File("performance_report.json"));
                 System.out.println("--------------------------------------------------------------------------------");
             } catch (Exception ignore) {}
