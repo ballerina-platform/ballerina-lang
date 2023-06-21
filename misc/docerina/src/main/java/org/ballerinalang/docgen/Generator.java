@@ -175,10 +175,12 @@ public class Generator {
 
         String typeName = typeDefinition.typeName().text();
         Optional<MetadataNode> metaDataNode = typeDefinition.metadata();
-        if (typeDefinition.typeDescriptor().kind().equals(SyntaxKind.RECORD_TYPE_DESC)) {
+        SyntaxKind syntaxKind = typeDefinition.typeDescriptor().kind();
+
+        if (syntaxKind.equals(SyntaxKind.RECORD_TYPE_DESC)) {
             module.records.add(getRecordTypeModel((RecordTypeDescriptorNode) typeDefinition.typeDescriptor(),
                     typeName, metaDataNode, semanticModel, module));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.OBJECT_TYPE_DESC)) {
             ObjectTypeDescriptorNode objectTypeDescriptorNode =
                     (ObjectTypeDescriptorNode) typeDefinition.typeDescriptor();
             BObjectType bObj = getObjectTypeModel(objectTypeDescriptorNode,
@@ -188,7 +190,7 @@ public class Generator {
             } else {
                 module.objectTypes.add(bObj);
             }
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.UNION_TYPE_DESC)) {
             Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel, module);
             if (unionType.memberTypes.stream().allMatch(type ->
                     (type.category != null && type.category.equals("errors")) ||
@@ -200,8 +202,8 @@ public class Generator {
                 module.unionTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(),
                         typeName, metaDataNode, semanticModel, module));
             }
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
-                typeDefinition.typeDescriptor().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        } else if (syntaxKind.equals(SyntaxKind.SIMPLE_NAME_REFERENCE) ||
+                syntaxKind.equals(SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
             Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel, module);
             if (refType.category.equals("errors")) {
                 module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
@@ -210,7 +212,7 @@ public class Generator {
                 module.simpleNameReferenceTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName,
                         metaDataNode, semanticModel, module));
             }
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
+        } else if (syntaxKind.equals(SyntaxKind.DISTINCT_TYPE_DESC) &&
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                         == SyntaxKind.ERROR_TYPE_DESC) {
             Type detailType = null;
@@ -223,7 +225,7 @@ public class Generator {
             Error err = new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), detailType);
             err.isDistinct = true;
             module.errors.add(err);
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
+        } else if (syntaxKind.equals(SyntaxKind.DISTINCT_TYPE_DESC) &&
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                         == SyntaxKind.OBJECT_TYPE_DESC) {
             ObjectTypeDescriptorNode objectTypeDescriptorNode = (ObjectTypeDescriptorNode)
@@ -237,7 +239,7 @@ public class Generator {
             } else {
                 module.objectTypes.add(bObj);
             }
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
+        } else if (syntaxKind.equals(SyntaxKind.DISTINCT_TYPE_DESC) &&
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                         == SyntaxKind.PARENTHESISED_TYPE_DESC) {
             ParenthesisedTypeDescriptorNode parenthesisedTypeDescriptorNode = (ParenthesisedTypeDescriptorNode)
@@ -246,7 +248,7 @@ public class Generator {
             Error err = new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), detailType);
             err.isDistinct = true;
             module.errors.add(err);
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
+        } else if (syntaxKind.equals(SyntaxKind.DISTINCT_TYPE_DESC) &&
                 ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
                         == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             Type refType = Type.fromNode(((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor()))
@@ -263,7 +265,7 @@ public class Generator {
                 bType.isAnonymousUnionType = true;
                 module.types.add(bType);
             }
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.ERROR_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.ERROR_TYPE_DESC)) {
             ParameterizedTypeDescriptorNode parameterizedTypeDescNode =
                     (ParameterizedTypeDescriptorNode) typeDefinition.typeDescriptor();
             Type type = null;
@@ -272,46 +274,46 @@ public class Generator {
                         semanticModel, module);
             }
             module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), type));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TUPLE_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.TUPLE_TYPE_DESC)) {
             module.tupleTypes.add(getTupleTypeModel((TupleTypeDescriptorNode) typeDefinition.typeDescriptor(),
                     typeName, metaDataNode, semanticModel, module));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TABLE_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.TABLE_TYPE_DESC)) {
             module.tableTypes.add(getTableTypeModel((TableTypeDescriptorNode) typeDefinition.typeDescriptor(),
                     typeName, metaDataNode, semanticModel, module));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.MAP_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.MAP_TYPE_DESC)) {
             module.mapTypes.add(getMapTypeModel((MapTypeDescriptorNode) typeDefinition.typeDescriptor(),
                     typeName, metaDataNode, semanticModel, module));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INTERSECTION_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.INTERSECTION_TYPE_DESC)) {
             addIntersectionTypeModel((IntersectionTypeDescriptorNode) typeDefinition.typeDescriptor(), typeName,
                     metaDataNode, semanticModel, module);
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TYPEDESC_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.TYPEDESC_TYPE_DESC)) {
             module.typeDescriptorTypes.add(getTypeDescModel((ParameterizedTypeDescriptorNode) typeDefinition.
                             typeDescriptor(), typeName, metaDataNode, semanticModel, module));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INT_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.INT_TYPE_DESC)) {
             module.integerTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
                     semanticModel, module));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DECIMAL_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.DECIMAL_TYPE_DESC)) {
             module.decimalTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
                     semanticModel, module));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.XML_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.XML_TYPE_DESC)) {
             module.xmlTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
                     semanticModel, module));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.FUNCTION_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.FUNCTION_TYPE_DESC)) {
             module.functionTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
                     semanticModel, module));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.ANYDATA_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.ANYDATA_TYPE_DESC)) {
             module.anyDataTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
                     semanticModel, module));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.STRING_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.STRING_TYPE_DESC)) {
             module.stringTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
                     semanticModel, module));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.ANY_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.ANY_TYPE_DESC)) {
             module.anyTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
                     semanticModel, module));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.ARRAY_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.ARRAY_TYPE_DESC)) {
             module.arrayTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
                     semanticModel, module));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.STREAM_TYPE_DESC) {
+        } else if (syntaxKind.equals(SyntaxKind.STREAM_TYPE_DESC)) {
             module.streamTypes.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
                     semanticModel, module));
         } else {
