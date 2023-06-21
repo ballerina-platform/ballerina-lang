@@ -43,7 +43,7 @@ public class ProfilerTest extends BaseTest {
     @Test
     public void testProfilerExecution() throws BallerinaTestException {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("bal", "build");
+            ProcessBuilder processBuilder = new ProcessBuilder("bal", "version");
             processBuilder.directory(new File(sourceRoot + packageName + "/"));
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
@@ -51,6 +51,5 @@ public class ProfilerTest extends BaseTest {
         } catch (Exception e) {
             throw new BallerinaTestException("Error testing the profiler ");
         }
-
     }
 }
