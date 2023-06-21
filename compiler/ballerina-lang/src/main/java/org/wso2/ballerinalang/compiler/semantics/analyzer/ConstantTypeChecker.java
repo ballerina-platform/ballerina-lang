@@ -115,7 +115,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.function.BiFunction;
@@ -2564,18 +2563,17 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
     public BLangConstantValue getConstantValue(BType type) {
         // Obtain the constant value using its type.
-        switch (type.tag) {
+        BType refType = Types.getReferredType(type);
+        switch (refType.tag) {
             case TypeTags.FINITE:
-                BLangExpression expr = ((BFiniteType) type).getValueSpace().iterator().next();
+                BLangExpression expr = ((BFiniteType) refType).getValueSpace().iterator().next();
                 if (expr.getBType().tag == TypeTags.DECIMAL) {
                     return new BLangConstantValue ((((BLangNumericLiteral) expr).value).toString(), expr.getBType());
                 }
                 return new BLangConstantValue (((BLangLiteral) expr).value, expr.getBType());
-            case TypeTags.INTERSECTION:
-                return getConstantValue(((BIntersectionType) type).getEffectiveType());
             case TypeTags.RECORD:
                 Map<String, BLangConstantValue> fields = new HashMap<>();
-                LinkedHashMap<String, BField> recordFields = ((BRecordType) type).fields;
+                LinkedHashMap<String, BField> recordFields = ((BRecordType) refType).fields;
                 for (String key : recordFields.keySet()) {
                     BLangConstantValue constantValue = getConstantValue(recordFields.get(key).type);
                     fields.put(key, constantValue);
@@ -2583,14 +2581,14 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 return new BLangConstantValue(fields, type);
             case TypeTags.TUPLE:
                 List<BLangConstantValue> members = new ArrayList<>();
-                List<BType> tupleTypes = ((BTupleType) type).getTupleTypes();
+                List<BType> tupleTypes = ((BTupleType) refType).getTupleTypes();
                 for (BType memberType : tupleTypes) {
                     BLangConstantValue constantValue = getConstantValue(memberType);
                     members.add(constantValue);
                 }
                 return new BLangConstantValue(members, type);
             case TypeTags.NIL:
-                return new BLangConstantValue (type.tsymbol.getType().toString(), type.tsymbol.getType());
+                return new BLangConstantValue(refType.tsymbol.getType().toString(), type.tsymbol.getType());
             default:
                 break;
         }
@@ -2635,11 +2633,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             DiagnosticCode preDiagCode = data.diagCode;
             data.env = env;
             data.diagCode = diagCode;
-            if (expType.tag == TypeTags.INTERSECTION) {
-                data.expType = ((BIntersectionType) expType).effectiveType;
-            } else {
-                data.expType = expType;
-            }
+            data.expType = expType;
 
             expr.expectedType = expType;
 

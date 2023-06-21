@@ -1946,7 +1946,8 @@ public class Types {
 
         BType collectionType = bLangInputClause.collection.getBType();
         bLangInputClause.varType = visitCollectionType(bLangInputClause, collectionType);
-        if (bLangInputClause.varType.tag == TypeTags.SEMANTIC_ERROR || getReferredType(collectionType).tag == OBJECT) {
+        if (bLangInputClause.varType.tag == TypeTags.SEMANTIC_ERROR ||
+                getReferredType(collectionType).tag == OBJECT) {
             return;
         }
         
@@ -4356,7 +4357,8 @@ public class Types {
     }
 
     boolean validStringOrXmlTypeExists(BType type) {
-        if (TypeTags.isStringTypeTag(getReferredType(type).tag) || TypeTags.isXMLTypeTag(getReferredType(type).tag)) {
+        BType refType = getReferredType(type);
+        if (TypeTags.isStringTypeTag(refType.tag) || TypeTags.isXMLTypeTag(refType.tag)) {
             return true;
         }
         return validNumericStringOrXmlTypeExists(type, this::validStringOrXmlTypeExists);
