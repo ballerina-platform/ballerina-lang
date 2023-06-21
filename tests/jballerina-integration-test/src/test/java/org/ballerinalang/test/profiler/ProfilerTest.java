@@ -23,7 +23,10 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -42,14 +45,19 @@ public class ProfilerTest extends BaseTest {
 
     @Test
     public void testProfilerExecution() throws BallerinaTestException {
+        String directory = sourceRoot + packageName + "/";
+        List<String> command = new ArrayList<>();
+        command.add("bal");
+        command.add("version");
+        ProcessBuilder processBuilder = new ProcessBuilder(command);
+        processBuilder.directory(new File(directory));
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("bal", "version");
-            processBuilder.directory(new File(sourceRoot + packageName + "/"));
-            processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
-            process.destroy();
-        } catch (Exception e) {
-            throw new BallerinaTestException("Error testing the profiler ");
+            process.waitFor();
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error executing command: " + e.getMessage());
+        } catch (InterruptedException e) {
+            throw new BallerinaTestException("Command execution interrupted: " + e.getMessage());
         }
     }
 }
