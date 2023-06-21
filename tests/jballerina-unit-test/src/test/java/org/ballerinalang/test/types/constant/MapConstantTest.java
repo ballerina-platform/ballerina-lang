@@ -271,6 +271,11 @@ public class MapConstantTest {
         BRunUtil.invoke(compileResult, "testConstMapWithComputedField");
     }
 
+    @Test
+    public void testUnionAsExpectedType() {
+        BRunUtil.invoke(compileResult, "testUnionAsExpectedType");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

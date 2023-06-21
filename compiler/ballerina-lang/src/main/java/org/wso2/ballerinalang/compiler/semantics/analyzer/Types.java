@@ -7270,4 +7270,9 @@ public class Types {
                 return false;
         }
     }
+
+    public boolean isMappingConstructorCompatibleType(BType type) {
+        return Types.getReferredType(type).tag == TypeTags.RECORD
+                || Types.getReferredType(type).tag == TypeTags.MAP;
+    }
 }
