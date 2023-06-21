@@ -645,7 +645,11 @@ public class TestBalaWriter {
     @AfterMethod(alwaysRun = true)
     public void cleanup(ITestContext ctx) {
         ProjectUtils.deleteDirectory(this.tmpDir);
-        Path packagePath = Path.of(ctx.getCurrentXmlTest().getParameter(PACKAGE_PATH));
+        String pkgPathParam = ctx.getCurrentXmlTest().getParameter(PACKAGE_PATH);
+        if (pkgPathParam == null) {
+            return;
+        }
+        Path packagePath = Path.of(pkgPathParam);
         ProjectUtils.deleteDirectory(packagePath.resolve(TARGET_DIR_NAME));
         ProjectUtils.deleteDirectory(packagePath.resolve(BALA_DIR_NAME));
     }
