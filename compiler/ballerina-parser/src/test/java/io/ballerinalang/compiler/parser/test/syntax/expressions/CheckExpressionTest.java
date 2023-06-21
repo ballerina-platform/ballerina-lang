@@ -94,12 +94,7 @@ public class CheckExpressionTest extends AbstractExpressionsTest {
     }
 
     @Test
-    public void testOnFailWithEquals() {
-        testFile("on-fail-check/on_fail_check_source_10.bal", "on-fail-check/on_fail_check_assert_10.json");
-    }
-
-    @Test
     public void testOnFailCheckPanicWithEquals() {
-        testFile("on-fail-check/on_fail_check_source_11.bal", "on-fail-check/on_fail_check_assert_11.json");
+        testFile("on-fail-check/on_fail_check_source_10.bal", "on-fail-check/on_fail_check_assert_10.json");
     }
 }
