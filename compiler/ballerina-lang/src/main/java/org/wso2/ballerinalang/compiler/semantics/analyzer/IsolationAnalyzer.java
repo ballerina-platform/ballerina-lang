@@ -2323,9 +2323,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 }
 
                 int tupleIndex = 0;
+                int listConstrExprSize = listConstrVarArg ? listConstructorExpr.exprs.size() : 0;
                 for (int i = reqArgCount; i < paramsCount; i++) {
                     if (!Symbols.isFlagOn(params.get(i).flags, Flags.ISOLATED_PARAM)) {
-                        if (listConstrVarArg) {
+                        if (listConstrVarArg && listConstrExprSize > tupleIndex) {
                             analyzeNode(listConstructorExpr.exprs.get(tupleIndex), env);
                         }
                         tupleIndex++;

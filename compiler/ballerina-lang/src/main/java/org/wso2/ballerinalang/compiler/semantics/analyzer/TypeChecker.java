@@ -7381,7 +7381,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
             types.checkType(arg.pos, inferredType, expectedType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             return;
         }
-        if (arg.getKind() == NodeKind.REST_ARGS_EXPR && expectedType.tag == TypeTags.UNION) {
+        if (arg.getKind() == NodeKind.REST_ARGS_EXPR && !data.env.typeParamsEntries.isEmpty()) {
             // Need to infer the type with noType for rest args.
             checkExpr(arg, symTable.noType, data);
         } else {
