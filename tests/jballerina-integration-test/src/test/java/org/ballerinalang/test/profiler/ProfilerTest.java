@@ -22,6 +22,7 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.nio.file.Paths;
 
 
@@ -36,42 +37,19 @@ public class ProfilerTest extends BaseTest {
                     .toAbsolutePath()
                     .toString();
 
-    //    String sourceRoot = testFileLocation + "/";
-//    String packageName = "singleBalFile";
-//    List<String> outputs = new ArrayList<>();
-    int test = 0;
+    String sourceRoot = testFileLocation + "/";
+    String packageName = "singleBalFile";
 
     @Test
     public void testProfilerExecution() throws BallerinaTestException {
         try {
-
-            test = 2;
-//            ProcessBuilder processBuilder = new ProcessBuilder("bal", "run", "--profile");
-//            processBuilder.directory(new File(sourceRoot + packageName + "/"));
-//            processBuilder.redirectErrorStream(true);
-//            Process process = processBuilder.start();
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-//
-//            test = 1;
-//            String line;
-//            while ((line = reader.readLine()) != null) {
-//                outputs.add(line);
-//                if (line.contains("Generating Output")) {
-//                    test = 2;
-//                    Thread.sleep(1000);
-//                    break;
-//                }
-//            }
-//
-//            test = 3;
-//            if (outputs.toString().contains("Generating Output")) {
-//                test = 4;
-//                process.destroy();
-//            } else {
-//                throw new BallerinaTestException("Error testing the profiler output");
-//            }
+            ProcessBuilder processBuilder = new ProcessBuilder("bal", "build");
+            processBuilder.directory(new File(sourceRoot + packageName + "/"));
+            processBuilder.redirectErrorStream(true);
+            Process process = processBuilder.start();
+            process.destroy();
         } catch (Exception e) {
-            throw new BallerinaTestException("Error testing the profiler " + test);
+            throw new BallerinaTestException("Error testing the profiler ");
         }
 
     }
