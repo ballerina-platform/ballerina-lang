@@ -18,6 +18,7 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
@@ -225,10 +226,10 @@ public class NewCommandTest extends BaseCommandTest {
         return new Object[][] {
                 { testResources.resolve(ProjectConstants.EXISTING_PACKAGE_FILES_DIR).
                         resolve("directoryWithPackageFiles1"),
-                        "Dependencies.toml, Package.md, modules, .gitignore, .devcontainer.json" },
+                        "Dependencies.toml, Package.md, modules" },
                 { testResources.resolve(ProjectConstants.EXISTING_PACKAGE_FILES_DIR).
                         resolve("directoryWithPackageFiles2"),
-                        "Module.md, tests, .devcontainer.json" }
+                        "Module.md, tests" }
         };
     }
 
@@ -237,12 +238,61 @@ public class NewCommandTest extends BaseCommandTest {
     public void testNewCommandInExistingDirectoryWithExistingPackageFiles(Path dirPath, String existing)
             throws IOException {
         System.setProperty(USER_NAME, "testuserorg");
-        String[] args = {dirPath.toString()};
+        String[] args = {dirPath.toString(), "-t", "main"};
         NewCommand newCommand = new NewCommand(printStream, false);
         new CommandLine(newCommand).parseArgs(args);
         newCommand.execute();
 
         Assert.assertTrue(readOutput().contains("Existing " + existing + " file/directory(s) were found"));
+    }
+
+    @Test(description = "New package in an existing directory with existing package files using default template")
+    public void testNewCommandWithExistingPackageFilesDefaultTemplate() throws IOException {
+        System.setProperty(USER_NAME, "testuserorg");
+        Path tempPackageDir = tmpDir.resolve("directoryWithPackageFilesDefaultTemplate");
+        Path packageDir = testResources.resolve(ProjectConstants.EXISTING_PACKAGE_FILES_DIR).
+                resolve("directoryWithPackageFilesDefaultTemplate");
+        Files.createDirectory(tempPackageDir);
+        Files.walkFileTree(packageDir, new FileUtils.Copy(packageDir, tempPackageDir));
+        String[] args = {tempPackageDir.toString()};
+        NewCommand newCommand = new NewCommand(printStream, false);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+        // Check with spec
+        // project_name/
+        // - Ballerina.toml
+        // - main.bal
+
+        Assert.assertTrue(Files.exists(tempPackageDir));
+        Assert.assertTrue(Files.exists(tempPackageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String name = Paths.get(args[0]).getFileName().toString();
+        String tomlContent = Files.readString(
+                tempPackageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
+        String expectedContent = "[package]\n" +
+                "org = \"testuserorg\"\n" +
+                "name = \"" + name + "\"\n" +
+                "version = \"0.1.0\"\n" +
+                "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
+                "[build-options]\n" +
+                "observabilityIncluded = true\n";
+        Assert.assertEquals(tomlContent.trim(), expectedContent.trim());
+
+        Assert.assertTrue(Files.exists(tempPackageDir.resolve("main.bal")));
+        Assert.assertFalse(Files.exists(tempPackageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
+        Assert.assertTrue(readOutput().contains("Created new package"));
+    }
+
+    @Test(description = "Create a new project in an existing directory containing projects in sub directories")
+    public void testNewCommandInExistingDirectoryWithProjectsInSubDir() throws IOException {
+        System.setProperty(USER_NAME, "testuserorg");
+        Path packageDir = testResources.resolve(ProjectConstants.EXISTING_PACKAGE_FILES_DIR).
+                resolve("directoryWithProjectsInSubDir");
+        String[] args = {packageDir.toString()};
+        NewCommand newCommand = new NewCommand(printStream, false);
+        new CommandLine(newCommand).parseArgs(args);
+        newCommand.execute();
+
+        Assert.assertTrue(readOutput().contains("Directory already contains a Ballerina project"));
     }
 
     @Test(description = "Create a new project inside an existing directory with an invalid name")
@@ -649,7 +699,7 @@ public class NewCommandTest extends BaseCommandTest {
         String expectedTomlLibContent =
                 "artifactId = \"snakeyaml\"\n" +
                 "groupId = \"org.yaml\"\n" +
-                "version = \"1.32\"";
+                "version = \"2.0\"";
 
         Assert.assertTrue(tomlContent.contains(expectedTomlPkgContent));
         Assert.assertTrue(tomlContent.contains(expectedTomlLibContent));

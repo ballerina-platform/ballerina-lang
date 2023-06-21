@@ -7,14 +7,6 @@
   "description": "",
   "items": [
     {
-      "label": "i",
-      "kind": "TypeParameter",
-      "detail": "Compilationerror",
-      "sortText": "D",
-      "insertText": "i",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -555,6 +547,14 @@
       "detail": "Typedesc",
       "sortText": "BN",
       "insertText": "typedesc",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "i",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "D",
+      "insertText": "i",
       "insertTextFormat": "Snippet"
     }
   ]

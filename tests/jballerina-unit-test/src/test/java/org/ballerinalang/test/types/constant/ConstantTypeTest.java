@@ -128,10 +128,6 @@ public class ConstantTypeTest {
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '-1', found '123'", 164, 17);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected '-1', found 'int'", 164, 27);
         BAssertUtil.validateError(compileResult1, i++, "expression is not a constant expression", 172, 8);
-//        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected " +
-//                "'record {| string a; anydata...; |}', found 'map<int>'", 176, 26);
-//        BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| int a; string...; " +
-//                "|}', found 'map<int>'", 191, 40);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| 1 a; |}', found '" +
                 "(record {| 1 a; 2 b; |} & readonly)'", 192, 27);
         BAssertUtil.validateError(compileResult1, i++, "incompatible types: expected 'record {| readonly " +

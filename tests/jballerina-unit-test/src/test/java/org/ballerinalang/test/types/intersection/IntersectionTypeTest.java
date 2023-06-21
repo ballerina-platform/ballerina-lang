@@ -245,8 +245,6 @@ public class IntersectionTypeTest {
         validateError(result, index++, "unsupported intersection", 17, 8);
         validateError(result, index++, "unsupported intersection", 19, 9);
         validateError(result, index++, "unsupported intersection", 21, 1);
-//        validateError(result, index++, "unknown type 'A'", 23, 14);
-//        validateError(result, index++, "unknown type 'II'", 23, 19);
         validateError(result, index++, "unsupported intersection", 23, 25);
         assertEquals(result.getErrorCount(), index);
     }

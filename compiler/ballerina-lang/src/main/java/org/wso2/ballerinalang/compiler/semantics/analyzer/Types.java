@@ -65,6 +65,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BSequenceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleMember;
@@ -850,6 +851,13 @@ public class Types {
             return true;
         }
 
+        if (sourceTag == TypeTags.SEQUENCE) {
+            BSequenceType seqType = (BSequenceType) source;
+            if (targetTag == TypeTags.ARRAY) {
+                return isAssignable(seqType.elementType, ((BArrayType) target).eType, unresolvedTypes);
+            }
+        }
+
         if (!Symbols.isFlagOn(source.flags, Flags.PARAMETERIZED) &&
                 !isInherentlyImmutableType(target) && Symbols.isFlagOn(target.flags, Flags.READONLY) &&
                 !isInherentlyImmutableType(source) && isMutable(source)) {
@@ -1470,8 +1478,7 @@ public class Types {
             case TypeTags.HANDLE:
                 return true;
             case TypeTags.XML:
-                BXMLType xmlType = (BXMLType) type;
-                return xmlType.constraint != null && xmlType.constraint.tag == TypeTags.NEVER;
+                return ((BXMLType) type).constraint.tag == TypeTags.NEVER;
             case TypeTags.TYPEREFDESC:
                 return isInherentlyImmutableType(((BTypeReferenceType) type).referredType);
         }
@@ -1615,9 +1622,6 @@ public class Types {
                 boolean readonlyIntersectionExists = false;
                 BUnionType unionType = (BUnionType) type;
                 LinkedHashSet<BType> memberTypes = unionType.getMemberTypes();
-                if (memberTypes.isEmpty() && unionType.mutableType != null) {
-                    memberTypes = unionType.mutableType.getMemberTypes();
-                }
                 for (BType memberType : memberTypes) {
                     if (isInherentlyImmutableType(memberType) ||
                             isSelectivelyImmutableType(memberType, unresolvedTypes, forceCheck, packageID)) {
@@ -7183,19 +7187,6 @@ public class Types {
     }
 
     /**
-     * Holds common analyzer data between {@link TypeResolver} and {@link ConstantTypeChecker}.
-     */
-    public static class CommonConstantAnalyzerData {
-        Stack<SymbolEnv> queryEnvs = new Stack<>();
-        Stack<BLangNode> queryFinalClauses = new Stack<>();
-        boolean checkWithinQueryExpr = false;
-        HashSet<BType> checkedErrorList = new HashSet<>();
-        boolean breakToParallelQueryEnv = false;
-        int letCount = 0;
-        boolean nonErrorLoggingCheck = false;
-    }
-
-    /**
      * Enum to represent query construct type.
      *
      * @since 2201.3.0
@@ -7279,7 +7270,8 @@ public class Types {
                     }
                 }
                 return false;
+            default:
+                return false;
         }
-        return false;
     }
 }
