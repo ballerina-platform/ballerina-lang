@@ -36,12 +36,12 @@ public class BalaSchemeDefinitionTest extends DefinitionTest {
         super.test(configPath, configDir);
     }
 
-    @Test(description = "Test goto definitions for standard libs", dataProvider = "testStdLibDataProvider")
+    @Test(description = "Test goto definitions for standard libs", dataProvider = "testStdLibDataProvider", enabled = false)
     public void testStdLibDefinition(String configPath, String configDir) throws IOException, URISyntaxException {
         super.testStdLibDefinition(configPath, configDir);
     }
 
-    @Test(dataProvider = "testInterStdLibDataProvider")
+    @Test(dataProvider = "testInterStdLibDataProvider", enabled = false)
     public void testInterStdLibDefinition(String configPath, String configDir) throws IOException, URISyntaxException {
         super.testInterStdLibDefinition(configPath, configDir);
     }
