@@ -471,7 +471,7 @@ public class BIROptimizer {
 
         @Override
         public void visit(BIRNonTerminator.Move birMove) {
-            if (birMove.lhsOp.variableDcl.kind != VarKind.TEMP || birMove.rhsOp.variableDcl.kind == VarKind.GLOBAL) {
+            if (birMove.lhsOp.variableDcl.kind != VarKind.TEMP) {
                 this.env.newInstructions.add(birMove);
                 return;
             }
