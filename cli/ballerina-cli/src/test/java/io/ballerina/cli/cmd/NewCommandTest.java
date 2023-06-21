@@ -619,7 +619,7 @@ public class NewCommandTest extends BaseCommandTest {
 
     @Test(description = "Test pulling a central template and replacing the template name in module imports")
     public void testNewCommandCentralTemplateReplaceImports() throws IOException {
-        String templateArg = "testorg/centralSample:1.0.0";
+        String templateArg = "testorg/centralSample:1.0.2";
         String packageName = "central_sample";
         Path packageDir = tmpDir.resolve(packageName);
         String[] args = {packageDir.toString(), "-t", templateArg};
@@ -633,7 +633,7 @@ public class NewCommandTest extends BaseCommandTest {
         String expectedTomlContent = "[package]\n" +
                 "org = \"testorg\"\n" +
                 "name = \"" + packageName + "\"\n" +
-                "version = \"1.0.0\"\n" +
+                "version = \"1.0.2\"\n" +
                 "export = [\"central_sample\"]\n" +
                 "distribution = \"" + RepoUtils.getBallerinaShortVersion() + "\"\n\n" +
                 "[build-options]\n" +
@@ -645,6 +645,12 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(mainContent.contains("import central_sample.mod1;"));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(readOutput().contains("Created new package"));
+
+        BuildCommand buildCommand = new BuildCommand(packageDir, printStream, printStream, false);
+        new CommandLine(buildCommand).parseArgs();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(buildLog.contains("Generating executable"));;
     }
 
     @Test
