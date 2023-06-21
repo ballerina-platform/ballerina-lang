@@ -31,3 +31,15 @@ const [int, float] ERR_TUPLE2 = [3, 1, 3]; // incompatible types, size mismatch
 const [1|2] ERR_TUPLE4 = []; // no fill members
 const int[2]|[int, int] ERR_TUPLE5 = []; // ambiguous types
 const TUPLE1 TUPLE2 = [3, 3]; // incompatible types
+const byte[2] ARR_1 = [300, 200]; // incompatible types
+const byte[2] ARR_2 = [300, 200, 100]; // size mismatch
+const byte[*] ARR_3 = [300, 400]; // incompatible types
+const [byte, byte, int:Signed8] TUPLE_3 = [300, 400, 500]; // incompatible types
+
+const float[]|decimal[] ARR_5 = [1, 2.0]; // ambiguous types
+const string[]|boolean[] ARR_6 = [1, 2.0]; // incompatible types
+const int|float ARR_7 = [1, 2.0]; // incompatible types
+const int ARR_8 = [1, 2.0]; // incompatible types
+const TUPLE_4 = [2 > 3]; // const expressions are not yet supported here
+const [record {| int a = 5; 2 b;|}] TUPLE_5 = [{b: 2}];
+const [int, table<int>] TUPLE_6 = [1]; // incompatible types

@@ -945,7 +945,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         for (RecordLiteralNode.RecordField specifiedField : specifiedFields) {
             if (specifiedField.isKeyValueField()) {
-                String name = getKeyValueFieldName((BLangRecordLiteral.BLangRecordKeyValueField) specifiedField);
+                String name =
+                        typeChecker.getKeyValueFieldName((BLangRecordLiteral.BLangRecordKeyValueField) specifiedField);
                 if (name == null) {
                     continue; // computed key
                 }
@@ -959,22 +960,6 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             }
         }
         return fieldNames;
-    }
-
-    private String getKeyValueFieldName(BLangRecordLiteral.BLangRecordKeyValueField field) {
-        BLangRecordLiteral.BLangRecordKey key = field.key;
-        if (key.computedKey) {
-            return null;
-        }
-
-        BLangExpression keyExpr = key.expr;
-
-        if (keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            return ((BLangSimpleVarRef) keyExpr).variableName.value;
-        } else if (keyExpr.getKind() == NodeKind.LITERAL) {
-            return (String) ((BLangLiteral) keyExpr).value;
-        }
-        return null;
     }
 
     private List<String> getSpreadOpFieldRequiredFieldNames(BLangRecordLiteral.BLangRecordSpreadOperatorField field,
@@ -1040,12 +1025,8 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             this.dlog.mute();
 
             List<BType> compatibleTypes = new ArrayList<>();
-            boolean erroredExpType = false;
             for (BType memberType : ((BUnionType) expType).getMemberTypes()) {
                 if (memberType == symTable.semanticError) {
-                    if (!erroredExpType) {
-                        erroredExpType = true;
-                    }
                     continue;
                 }
 
@@ -1070,7 +1051,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             }
 
             if (compatibleTypes.isEmpty()) {
-                dlog.error(listConstructor.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, listConstructor, expType);
+                dlog.error(listConstructor.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType, listConstructor);
                 return symTable.semanticError;
             } else if (compatibleTypes.size() != 1) {
                 dlog.error(listConstructor.pos, DiagnosticErrorCode.AMBIGUOUS_TYPES,
@@ -1100,6 +1081,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
             case TypeTags.READONLY:
                 return checkConstExpr(listConstructor, possibleType, data);
             default:
+                dlog.error(listConstructor.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType, listConstructor);
                 return symTable.semanticError;
         }
     }

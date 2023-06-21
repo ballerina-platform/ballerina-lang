@@ -55,7 +55,9 @@ public class ListConstantTest {
                 {"testListConstructorExprWithStringFillMembers"},
                 {"testTupleAsExpectedType"},
                 {"testTupleAsExpectedTypeWithFillMembers"},
-                {"testListConstExprWithoutExpectedType"}
+                {"testListConstExprWithoutExpectedType"},
+                {"testListConstantWithUnionAsExpectedType"},
+                {"testListConstExprWithTypeRefFillMember"}
         };
     }
 

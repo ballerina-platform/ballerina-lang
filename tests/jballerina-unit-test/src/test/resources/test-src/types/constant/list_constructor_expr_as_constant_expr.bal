@@ -293,6 +293,30 @@ function testTupleWithConstAsExpectedType() {
     assertEquals(TUPLE_41.toString(), "[3,1]");
 }
 
+const float[]|decimal[] ARR_50 = [1, 2f];
+const int[]|decimal[] ARR_51 = [1, 2d];
+
+function testListConstantWithUnionAsExpectedType() {
+    assertTrue(ARR_50.length() == 2);
+    assertTrue(ARR_50[0] is float);
+    assertTrue(ARR_50[1] is float);
+    assertEquals(ARR_50.toString(), "[1.0,2.0]");
+
+    assertTrue(ARR_51.length() == 2);
+    assertTrue(ARR_51[0] is decimal);
+    assertTrue(ARR_51[1] is decimal);
+    assertEquals(ARR_51.toString(), "[1,2]");
+}
+
+type A int;
+type B A;
+const [A, B] TUPLE_50 = [];
+
+function testListConstExprWithTypeRefFillMember() {
+    assertTrue(TUPLE_50.length() == 2);
+    assertEquals(TUPLE_50.toString(), "[0,0]");
+}
+
 function assertTrue(anydata actual) {
     assertEquals(true, actual);
 }
