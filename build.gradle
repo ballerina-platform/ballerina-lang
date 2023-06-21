@@ -157,15 +157,17 @@ class TimingsListener implements TaskExecutionListener, BuildListener {
     void afterExecute(Task task, TaskState taskState) {
         def s = TimeUnit.SECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
         timings.add([s, task.path])
-        task.project.logger.warn "${task.path} took ${s}s"
+        if (s > 0) {
+            task.project.logger.warn "${task.path} took ${s}s"
+        }
     }
 
     @Override
     void buildFinished(BuildResult result) {
         println "Task timings:"
         for (timing in timings) {
-            if (timing[0] >= 50) {
-                printf "%7sms  %s\n", timing
+            if (timing[0] > 0) {
+                printf "%7ss  %s\n", timing
             }
         }
     }
