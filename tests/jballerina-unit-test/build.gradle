@@ -34,7 +34,6 @@ dependencies {
     implementation project(':ballerina-lang:regexp');
     implementation project(':observability-symbol-collector');
 
-//    testImplementation 'org.mockito:mockito-all'
     testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
     testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
     testImplementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
@@ -76,7 +75,7 @@ test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
     systemProperty "enableJBallerinaTests", "true"
 
-    jvmArgs = ['-Xms512m', '-Xmx3g', "--add-opens=java.base/java.util=ALL-UNNAMED"]
+    jvmArgs = ['-Xms512m', '-Xmx3g', '--add-opens=java.base/java.util=ALL-UNNAMED']
 
     useTestNG() {
         suites 'src/test/resources/testng.xml'
@@ -106,5 +105,4 @@ configurations {
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
-
 tasks.compileTestJava.dependsOn(':ballerina-lang-test:copyInteropImports')

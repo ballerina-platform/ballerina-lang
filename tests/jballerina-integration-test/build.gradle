@@ -135,4 +135,5 @@ task createLaunchListenerUtilsLib(type: Copy) {
     into "${buildDir}/launch-listener/libs"
 }
 
-test.dependsOn(createLaunchListenerUtilsLib)
+tasks.test.dependsOn(createLaunchListenerUtilsLib)
+tasks.compileTestJava.dependsOn(":ballerina-io-internal:copyInteropImports")

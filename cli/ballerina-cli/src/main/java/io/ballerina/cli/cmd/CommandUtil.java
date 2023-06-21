@@ -982,18 +982,18 @@ public class CommandUtil {
         Path templateDir = getTemplatePath().resolve(template);
         Stream<Path> paths = Files.list(templateDir);
         List<Path> templateFilePathList = paths.collect(Collectors.toList());
-        String existingFiles = "";
+        StringBuilder existingFiles = new StringBuilder();
         for (Path path : templateFilePathList) {
             Optional<String> fileNameOptional = Optional.ofNullable(path.getFileName()).map(path1 -> path1.toString());
             if (fileNameOptional.isPresent()) {
                 String fileName = fileNameOptional.get();
                 if (!fileName.endsWith(ProjectConstants.BLANG_SOURCE_EXT) &&
                         Files.exists(packagePath.resolve(fileName))) {
-                    existingFiles += fileName + FILE_STRING_SEPARATOR;
+                    existingFiles.append(fileName).append(FILE_STRING_SEPARATOR);
                 }
             }
         }
-        return existingFiles;
+        return existingFiles.toString();
     }
 
     /**
@@ -1004,14 +1004,13 @@ public class CommandUtil {
     public static String checkPackageFilesExists(Path packagePath) {
         String[] packageFiles = {DEPENDENCIES_TOML, ProjectConstants.PACKAGE_MD_FILE_NAME,
                 ProjectConstants.MODULE_MD_FILE_NAME, ProjectConstants.MODULES_ROOT, ProjectConstants.TEST_DIR_NAME};
-        String existingFiles = "";
-
+        StringBuilder existingFiles = new StringBuilder();
         for (String file : packageFiles) {
             if (Files.exists(packagePath.resolve(file))) {
-                existingFiles += file + FILE_STRING_SEPARATOR;
+                existingFiles.append(file).append(FILE_STRING_SEPARATOR);
             }
         }
-        return existingFiles;
+        return existingFiles.toString();
     }
 
     /**

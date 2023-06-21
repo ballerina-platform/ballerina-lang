@@ -44,6 +44,7 @@ dependencies {
 description = 'Ballerina - Bindings generator for Java APIs'
 
 test {
+    dependsOn ':testerina:testerina-core:copyInteropImports'
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }

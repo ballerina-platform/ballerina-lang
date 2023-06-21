@@ -57,4 +57,5 @@ configurations {
     testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
 
+tasks.generateMetadataFileForMavenJavaPublication.dependsOn(":language-server:language-server-stdlib:copyInteropImports")
 description = 'Language Server - Standard Libs'

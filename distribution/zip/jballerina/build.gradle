@@ -168,3 +168,4 @@ tasks.whenTaskAdded { task ->
                 }
     }
 }
+tasks.createZip.dependsOn(':ballerina-io-internal:copyInteropImports')
