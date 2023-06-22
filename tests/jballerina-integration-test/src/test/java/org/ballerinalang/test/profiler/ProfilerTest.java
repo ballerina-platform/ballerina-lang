@@ -24,6 +24,7 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,6 +51,17 @@ public class ProfilerTest extends BaseTest {
         String packageName = "singleBalFile";
         Map<String, String> envProperties = new HashMap<>();
         bMainInstance.addJavaAgents(envProperties);
-        bMainInstance.runMain("run", new String[]{"--profile", packageName}, envProperties, null, null, sourceRoot);
+        bMainInstance.runMain("run",
+                new String[]{"--profile", packageName},
+                envProperties,
+                null,
+                null,
+                sourceRoot);
+        String jarPath = Paths.get(Paths.get(sourceRoot, packageName).toString(), "target", "bin",
+                "ProfilerOutput.html").toFile().getPath();
+        File file = new File(jarPath);
+        if (!file.exists()) {
+            throw new BallerinaTestException("Error testing profiler");
+        }
     }
 }
