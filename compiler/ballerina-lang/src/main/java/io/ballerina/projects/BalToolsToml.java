@@ -41,7 +41,7 @@ public class BalToolsToml {
     private final Path balToolsTomlPath;
     private TomlDocumentContext balToolsTomlContext;
 
-    private BalToolsToml(Path balToolsTomlPath) {
+    BalToolsToml(Path balToolsTomlPath) {
         String content = read(balToolsTomlPath);
         this.balToolsTomlContext = TomlDocumentContext.from(TomlDocument.from(BAL_TOOLS_TOML, content));
         this.balToolsTomlPath = balToolsTomlPath;

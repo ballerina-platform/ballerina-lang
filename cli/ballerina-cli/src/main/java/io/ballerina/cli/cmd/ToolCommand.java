@@ -22,6 +22,7 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.utils.PrintUtils;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
+import io.ballerina.projects.DistSpecificToolsToml;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.Settings;
@@ -89,6 +90,8 @@ public class ToolCommand implements BLauncherCmd {
             distSpecificToolsTomlName);
     Path globalToolsTomlPath = Path.of(
             System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, CONFIG_DIR, BAL_TOOLS_TOML);
+    // TODO: Ensure if the path and the file name is correct
+    Path distPackedToolsTomlPath = Path.of(System.getProperty(CommandUtil.BALLERINA_HOME), distSpecificToolsTomlName);
 
     @CommandLine.Parameters(description = "Manage ballerina tools")
     private List<String> argList;
@@ -228,11 +231,14 @@ public class ToolCommand implements BLauncherCmd {
                 .resolve(REPOSITORIES_DIR).resolve(CENTRAL_REPOSITORY_CACHE_NAME)
                 .resolve(ProjectConstants.BALA_DIR_NAME);
 
-        if (isToolLocallyAvailable(toolId, version)) {
-            CommandUtil.printError(this.errStream, "tool is already pulled.", null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        }
+        // TODO: now this has to check if even though the tool is already locally available,
+        //  the given tool is used in another distribution version. Therefore the process cannot terminate here.
+        //  Instead it has to add to the dist specific toml without doing the pull.
+//        if (isToolLocallyAvailable(toolId, version)) {
+//            CommandUtil.printError(this.errStream, "tool is already pulled.", null, false);
+//            CommandUtil.exitError(this.exitWhenFinish);
+//            return;
+//        }
 
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             try {
@@ -351,24 +357,17 @@ public class ToolCommand implements BLauncherCmd {
     }
 
     private void insertToBalToolsTomlFile() {
-        BalToolsToml distSpecificToolsToml = BalToolsToml.from(distSpecificToolsTomlPath);
+        BalToolsToml distSpecificToolsToml = DistSpecificToolsToml.from(
+                distSpecificToolsTomlPath, globalToolsTomlPath, distPackedToolsTomlPath);
         BalToolsManifest distSpecificToolsManifest = BalToolsManifestBuilder.from(distSpecificToolsToml).build();
-        boolean shouldUpdateToml = true;
 
-        // Should not update the toml version if there is already an already installed higher version
-        if (distSpecificToolsManifest.tools().containsKey(toolId)) {
-            SemanticVersion currentVersionInToml = SemanticVersion.from(
-                    distSpecificToolsManifest.tools().get(toolId).version());
-            if (currentVersionInToml.greaterThanOrEqualTo(SemanticVersion.from(version))) {
-                shouldUpdateToml = false;
-            }
+        if (!isTheLatestToolVersion(distSpecificToolsManifest)) {
+            return;
         }
 
-        // Update the distribution specific toml file
-        if (shouldUpdateToml) {
-            distSpecificToolsManifest.tools().put(toolId, new BalToolsManifest.Tool(toolId, org, name, version));
-            distSpecificToolsToml.modify(distSpecificToolsManifest);
-        }
+        // Update the dist specific toml file
+        distSpecificToolsManifest.tools().put(toolId, new BalToolsManifest.Tool(toolId, org, name, version));
+        distSpecificToolsToml.modify(distSpecificToolsManifest);
 
         // Update the global toml file
         BalToolsToml globalToolsToml = BalToolsToml.from(globalToolsTomlPath);
@@ -378,20 +377,30 @@ public class ToolCommand implements BLauncherCmd {
             globalToolsToml.modify(globalToolsManifest);
         }
 
-        outStream.println(toolId  + ":" + version + " pulled successfully.");
-        if (shouldUpdateToml) {
-            outStream.println(toolId + ":" + version + " successfully set as the active version.");
+        outStream.println(toolId + ":" + version + " successfully set as the active version.");
+    }
+
+    private boolean isTheLatestToolVersion(BalToolsManifest distSpecificToolsManifest) {
+        if (distSpecificToolsManifest.tools().containsKey(toolId)) {
+            SemanticVersion currentVersionInToml = SemanticVersion.from(
+                    distSpecificToolsManifest.tools().get(toolId).version());
+            if (currentVersionInToml.greaterThanOrEqualTo(SemanticVersion.from(version))) {
+                return false;
+            }
         }
+        return true;
     }
 
     private List<BalToolsManifest.Tool> listBalToolsTomlFile() {
-        BalToolsToml distSpecificToolsToml = BalToolsToml.from(distSpecificToolsTomlPath);
+        BalToolsToml distSpecificToolsToml = DistSpecificToolsToml.from(
+                distSpecificToolsTomlPath, globalToolsTomlPath, distPackedToolsTomlPath);
         BalToolsManifest balToolsManifest = BalToolsManifestBuilder.from(distSpecificToolsToml).build();
         return new ArrayList<>(balToolsManifest.tools().values());
     }
 
     private void removeAllToolVersions() {
-        BalToolsToml distSpecificToolsToml = BalToolsToml.from(distSpecificToolsTomlPath);
+        BalToolsToml distSpecificToolsToml = DistSpecificToolsToml.from(
+                distSpecificToolsTomlPath, globalToolsTomlPath, distPackedToolsTomlPath);
         BalToolsManifest distSpecificToolsManifest = BalToolsManifestBuilder.from(distSpecificToolsToml).build();
 
         BalToolsToml globalToolsToml = BalToolsToml.from(globalToolsTomlPath);
@@ -425,13 +434,53 @@ public class ToolCommand implements BLauncherCmd {
     }
 
     private void removeSpecificToolVersion() {
-        BalToolsToml distSpecificToolsToml = BalToolsToml.from(distSpecificToolsTomlPath);
+        BalToolsToml distSpecificToolsToml = DistSpecificToolsToml.from(
+                distSpecificToolsTomlPath, globalToolsTomlPath, distPackedToolsTomlPath);
         BalToolsManifest distSpecificToolsManifest = BalToolsManifestBuilder.from(distSpecificToolsToml).build();
 
-        if (!distSpecificToolsManifest.tools().containsKey(toolId) || !isToolLocallyAvailable(toolId, version)) {
-            CommandUtil.printError(errStream, "tool " + toolId + ":" + version + " does not exist locally.",
-                    null, false);
-            CommandUtil.exitError(this.exitWhenFinish);
+        // TODO: Check if the tool is only in the distribution and give an error msg.
+        //  i. e. if not in dist specific toml
+        //          if in dist packed toml
+        //              err - cannot delete - a dist specific
+        //          else
+        //              err - does not exist locally
+        //        else
+        //          delete from the dist specific toml
+        //          if in central cache
+        //              action - delete from central cache
+        if (!distSpecificToolsManifest.tools().containsKey(toolId)) {
+            if (!isToolLocallyAvailable(toolId, version)) {
+                if (isToolDistributionAvailable(toolId, version)) {
+                    // tool is a distribution specific tool
+                    CommandUtil.printError(errStream,
+                            "Cannot delete the distribution specific tool tool " + toolId + ".", null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+                // tool not installed
+                CommandUtil.printError(errStream, "tool " + toolId + " does not exist locally.", null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
+                return;
+            }
+            // tool is not in dist specific toml but in the central cache
+            BalToolsToml globalToolsToml = BalToolsToml.from(globalToolsTomlPath);
+            BalToolsManifest globalToolsManifest = BalToolsManifestBuilder.from(globalToolsToml).build();
+            if (globalToolsManifest.tools().containsKey(toolId)) {
+                BalToolsManifest.Tool tool = globalToolsManifest.tools().get(toolId);
+                // cache deletion part only
+                boolean isDeleted = deleteSpecificToolVersionCache(tool.org(), tool.name(), version);
+                if (!isDeleted) {
+                    CommandUtil.printError(
+                            errStream,
+                            "failed to delete tool cache for the tool " + tool.id() + ":" + tool.version() + ".",
+                            null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+                outStream.println(toolId + ":" + version + " removed successfully.");
+                return;
+            }
+            CommandUtil.printError(errStream, "failed to delete tool " + toolId + ":" + version + ".", null, false);
             return;
         }
 
@@ -562,10 +611,27 @@ public class ToolCommand implements BLauncherCmd {
         if (version.equals(Names.EMPTY.getValue())) {
             return false;
         }
-        BalToolsToml distSpecificToolsToml = BalToolsToml.from(distSpecificToolsTomlPath);
+        BalToolsToml distSpecificToolsToml = DistSpecificToolsToml.from(
+                distSpecificToolsTomlPath, globalToolsTomlPath, distPackedToolsTomlPath);
         BalToolsManifest distSpecificToolsManifest = BalToolsManifestBuilder.from(distSpecificToolsToml).build();
         if (distSpecificToolsManifest.tools().containsKey(toolId)) {
             BalToolsManifest.Tool tool = distSpecificToolsManifest.tools().get(toolId);
+            Path toolPath = Path.of(
+                    System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, REPOSITORIES_DIR,
+                    CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME, tool.org(), tool.name(), version);
+            return toolPath.toFile().exists();
+        }
+        return false;
+    }
+
+    private boolean isToolDistributionAvailable(String toolId, String version) {
+        if (version.equals(Names.EMPTY.getValue())) {
+            return false;
+        }
+        BalToolsToml distPackedToolsToml = BalToolsToml.from(distPackedToolsTomlPath);
+        BalToolsManifest distPackedToolsManifest = BalToolsManifestBuilder.from(distPackedToolsToml).build();
+        if (distPackedToolsManifest.tools().containsKey(toolId)) {
+            BalToolsManifest.Tool tool = distPackedToolsManifest.tools().get(toolId);
             Path toolPath = Path.of(
                     System.getProperty(CommandUtil.USER_HOME), HOME_REPO_DEFAULT_DIRNAME, REPOSITORIES_DIR,
                     CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME, tool.org(), tool.name(), version);

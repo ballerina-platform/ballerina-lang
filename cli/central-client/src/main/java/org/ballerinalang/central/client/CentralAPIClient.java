@@ -35,6 +35,7 @@ import okhttp3.ResponseBody;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
+import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 import org.ballerinalang.central.client.model.ConnectorInfo;
 import org.ballerinalang.central.client.model.Error;
 import org.ballerinalang.central.client.model.Package;
@@ -663,9 +664,14 @@ public class CentralAPIClient {
 
                     if (balaDownloadResponse.code() == HTTP_OK) {
                         boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
-                        createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org.get(), pkgName.get(),
-                                isNightlyBuild, null, balaUrl.get(), balaFileName,
-                                enableOutputStream ? outStream : null, logFormatter);
+                        try {
+                            createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org.get(), pkgName.get(),
+                                    isNightlyBuild, null, balaUrl.get(), balaFileName,
+                                    enableOutputStream ? outStream : null, logFormatter);
+                            outStream.println(toolId  + ":" + version + " pulled successfully.");
+                        } catch (PackageAlreadyExistsException e) {
+                            outStream.println("tool is already pulled.");
+                        }
                         return new String[]{org.get(), pkgName.get(), latestVersion.get()};
                     } else {
                         String errorMessage = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + toolSignature +
@@ -1262,6 +1268,8 @@ public class CentralAPIClient {
      */
     protected OkHttpClient getClient() {
         return new OkHttpClient.Builder()
+                .connectTimeout(30, TimeUnit.SECONDS) // Set the connection timeout
+                .readTimeout(60, TimeUnit.SECONDS) // Set the read timeout
                 .followRedirects(false)
                 .retryOnConnectionFailure(true)
                 .proxy(this.proxy)

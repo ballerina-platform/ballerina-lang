@@ -20,6 +20,7 @@ package io.ballerina.cli.launcher;
 import io.ballerina.cli.cmd.CommandUtil;
 import io.ballerina.projects.BalToolsManifest;
 import io.ballerina.projects.BalToolsToml;
+import io.ballerina.projects.DistSpecificToolsToml;
 import io.ballerina.projects.internal.BalToolsManifestBuilder;
 import io.ballerina.runtime.api.values.BError;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -170,7 +171,7 @@ public class LauncherUtils {
 
         Path centralBalaDirPath = userHomeDirPath.resolve(
                 Path.of(REPOSITORIES_DIR, CENTRAL_REPOSITORY_CACHE_NAME, BALA_DIR_NAME));
-        BalToolsToml distSpecificToolsToml = BalToolsToml.from(distSpecificToolsTomlPath);
+        BalToolsToml distSpecificToolsToml = DistSpecificToolsToml.from(distSpecificToolsTomlPath);
         BalToolsManifest distSpecificToolsManifest = BalToolsManifestBuilder.from(distSpecificToolsToml).build();
 
         if (distSpecificToolsManifest.tools().containsKey(commandName)) {

@@ -97,6 +97,7 @@ public class CommandUtil {
     public static final String PKG_NAME = "PKG_NAME";
     public static final String DIST_VERSION = "DIST_VERSION";
     public static final String USER_HOME = "user.home";
+    public static final String BALLERINA_HOME = "ballerina.home";
     public static final String GITIGNORE = "gitignore";
     public static final String DEVCONTAINER = "devcontainer";
     public static final String NEW_CMD_DEFAULTS = "new_cmd_defaults";
