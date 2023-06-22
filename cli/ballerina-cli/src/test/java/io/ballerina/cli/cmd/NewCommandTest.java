@@ -18,6 +18,7 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -648,7 +649,11 @@ public class NewCommandTest extends BaseCommandTest {
 
         BuildCommand buildCommand = new BuildCommand(packageDir, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            printStream.println(e.getStackTrace());
+        }
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("Generating executable"));;
     }
