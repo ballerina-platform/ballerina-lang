@@ -525,6 +525,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(selectClauseNode);
     }
 
+    public T transform(STCollectClauseNode collectClauseNode) {
+        return transformSyntaxNode(collectClauseNode);
+    }
+
     public T transform(STQueryExpressionNode queryExpressionNode) {
         return transformSyntaxNode(queryExpressionNode);
     }
@@ -787,6 +791,14 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STOrderKeyNode orderKeyNode) {
         return transformSyntaxNode(orderKeyNode);
+    }
+
+    public T transform(STGroupByClauseNode groupByClauseNode) {
+        return transformSyntaxNode(groupByClauseNode);
+    }
+
+    public T transform(STGroupingKeyVarDeclarationNode groupingKeyVarDeclarationNode) {
+        return transformSyntaxNode(groupingKeyVarDeclarationNode);
     }
 
     public T transform(STOnFailClauseNode onFailClauseNode) {

@@ -2883,6 +2883,21 @@
             ]
         },
         {
+            "name": "CollectClauseNode",
+            "base": "ClauseNode",
+            "kind": "COLLECT_CLAUSE",
+            "attributes": [
+                {
+                    "name": "collectKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
             "name": "QueryExpressionNode",
             "base": "ExpressionNode",
             "kind": "QUERY_EXPRESSION",
@@ -2897,8 +2912,8 @@
                     "type": "QueryPipelineNode"
                 },
                 {
-                    "name": "selectClause",
-                    "type": "SelectClauseNode"
+                    "name": "resultClause",
+                    "type": "ClauseNode"
                 },
                 {
                     "name": "onConflictClause",
@@ -4192,6 +4207,49 @@
                     "name": "orderDirection",
                     "type": "Token",
                     "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "GroupByClauseNode",
+            "base": "IntermediateClauseNode",
+            "kind": "GROUP_BY_CLAUSE",
+            "attributes": [
+                {
+                    "name": "groupKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "byKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "groupingKey",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                }
+            ]
+        },
+        {
+            "name": "GroupingKeyVarDeclarationNode",
+            "base": "Node",
+            "kind": "GROUPING_KEY_VAR_DECLARATION",
+            "attributes": [
+                {
+                    "name": "typeDescriptor",
+                    "type": "TypeDescriptorNode"
+                },
+                {
+                    "name": "simpleBindingPattern",
+                    "type": "BindingPatternNode"
+                },
+                {
+                    "name": "equalsToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
                 }
             ]
         },

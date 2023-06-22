@@ -26,9 +26,9 @@ import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.internal.DecimalValueKind;
 import io.ballerina.runtime.internal.ErrorUtils;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.errors.ErrorCodes;
+import io.ballerina.runtime.internal.errors.ErrorHelper;
+import io.ballerina.runtime.internal.errors.ErrorReasons;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -78,8 +78,8 @@ public class DecimalValue implements SimpleValue, BDecimal {
             String message = exception.getMessage();
             if ((message != null) && (message.equals("Too many nonzero exponent digits.") ||
                     message.equals("Exponent overflow."))) {
-                throw ErrorCreator.createError(BallerinaErrorReasons.LARGE_EXPONENT_ERROR,
-                        BLangExceptionHelper.getErrorDetails(RuntimeErrors.LARGE_EXPONENTS_IN_DECIMAL, value));
+                throw ErrorCreator.createError(ErrorReasons.LARGE_EXPONENT_ERROR,
+                        ErrorHelper.getErrorDetails(ErrorCodes.LARGE_EXPONENTS_IN_DECIMAL, value));
             }
             throw exception;
         }
@@ -97,8 +97,8 @@ public class DecimalValue implements SimpleValue, BDecimal {
 
     private static BigDecimal getValidDecimalValue(BigDecimal bd) {
         if (bd.compareTo(DECIMAL_MAX) > 0 || bd.compareTo(DECIMAL_MIN) < 0) {
-            throw ErrorCreator.createError(BallerinaErrorReasons.NUMBER_OVERFLOW,
-                    BLangExceptionHelper.getErrorDetails(RuntimeErrors.DECIMAL_VALUE_OUT_OF_RANGE));
+            throw ErrorCreator.createError(ErrorReasons.NUMBER_OVERFLOW,
+                    ErrorHelper.getErrorDetails(ErrorCodes.DECIMAL_VALUE_OUT_OF_RANGE));
         } else if (bd.abs(MathContext.DECIMAL128).compareTo(MIN_DECIMAL_MAGNITUDE) < 0 &&
                 bd.abs(MathContext.DECIMAL128).compareTo(BigDecimal.ZERO) > 0) {
             return BigDecimal.ZERO;
