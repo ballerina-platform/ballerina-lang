@@ -39,10 +39,7 @@ public class FunctionBodyTest extends CompletionTest {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
-        return new Object[][] {
-                {"config16.json", getTestResourceDir()}
-        };
-//        return this.getConfigsList();
+        return this.getConfigsList();
     }
 
     @Override
