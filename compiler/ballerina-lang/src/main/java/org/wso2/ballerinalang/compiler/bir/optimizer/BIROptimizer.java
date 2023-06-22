@@ -475,6 +475,11 @@ public class BIROptimizer {
                 this.env.newInstructions.add(birMove);
                 return;
             }
+            if (birMove.rhsOp.variableDcl.kind == VarKind.GLOBAL) {
+                this.env.newInstructions.add(birMove);
+                this.env.irreplaceableTempVars.add(birMove.lhsOp.variableDcl);
+                return;
+            }
             if (birMove.rhsOp.variableDcl.kind != VarKind.TEMP) {
                 this.env.tempVars.put(birMove.lhsOp.variableDcl, birMove.rhsOp.variableDcl);
             }
@@ -741,6 +746,8 @@ public class BIROptimizer {
         // key - temp var, value - real var
         private final Map<BIRVariableDcl, BIRVariableDcl> tempVars = new HashMap<>();
 
+        private final Set<BIRVariableDcl> irreplaceableTempVars = new HashSet<>();
+
         private List<BIRNonTerminator> newInstructions;
 
         private final List<BIROperand> tempVarsList = new ArrayList<>();
@@ -757,7 +764,7 @@ public class BIROptimizer {
 
         public void addTempBirOperand(BIROperand birOperand) {
             BIRVariableDcl variableDcl = birOperand.variableDcl;
-            if (variableDcl.kind != VarKind.TEMP) {
+            if (variableDcl.kind != VarKind.TEMP || irreplaceableTempVars.contains(variableDcl)) {
                 return;
             }
             tempVarsList.add(birOperand);
