@@ -41,6 +41,7 @@ import static io.ballerina.cli.cmd.Constants.ASYNCAPI_COMMAND;
 import static io.ballerina.cli.cmd.Constants.BINDGEN_COMMAND;
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.cli.cmd.Constants.CLEAN_COMMAND;
+import static io.ballerina.cli.cmd.Constants.DEBUG_OPTION;
 import static io.ballerina.cli.cmd.Constants.DEPRECATE_COMMAND;
 import static io.ballerina.cli.cmd.Constants.DIST_COMMAND;
 import static io.ballerina.cli.cmd.Constants.DIST_TOOL_TOML_PREFIX;
@@ -51,6 +52,8 @@ import static io.ballerina.cli.cmd.Constants.GRAPHQL_COMMAND;
 import static io.ballerina.cli.cmd.Constants.GRAPH_COMMAND;
 import static io.ballerina.cli.cmd.Constants.GRPC_COMMAND;
 import static io.ballerina.cli.cmd.Constants.HELP_COMMAND;
+import static io.ballerina.cli.cmd.Constants.HELP_OPTION;
+import static io.ballerina.cli.cmd.Constants.HELP_SHORT_OPTION;
 import static io.ballerina.cli.cmd.Constants.HOME_COMMAND;
 import static io.ballerina.cli.cmd.Constants.INIT_COMMAND;
 import static io.ballerina.cli.cmd.Constants.NEW_COMMAND;
@@ -70,6 +73,8 @@ import static io.ballerina.cli.cmd.Constants.TOML_EXT;
 import static io.ballerina.cli.cmd.Constants.TOOL_COMMAND;
 import static io.ballerina.cli.cmd.Constants.UPDATE_COMMAND;
 import static io.ballerina.cli.cmd.Constants.VERSION_COMMAND;
+import static io.ballerina.cli.cmd.Constants.VERSION_OPTION;
+import static io.ballerina.cli.cmd.Constants.VERSION_SHORT_OPTION;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME;
 import static io.ballerina.projects.util.ProjectConstants.CONFIG_DIR;
@@ -86,6 +91,8 @@ public class LauncherUtils {
     private static final String TOOL = "tool";
     public static final String LIBS = "libs";
 
+    private static final List<String> options = Arrays.asList(VERSION_OPTION, VERSION_SHORT_OPTION, HELP_OPTION,
+            HELP_SHORT_OPTION, DEBUG_OPTION);
     private static final List<String> coreCommands = Arrays.asList(
             BUILD_COMMAND, RUN_COMMAND, TEST_COMMAND, DOC_COMMAND, PACK_COMMAND);
     private static final List<String> packageCommands = Arrays.asList(NEW_COMMAND, ADD_COMMAND, PULL_COMMAND,
@@ -160,7 +167,7 @@ public class LauncherUtils {
     static boolean isToolCommand(String commandName) {
         // TODO: if openapi was to be pushed as a tool, here it will be ignored and openapi in distribution will be used
         //  instead. Need to look into possible solutions.
-        return Stream.of(coreCommands, packageCommands, otherCommands, hiddenCommands)
+        return Stream.of(options, coreCommands, packageCommands, otherCommands, hiddenCommands)
                 .flatMap(List::stream).noneMatch(commandName::equals);
     }
 

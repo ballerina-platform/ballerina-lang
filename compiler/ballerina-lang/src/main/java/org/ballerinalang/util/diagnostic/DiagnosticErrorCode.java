@@ -800,14 +800,15 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     EMPTY_REGEXP_STRING_DISALLOWED("BCE4044", "empty.regexp.string.disallowed"),
     UNSUPPORTED_EMPTY_CHARACTER_CLASS("BCE4045", "unsupported.empty.character.class"),
     USER_DEFINED_FUNCTIONS_ARE_DISALLOWED_WITH_AGGREGATED_VARIABLES(
-            "BCS4046", "user.defined.functions.not.allowed.with.aggregated.variables"),
+            "BCE4046", "user.defined.functions.not.allowed.with.aggregated.variables"),
     SEQUENCE_VARIABLE_CAN_BE_USED_IN_SINGLE_ELEMENT_LIST_CTR_OR_FUNC_INVOCATION(
-            "BCS4047", "seq.var.used.in.single.element.list.ctr.or.func.invocation"),
-    SEQ_ARG_FOLLOWED_BY_ANOTHER_SEQ_ARG("BCS4048", "seq.arg.followed.by.another.seq.arg"),
+            "BCE4047", "seq.var.used.in.single.element.list.ctr.or.func.invocation"),
+    SEQ_ARG_FOLLOWED_BY_ANOTHER_SEQ_ARG("BCE4048", "seq.arg.followed.by.another.seq.arg"),
 
-    QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT("BCS4049", "query.construct.types.cannot.be.used.with.collect"),
-    VARIABLE_IS_SEQUENCED_MORE_THAN_ONCE("BCS4050", "variable.is.sequenced.more.than.once"),
-    INVALID_GROUPING_KEY_TYPE("BCS4051", "invalid.grouping.key.type")
+    QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT("BCE4049", "query.construct.types.cannot.be.used.with.collect"),
+    VARIABLE_IS_SEQUENCED_MORE_THAN_ONCE("BCE4050", "variable.is.sequenced.more.than.once"),
+    INVALID_GROUPING_KEY_TYPE("BCE4051", "invalid.grouping.key.type"),
+    NAMED_ARG_NOT_ALLOWED_FOR_REST_PARAM("BCE4052", "named.arg.not.allowed.for.rest.param")
     ;
 
     private String diagnosticId;
