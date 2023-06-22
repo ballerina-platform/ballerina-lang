@@ -36,6 +36,8 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
 
     private BIntersectionType intersectionType = null;
 
+    public BMapType mutableType;
+
     public BMapType(int tag, BType constraint, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.constraint = constraint;

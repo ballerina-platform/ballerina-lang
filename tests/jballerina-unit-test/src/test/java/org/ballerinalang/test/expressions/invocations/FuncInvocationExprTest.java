@@ -147,6 +147,16 @@ public class FuncInvocationExprTest {
     }
 
     @Test
+    public void testFuncWithNeverReturnTypeWithoutVariableAssignment() {
+        BRunUtil.invoke(funcInvocationExpResult, "testFuncWithNeverReturnTypeWithoutVariableAssignment");
+    }
+
+    @Test
+    public void testFuncWithNilReturnTypeWithoutVariableAssignment() {
+        BRunUtil.invoke(funcInvocationExpResult, "testFuncWithNilReturnTypeWithoutVariableAssignment");
+    }
+
+    @Test
     public void testFunctionCallNegativeCases() {
         int i = 0;
         validateError(funcInvocationNegative, i++, "incompatible types: expected 'int', found 'string'", 3, 16);
@@ -196,7 +206,7 @@ public class FuncInvocationExprTest {
         validateError(funcInvocationNegative, i++,
                 "incompatible types: expected 'int[]', found 'anydata[]'", 74, 29);
         validateError(funcInvocationNegative, i++,
-                "too many arguments in call to 'sum()'", 102, 18);
+                "named argument not allowed for rest parameter", 102, 18);
         validateError(funcInvocationNegative, i++,
                 "too many arguments in call to 'sum()'", 103, 18);
         validateError(funcInvocationNegative, i++,
@@ -205,6 +215,17 @@ public class FuncInvocationExprTest {
                 "missing required parameter 's' in call to 'fromString()'", 106, 16);
         validateError(funcInvocationNegative, i++,
                 "undefined defaultable parameter 'ss'", 106, 31);
+        validateError(funcInvocationNegative, i++, "variable assignment is required", 110, 5);
+        validateError(funcInvocationNegative, i++, "variable assignment is required", 111, 5);
+        validateError(funcInvocationNegative, i++, "variable assignment is required", 112, 5);
+        validateError(funcInvocationNegative, i++,
+                "named argument not allowed for rest parameter", 121, 11);
+        validateError(funcInvocationNegative, i++,
+                "named argument not allowed for rest parameter", 122, 11);
+        validateError(funcInvocationNegative, i++,
+                "named argument not allowed for rest parameter", 123, 14);
+        validateError(funcInvocationNegative, i++,
+                "named argument not allowed for rest parameter", 124, 18);
         Assert.assertEquals(i, funcInvocationNegative.getErrorCount());
     }
 

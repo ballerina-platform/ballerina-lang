@@ -181,6 +181,46 @@ function testConstDecimalSubnormals() {
     assertEqual(ANS14.toString(), "0");
 }
 
+const float|decimal CONST11 = 1 + 2.0;
+const int|float|decimal CONST12 = 2 * 2.0;
+const float|decimal CONST13 = 2 * 2.0;
+const float|decimal CONST14 = 10 / 2;
+const int|float|decimal CONST15 = 10.0 / 2;
+
+function testConstExprWithUnionExpectedType() {
+    assertEqual(CONST11, 3.0);
+    assertEqual(CONST12, 4.0);
+    assertEqual(CONST13, 4.0);
+    assertEqual(CONST14, 5.0);
+    assertEqual(CONST15, 5.0);
+}
+
+const CONST21 = 1 + 2;
+const CONST21 CONST22 = 3;
+// const CONST23 = {a : "a", b : 1};
+// const CONST23 CONST24 = {a : "a", b : 1};
+
+function testConstExprWithConstExpectedType() {
+    assertEqual(CONST22, 3);
+    // assertEqual(CONST24.toString(), "{\"a\":\"a\",\"b\":1}");
+}
+
+const byte CONST31 = 300 - 100;
+const byte CONST32 = (700 - 200) - 400;
+const byte CONST33 = 1000 / 2 - 300;
+const byte CONST34 = 10 * 2;
+const byte CONST35 = 500 % 3;
+const byte CONST36 = -(-10);
+
+function testConstExprWithByteExpectedType() {
+    assertEqual(CONST31, 200);
+    assertEqual(CONST32, 100);
+    assertEqual(CONST33, 200);
+    assertEqual(CONST34, 20);
+    assertEqual(CONST35, 2);
+    assertEqual(CONST36, 10);
+}
+
 function assertEqual(int|float|decimal|boolean|string actual, int|float|decimal|boolean|string expected) {
     if (actual != expected) {
         panic error(string `Assertion error: expected ${expected} found ${actual}`);
