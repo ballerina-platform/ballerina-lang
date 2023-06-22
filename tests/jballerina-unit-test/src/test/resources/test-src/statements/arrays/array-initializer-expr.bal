@@ -17,6 +17,7 @@
 import ballerina/test;
 
 int num = 0;
+string str = "a";
 
 class ArrayTest {
 
@@ -37,6 +38,9 @@ function testArrayInitWithGlobalVars() {
     int[] arr = [1, num, 3, getNum(), num];
     test:assertEquals(arr, [1, 0, 3, 1, 1], "Array values are not equal");
 
+    string[] arr2 = ["q", str, "w", getStr(), "e", str];
+    test:assertEquals(arr2, ["q", "ab", "w", "ab", "e", "ab"], "Array values are not equal");
+
     ArrayTest arrayTest = new ArrayTest();
     arrayTest.testArrayInitWithSelfVars();
 }
@@ -44,6 +48,11 @@ function testArrayInitWithGlobalVars() {
 function getNum() returns int {
     num = num + 1;
     return num;
+}
+
+function getStr() returns string {
+    str = str + "b";
+    return str;
 }
 
 function arrayInitTest() returns (int) {
