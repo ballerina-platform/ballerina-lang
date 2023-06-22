@@ -653,6 +653,8 @@ public class NewCommandTest extends BaseCommandTest {
             buildCommand.execute();
         } catch (BLauncherException e) {
             printStream.println(e.getStackTrace());
+            printStream.println(e.getMessage());
+            printStream.println(e.getDetailedMessages());
         }
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("Generating executable"));;
