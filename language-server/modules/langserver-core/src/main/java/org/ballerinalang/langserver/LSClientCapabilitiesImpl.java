@@ -205,7 +205,6 @@ public class LSClientCapabilitiesImpl implements LSClientCapabilities {
 
         private boolean supportBalaScheme = false;
         private boolean enableSemanticTokens = false;
-        private boolean supportRenamePopup = false;
         private boolean supportQuickPick = false;
         private boolean enableLSLightWeightMode = false;
         private boolean supportPositionalRenamePopup = false;
