@@ -240,14 +240,14 @@ function testInvalidRuntimeUpdateOfConstMaps() {
         b.b = 2;
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'b' in record of type 'record {| readonly 1 a; readonly 2 b; |} & readonly'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'b' in record of type '(record {| 1 a; 2 b; |} & readonly)'");
 
     map<map<int>> c = C;
     fn = function () {
         c["a"]["a"] = 2;
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'record {| readonly 1 a; readonly 2 b; |} & readonly'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type '(record {| 1 a; 2 b; |} & readonly)'");
 
     fn = function () {
         c["c"] = {};
@@ -260,8 +260,8 @@ function testInvalidRuntimeUpdateOfConstMaps() {
         c["a"] = {a: 1, b: 2};
     };
     res = trap fn();
-    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type 'record {|" +
-        " readonly (record {| 1 a; 2 b; |} & readonly) a; readonly (record {| 3 a; |} & readonly) b; |} & readonly'");
+    assertInvalidUpdateError(res, "cannot update 'readonly' field 'a' in record of type '(record {|" +
+        " (record {| 1 a; 2 b; |} & readonly) a; record {| 3 a; |} b; |} & readonly)'");
 }
 
 type AA boolean;
