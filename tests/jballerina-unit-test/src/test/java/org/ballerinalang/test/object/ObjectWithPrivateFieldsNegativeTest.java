@@ -69,7 +69,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
                 = BCompileUtil.compile("test-src/object/PrivateObjAccess1SemanticsNegativeProject");
         
         Assert.assertEquals(compileResult.getWarnCount(), 6);
-        Assert.assertEquals(compileResult.getErrorCount(), 3);
+        Assert.assertEquals(compileResult.getErrorCount(), 4);
         
         String expectedErrMsg = "attempt to refer to non-accessible symbol ";
         String expectedWaringMsg = "attempt to expose non-public symbol ";

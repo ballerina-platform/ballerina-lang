@@ -68,19 +68,10 @@ public class CollectClauseTest {
                 21, 29);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 26, 29);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', found 'int'", 28, 29);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', found 'seq string'",
-                33, 33);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 35, 45);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string[]', found 'seq int'",
-                37, 39);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string[]', found 'seq int'",
-                39, 43);
         BAssertUtil.validateError(negativeResult, i++, "undefined function 'join'", 41, 29);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'seq string'",
-                46, 25);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
                 "list constructor or function invocation", 46, 25);
-        BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'int'", 48, 25);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
                 "list constructor or function invocation", 48, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int x; |}', " +
@@ -90,9 +81,7 @@ public class CollectClauseTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int[6] intArr; |}', " +
                 "found 'record {| [int...] intArr; |}'", 57, 49);
         BAssertUtil.validateError(negativeResult, i++, "undefined module 'foo'", 62, 29);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'seq int'", 67, 29);
         BAssertUtil.validateError(negativeResult, i++, "undefined function 'sumy'", 67, 29);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'seq int'", 69, 29);
         BAssertUtil.validateError(negativeResult, i++, "user defined functions are not allowed when arguments " +
                 "contain aggregated variable", 69, 29);
         BAssertUtil.validateError(negativeResult, i++, "query construct types cannot be used with collect clause",
@@ -106,32 +95,22 @@ public class CollectClauseTest {
                 85, 16);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
                 "list constructor or function invocation", 91, 25);
-        BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'int'", 96, 26);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
                 "list constructor or function invocation", 96, 26);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', " +
-                "found '[seq int,seq int]'", 98, 33);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
                 "list constructor or function invocation", 98, 34);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
                 "list constructor or function invocation", 98, 42);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'seq int'", 107, 25);
         BAssertUtil.validateError(negativeResult, i++, "user defined functions are not allowed when arguments" +
                 " contain aggregated variable", 107, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int[]', found '[seq int]'",
-                109, 25);
         BAssertUtil.validateError(negativeResult, i++, "user defined functions are not allowed when arguments" +
                 " contain aggregated variable", 109, 26);
         BAssertUtil.validateError(negativeResult, i++, "'price1' is sequenced more than once", 123, 26);
         BAssertUtil.validateError(negativeResult, i++, "'name' is sequenced more than once", 128, 43);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string[]', " +
-                "found 'seq seq string'", 128, 43);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 134, 25);
         BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 139, 41);
         BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 143, 41);
         BAssertUtil.validateError(negativeResult, i++, "arguments not allowed after seq argument", 147, 41);
-        BAssertUtil.validateError(negativeResult, i++, "operator '+' not defined for 'seq int' and 'seq int'",
-                150, 33);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
                 "list constructor or function invocation", 150, 33);
         BAssertUtil.validateError(negativeResult, i++, "sequence variable can be used in a single element " +
