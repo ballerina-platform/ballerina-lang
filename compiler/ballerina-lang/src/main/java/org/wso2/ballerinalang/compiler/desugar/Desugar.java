@@ -519,8 +519,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(classDefinition, env);
         tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
                 tempGeneratedInitFunction.symbol.scope, env);
-        SemanticAnalyzer.AnalyzerData data = new SemanticAnalyzer.AnalyzerData(env);
-        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, data);
+        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
         classDefinition.generatedInitFunction = tempGeneratedInitFunction;
 
         // Add generated init function to the attached function list
@@ -5951,6 +5950,9 @@ public class Desugar extends BLangNodeVisitor {
             BVarSymbol varSymbol = (BVarSymbol) varRefExpr.symbol;
             if (varSymbol.originalSymbol != null) {
                 varRefExpr.symbol = varSymbol.originalSymbol;
+                if (varSymbol.closure) {
+                    varRefExpr.symbol.closure = true;
+                }
             }
         }
 
@@ -6395,6 +6397,26 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
+    // The visitor method is called for the function pointer nodes created in QueryDesugar.
+    @Override
+    public void visit(BFunctionPointerInvocation invocation) {
+        visitArgs(invocation);
+
+        invocation.expr = rewriteExpr(invocation.expr);
+        result = invocation;
+    }
+
+    private void visitArgs(BLangInvocation invocation) {
+        // Reorder the arguments to match the original function signature.
+        reorderArguments(invocation);
+
+        rewriteExprs(invocation.requiredArgs);
+        fixStreamTypeCastsInInvocationParams(invocation);
+        fixNonRestArgTypeCastInTypeParamInvocation(invocation);
+
+        rewriteExprs(invocation.restArgs);
+    }
+
     private BLangStatementExpression createStmtExpr(BLangInvocation invocation) {
         BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(invocation.pos);
         BInvokableTypeSymbol invokableTypeSymbol;
@@ -6745,14 +6767,7 @@ public class Desugar extends BLangNodeVisitor {
             lock.lockVariables.addAll(((BInvokableSymbol) invocation.symbol).dependentGlobalVars);
         }
 
-        // Reorder the arguments to match the original function signature.
-        reorderArguments(invocation);
-
-        rewriteExprs(invocation.requiredArgs);
-        fixStreamTypeCastsInInvocationParams(invocation);
-        fixNonRestArgTypeCastInTypeParamInvocation(invocation);
-
-        rewriteExprs(invocation.restArgs);
+        visitArgs(invocation);
 
         annotationDesugar.defineStatementAnnotations(invocation.annAttachments, invocation.pos,
                                                      invocation.symbol.pkgID, invocation.symbol.owner, env);
@@ -6972,7 +6987,7 @@ public class Desugar extends BLangNodeVisitor {
         constraintTdExpr.resolvedType = constraintType;
         constraintTdExpr.setBType(constraintTdType);
 
-        BType completionType = ((BStreamType) Types.getReferredType(typeInitExpr.getBType())).completionType;
+        BType completionType = referredStreamType.completionType;
         BType completionTdType = new BTypedescType(completionType, symTable.typeDesc.tsymbol);
         BLangTypedescExpr completionTdExpr = new BLangTypedescExpr();
         completionTdExpr.resolvedType = completionType;
@@ -8046,8 +8061,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangFunction tempGeneratedInitFunction = createGeneratedInitializerFunction(classDef, env);
         tempGeneratedInitFunction.clonedEnv = SymbolEnv.createFunctionEnv(tempGeneratedInitFunction,
                                                                           tempGeneratedInitFunction.symbol.scope, env);
-        SemanticAnalyzer.AnalyzerData data = new SemanticAnalyzer.AnalyzerData(env);
-        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, data);
+        this.semanticAnalyzer.analyzeNode(tempGeneratedInitFunction, env);
         classDef.generatedInitFunction = tempGeneratedInitFunction;
         env.enclPkg.functions.add(classDef.generatedInitFunction);
         env.enclPkg.topLevelNodes.add(classDef.generatedInitFunction);
@@ -8801,7 +8815,7 @@ public class Desugar extends BLangNodeVisitor {
         return invocationNode;
     }
 
-    private BLangInvocation createLangLibInvocationNode(String functionName,
+    protected BLangInvocation createLangLibInvocationNode(String functionName,
                                                         BLangExpression onExpr,
                                                         List<BLangExpression> args,
                                                         BType retType,
@@ -8861,9 +8875,16 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BFunctionPointerInvocation visitFunctionPointerInvocation(BLangInvocation iExpr) {
+        BLangExpression rewritten = rewriteExpr(getFunctionPointerExpr(iExpr));
+        return new BFunctionPointerInvocation(iExpr, rewritten);
+    }
+
+    protected BLangValueExpression getFunctionPointerExpr(BLangInvocation iExpr) {
         BLangValueExpression expr;
         if (iExpr.expr == null) {
-            expr = new BLangSimpleVarRef();
+            BLangSimpleVarRef varRef = new BLangSimpleVarRef();
+            varRef.variableName = iExpr.name;
+            expr = varRef;
         } else {
             BLangFieldBasedAccess fieldBasedAccess = new BLangFieldBasedAccess();
             fieldBasedAccess.expr = iExpr.expr;
@@ -8872,9 +8893,7 @@ public class Desugar extends BLangNodeVisitor {
         }
         expr.symbol = iExpr.symbol;
         expr.setBType(iExpr.symbol.type);
-
-        BLangExpression rewritten = rewriteExpr(expr);
-        return new BFunctionPointerInvocation(iExpr, rewritten);
+        return expr;
     }
 
     private BLangExpression visitCloneInvocation(BLangExpression expr, BType lhsType) {
