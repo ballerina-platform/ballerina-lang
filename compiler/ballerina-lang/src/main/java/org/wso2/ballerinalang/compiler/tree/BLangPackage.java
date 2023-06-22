@@ -95,8 +95,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
 
     public final Env semtypeEnv;
 
-    public Map<String, BLangNode> modTable;
-
     public BLangPackage() {
         this.compUnits = new ArrayList<>();
         this.imports = new ArrayList<>();

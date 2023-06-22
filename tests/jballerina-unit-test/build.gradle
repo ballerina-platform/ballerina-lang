@@ -102,8 +102,8 @@ task semtypesUnitTest(type: Test) {
     // Copy system properties from the test task
     systemProperties = tasks.test.systemProperties
 
-    // Add additional system property to activate semtypes
-    systemProperty "ballerina.experimental.semtype", "true"
+    // Add additional system property to enable semtypes
+    systemProperty "ballerina.experimental.semtype.enabled", "true"
 
     jvmArgs = ['-Xms512m', '-Xmx3g']
 

@@ -807,9 +807,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     QUERY_CONSTRUCT_TYPES_CANNOT_BE_USED_WITH_COLLECT("BCE4049", "query.construct.types.cannot.be.used.with.collect"),
     VARIABLE_IS_SEQUENCED_MORE_THAN_ONCE("BCE4050", "variable.is.sequenced.more.than.once"),
     INVALID_GROUPING_KEY_TYPE("BCE4051", "invalid.grouping.key.type"),
-    NAMED_ARG_NOT_ALLOWED_FOR_REST_PARAM("BCE4052", "named.arg.not.allowed.for.rest.param"),
-    INVALID_TYPE_CYCLE("BCE4053", "invalid.type.cycle"),
-    REFERENCE_TO_UNDEFINED_TYPE("BCE4054", "reference.to.undefined.type")
+    NAMED_ARG_NOT_ALLOWED_FOR_REST_PARAM("BCE4052", "named.arg.not.allowed.for.rest.param")
     ;
 
     private String diagnosticId;

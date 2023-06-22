@@ -140,6 +140,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
     private final Types types;
     private final TypeChecker typeChecker;
     private final TypeResolver typeResolver;
+    private final SemTypeResolver semTypeResolver;
     private final ConstantTypeChecker.FillMembers fillMembers;
     private BLangAnonymousModelHelper anonymousModelHelper;
 
@@ -155,6 +156,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.typeResolver = TypeResolver.getInstance(context);
+        this.semTypeResolver = SemTypeResolver.getInstance(context);
         this.fillMembers = FillMembers.getInstance(context);
     }
 
@@ -2003,6 +2005,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                 constantSymbol.pos, VIRTUAL);
         BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
         finiteType.addValue(expr);
+        semTypeResolver.setSemTypeIfEnabled(finiteType);
         finiteType.tsymbol.type = finiteType;
         return finiteType;
     }
@@ -2026,6 +2029,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
                     memberValue = value;
             }
             finiteType.addValue(getLiteral(memberValue, pos, memberType));
+            semTypeResolver.setSemTypeIfEnabled(finiteType);
             finiteType.tsymbol.type = finiteType;
             memberTypes.add(finiteType);
         }

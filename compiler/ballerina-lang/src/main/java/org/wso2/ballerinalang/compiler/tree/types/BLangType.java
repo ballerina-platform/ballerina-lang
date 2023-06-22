@@ -39,7 +39,6 @@ public abstract class BLangType extends BLangNode implements TypeNode {
     public boolean grouped;
     public Set<Flag> flagSet = EnumSet.noneOf(Flag.class);
     public Definition defn;
-    public SemType semType; // TODO: SemType: this is temporary
 
     @Override
     public boolean isNullable() {

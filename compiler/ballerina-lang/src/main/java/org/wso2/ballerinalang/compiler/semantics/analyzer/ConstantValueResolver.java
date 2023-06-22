@@ -96,10 +96,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
             new CompilerContext.Key<>();
     private BConstantSymbol currentConstSymbol;
 
-    public BLangConstantValue getResult() {
-        return result;
-    }
-
     private BLangConstantValue result;
     private BLangDiagnosticLog dlog;
     private Location currentPos;
@@ -115,9 +111,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private HashSet<BConstantSymbol> unresolvableConstants = new HashSet<>();
     private HashMap<BSymbol, BLangTypeDefinition> createdTypeDefinitions = new HashMap<>();
     private Stack<String> anonTypeNameSuffixes = new Stack<>();
-    private static final boolean semtypeTest = Boolean.parseBoolean(System.getProperty("ballerina.semtype.test.suite"));
-    private static final boolean semtypeActive =
-            Boolean.parseBoolean(System.getProperty("ballerina.experimental.semtype"));
 
     private ConstantValueResolver(CompilerContext context) {
         context.put(CONSTANT_VALUE_RESOLVER_KEY, this);
@@ -591,7 +584,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue constructBLangConstantValue(BLangExpression node) {
-        if (!node.typeChecked && !semtypeActive && !semtypeTest) {
+        if (!node.typeChecked && !SemTypeResolver.semTypeEnabled && !SemTypeResolver.semTypeTestSuite) {
             return null;
         }
         switch (node.getKind()) {

@@ -179,6 +179,9 @@ public class Types {
     private int recordCount = 0;
     private SymbolEnv env;
     private boolean ignoreObjectTypeIds = false;
+    private final SemTypeResolver semTypeResolver;
+    private final Context semTypeCtx;
+
     private static final String BASE_16 = "base16";
 
     private static final BigDecimal DECIMAL_MAX =
@@ -189,10 +192,6 @@ public class Types {
 
     private static final BigDecimal MIN_DECIMAL_MAGNITUDE =
             new BigDecimal("1.000000000000000000000000000000000e-6143", MathContext.DECIMAL128);
-
-    private Context cx;
-    private static final boolean semtypeActive =
-            Boolean.parseBoolean(System.getProperty("ballerina.experimental.semtype"));
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -216,7 +215,8 @@ public class Types {
                                                             symTable.xmlPIType, symTable.xmlTextType);
         this.unifier = new Unifier();
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
-        this.cx = Context.from(new Env());
+        this.semTypeResolver = SemTypeResolver.getInstance(context);
+        this.semTypeCtx = Context.from(new Env());
     }
 
     public List<BType> checkTypes(BLangExpression node,
@@ -844,44 +844,14 @@ public class Types {
         return result;
     }
 
-    private boolean isSemTypeEnabled(BType bType) {
-        switch (bType.tag) {
-            case TypeTags.NEVER:
-            case TypeTags.NIL:
-            case TypeTags.BOOLEAN:
-            case TypeTags.FLOAT:
-            case TypeTags.DECIMAL:
-            case TypeTags.STRING:
-            case TypeTags.CHAR_STRING:
-            case TypeTags.INT:
-            case TypeTags.BYTE:
-            case TypeTags.SIGNED8_INT:
-            case TypeTags.SIGNED16_INT:
-            case TypeTags.SIGNED32_INT:
-            case TypeTags.UNSIGNED8_INT:
-            case TypeTags.UNSIGNED16_INT:
-            case TypeTags.UNSIGNED32_INT:
-            case TypeTags.FINITE:
-                return true;
-            case TypeTags.TYPEREFDESC:
-                return isSemTypeEnabled(getReferredType(bType));
-            default:
-                return false;
-        }
-    }
-
-    private boolean isSemTypeEnabled(BType source, BType target) {
-        return isSemTypeEnabled(source) && isSemTypeEnabled(target);
-    }
-
     private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        if (semtypeActive) {
+        if (SemTypeResolver.semTypeEnabled) {
             SemType sourceSemType = source.getSemtype();
             SemType targetSemType = target.getSemtype();
 
-            if (isSemTypeEnabled(source, target)) {
+            if (SemTypeResolver.isSemTypeEnabled(source, target)) {
                 assert sourceSemType != null && targetSemType != null : "SemTypes cannot be null";
-                return SemTypes.isSubtype(cx, sourceSemType, targetSemType);
+                return SemTypes.isSubtype(semTypeCtx, sourceSemType, targetSemType);
             }
         }
 
@@ -4271,17 +4241,9 @@ public class Types {
                 finiteType.tsymbol.owner, finiteType.tsymbol.pos,
                 VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, matchingValues);
-        setSemType(intersectingFiniteType);
+        semTypeResolver.setSemTypeIfEnabled(intersectingFiniteType);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
-    }
-
-    private void setSemType(BFiniteType finiteType) {
-        if (!semtypeActive) {
-            return;
-        }
-
-        finiteType.setSemtype(symbolEnter.resolveSingletonType(new ArrayList<>(finiteType.getValueSpace())));
     }
 
     private boolean isAssignableToFiniteTypeMemberInUnion(BLangLiteral expr, BType targetType) {
@@ -5961,7 +5923,7 @@ public class Types {
                 originalType.tsymbol.owner, originalType.tsymbol.pos,
                 VIRTUAL);
         BFiniteType intersectingFiniteType = new BFiniteType(finiteTypeSymbol, remainingValueSpace);
-        setSemType(intersectingFiniteType);
+        semTypeResolver.setSemTypeIfEnabled(intersectingFiniteType);
         finiteTypeSymbol.type = intersectingFiniteType;
         return intersectingFiniteType;
     }
