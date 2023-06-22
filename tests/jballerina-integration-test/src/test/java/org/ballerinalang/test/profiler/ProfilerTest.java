@@ -57,11 +57,16 @@ public class ProfilerTest extends BaseTest {
                 null,
                 null,
                 sourceRoot);
-        String jarPath = Paths.get(Paths.get(sourceRoot, packageName).toString(), "target", "bin",
-                "ProfilerOutput.html").toFile().getPath();
-        File file = new File(jarPath);
+    }
+
+    @Test
+    public void testProfilerOutput() throws BallerinaTestException {
+        String sourceRoot = testFileLocation + "/";
+        String packageName = "singleBalFile";
+        String filePath = sourceRoot + packageName + "/target/bin/ProfilerOutput.html";
+        File file = new File(filePath);
         if (!file.exists()) {
-            throw new BallerinaTestException("Error testing profiler");
+            throw new BallerinaTestException("Failure to read from the file: " + filePath);
         }
     }
 }
