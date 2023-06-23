@@ -5,5 +5,14 @@
   },
   "source": "function_body/source/source16.bal",
   "description": "",
-  "items": []
+  "items": [
+    {
+      "label": "returns",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "filterText": "returns",
+      "insertText": "returns ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
 }
