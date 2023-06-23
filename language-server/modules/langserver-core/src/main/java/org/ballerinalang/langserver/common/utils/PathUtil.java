@@ -85,7 +85,7 @@ public class PathUtil {
         Path homeReposPath = RepoUtils.createAndGetHomeReposPath();
         Path ballerinaHome = CommonUtil.BALLERINA_HOME != null ? Paths.get(CommonUtil.BALLERINA_HOME) : null;
 
-        return filePath.startsWith(homeReposPath) || ballerinaHome != null && filePath.startsWith(ballerinaHome);
+        return filePath.startsWith(homeReposPath) || (ballerinaHome != null && filePath.startsWith(ballerinaHome));
     }
 
     /**

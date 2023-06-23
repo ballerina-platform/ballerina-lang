@@ -53,6 +53,7 @@ public class BalaSchemeDefinitionTest extends DefinitionTest {
                 .build();
     }
 
+    @Override
     protected String getExpectedUriScheme() {
         return CommonUtil.URI_SCHEME_BALA;
     }
