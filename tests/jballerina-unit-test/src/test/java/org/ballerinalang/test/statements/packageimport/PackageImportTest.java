@@ -73,7 +73,6 @@ public class PackageImportTest {
     @Test
     public void testImportsPerfile() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/sample_project_1");
-        Assert.assertEquals(result.getErrorCount(), 7);
         int i = 0;
         BAssertUtil.validateError(result, i++, "redeclared symbol 'int'", "file-negative1.bal", 3,
                 1);
@@ -84,16 +83,17 @@ public class PackageImportTest {
         BAssertUtil.validateError(result, i++, "undefined function 'println'", "file-negative2.bal", 4, 5);
         BAssertUtil.validateError(result, i++, "undefined module 'io'", "file-negative2.bal", 4, 5);
         BAssertUtil.validateError(result, i++, "undefined module 'io'", "file-negative2.bal", 5, 18);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @Test
     public void testUnusedImports() {
         CompileResult result = BCompileUtil.compile("test-src/statements/package/imports/unused-imports-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
         int i = 0;
         BAssertUtil.validateError(result, i++, "unused module prefix 'java'", 1, 29);
         BAssertUtil.validateError(result, i++, "unused module prefix 'otherJAVA'", 2, 37);
-        BAssertUtil.validateError(result, i, "unused module prefix 'value'", 4, 23);
+        BAssertUtil.validateError(result, i++, "unused module prefix 'value'", 4, 23);
+        Assert.assertEquals(result.getErrorCount(), i);
     }
 
     @Test(enabled = false)
