@@ -41,11 +41,12 @@ import static io.ballerina.runtime.profiler.ui.HTTPServer.initializeHTMLExport;
 import static io.ballerina.runtime.profiler.ui.JSONParser.initializeCPUParser;
 
 /**
- * Used to profile Ballerina programs.
+ * This class is used to profile Ballerina programs.
  *
  * @since 2201.7.0
  */
 public class Main {
+
     // Define ANSI escape codes for colored console output
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_GRAY = "\033[37m";
