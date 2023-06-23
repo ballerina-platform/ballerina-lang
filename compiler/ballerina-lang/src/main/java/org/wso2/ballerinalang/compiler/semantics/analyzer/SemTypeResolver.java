@@ -258,12 +258,7 @@ public class SemTypeResolver {
     }
 
     private void resolveConstant(Env semtypeEnv, Map<String, BLangNode> modTable, BLangConstant constant) {
-        SemType semtype;
-        if (constant.associatedTypeDefinition != null) {
-            semtype = resolveTypeDefn(semtypeEnv, modTable, constant.associatedTypeDefinition, 0);
-        } else {
-            semtype = evaluateConst(constant);
-        }
+        SemType semtype = evaluateConst(constant);
         addSemtypeBType(constant.getTypeNode(), semtype);
         semtypeEnv.addTypeDef(constant.name.value, semtype);
     }
