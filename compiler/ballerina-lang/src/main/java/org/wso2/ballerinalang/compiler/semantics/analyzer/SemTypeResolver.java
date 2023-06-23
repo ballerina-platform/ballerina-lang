@@ -86,8 +86,8 @@ public class SemTypeResolver {
 
     private static final String PROPERTY_SEMTYPE_ENABLED = "ballerina.experimental.semtype.enabled";
     private static final String PROPERTY_SEMTYPE_TEST_SUITE = "ballerina.experimental.semtype.test.suite";
-    static final boolean semTypeEnabled = Boolean.parseBoolean(System.getProperty(PROPERTY_SEMTYPE_ENABLED));
-    static final boolean semTypeTestSuite = Boolean.parseBoolean(System.getProperty(PROPERTY_SEMTYPE_TEST_SUITE));
+    static final boolean SEMTYPE_ENABLED = Boolean.parseBoolean(System.getProperty(PROPERTY_SEMTYPE_ENABLED));
+    static final boolean SEMTYPE_TEST_SUITE = Boolean.parseBoolean(System.getProperty(PROPERTY_SEMTYPE_TEST_SUITE));
 
     private SemTypeResolver(CompilerContext context) {
         this.constResolver = ConstantValueResolver.getInstance(context);
@@ -103,15 +103,15 @@ public class SemTypeResolver {
     }
 
     void defineSemTypesIfEnabled(List<BLangNode> moduleDefs, SymbolEnv pkgEnv) {
-        if (semTypeEnabled) {
+        if (SEMTYPE_ENABLED) {
             defineSemTypesSubset(moduleDefs, pkgEnv);
-        } else if (semTypeTestSuite) {
+        } else if (SEMTYPE_TEST_SUITE) {
             defineSemTypes(moduleDefs, pkgEnv);
         }
     }
 
     void resolveSemTypeIfEnabled(BLangType typeNode, SymbolEnv env, BType resultType) {
-        if (!semTypeEnabled) {
+        if (!SEMTYPE_ENABLED) {
             return;
         }
 
@@ -124,7 +124,7 @@ public class SemTypeResolver {
     }
 
     void setSemTypeIfEnabled(BFiniteType finiteType) {
-        if (!semTypeEnabled) {
+        if (!SEMTYPE_ENABLED) {
             return;
         }
 

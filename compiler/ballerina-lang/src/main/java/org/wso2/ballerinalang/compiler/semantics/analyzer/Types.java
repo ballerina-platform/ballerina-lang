@@ -845,7 +845,7 @@ public class Types {
     }
 
     private boolean isAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        if (SemTypeResolver.semTypeEnabled) {
+        if (SemTypeResolver.SEMTYPE_ENABLED) {
             SemType sourceSemType = source.getSemtype();
             SemType targetSemType = target.getSemtype();
 

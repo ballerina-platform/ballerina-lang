@@ -584,7 +584,7 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     }
 
     private BLangConstantValue constructBLangConstantValue(BLangExpression node) {
-        if (!node.typeChecked && !SemTypeResolver.semTypeEnabled && !SemTypeResolver.semTypeTestSuite) {
+        if (!node.typeChecked && !SemTypeResolver.SEMTYPE_ENABLED && !SemTypeResolver.SEMTYPE_TEST_SUITE) {
             return null;
         }
         switch (node.getKind()) {
