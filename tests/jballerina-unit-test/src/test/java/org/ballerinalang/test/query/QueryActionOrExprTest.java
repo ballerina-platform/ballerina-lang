@@ -76,7 +76,11 @@ public class QueryActionOrExprTest {
                 "testQueryActionWithQueryExpression",
                 "testQueryActionWithRegexpLangLibs",
                 "testQueryExprWithRegExpLangLibs",
-                "testQueryActionWithInterpolationRegexpLangLibs"
+                "testQueryActionWithInterpolationRegexpLangLibs",
+                "testQueryActionOrExpressionWithUnionRecordResultType",
+                "testQueryActionOrExprWithAnyOrErrResultType",
+                "testNestedQueryActionOrExprWithClientResourceAccessAction",
+                "testQueryActionWithQueryExpression"
         };
     }
 
