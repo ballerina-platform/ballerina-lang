@@ -457,14 +457,16 @@ public class QueryTypeChecker extends TypeChecker {
         } else {
             if (errorTypes.size() > 1) {
                 BType actualQueryType = silentTypeCheckExpr(queryExpr, symTable.noType, data);
-                types.checkType(queryExpr, actualQueryType, 
-                        BUnionType.create(null, new LinkedHashSet<>(expTypes)));
-            } else if (errorTypes.size() == 1) {
-                checkExpr(selectExp, env, errorTypes.iterator().next(), data);
+                if (actualQueryType.tag != TypeTags.SEMANTIC_ERROR) {
+                    types.checkType(queryExpr, actualQueryType,
+                            BUnionType.create(null, new LinkedHashSet<>(expTypes)));
+                    return;
+                }
             }
+            errorTypes.forEach(expType -> checkExpr(selectExp, env, expType, data));
         }
     }
-
+    
     private BType getQueryTableType(BLangQueryExpr queryExpr, BType constraintType, BType resolvedType, SymbolEnv env) {
         final BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         if (!queryExpr.fieldNameIdentifierList.isEmpty()) {
