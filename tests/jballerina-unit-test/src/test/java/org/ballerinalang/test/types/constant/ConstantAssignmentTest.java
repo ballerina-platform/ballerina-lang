@@ -102,6 +102,11 @@ public class ConstantAssignmentTest {
     }
 
     @Test
+    public void testAssignListConstToByteArray() {
+        BRunUtil.invoke(positiveCompileResult, "assignListConstToByteArray");
+    }
+
+    @Test
     public void testConstantAssignmentNegative() {
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected 'int', found 'float'",

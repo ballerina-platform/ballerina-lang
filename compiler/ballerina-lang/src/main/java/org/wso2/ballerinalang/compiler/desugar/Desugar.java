@@ -886,7 +886,7 @@ public class Desugar extends BLangNodeVisitor {
                 BLangType typeNode;
                 switch (memberType.tag) {
                     case TypeTags.RECORD:
-                         typeNode = constant.associatedTypeDefinition.typeNode;
+                        typeNode = constant.associatedTypeDefinition.typeNode;
                         break;
                     case TypeTags.TUPLE:
                         typeNode = (BLangTupleTypeNode) TreeBuilder.createTupleTypeNode();
