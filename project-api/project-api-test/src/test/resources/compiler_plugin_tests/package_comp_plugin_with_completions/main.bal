@@ -23,7 +23,7 @@ public class Listener {
         return ();
     }
 
-    public function init(int port) {
+    public function init(int port) returns error?{
     }
 
     public function initEndpoint() returns error? {
