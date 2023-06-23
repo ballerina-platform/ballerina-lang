@@ -178,3 +178,25 @@ function testInvalidGroupingKeys() {
                 group by err // error
                 select [name];     
 }
+
+type Foo record {
+    int id;
+    string[] name;
+    map<error> a?;
+};
+
+type Bar record {
+    int id2;
+    string name2;
+};
+
+function testSeqVarInInvalidPositions5() {
+    Foo[] f = [];
+    Bar[] b = [];
+    var r = from var {id: id1, name: name1} in f
+        join var {id2, name2} in b
+        on id1 equals id2
+        group by id1, id2
+        let string _ = name2 // error
+        select count(name1);
+}
