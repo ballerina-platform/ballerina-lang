@@ -18,10 +18,10 @@
 
 package org.ballerinalang.test.action;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -45,7 +45,7 @@ public class TypeCastActionTest {
         BRunUtil.invoke(result, funcName);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp = ".*TypeCastError \\{\"message\":\"incompatible types: " +
                   "'int' cannot be cast to 'string'.*")
     public void testCastingToIncorrectType() {
