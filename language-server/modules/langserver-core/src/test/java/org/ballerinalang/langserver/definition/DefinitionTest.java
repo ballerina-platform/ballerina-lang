@@ -59,7 +59,7 @@ public class DefinitionTest {
     public void init() throws Exception {
         configRoot = FileUtils.RES_DIR.resolve("definition").resolve("expected");
         sourceRoot = FileUtils.RES_DIR.resolve("definition").resolve("sources");
-        this.serviceEndpoint = getServiceEndpoint();
+        this.serviceEndpoint = this.getServiceEndpoint();
     }
 
     @Test(description = "Test goto definitions", dataProvider = "testDataProvider")

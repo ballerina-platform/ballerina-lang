@@ -348,11 +348,13 @@ public class ContextBuilder {
                                                                     WorkspaceManager workspaceManager,
                                                                     LanguageServerContext serverContext,
                                                                     Position position,
+                                                                    String fileScheme,
                                                                     CancelChecker cancelChecker) {
         return new BallerinaDefinitionContextImpl.DefinitionContextBuilder(serverContext)
                 .withFileUri(uri)
                 .withWorkspaceManager(workspaceManager)
                 .withCursorPosition(position)
+                .withFileScheme(fileScheme)
                 .withCancelChecker(cancelChecker)
                 .build();
     }

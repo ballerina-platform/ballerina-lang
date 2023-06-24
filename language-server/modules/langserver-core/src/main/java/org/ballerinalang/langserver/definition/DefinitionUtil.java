@@ -95,6 +95,10 @@ public class DefinitionUtil {
 
         String fileUri;
         // Check if file resides in a protected dir
+        if ("bala".equals(context.getFileScheme()) && !PathUtil.isWriteProtectedPath(filepath.get())) {
+            throw new UserErrorException("BALLERINA_HOME: " 
+                    + CommonUtil.BALLERINA_HOME + "filePath: " + filepath.get());
+        }
         if (PathUtil.isWriteProtectedPath(filepath.get())) {
             try {
                 fileUri = PathUtil.getBalaUriForPath(context.languageServercontext(), filepath.get());

@@ -23,4 +23,10 @@ package org.ballerinalang.langserver.commons;
  * @since 2.0.0
  */
 public interface BallerinaDefinitionContext extends PositionedOperationContext, BallerinaEnclosedPositionContext {
+    /**
+     * Returns the file scheme.
+     * 
+     * @return file scheme.
+     */
+    String getFileScheme();
 }

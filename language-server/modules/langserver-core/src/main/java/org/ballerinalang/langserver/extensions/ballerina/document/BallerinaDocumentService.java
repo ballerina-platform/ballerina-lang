@@ -537,6 +537,7 @@ public class BallerinaDocumentService implements ExtendedLanguageServerService {
                         this.workspaceManagerProxy.get(),
                         this.serverContext,
                         params.getPosition(),
+                        "file",
                         cancelChecker);
                 Either<List<Location>, Object> getLocationPositionList = Either.forLeft(DefinitionUtil.getDefinition(
                         defContext, params.getPosition()));
