@@ -100,7 +100,6 @@ import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.jsonrpc.messages.Either3;
 import org.eclipse.lsp4j.services.TextDocumentService;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -229,13 +228,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
             (DefinitionParams params) {
         return CompletableFutures.computeAsync((cancelChecker) -> {
             try {
-                URI uri = URI.create(params.getTextDocument().getUri());
                 BallerinaDefinitionContext defContext = ContextBuilder.buildDefinitionContext(
                         PathUtil.convertUriSchemeFromBala(params.getTextDocument().getUri()),
                         this.workspaceManagerProxy.get(),
                         this.serverContext,
                         params.getPosition(),
-                        uri.getScheme(),
                         cancelChecker);
                 return Either.forLeft(DefinitionUtil.getDefinition(defContext, params.getPosition()));
             } catch (UserErrorException e) {
@@ -363,8 +360,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 ResolvableCodeAction resolvableCodeAction = ResolvableCodeAction.from(codeAction);
                 if (resolvableCodeAction.getData() == null || resolvableCodeAction.getData().getFileUri() == null) {
-                    // Probably not a resolvable code action. Can be the client sending resolve request for a
-                    // scenario where code action's text edit is empty
+                   // Probably not a resolvable code action. Can be the client sending resolve request for a
+                   // scenario where code action's text edit is empty
                     this.clientLogger.logWarning("Invalid resolvable code action received: " + codeAction.getTitle());
                     return codeAction;
                 }

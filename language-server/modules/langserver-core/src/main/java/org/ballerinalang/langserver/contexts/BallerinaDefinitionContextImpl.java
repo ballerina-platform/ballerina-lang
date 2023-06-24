@@ -38,18 +38,14 @@ public class BallerinaDefinitionContextImpl
         extends PositionedOperationContextImpl implements BallerinaDefinitionContext {
     private boolean capturedEnclosingNode = false;
     private ModuleMemberDeclarationNode enclosingNode = null;
-    
-    private String fileScheme;
 
     BallerinaDefinitionContextImpl(LSOperation operation,
                                    String fileUri,
                                    WorkspaceManager wsManager,
                                    Position position,
                                    LanguageServerContext serverContext,
-                                   String fileScheme,
                                    CancelChecker cancelChecker) {
         super(operation, fileUri, position, wsManager, serverContext, cancelChecker);
-        this.fileScheme = fileScheme;
     }
 
     @Override
@@ -66,12 +62,7 @@ public class BallerinaDefinitionContextImpl
 
         return Optional.ofNullable(this.enclosingNode);
     }
-
-    @Override
-    public String getFileScheme() {
-        return this.fileScheme;
-    }
-
+    
     /**
      * Represents Language server completion context Builder.
      *
@@ -79,8 +70,6 @@ public class BallerinaDefinitionContextImpl
      */
     protected static class DefinitionContextBuilder extends AbstractContextBuilder<DefinitionContextBuilder> {
         private Position cursor;
-        
-        private String fileScheme;
 
         /**
          * Context Builder constructor.
@@ -98,11 +87,6 @@ public class BallerinaDefinitionContextImpl
             this.cursor = position;
             return self();
         }
-        
-        public DefinitionContextBuilder withFileScheme(String fileScheme) {
-            this.fileScheme = fileScheme;
-            return self();
-        }
 
         public BallerinaDefinitionContext build() {
             return new BallerinaDefinitionContextImpl(this.operation,
@@ -110,7 +94,6 @@ public class BallerinaDefinitionContextImpl
                     this.wsManager,
                     this.cursor,
                     this.serverContext,
-                    this.fileScheme,
                     this.cancelChecker);
         }
 
