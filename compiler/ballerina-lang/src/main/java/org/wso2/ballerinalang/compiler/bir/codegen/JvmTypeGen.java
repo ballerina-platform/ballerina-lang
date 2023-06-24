@@ -22,6 +22,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -152,6 +153,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FIN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_PARAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_FUNCTION_TYPE_IMPL_WITH_PARAMS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_INTERSECTION_TYPE_WITH_REFERENCE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_INTERSECTION_TYPE_WITH_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_PARAMETERIZED_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmSignatures.INIT_STREAM_TYPE_IMPL;
@@ -824,9 +826,13 @@ public class JvmTypeGen {
         mv.visitLdcInsn(typeFlag(bType));
 
         loadReadonlyFlag(mv, bType);
-
-        mv.visitMethodInsn(INVOKESPECIAL, INTERSECTION_TYPE_IMPL, JVM_INIT_METHOD,
-                INIT_INTERSECTION_TYPE_WITH_TYPE, false);
+        String effectiveTypeClass;
+        if (bType.effectiveType instanceof SelectivelyImmutableReferenceType) {
+            effectiveTypeClass = INIT_INTERSECTION_TYPE_WITH_REFERENCE_TYPE;
+        } else {
+            effectiveTypeClass = INIT_INTERSECTION_TYPE_WITH_TYPE;
+        }
+        mv.visitMethodInsn(INVOKESPECIAL, INTERSECTION_TYPE_IMPL, JVM_INIT_METHOD, effectiveTypeClass, false);
     }
 
     private void generateCreateNewArray(MethodVisitor methodVisitor, Set<BType> members) {

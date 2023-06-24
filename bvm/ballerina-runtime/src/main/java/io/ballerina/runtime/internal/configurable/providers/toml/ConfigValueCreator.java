@@ -152,8 +152,8 @@ public class ConfigValueCreator {
     }
 
     private BArray createArrayValue(TomlNode tomlValue, ArrayType arrayType) {
-        Type elementType = TypeUtils.getReferredType(arrayType.getElementType());
-        if (isSimpleType(elementType.getTag())) {
+        Type elementType = arrayType.getElementType();
+        if (isSimpleType(TypeUtils.getReferredType(elementType).getTag())) {
             tomlValue = getValueFromKeyValueNode(tomlValue);
             return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType, elementType);
         } else {
