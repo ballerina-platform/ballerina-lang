@@ -163,7 +163,7 @@ public class ConfigValueCreator {
 
     private BArray getNonSimpleTypeArray(TomlNode tomlValue, ArrayType arrayType,
                                          Type elementType) {
-        switch (elementType.getTag()) {
+        switch (TypeUtils.getReferredType(elementType).getTag()) {
             case TypeTags.XML_ATTRIBUTES_TAG:
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_ELEMENT_TAG:
@@ -171,28 +171,21 @@ public class ConfigValueCreator {
             case TypeTags.XML_TAG:
             case TypeTags.XML_TEXT_TAG:
             case TypeTags.TUPLE_TAG:
-                tomlValue = getValueFromKeyValueNode(tomlValue);
-                return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType,
-                        getEffectiveType(TypeUtils.getReferredType(arrayType.getElementType())));
             case TypeTags.ARRAY_TAG:
                 tomlValue = getValueFromKeyValueNode(tomlValue);
-                return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType,
-                        TypeUtils.getReferredType(arrayType.getElementType()));
+                return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType, elementType);
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.TABLE_TAG:
                 return getStructuredValueArray(tomlValue, arrayType, elementType);
-            case TypeTags.ANYDATA_TAG:
-            case TypeTags.UNION_TAG:
-            case TypeTags.JSON_TAG:
+            default:
+                // anydata, json, union
                 if (tomlValue.kind() == TomlType.TABLE_ARRAY) {
                     return getStructuredValueArray(tomlValue, arrayType, elementType);
                 } else {
                     tomlValue = getValueFromKeyValueNode(tomlValue);
                     return createArrayFromSimpleTomlValue((TomlArrayValueNode) tomlValue, arrayType, elementType);
                 }
-            default:
-                return getNonSimpleTypeArray(tomlValue, arrayType, ((IntersectionType) elementType).getEffectiveType());
         }
     }
 
@@ -232,11 +225,10 @@ public class ConfigValueCreator {
 
     private Object getElementValue(Type elementType, TomlNode tomlValueNode) {
         Object balValue;
-        switch (elementType.getTag()) {
-            case TypeTags.INTERSECTION_TAG:
-                return getElementValue(((BIntersectionType) elementType).getEffectiveType(), tomlValueNode);
+        Type refElementType = TypeUtils.getReferredType(elementType);
+        switch (refElementType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                ArrayType arrayType = (ArrayType) elementType;
+                ArrayType arrayType = (ArrayType) refElementType;
                 balValue = createArrayFromSimpleTomlValue(
                         (TomlArrayValueNode) tomlValueNode, arrayType,
                         TypeUtils.getReferredType(arrayType.getElementType()));
@@ -244,10 +236,10 @@ public class ConfigValueCreator {
             case TypeTags.ANYDATA_TAG:
             case TypeTags.UNION_TAG:
             case TypeTags.JSON_TAG:
-                balValue = createUnionValue(tomlValueNode, (BUnionType) elementType);
+                balValue = createUnionValue(tomlValueNode, (BUnionType) refElementType);
                 break;
             case TypeTags.TUPLE_TAG:
-                balValue = createTupleValue(tomlValueNode, (TupleType) elementType);
+                balValue = createTupleValue(tomlValueNode, (TupleType) refElementType);
                 break;
             default:
                 balValue = createBalValue(elementType, (TomlValueNode) tomlValueNode);
