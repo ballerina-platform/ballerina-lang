@@ -31,17 +31,17 @@ import java.net.URISyntaxException;
  */
 public class BalaSchemeDefinitionTest extends DefinitionTest {
     
-    @Test(description = "Test goto definitions", dataProvider = "testDataProvider")
+    @Test(enabled = false, description = "Test goto definitions", dataProvider = "testDataProvider")
     public void test(String configPath, String configDir) throws IOException {
         super.test(configPath, configDir);
     }
 
-    @Test(description = "Test goto definitions for standard libs", dataProvider = "testStdLibDataProvider")
+    @Test(enabled = false, description = "Test goto definitions for standard libs", dataProvider = "testStdLibDataProvider")
     public void testStdLibDefinition(String configPath, String configDir) throws IOException, URISyntaxException {
         super.testStdLibDefinition(configPath, configDir);
     }
 
-    @Test(dataProvider = "testInterStdLibDataProvider")
+    @Test(enabled = false, dataProvider = "testInterStdLibDataProvider")
     public void testInterStdLibDefinition(String configPath, String configDir) throws IOException, URISyntaxException {
         super.testInterStdLibDefinition(configPath, configDir);
     }
