@@ -22,7 +22,9 @@ under the License.
 <suite name="ballerina-projects-test-suite">
     <test name="ballerina-projects-test" preserve-order="true" parallel="false">
         <packages>
-            <package name="io.ballerina.projects.test.*" />
+            <package name="io.ballerina.projects.test.*" >
+                <exclude name="io.ballerina.projects.test.PackageResolutionTests" />
+            </package>
         </packages>
     </test>
 </suite>

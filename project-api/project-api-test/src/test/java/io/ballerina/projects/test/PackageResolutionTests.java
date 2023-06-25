@@ -62,7 +62,6 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.SkipException;
 import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -100,7 +99,6 @@ import static org.mockito.Mockito.when;
  * @since 2.0.0
  */
 
-@Ignore
 public class PackageResolutionTests extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get(
             "src/test/resources/projects_for_resolution_tests").toAbsolutePath();
