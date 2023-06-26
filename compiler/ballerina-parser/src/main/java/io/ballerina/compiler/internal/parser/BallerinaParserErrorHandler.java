@@ -3541,10 +3541,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
                 if (parentCtx == ParserRuleContext.ERROR_CONSTRUCTOR) {
                     endContext();
-                }
-                if (getParentContext() == ParserRuleContext.ON_FAIL_CHECK) {
-                    endContext();
-                    return ParserRuleContext.CHECKING_EXPRESSION_END;
+                    if (getParentContext() == ParserRuleContext.ON_FAIL_CHECK) {
+                        endContext();
+                        return ParserRuleContext.CHECKING_EXPRESSION_END;
+                    }
                 }
                 return ParserRuleContext.EXPRESSION_RHS;
             case ARG_LIST:
@@ -3680,7 +3680,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case METHOD_NAME:
                 return ParserRuleContext.OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST;
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
-                return ParserRuleContext.SEMICOLON;
+                return ParserRuleContext.EXPRESSION_RHS;
             case SYNC_SEND_TOKEN:
                 return ParserRuleContext.PEER_WORKER_NAME;
             case LEFT_ARROW_TOKEN:
@@ -4428,6 +4428,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SELECT_CLAUSE:
             case JOIN_CLAUSE:
             case ON_CONFLICT_CLAUSE:
+            case CHECKING_EXPRESSION:
                 return true;
             default:
                 return false;

@@ -11520,7 +11520,7 @@ public class BallerinaParser extends AbstractParser {
             return consume();
         } else {
             recover(token, parserRuleContext);
-            return parseDoubleRightArrow();
+            return parseDoubleRightArrow(parserRuleContext);
         }
     }
 

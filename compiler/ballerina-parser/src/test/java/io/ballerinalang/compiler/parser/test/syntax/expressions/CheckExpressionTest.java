@@ -37,23 +37,38 @@ public class CheckExpressionTest extends AbstractExpressionsTest {
     }
 
     @Test
+    public void testCheckExprWithOnConflictClause() {
+        testFile("check-expr/check_expr_source_05.bal", "check-expr/check_expr_assert_05.json");
+    }
+
+    @Test
     public void testSimpleCheckOnFail() {
-        testFile("on-fail-check/on_fail_check_source_01.bal",  "on-fail-check/on_fail_check_assert_01.json");
+        testFile("check-expr/on_fail_check_source_01.bal",  "check-expr/on_fail_check_assert_01.json");
     }
 
     @Test
     public void testOnFailCheckpanic() {
-        testFile("on-fail-check/on_fail_check_source_04.bal", "on-fail-check/on_fail_check_assert_04.json");
+        testFile("check-expr/on_fail_check_source_04.bal", "check-expr/on_fail_check_assert_04.json");
     }
 
     @Test
     public void testOnFailCheckWithReturn() {
-        testFile("on-fail-check/on_fail_check_source_05.bal", "on-fail-check/on_fail_check_assert_05.json");
+        testFile("check-expr/on_fail_check_source_05.bal", "check-expr/on_fail_check_assert_05.json");
     }
 
     @Test
     public void testOnFailCheckpanicWithReturn() {
-        testFile("on-fail-check/on_fail_check_source_06.bal", "on-fail-check/on_fail_check_assert_06.json");
+        testFile("check-expr/on_fail_check_source_06.bal", "check-expr/on_fail_check_assert_06.json");
+    }
+
+    @Test
+    public void testOnFailCheckNextToAnOnConflictClause() {
+        testFile("check-expr/on_fail_check_source_08.bal", "check-expr/on_fail_check_assert_08.json");
+    }
+
+    @Test
+    public void testOnFailWithJoin() {
+        testFile("check-expr/check_expr_source_07.bal", "check-expr/check_expr_assert_07.json");
     }
 
     // Recovery test
@@ -69,32 +84,32 @@ public class CheckExpressionTest extends AbstractExpressionsTest {
     }
 
     @Test
-    public void testOnFailCheckWithMissingFail() {
-        testFile("on-fail-check/on_fail_check_source_02.bal", "on-fail-check/on_fail_check_assert_02.json");
+    public void testCheckExprWithIncompleteRemoteMethods() {
+        testFile("check-expr/check_expr_source_06.bal", "check-expr/check_expr_assert_06.json");
+    }
+
+    @Test
+    public void testOnFailCheckWithoutDoubleArrow() {
+        testFile("check-expr/on_fail_check_source_02.bal", "check-expr/on_fail_check_assert_02.json");
     }
 
     @Test
     public void testOnFailCheckpanicWithoutDoubleArrow() {
-        testFile("on-fail-check/on_fail_check_source_03.bal", "on-fail-check/on_fail_check_assert_03.json");
+        testFile("check-expr/on_fail_check_source_03.bal", "check-expr/on_fail_check_assert_03.json");
     }
 
     @Test
-    public void testOnFailWithSelect() {
-        testFile("on-fail-check/on_fail_check_source_07.bal", "on-fail-check/on_fail_check_assert_07.json");
+    public void testOnFailWithExtraCharactersTest1() {
+        testFile("check-expr/on_fail_check_source_07.bal", "check-expr/on_fail_check_assert_07.json");
     }
 
     @Test
-    public void testOnFailWithOnConflict() {
-        testFile("on-fail-check/on_fail_check_source_08.bal", "on-fail-check/on_fail_check_assert_08.json");
-    }
-
-    @Test
-    public void testOnFailWithJoin() {
-        testFile("on-fail-check/on_fail_check_source_09.bal", "on-fail-check/on_fail_check_assert_09.json");
+    public void testOnFailWithExtraCharactersTest2() {
+        testFile("check-expr/on_fail_check_source_09.bal", "check-expr/on_fail_check_assert_09.json");
     }
 
     @Test
     public void testOnFailCheckPanicWithEquals() {
-        testFile("on-fail-check/on_fail_check_source_10.bal", "on-fail-check/on_fail_check_assert_10.json");
+        testFile("check-expr/on_fail_check_source_10.bal", "check-expr/on_fail_check_assert_10.json");
     }
 }
