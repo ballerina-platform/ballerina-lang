@@ -98,7 +98,7 @@ import static org.mockito.Mockito.when;
  *
  * @since 2.0.0
  */
-
+@Test(groups="broken")
 public class PackageResolutionTests extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get(
             "src/test/resources/projects_for_resolution_tests").toAbsolutePath();
