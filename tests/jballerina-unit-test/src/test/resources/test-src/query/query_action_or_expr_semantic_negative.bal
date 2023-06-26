@@ -375,3 +375,31 @@ function testQueryExprWithUnionInSelectClause4() {
 function testQueryWithAmbiguousType2() {
     string:Char[]|string _ = from var letter in ["a", "b", "c", "AA"] select letter == "B" ? letter : "L";
 }
+
+function transform(T1 t1) returns T2 => {
+    t3OrT4: from var t3sItem in t1.t3s
+        select t3sItem.str == ""
+        ? <T3>{
+           str: ""
+        } ? <T4> {
+            foo: false
+        } : <T2>{
+            foo: false
+        }: <T1>{
+            foo: false
+        }
+};
+
+function transform2(T1 t1) returns T2 => {
+    t3OrT4: from var t3sItem in t1.t3s
+        select t3sItem.str == ""
+        ? returnBool() ? <T4> {
+            foo: false
+        } : <T2>{
+            foo: false
+        }: <T1>{
+            foo: false
+        }
+};
+
+function returnBool() returns boolean => true;

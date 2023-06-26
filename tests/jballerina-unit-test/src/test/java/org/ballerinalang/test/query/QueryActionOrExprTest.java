@@ -147,6 +147,20 @@ public class QueryActionOrExprTest {
         validateError(negativeResult, i++, "incompatible types: expected '(table<FooType>|table<BarType>)', " +
                         "found 'table<(FooType|BarType)> key(id)'", 371, 39);
         validateError(negativeResult, i++, "ambiguous type '[string:Char, string]'", 376, 78);
+        validateError(negativeResult, i++, "incompatible types: expected 'boolean', " +
+                "found 'T3'", 382, 11);
+        validateError(negativeResult, i++, "incompatible types: expected 'T3', " +
+                "found 'T4'", 384, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'T3', " +
+                "found 'T2'", 386, 13);
+        validateError(negativeResult, i++, "missing non-defaultable required record field 't3OrT4'", 
+                386, 17);
+        validateError(negativeResult, i++, "incompatible types: expected 'T3', " +
+                "found 'T1'", 388, 12);
+        validateError(negativeResult, i++, "missing non-defaultable required record field 't3s'",
+                388, 16);
+        validateError(negativeResult, i++, "incompatible types: expected '(T3[]|T4[])', " +
+                "found '(T4|T2|T1)[]'", 394, 13);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
