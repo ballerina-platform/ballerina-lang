@@ -2307,10 +2307,17 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
             if (reqArgCount < paramsCount) {
                 // Part of the non-rest params are provided via the vararg.
-                BTupleType tupleType = varArgType.tag == TypeTags.ARRAY ?
-                    getRepresentativeTupleTypeForRemainingArgs(paramsCount, reqArgCount, (BArrayType) varArgType) :
-                    (BTupleType) varArgType;
+                BTupleType tupleType;
 
+                if (varArgType.tag == TypeTags.ARRAY) {
+                    tupleType = getRepresentativeTupleTypeForRemainingArgs(paramsCount, reqArgCount,
+                            (BArrayType) varArgType);
+                } else if (varArgType.tag == TypeTags.RECORD) {
+                    tupleType = getRepresentativeTupleTypeForRestRecordArg(paramsCount, reqArgCount,
+                            (BRecordType) varArgType);
+                } else {
+                    tupleType = (BTupleType) varArgType;;
+                }
                 List<BType> memberTypes = tupleType.getTupleTypes();
 
                 BLangExpression varArgExpr = varArg.expr;
@@ -2427,6 +2434,20 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         if (arrayType.size > remReqArgCount) {
             return new BTupleType(null, members, eType, 0);
+        }
+
+        return new BTupleType(members);
+    }
+
+    private BTupleType getRepresentativeTupleTypeForRestRecordArg(int paramCount, int reqArgCount,
+                                                                  BRecordType recordType) {
+        int remReqArgCount = paramCount - reqArgCount;
+        List<BTupleMember> members = new ArrayList<>(remReqArgCount);
+
+        for (Map.Entry<String, BField> entry : recordType.fields.entrySet()) {
+            BType memberType = entry.getValue().type;
+            members.add(new BTupleMember(memberType,
+                    Symbols.createVarSymbolForTupleMember(memberType)));
         }
 
         return new BTupleType(members);
