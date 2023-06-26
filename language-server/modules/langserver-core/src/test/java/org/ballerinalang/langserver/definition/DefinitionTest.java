@@ -90,7 +90,7 @@ public class DefinitionTest {
      *
      * @param withBalaScheme Whether to use bala scheme or not when fetching definition.
      */
-    private void performStdLibDefinitionTest(Path sourceRootPath, String configPath, String configDir, 
+    private void performStdLibDefinitionTest(Path sourceRootPath, String configPath, String configDir,
                                              boolean withBalaScheme)
             throws IOException, URISyntaxException {
         JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
@@ -108,7 +108,6 @@ public class DefinitionTest {
         TestUtil.openDocument(serviceEndpoint, fileUri, new String(encodedContent));
         String actualStr = TestUtil.getDefinitionResponse(fileUri, position, serviceEndpoint);
         TestUtil.closeDocument(serviceEndpoint, fileUri);
-
         JsonArray expected = configObject.getAsJsonArray("result");
         JsonArray actual = JsonParser.parseString(actualStr).getAsJsonObject().getAsJsonObject("result")
                 .getAsJsonArray("left");
@@ -186,7 +185,7 @@ public class DefinitionTest {
                 .withInitOption(InitializationOptions.KEY_BALA_SCHEME_SUPPORT, false)
                 .build();
     }
-    
+
     protected void alterExpectedUri(JsonArray expected, Path root) throws IOException {
         for (JsonElement jsonElement : expected) {
             JsonObject item = jsonElement.getAsJsonObject();
@@ -219,9 +218,12 @@ public class DefinitionTest {
             String fileUri = item.get("uri").toString().replace("\"", "");
 
             // Check bala URI scheme
-            URI  uri = new URI(fileUri);
+            URI uri = new URI(fileUri);
             Assert.assertEquals(uri.getScheme(), getExpectedUriScheme(),
-                    String.format("Expected %s: URI scheme", getExpectedUriScheme()));
+                    String.format("Expected %s: URI scheme :" 
+                            + "Ballerina Home: " + CommonUtil.BALLERINA_HOME +
+                            "File path: " + fileUri + "File path without replacement : "
+                            +  item.get("uri").toString(), getExpectedUriScheme()));
             fileUri = PathUtil.convertUriSchemeFromBala(fileUri);
             uri = new URI(fileUri);
             Assert.assertEquals(uri.getScheme(), CommonUtil.URI_SCHEME_FILE,
@@ -232,7 +234,7 @@ public class DefinitionTest {
             item.addProperty("uri", canonicalPath);
         }
     }
-    
+
     protected void alterActualUri(JsonArray actual) throws IOException {
         for (JsonElement jsonElement : actual) {
             JsonObject item = jsonElement.getAsJsonObject();
@@ -242,7 +244,7 @@ public class DefinitionTest {
             item.addProperty("uri", canonicalPath);
         }
     }
-    
+
     protected String getExpectedUriScheme() {
         return CommonUtil.URI_SCHEME_FILE;
     }
