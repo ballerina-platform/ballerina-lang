@@ -11484,7 +11484,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Expression function body node
      */
     private STNode parseExpressionFuncBody(boolean isAnon, boolean isRhsExpr) {
-        STNode rightDoubleArrow = parseDoubleRightArrow();
+        STNode rightDoubleArrow = parseDoubleRightArrow(ParserRuleContext.EXPR_FUNC_BODY_START);
 
         // Give high priority to the body-expr. This is done by lowering the current
         // precedence bewfore visiting the body.
@@ -11504,16 +11504,6 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Double right arrow token
      */
-    private STNode parseDoubleRightArrow() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN) {
-            return consume();
-        } else {
-            recover(token, ParserRuleContext.EXPR_FUNC_BODY_START);
-            return parseDoubleRightArrow();
-        }
-    }
-
     private STNode parseDoubleRightArrow(ParserRuleContext parserRuleContext) {
         STToken token = peek();
         if (token.kind == SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN) {
@@ -11544,7 +11534,7 @@ public class BallerinaParser extends AbstractParser {
                 params = STNodeFactory.createSimpleNameReferenceNode(syntheticParam);
         }
 
-        STNode rightDoubleArrow = parseDoubleRightArrow();
+        STNode rightDoubleArrow = parseDoubleRightArrow(ParserRuleContext.EXPR_FUNC_BODY_START);
         // start parsing the expr by giving higher-precedence to parse the right side arguments for right associative
         // operators. That is done by lowering the current precedence.
         STNode expression = parseExpression(OperatorPrecedence.REMOTE_CALL_ACTION, isRhsExpr, false);
@@ -14566,7 +14556,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseMatchClause() {
         STNode matchPatterns = parseMatchPatternList();
         STNode matchGuard = parseMatchGuard();
-        STNode rightDoubleArrow = parseDoubleRightArrow();
+        STNode rightDoubleArrow = parseDoubleRightArrow(ParserRuleContext.RIGHT_DOUBLE_ARROW);
         STNode blockStmt = parseBlockNode();
         
         if (isNodeListEmpty(matchPatterns)) {
