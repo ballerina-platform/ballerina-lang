@@ -62,7 +62,6 @@ import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BServiceType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.values.ReadOnlyUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -392,7 +391,6 @@ public class Values {
         return validateFunctionType((FunctionType) fpValue.getType());
     }
 
-    @Nullable
     private static BError validateFunctionType(FunctionType functionType) {
         Parameter[] parameters = functionType.getParameters();
         assert parameters[0].type.getTag() == TypeTags.TYPE_REFERENCED_TYPE_TAG;

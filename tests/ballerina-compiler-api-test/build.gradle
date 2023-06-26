@@ -28,4 +28,6 @@ dependencies {
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
 }
 
+tasks.compileTestJava.dependsOn(':ballerina-test-utils:jar')
+
 description = 'Ballerina - Compiler API'

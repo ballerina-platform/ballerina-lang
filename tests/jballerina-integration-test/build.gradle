@@ -137,3 +137,4 @@ task createLaunchListenerUtilsLib(type: Copy) {
 
 tasks.test.dependsOn(createLaunchListenerUtilsLib)
 tasks.compileTestJava.dependsOn(":ballerina-io-internal:copyInteropImports")
+tasks.compileTestJava.dependsOn(':ballerina-test-utils:jar')

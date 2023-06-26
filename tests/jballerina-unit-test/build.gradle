@@ -39,9 +39,14 @@ dependencies {
     testImplementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
     testImplementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging'
     testImplementation 'org.testng:testng'
+    testImplementation "com.google.code.gson:gson:${project.gsonVersion}"
     testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     testImplementation project(':ballerina-runtime')
+    testImplementation project(':ballerina-tools-api')
+    testImplementation project(':identifier-util')
+    testImplementation project(':docerina')
     testRuntimeOnly project(':ballerina-runtime')
+
 
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
 
@@ -106,3 +111,4 @@ configurations.all {
     resolutionStrategy.preferProjectModules()
 }
 tasks.compileTestJava.dependsOn(':ballerina-lang-test:copyInteropImports')
+tasks.compileTestJava.dependsOn(':ballerina-test-utils:jar')

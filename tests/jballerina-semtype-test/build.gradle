@@ -43,3 +43,4 @@ test {
 }
 
 tasks.compileTestJava.dependsOn(':ballerina-lang-test:copyInteropImports')
+tasks.compileTestJava.dependsOn(':ballerina-test-utils:jar')

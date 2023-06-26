@@ -40,6 +40,7 @@ dependencies {
 
     testImplementation 'org.testng:testng'
     testImplementation project(':ballerina-test-utils')
+    testImplementation project(':ballerina-tools-api')
 }
 
 kaitai {

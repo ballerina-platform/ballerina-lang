@@ -27,6 +27,7 @@ dependencies {
 
     testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     testImplementation project(path: ':ballerina-runtime')
+    testImplementation project(':ballerina-tools-api')
     testImplementation 'org.testng:testng'
 
     testRuntimeOnly 'org.slf4j:slf4j-jdk14'
@@ -53,3 +54,5 @@ configurations {
 configurations.all {
     resolutionStrategy.preferProjectModules()
 }
+
+tasks.compileTestJava.dependsOn(':ballerina-test-utils:jar')

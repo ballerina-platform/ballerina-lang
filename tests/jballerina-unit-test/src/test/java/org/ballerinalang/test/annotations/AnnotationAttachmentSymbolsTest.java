@@ -23,7 +23,6 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
-import org.jetbrains.annotations.NotNull;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -429,7 +428,6 @@ public class AnnotationAttachmentSymbolsTest {
                 .get();
     }
 
-    @NotNull
     private List<BAnnotationAttachmentSymbol> getServiceAnnotsWithoutIntrospectionAnnot(
             List<? extends AnnotationAttachmentSymbol> annotations) {
         List<BAnnotationAttachmentSymbol> attachments = new ArrayList<>();

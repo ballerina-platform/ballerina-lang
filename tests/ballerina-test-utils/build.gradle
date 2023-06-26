@@ -38,7 +38,6 @@ configurations {
 }
 
 jar {
-    enabled = false
     dependsOn(shadowJar { archiveClassifier = null })
     manifest {
         attributes(
@@ -47,10 +46,6 @@ jar {
                 'Premain-Class': 'org.ballerinalang.test.agent.BallerinaServerAgent'
         )
     }
-}
-
-publishMavenJavaPublicationToMavenLocal {
-    enabled = false
 }
 
 shadowJar {
