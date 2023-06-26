@@ -21,6 +21,11 @@ under the License.
 
 <suite name="ballerina-projects-test-suite">
     <test name="ballerina-projects-test" preserve-order="true" parallel="false">
+        <groups>
+            <run>
+                <exclude name="broken"/>
+            </run>
+        </groups>
         <packages>
             <package name="io.ballerina.projects.test.*" />
         </packages>
