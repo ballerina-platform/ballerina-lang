@@ -28,7 +28,7 @@ jobs:
         run: git submodule update --init
 
       - name: Cache Gradle packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ github.sha }}
@@ -44,7 +44,6 @@ jobs:
   windows_build:
     name: Build with some tests on Windows
     runs-on: windows-latest
-    timeout-minutes: 120
     concurrency:
       group: ${{ github.head_ref }}-windows
       cancel-in-progress: true
@@ -60,7 +59,7 @@ jobs:
           java-version: '17.0.7'
 
       - name: configure Pagefile
-        uses: al-cheb/configure-pagefile-action@7e234852c937eea04d6ee627c599fb24a5bfffee
+        uses: al-cheb/configure-pagefile-action@v1.3
         with:
           minimum-size: 8GB
           maximum-size: 16GB
@@ -70,7 +69,7 @@ jobs:
         run: git submodule update --init
 
       - name: Cache Gradle packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
@@ -111,7 +110,7 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
 
       - name: Cache Gradle packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ github.sha }}
