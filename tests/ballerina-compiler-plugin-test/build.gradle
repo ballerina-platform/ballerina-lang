@@ -75,3 +75,5 @@ configurations {
     testImplementation.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testImplementation.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
 }
+
+tasks.compileTestJava.dependsOn(':ballerina-test-utils:jar')
