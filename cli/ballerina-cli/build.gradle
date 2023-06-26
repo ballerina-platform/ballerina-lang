@@ -119,4 +119,3 @@ compileJava {
 
 tasks.compileJava.dependsOn(':testerina:testerina-core:copyInteropImports')
 tasks.createJavadoc.dependsOn(':testerina:testerina-core:copyInteropImports')
-
