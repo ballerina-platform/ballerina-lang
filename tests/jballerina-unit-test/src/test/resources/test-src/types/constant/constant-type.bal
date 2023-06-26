@@ -327,6 +327,9 @@ const byte[6] data4 = base64 `ABCD pqrs`;
 const data5 = base16 `55 EE 66`;
 const data6 = base64 `ABCD pqrs`;
 
+const byte[*] data7 = base16 `55 EE 66`;
+const byte[*] data8 = base64 `ABCD pqrs`;
+
 function testConstByteArrLiteral() {
     assertEqual(data1.length(), 3);
     assertEqual(data2.length(), 6);
@@ -349,6 +352,16 @@ function testConstByteArrLiteral() {
     assertEqual(data6.length(), 6);
     assertEqual(data5[1], 0xEE);
     assertEqual(data6[2], 131);
+
+    assertEqual(data5.length(), 3);
+    assertEqual(data6.length(), 6);
+    assertEqual(data5[1], 0xEE);
+    assertEqual(data6[2], 131);
+
+    assertEqual(data7.length(), 3);
+    assertEqual(data8.length(), 6);
+    assertEqual(data7[1], 0xEE);
+    assertEqual(data8[2], 131);
 }
 
 function assertInvalidUpdateError(error? res, string expectedDetailMessage) {

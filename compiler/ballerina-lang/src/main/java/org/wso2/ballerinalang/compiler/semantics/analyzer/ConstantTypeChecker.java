@@ -257,6 +257,15 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
 
         if (literalType.tag == TypeTags.BYTE_ARRAY) {
             BLangListConstructorExpr listConstructorExpr = rewriteByteArrayLiteral(literalExpr);
+            BType expType = Types.getReferredType(data.expType);
+            if (expType.tag == TypeTags.ARRAY && ((BArrayType) expType).state == BArrayState.INFERRED) {
+                ((BArrayType) expType).size = listConstructorExpr.exprs.size();
+                ((BArrayType) expType).state = BArrayState.CLOSED;
+            }
+            if (types.typeIncompatible(literalExpr.pos, listConstructorExpr.getBType(), data.expType)) {
+                data.resultType = symTable.semanticError;
+                return;
+            }
             data.resultType = checkListConstructorCompatibility(literalType, listConstructorExpr, data);
             return;
         }
@@ -278,7 +287,9 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         byte[] values = types.convertToByteArray((String) literalExpr.value);
         BLangListConstructorExpr.BLangArrayLiteral arrayLiteralNode
                 = (BLangListConstructorExpr.BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
-        arrayLiteralNode.setBType(literalExpr.getBType());
+        BArrayType literalType = new BArrayType(symTable.byteType, null, values.length,
+                BArrayState.CLOSED);
+        arrayLiteralNode.setBType(literalType);
         arrayLiteralNode.pos = literalExpr.pos;
         arrayLiteralNode.exprs = new ArrayList<>();
         for (byte b : values) {
@@ -549,7 +560,7 @@ public class ConstantTypeChecker extends SimpleBLangNodeAnalyzer<ConstantTypeChe
         switch (possibleType.tag) {
             case TypeTags.MAP:
                 return validateSpecifiedFieldsAndGetType(mappingConstructor, possibleType, data);
-            case TypeTags.RECORD :
+            case TypeTags.RECORD:
                 boolean hasAllRequiredFields = validateRequiredFields((BRecordType) possibleType,
                         mappingConstructor.fields,
                         mappingConstructor.pos, data);

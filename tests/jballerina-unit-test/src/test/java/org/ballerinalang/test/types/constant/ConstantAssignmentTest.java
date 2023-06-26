@@ -126,6 +126,8 @@ public class ConstantAssignmentTest {
                 "'record {| (record {| \"a\" a; |} & readonly) x; int i; |}'", 24, 55);
         BAssertUtil.validateError(negativeCompileResult, i++, "missing non-defaultable required record field 'a'",
                 26, 14);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'string[]', found 'byte[2]'", 28, 20);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 
