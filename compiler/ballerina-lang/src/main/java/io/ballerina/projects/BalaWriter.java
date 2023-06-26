@@ -268,9 +268,6 @@ public abstract class BalaWriter {
     }
 
     private void addPackageSource(ZipOutputStream balaOutputStream) throws IOException {
-        // add default module directory
-        createDirectoryInZipFile(balaOutputStream, String.valueOf(Paths.get(MODULES_ROOT,
-                this.packageContext.packageName().toString())));
         // add module sources
         for (ModuleId moduleId : this.packageContext.moduleIds()) {
             Module module = this.packageContext.project().currentPackage().module(moduleId);
@@ -464,13 +461,6 @@ public abstract class BalaWriter {
                 }
             }
         }
-    }
-
-    protected void createDirectoryInZipFile(ZipOutputStream zipOutputStream, String directoryName)
-            throws IOException {
-        ZipEntry directoryEntry = new ZipEntry(directoryName + File.separator);
-        zipOutputStream.putNextEntry(directoryEntry);
-        zipOutputStream.closeEntry();
     }
 
     protected abstract Optional<JsonArray> addPlatformLibs(ZipOutputStream balaOutputStream)
