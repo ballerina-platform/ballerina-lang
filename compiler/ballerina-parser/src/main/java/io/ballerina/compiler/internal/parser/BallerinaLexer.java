@@ -1011,32 +1011,12 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.BASE64_KEYWORD);
             case LexerTerminals.MATCH:
                 return getSyntaxToken(SyntaxKind.MATCH_KEYWORD);
-            case LexerTerminals.CONFLICT:
-                return getSyntaxToken(SyntaxKind.CONFLICT_KEYWORD);
             case LexerTerminals.CLASS:
                 return getSyntaxToken(SyntaxKind.CLASS_KEYWORD);
             case LexerTerminals.CONFIGURABLE:
                 return getSyntaxToken(SyntaxKind.CONFIGURABLE_KEYWORD);
-            case LexerTerminals.WHERE:
-                return getSyntaxToken(SyntaxKind.WHERE_KEYWORD);
             case LexerTerminals.SELECT:
                 return getSyntaxToken(SyntaxKind.SELECT_KEYWORD);
-            case LexerTerminals.LIMIT:
-                return getSyntaxToken(SyntaxKind.LIMIT_KEYWORD);
-            case LexerTerminals.OUTER:
-                return getSyntaxToken(SyntaxKind.OUTER_KEYWORD);
-            case LexerTerminals.EQUALS:
-                return getSyntaxToken(SyntaxKind.EQUALS_KEYWORD);
-            case LexerTerminals.ORDER:
-                return getSyntaxToken(SyntaxKind.ORDER_KEYWORD);
-            case LexerTerminals.BY:
-                return getSyntaxToken(SyntaxKind.BY_KEYWORD);
-            case LexerTerminals.ASCENDING:
-                return getSyntaxToken(SyntaxKind.ASCENDING_KEYWORD);
-            case LexerTerminals.DESCENDING:
-                return getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
-            case LexerTerminals.JOIN:
-                return getSyntaxToken(SyntaxKind.JOIN_KEYWORD);
             case LexerTerminals.RE:
                 if (getNextNonWSOrNonCommentChar() == LexerTerminals.BACKTICK) {
                     return getSyntaxToken(SyntaxKind.RE_KEYWORD);

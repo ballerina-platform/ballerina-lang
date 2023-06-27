@@ -6050,27 +6050,17 @@ public class BallerinaParser extends AbstractParser {
             case AS_KEYWORD:
             case IN_KEYWORD:
             case FROM_KEYWORD:
-            case WHERE_KEYWORD:
             case LET_KEYWORD:
             case SELECT_KEYWORD:
             case DO_KEYWORD:
             case COLON_TOKEN:
             case ON_KEYWORD:
-            case CONFLICT_KEYWORD:
-            case LIMIT_KEYWORD:
-            case JOIN_KEYWORD:
-            case OUTER_KEYWORD:
-            case ORDER_KEYWORD:
-            case BY_KEYWORD:
-            case ASCENDING_KEYWORD:
-            case DESCENDING_KEYWORD:
-            case EQUALS_KEYWORD:
             case TYPE_KEYWORD:
                 return true;
             case RIGHT_DOUBLE_ARROW_TOKEN:
                 return isInMatchGuard;
             case IDENTIFIER_TOKEN:
-                return isGroupOrCollectKeyword(nextToken);
+                return isContextualKeyword(nextToken) || isKeywordMatch(SyntaxKind.CONFLICT_KEYWORD, nextToken);
             default:
                 return isSimpleType(tokenKind);
         }
@@ -9179,16 +9169,12 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACE_TOKEN:
             case COMMA_TOKEN:
             case FROM_KEYWORD:
-            case JOIN_KEYWORD:
             case ON_KEYWORD:
             case LET_KEYWORD:
-            case WHERE_KEYWORD:
-            case ORDER_KEYWORD:
-            case LIMIT_KEYWORD:
             case SELECT_KEYWORD:
                 return parseAsyncSendAction(expression, rightArrow, name);
             default:
-                if (isGroupOrCollectKeyword(nextToken)) {
+                if (isClauseStartContextualKeyword(nextToken)) {
                     return parseAsyncSendAction(expression, rightArrow, name);
                 }
 
@@ -11992,27 +11978,42 @@ public class BallerinaParser extends AbstractParser {
     private boolean isValidIntermediateQueryStart(STToken token) {
         switch (token.kind) {
             case FROM_KEYWORD:
-            case WHERE_KEYWORD:
             case LET_KEYWORD:
             case SELECT_KEYWORD:
-            case JOIN_KEYWORD:
-            case OUTER_KEYWORD:
-            case ORDER_KEYWORD:
-            case BY_KEYWORD:
-            case ASCENDING_KEYWORD:
-            case DESCENDING_KEYWORD:
-            case LIMIT_KEYWORD:
                 return true;
             case IDENTIFIER_TOKEN:
-                return isGroupOrCollectKeyword(token);
+                return isContextualKeyword(token);
             default:
                 return false;
         }
     }
 
     private static boolean isGroupOrCollectKeyword(STToken nextToken) {
-        return isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, nextToken)
-                || isKeywordMatch(SyntaxKind.GROUP_KEYWORD, nextToken);
+        return nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN
+                && (isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.GROUP_KEYWORD, nextToken));
+    }
+
+    private static boolean isContextualKeyword(STToken nextToken) {
+        return isKeywordMatch(SyntaxKind.WHERE_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.JOIN_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.OUTER_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.ORDER_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.BY_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.ASCENDING_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.DESCENDING_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.LIMIT_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.GROUP_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, nextToken);
+    }
+
+    private static boolean isClauseStartContextualKeyword(STToken nextToken) {
+        return isKeywordMatch(SyntaxKind.WHERE_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.JOIN_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.ORDER_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.LIMIT_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.GROUP_KEYWORD, nextToken)
+                || isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, nextToken);
     }
 
     static boolean isKeywordMatch(SyntaxKind syntaxKind, STToken token) {
@@ -12033,25 +12034,13 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case FROM_KEYWORD:
                 return parseFromClause(isRhsExpr, allowActions);
-            case WHERE_KEYWORD:
-                return parseWhereClause(isRhsExpr);
             case LET_KEYWORD:
                 return parseLetClause(isRhsExpr, allowActions);
             case SELECT_KEYWORD:
                 return parseSelectClause(isRhsExpr, allowActions);
-            case JOIN_KEYWORD:
-            case OUTER_KEYWORD:
-                return parseJoinClause(isRhsExpr);
-            case ORDER_KEYWORD:
-            case ASCENDING_KEYWORD:
-            case DESCENDING_KEYWORD:
-                return parseOrderByClause(isRhsExpr);
-            case LIMIT_KEYWORD:
-                return parseLimitClause(isRhsExpr);
             case DO_KEYWORD:
             case SEMICOLON_TOKEN:
             case ON_KEYWORD:
-            case CONFLICT_KEYWORD:
                 return null;
             default:
                 if (isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, nextToken)) {
@@ -12060,6 +12049,29 @@ public class BallerinaParser extends AbstractParser {
 
                 if (isKeywordMatch(SyntaxKind.GROUP_KEYWORD, nextToken)) {
                     return parseGroupByClause(isRhsExpr);
+                }
+
+                if (isKeywordMatch(SyntaxKind.WHERE_KEYWORD, nextToken)) {
+                    return parseWhereClause(isRhsExpr);
+                }
+
+                if (isKeywordMatch(SyntaxKind.LIMIT_KEYWORD, nextToken)) {
+                    return parseLimitClause(isRhsExpr);
+                }
+
+                if (isKeywordMatch(SyntaxKind.JOIN_KEYWORD, nextToken)
+                        || isKeywordMatch(SyntaxKind.OUTER_KEYWORD, nextToken)) {
+                    return parseJoinClause(isRhsExpr);
+                }
+
+                if (isKeywordMatch(SyntaxKind.ORDER_KEYWORD, nextToken)
+                        || isKeywordMatch(SyntaxKind.ASCENDING_KEYWORD, nextToken)
+                        || isKeywordMatch(SyntaxKind.DESCENDING_KEYWORD, nextToken)) {
+                    return parseOrderByClause(isRhsExpr);
+                }
+
+                if (isKeywordMatch(SyntaxKind.CONFLICT_KEYWORD, nextToken)) {
+                    return null;
                 }
 
                 recover(peek(), ParserRuleContext.QUERY_PIPELINE_RHS);
@@ -12088,16 +12100,11 @@ public class BallerinaParser extends AbstractParser {
 
         if (isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, token)) {
             // this is to treat "collect" as a keyword, even if its parsed as an identifier from lexer.
-            return getCollectKeyword(consume());
+            return getKeyword(consume(), SyntaxKind.COLLECT_KEYWORD);
         }
 
         recover(token, ParserRuleContext.COLLECT_KEYWORD);
         return parseCollectKeyword();
-    }
-
-    private STNode getCollectKeyword(STToken token) {
-        return STNodeFactory.createToken(SyntaxKind.COLLECT_KEYWORD, token.leadingMinutiae(), token.trailingMinutiae(),
-                token.diagnostics());
     }
 
     /**
@@ -12109,10 +12116,13 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         if (token.kind == SyntaxKind.JOIN_KEYWORD) {
             return consume();
-        } else {
-            recover(token, ParserRuleContext.JOIN_KEYWORD);
-            return parseJoinKeyword();
         }
+        if (isKeywordMatch(SyntaxKind.JOIN_KEYWORD, token)) {
+            // this is to treat "join" as a keyword, even if its parsed as an identifier from lexer.
+            return getKeyword(consume(), SyntaxKind.JOIN_KEYWORD);
+        }
+        recover(token, ParserRuleContext.JOIN_KEYWORD);
+        return parseJoinKeyword();
     }
 
     /**
@@ -12124,10 +12134,13 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         if (token.kind == SyntaxKind.EQUALS_KEYWORD) {
             return consume();
-        } else {
-            recover(token, ParserRuleContext.EQUALS_KEYWORD);
-            return parseEqualsKeyword();
         }
+        if (isKeywordMatch(SyntaxKind.EQUALS_KEYWORD, token)) {
+            // this is to treat "where" as a keyword, even if its parsed as an identifier from lexer.
+            return getKeyword(consume(), SyntaxKind.EQUALS_KEYWORD);
+        }
+        recover(token, ParserRuleContext.EQUALS_KEYWORD);
+        return parseEqualsKeyword();
     }
 
     private boolean isEndOfIntermediateClause(SyntaxKind tokenKind) {
@@ -12213,10 +12226,18 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         if (token.kind == SyntaxKind.WHERE_KEYWORD) {
             return consume();
-        } else {
-            recover(token, ParserRuleContext.WHERE_KEYWORD);
-            return parseWhereKeyword();
         }
+        if (isKeywordMatch(SyntaxKind.WHERE_KEYWORD, token)) {
+            // this is to treat "where" as a keyword, even if its parsed as an identifier from lexer.
+            return getKeyword(consume(), SyntaxKind.WHERE_KEYWORD);
+        }
+        recover(token, ParserRuleContext.WHERE_KEYWORD);
+        return parseWhereKeyword();
+    }
+
+    private STNode getKeyword(STToken token, SyntaxKind kind) {
+        return STNodeFactory.createToken(kind, token.leadingMinutiae(), token.trailingMinutiae(),
+                token.diagnostics());
     }
 
     /**
@@ -12228,10 +12249,13 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         if (token.kind == SyntaxKind.LIMIT_KEYWORD) {
             return consume();
-        } else {
-            recover(token, ParserRuleContext.LIMIT_KEYWORD);
-            return parseLimitKeyword();
         }
+        if (isKeywordMatch(SyntaxKind.LIMIT_KEYWORD, token)) {
+            // this is to treat "limit" as a keyword, even if its parsed as an identifier from lexer.
+            return getKeyword(consume(), SyntaxKind.LIMIT_KEYWORD);
+        }
+        recover(token, ParserRuleContext.LIMIT_KEYWORD);
+        return parseLimitKeyword();
     }
 
     /**
@@ -12283,17 +12307,13 @@ public class BallerinaParser extends AbstractParser {
 
         if (isKeywordMatch(SyntaxKind.GROUP_KEYWORD, token)) {
             // this is to treat "group" as a keyword, even if its parsed as an identifier from lexer.
-            return getGroupKeyword(consume());
+            return getKeyword(consume(), SyntaxKind.GROUP_KEYWORD);
         }
 
         recover(token, ParserRuleContext.GROUP_KEYWORD);
         return parseGroupKeyword();
     }
 
-    private STNode getGroupKeyword(STToken token) {
-        return STNodeFactory.createToken(SyntaxKind.GROUP_KEYWORD, token.leadingMinutiae(), token.trailingMinutiae(),
-                token.diagnostics());
-    }
 
     /**
      * Parse order-keyword.
@@ -12304,10 +12324,13 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         if (token.kind == SyntaxKind.ORDER_KEYWORD) {
             return consume();
-        } else {
-            recover(token, ParserRuleContext.ORDER_KEYWORD);
-            return parseOrderKeyword();
         }
+        if (isKeywordMatch(SyntaxKind.ORDER_KEYWORD, token)) {
+            // this is to treat "order" as a keyword, even if its parsed as an identifier from lexer.
+            return getKeyword(consume(), SyntaxKind.ORDER_KEYWORD);
+        }
+        recover(token, ParserRuleContext.ORDER_KEYWORD);
+        return parseOrderKeyword();
     }
 
     /**
@@ -12319,10 +12342,13 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         if (token.kind == SyntaxKind.BY_KEYWORD) {
             return consume();
-        } else {
-            recover(token, ParserRuleContext.BY_KEYWORD);
-            return parseByKeyword();
         }
+        if (isKeywordMatch(SyntaxKind.BY_KEYWORD, token)) {
+            // this is to treat "by" as a keyword, even if its parsed as an identifier from lexer.
+            return getKeyword(consume(), SyntaxKind.BY_KEYWORD);
+        }
+        recover(token, ParserRuleContext.BY_KEYWORD);
+        return parseByKeyword();
     }
 
     /**
@@ -12445,16 +12471,12 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case SELECT_KEYWORD:
             case LET_KEYWORD:
-            case WHERE_KEYWORD:
-            case OUTER_KEYWORD:
-            case JOIN_KEYWORD:
-            case ORDER_KEYWORD:
             case DO_KEYWORD:
             case FROM_KEYWORD:
-            case LIMIT_KEYWORD:
                 return true;
             case IDENTIFIER_TOKEN:
-                return isGroupOrCollectKeyword(nextToken);
+                return isClauseStartContextualKeyword(nextToken)
+                        || isKeywordMatch(SyntaxKind.OUTER_KEYWORD, nextToken);
             default:
                 return false;
         }
@@ -12544,13 +12566,17 @@ public class BallerinaParser extends AbstractParser {
 
         STNode orderDirection;
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case ASCENDING_KEYWORD:
-            case DESCENDING_KEYWORD:
-                orderDirection = consume();
-                break;
-            default:
-                orderDirection = STNodeFactory.createEmptyNode();
+
+        if (nextToken.kind == SyntaxKind.ASCENDING_KEYWORD || nextToken.kind == SyntaxKind.DESCENDING_KEYWORD) {
+            orderDirection = consume();
+        } else if (isKeywordMatch(SyntaxKind.ASCENDING_KEYWORD, nextToken)) {
+            // this is to treat "where" as a keyword, even if its parsed as an identifier from lexer.
+            orderDirection = getKeyword(consume(), SyntaxKind.ASCENDING_KEYWORD);
+        } else if (isKeywordMatch(SyntaxKind.DESCENDING_KEYWORD, nextToken)) {
+            // this is to treat "where" as a keyword, even if its parsed as an identifier from lexer.
+            orderDirection = getKeyword(consume(), SyntaxKind.DESCENDING_KEYWORD);
+        } else {
+            orderDirection = STNodeFactory.createEmptyNode();
         }
 
         return STNodeFactory.createOrderKeyNode(expression, orderDirection);
@@ -12658,10 +12684,11 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.OUTER_KEYWORD) {
             outerKeyword = consume();
+        } else if (isKeywordMatch(SyntaxKind.OUTER_KEYWORD, nextToken)) {
+            outerKeyword = getKeyword(consume(), SyntaxKind.OUTER_KEYWORD);
         } else {
             outerKeyword = STNodeFactory.createEmptyNode();
         }
-
         STNode joinKeyword = parseJoinKeyword();
         STNode typedBindingPattern = parseTypedBindingPattern(ParserRuleContext.JOIN_CLAUSE);
         STNode inKeyword = parseInKeyword();
