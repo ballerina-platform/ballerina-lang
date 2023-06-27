@@ -294,7 +294,7 @@ type R2 record {|
     string y;
 |};
 
-function testRecordReadonlynessWithNeverFields() {
+function testRecordReadonlynessWithNeverFieldsNegative() {
     R1 r1 = {};
     readonly x = r1;
 
