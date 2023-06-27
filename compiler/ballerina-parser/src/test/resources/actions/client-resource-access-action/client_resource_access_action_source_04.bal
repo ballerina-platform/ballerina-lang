@@ -8,7 +8,7 @@ function foo() {
     a->[...restSegment]();
     a->games/[...restSegment].get;
     a->games/[game]/[...restSegment];
-    // a->.post;
+    a->.post;
     a ->     .post(arg);
     a -> .     ();
     a -> .     (arg, arg2) ;
