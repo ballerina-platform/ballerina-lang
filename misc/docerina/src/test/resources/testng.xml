@@ -22,7 +22,7 @@ under the License.
 <suite name="ballerina-docgen-test-suite">
 
     <!-- Ballerina Docgen Test Cases. -->
-    <test name="ballerina-docgen-test-suite" preserve-order="true" parallel="false">
+    <test name="ballerina-docgen-test-suite" preserve-order="true">
         <groups>
             <run>
                 <exclude name="broken"/>

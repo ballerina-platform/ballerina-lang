@@ -20,7 +20,7 @@ under the License.
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="toml-parser-test-suite">
-    <test name="toml-parser-test" preserve-order="true" parallel="false">
+    <test name="toml-parser-test" preserve-order="true">
         <packages>
             <package name="toml.parser.test.*" />
         </packages>

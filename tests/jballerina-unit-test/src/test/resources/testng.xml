@@ -21,7 +21,7 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-new-parser-test-suite" time-out="120000">
-    <test name="jballerina-test" parallel="false">
+    <test name="jballerina-test">
         <parameter name="enableJBallerinaTests" value="true"/>
         <packages>
             <package name="org.ballerinalang.test.access.*"/>

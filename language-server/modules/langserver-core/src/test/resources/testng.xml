@@ -20,7 +20,7 @@ under the License.
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="language-server-core-test-suite">
-    <test name="language-server-core-tests" preserve-order="true" parallel="false">
+    <test name="language-server-core-tests" preserve-order="true">
         <groups>
             <run>
                 <exclude name="broken"/>
