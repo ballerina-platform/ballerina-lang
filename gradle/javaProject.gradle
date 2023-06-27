@@ -86,7 +86,7 @@ dependencies {
         implementation "org.ow2.asm:asm-tree:${project.ow2AsmTreeVersion}"
         implementation "org.scala-lang:scala-library:${project.scalaLibraryVersion}"
         implementation "org.slf4j:slf4j-simple:${project.slf4jSimpleVersion}"
-        implementation "org.slf4j:slf4j-jdk17:${project.slf4jJdk17Version}"
+        implementation "org.slf4j:slf4j-jdk14:${project.slf4jJdk14Version}"
         implementation "org.testng:testng:${project.testngVersion}"
         implementation "org.wso2.carbon.messaging:org.wso2.carbon.messaging:${project.wso2CarbonMessagingVersion}"
         implementation "org.yaml:snakeyaml:${project.snakeyamlVersion}"

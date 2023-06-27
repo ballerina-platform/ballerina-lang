@@ -44,7 +44,7 @@ dependencies {
     distBal project(path: ':ballerina-lang:annotations', configuration: 'balaImplementation')
 
     testImplementation 'org.testng:testng'
-    testImplementation 'org.slf4j:slf4j-jdk17'
+    testImplementation 'org.slf4j:slf4j-jdk14'
 
     balRt project(':ballerina-rt')
 }

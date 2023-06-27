@@ -29,7 +29,7 @@ dependencies {
     testImplementation project(path: ':ballerina-runtime')
     testImplementation 'org.testng:testng'
 
-    testRuntimeOnly 'org.slf4j:slf4j-jdk17'
+    testRuntimeOnly 'org.slf4j:slf4j-jdk14'
 }
 
 test {
