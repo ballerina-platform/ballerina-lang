@@ -48,11 +48,11 @@ public class ClientResourceAccessActionTest extends AbstractActionTest {
     
     // Recovery tests
 
-//    @Test
-//    public void testRecoveryForResourceMethodCallActionSlashToken() {
-//        testFile("client-resource-access-action/client_resource_access_action_source_04.bal",
-//                "client-resource-access-action/client_resource_access_action_assert_04.json");
-//    }
+    @Test
+    public void testRecoveryForResourceMethodCallActionSlashToken() {
+        testFile("client-resource-access-action/client_resource_access_action_source_04.bal",
+                "client-resource-access-action/client_resource_access_action_assert_04.json");
+    }
 
     @Test
     public void testRecoveryForResourceMethodCallActionRhs() {
@@ -60,11 +60,11 @@ public class ClientResourceAccessActionTest extends AbstractActionTest {
                 "client-resource-access-action/client_resource_access_action_assert_05.json");
     }
 
-//    @Test
-//    public void testRecoveryForResourceMethodCallActionRhsInDifferentContexts() {
-//        testFile("client-resource-access-action/client_resource_access_action_source_06.bal",
-//                "client-resource-access-action/client_resource_access_action_assert_06.json");
-//    }
+    @Test
+    public void testRecoveryForResourceMethodCallActionRhsInDifferentContexts() {
+        testFile("client-resource-access-action/client_resource_access_action_source_06.bal",
+                "client-resource-access-action/client_resource_access_action_assert_06.json");
+    }
 
     @Test
     public void testRecoveryForResourceMethodCallActionhsInExprOnlyCtx() {

@@ -3680,7 +3680,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case METHOD_NAME:
                 return ParserRuleContext.OPTIONAL_RESOURCE_ACCESS_ACTION_ARG_LIST;
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
-                return ParserRuleContext.EXPRESSION_RHS;
+                return ParserRuleContext.ACTION_END;
             case SYNC_SEND_TOKEN:
                 return ParserRuleContext.PEER_WORKER_NAME;
             case LEFT_ARROW_TOKEN:
