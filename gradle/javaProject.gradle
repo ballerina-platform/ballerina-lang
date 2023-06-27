@@ -15,7 +15,7 @@
  *
  */
 
-apply plugin: 'java'
+apply plugin: 'java-library'
 apply plugin: 'checkstyle'
 apply plugin: "com.github.spotbugs"
 apply plugin: 'jacoco'
