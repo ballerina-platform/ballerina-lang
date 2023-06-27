@@ -31,6 +31,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * This class is used to profile Ballerina programs.
+ *
+ * @since 2201.7.0
+ */
 public class JSONParser {
     public static void initializeCPUParser(String skipFunctionString) {
         ArrayList<String> skipList = new ArrayList<>();
@@ -67,11 +72,12 @@ public class JSONParser {
     static void writer(String parsedJson) {
         parsedJson = "var data = " + parsedJson;
         try {
-            FileWriter myWriter = new FileWriter("performance_report.json"); // Create a FileWriter object to write to the specified file
+            // Create a FileWriter object to write to the specified file
+            FileWriter myWriter = new FileWriter("performance_report.json");
             myWriter.write(parsedJson); // Write the parsed json string to the file
             myWriter.flush(); // Flush the writer
         } catch (IOException e) {
-            System.out.println("An error occurred."); // Print an error message
+            System.out.printf("An error occurred." + "%n"); // Print an error message
         }
     }
 
@@ -151,7 +157,7 @@ public class JSONParser {
             jsonObject.put("value", totalTime); // Add the total time as the value
             writer(jsonObject.toString()); // write the json object to a file
         } catch (Exception | Error throwable) {
-            System.out.println(throwable);
+            System.out.printf(throwable + "%n");
         }
     }
 

@@ -23,6 +23,11 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
 
+/**
+ * This class is used to profile Ballerina programs.
+ *
+ * @since 2201.7.0
+ */
 public class StrandCheckAdapter extends AdviceAdapter {
     String profilerOwner = "io/ballerina/runtime/profiler/runtime/Profiler";
     String profilerDescriptor = "()Lio/ballerina/runtime/profiler/runtime/Profiler;";
@@ -30,19 +35,19 @@ public class StrandCheckAdapter extends AdviceAdapter {
     int load;
 
     /**
-     Constructor for MethodWrapperAdapter
-     @param access - access flag of the method that is wrapped
-     @param mv - MethodVisitor instance to generate the bytecode
-     @param methodName - name of the method that is wrapped
-     @param description - description of the method that is wrapped
-     @param load - the index of the local variable that holds the strand instance
+     Constructor for MethodWrapperAdapter.
+     @param access - access flag of the method that is wrapped.
+     @param mv - MethodVisitor instance to generate the bytecode.
+     @param methodName - name of the method that is wrapped.
+     @param description - description of the method that is wrapped.
+     @param load - the index of the local variable that holds the strand instance.
      */
 
     public StrandCheckAdapter(int access, MethodVisitor mv, String methodName, String description, int load) {
         super(Opcodes.ASM9, mv, access, methodName, description);
-        if (load == 0){
+        if (load == 0) {
             this.load = 1;
-        }else {
+        } else {
             this.load = 0;
         }
     }
@@ -64,9 +69,9 @@ public class StrandCheckAdapter extends AdviceAdapter {
     }
 
     /**
-     This method is called when the wrapped method is exited
-     If the exit is not due to an exception, it calls the onFinally method
-     @param opcode - the opcode of the instruction that caused the method exit
+     This method is called when the wrapped method is exited.
+     If the exit is not due to an exception, it calls the onFinally method.
+     @param opcode - the opcode of the instruction that caused the method exit.
      */
     protected void onMethodExit(int opcode) {
         if (opcode != ATHROW) {
@@ -75,10 +80,10 @@ public class StrandCheckAdapter extends AdviceAdapter {
     }
 
     /**
-     This method is called to generate the max stack and max locals for the wrapped method
-     It adds a try-catch block to the wrapped method and calls the onFinally method in the catch block
-     @param maxStack - the maximum stack size
-     @param maxLocals - the maximum number of local variables
+     This method is called to generate the max stack and max locals for the wrapped method.
+     It adds a try-catch block to the wrapped method and calls the onFinally method in the catch block.
+     @param maxStack - the maximum stack size.
+     @param maxLocals - the maximum number of local variables.
      */
     public void visitMaxs(int maxStack, int maxLocals) {
         Label tryEnd = new Label();
@@ -94,8 +99,10 @@ public class StrandCheckAdapter extends AdviceAdapter {
     private void onFinally() {
         mv.visitMethodInsn(INVOKESTATIC, profilerOwner, "getInstance", profilerDescriptor, false);
         mv.visitVarInsn(ALOAD, load);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "io/ballerina/runtime/internal/scheduling/Strand", "getState", "()Lio/ballerina/runtime/internal/scheduling/State;", false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, "io/ballerina/runtime/internal/scheduling/State", "toString", "()Ljava/lang/String;", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, "io/ballerina/runtime/internal/scheduling/Strand",
+                "getState", "()Lio/ballerina/runtime/internal/scheduling/State;", false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, "io/ballerina/runtime/internal/scheduling/State",
+                "toString", "()Ljava/lang/String;", false);
         mv.visitVarInsn(ALOAD, load);
         mv.visitMethodInsn(INVOKEVIRTUAL, "io/ballerina/runtime/internal/scheduling/Strand", "getId", "()I", false);
         mv.visitMethodInsn(INVOKEVIRTUAL, profilerOwner, "stop", "(Ljava/lang/String;I)V", false);

@@ -20,7 +20,11 @@ package io.ballerina.runtime.profiler.runtime;
 
 import java.util.concurrent.TimeUnit;
 
-
+/**
+ * This class is used to profile Ballerina programs.
+ *
+ * @since 2201.7.0
+ */
 public class Data {
     private String name;
     private long startTime;

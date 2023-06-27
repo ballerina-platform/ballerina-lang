@@ -21,6 +21,11 @@ package io.ballerina.runtime.profiler.codegen;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
+/**
+ * This class is used to profile Ballerina programs.
+ *
+ * @since 2201.7.0
+ */
 public class CustomClassWriter extends ClassWriter {
     private static final String OBJECT_CLASS = "java/lang/Object";
 

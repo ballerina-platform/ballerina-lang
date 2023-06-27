@@ -32,6 +32,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * This class is used to profile Ballerina programs.
+ *
+ * @since 2201.7.0
+ */
 public class Profiler {
     private static Profiler singletonInstance = null;
     private final HashMap<String, Data> profiles = new HashMap<>();
@@ -50,7 +55,8 @@ public class Profiler {
             List<String> skippedListRead = new ArrayList<>(Arrays.asList(content.split(", ")));
             skippedList.addAll(skippedListRead);
             skippedClasses.addAll(skippedList);
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
     }
 
     public static Profiler getInstance() {
@@ -147,7 +153,7 @@ public class Profiler {
             myWriter.write(dataStream);
             myWriter.close();
         } catch (IOException var3) {
-            System.out.println("An error occurred.");
+            System.out.printf("An error occurred." + "%n");
             var3.printStackTrace();
         }
     }
@@ -165,19 +171,21 @@ public class Profiler {
         ArrayList<String> result = new ArrayList<>();
 
         final List<StackWalker.StackFrame> stack = StackWalker.getInstance().walk(s -> s.collect(Collectors.toList()));
-        stack.subList(0, 2).clear(); //Removes the first 2 stack frames (index 0 and 1) and reverses the order of the remaining stack frames
+        //Removes the first 2 stack frames (index 0 and 1) and reverses the order of the remaining stack frames
+        stack.subList(0, 2).clear();
         Collections.reverse(stack); //Reverse the collection
 
         for (StackWalker.StackFrame frame : stack) {
             if (skippedClasses.contains(frame.getClassName())) {
                 String frameString = frame.toString();
 
-                if (frameString.contains("&")){
+                if (frameString.contains("&")) {
                     frameString = "\"" + frameString + "\"";
-                }else {
+                } else {
                     frameString = "\"" + frameString.replaceAll("\\(.*\\)", "") + "()" + "\"";
                     int lastDotIndex = frameString.lastIndexOf('.');
-                    frameString = frameString.substring(0, lastDotIndex).replace('.', '/') + frameString.substring(lastDotIndex);
+                    frameString = frameString.substring(0, lastDotIndex)
+                            .replace('.', '/') + frameString.substring(lastDotIndex);
                 }
                 result.add(decodeIdentifier(frameString));
             }
@@ -210,7 +218,8 @@ public class Profiler {
         return decodeGeneratedMethodName(stringBuilder.toString());
     }
 
-    // This method checks if the substring of the encoded identifier starting from the given index represents a Unicode code point
+    // This method checks if the substring of the encoded identifier starting
+    // from the given index represents a Unicode code point
     private static boolean isUnicodePoint(String encodedName, int index) {
         return (containsOnlyDigits(encodedName.substring(index + 1, index + 5)));
     }

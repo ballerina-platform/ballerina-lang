@@ -18,6 +18,11 @@
 
 package io.ballerina.runtime.profiler.ui;
 
+/**
+ * This class is used to profile Ballerina programs.
+ *
+ * @since 2201.7.0
+ */
 public class FrontEnd {
 
     static String getSiteData(String contents) {
@@ -29,7 +34,9 @@ public class FrontEnd {
                 "   <meta charset=\"utf-8\">\n" +
                 "   <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n" +
                 "   <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" +
-                "   <link rel=\"stylesheet\" href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\">\n" +
+
+                "   <link rel=\"stylesheet\"" +
+                "href=\"https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css\">\n" +
                 "   <link rel=\"stylesheet\" type=\"text/css\"\n" +
                 "      href=\"https://cdn.jsdelivr.net/gh/spiermar/d3-flame-graph@2.0.3/dist/d3-flamegraph.css\">\n" +
                 "\n" +
@@ -94,7 +101,7 @@ public class FrontEnd {
                 "         outline: none;\n" +
                 "         stroke: #f0efef;\n" +
                 "         fill-opacity: .8;\n" +
-                "      }"+
+                "      }" +
                 "\n" +
                 "      .header h3 {\n" +
                 "         margin-left: 40px;\n" +
@@ -172,7 +179,8 @@ public class FrontEnd {
                 "            <div class=\"pull-right\">\n" +
                 "               <form class=\"form-inline\" id=\"form\">\n" +
                 "                  <div class=\"form-group\">\n" +
-                "                     <input placeholder=\"Search...\" id=\"searchBox\" type=\"text\" class=\"form-control\" id=\"term\">\n" +
+                "                     <input placeholder=\"Search...\"" +
+                "                     id=\"searchBox\" type=\"text\" class=\"form-control\" id=\"term\">\n" +
                 "                  </div>\n" +
                 "                  <a class=\"btn btn-primary\" href=\"javascript: search();\">Search</a>\n" +
                 "                  <a class=\"btn\" href=\"javascript: resetZoom();\">Reset zoom</a>\n" +
@@ -180,21 +188,32 @@ public class FrontEnd {
                 "               </form>\n" +
                 "            </div>\n" +
                 "         </nav>\n" +
-                "         <img class=\"balLogo\" src=\"https://ballerina.io/images/ballerina-logo.svg\" alt=\"B7A\" /> <div id=\"profilerLogo\"> Profiler </div>\n" +
+                "         <img class=\"balLogo\" src=\"https://ballerina.io/images/ballerina-logo.svg\"" +
+                "         alt=\"B7A\" /> <div id=\"profilerLogo\"> Profiler </div>\n" +
                 "      </div>\n" +
                 "      <div id=\"chart\"></div>\n" +
                 "      <div id=\"details\"></div>\n" +
                 "   </div>\n" +
                 "   <script type=\"text/javascript\" src=\"https://d3js.org/d3.v7.js\"></script>\n" +
                 "   <script type=\"text/javascript\"\n" +
-                "      src=\"https://cdn.jsdelivr.net/gh/spiermar/d3-flame-graph@2.0.3/dist/d3-flamegraph.min.js\"></script>" +
+                "      src=\"https://cdn.jsdelivr.net/gh/spiermar/" +
+                "d3-flame-graph@2.0.3/dist/d3-flamegraph.min.js\"></script>" +
                 "   <script type=\"text/javascript\">\n" +
                 "\n" +
                 "\n" +
                 contents +
                 "\n" +
                 "\n" +
-                "      var flameGraph = d3.flamegraph().width(1840).selfValue(false).cellHeight(18).transitionDuration(750).minFrameSize(5).transitionEase(d3.easeCubic).sort(false).onClick(onClick).differential(false);\n" +
+                "var flameGraph = d3.flamegraph()\n" +
+                "    .width(1840)\n" +
+                "    .selfValue(false)\n" +
+                "    .cellHeight(18)\n" +
+                "    .transitionDuration(750)\n" +
+                "    .minFrameSize(5)\n" +
+                "    .transitionEase(d3.easeCubic)\n" +
+                "    .sort(false)\n" +
+                "    .onClick(onClick)\n" +
+                "    .differential(false);\n" +
                 "\n" +
                 "      var details = document.getElementById(\"details\");\n" +
                 "      flameGraph.setDetailsElement(details);\n" +

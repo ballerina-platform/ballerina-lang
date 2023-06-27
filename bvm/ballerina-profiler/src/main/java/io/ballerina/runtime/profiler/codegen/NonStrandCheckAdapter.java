@@ -22,17 +22,21 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
 
-
+/**
+ * This class is used to profile Ballerina programs.
+ *
+ * @since 2201.7.0
+ */
 public class NonStrandCheckAdapter extends AdviceAdapter {
     String profilerOwner = "io/ballerina/runtime/profiler/runtime/Profiler";
     String profilerDescriptor = "()Lio/ballerina/runtime/profiler/runtime/Profiler;";
 
     /**
-     Constructor for MethodWrapperAdapter
-     @param access - access flag of the method that is wrapped
-     @param mv - MethodVisitor instance to generate the bytecode
-     @param methodName - name of the method that is wrapped
-     @param description - description of the method that is wrapped
+     Constructor for MethodWrapperAdapter.
+     @param access - access flag of the method that is wrapped.
+     @param mv - MethodVisitor instance to generate the bytecode.
+     @param methodName - name of the method that is wrapped.
+     @param description - description of the method that is wrapped.
      */
 
     public NonStrandCheckAdapter(int access, MethodVisitor mv, String methodName, String description) {

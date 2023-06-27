@@ -20,6 +20,11 @@ package io.ballerina.runtime.profiler.codegen;
 
 import org.objectweb.asm.ClassReader;
 
+/**
+ * This class is used to profile Ballerina programs.
+ *
+ * @since 2201.7.0
+ */
 public class CustomClassLoader extends ClassLoader {
     public CustomClassLoader(ClassLoader parent) {
         super(parent);
@@ -30,7 +35,7 @@ public class CustomClassLoader extends ClassLoader {
         try {
             classOut = defineClass(name, code, 0, code.length);
         } catch (Error e) {
-            System.out.println(name);
+            System.out.printf(name + "\n");
         }
         return classOut;
     }

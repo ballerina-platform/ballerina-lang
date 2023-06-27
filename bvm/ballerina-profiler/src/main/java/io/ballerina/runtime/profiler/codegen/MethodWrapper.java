@@ -34,12 +34,19 @@ import java.util.Arrays;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
-import static io.ballerina.runtime.profiler.Main.*;
+import static io.ballerina.runtime.profiler.Main.ANSI_CYAN;
+import static io.ballerina.runtime.profiler.Main.ANSI_RESET;
+import static io.ballerina.runtime.profiler.Main.balJarArgs;
+import static io.ballerina.runtime.profiler.Main.tempJarFileName;
 
+/**
+ * This class is used to profile Ballerina programs.
+ *
+ * @since 2201.7.0
+ */
 public class MethodWrapper extends ClassLoader {
-
     public static void invokeMethods() throws IOException, InterruptedException {
-        String[] command = {"java", "-jar", TEMP_JAR_FILE_NAME};
+        String[] command = {"java", "-jar", tempJarFileName};
         if (balJarArgs != null) {
             command = Arrays.copyOf(command, command.length + 1);
             command[3] = balJarArgs;
@@ -47,7 +54,7 @@ public class MethodWrapper extends ClassLoader {
         ProcessBuilder processBuilder = new ProcessBuilder(command);
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
-        System.out.println(ANSI_CYAN + "[5/6] Running Executable..." + ANSI_RESET);
+        System.out.printf(ANSI_CYAN + "[5/6] Running Executable..." + ANSI_RESET + "%n");
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         reader.lines().forEach(System.out::println);
         process.waitFor();
@@ -60,7 +67,7 @@ public class MethodWrapper extends ClassLoader {
             Attributes attributes = manifest.getMainAttributes();
             return attributes.getValue("Main-Class").replace(".$_init", "").replace(".", "/");
         } catch (Exception | Error throwable) {
-            System.err.println(throwable);
+            System.err.printf(throwable + "%n");
             return null;
         }
     }
@@ -69,13 +76,16 @@ public class MethodWrapper extends ClassLoader {
         byte[] code;
         try {
             ClassReader reader = new ClassReader(inputStream); //Create a ClassReader object using the inputStream
-            ClassWriter classWriter = new CustomClassWriter(reader, ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES); //Create a BallerinaClassWriter object using the classReader with both COMPUTE_MAXS and COMPUTE_FRAMES
-            ClassVisitor change = new CustomClassVisitor(classWriter); //Create a ClassVisitor object to make changes to the class
+            //Create a BallerinaClassWriter object using the classReader with both COMPUTE_MAXS and COMPUTE_FRAMES
+            ClassWriter classWriter = new CustomClassWriter(reader,
+                    ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
+            //Create a ClassVisitor object to make changes to the class
+            ClassVisitor change = new CustomClassVisitor(classWriter);
             reader.accept(change, ClassReader.EXPAND_FRAMES); //Accept the changes using the classReader
             code = classWriter.toByteArray(); //Convert the changed code into a Byte Array
             return code; //Return the Byte Array
         } catch (Exception | Error e) {
-            e.printStackTrace(); //Print the stack trace of the exception or error
+            System.out.printf(e + "%n"); //Print the stack trace of the exception or error
         }
         return null; //Return null if the code was not modified
     }
@@ -90,6 +100,7 @@ public class MethodWrapper extends ClassLoader {
             FileOutputStream fos = new FileOutputStream(className);
             fos.write(code); //Write the code to the output stream
             fos.close(); //Close the output stream
-        } catch (IOException ignore) {}
+        } catch (IOException ignore) {
+        }
     }
 }

@@ -62,7 +62,7 @@ public class Main {
     // Define public static variables for the program
     public static long profilerStartTime;
     public static int exitCode = 0;
-    public static String TEMP_JAR_FILE_NAME = "temp.jar";
+    public static String tempJarFileName = "temp.jar";
     public static String balJarArgs = null;
     public static String balJarName = null;
     public static String skipFunctionString = null;
@@ -85,12 +85,14 @@ public class Main {
     }
 
     private static void printHeader() {
-        String header = "\n" +
-                ANSI_GRAY + "================================================================================" + ANSI_RESET + "\n" +
-                ANSI_CYAN + "Ballerina Profiler" + ANSI_RESET + ": Profiling..." + "\n" +
-                ANSI_GRAY + "================================================================================" + ANSI_RESET + "\n" +
+        String header = "%n" +
+                ANSI_GRAY + "================================================================================" +
+                ANSI_RESET + "%n" +
+                ANSI_CYAN + "Ballerina Profiler" + ANSI_RESET + ": Profiling..." + "%n" +
+                ANSI_GRAY + "================================================================================" +
+                ANSI_RESET + "%n" +
                 "WARNING : Ballerina Profiler is an experimental feature.";
-        System.out.println(header);
+        System.out.printf(header + "%n");
     }
 
     private static void handleProfilerArguments(String[] args) {
@@ -102,8 +104,8 @@ public class Main {
                         balJarName = args[i + 1];
                         if ((balJarName.startsWith("[") && balJarName.endsWith("]"))) {
                             balJarName = balJarName.substring(1, balJarName.length() - 1);
-                        }else {
-                            System.out.println(invalidArgument);
+                        } else {
+                            System.out.printf(invalidArgument + "\n");
                             System.exit(0);
                         }
                         break;
@@ -111,17 +113,17 @@ public class Main {
                         balJarArgs = args[i + 1];
                         if (balJarArgs != null && balJarArgs.startsWith("[") && balJarArgs.endsWith("]")) {
                             balJarArgs = balJarArgs.substring(1, balJarArgs.length() - 1);
-                        }else {
-                            System.out.println(invalidArgument);
+                        } else {
+                            System.out.printf(invalidArgument + "\n");
                             System.exit(0);
                         }
                         break;
                     case "--skip":
                         skipFunctionString = args[i + 1];
-                        if (skipFunctionString != null && skipFunctionString.startsWith("[") && skipFunctionString.endsWith("]")) {
+                        if (skipFunctionString != null && skipFunctionString.matches("\\[.*\\]")) {
                             skipFunctionString = skipFunctionString.substring(1, skipFunctionString.length() - 1);
-                        }else {
-                            System.out.println(invalidArgument);
+                        } else {
+                            System.out.printf(invalidArgument + "\n");
                             System.exit(0);
                         }
                         break;
@@ -131,11 +133,11 @@ public class Main {
     }
 
     private static void extractTheProfiler() throws CustomException {
-        System.out.println(ANSI_CYAN + "[1/6] Initializing Profiler..." + ANSI_RESET);
+        System.out.printf(ANSI_CYAN + "[1/6] Initializing Profiler..." + ANSI_RESET + "%n");
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("jar", "xvf", "Profiler.jar", "io/ballerina/runtime/profiler/runtime");
-            Process process = processBuilder.start();
-            process.waitFor();
+            new ProcessBuilder("jar", "xvf", "Profiler.jar", "io/ballerina/runtime/profiler/runtime")
+                    .start()
+                    .waitFor();
         } catch (IOException | InterruptedException exception) {
             throw new CustomException(exception);
         }
@@ -143,33 +145,37 @@ public class Main {
 
     public static void createTempJar(String balJarName) {
         try {
-            System.out.println(ANSI_CYAN + "[2/6] Copying Executable..." + ANSI_RESET);
+            System.out.printf(ANSI_CYAN + "[2/6] Copying Executable..." + ANSI_RESET + "%n");
             Path sourcePath = Paths.get(balJarName);
-            Path destinationPath = Paths.get(TEMP_JAR_FILE_NAME);
+            Path destinationPath = Paths.get(tempJarFileName);
             Files.copy(sourcePath.toFile().toPath(), destinationPath.toFile().toPath());
         } catch (Exception exception) {
             exitCode = 2;
-            System.err.println("Invalid File Name");
+            System.out.printf("Invalid File Name" + "%n");
             System.exit(0);
         }
     }
 
     private static void initialize(String balJarName) throws CustomException {
-        System.out.println(ANSI_CYAN + "[3/6] Performing Analysis..." + ANSI_RESET);
+        System.out.printf(ANSI_CYAN + "[3/6] Performing Analysis..." + ANSI_RESET + "%n");
         ArrayList<String> classNames = new ArrayList<>();
         try {
             findAllClassNames(balJarName, classNames);
             findUtilityClasses(classNames);
         } catch (Exception e) {
-            System.out.println("(No such file or directory)");
+            System.out.printf("(No such file or directory)" + "\n");
         }
-        System.out.println(ANSI_CYAN + "[4/6] Instrumenting Functions..." + ANSI_RESET);
+        System.out.printf(ANSI_CYAN + "[4/6] Instrumenting Functions..." + ANSI_RESET + "%n");
         try (JarFile jarFile = new JarFile(balJarName)) {
-            String mainClassPackage = MethodWrapper.mainClassFinder(new URLClassLoader(new URL[]{new File(balJarName).toURI().toURL()}));
-            CustomClassLoader customClassLoader = new CustomClassLoader(new URLClassLoader(new URL[]{new File(balJarName).toURI().toURL()}));
+            String mainClassPackage = MethodWrapper.mainClassFinder(
+                    new URLClassLoader(new URL[]{new File(balJarName).toURI().toURL()}));
+            CustomClassLoader customClassLoader = new CustomClassLoader(
+                    new URLClassLoader(new URL[]{new File(balJarName).toURI().toURL()}));
             Set<String> usedPaths = new HashSet<>();
             for (String className : classNames) {
-                if (mainClassPackage == null) continue;
+                if (mainClassPackage == null) {
+                    continue;
+                }
                 if (className.startsWith(mainClassPackage.split("/")[0]) || utilPaths.contains(className)) {
                     try (InputStream inputStream = jarFile.getInputStream(jarFile.getJarEntry(className))) {
                         byte[] code = MethodWrapper.modifyMethods(inputStream);
@@ -178,15 +184,15 @@ public class Main {
                         MethodWrapper.printCode(className, code);
                     }
                 }
-                if (className.endsWith("/$_init.class")){
+                if (className.endsWith("/$_init.class")) {
                     moduleCount++;
                 }
             }
-            System.out.println(" ○ Instrumented Module Count: " + moduleCount);
+            System.out.printf(" ○ Instrumented Module Count: " + moduleCount + "%n");
             try (PrintWriter printWriter = new PrintWriter("usedPathsList.txt")) {
                 printWriter.println(String.join(", ", usedPaths));
             }
-            System.out.println(" ○ Instrumented Function Count: " + balFunctionCount);
+            System.out.printf(" ○ Instrumented Function Count: " + balFunctionCount + "%n");
 
         } catch (Throwable throwable) {
             throw new CustomException(throwable);
@@ -202,7 +208,8 @@ public class Main {
         try {
             final File userDirectory = new File(System.getProperty("user.dir")); // Get the user directory
             listAllFiles(userDirectory); // List all files in the user directory and its subdirectories
-            List<String> changedDirectories = instrumentedFiles.stream().distinct().collect(Collectors.toList()); // Get a list of the directories containing instrumented files
+            // Get a list of the directories containing instrumented files
+            List<String> changedDirectories = instrumentedFiles.stream().distinct().collect(Collectors.toList());
             loadDirectories(changedDirectories);
         } finally {
             for (String instrumentedFilePath : instrumentedPaths) {
@@ -215,22 +222,21 @@ public class Main {
 
     private static void loadDirectories(List<String> changedDirs) {
         try {
-            ProcessBuilder processBuilder = new ProcessBuilder("jar", "uf", TEMP_JAR_FILE_NAME);
+            ProcessBuilder processBuilder = new ProcessBuilder("jar", "uf", tempJarFileName);
             processBuilder.command().addAll(changedDirs);
             processBuilder.start().waitFor();
         } catch (Exception e) {
-            System.err.println("Error loading directories: " + e.getMessage());
+            System.err.printf("Error loading directories: " + e.getMessage() + "%n");
         }
     }
 
     public static void listAllFiles(final File userDirectory) {
-        String absolutePath = Paths.get(TEMP_JAR_FILE_NAME).toFile().getAbsolutePath();
-        absolutePath = absolutePath.replaceAll(TEMP_JAR_FILE_NAME, "");
+        String absolutePath = Paths.get(tempJarFileName).toFile().getAbsolutePath();
+        absolutePath = absolutePath.replaceAll(tempJarFileName, "");
         for (final File fileEntry : userDirectory.listFiles()) {
             if (fileEntry.isDirectory()) {
                 listAllFiles(fileEntry);
-            }
-            else {
+            } else {
                 String fileEntryString = String.valueOf(fileEntry);
                 if (fileEntryString.endsWith(".class")) {
                     fileEntryString = fileEntryString.replaceAll(absolutePath, "");
@@ -245,7 +251,8 @@ public class Main {
     }
 
     private static void findAllClassNames(String jarPath, ArrayList<String> classNames) throws IOException {
-        ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(jarPath)); // Create a ZipInputStream to read the jar file
+        // Create a ZipInputStream to read the jar file
+        ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(jarPath));
         for (ZipEntry entry = zipInputStream.getNextEntry(); entry != null; entry = zipInputStream.getNextEntry()) {
             if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
                 classNames.add(String.valueOf(entry));
@@ -291,20 +298,22 @@ public class Main {
         // Add a shutdown hook to stop the profiler and parse the output when the program is closed.
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                long profilerTotalTime = TimeUnit.MILLISECONDS.convert(System.nanoTime(), TimeUnit.NANOSECONDS) - profilerStartTime;
-                FileUtils.delete(new File(TEMP_JAR_FILE_NAME));
-                System.out.println("\n" + ANSI_CYAN + "[6/6] Generating Output..." + ANSI_RESET);
+                long profilerTotalTime = TimeUnit.MILLISECONDS.convert(
+                        System.nanoTime(), TimeUnit.NANOSECONDS) - profilerStartTime;
+                FileUtils.delete(new File(tempJarFileName));
+                System.out.printf("\n" + ANSI_CYAN + "[6/6] Generating Output..." + ANSI_RESET + "%n");
                 Thread.sleep(100);
                 initializeCPUParser(skipFunctionString);
                 FileUtils.delete(new File("usedPathsList.txt"));
                 FileUtils.delete(new File("CpuPre.json"));
-                System.out.println(" ○ Execution Time: " + profilerTotalTime / 1000 + " Seconds");
+                System.out.printf(" ○ Execution Time: " + profilerTotalTime / 1000 + " Seconds" + "%n");
                 deleteTempData();
                 initializeHTMLExport();
                 FileUtils.delete(new File("performance_report.json"));
-                System.out.println("--------------------------------------------------------------------------------");
-            } catch (Exception ignore) {}
-            finally {
+                System.out.printf("----------------------------------------");
+                System.out.printf("----------------------------------------" + "%n");
+            } catch (Exception ignore) {
+            } finally {
                 String jarPath;
                 try {
                     jarPath = Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();

@@ -18,16 +18,21 @@
 
 package io.ballerina.runtime.profiler.util;
 
+/**
+ * This class is used to profile Ballerina programs.
+ *
+ * @since 2201.7.0
+ */
 public class CustomException extends Exception {
     public CustomException(String message) {
-        System.out.println(message);
+        System.out.printf(message + "\n");
     }
 
     public CustomException(Throwable cause) {
-        System.out.println(cause);
+        System.out.printf(cause + "\n");
     }
 
     public CustomException(String message, Throwable cause) {
-        System.out.println(message + cause);
+        System.out.printf(message + cause + "\n");
     }
 }

@@ -25,14 +25,16 @@ import java.io.IOException;
 
 import static io.ballerina.runtime.profiler.ui.FrontEnd.getSiteData;
 
+/**
+ * This class is used to profile Ballerina programs.
+ *
+ * @since 2201.7.0
+ */
 public class HTTPServer {
-
     public static final String ANSI_YELLOW = "\033[1;38;2;255;255;0m";
     public static final String ANSI_RESET = "\u001B[0m";
-
-
     public static void initializeHTMLExport() throws IOException {
-        System.out.println(" ○ Output: " + ANSI_YELLOW + "target/bin/ProfilerOutput.html" + ANSI_RESET);
+        System.out.printf(" ○ Output: " + ANSI_YELLOW + "target/bin/ProfilerOutput.html" + ANSI_RESET + "%n");
         String content = readData();
         String htmlData = getSiteData(content);
         String fileName = "ProfilerOutput.html";
@@ -41,7 +43,7 @@ public class HTTPServer {
             fileWriter.write(htmlData);
             fileWriter.close();
         } catch (IOException e) {
-            System.out.println(e);
+            System.out.printf(e + "%n");
         }
     }
 
