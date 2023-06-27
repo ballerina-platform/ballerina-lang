@@ -1,12 +1,12 @@
 plugins {
     id 'base'
-    id "com.github.spotbugs" version "${githubSpotbugsVersion}"
-    id "com.dorongold.task-tree" version "${dorongoldTaskTreeVersion}"
-    id "com.github.johnrengelman.shadow" version "${githubJohnrengelmanShadowVersion}"
+    id "com.github.spotbugs" version "5.0.14"
+    id "com.dorongold.task-tree" version "1.3.1"
+    id "com.github.johnrengelman.shadow" version "8.1.0"
     id 'maven-publish'
-    id "net.researchgate.release" version "${researchgateReleaseVersion}"
+    id "net.researchgate.release" version "2.8.0"
     id 'jacoco'
-    id "org.sonarqube" version "${sonarqubeGradlePluginVersion}"
+    id "org.sonarqube" version "4.0.0.2929"
 }
 
 apply from: "$rootDir/gradle/repositories.gradle"
