@@ -10,6 +10,7 @@ jobs:
   ubuntu_build:
     name: Build with tests on Ubuntu
     runs-on: ubuntu-latest
+    timeout-minutes: 240
     concurrency:
       group: ${{ github.head_ref }}-ubuntu
       cancel-in-progress: true
@@ -38,7 +39,7 @@ jobs:
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew build --scan
+          ./gradlew build --max-workers=2 --scan --no-daemon
           find ~/.gradle/caches/ -name "*.lock" -type f -delete
 
   windows_build:
@@ -76,7 +77,7 @@ jobs:
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build with Gradle
-        run: ./gradlew.bat build --continue -x :ballerina-lang:test -x :jballerina-integration-test:test -x :ballerina-shell:shell-cli:test -x :jballerina-debugger-integration-test:test -x createJavadoc --stacktrace -scan --console=plain
+        run: ./gradlew.bat build --continue -x :ballerina-lang:test -x :jballerina-integration-test:test -x :ballerina-shell:shell-cli:test -x :jballerina-debugger-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon --no-parallel
 
   
   sonarcloud_scan:
