@@ -17,9 +17,13 @@ package io.ballerina.projects.test.plugins;
 
 import com.google.gson.Gson;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.CodeActionManager;
 import io.ballerina.projects.CodeActionResult;
+import io.ballerina.projects.CompletionManager;
+import io.ballerina.projects.CompletionResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
@@ -32,12 +36,17 @@ import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContext;
 import io.ballerina.projects.plugins.codeaction.CodeActionExecutionContextImpl;
 import io.ballerina.projects.plugins.codeaction.CodeActionInfo;
 import io.ballerina.projects.plugins.codeaction.DocumentEdit;
+import io.ballerina.projects.plugins.completion.CompletionContext;
+import io.ballerina.projects.plugins.completion.CompletionContextImpl;
+import io.ballerina.projects.plugins.completion.CompletionItem;
+import io.ballerina.projects.plugins.completion.CompletionUtil;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextEdit;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -56,7 +65,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Tests for language server's code action extension.
+ * Tests for language server's extensions.
  */
 @Test
 public class LanguageServerExtensionTests {
@@ -67,6 +76,7 @@ public class LanguageServerExtensionTests {
     @BeforeSuite
     public void init() {
         BCompileUtil.compileAndCacheBala("compiler_plugin_tests/package_comp_plugin_with_codeactions");
+        BCompileUtil.compileAndCacheBala("compiler_plugin_tests/package_comp_plugin_with_completions");
     }
 
     @Test
@@ -138,4 +148,46 @@ public class LanguageServerExtensionTests {
         }));
     }
 
+    @Test
+    public void testOneCompilerPluginWithOneCompletionProvider() {
+        String path = RESOURCE_DIRECTORY.resolve("package_plugin_user_with_completions").toString();
+        CompileResult result = BCompileUtil.compileAndCacheBala(path);
+        Project project = result.project();
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        CompletionManager completionManager = packageCompilation.getCompletionManager();
+        Path filePath = Paths.get(path, "main.bal");
+        DocumentId documentId = project.documentId(filePath);
+        Module module = project.currentPackage().module(documentId.moduleId());
+        Document document = module.document(documentId);
+
+        //Get the service declaration node
+        Node nodeAtCursor = ((ModulePartNode) document.syntaxTree().rootNode()).members().get(1);
+
+        LinePosition cursorPos = LinePosition.from(5, 5);
+        int cursorPositionInTree = document.textDocument().textPositionFrom(cursorPos);
+        CompletionContext completionContext = CompletionContextImpl.from(filePath.toUri().toString(),
+                filePath, cursorPos, cursorPositionInTree, nodeAtCursor, document,
+                module.getCompilation().getSemanticModel());
+
+        String insertText = "resource function " + CompletionUtil.getPlaceHolderText(1, "get") + " "
+                + CompletionUtil.getPlaceHolderText(2, "foo") + "(" + CompletionUtil.getPlaceHolderText(3) + ")" +
+                " returns " + CompletionUtil.getPlaceHolderText(4, "string") + " {" + CompletionUtil.LINE_BREAK +
+                CompletionUtil.PADDING + "return " + CompletionUtil.getPlaceHolderText(5, "\"\"") + ";"
+                + CompletionUtil.LINE_BREAK + "}";
+        String label = "resource function get foo() returns string";
+
+        CompletionResult completionResult = completionManager.completions(completionContext);
+        Assert.assertFalse(completionResult.getCompletionItems().isEmpty());
+
+        CompletionItem completionItem = completionResult.getCompletionItems().get(0);
+        Assert.assertEquals(completionItem.getInsertText(), insertText);
+        Assert.assertEquals(completionItem.getLabel(), label);
+        Assert.assertEquals(completionItem.getPriority(), CompletionItem.Priority.HIGH);
+
+        Assert.assertFalse(completionItem.getAdditionalTextEdits().isEmpty());
+        TextEdit edit = completionItem.getAdditionalTextEdits().get(0);
+        Assert.assertTrue(edit.text().equals("#Sample service with foo resource" +
+                CompletionUtil.LINE_BREAK) && edit.range().startOffset() == nodeAtCursor.textRange().startOffset()
+                && edit.range().length() == 0);
+    }
 }

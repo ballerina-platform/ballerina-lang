@@ -687,6 +687,9 @@ public class QueryTypeChecker extends TypeChecker {
         if (joinClause.onClause != null) {
             joinClause.onClause.accept(this, data);
         }
+        for (Name variable : joinEnv.scope.entries.keySet()) {
+            data.queryVariables.add(variable.value);
+        }
         commonAnalyzerData.breakToParallelQueryEnv = prevBreakEnv;
     }
 
