@@ -152,6 +152,8 @@ public class ConstantAnalyzer extends BLangNodeVisitor {
             case NOT:
                 analyzeExpr(unaryExpr.expr);
                 return;
+            default:
+                dlog.error(unaryExpr.pos, DiagnosticErrorCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
         }
     }
 
