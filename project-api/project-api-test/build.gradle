@@ -36,12 +36,17 @@ configurations {
 
 dependencies {
     testImplementation 'org.testng:testng'
-    testImplementation 'org.slf4j:slf4j-jdk14'
+    testImplementation 'org.slf4j:slf4j-jdk17'
     testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
     testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
+    testImplementation 'commons-io:commons-io'
+    testImplementation 'com.google.code.gson:gson'
 
     testImplementation project(':ballerina-test-utils')
     testImplementation project(':ballerina-lang')
+    testImplementation project(':toml-parser')
+    testImplementation project(':ballerina-tools-api')
+    testImplementation project(':ballerina-parser')
     testRuntimeOnly project(':ballerina-runtime')
     testRuntimeOnly project(':project-api-test-artifact:logging-file-appender-plugin')
     testRuntimeOnly project(':compiler-plugins:package-semantic-analyzer')

@@ -64,7 +64,7 @@ dependencies {
 //    balaTestImplementation project(path: ':ballerina-transactions', configuration: 'balaImplementation')
     testRuntimeOnly project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
 
-    testImplementation 'org.slf4j:slf4j-jdk14'
+    testImplementation 'org.slf4j:slf4j-jdk17'
     testImplementation 'io.netty:netty-transport'
     testImplementation 'io.netty:netty-codec-http'
     testImplementation 'io.netty:netty-codec-http2'

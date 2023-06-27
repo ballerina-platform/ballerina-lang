@@ -45,7 +45,7 @@ dependencies {
 
     testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
     testImplementation 'org.testng:testng'
-    testImplementation 'org.slf4j:slf4j-jdk14'
+    testImplementation 'org.slf4j:slf4j-jdk17'
     testLibs "com.github.chewiebug:gcviewer:${project.chewiebugGcviewerVersion}"
 }
 

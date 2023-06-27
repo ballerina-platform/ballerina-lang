@@ -32,7 +32,7 @@ dependencies {
     implementation project(':ballerina-packerina')
     implementation project(':ballerina-cli')   
     implementation project(path: ':ballerina-test-utils', configuration: 'shadow')
-    implementation 'org.slf4j:slf4j-jdk14'
+    implementation 'org.slf4j:slf4j-jdk17'
 
     testImplementation 'org.awaitility:awaitility'
     testImplementation 'commons-io:commons-io'

@@ -38,8 +38,8 @@ configurations {
 }
 
 jar {
-    enabled = false
-    dependsOn(shadowJar { archiveClassifier = null })
+    enabled = true
+    dependsOn(shadowJar { archiveClassifier = 'application' })
     manifest {
         attributes(
                 'Implementation-Title': 'Ballerina - Test Utils',
@@ -47,10 +47,6 @@ jar {
                 'Premain-Class': 'org.ballerinalang.test.agent.BallerinaServerAgent'
         )
     }
-}
-
-publishMavenJavaPublicationToMavenLocal {
-    enabled = false
 }
 
 shadowJar {
@@ -64,7 +60,7 @@ shadowJar {
         exclude(dependency('org.wso2.eclipse.osgi:org.eclipse.osgi.services'))
         exclude(dependency('org.slf4j:slf4j-log4j12'))
         exclude(dependency('org.slf4j:slf4j-simple'))
-        exclude(dependency('org.slf4j:slf4j-jdk14'))
+        exclude(dependency('org.slf4j:slf4j-jdk17'))
         exclude(dependency('io.netty:netty-handler'))
         exclude(dependency('io.netty:netty-handler-proxy'))
         exclude(dependency('io.netty:netty-codec-socks'))

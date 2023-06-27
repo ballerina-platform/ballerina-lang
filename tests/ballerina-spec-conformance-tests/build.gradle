@@ -27,7 +27,7 @@ dependencies {
 
     testImplementation'org.testng:testng'
     testImplementation 'org.slf4j:slf4j-api'
-    testImplementation 'org.slf4j:slf4j-jdk14'
+    testImplementation 'org.slf4j:slf4j-jdk17'
     testImplementation project(path: ':ballerina-test-utils', configuration: 'shadow')
 
     distributionBala project(path: ':ballerina-io-internal', configuration: 'distributionBala')
