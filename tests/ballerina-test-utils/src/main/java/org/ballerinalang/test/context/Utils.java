@@ -97,7 +97,7 @@ public class Utils {
      * @param timeout - max time to wait
      *
      */
-    public static void waitForPortsToClose(int[] ports, int timeout,  InetAddress address ) {
+    public static void waitForPortsToClose(int[] ports, int timeout, InetAddress address) {
         for (int port : ports) {
             long time = System.currentTimeMillis() + timeout;
             boolean portOpen = Utils.isPortOpen(port, address);
@@ -136,9 +136,10 @@ public class Utils {
      * Check whether the provided port is open.
      *
      * @param port The port that needs to be checked
+     * @param address The host address
      * @return true if the port is open and false otherwise
      */
-    private static boolean isPortOpen(int port,  InetAddress address ) {
+    private static boolean isPortOpen(int port, InetAddress address) {
         Socket socket = null;
         boolean isPortOpen;
         try {

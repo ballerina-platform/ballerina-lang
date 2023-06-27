@@ -48,7 +48,7 @@ import static org.ballerinalang.test.context.Constant.BALLERINA_AGENT_PATH;
 public class BServerInstance implements BServer {
     private static final Logger log = LoggerFactory.getLogger(BServerInstance.class);
     private static final String JAVA_OPTS = "JAVA_OPTS";
-    private final static String agentHost = "localhost";
+    private static final String agentHost = "localhost";
     private BalServer balServer;
     private int agentPort;
     private String agentArgs;
