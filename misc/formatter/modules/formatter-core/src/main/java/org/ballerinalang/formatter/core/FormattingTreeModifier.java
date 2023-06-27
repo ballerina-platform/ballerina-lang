@@ -816,10 +816,10 @@ public class FormattingTreeModifier extends TreeModifier {
     public CheckExpressionNode transform(CheckExpressionNode checkExpressionNode) {
         Token checkKeyword = formatToken(checkExpressionNode.checkKeyword(), 1, 0);
         ExpressionNode expressionNode;
-        OnFailCheckNode onFailCheckNode  = null;
+        OnFailCheckNode onFailCheckNode = null;
         if (checkExpressionNode.onFailCheck().isPresent()) {
             expressionNode = formatNode(checkExpressionNode.expression(), 1, 0);
-            onFailCheckNode = formatNode(checkExpressionNode.onFailCheck().get(),  env.trailingWS, env.trailingNL);
+            onFailCheckNode = formatNode(checkExpressionNode.onFailCheck().get(), env.trailingWS, env.trailingNL);
         } else {
             expressionNode = formatNode(checkExpressionNode.expression(), env.trailingWS, env.trailingNL);
         }

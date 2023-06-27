@@ -42,6 +42,11 @@ public class CheckExpressionTest extends AbstractExpressionsTest {
     }
 
     @Test
+    public void testCheckExprWithJoinClause() {
+        testFile("check-expr/check_expr_source_07.bal", "check-expr/check_expr_assert_07.json");
+    }
+
+    @Test
     public void testSimpleCheckOnFail() {
         testFile("check-expr/on_fail_check_source_01.bal",  "check-expr/on_fail_check_assert_01.json");
     }
@@ -64,11 +69,6 @@ public class CheckExpressionTest extends AbstractExpressionsTest {
     @Test
     public void testOnFailCheckNextToAnOnConflictClause() {
         testFile("check-expr/on_fail_check_source_08.bal", "check-expr/on_fail_check_assert_08.json");
-    }
-
-    @Test
-    public void testOnFailWithJoin() {
-        testFile("check-expr/check_expr_source_07.bal", "check-expr/check_expr_assert_07.json");
     }
 
     // Recovery test
