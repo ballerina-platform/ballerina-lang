@@ -5581,6 +5581,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FOREACH_STMT:
                 return ParserRuleContext.BLOCK_STMT;
             default:
+                if (isExpressionContext(parentCtx)) {
+                    return ParserRuleContext.EXPRESSION_RHS;
+                }
                 return ParserRuleContext.SEMICOLON;
         }
     }
