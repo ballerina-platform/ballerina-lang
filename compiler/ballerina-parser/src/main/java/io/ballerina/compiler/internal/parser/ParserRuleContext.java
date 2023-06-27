@@ -633,6 +633,8 @@ public enum ParserRuleContext {
     END_OF_PARAMS_OR_NEXT_PARAM_START("end-of-params-or-next-param-start"),
     BRACED_EXPRESSION("braced-expression"),
     ACTION("action"),
+    CHECKING_EXPRESSION("checking-expr"),
+    CHECKING_EXPRESSION_END("checking-expr-end"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
@@ -724,6 +726,7 @@ public enum ParserRuleContext {
     OPTIONAL_TOP_LEVEL_SEMICOLON("optional-top-level-semicolon"),
     TUPLE_MEMBERS("tuple-members"),
     TUPLE_MEMBER("tuple-member"),
+    ON_FAIL_CHECK("on-fail-check")
     ;
 
     private String value;

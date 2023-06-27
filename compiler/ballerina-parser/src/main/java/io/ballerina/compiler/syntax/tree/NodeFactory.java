@@ -515,14 +515,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static CheckExpressionNode createCheckExpressionNode(
             SyntaxKind kind,
             Token checkKeyword,
-            ExpressionNode expression) {
+            ExpressionNode expression,
+            OnFailCheckNode onFailCheck) {
         Objects.requireNonNull(checkKeyword, "checkKeyword must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stCheckExpressionNode = STNodeFactory.createCheckExpressionNode(
                 kind,
                 checkKeyword.internalNode(),
-                expression.internalNode());
+                expression.internalNode(),
+                getOptionalSTNode(onFailCheck));
         return stCheckExpressionNode.createUnlinkedFacade();
     }
 
@@ -3517,7 +3519,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeBraceToken.internalNode());
         return stReBracedQuantifierNode.createUnlinkedFacade();
     }
-  
+
     public static MemberTypeDescriptorNode createMemberTypeDescriptorNode(
             NodeList<AnnotationNode> annotations,
             TypeDescriptorNode typeDescriptor) {
@@ -3528,6 +3530,27 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 annotations.underlyingListNode().internalNode(),
                 typeDescriptor.internalNode());
         return stMemberTypeDescriptorNode.createUnlinkedFacade();
+    }
+
+    public static OnFailCheckNode createOnFailCheckNode(
+            Token onKeyword,
+            Token failKeyword,
+            IdentifierToken identifier,
+            Token rightArrowToken,
+            ErrorConstructorExpressionNode errorConstructor) {
+        Objects.requireNonNull(onKeyword, "onKeyword must not be null");
+        Objects.requireNonNull(failKeyword, "failKeyword must not be null");
+        Objects.requireNonNull(identifier, "identifier must not be null");
+        Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
+        Objects.requireNonNull(errorConstructor, "errorConstructor must not be null");
+
+        STNode stOnFailCheckNode = STNodeFactory.createOnFailCheckNode(
+                onKeyword.internalNode(),
+                failKeyword.internalNode(),
+                identifier.internalNode(),
+                rightArrowToken.internalNode(),
+                errorConstructor.internalNode());
+        return stOnFailCheckNode.createUnlinkedFacade();
     }
 }
 

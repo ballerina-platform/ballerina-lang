@@ -399,12 +399,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createCheckExpressionNode(
             SyntaxKind kind,
             STNode checkKeyword,
-            STNode expression) {
+            STNode expression,
+            STNode onFailCheck) {
 
         return new STCheckExpressionNode(
                 kind,
                 checkKeyword,
-                expression);
+                expression,
+                onFailCheck);
     }
 
     public static STNode createFieldAccessExpressionNode(
@@ -2670,7 +2672,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 mostTimesMatchedDigit,
                 closeBraceToken);
     }
-  
+
     public static STNode createMemberTypeDescriptorNode(
             STNode annotations,
             STNode typeDescriptor) {
@@ -2678,6 +2680,21 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STMemberTypeDescriptorNode(
                 annotations,
                 typeDescriptor);
+    }
+
+    public static STNode createOnFailCheckNode(
+            STNode onKeyword,
+            STNode failKeyword,
+            STNode identifier,
+            STNode rightArrowToken,
+            STNode errorConstructor) {
+
+        return new STOnFailCheckNode(
+                onKeyword,
+                failKeyword,
+                identifier,
+                rightArrowToken,
+                errorConstructor);
     }
 }
 

@@ -36,6 +36,41 @@ public class CheckExpressionTest extends AbstractExpressionsTest {
         testFile("check-expr/check_expr_source_02.bal", "check-expr/check_expr_assert_02.json");
     }
 
+    @Test
+    public void testCheckExprWithOnConflictClause() {
+        testFile("check-expr/check_expr_source_05.bal", "check-expr/check_expr_assert_05.json");
+    }
+
+    @Test
+    public void testCheckExprWithJoinClause() {
+        testFile("check-expr/check_expr_source_07.bal", "check-expr/check_expr_assert_07.json");
+    }
+
+    @Test
+    public void testSimpleCheckOnFail() {
+        testFile("check-expr/on_fail_check_source_01.bal",  "check-expr/on_fail_check_assert_01.json");
+    }
+
+    @Test
+    public void testOnFailCheckpanic() {
+        testFile("check-expr/on_fail_check_source_04.bal", "check-expr/on_fail_check_assert_04.json");
+    }
+
+    @Test
+    public void testOnFailCheckWithReturn() {
+        testFile("check-expr/on_fail_check_source_05.bal", "check-expr/on_fail_check_assert_05.json");
+    }
+
+    @Test
+    public void testOnFailCheckpanicWithReturn() {
+        testFile("check-expr/on_fail_check_source_06.bal", "check-expr/on_fail_check_assert_06.json");
+    }
+
+    @Test
+    public void testOnFailCheckNextToAnOnConflictClause() {
+        testFile("check-expr/on_fail_check_source_08.bal", "check-expr/on_fail_check_assert_08.json");
+    }
+
     // Recovery test
 
     @Test
@@ -46,5 +81,35 @@ public class CheckExpressionTest extends AbstractExpressionsTest {
     @Test
     public void testCheckWithMissingBinaryOp() {
         testFile("check-expr/check_expr_source_04.bal", "check-expr/check_expr_assert_04.json");
+    }
+
+    @Test
+    public void testCheckExprWithIncompleteRemoteMethods() {
+        testFile("check-expr/check_expr_source_06.bal", "check-expr/check_expr_assert_06.json");
+    }
+
+    @Test
+    public void testOnFailCheckWithoutDoubleArrow() {
+        testFile("check-expr/on_fail_check_source_02.bal", "check-expr/on_fail_check_assert_02.json");
+    }
+
+    @Test
+    public void testOnFailCheckpanicWithoutDoubleArrow() {
+        testFile("check-expr/on_fail_check_source_03.bal", "check-expr/on_fail_check_assert_03.json");
+    }
+
+    @Test
+    public void testOnFailWithExtraCharactersTest1() {
+        testFile("check-expr/on_fail_check_source_07.bal", "check-expr/on_fail_check_assert_07.json");
+    }
+
+    @Test
+    public void testOnFailWithExtraCharactersTest2() {
+        testFile("check-expr/on_fail_check_source_09.bal", "check-expr/on_fail_check_assert_09.json");
+    }
+
+    @Test
+    public void testOnFailCheckPanicWithEquals() {
+        testFile("check-expr/on_fail_check_source_10.bal", "check-expr/on_fail_check_assert_10.json");
     }
 }

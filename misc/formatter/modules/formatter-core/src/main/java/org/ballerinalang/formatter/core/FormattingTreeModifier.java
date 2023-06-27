@@ -143,6 +143,7 @@ import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.OnClauseNode;
 import io.ballerina.compiler.syntax.tree.OnConflictClauseNode;
+import io.ballerina.compiler.syntax.tree.OnFailCheckNode;
 import io.ballerina.compiler.syntax.tree.OnFailClauseNode;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.OptionalTypeDescriptorNode;
@@ -814,10 +815,35 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public CheckExpressionNode transform(CheckExpressionNode checkExpressionNode) {
         Token checkKeyword = formatToken(checkExpressionNode.checkKeyword(), 1, 0);
-        ExpressionNode expressionNode = formatNode(checkExpressionNode.expression(), env.trailingWS, env.trailingNL);
+        ExpressionNode expressionNode;
+        OnFailCheckNode onFailCheckNode = null;
+        if (checkExpressionNode.onFailCheck().isPresent()) {
+            expressionNode = formatNode(checkExpressionNode.expression(), 1, 0);
+            onFailCheckNode = formatNode(checkExpressionNode.onFailCheck().get(), env.trailingWS, env.trailingNL);
+        } else {
+            expressionNode = formatNode(checkExpressionNode.expression(), env.trailingWS, env.trailingNL);
+        }
         return checkExpressionNode.modify()
                 .withCheckKeyword(checkKeyword)
                 .withExpression(expressionNode)
+                .withOnFailCheck(onFailCheckNode)
+                .apply();
+    }
+
+    @Override
+    public OnFailCheckNode transform(OnFailCheckNode onFailCheckNode) {
+        Token onKeyword = formatToken(onFailCheckNode.onKeyword(), 1, 0);
+        Token failKeyword = formatToken(onFailCheckNode.failKeyword(), 1, 0);
+        IdentifierToken identifier = formatToken(onFailCheckNode.identifier(), 1, 0);
+        Token rightArrowToken = formatToken(onFailCheckNode.rightArrowToken(), 1, 0);
+        ErrorConstructorExpressionNode errorConstructorExpr = formatNode(onFailCheckNode.errorConstructor(),
+                                                                            env.trailingWS, env.trailingNL);
+        return onFailCheckNode.modify()
+                .withOnKeyword(onKeyword)
+                .withFailKeyword(failKeyword)
+                .withIdentifier(identifier)
+                .withRightArrowToken(rightArrowToken)
+                .withErrorConstructor(errorConstructorExpr)
                 .apply();
     }
 

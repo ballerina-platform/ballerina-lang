@@ -1282,8 +1282,7 @@ class BindgenNodeFactory {
      */
     private static CheckExpressionNode createCheckExpressionNode(ExpressionNode expressionNode) {
         Token checkKeyword = createToken(SyntaxKind.CHECK_KEYWORD, emptyML(), singleWSML());
-
-        return NodeFactory.createCheckExpressionNode(null, checkKeyword, expressionNode);
+        return NodeFactory.createCheckExpressionNode(null, checkKeyword, expressionNode, null);
     }
 
     /**

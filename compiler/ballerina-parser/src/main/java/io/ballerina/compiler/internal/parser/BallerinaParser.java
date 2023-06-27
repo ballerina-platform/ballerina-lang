@@ -7167,8 +7167,8 @@ public class BallerinaParser extends AbstractParser {
      *
      * <p>
      * <code>
-     * checking-expr := checking-keyword expression
-     * checking-action := checking-keyword action
+     * checking-expr := checking-keyword expression [on-fail-check]
+     * checking-action := checking-keyword action [on-fail-check]
      * </code>
      *
      * @param allowActions Allow actions
@@ -7176,14 +7176,18 @@ public class BallerinaParser extends AbstractParser {
      * @return Check expression node
      */
     private STNode parseCheckExpression(boolean isRhsExpr, boolean allowActions, boolean isInConditionalExpr) {
+        startContext(ParserRuleContext.CHECKING_EXPRESSION);
         STNode checkingKeyword = parseCheckingKeyword();
         STNode expr =
                 parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions, isInConditionalExpr);
-        if (isAction(expr)) {
-            return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_ACTION, checkingKeyword, expr);
-        } else {
-            return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, checkingKeyword, expr);
+        STNode onFailCheck = STNodeFactory.createEmptyNode();
+        if (peek().kind == SyntaxKind.ON_KEYWORD && getNextNextToken().kind == SyntaxKind.FAIL_KEYWORD) {
+            onFailCheck = parseOnFailCheck();
         }
+
+        endContext();
+        SyntaxKind kind = isAction(expr) ? SyntaxKind.CHECK_ACTION : SyntaxKind.CHECK_EXPRESSION;
+        return STNodeFactory.createCheckExpressionNode(kind, checkingKeyword, expr, onFailCheck);
     }
 
     /**
@@ -9065,7 +9069,28 @@ public class BallerinaParser extends AbstractParser {
                 return parseResourceAccessSegmentRhs(isRhsExpr, isInMatchGuard);
         }
     }
-    
+
+    /**
+     * Parse on-fail-check node.
+     *
+     * <p>
+     * <code>
+     * on-fail-check := on-keyword fail-keyword variable-name => error-constructor
+     * </code>
+     *
+     * @return on-fail-check node
+     */
+    private STNode parseOnFailCheck() {
+        startContext(ParserRuleContext.ON_FAIL_CHECK);
+        STNode onKeyword = parseOnKeyword();
+        STNode failKeyword = parseFailKeyword();
+        STNode varName = parseVariableName();
+        STNode rightDoubleArrow = parseDoubleRightArrow(ParserRuleContext.RIGHT_DOUBLE_ARROW);
+        STNode errConstructor = parseErrorConstructorExpr(false);
+        endContext();
+        return STNodeFactory.createOnFailCheckNode(onKeyword, failKeyword, varName, rightDoubleArrow, errConstructor);
+    }
+
     private boolean isEndOfResourceAccessPathSegments(SyntaxKind nextTokenKind,
                                                       boolean isRhsExpr, boolean isInMatchGuard) {
         switch (nextTokenKind) {
@@ -11459,7 +11484,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Expression function body node
      */
     private STNode parseExpressionFuncBody(boolean isAnon, boolean isRhsExpr) {
-        STNode rightDoubleArrow = parseDoubleRightArrow();
+        STNode rightDoubleArrow = parseDoubleRightArrow(ParserRuleContext.EXPR_FUNC_BODY_START);
 
         // Give high priority to the body-expr. This is done by lowering the current
         // precedence bewfore visiting the body.
@@ -11479,13 +11504,13 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Double right arrow token
      */
-    private STNode parseDoubleRightArrow() {
+    private STNode parseDoubleRightArrow(ParserRuleContext parserRuleContext) {
         STToken token = peek();
         if (token.kind == SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN) {
             return consume();
         } else {
-            recover(token, ParserRuleContext.EXPR_FUNC_BODY_START);
-            return parseDoubleRightArrow();
+            recover(token, parserRuleContext);
+            return parseDoubleRightArrow(parserRuleContext);
         }
     }
 
@@ -11509,7 +11534,7 @@ public class BallerinaParser extends AbstractParser {
                 params = STNodeFactory.createSimpleNameReferenceNode(syntheticParam);
         }
 
-        STNode rightDoubleArrow = parseDoubleRightArrow();
+        STNode rightDoubleArrow = parseDoubleRightArrow(ParserRuleContext.EXPR_FUNC_BODY_START);
         // start parsing the expr by giving higher-precedence to parse the right side arguments for right associative
         // operators. That is done by lowering the current precedence.
         STNode expression = parseExpression(OperatorPrecedence.REMOTE_CALL_ACTION, isRhsExpr, false);
@@ -14531,7 +14556,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseMatchClause() {
         STNode matchPatterns = parseMatchPatternList();
         STNode matchGuard = parseMatchGuard();
-        STNode rightDoubleArrow = parseDoubleRightArrow();
+        STNode rightDoubleArrow = parseDoubleRightArrow(ParserRuleContext.RIGHT_DOUBLE_ARROW);
         STNode blockStmt = parseBlockNode();
         
         if (isNodeListEmpty(matchPatterns)) {

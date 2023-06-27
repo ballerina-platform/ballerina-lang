@@ -33,15 +33,18 @@ import java.util.Collections;
 public class STCheckExpressionNode extends STExpressionNode {
     public final STNode checkKeyword;
     public final STNode expression;
+    public final STNode onFailCheck;
 
     STCheckExpressionNode(
             SyntaxKind kind,
             STNode checkKeyword,
-            STNode expression) {
+            STNode expression,
+            STNode onFailCheck) {
         this(
                 kind,
                 checkKeyword,
                 expression,
+                onFailCheck,
                 Collections.emptyList());
     }
 
@@ -49,14 +52,17 @@ public class STCheckExpressionNode extends STExpressionNode {
             SyntaxKind kind,
             STNode checkKeyword,
             STNode expression,
+            STNode onFailCheck,
             Collection<STNodeDiagnostic> diagnostics) {
         super(kind, diagnostics);
         this.checkKeyword = checkKeyword;
         this.expression = expression;
+        this.onFailCheck = onFailCheck;
 
         addChildren(
                 checkKeyword,
-                expression);
+                expression,
+                onFailCheck);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -64,16 +70,19 @@ public class STCheckExpressionNode extends STExpressionNode {
                 this.kind,
                 this.checkKeyword,
                 this.expression,
+                this.onFailCheck,
                 diagnostics);
     }
 
     public STCheckExpressionNode modify(
             SyntaxKind kind,
             STNode checkKeyword,
-            STNode expression) {
+            STNode expression,
+            STNode onFailCheck) {
         if (checkForReferenceEquality(
                 checkKeyword,
-                expression)) {
+                expression,
+                onFailCheck)) {
             return this;
         }
 
@@ -81,6 +90,7 @@ public class STCheckExpressionNode extends STExpressionNode {
                 kind,
                 checkKeyword,
                 expression,
+                onFailCheck,
                 diagnostics);
     }
 

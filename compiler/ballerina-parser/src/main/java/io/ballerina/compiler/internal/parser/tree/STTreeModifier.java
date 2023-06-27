@@ -414,10 +414,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STCheckExpressionNode checkExpressionNode) {
         STNode checkKeyword = modifyNode(checkExpressionNode.checkKeyword);
         STNode expression = modifyNode(checkExpressionNode.expression);
+        STNode onFailCheck = modifyNode(checkExpressionNode.onFailCheck);
         return checkExpressionNode.modify(
                 checkExpressionNode.kind,
                 checkKeyword,
-                expression);
+                expression,
+                onFailCheck);
     }
 
     @Override
@@ -2870,7 +2872,8 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 mostTimesMatchedDigit,
                 closeBraceToken);
     }
-  
+
+    @Override
     public STMemberTypeDescriptorNode transform(
             STMemberTypeDescriptorNode memberTypeDescriptorNode) {
         STNode annotations = modifyNode(memberTypeDescriptorNode.annotations);
@@ -2878,6 +2881,22 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return memberTypeDescriptorNode.modify(
                 annotations,
                 typeDescriptor);
+    }
+
+    @Override
+    public STOnFailCheckNode transform(
+            STOnFailCheckNode onFailCheckNode) {
+        STNode onKeyword = modifyNode(onFailCheckNode.onKeyword);
+        STNode failKeyword = modifyNode(onFailCheckNode.failKeyword);
+        STNode identifier = modifyNode(onFailCheckNode.identifier);
+        STNode rightArrowToken = modifyNode(onFailCheckNode.rightArrowToken);
+        STNode errorConstructor = modifyNode(onFailCheckNode.errorConstructor);
+        return onFailCheckNode.modify(
+                onKeyword,
+                failKeyword,
+                identifier,
+                rightArrowToken,
+                errorConstructor);
     }
 
     // Tokens
