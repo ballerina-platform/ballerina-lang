@@ -95,7 +95,6 @@ public class ConstantValueResolver extends BLangNodeVisitor {
     private static final CompilerContext.Key<ConstantValueResolver> CONSTANT_VALUE_RESOLVER_KEY =
             new CompilerContext.Key<>();
     private BConstantSymbol currentConstSymbol;
-
     private BLangConstantValue result;
     private BLangDiagnosticLog dlog;
     private Location currentPos;
