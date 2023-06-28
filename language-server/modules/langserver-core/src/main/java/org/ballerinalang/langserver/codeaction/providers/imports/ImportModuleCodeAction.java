@@ -193,9 +193,6 @@ public class ImportModuleCodeAction implements DiagnosticBasedCodeActionProvider
                 // And no further processing is required
                 insertPosition = new Position(minutiae.lineRange().startLine().line(), 0);
                 break;
-            } else if (minutiae.kind() == SyntaxKind.COMMENT_MINUTIAE) {
-                // If we find a comment, consider the import's position to be the next line
-                insertPosition = new Position(minutiae.lineRange().endLine().line() + 1, 0);
             }
         }
 
