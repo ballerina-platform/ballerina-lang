@@ -133,7 +133,7 @@ public class ConfigNegativeTest {
                 {new String[]{"-Corg.mod1.intVar=2"}, "Invalid.toml",
                         new VariableKey[]{new VariableKey(MODULE, "intVar", PredefinedTypes.TYPE_INT, true)}, 0, 1,
                         new String[]{
-                                "warning: invalid toml file : \n" +
+                                "warning: invalid TOML file : \n" +
                                         "[Invalid.toml:(3:1,3:1)] missing equal token\n" +
                                         "[Invalid.toml:(3:1,3:1)] missing value\n"}},
                 // supported toml type but not cli type and cli value given

@@ -40,12 +40,13 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import org.ballerinalang.langserver.common.constants.ContextConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.DefaultValueGenerationUtil;
 import org.ballerinalang.langserver.common.utils.NameUtil;
+import org.ballerinalang.langserver.common.utils.PathUtil;
 import org.ballerinalang.langserver.commons.HoverContext;
 import org.ballerinalang.langserver.util.MarkupUtils;
 import org.eclipse.lsp4j.Hover;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -172,8 +173,11 @@ public class HoverObjectResolver {
                 String desc = paramsMap.getOrDefault(paramName, "");
                 String defaultValueEdit = "";
                 if (param.paramKind() == ParameterKind.DEFAULTABLE) {
+                    // Get file path for the symbol
+                    Optional<Path> filePathForSymbol = this.context.workspace().project(this.context.filePath())
+                            .flatMap(project -> PathUtil.getFilePathForSymbol(functionSymbol, project, this.context));
                     // Lookup the parameter node from syntax tree using the parameter symbol
-                    Optional<NonTerminalNode> paramNode = context.currentSyntaxTree()
+                    Optional<NonTerminalNode> paramNode = this.context.workspace().syntaxTree(filePathForSymbol.get())
                             .flatMap(syntaxTree -> CommonUtil.findNode(param, syntaxTree));
                     if (paramNode.isPresent() && paramNode.get().kind() == SyntaxKind.DEFAULTABLE_PARAM
                             && !((DefaultableParameterNode) paramNode.get()).expression().isMissing()) {
@@ -181,14 +185,10 @@ public class HoverObjectResolver {
                         DefaultableParameterNode node = (DefaultableParameterNode) paramNode.get();
                         defaultValueEdit = MarkupUtils
                                 .quotedString(String.format("(default: %s)", node.expression().toSourceCode()));
-                    } else {
-                        Optional<String> defaultValueForParam = DefaultValueGenerationUtil
-                                .getDefaultValueForType(param.typeDescriptor());
-                        if (defaultValueForParam.isPresent()) {
-                            defaultValueEdit = MarkupUtils
-                                    .quotedString(String.format("(default: %s)", defaultValueForParam.get()));
-                        }
                     }
+                    // Else we are not going to provide a default value since it can be incorrect.
+                    // The default value can be an expression and will be evaluated at the runtime. Therefore, 
+                    // we cannot provide a default value for the parameter.
                 }
                 return MarkupUtils.quotedString(NameUtil.getModifiedTypeName(context, param.typeDescriptor())) + " "
                         + MarkupUtils.italicString(MarkupUtils.boldString(paramName)) + " : " + desc + defaultValueEdit;

@@ -19,10 +19,11 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 
 import java.util.Objects;
 
@@ -174,7 +175,7 @@ public abstract class BType implements Type {
         }
 
         // Selectively immutable types override this method.
-        throw new BallerinaException(this.typeName + " cannot be immutable");
+        throw ErrorCreator.createError(StringUtils.fromString(this.typeName + " cannot be immutable"));
     }
 
     public void setImmutableType(IntersectionType immutableType) {

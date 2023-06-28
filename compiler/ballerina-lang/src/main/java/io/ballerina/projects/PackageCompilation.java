@@ -156,6 +156,10 @@ public class PackageCompilation {
     public CodeActionManager getCodeActionManager() {
         return compilerPluginManager.getCodeActionManager();
     }
+    
+    public CompletionManager getCompletionManager() {
+        return compilerPluginManager.getCompletionManager();
+    }
 
     CompilerPluginManager compilerPluginManager() {
         return compilerPluginManager;
