@@ -10948,7 +10948,10 @@ public class BallerinaParser extends AbstractParser {
             case IN_KEYWORD:
                 return true;
             default:
-                return isGroupOrCollectKeyword(nextToken) || !isTypeStartingToken(tokenKind, nextNextToken);
+                return isContextualKeyword(nextToken)
+                        || isKeywordMatch(SyntaxKind.CONFLICT_KEYWORD, nextToken)
+                        || isKeywordMatch(SyntaxKind.EQUALS_KEYWORD, nextToken)
+                        || !isTypeStartingToken(tokenKind, nextNextToken);
         }
     }
 
@@ -11988,12 +11991,6 @@ public class BallerinaParser extends AbstractParser {
             default:
                 return false;
         }
-    }
-
-    private static boolean isGroupOrCollectKeyword(STToken nextToken) {
-        return nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN
-                && (isKeywordMatch(SyntaxKind.COLLECT_KEYWORD, nextToken)
-                || isKeywordMatch(SyntaxKind.GROUP_KEYWORD, nextToken));
     }
 
     private static boolean isContextualKeyword(STToken nextToken) {
