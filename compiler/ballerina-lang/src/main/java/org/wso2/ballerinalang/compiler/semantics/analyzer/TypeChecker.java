@@ -73,7 +73,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -6881,13 +6880,16 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                             incRecordAllowAdditionalFields = false;
                         }
                         iExpr.requiredArgs.add(expr);
+                    } else if (incRecordAllowAdditionalFields && !namedArgForIncRecordParam) {
+                        iExpr.requiredArgs.add(expr);
                     } else {
-                        if (incRecordAllowAdditionalFields && !namedArgForIncRecordParam) {
-                            iExpr.requiredArgs.add(expr);
-                        } else {
-                            checkTypeParamExpr(expr, new BNoType(TypeTags.NONE), iExpr.langLibInvocation, data);
-                            dlog.error(expr.pos, DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
-                        }
+                        boolean referringToARest = invokableSymbol.restParam != null && invokableSymbol.restParam.name
+                                .value.equals(((BLangNamedArgsExpression) expr).name.value);
+                        DiagnosticErrorCode errorCode = referringToARest ?
+                                DiagnosticErrorCode.NAMED_ARG_NOT_ALLOWED_FOR_REST_PARAM
+                                : DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL;
+                        checkTypeParamExpr(expr, symTable.noType, iExpr.langLibInvocation, data);
+                        dlog.error(expr.pos, errorCode, iExpr.name.value);
                     }
                     i++;
                     break;
@@ -7002,7 +7004,7 @@ public class TypeChecker extends SimpleBLangNodeAnalyzer<TypeChecker.AnalyzerDat
                                             nonRestParams, incRecordParams, incRecordParamAllowAdditionalFields, data);
 
                 if (varSym == null) {
-                    checkTypeParamExpr(arg, new BNoType(TypeTags.NONE), iExpr.langLibInvocation, data);
+                    checkTypeParamExpr(arg, symTable.noType, iExpr.langLibInvocation, data);
                     dlog.error(arg.pos, DiagnosticErrorCode.UNDEFINED_PARAMETER, argName);
                     break;
                 }
