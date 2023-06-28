@@ -51,6 +51,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.TypeResolverUtil;
 import org.ballerinalang.langserver.commons.InlayHintContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.eclipse.lsp4j.InlayHint;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
@@ -70,6 +71,10 @@ import java.util.stream.Collectors;
  */
 public class InlayHintProvider {
     public static List<InlayHint> getInlayHint(InlayHintContext context) {
+        LSClientCapabilities lsClientCapabilities = context.languageServercontext().get(LSClientCapabilities.class);
+        if (!lsClientCapabilities.getInitializationOptions().isEnableInlayHints()) {
+            return Collections.emptyList();
+        }
         if (context.currentDocument().isEmpty()) {
             return Collections.emptyList();
         }
