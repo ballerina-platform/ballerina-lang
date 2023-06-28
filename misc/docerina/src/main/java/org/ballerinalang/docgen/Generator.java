@@ -99,6 +99,11 @@ public class Generator {
     private static final String EMPTY_STRING = "";
     private static final String RETURN_PARAM_NAME = "return";
     public static final String REST_FIELD_DESCRIPTION = "Rest field";
+    public static final String LISTENER_START_METHOD_NAME = "'start";
+    public static final String LISTENER_ATTACH_METHOD_NAME = "attach";
+    public static final String LISTENER_DETACH_METHOD_NAME = "detach";
+    public static final String LISTENER_IMMEDIATE_STOP_METHOD_NAME = "immediateStop";
+    public static final String LISTENER_GRACEFUL_STOP_METHOD_NAME = "gracefulStop";
 
     /**
      * Generate/Set the module constructs model(docerina model) when the syntax tree for the module is given.
@@ -485,11 +490,36 @@ public class Generator {
         if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.CLIENT_KEYWORD)) {
             return new Client(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         } else if (containsToken(classDefinitionNode.classTypeQualifiers(), SyntaxKind.LISTENER_KEYWORD)
-                || name.equals("Listener")) {
+                || isListenerModel(functions)) {
             return new Listener(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         } else {
             return new BClass(name, description, isDeprecated, fields, functions, isReadOnly, isIsolated, isService);
         }
+    }
+
+    private static boolean isListenerModel(List<Function> classFunctions) {
+        boolean isStartIncluded = false;
+        boolean isAttachIncluded = false;
+        boolean isDetachIncluded = false;
+        boolean isGracefulStopIncluded = false;
+        boolean isImmediateStopIncluded = false;
+
+        for (Function function : classFunctions) {
+            if (function.name.equals(LISTENER_START_METHOD_NAME)) {
+                isStartIncluded = true;
+            } else if (function.name.equals(LISTENER_ATTACH_METHOD_NAME)) {
+                isAttachIncluded = true;
+            } else if (function.name.equals(LISTENER_DETACH_METHOD_NAME)) {
+                isDetachIncluded = true;
+            } else if (function.name.equals(LISTENER_GRACEFUL_STOP_METHOD_NAME)) {
+                isGracefulStopIncluded = true;
+            } else if (function.name.equals(LISTENER_IMMEDIATE_STOP_METHOD_NAME)) {
+                isImmediateStopIncluded = true;
+            }
+        }
+
+        return isStartIncluded && isAttachIncluded && isDetachIncluded && isGracefulStopIncluded &&
+                isImmediateStopIncluded;
     }
 
     private static BObjectType getObjectTypeModel(ObjectTypeDescriptorNode typeDescriptorNode, String objectName,
