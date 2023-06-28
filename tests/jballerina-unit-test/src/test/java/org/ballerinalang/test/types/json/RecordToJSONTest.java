@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.test.types.json;
 
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.exceptions.BLangTestException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -61,7 +61,7 @@ public class RecordToJSONTest {
         assertEquals(result.getErrorCount(), indx);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
+    @Test(expectedExceptions = BLangTestException.class,
           expectedExceptionsMessageRegExp =
                   ".*KeyNotFound \\{\"message\":\"invalid field access: field 'newField' not found in " +
                           "record type 'Foo'.*")

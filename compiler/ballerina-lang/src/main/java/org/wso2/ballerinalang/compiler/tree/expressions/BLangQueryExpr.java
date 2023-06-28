@@ -57,6 +57,17 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     }
 
     @Override
+    public BLangNode getFinalClause() {
+        for (BLangNode clause : queryClauseList) {
+            NodeKind kind = clause.getKind();
+            if (kind == NodeKind.SELECT || kind == NodeKind.COLLECT) {
+                return clause;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public List<BLangNode> getQueryClauses() {
         return queryClauseList;
     }
