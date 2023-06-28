@@ -40,12 +40,12 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Central package descriptor holder.
  *
- * @since 2201.7.0
+ * @since 2201.8.0
  */
 public class CentralPackageDescriptorLoader {
     public static final LanguageServerContext.Key<CentralPackageDescriptorLoader> CENTRAL_PACKAGE_HOLDER_KEY =
             new LanguageServerContext.Key<>();
-    private static final List<Package> centralPackages = new ArrayList<>();
+    private final List<Package> centralPackages = new ArrayList<>();
     private boolean isLoaded = false;
 
     public static CentralPackageDescriptorLoader getInstance(LanguageServerContext context) {
