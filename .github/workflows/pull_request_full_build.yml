@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - master
+      - intersection-type
 
 jobs:
   build-lang:

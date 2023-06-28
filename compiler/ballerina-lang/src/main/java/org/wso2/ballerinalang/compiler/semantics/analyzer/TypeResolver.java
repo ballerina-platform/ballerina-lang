@@ -1843,10 +1843,8 @@ public class TypeResolver {
             return resolvedType;
         }
 
-//        boolean isLabel = true;
         //todo remove after type ref introduced to runtime
         if (resolvedType.tsymbol.name == Names.EMPTY) {
-//            isLabel = false;
             resolvedType.tsymbol.name = names.fromIdNode(typeDefinition.name);
             resolvedType.tsymbol.originalName = names.originalNameFromIdNode(typeDefinition.name);
             resolvedType.tsymbol.flags |= typeDefSymbol.flags;
@@ -1876,12 +1874,8 @@ public class TypeResolver {
         BType effectiveDefinedType = isIntersectionType ? ((BIntersectionType) referenceConstraintType).effectiveType :
                 referenceConstraintType;
 
-        boolean isIntersectionTypeWithNonNullEffectiveTypeSymbol =
-                isIntersectionType && effectiveDefinedType != null && effectiveDefinedType.tsymbol != null;
-
-        if (isIntersectionTypeWithNonNullEffectiveTypeSymbol
-                && !types.isInherentlyImmutableType(effectiveDefinedType)) {
-            BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
+        BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
+        if (isIntersectionType && effectiveTypeSymbol != null && effectiveTypeSymbol.name == Names.EMPTY) {
             effectiveTypeSymbol.name = typeDefSymbol.name;
             effectiveTypeSymbol.pkgID = typeDefSymbol.pkgID;
         }
@@ -1915,13 +1909,6 @@ public class TypeResolver {
             }
         }
         resolvedType.flags |= typeDefSymbol.flags;
-
-        if (isIntersectionTypeWithNonNullEffectiveTypeSymbol) {
-            BTypeSymbol effectiveTypeSymbol = effectiveDefinedType.tsymbol;
-            effectiveTypeSymbol.flags |= resolvedType.tsymbol.flags;
-            effectiveTypeSymbol.origin = VIRTUAL;
-            effectiveDefinedType.flags |= resolvedType.flags;
-        }
 
         typeDefinition.symbol = typeDefSymbol;
 

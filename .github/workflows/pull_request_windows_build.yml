@@ -15,6 +15,7 @@ on:
       - native-build
       - revert-client-decl-master
       - query-grouping-aggregation
+      - intersection-type
 
 jobs:
   windows_build:

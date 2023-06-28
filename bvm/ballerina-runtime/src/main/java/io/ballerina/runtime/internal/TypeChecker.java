@@ -2806,14 +2806,14 @@ public class TypeChecker {
     protected static boolean isFiniteTypeValue(Object sourceValue, Type sourceType, Object valueSpaceItem,
                                                boolean allowNumericConversion) {
         Type valueSpaceItemType = getType(valueSpaceItem);
-        sourceType = TypeUtils.getReferredType(sourceType);
+        int sourceTypeTag = TypeUtils.getReferredType(sourceType).getTag();
         int valueSpaceItemTypeTag = TypeUtils.getReferredType(valueSpaceItemType).getTag();
         if (valueSpaceItemTypeTag > TypeTags.DECIMAL_TAG) {
-            return valueSpaceItemTypeTag == sourceType.getTag() &&
+            return valueSpaceItemTypeTag == sourceTypeTag &&
                     (valueSpaceItem == sourceValue || valueSpaceItem.equals(sourceValue));
         }
 
-        switch (sourceType.getTag()) {
+        switch (sourceTypeTag) {
             case TypeTags.BYTE_TAG:
             case TypeTags.INT_TAG:
                 switch (valueSpaceItemTypeTag) {
@@ -2853,7 +2853,7 @@ public class TypeChecker {
                         return checkDecimalEqual((DecimalValue) sourceValue, (DecimalValue) valueSpaceItem);
                 }
             default:
-                if (sourceType.getTag() != valueSpaceItemTypeTag) {
+                if (sourceTypeTag != valueSpaceItemTypeTag) {
                     return false;
                 }
                 return valueSpaceItem.equals(sourceValue);
