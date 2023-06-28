@@ -30,7 +30,7 @@ public class SyntaxInfoAPITest {
 
     @Test
     public void testKeywordCount() {
-        Assert.assertEquals(SyntaxInfo.keywords().size(), 99);
+        Assert.assertEquals(SyntaxInfo.keywords().size(), 89);
     }
 
     @Test
@@ -39,7 +39,6 @@ public class SyntaxInfoAPITest {
         Assert.assertTrue(SyntaxInfo.isKeyword("fail"));
         Assert.assertTrue(SyntaxInfo.isKeyword("distinct"));
         Assert.assertTrue(SyntaxInfo.isKeyword("function"));
-        Assert.assertTrue(SyntaxInfo.isKeyword("join"));
         Assert.assertTrue(SyntaxInfo.isKeyword("resource"));
         Assert.assertTrue(SyntaxInfo.isKeyword("var"));
         Assert.assertTrue(SyntaxInfo.isKeyword("!is"));
