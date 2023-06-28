@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.extensions.ballerina.connector.CentralPackag
 import org.eclipse.lsp4j.ProgressParams;
 import org.eclipse.lsp4j.WorkDoneProgressBegin;
 import org.eclipse.lsp4j.WorkDoneProgressCreateParams;
+import org.eclipse.lsp4j.WorkDoneProgressEnd;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -76,6 +77,11 @@ public class CentralPackageDescriptorLoader {
                     Either.forLeft(beginNotification)));
         }).thenRunAsync(() -> {
             centralPackages.addAll(CentralPackageDescriptorLoader.getInstance(lsContext).getPackagesFromCentral());
+        }).thenRunAsync(() -> {
+            WorkDoneProgressEnd endNotification = new WorkDoneProgressEnd();
+            endNotification.setMessage("Loaded Successfully!");
+            languageClient.notifyProgress(new ProgressParams(Either.forLeft(taskId),
+                    Either.forLeft(endNotification)));
         });
         isLoaded = true;
     }
