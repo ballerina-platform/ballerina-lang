@@ -130,6 +130,9 @@
             "message": {
               "pattern": "invalid 'version' under [[tool]]: 'version' should be compatible with should be compatible with semver rules"
             }
+          },
+          "active": {
+            "type": "boolean"
           }
         },
         "required": []

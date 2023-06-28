@@ -17,76 +17,20 @@
  */
 package io.ballerina.projects;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * Represents a bal-tools.toml file.
+ * Represents a generic bal-tools.toml file.
  *
- * @since 2201.6.0
+ * @since 2201.8.0
  */
-public class BalToolsManifest {
-    private final Map<String, Tool> tools;
-
-    private BalToolsManifest(Map<String, Tool> tools) {
-        this.tools = tools;
-    }
-
-    public static BalToolsManifest from() {
-        return new BalToolsManifest(new HashMap<>());
-    }
-
-    public static BalToolsManifest from(Map<String, Tool> tools) {
-        return new BalToolsManifest(tools);
-    }
-
-    public Map<String, Tool> tools() {
-        return tools;
-    }
-
-    public void addTool(String id, String org, String name, String version) {
-        tools.put(id, new Tool(id, org, name, version));
-    }
-
-    public void removeTool(String id) {
-        if (!tools.containsKey(id)) {
-            return;
-        }
-        tools.remove(id);
-    }
+public interface BalToolsManifest {
+    String toString();
 
     /**
      * Represents a tool in bal-tools.toml.
-     *
-     * @since 2201.6.0
      */
-    public static class Tool {
-        private final String id;
-        private final String org;
-        private final String name;
-        private final String version;
-
-        public Tool(String id, String org, String name, String version) {
-            this.id = id;
-            this.org = org;
-            this.name = name;
-            this.version = version;
-        }
-
-        public String id() {
-            return id;
-        }
-
-        public String org() {
-            return org;
-        }
-
-        public String name() {
-            return name;
-        }
-
-        public String version() {
-            return version;
-        }
+    interface Tool {
+        String id();
+        String org();
+        String name();
     }
 }

@@ -28,9 +28,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 
 import static io.ballerina.projects.util.ProjectConstants.BAL_TOOLS_TOML;
+import static io.ballerina.projects.util.ProjectConstants.EMPTY_STRING;
 
 /**
  * Represents the 'bal-tools.toml' file `.ballerina` repository.
@@ -61,7 +61,7 @@ public class BalToolsToml {
                 }
                 Files.createFile(balToolsTomlPath);
             } catch (IOException e) {
-                throw new RuntimeException("Error while creating bal-tools.toml :" + e);
+                return EMPTY_STRING;
             }
         }
         try (BufferedReader reader = new BufferedReader(
@@ -72,7 +72,7 @@ public class BalToolsToml {
                 line = reader.readLine();
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error while reading bal-tools.toml :" + e);
+            throw new ProjectException("Error while reading bal-tools.toml :" + e);
         }
         return String.valueOf(content);
     }
@@ -94,24 +94,9 @@ public class BalToolsToml {
     }
 
     public void modify(BalToolsManifest balToolsManifest) {
-        String updatedContent = generateContent(balToolsManifest);
+        String updatedContent = getAutoGenCode() + balToolsManifest.toString();
         this.balToolsTomlContext = TomlDocumentContext.from(TomlDocument.from(BAL_TOOLS_TOML, updatedContent));
         write(updatedContent);
-    }
-
-    private String generateContent(BalToolsManifest balToolsManifest) {
-        StringBuilder content = new StringBuilder();
-        content.append(getAutoGenCode());
-        for (Map.Entry<String, BalToolsManifest.Tool> tool: balToolsManifest.tools().entrySet()) {
-            content.append("[[tool]]\n");
-            content.append("id = \"").append(tool.getValue().id()).append("\"\n");
-            content.append("org = \"").append(tool.getValue().org()).append("\"\n");
-            content.append("name = \"").append(tool.getValue().name()).append("\"\n");
-            if (tool.getValue().version() != null) {
-                content.append("version = \"").append(tool.getValue().version()).append("\"\n\n");
-            }
-        }
-        return String.valueOf(content);
     }
 
     private void write(String content) {
@@ -119,7 +104,7 @@ public class BalToolsToml {
                 new FileWriter(String.valueOf(balToolsTomlPath), Charset.defaultCharset()))) {
             writer.write(content);
         } catch (IOException e) {
-            throw new RuntimeException("Error while updating bal-tools.toml :" + e);
+            throw new ProjectException("Error while updating bal-tools.toml :" + e);
         }
     }
 
