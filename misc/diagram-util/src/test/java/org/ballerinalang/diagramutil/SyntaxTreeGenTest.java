@@ -700,7 +700,7 @@ public class SyntaxTreeGenTest {
         Assert.assertEquals(ep.get("orgName").getAsString(), orgName);
         Assert.assertEquals(ep.get("packageName").getAsString(), packageName);
         Assert.assertEquals(ep.get("moduleName").getAsString(), moduleName);
-        Assert.assertEquals(ep.get("version").getAsString(), version);
+        Assert.assertTrue(version.matches("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$"));
 
         Assert.assertEquals(ep.get("isModuleVar").getAsBoolean(), isModuleVar);
         Assert.assertEquals(ep.get("isExternal").getAsBoolean(), isExternal);

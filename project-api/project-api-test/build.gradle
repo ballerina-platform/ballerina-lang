@@ -41,7 +41,6 @@ dependencies {
     testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
     testImplementation 'commons-io:commons-io'
     testImplementation 'com.google.code.gson:gson'
-
     testImplementation project(':ballerina-test-utils')
     testImplementation project(':ballerina-lang')
     testImplementation project(':toml-parser')
@@ -55,6 +54,7 @@ dependencies {
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-one-dependency')
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-two-dependencies')
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-codeactions')
+    compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-completion-providers')
     compilerPluginJar project(':project-api-test-artifact:string-utils-lib')
     compilerPluginJar project(':project-api-test-artifact:diagnostic-utils-lib')
     compilerPluginJar project(':project-api-test-artifact:function-node-analyzer-compiler-plugin')
