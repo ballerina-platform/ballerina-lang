@@ -25,7 +25,7 @@
         <!--<listener class-name="org.ballerinalang.langlib.test.utils.TestEventListener"/>-->
     </listeners>
 
-    <test name="lang-lib-test" parallel="false">
+    <test name="lang-lib-test">
         <parameter name="enableJBallerinaTests" value="true" />
 
         <classes>

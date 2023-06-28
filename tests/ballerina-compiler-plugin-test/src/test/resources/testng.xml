@@ -22,7 +22,7 @@ under the License.
 <suite name="ballerina-compiler-plugin-test-suite">
 
     <!-- Ballerina language Compile Plugin Test Cases. -->
-    <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
+    <test name="ballerina-lang-test-suite" preserve-order="true">
         <packages>
             <package name="io.ballerina.test.compiler.plugins"/>
         </packages>

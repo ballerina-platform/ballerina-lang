@@ -60,6 +60,8 @@ dependencies {
     testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
     testImplementation 'org.mockito:mockito-testng'
     testImplementation 'commons-io:commons-io'
+    testImplementation "commons-codec:commons-codec:${project.commonsCodecVersion}"
+    testImplementation "org.jline:jline:${project.jlineVersion}"
 
     distributionBala project(path: ':ballerina-langlib:test', configuration: 'distributionBala')
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')

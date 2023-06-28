@@ -22,7 +22,7 @@ under the License.
 <suite name="debugger-intg-test-suite">
 
     <!-- Ballerina debug related test cases. -->
-    <test name="debugger-intg-tests" parallel="false">
+    <test name="debugger-intg-tests">
         <parameter name="enableDebuggerTests" value="true"/>
         <groups>
             <run>
