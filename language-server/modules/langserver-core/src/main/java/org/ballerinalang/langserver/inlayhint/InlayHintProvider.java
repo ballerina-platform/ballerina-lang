@@ -15,26 +15,39 @@
  */
 package org.ballerinalang.langserver.inlayhint;
 
+import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaResourceMethodSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
+import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.ClientResourceAccessActionNode;
+import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.ImplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.tuple.Pair;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.TypeResolverUtil;
 import org.ballerinalang.langserver.commons.InlayHintContext;
@@ -128,10 +141,55 @@ public class InlayHintProvider {
             // Since the method is a lang-lib function, skip the first parameter
             return Pair.of(libFunction.get().params().get().stream().skip(1).collect(Collectors.toList()),
                     libFunction.get().restParam());
+        } else if (invokableNode.kind() == SyntaxKind.CLIENT_RESOURCE_ACCESS_ACTION) {
+            ClientResourceAccessActionNode resourceAccessActionNode = (ClientResourceAccessActionNode) invokableNode;
+            Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(resourceAccessActionNode);
+            List<ParameterSymbol> parameterSymbols = ((BallerinaResourceMethodSymbol) symbol.get()).typeDescriptor()
+                    .params().get();
+            return Pair.of(parameterSymbols, Optional.empty());
+        } else if (invokableNode.kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
+            RemoteMethodCallActionNode methodCallActionNode = (RemoteMethodCallActionNode) invokableNode;
+            Optional<Symbol> symbol = context.currentSemanticModel().get().symbol(methodCallActionNode);
+            List<ParameterSymbol> parameterSymbols = ((BallerinaMethodSymbol) symbol.get()).typeDescriptor()
+                    .params().get();
+            return Pair.of(parameterSymbols, Optional.empty());
+        } else if (invokableNode.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION) {
+            return getParameterSymbolsForNewExpressions(context, invokableNode);
+        } else if (invokableNode.kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
+            return getParameterSymbolsForNewExpressions(context, invokableNode);
         } else {
             FunctionCallExpressionNode functionCallExpressionNode = (FunctionCallExpressionNode) invokableNode;
             return getParameterSymbolsForFunctionCall(context, functionCallExpressionNode);
         }
+    }
+
+    private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParameterSymbolsForNewExpressions(
+            InlayHintContext context,
+            NonTerminalNode node) {
+        Optional<TypeSymbol> symbol;
+        if (node.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION) {
+            ImplicitNewExpressionNode implicitNode = (ImplicitNewExpressionNode) node;
+            symbol = context.currentSemanticModel()
+                    .flatMap(semanticModel -> semanticModel.typeOf(implicitNode))
+                    .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
+        } else {
+            ExplicitNewExpressionNode explicitNode = (ExplicitNewExpressionNode) node;
+            symbol = context.currentSemanticModel()
+                    .flatMap(semanticModel -> semanticModel.typeOf(explicitNode))
+                    .flatMap(typeSymbol -> Optional.of(CommonUtil.getRawType(typeSymbol))).stream().findFirst();
+        }
+        if (symbol.isEmpty()) {
+            return Pair.of(Collections.emptyList(), Optional.empty());
+        }
+        if (symbol.get().typeKind() == TypeDescKind.UNION) {
+            symbol = ((UnionTypeSymbol) symbol.get()).memberTypeDescriptors().stream()
+                    .filter(typeSymbol ->
+                            CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.OBJECT)
+                    .map(CommonUtil::getRawType).findFirst();
+        }
+        Optional<MethodSymbol> methodSymbol = ((ClassSymbol) symbol.get()).initMethod();
+        List<ParameterSymbol> parameterSymbols = methodSymbol.get().typeDescriptor().params().get();
+        return Pair.of(parameterSymbols, Optional.empty());
     }
 
     private static Pair<List<ParameterSymbol>, Optional<ParameterSymbol>> getParameterSymbolsForFunctionCall(
@@ -202,6 +260,26 @@ public class InlayHintProvider {
         public void visit(MethodCallExpressionNode methodCallExpressionNode) {
             invokableNodeList.add(methodCallExpressionNode);
         }
+
+        @Override
+        public void visit(ClientResourceAccessActionNode clientResourceAccessActionNode) {
+            invokableNodeList.add(clientResourceAccessActionNode);
+        }
+
+        @Override
+        public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
+            invokableNodeList.add(remoteMethodCallActionNode);
+        }
+
+        @Override
+        public void visit(ImplicitNewExpressionNode implicitNewExpressionNode) {
+            invokableNodeList.add(implicitNewExpressionNode);
+        }
+
+        @Override
+        public void visit(ExplicitNewExpressionNode explicitNewExpressionNode) {
+            invokableNodeList.add(explicitNewExpressionNode);
+        }
     }
 
     /**
@@ -232,6 +310,18 @@ public class InlayHintProvider {
         public void visit(MethodCallExpressionNode methodCallExpressionNode) {
             findInlayHintLocationsFromArgs(methodCallExpressionNode.arguments(),
                     methodCallExpressionNode.openParenToken());
+        }
+
+        @Override
+        public void visit(ParenthesizedArgList parenthesizedArgList) {
+            findInlayHintLocationsFromArgs(parenthesizedArgList.arguments(),
+                    parenthesizedArgList.openParenToken());
+        }
+
+        @Override
+        public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
+            findInlayHintLocationsFromArgs(remoteMethodCallActionNode.arguments(),
+                    remoteMethodCallActionNode.openParenToken());
         }
 
         @Override
