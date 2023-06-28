@@ -88,11 +88,6 @@ isolated function decode(string str, string charset) returns string|error = @jav
     'class: "org.ballerinalang.testerina.natives.io.StringUtils"
 } external;
 
-isolated function sleep(decimal seconds) returns error? = @java:Method {
-    name: "sleep",
-    'class: "org.ballerinalang.testerina.natives.CommonUtils"
-} external;
-
 isolated function getBallerinaType((any|error) value) returns string = @java:Method {
     name: "getBallerinaType",
     'class: "org.ballerinalang.testerina.core.BallerinaTypeCheck"

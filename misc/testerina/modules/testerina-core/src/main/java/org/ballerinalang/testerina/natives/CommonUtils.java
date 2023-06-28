@@ -24,8 +24,6 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BFunctionPointer;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 
 /**
@@ -34,16 +32,6 @@ import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
  * @since 2201.7.0
  */
 public class CommonUtils {
-    public static Object sleep(BDecimal seconds) {
-        try {
-            Thread.sleep(seconds.intValue() * 1000);
-        } catch (InterruptedException e) {
-            return BLangExceptionHelper.getRuntimeException(
-                    RuntimeErrors.OPERATION_NOT_SUPPORTED_ERROR, "Invalid duration: " + e.getMessage());
-        }
-        return null;
-    }
-
     public static BDecimal currentTimeInMillis() {
         long currentTime = System.currentTimeMillis();
         return BDecimal.valueOf(currentTime);
