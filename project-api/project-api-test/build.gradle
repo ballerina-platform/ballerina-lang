@@ -39,9 +39,10 @@ dependencies {
     testImplementation 'org.slf4j:slf4j-jdk14'
     testImplementation "org.mockito:mockito-core:${project.mockitoCoreVersion}"
     testImplementation "org.mockito:mockito-testng:${project.mockitoTestNGVersion}"
-
     testImplementation project(':ballerina-test-utils')
     testImplementation project(':ballerina-lang')
+    testImplementation project(':ballerina-tools-api')
+    testImplementation project(':ballerina-parser')
     testRuntimeOnly project(':ballerina-runtime')
     testRuntimeOnly project(':project-api-test-artifact:logging-file-appender-plugin')
     testRuntimeOnly project(':compiler-plugins:package-semantic-analyzer')
@@ -50,6 +51,7 @@ dependencies {
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-one-dependency')
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-two-dependencies')
     compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-codeactions')
+    compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-completion-providers')
     compilerPluginJar project(':project-api-test-artifact:string-utils-lib')
     compilerPluginJar project(':project-api-test-artifact:diagnostic-utils-lib')
     compilerPluginJar project(':project-api-test-artifact:function-node-analyzer-compiler-plugin')
