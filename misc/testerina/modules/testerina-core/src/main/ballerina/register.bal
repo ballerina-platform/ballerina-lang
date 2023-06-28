@@ -1,3 +1,5 @@
+import ballerina/lang.runtime;
+
 // Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -101,29 +103,31 @@ class ConcurrentExecutionManager {
         }
     }
 
+    isolated function waitForWorkers() {
+        while self.getAvailableWorkers() < 1 {
+            runtime:sleep(0.0001); // sleep is added to yield the strand
+        }
+    }
+
     isolated function getAvailableWorkers() returns int {
         lock {
             return self.unAllocatedTestWorkers;
         }
     }
 
-    function getParallelTest() returns TestFunction? {
-        if self.parallelTestExecutionList.length() > 0 {
-            return self.parallelTestExecutionList.remove(0);
-        }
-        return;
+    function getParallelTest() returns TestFunction {
+        return self.parallelTestExecutionList.remove(0);
     }
 
-    function getSerialTest() returns TestFunction? {
-        if self.serialTestExecutionList.length() > 0 {
-            return self.serialTestExecutionList.remove(0);
-        }
-        return;
+    function getSerialTest() returns TestFunction {
+        return self.serialTestExecutionList.remove(0);
+
     }
 
     function waitUntilEmptyQueueFilled() {
-        while parallelTestExecutionList.length() == 0 && serialTestExecutionList.length() == 0 {
+        while self.parallelTestExecutionList.length() == 0 && self.serialTestExecutionList.length() == 0 {
             self.populateExecutionQueues();
+            runtime:sleep(0.0001); // sleep is added to yield the strand
             if self.isExecutionDone() {
                 break;
             }
@@ -132,10 +136,14 @@ class ConcurrentExecutionManager {
 
     function populateExecutionQueues() {
         int i = 0;
+        boolean isExecutionDone = false;
         while i < self.testsInExecution.length() {
             TestFunction testInProgress = self.testsInExecution[i];
-            if testInProgress.isExecutionDone {
-                testInProgress.dependents.forEach(dependent => checkExecutionReadiness(dependent));
+            lock {
+                isExecutionDone = testInProgress.isExecutionDone;
+            }
+            if isExecutionDone {
+                testInProgress.dependents.forEach(dependent => self.checkExecutionReadiness(dependent));
                 _ = self.testsInExecution.remove(i);
             } else {
                 i = i + 1;
@@ -147,7 +155,7 @@ class ConcurrentExecutionManager {
         testFunction.dependsOnCount -= 1;
         if testFunction.dependsOnCount == 0 && testFunction.isInExecutionQueue != true {
             testFunction.isInExecutionQueue = true;
-            _ = testFunction.parallelizable ? self.addParallelTest(testFunction) : self.addSerialTest(testFunction);
+            _ = testFunction.parallelizable ? self.parallelTestExecutionList.push(testFunction) : self.serialTestExecutionList.push(testFunction);
         }
     }
 

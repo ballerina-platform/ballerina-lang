@@ -20,10 +20,7 @@ import ballerina/lang.runtime;
 isolated boolean shouldSkip = false;
 boolean shouldAfterSuiteSkip = false;
 isolated int exitCode = 0;
-TestFunction[] parallelTestExecutionList = [];
-TestFunction[] serialTestExecutionList = [];
-isolated int unAllocatedTestWorkers = 1;
-ConcurrentExecutionManager concurrentMgmr = new (1);
+ConcurrentExecutionManager conMgr = new (1);
 
 public function startSuite() {
     // exit if setTestOptions has failed
@@ -69,61 +66,29 @@ function exitOnError() {
 }
 
 function executeTests() returns error? {
-    TestFunction[] testsInExecution = [];
     decimal startTime = currentTimeInMillis();
-    // Add intial independant tests to the execution queue based on parallelizable condition
     foreach TestFunction testFunction in testRegistry.getFunctions() {
-        _ = testFunction.parallelizable ? parallelTestExecutionList.push(testFunction) : serialTestExecutionList.push(testFunction);
+        _ = testFunction.parallelizable ? conMgr.addParallelTest(testFunction) : conMgr.addSerialTest(testFunction);
     }
 
-    while true {
+    while !conMgr.isExecutionDone() {
 
-        //Exit from the loop if there are no tests to execute and all jobs are released  
-        if parallelTestExecutionList.length() == 0 && getAvailableWorkerCount() == testWorkers
-            && serialTestExecutionList.length() == 0 && testsInExecution.length() == 0 {
-            break;
-        }
+        if conMgr.getAvailableWorkers() != 0 {
+            conMgr.waitUntilEmptyQueueFilled();
 
-        int i = 0;
-
-        while i < testsInExecution.length() {
-            TestFunction testInProgress = testsInExecution[i];
-            if testInProgress.isExecutionDone {
-                testInProgress.dependents.forEach(dependent => checkExecutionReadiness(dependent));
-                _ = testsInExecution.remove(i);
-            } else {
-                i = i + 1;
-            }
-        }
-
-        //Execute tests if there are available workers
-        if (getAvailableWorkerCount() != 0) {
-
-            //If there are no tests to execute, wait for tests to be added to the execution queue
-            if parallelTestExecutionList.length() == 0 && serialTestExecutionList.length() == 0 {
-                runtime:sleep(0.0001); // Check async waits
-                continue;
-
-            }
-
-            //Execute serial tests if there are no test in execution process
-            if (serialTestExecutionList.length() != 0 && getAvailableWorkerCount() == testWorkers) {
-                TestFunction testFunction = serialTestExecutionList.remove(0);
-                // wait until the test is complete execution
-                testsInExecution.push(testFunction);
-                allocateWorker();
+            if conMgr.getSerialQueueLength() != 0 && conMgr.getAvailableWorkers() == testWorkers {
+                TestFunction testFunction = conMgr.getSerialTest();
+                conMgr.addTestInExecution(testFunction);
+                conMgr.allocateWorker();
                 future<error?> serialWaiter = start executeTest(testFunction);
                 any _ = check wait serialWaiter;
 
-                // Execute parallel tests if there are no serial tests in execution queue
             }
 
-            else if parallelTestExecutionList.length() != 0 && serialTestExecutionList.length() == 0 {
-                TestFunction testFunction = parallelTestExecutionList.remove(0);
-                // wait for the data driven tests to allocate workers
-
-                testsInExecution.push(testFunction);
-                allocateWorker();
+            else if conMgr.getParallelQueueLength() != 0 && conMgr.getSerialQueueLength() == 0 {
+                TestFunction testFunction = conMgr.getParallelTest();
+                conMgr.addTestInExecution(testFunction);
+                conMgr.allocateWorker();
                 future<(error?)> parallelWaiter = start executeTest(testFunction);
                 if isDataDrivenTest(testFunction) {
                     any _ = check wait parallelWaiter;
@@ -132,28 +97,26 @@ function executeTests() returns error? {
             }
 
         }
-        runtime:sleep(0.0001);
+        runtime:sleep(0.0001); // sleep is added to yield the strand
     }
 
     println("\n\t\tTest execution time :" + (currentTimeInMillis() - startTime).toString() + "ms\n");
 }
 
 function executeTest(TestFunction testFunction) returns error? {
-    // release worker if test is not enabled
     if !testFunction.enabled {
-        releaseWorker();
+        conMgr.releaseWorker();
         return;
     }
 
-    // relese worker if test has diagnostic errors
     error? diagnoseError = testFunction.diagnostics;
     if diagnoseError is error {
         lock {
             reportData.onFailed(name = testFunction.name, message = diagnoseError.message(), testType = getTestType(testFunction));
-            println("\n****************************************************\n" + testFunction.name + " has failed.\n****************************************************\n");
+            println("\n" + testFunction.name + " has failed.\n");
         }
         enableExit();
-        releaseWorker();
+        conMgr.releaseWorker();
         return;
     }
 
@@ -185,17 +148,10 @@ function executeTest(TestFunction testFunction) returns error? {
             }
         });
     }
-    testFunction.isExecutionDone = true;
-    releaseWorker();
-}
-
-//Reduce the dependents count and add to the execution queue if all the dependencies are executed
-function checkExecutionReadiness(TestFunction testFunction) {
-    testFunction.dependsOnCount -= 1;
-    if testFunction.dependsOnCount == 0 && testFunction.isInExecutionQueue != true {
-        testFunction.isInExecutionQueue = true;
-        _ = testFunction.parallelizable ? parallelTestExecutionList.push(testFunction) : serialTestExecutionList.push(testFunction);
+    lock {
+        testFunction.isExecutionDone = true;
     }
+    conMgr.releaseWorker();
 }
 
 function executeDataDrivenTestSet(TestFunction testFunction) returns error? {
@@ -220,26 +176,18 @@ function executeDataDrivenTestSet(TestFunction testFunction) returns error? {
 
     boolean isIntialJob = true;
 
-    while true {
-        //Break if there is no keys to execute or all keys are executed
-        if keys.length() == 0 {
-            break;
-        }
+    while keys.length() != 0 {
 
-        //Reuse the already assigned worker for 1st data driven test or 
-        // if there are available workers assign a worker for the next data driven test
-        if isIntialJob || getAvailableWorkerCount() > 0 {
+        if isIntialJob || conMgr.getAvailableWorkers() > 0 {
             string key = keys.remove(0);
             AnyOrError[] value = values.remove(0);
 
-            // Allocate worker from 2nd data driven test onwards
             if !isIntialJob {
-                allocateWorker();
+                conMgr.allocateWorker();
             }
 
             future<()> serialWaiter = start prepareDataDrivenTest(testFunction, key, value, testType);
 
-            //Wait for the test to complete if the test is not parallelizable
             if !testFunction.parallelizable {
                 any _ = check wait serialWaiter;
             }
@@ -247,30 +195,16 @@ function executeDataDrivenTestSet(TestFunction testFunction) returns error? {
         }
 
         isIntialJob = false;
-
-        //Wait until at least one worker is available
-        if getAvailableWorkerCount() == 0 {
-            runtime:sleep(0.0001);
-            continue;
-        }
-        runtime:sleep(0.0001);
+        conMgr.waitForWorkers();
     }
 
-    //Wait until at least one worker is available
-    while true {
-        if getAvailableWorkerCount() > 0 {
-            break;
-        }
-        runtime:sleep(0.0001);
-    }
+    conMgr.waitForWorkers();
 
-    // Allocate the worker for the remaining processing of data driven test
     if !isIntialJob {
-        allocateWorker();
+        conMgr.allocateWorker();
     }
 }
 
-// Execute the data driven test and release the worker
 function prepareDataDrivenTest(TestFunction testFunction, string key, AnyOrError[] value, TestType testType) {
     boolean beforeFailed = executeBeforeFunction(testFunction);
     if (beforeFailed) {
@@ -281,7 +215,7 @@ function prepareDataDrivenTest(TestFunction testFunction, string key, AnyOrError
         executeDataDrivenTest(testFunction, key, testType, value);
         var _ = executeAfterFunction(testFunction);
     }
-    releaseWorker();
+    conMgr.releaseWorker();
 }
 
 function executeDataDrivenTest(TestFunction testFunction, string suffix, TestType testType, AnyOrError[] params) {
@@ -294,8 +228,7 @@ function executeDataDrivenTest(TestFunction testFunction, string suffix, TestTyp
         lock {
             reportData.onFailed(name = testFunction.name, suffix = suffix, message = "[fail data provider for the function " + testFunction.name
                 + "]\n" + getErrorMessage(err), testType = testType);
-            //Remove *** && new line from the below line to print the error stack trace
-            println("\n****************************************************\n" + testFunction.name + ":" + suffix + " has failed.\n****************************************************\n");
+            println("\n" + testFunction.name + ":" + suffix + " has failed.\n");
             enableExit();
         }
     }
@@ -316,7 +249,7 @@ function executeNonDataDrivenTest(TestFunction testFunction) returns boolean {
         failed = true;
         lock {
             reportData.onFailed(name = testFunction.name, message = output.message(), testType = GENERAL_TEST);
-            println("\n****************************************************\n" + testFunction.name + " has failed.\n****************************************************\n");
+            println("\n" + testFunction.name + " has failed.\n");
         }
     }
 
@@ -508,7 +441,7 @@ function executeTestFunction(TestFunction testFunction, string suffix, TestType 
         enableExit();
         lock {
             reportData.onFailed(name = testFunction.name, suffix = suffix, message = getErrorMessage(output), testType = testType);
-            println("\n****************************************************\n" + testFunction.name + ":" + suffix + " has failed.\n****************************************************\n");
+            println("\n" + testFunction.name + ":" + suffix + " has failed\n");
         }
         return true;
     } else if output is any {
@@ -606,24 +539,6 @@ function nestedEnabledDependentsAvailable(TestFunction[] dependents) returns boo
         dependent.dependents.forEach((superDependent) => queue.push(superDependent));
     }
     return nestedEnabledDependentsAvailable(queue);
-}
-
-isolated function allocateWorker() {
-    lock {
-        unAllocatedTestWorkers -= 1;
-    }
-}
-
-isolated function releaseWorker() {
-    lock {
-        unAllocatedTestWorkers += 1;
-    }
-}
-
-isolated function getAvailableWorkerCount() returns int {
-    lock {
-        return unAllocatedTestWorkers;
-    }
 }
 
 isolated function enableShouldSkip() {

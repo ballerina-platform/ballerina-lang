@@ -41,10 +41,7 @@ public function setTestOptions(string inTargetPath, string inPackageName, string
     boolean codeCoverage = parseBooleanInput(inCoverage, "code-coverage");
     listGroups = parseBooleanInput(inListGroups, "list-groups");
     testWorkers = parseIntegerInput(inTestWorkers, "testWorkers");
-    concurrentMgmr = new (testWorkers);
-    lock {
-        unAllocatedTestWorkers = testWorkers;
-    }
+    conMgr = new (testWorkers);
 
     if rerunFailed {
         error? err = parseRerunJson();
