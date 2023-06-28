@@ -1696,8 +1696,10 @@ public class CodeAnalyzer extends SimpleBLangNodeAnalyzer<CodeAnalyzer.AnalyzerD
                         visitedSymbols));
                 return;
             case TypeTags.OBJECT:
-                ((BObjectType) symbolType).fields.values().forEach(f -> checkForExportableType(f.type.tsymbol, pos,
-                        visitedSymbols));
+                if (Symbols.isFlagOn(symbol.flags, Flags.ANONYMOUS)) {
+                    ((BObjectType) symbolType).fields.values().forEach(f -> checkForExportableType(f.type.tsymbol, pos,
+                            visitedSymbols));
+                }
                 break;
             case TypeTags.INTERSECTION:
                 ((BIntersectionType) symbolType).getConstituentTypes().forEach(t -> checkForExportableType(t.tsymbol,

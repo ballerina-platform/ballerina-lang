@@ -78,11 +78,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
         BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'PrivatePerson'", 38, 1);
         BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'PrivatePerson'", 42, 1);
         BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'PrivatePerson'", 42, 73);
-        BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 4, 5);
-        BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 6, 5);
         BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 16, 5);
-        BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 59, 38);
-        BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 66, 44);
         Assert.assertEquals(compileResult.getWarnCount(), i);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'PrivatePerson'", 20, 5);
         BAssertUtil.validateError(compileResult, i, "unknown type 'PrivatePerson'", 20, 5);
@@ -115,11 +111,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
         BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'PrivatePerson'", 38, 1);
         BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'PrivatePerson'", 42, 1);
         BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'PrivatePerson'", 42, 73);
-        BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 4, 5);
-        BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 6, 5);
         BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 16, 5);
-        BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 59, 38);
-        BAssertUtil.validateWarning(compileResult, i++, expectedWarningMsg + "'FooFamily'", 66, 44);
         Assert.assertEquals(compileResult.getWarnCount(), i);
         BAssertUtil.validateError(compileResult, i++, expectedErrMsg + "'address'", 10, 13);
         BAssertUtil.validateError(compileResult, i,
