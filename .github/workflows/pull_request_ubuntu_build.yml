@@ -21,7 +21,7 @@ jobs:
   ubuntu_build:
     name: Build with all tests on Ubuntu
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 240
     concurrency:
       group: ${{ github.head_ref }}-ubuntu
       cancel-in-progress: true
