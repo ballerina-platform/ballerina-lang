@@ -22,9 +22,6 @@ import io.ballerina.cli.launcher.BLauncherException;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.ballerinalang.test.BCompileUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -35,6 +32,7 @@ import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -58,8 +56,7 @@ public class NewCommandTest extends BaseCommandTest {
 
     Path testResources;
     Path centralCache;
-
-    private static final Logger logger = LoggerFactory.getLogger(BCompileUtil.class);
+    private PrintStream errStream = System.err;
 
     @DataProvider(name = "invalidProjectNames")
     public Object[][] provideInvalidProjectNames() {
@@ -651,17 +648,15 @@ public class NewCommandTest extends BaseCommandTest {
         Assert.assertTrue(mainContent.contains("import central_sample.mod1;"));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(readOutput().contains("Created new package"));
-        logger.info(System.getProperty("user.dir"));
+        errStream.println("setting user directory");
         System.setProperty("user.dir", packageDir.toString());
-        logger.info(System.getProperty("user.dir"));
+        errStream.println(System.getProperty("user.dir"));
         BuildCommand buildCommand = new BuildCommand(packageDir, printStream, printStream, false);
         new CommandLine(buildCommand).parseArgs();
         try {
             buildCommand.execute();
         } catch (BLauncherException e) {
-            logger.error(e.getStackTrace().toString());
-            logger.error(e.getMessage());
-            logger.error(e.getDetailedMessages().toString());
+            errStream.println(e.getDetailedMessages().toString());
         }
         String buildLog = readOutput(true);
         Assert.assertTrue(buildLog.contains("Generating executable"));;
