@@ -27,6 +27,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.PositionUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -34,6 +35,8 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.QNameRefCompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +79,15 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
             ruleContext = RuleContext.PARAMETER_CTX;
         } else if (this.withinReturnKWContext(context, node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RETURNS.get()));
+        } else if (node.parent().kind() == SyntaxKind.OBJECT_FIELD) {
+            SnippetCompletionItem xx = new SnippetCompletionItem(context, Snippet.DEF_INIT_FUNCTION.get());
+//            Range range = PositionUtil.toRange(56, context.getCursorPositionInTree(), context.currentDocument().get().textDocument());
+            Range range = PositionUtil.toRange(node.functionKeyword().textRange().startOffset(), node.functionKeyword().textRangeWithMinutiae().endOffset(), context.currentDocument().get().textDocument());
+            TextEdit textEdit = new TextEdit(range, "");
+            xx.getCompletionItem().setAdditionalTextEdits(List.of(textEdit));
+            completionItems.add(xx);
+
+//            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
         }
         this.sort(context, node, completionItems, ruleContext);
 
