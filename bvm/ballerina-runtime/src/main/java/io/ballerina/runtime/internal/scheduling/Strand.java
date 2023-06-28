@@ -190,8 +190,10 @@ public class Strand {
     public void removeCurrentTrxContext() {
         if (!this.trxContexts.isEmpty()) {
             this.currentTrxContext = this.trxContexts.pop();
+            globalProps.put(CURRENT_TRANSACTION_CONTEXT_PROPERTY, this.currentTrxContext);
             return;
         }
+        globalProps.remove(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
         this.currentTrxContext = null;
     }
 
