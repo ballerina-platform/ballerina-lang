@@ -6060,7 +6060,9 @@ public class BallerinaParser extends AbstractParser {
             case RIGHT_DOUBLE_ARROW_TOKEN:
                 return isInMatchGuard;
             case IDENTIFIER_TOKEN:
-                return isContextualKeyword(nextToken) || isKeywordMatch(SyntaxKind.CONFLICT_KEYWORD, nextToken);
+                return isContextualKeyword(nextToken)
+                        || isKeywordMatch(SyntaxKind.CONFLICT_KEYWORD, nextToken)
+                        || isKeywordMatch(SyntaxKind.EQUALS_KEYWORD, nextToken);
             default:
                 return isSimpleType(tokenKind);
         }
@@ -12136,7 +12138,7 @@ public class BallerinaParser extends AbstractParser {
             return consume();
         }
         if (isKeywordMatch(SyntaxKind.EQUALS_KEYWORD, token)) {
-            // this is to treat "where" as a keyword, even if its parsed as an identifier from lexer.
+            // this is to treat "equals" as a keyword, even if its parsed as an identifier from lexer.
             return getKeyword(consume(), SyntaxKind.EQUALS_KEYWORD);
         }
         recover(token, ParserRuleContext.EQUALS_KEYWORD);
@@ -12644,10 +12646,13 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         if (token.kind == SyntaxKind.CONFLICT_KEYWORD) {
             return consume();
-        } else {
-            recover(token, ParserRuleContext.CONFLICT_KEYWORD);
-            return parseConflictKeyword();
         }
+        if (isKeywordMatch(SyntaxKind.CONFLICT_KEYWORD, token)) {
+            // this is to treat "conflict" as a keyword, even if its parsed as an identifier from lexer.
+            return getKeyword(consume(), SyntaxKind.CONFLICT_KEYWORD);
+        }
+        recover(token, ParserRuleContext.CONFLICT_KEYWORD);
+        return parseConflictKeyword();
     }
 
     /**
