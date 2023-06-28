@@ -137,7 +137,7 @@ function executeTest(TestFunction testFunction) returns error? {
         shouldSkipDependents = true;
     }
 
-    testFunction.groups.forEach(group => groupStatusRegistry.incrementExecutedTest(group));
+    testFunction.groups.forEach('group => groupStatusRegistry.incrementExecutedTest('group));
     executeAfterEachFunctions();
     executeAfterGroupFunctions(testFunction);
 
@@ -326,13 +326,13 @@ function executeAfterFunction(TestFunction testFunction) returns boolean {
 }
 
 function executeBeforeGroupFunctions(TestFunction testFunction) {
-    foreach string group in testFunction.groups {
-        TestFunction[]? beforeGroupFunctions = beforeGroupsRegistry.getFunctions(group);
-        if beforeGroupFunctions != () && !groupStatusRegistry.firstExecuted(group) {
+    foreach string 'group in testFunction.groups {
+        TestFunction[]? beforeGroupFunctions = beforeGroupsRegistry.getFunctions('group);
+        if beforeGroupFunctions != () && !groupStatusRegistry.firstExecuted('group) {
             ExecutionError? err = executeFunctions(beforeGroupFunctions, getShouldSkip());
             if err is ExecutionError {
                 testFunction.skip = true;
-                groupStatusRegistry.setSkipAfterGroup(group);
+                groupStatusRegistry.setSkipAfterGroup('group);
                 enableExit();
                 printExecutionError(err, "before test group function for the test");
             }
@@ -341,11 +341,11 @@ function executeBeforeGroupFunctions(TestFunction testFunction) {
 }
 
 function executeAfterGroupFunctions(TestFunction testFunction) {
-    foreach string group in testFunction.groups {
-        TestFunction[]? afterGroupFunctions = afterGroupsRegistry.getFunctions(group);
-        if afterGroupFunctions != () && groupStatusRegistry.lastExecuted(group) {
+    foreach string 'group in testFunction.groups {
+        TestFunction[]? afterGroupFunctions = afterGroupsRegistry.getFunctions('group);
+        if afterGroupFunctions != () && groupStatusRegistry.lastExecuted('group) {
             ExecutionError? err = executeFunctions(afterGroupFunctions,
-                getShouldSkip() || groupStatusRegistry.getSkipAfterGroup(group));
+                getShouldSkip()|| groupStatusRegistry.getSkipAfterGroup('group));
             if err is ExecutionError {
                 enableExit();
                 printExecutionError(err, "after test group function for the test");
@@ -501,7 +501,7 @@ function restructureTest(TestFunction testFunction, string[] descendants) return
 
         dependsOnTestFunction.dependents.push(testFunction);
 
-        // Contains cyclic dependencies 
+        // Contains cyclic dependencies
         int? startIndex = descendants.indexOf(dependsOnTestFunction.name);
         if startIndex is int {
             string[] newCycle = descendants.slice(startIndex);

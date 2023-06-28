@@ -1,5 +1,3 @@
-import ballerina/lang.runtime;
-
 // Copyright (c) 2022 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -15,6 +13,8 @@ import ballerina/lang.runtime;
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
+import ballerina/lang.runtime;
 
 final TestRegistry testRegistry = new ();
 final TestRegistry beforeSuiteRegistry = new ();
@@ -195,17 +195,17 @@ class TestRegistry {
 class GroupRegistry {
     private final map<TestFunction[]> registry = {};
 
-    function addFunction(string group, *TestFunction testFunction) {
-        if self.registry.hasKey(group) {
-            self.registry.get(group).push(testFunction);
+    function addFunction(string 'group, *TestFunction testFunction) {
+        if self.registry.hasKey('group) {
+            self.registry.get('group).push(testFunction);
         } else {
-            self.registry[group] = [testFunction];
+            self.registry['group] = [testFunction];
         }
     }
 
-    function getFunctions(string group) returns TestFunction[]? {
-        if self.registry.hasKey(group) {
-            return self.registry.get(group);
+    function getFunctions(string 'group) returns TestFunction[]? {
+        if self.registry.hasKey('group) {
+            return self.registry.get('group);
         }
         return;
     }
@@ -217,56 +217,56 @@ isolated class GroupStatusRegistry {
     private final map<int> executedTests = {};
     private final map<boolean> skip = {};
 
-    isolated function firstExecuted(string group) returns boolean {
+    isolated function firstExecuted(string 'group) returns boolean {
         lock {
-            return self.executedTests.get(group) > 0;
+            return self.executedTests.get('group) > 0;
         }
     }
-    isolated function lastExecuted(string group) returns boolean {
+    isolated function lastExecuted(string 'group) returns boolean {
         lock {
 
-            return self.executedTests.get(group) == self.enabledTests.get(group);
+            return self.executedTests.get('group) == self.enabledTests.get('group);
         }
     }
 
-    isolated function incrementTotalTest(string group, boolean enabled) {
+    isolated function incrementTotalTest(string 'group, boolean enabled) {
         lock {
-            if self.totalTests.hasKey(group) {
-                self.totalTests[group] = self.totalTests.get(group) + 1;
+            if self.totalTests.hasKey('group) {
+                self.totalTests['group] = self.totalTests.get('group) + 1;
             } else {
-                self.totalTests[group] = 1;
+                self.totalTests['group] = 1;
             }
             if enabled {
-                self.skip[group] = false;
-                if self.enabledTests.hasKey(group) {
-                    self.enabledTests[group] = self.enabledTests.get(group) + 1;
+                self.skip['group] = false;
+                if self.enabledTests.hasKey('group) {
+                    self.enabledTests['group] = self.enabledTests.get('group) + 1;
                 } else {
-                    self.enabledTests[group] = 1;
-                    self.executedTests[group] = 0;
+                    self.enabledTests['group] = 1;
+                    self.executedTests['group] = 0;
                 }
             }
         }
     }
 
-    isolated function incrementExecutedTest(string group) {
+    isolated function incrementExecutedTest(string 'group) {
         lock {
-            if self.executedTests.hasKey(group) {
-                self.executedTests[group] = self.executedTests.get(group) + 1;
+            if self.executedTests.hasKey('group) {
+                self.executedTests['group] = self.executedTests.get('group) + 1;
             } else {
-                self.executedTests[group] = 1;
+                self.executedTests['group] = 1;
             }
         }
     }
 
-    isolated function setSkipAfterGroup(string group) {
+    isolated function setSkipAfterGroup(string 'group) {
         lock {
-            self.skip[group] = true;
+            self.skip['group] = true;
         }
     }
 
-    isolated function getSkipAfterGroup(string group) returns boolean {
+    isolated function getSkipAfterGroup(string 'group) returns boolean {
         lock {
-            return self.skip.get(group);
+            return self.skip.get('group);
         }
     }
 

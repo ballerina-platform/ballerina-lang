@@ -19,6 +19,7 @@
 package io.ballerina.cli.task;
 
 import io.ballerina.cli.utils.BuildTime;
+import io.ballerina.cli.utils.GraalVMCompatibilityUtils;
 import io.ballerina.cli.utils.TestUtils;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
@@ -410,6 +411,11 @@ public class RunNativeImageTestTask implements Task {
             if (hasTests) {
                 int testResult = 1;
                 try {
+                    String warnings = GraalVMCompatibilityUtils.getAllWarnings(
+                            project.currentPackage(), jBallerinaBackend.targetPlatform().code(), true);
+                    if (!warnings.isEmpty()) {
+                        out.println(warnings);
+                    }
                     testResult = runTestSuiteWithNativeImage(project.currentPackage(), target, testSuiteMap);
                     if (testResult != 0) {
                         accumulatedTestResult = testResult;
@@ -518,6 +524,11 @@ public class RunNativeImageTestTask implements Task {
                 nativeConfigPath.resolve("reflect-config.json").toString())));
         nativeArgs.add("--no-fallback");
 
+        String graalVMBuildOptions = currentPackage.project().buildOptions().graalVMBuildOptions();
+        nativeArgs.add(graalVMBuildOptions);
+
+        // There is a command line length limit in Windows. Therefore, we need to write the arguments to a file and
+        // use it as an argument.
         try (FileWriter nativeArgumentWriter = new FileWriter(nativeConfigPath.resolve("native-image-args.txt")
                 .toString(), Charset.defaultCharset())) {
             nativeArgumentWriter.write(String.join(" ", nativeArgs));

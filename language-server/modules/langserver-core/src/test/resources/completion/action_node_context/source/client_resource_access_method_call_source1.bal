@@ -19,5 +19,5 @@ client class MyClient {
 
 public function testClient(string param1, int count) returns error? {
     MyClient myClient = new ();
-    string response = myClient -> /user/path1/path2/.post(,12, name = "J");
+    string response = myClient -> /user/path1/path2.post(,12, name = "J");
 }

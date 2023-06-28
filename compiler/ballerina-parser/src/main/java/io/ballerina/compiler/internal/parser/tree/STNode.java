@@ -26,7 +26,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 
 /**
@@ -42,7 +41,7 @@ public abstract class STNode {
     protected int widthWithTrailingMinutiae;
     protected int widthWithMinutiae;
 
-    protected EnumSet<STNodeFlags> flags = EnumSet.noneOf(STNodeFlags.class);
+    protected byte flags = 0;
 
     protected static final STNode[] EMPTY_BUCKET = new STNode[0];
     // The following fields allow us to navigate the tree without the knowledge of the particular tree nodes
@@ -54,11 +53,18 @@ public abstract class STNode {
         this.diagnostics = Collections.emptyList();
     }
 
+    STNode(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics, boolean isMissing) {
+        this(kind, diagnostics);
+        if (isMissing) {
+            flags = STNodeFlags.withFlag(flags, STNodeFlags.IS_MISSING);
+        }
+    }
+
     STNode(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics) {
         this.kind = kind;
         this.diagnostics = diagnostics;
         if (diagnostics.size() > 0) {
-            flags.add(STNodeFlags.HAS_DIAGNOSTICS);
+            flags = STNodeFlags.withFlag(flags, STNodeFlags.HAS_DIAGNOSTIC);
         }
     }
 
@@ -93,7 +99,7 @@ public abstract class STNode {
     }
 
     public boolean hasDiagnostics() {
-        return flags.contains(STNodeFlags.HAS_DIAGNOSTICS);
+        return STNodeFlags.isFlagSet(flags, STNodeFlags.HAS_DIAGNOSTIC);
     }
 
     public Collection<STNodeDiagnostic> diagnostics() {
@@ -105,7 +111,7 @@ public abstract class STNode {
     }
 
     public boolean isMissing() {
-        return this instanceof STMissingToken;
+        return STNodeFlags.isFlagSet(flags, STNodeFlags.IS_MISSING);
     }
 
     public List<STToken> tokens() {
@@ -332,8 +338,8 @@ public abstract class STNode {
             if (!SyntaxUtils.isSTNodePresent(child)) {
                 continue;
             }
-            if (child.flags.contains(STNodeFlags.HAS_DIAGNOSTICS)) {
-                this.flags.add(STNodeFlags.HAS_DIAGNOSTICS);
+            if (STNodeFlags.isFlagSet(child.flags, STNodeFlags.HAS_DIAGNOSTIC)) {
+                this.flags = STNodeFlags.withFlag(this.flags, STNodeFlags.HAS_DIAGNOSTIC);
                 return;
             }
         }
