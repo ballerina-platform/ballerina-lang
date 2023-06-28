@@ -184,7 +184,7 @@ public class TypeConverter {
         // Get record type and set the type name as a property
         for (BType bType : intersectionType.getConstituentTypes()) {
             // Does not consider anonymous records
-            if (bType instanceof BTypeReferenceType) {
+            if (bType.tag == TypeTags.TYPEREFDESC) {
                 typeNode.addProperty("name", bType.toString().trim());
             }
         }

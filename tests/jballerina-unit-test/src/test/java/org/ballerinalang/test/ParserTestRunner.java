@@ -51,40 +51,7 @@ public class ParserTestRunner {
         // Therefore, when adding an item to the skip list, please create an issue.
         hashSet.add("func_def_source_08.bal");
         hashSet.add("match_stmt_source_13.bal");
-        hashSet.add("method_call_expr_source_03.bal"); // issue #34620
-        hashSet.add("method_call_expr_source_05.bal"); // issue #34620
-        hashSet.add("float_literal_source_08.bal"); // issue #34620
-        hashSet.add("float_literal_source_07.bal"); // issue #34620
         hashSet.add("resiliency_source_04.bal");  // issue #35795
-
-        // issue #37888
-        hashSet.add("query_expr_source_80.bal");
-        hashSet.add("query_expr_source_81.bal");
-        hashSet.add("query_expr_source_82.bal");
-        hashSet.add("query_expr_source_83.bal");
-        hashSet.add("query_expr_source_84.bal");
-        hashSet.add("query_expr_source_85.bal");
-        hashSet.add("query_expr_source_89.bal");
-        hashSet.add("query_expr_source_90.bal");
-        hashSet.add("query_expr_source_93.bal");
-        hashSet.add("query_expr_source_94.bal");
-        hashSet.add("query_expr_source_95.bal");
-        hashSet.add("query_expr_source_96.bal");
-        hashSet.add("query_expr_source_97.bal");
-        hashSet.add("query_expr_source_98.bal");
-        hashSet.add("query_expr_source_99.bal");
-        hashSet.add("query_expr_source_100.bal");
-        hashSet.add("query_expr_source_101.bal");
-        hashSet.add("query_expr_source_102.bal");
-        hashSet.add("query_expr_source_103.bal");
-        hashSet.add("query_expr_source_104.bal");
-        hashSet.add("query_expr_source_105.bal");
-        hashSet.add("query_expr_source_110.bal");
-        hashSet.add("query_expr_source_111.bal");
-        hashSet.add("query_expr_source_112.bal");
-        hashSet.add("query_expr_source_113.bal");
-        hashSet.add("query_expr_source_114.bal");
-
         return hashSet;
     }
 
