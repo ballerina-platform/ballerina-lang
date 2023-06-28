@@ -42,6 +42,7 @@ import io.ballerina.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.FunctionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.KeyTypeConstraintNode;
 import io.ballerina.compiler.syntax.tree.MapTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.MemberTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.NilTypeDescriptorNode;
@@ -61,7 +62,9 @@ import io.ballerina.compiler.syntax.tree.SingletonTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TableTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypeParameterNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import org.ballerinalang.docgen.Generator;
@@ -182,6 +185,12 @@ public class Type {
             } else {
                 type.generateUserDefinedTypeLink = false;
             }
+        } else if (node instanceof KeyTypeConstraintNode) {
+            TypeParameterNode typeParameterNode = (TypeParameterNode) ((KeyTypeConstraintNode) node).
+                    typeParameterNode();
+            type.name = "key";
+            type.category = "key";
+            type.constraint = fromNode(typeParameterNode.typeNode(), semanticModel, module);
         } else if (node instanceof TypeReferenceNode) {
             Optional<Symbol> symbol = Optional.empty();
             try {
@@ -279,6 +288,12 @@ public class Type {
             type.name = "map";
             type.category = "map";
             type.constraint = fromNode(mapTypeDesc.mapTypeParamsNode().typeNode(), semanticModel, module);
+        } else if (node instanceof TableTypeDescriptorNode) {
+            TableTypeDescriptorNode tableTypeDesc = (TableTypeDescriptorNode) node;
+            type.name = "table";
+            type.category = "table";
+            type.constraint = fromNode(((TypeParameterNode) tableTypeDesc.rowTypeParameterNode()).typeNode(),
+                    semanticModel, module);
         } else if (node instanceof ParameterizedTypeDescriptorNode) {
             ParameterizedTypeDescriptorNode parameterizedTypeNode = (ParameterizedTypeDescriptorNode) node;
             SyntaxKind typeKind = node.kind();
@@ -516,7 +531,8 @@ public class Type {
             type.version = "UNK_VER";
         }
 
-        if (!Objects.equals(type.moduleName, module.id) || !Objects.equals(type.orgName, module.orgName)) {
+        if (!type.orgName.equals("UNK_ORG") && (!Objects.equals(type.moduleName, module.id) ||
+                !Objects.equals(type.orgName, module.orgName))) {
             type.category = "libs";
         } else if (symbol instanceof TypeReferenceTypeSymbol) {
             TypeReferenceTypeSymbol typeSymbol = (TypeReferenceTypeSymbol) symbol;
