@@ -19,7 +19,7 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-semantic-api-test-suite">
-    <test name="semantic-api-test" parallel="false">
+    <test name="semantic-api-test">
         <classes>
             <class name="io.ballerina.semantic.api.test.BindingPatternTest" />
             <class name="io.ballerina.semantic.api.test.DiagnosticsTest" />

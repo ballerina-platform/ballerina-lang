@@ -20,7 +20,7 @@ under the License.
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
 <suite name="cli-module-suite" time-out="30000">
-    <test name="cli-module-tests" parallel="false">
+    <test name="cli-module-tests">
         <packages>
             <package name="org.ballerinalang.central.client.*"/>
         </packages>
