@@ -17,24 +17,17 @@
 */
 package org.ballerinalang.test.bala.object;
 
-import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Name;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
@@ -45,13 +38,11 @@ import static org.testng.Assert.assertEquals;
 public class ObjectIncludeOverrideBalaTest {
 
     private CompileResult result;
-    private BPackageSymbol packageSymbol;
 
     @BeforeClass
     public void setup() {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
         result = BCompileUtil.compile("test-src/bala/test_bala/object/object_override_includes.bal");
-        packageSymbol = ((BLangPackage) result.getAST()).symbol;
     }
 
     @Test
@@ -71,6 +62,7 @@ public class ObjectIncludeOverrideBalaTest {
 
     @Test
     public void testOverriddenFunctionInformation() {
+        BPackageSymbol packageSymbol = ((BLangPackage) result.getAST()).symbol;
         BSymbol fooClass = packageSymbol.scope.lookup(new Name("FooClass")).symbol;
         assertEquals(((BClassSymbol) fooClass).attachedFuncs.size(), 1);
         BInvokableSymbol fnSymbol = ((BClassSymbol) fooClass).attachedFuncs.get(0).symbol;
