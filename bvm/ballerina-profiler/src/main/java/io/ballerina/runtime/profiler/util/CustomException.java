@@ -19,7 +19,7 @@
 package io.ballerina.runtime.profiler.util;
 
 /**
- * This class is used to profile Ballerina programs.
+ * This class is used as a custom exception class.
  *
  * @since 2201.7.0
  */

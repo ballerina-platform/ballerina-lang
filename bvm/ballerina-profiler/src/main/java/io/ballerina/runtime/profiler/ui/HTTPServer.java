@@ -22,11 +22,12 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static io.ballerina.runtime.profiler.ui.FrontEnd.getSiteData;
 
 /**
- * This class is used to profile Ballerina programs.
+ * This class contains the HTTP server of the ballerina profiler.
  *
  * @since 2201.7.0
  */
@@ -38,23 +39,33 @@ public class HTTPServer {
         String content = readData();
         String htmlData = getSiteData(content);
         String fileName = "ProfilerOutput.html";
+        FileWriter fileWriter = null;
         try {
-            FileWriter fileWriter = new FileWriter(fileName);
+            fileWriter = new FileWriter(fileName, StandardCharsets.UTF_8);
             fileWriter.write(htmlData);
-            fileWriter.close();
         } catch (IOException e) {
             System.out.printf(e + "%n");
+        } finally {
+            if (fileWriter != null) {
+                try {
+                    fileWriter.close();
+                } catch (IOException e) {
+                    // Handle the exception if closing the writer fails
+                    System.out.printf(e + "%n");
+                }
+            }
         }
     }
 
     private static String readData() throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader("performance_report.json"));
-        StringBuilder contents = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            contents.append(line);
+        try (BufferedReader reader = new BufferedReader(
+                new FileReader("performance_report.json", StandardCharsets.UTF_8))) {
+            StringBuilder contents = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                contents.append(line);
+            }
+            return contents.toString();
         }
-        reader.close();
-        return String.valueOf(contents);
     }
 }

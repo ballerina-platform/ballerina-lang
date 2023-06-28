@@ -19,7 +19,7 @@
 package io.ballerina.runtime.profiler.ui;
 
 /**
- * This class is used to profile Ballerina programs.
+ * This class is contains the front end of the ballerina profiler.
  *
  * @since 2201.7.0
  */
@@ -328,7 +328,6 @@ public class FrontEnd {
                 "</body>\n" +
                 "\n" +
                 "</html>";
-
         return htmlCode;
     }
 }

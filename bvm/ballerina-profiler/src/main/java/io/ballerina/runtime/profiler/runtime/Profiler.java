@@ -21,6 +21,8 @@ package io.ballerina.runtime.profiler.runtime;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -33,12 +35,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * This class is used to profile Ballerina programs.
+ * This class is used as the main profiler class for the ballerina profiler.
  *
  * @since 2201.7.0
  */
 public class Profiler {
-    private static Profiler singletonInstance = null;
     private final HashMap<String, Data> profiles = new HashMap<>();
     private final ArrayList<Data> profilesStack = new ArrayList<>();
     private ArrayList<String> blockedMethods = new ArrayList<>();
@@ -59,11 +60,12 @@ public class Profiler {
         }
     }
 
+    private static class ProfilerHolder {
+        private static final Profiler INSTANCE = new Profiler();
+    }
+
     public static Profiler getInstance() {
-        if (singletonInstance == null) {
-            singletonInstance = new Profiler();
-        }
-        return singletonInstance;
+        return ProfilerHolder.INSTANCE;
     }
 
     public String getMethodName() {
@@ -71,17 +73,16 @@ public class Profiler {
         return stack.get(2).getMethodName() + "()";
     }
 
-
-    public List<String> removeDuplicates(List<String> list) {
+    public void removeDuplicates(List<String> list) {
         List<String> newList = new ArrayList<>();
         for (String element : list) {
             if (!newList.contains(element)) {
                 newList.add(element);
             }
         }
-        return newList;
+        list.clear();
+        list.addAll(newList);
     }
-
 
     public void start(int id) {
         String name = getStackTrace();
@@ -94,11 +95,10 @@ public class Profiler {
             }
             p.start();
             methodNames.add(getMethodName()); // add the current method name to the methodNames set
-            removeDuplicates(blockedMethods); //
+            removeDuplicates(blockedMethods);
         }
         blockedMethods.remove(getMethodName() + id);
     }
-
 
     public void start() {
         String name = getStackTrace();
@@ -110,9 +110,8 @@ public class Profiler {
         }
         p.start();
         methodNames.add(getMethodName()); // add the current method name to the methodNames set
-        removeDuplicates(blockedMethods); //
+        removeDuplicates(blockedMethods);
     }
-
 
     public void stop(String strandState, int id) {
         String name = getStackTrace();
@@ -136,7 +135,6 @@ public class Profiler {
         }
     }
 
-
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("[");
@@ -148,13 +146,10 @@ public class Profiler {
     }
 
     public void printProfilerOutput(String dataStream) {
-        try {
-            FileWriter myWriter = new FileWriter("CpuPre.json");
+        try (Writer myWriter = new FileWriter("CpuPre.json", StandardCharsets.UTF_8)) {
             myWriter.write(dataStream);
-            myWriter.close();
-        } catch (IOException var3) {
+        } catch (IOException e) {
             System.out.printf("An error occurred." + "%n");
-            var3.printStackTrace();
         }
     }
 

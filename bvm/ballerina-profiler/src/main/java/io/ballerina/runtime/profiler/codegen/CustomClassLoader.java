@@ -21,7 +21,7 @@ package io.ballerina.runtime.profiler.codegen;
 import org.objectweb.asm.ClassReader;
 
 /**
- * This class is used to profile Ballerina programs.
+ * This class is used as a custom class loader for the ballerina profiler.
  *
  * @since 2201.7.0
  */

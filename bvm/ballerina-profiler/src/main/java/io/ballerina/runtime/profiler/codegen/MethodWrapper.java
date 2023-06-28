@@ -24,29 +24,32 @@ import org.objectweb.asm.ClassWriter;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 
 import static io.ballerina.runtime.profiler.Main.ANSI_CYAN;
 import static io.ballerina.runtime.profiler.Main.ANSI_RESET;
-import static io.ballerina.runtime.profiler.Main.balJarArgs;
-import static io.ballerina.runtime.profiler.Main.tempJarFileName;
+import static io.ballerina.runtime.profiler.Main.TEMPJARFILENAME;
+import static io.ballerina.runtime.profiler.Main.getBalJarArgs;
 
 /**
- * This class is used to profile Ballerina programs.
+ * This class is used as the method wrapper for the ballerina profiler.
  *
  * @since 2201.7.0
  */
 public class MethodWrapper extends ClassLoader {
     public static void invokeMethods() throws IOException, InterruptedException {
-        String[] command = {"java", "-jar", tempJarFileName};
+        String balJarArgs = getBalJarArgs();
+        String[] command = {"java", "-jar", TEMPJARFILENAME};
         if (balJarArgs != null) {
             command = Arrays.copyOf(command, command.length + 1);
             command[3] = balJarArgs;
@@ -55,8 +58,10 @@ public class MethodWrapper extends ClassLoader {
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
         System.out.printf(ANSI_CYAN + "[5/6] Running Executable..." + ANSI_RESET + "%n");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-        reader.lines().forEach(System.out::println);
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+            reader.lines().forEach(System.out::println);
+        }
         process.waitFor();
     }
 
@@ -75,32 +80,38 @@ public class MethodWrapper extends ClassLoader {
     public static byte[] modifyMethods(InputStream inputStream) {
         byte[] code;
         try {
-            ClassReader reader = new ClassReader(inputStream); //Create a ClassReader object using the inputStream
-            //Create a BallerinaClassWriter object using the classReader with both COMPUTE_MAXS and COMPUTE_FRAMES
+            ClassReader reader = new ClassReader(inputStream);
             ClassWriter classWriter = new CustomClassWriter(reader,
                     ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
-            //Create a ClassVisitor object to make changes to the class
             ClassVisitor change = new CustomClassVisitor(classWriter);
-            reader.accept(change, ClassReader.EXPAND_FRAMES); //Accept the changes using the classReader
-            code = classWriter.toByteArray(); //Convert the changed code into a Byte Array
-            return code; //Return the Byte Array
+            reader.accept(change, ClassReader.EXPAND_FRAMES);
+            code = classWriter.toByteArray();
+            return code;
         } catch (Exception | Error e) {
-            System.out.printf(e + "%n"); //Print the stack trace of the exception or error
+            System.out.printf(e + "%n");
         }
-        return null; //Return null if the code was not modified
+        return new byte[0]; // Return a zero-length byte array if the code was not modified
     }
 
     // Print out the modified class code
     public static void printCode(String className, byte[] code) {
         int lastSlashIndex = className.lastIndexOf('/');
         String output = className.substring(0, lastSlashIndex);
-        new File(output).mkdirs();
-        try {
-            //Create a FileOutputStream object using the className
-            FileOutputStream fos = new FileOutputStream(className);
-            fos.write(code); //Write the code to the output stream
-            fos.close(); //Close the output stream
-        } catch (IOException ignore) {
+        File directory = new File(output);
+
+        if (!directory.exists()) {
+            boolean directoryCreated = directory.mkdirs();
+            if (!directoryCreated) {
+                return;
+            }
+        }
+
+        try (FileOutputStream fos = new FileOutputStream(className)) {
+            fos.write(code); // Write the code to the output stream
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

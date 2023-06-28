@@ -24,7 +24,8 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.AdviceAdapter;
 
 /**
- * This class is used to profile Ballerina programs.
+ * This class is used as the advice adapter for the ballerina profiler.
+ * This class only manages the functions that contain the strand parameter.
  *
  * @since 2201.7.0
  */

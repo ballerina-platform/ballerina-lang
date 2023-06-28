@@ -21,7 +21,7 @@ package io.ballerina.runtime.profiler.runtime;
 import java.util.concurrent.TimeUnit;
 
 /**
- * This class is used to profile Ballerina programs.
+ * This class is used as a custom data type class for the ballerina profiler.
  *
  * @since 2201.7.0
  */

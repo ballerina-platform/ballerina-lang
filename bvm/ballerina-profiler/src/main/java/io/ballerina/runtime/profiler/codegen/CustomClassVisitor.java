@@ -18,14 +18,14 @@
 
 package io.ballerina.runtime.profiler.codegen;
 
+import io.ballerina.runtime.profiler.Main;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import static io.ballerina.runtime.profiler.Main.balFunctionCount;
 
 /**
- * This class is used to profile Ballerina programs.
+ * This class is used as a custom class visitor for the ballerina profiler.
  *
  * @since 2201.7.0
  */
@@ -38,7 +38,7 @@ public class CustomClassVisitor extends ClassVisitor {
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         MethodVisitor methodVisitor = super.visitMethod(access, name, desc, signature, exceptions);
         if (!name.startsWith("$") && desc.startsWith("(Lio/ballerina/runtime/internal/scheduling/Strand")) {
-            balFunctionCount++;
+            Main.incrementBalFunctionCount();
         }
         if (desc.startsWith("(Lio/ballerina/runtime/internal/scheduling/Strand")) {
             return new StrandCheckAdapter(access, methodVisitor, name, desc, (access & Opcodes.ACC_STATIC));

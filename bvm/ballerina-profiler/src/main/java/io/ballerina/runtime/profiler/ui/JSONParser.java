@@ -25,6 +25,7 @@ import org.json.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * This class is used to profile Ballerina programs.
+ * This class contains the JSON parser of the ballerina profiler.
  *
  * @since 2201.7.0
  */
@@ -66,18 +67,16 @@ public class JSONParser {
     }
 
     public static String readFileAsString(String file) throws Exception {
-        return new String(Files.readAllBytes(Paths.get(file))); // Read Files as a String
+        return new String(Files.readAllBytes(Paths.get(file)), StandardCharsets.UTF_8); // Read Files as a String
     }
 
     static void writer(String parsedJson) {
         parsedJson = "var data = " + parsedJson;
-        try {
-            // Create a FileWriter object to write to the specified file
-            FileWriter myWriter = new FileWriter("performance_report.json");
+        try (FileWriter myWriter = new FileWriter("performance_report.json", StandardCharsets.UTF_8)) {
             myWriter.write(parsedJson); // Write the parsed json string to the file
             myWriter.flush(); // Flush the writer
         } catch (IOException e) {
-            System.out.printf("An error occurred." + "%n"); // Print an error message
+            System.out.printf("An error occurred.%n"); // Print an error message
         }
     }
 
@@ -162,7 +161,7 @@ public class JSONParser {
     }
 
     private static void removeChildrenByNodeName(Data node, String nodeName) {
-        if (node.name.equals(nodeName)) {
+        if (node.name != null && node.name.equals(nodeName)) {
             node.children.clear();
             return;
         }
@@ -171,14 +170,41 @@ public class JSONParser {
         }
     }
 
-    private static class Item {
+    /**
+     * This class is used as a custom data class.
+     *
+     * @since 2201.7.0
+     */
+    public static class Item {
         public int time;
         public List<String> stackTrace;
+
+        public Item() {
+        }
+
+        public Item(int time, List<String> stackTrace) {
+            this.time = time;
+            this.stackTrace = stackTrace;
+        }
     }
 
-    private static class Data {
+    /**
+     * This class is used as a custom data class.
+     *
+     * @since 2201.7.0
+     */
+    static class Data {
         public String name;
         public int value;
         public List<Data> children;
+
+        public Data() {
+        }
+
+        Data(String name, int value, List<Data> children) {
+            this.name = name;
+            this.value = value;
+            this.children = children;
+        }
     }
 }
