@@ -184,6 +184,11 @@ public class RecordVariableReferenceTest {
     }
 
     @Test
+    public void testMappingBindingPatternsAsMemberBindingPatterns() {
+        BRunUtil.invoke(result, "testMappingBindingPatternsAsMemberBindingPatterns");
+    }
+
+    @Test
     public void testMappingBindingWithSingleNameFieldBinding() {
         BRunUtil.invoke(result, "testMappingBindingWithSingleNameFieldBinding");
     }

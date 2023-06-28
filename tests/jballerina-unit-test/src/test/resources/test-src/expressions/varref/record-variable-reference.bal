@@ -369,36 +369,61 @@ function testMappingBindingWithSingleNameFieldBinding() {
     assertEquality("bar4", b);
 }
 
-function testMappingBindingPatternWithinOtherStructs() {
+function testMappingBindingPatternsAsMemberBindingPatterns() {
     [Some, Some] r1 = [{var1: "A", var2: "B"}, {var1: "C", var2: "D"}];
     string xVar1;
     string xVar2;
     [{var1: xVar1}, {var1: xVar2}] = r1;
+    assertEquality("A", xVar1);
+    assertEquality("C", xVar2);
 
     [record {int a; int b;}] r2 = [{a: 1, b: 2}];
     int a;
     int b;
     [{a, b}] = r2;
+    assertEquality(1, a);
+    assertEquality(2, b);
 
     [record {int a; int b; stream<int> c;}] r3 = [{a: 1, b: 2, c: new}];
     [{a, b}] = r3;
+    assertEquality(1, a);
+    assertEquality(2, b);
 
     string fname;
     string lname;
     string id;
     int age;
     string nextId;
-    [{id, fname, lname}, {id: nextId, age}] = [{id: "u1001", fname: "John", lname: "doe"}, {id: "xVar", age: 10}];
+    [record {string id; string fname; string lname;}, record {|string id; int age;|}] r4
+                                    = [{id: "u1001", fname: "John", lname: "doe"}, {id: "u1002", age: 10}];
+    [{id, fname, lname}, {id: nextId, age}] = r4;
+    assertEquality("u1001", id);
+    assertEquality("John", fname);
+    assertEquality("doe", lname);
+    assertEquality("u1002", nextId);
+    assertEquality(10, age);
 
     int p1;
     int p2;
     int p3;
     int p4;
     int p5;
-    [[{p1, p2}], [[{p3, p4}], {p5}]] = [[{p1: 10, p2: 12}], [[{p3: 13, p4: 14}], {p5: 15}]];
+    [[record {int p1; int p2;}], [[record {int p3; int p4;}], record {int p5;}]] r5
+                                    = [[{p1: 10, p2: 12}], [[{p3: 13, p4: 14}], {p5: 15}]];
+    [[{p1, p2}], [[{p3, p4}], {p5}]] = r5;
+    assertEquality(10, p1);
+    assertEquality(12, p2);
+    assertEquality(13, p3);
+    assertEquality(14, p4);
+    assertEquality(15, p5);
 
-    var getMap = function () returns record {record {int p1; int p2;} p3;} => {p3: {p1: 2, p2: 3}};
-    {p3: {p1, p2}} = getMap();
+    int x1;
+    int x2;
+    var getMap = function() returns record {record {int x1; int x2;} x3;} => {x3: {x1: 2, x2: 3}};
+    {x3: {x1, x2}} = getMap();
+    assertEquality(2, x1);
+    assertEquality(3, x2);
+    assertEquality({x1: 2, x2: 3}, {x1, x2});
 
     // TODO: Uncomment after fixing #40312
     // int d;
